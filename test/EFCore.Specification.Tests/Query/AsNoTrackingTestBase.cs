@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : context.Set<Customer>().AsNoTracking().ToList();
 
                 Assert.Equal(91, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(830, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 

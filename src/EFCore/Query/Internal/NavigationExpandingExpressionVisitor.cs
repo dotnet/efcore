@@ -1284,8 +1284,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 genericMethod = _predicateLessMethodInfo[genericMethod];
             }
 
-            if (returnType == typeof(object)
-                && source.PendingSelector.Type != typeof(object))
+            if (source.PendingSelector.Type != returnType)
             {
                 source.ApplySelector(Expression.Convert(source.PendingSelector, returnType));
             }

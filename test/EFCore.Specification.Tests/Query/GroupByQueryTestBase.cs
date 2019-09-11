@@ -1857,7 +1857,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
         }
 
-        [ConditionalTheory(Skip = "Test does not pass. See issue#7160")]
+        [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_anonymous_subquery(bool isAsync)
         {
@@ -2068,9 +2068,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 31);
         }
 
-        // issue #12576
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory(Skip = "Issue#17761")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2081,9 +2080,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 31);
         }
 
-        // issue #12641
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory(Skip = "Issue #17068")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(bool isAsync)
         {
             return AssertQuery<Order>(
@@ -2111,14 +2109,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<dynamic, dynamic>(d => d.ProductID));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17761")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Distinct(bool isAsync)
         {
             return AssertQuery<Order>(
                 isAsync,
                 os =>
-                    // TODO: See issue#11215
                     os.GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
@@ -2252,9 +2249,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: GroupingAsserter<string, dynamic>(d => d.CustomerID));
         }
 
-        // issue #12573
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory(Skip = "Issue #17068")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Select_First_GroupBy_followed_by_identity_projection(bool isAsync)
         {
             return AssertQuery<Customer>(

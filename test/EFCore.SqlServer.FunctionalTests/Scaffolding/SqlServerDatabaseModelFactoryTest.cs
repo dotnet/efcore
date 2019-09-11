@@ -666,7 +666,7 @@ On multiple lines.", c.Table.Comment);
                     Assert.Single(table.Columns.Where(c => c.Name == "Id"));
                     Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                     Assert.Single(table.Columns.Where(c => c.Comment == "Blog.Id column comment."));
-                    Assert.Equal(1, table.Columns.Where(c => c.Comment != null).Count());
+                    Assert.Single(table.Columns.Where(c => c.Comment != null));
                 },
                 "DROP TABLE [dbo].[Blogs]");
         }
@@ -688,7 +688,7 @@ SELECT
                     var table = Assert.IsType<DatabaseView>(dbModel.Tables.Single());
 
                     Assert.Equal(2, table.Columns.Count);
-                    Assert.Equal(null, table.PrimaryKey);
+                    Assert.Null(table.PrimaryKey);
                     Assert.All(
                         table.Columns, c =>
                         {
@@ -1348,12 +1348,12 @@ CREATE TABLE DefaultComputedValues (
                     var columns = dbModel.Tables.Single().Columns;
 
                     Assert.Equal("('October 20, 2015 11am')", columns.Single(c => c.Name == "FixedDefaultValue").DefaultValueSql);
-                    Assert.Equal(null, columns.Single(c => c.Name == "FixedDefaultValue").ComputedColumnSql);
+                    Assert.Null(columns.Single(c => c.Name == "FixedDefaultValue").ComputedColumnSql);
 
-                    Assert.Equal(null, columns.Single(c => c.Name == "ComputedValue").DefaultValueSql);
+                    Assert.Null(columns.Single(c => c.Name == "ComputedValue").DefaultValueSql);
                     Assert.Equal("(getdate())", columns.Single(c => c.Name == "ComputedValue").ComputedColumnSql);
 
-                    Assert.Equal(null, columns.Single(c => c.Name == "SumOfAAndB").DefaultValueSql);
+                    Assert.Null(columns.Single(c => c.Name == "SumOfAAndB").DefaultValueSql);
                     Assert.Equal("([A]+[B])", columns.Single(c => c.Name == "SumOfAAndB").ComputedColumnSql);
                 },
                 "DROP TABLE DefaultComputedValues;");

@@ -311,6 +311,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        private static Expression RemoveConvert(Expression expression)
+        {
+            if (expression is UnaryExpression unaryExpression
+                && (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.ConvertChecked))
+            {
+                return RemoveConvert(unaryExpression.Operand);
+            }
+
+            return expression;
+        }
+
         private object GetValue(Expression expression, out string parameterName)
         {
             parameterName = null;
@@ -332,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     parameterName = QueryFilterPrefix
-                                    + (expression.RemoveConvert() is MemberExpression memberExpression
+                                    + (RemoveConvert(expression) is MemberExpression memberExpression
                                         ? ("__" + memberExpression.Member.Name)
                                         : "");
 

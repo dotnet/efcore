@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 
             new SqlServerOptionsExtension().ApplyServices(services);
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ISqlServerConnection)));
+            Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerConnection));
         }
 
         [ConditionalFact]

@@ -179,11 +179,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     // This is FirstOrDefault ending so we need to push down properties.
                     var temporaryParameter = Expression.Parameter(root.Type);
-                    var temporaryKey = CreateKeyAccessExpression(
-                        temporaryParameter,
+                    var temporaryKey = temporaryParameter.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
                             ? navigation.ForeignKey.Properties
-                            : navigation.ForeignKey.PrincipalKey.Properties);
+                            : navigation.ForeignKey.PrincipalKey.Properties,
+                        makeNullable: true);
                     var newSelector = ReplacingExpressionVisitor.Replace(
                         temporaryParameter,
                         innerNavigationExpansionExpression.PendingSelector,
@@ -193,18 +193,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    outerKey = CreateKeyAccessExpression(
-                        root,
+                    outerKey = root.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
                             ? navigation.ForeignKey.Properties
-                            : navigation.ForeignKey.PrincipalKey.Properties);
+                            : navigation.ForeignKey.PrincipalKey.Properties,
+                        makeNullable: true);
                 }
 
-                var innerKey = CreateKeyAccessExpression(
-                    innerParameter,
+                var innerKey = innerParameter.CreateKeyAccessExpression(
                     navigation.IsDependentToPrincipal()
                         ? navigation.ForeignKey.PrincipalKey.Properties
-                        : navigation.ForeignKey.Properties);
+                        : navigation.ForeignKey.Properties,
+                    makeNullable: true);
 
                 if (outerKey.Type != innerKey.Type)
                 {
@@ -221,14 +221,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (navigation.IsCollection())
                 {
+                    var outerKeyFirstProperty = outerKey is NewExpression newExpression
+                        ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
+                        : outerKey;
+
                     // This is intentionally deferred to be applied to innerSource.Source
                     // Since outerKey's reference could change if a reference navigation is expanded afterwards
+                    var predicateBody = outerKeyFirstProperty.Type.IsNullableType()
+                        ? Expression.AndAlso(
+                            Expression.NotEqual(outerKeyFirstProperty, Expression.Constant(null, outerKeyFirstProperty.Type)),
+                            Expression.Equal(outerKey, innerKey))
+                        : Expression.Equal(outerKey, innerKey);
+
                     var subquery = Expression.Call(
                         QueryableMethods.Where.MakeGenericMethod(innerSoureSequenceType),
                         innerSource,
                         Expression.Quote(
                             Expression.Lambda(
-                                Expression.Equal(outerKey, innerKey), innerParameter)));
+                                predicateBody, innerParameter)));
 
                     return new MaterializeCollectionNavigationExpression(subquery, navigation);
                 }
@@ -286,17 +296,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return innerSource.PendingSelector;
             }
-
-            private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)
-                => properties.Count == 1
-                    ? target.CreateEFPropertyExpression(properties[0])
-                    : Expression.New(
-                        AnonymousObject.AnonymousObjectCtor,
-                        Expression.NewArrayInit(
-                            typeof(object),
-                            properties
-                                .Select(p => Expression.Convert(target.CreateEFPropertyExpression(p), typeof(object)))
-                                .ToArray()));
         }
 
         private class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor

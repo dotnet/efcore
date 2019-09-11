@@ -76,17 +76,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
         }
 
-        [ConditionalTheory(Skip = "issue #12873")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
                 ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
-                    .Select(cv => cv.Orders.Where(cc => true).ToList()));
+                    .OrderBy(c => c.CustomerID)
+                    .Select(cv => cv.Orders.Where(cc => true).ToList()),
+                assertOrder: true,
+                elementAsserter: CollectionAsserter<Order>(),
+                entryCount: 6);
         }
 
-        [ConditionalTheory(Skip = "issue #15081")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
@@ -96,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     => from c in cs
                        from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
                        select new { c, o },
-                e => e.c.CustomerID);
+                e => e.c.CustomerID,
+                entryCount: 89);
         }
 
         [ConditionalTheory]

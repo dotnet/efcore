@@ -248,15 +248,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(book.GetTableName(), bookLabel2Ownership2.DeclaringEntityType.GetTableName());
 
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookOwnership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookOwnership1.DeclaringEntityType.GetForeignKeys());
 
                 Assert.NotSame(bookLabel1Ownership1.DeclaringEntityType, bookLabel2Ownership1.DeclaringEntityType);
                 Assert.NotSame(bookLabel1Ownership2.DeclaringEntityType, bookLabel2Ownership2.DeclaringEntityType);
-                Assert.Equal(1, bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys());
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
@@ -398,22 +398,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("Bar", bookLabel2Ownership11.PrincipalToDependent["Foo"]);
 
                 Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
-                Assert.Equal(1, bookOwnership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookOwnership2.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookOwnership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookOwnership2.DeclaringEntityType.GetForeignKeys());
 
                 Assert.NotSame(bookLabel1Ownership1.DeclaringEntityType, bookLabel2Ownership1.DeclaringEntityType);
                 Assert.NotSame(bookLabel1Ownership2.DeclaringEntityType, bookLabel2Ownership2.DeclaringEntityType);
-                Assert.Equal(1, bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookLabel1Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel1Ownership2.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership1.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership2.DeclaringEntityType.GetForeignKeys());
 
                 Assert.NotSame(bookLabel1Ownership11.DeclaringEntityType, bookLabel2Ownership11.DeclaringEntityType);
                 Assert.NotSame(bookLabel1Ownership21.DeclaringEntityType, bookLabel2Ownership21.DeclaringEntityType);
-                Assert.Equal(1, bookLabel1Ownership11.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel1Ownership21.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership11.DeclaringEntityType.GetForeignKeys().Count());
-                Assert.Equal(1, bookLabel2Ownership21.DeclaringEntityType.GetForeignKeys().Count());
+                Assert.Single(bookLabel1Ownership11.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel1Ownership21.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership11.DeclaringEntityType.GetForeignKeys());
+                Assert.Single(bookLabel2Ownership21.DeclaringEntityType.GetForeignKeys());
 
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
@@ -455,8 +455,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Order.Customer), ownership.DependentToPrincipal.Name);
                 Assert.Equal("FK_Order_Customer_CustomerId", ownership.GetConstraintName());
 
-                Assert.Equal(1, owned.GetForeignKeys().Count());
-                Assert.Equal(1, owned.GetIndexes().Count());
+                Assert.Single(owned.GetForeignKeys());
+                Assert.Single(owned.GetIndexes());
                 Assert.Equal(
                     new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
                     owned.GetProperties().Select(p => p.GetColumnName()));
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);
                 var owned = ownership.DeclaringEntityType;
                 Assert.Same(entityBuilder.OwnedEntityType, owned);
-                Assert.Equal(1, owned.GetForeignKeys().Count());
+                Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(nameof(CustomerDetails.CustomerId), owned.GetIndexes().Single().Properties.Single().Name);
                 Assert.Equal(
                     new[] { "CustomerAlternateKey", nameof(CustomerDetails.CustomerId), nameof(CustomerDetails.Id) },

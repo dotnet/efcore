@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Null(existing.Parent);
                 Assert.Null(existing.ParentId);
-                Assert.Equal(1, root.OptionalChildren.Count());
+                Assert.Single(root.OptionalChildren);
                 Assert.DoesNotContain(existing, root.OptionalChildren);
 
                 Assert.Equal(2, queried.Count);
@@ -670,8 +670,8 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertNavigations(loadedRoot);
 
-                        Assert.Equal(1, loadedRoot.OptionalChildren.Count());
-                        Assert.Equal(1, loadedRoot.OptionalChildren.First().Children.Count());
+                        Assert.Single(loadedRoot.OptionalChildren);
+                        Assert.Single(loadedRoot.OptionalChildren.First().Children);
                     }
                 });
         }
@@ -1098,7 +1098,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         AssertNavigations(root);
 
-                        Assert.Equal(1, root.RequiredChildren.Count());
+                        Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removed1Id, root.RequiredChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Required1>().Where(e => e.Id == removed1Id));
@@ -1436,6 +1436,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges)]
@@ -3230,8 +3231,8 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertNavigations(loadedRoot);
 
-                        Assert.Equal(1, loadedRoot.OptionalChildrenAk.Count());
-                        Assert.Equal(1, loadedRoot.OptionalChildrenAk.OrderBy(c => c.Id).First().Children.Count());
+                        Assert.Single(loadedRoot.OptionalChildrenAk);
+                        Assert.Single(loadedRoot.OptionalChildrenAk.OrderBy(c => c.Id).First().Children);
                     }
                 });
         }
@@ -3345,9 +3346,9 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.False(context.Set<RequiredAk2>().Any(e => e.Id == removed2.Id));
                         Assert.False(context.Set<RequiredComposite2>().Any(e => e.Id == removed2c.Id));
 
-                        Assert.Equal(1, loadedRoot.RequiredChildrenAk.Count());
-                        Assert.Equal(1, loadedRoot.RequiredChildrenAk.OrderBy(c => c.Id).First().Children.Count());
-                        Assert.Equal(1, loadedRoot.RequiredChildrenAk.OrderBy(c => c.Id).First().CompositeChildren.Count());
+                        Assert.Single(loadedRoot.RequiredChildrenAk);
+                        Assert.Single(loadedRoot.RequiredChildrenAk.OrderBy(c => c.Id).First().Children);
+                        Assert.Single(loadedRoot.RequiredChildrenAk.OrderBy(c => c.Id).First().CompositeChildren);
                     }
                 });
         }
@@ -3873,6 +3874,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Principal, true, CascadeTiming.OnSaveChanges)]
         [InlineData((int)ChangeMechanism.Dependent, false, CascadeTiming.OnSaveChanges)]
@@ -4896,7 +4898,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
 
-                        Assert.Equal(1, root.RequiredChildren.Count());
+                        Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
@@ -4913,7 +4915,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRequiredGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildren.Count());
+                        Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
@@ -4967,7 +4969,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(context.ChangeTracker.HasChanges());
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                    Assert.Equal(1, parent.Children.Count());
+                    Assert.Single(parent.Children);
                     Assert.DoesNotContain(removedId, parent.Children.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Required2>().Where(e => e.Id == removedId));
@@ -4979,7 +4981,7 @@ namespace Microsoft.EntityFrameworkCore
                     var root = LoadRequiredGraph(context);
                     var parent = root.RequiredChildren.First();
 
-                    Assert.Equal(1, parent.Children.Count());
+                    Assert.Single(parent.Children);
                     Assert.DoesNotContain(removedId, parent.Children.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Required2>().Where(e => e.Id == removedId));
@@ -5051,7 +5053,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                        Assert.Equal(1, root.OptionalChildren.Count());
+                        Assert.Single(root.OptionalChildren);
                         Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -5067,7 +5069,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadOptionalGraph(context);
 
-                        Assert.Equal(1, root.OptionalChildren.Count());
+                        Assert.Single(root.OptionalChildren);
                         Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -5121,7 +5123,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                    Assert.Equal(1, parent.Children.Count());
+                    Assert.Single(parent.Children);
                     Assert.DoesNotContain(removedId, parent.Children.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Optional2>().Where(e => e.Id == removedId));
@@ -5133,7 +5135,7 @@ namespace Microsoft.EntityFrameworkCore
                     var root = LoadOptionalGraph(context);
                     var parent = root.OptionalChildren.First();
 
-                    Assert.Equal(1, parent.Children.Count());
+                    Assert.Single(parent.Children);
                     Assert.DoesNotContain(removedId, parent.Children.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Optional2>().Where(e => e.Id == removedId));
@@ -5638,7 +5640,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                         Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                        Assert.Equal(1, root.OptionalChildrenAk.Count());
+                        Assert.Single(root.OptionalChildrenAk);
                         Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -5654,7 +5656,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadOptionalAkGraph(context);
 
-                        Assert.Equal(1, root.OptionalChildrenAk.Count());
+                        Assert.Single(root.OptionalChildrenAk);
                         Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -5744,7 +5746,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
                         Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
 
-                        Assert.Equal(1, root.RequiredChildrenAk.Count());
+                        Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
@@ -5761,7 +5763,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRequiredAkGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildrenAk.Count());
+                        Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
@@ -6119,14 +6121,14 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                        Assert.Equal(1, root.RequiredChildren.Count());
+                        Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
                         Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
 
                         Assert.Same(root, removed.Parent);
-                        Assert.Equal(0, removed.Children.Count());
+                        Assert.Empty(removed.Children);
                     }
                 },
                 context =>
@@ -6136,7 +6138,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRequiredGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildren.Count());
+                        Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
@@ -6372,7 +6374,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                        Assert.Equal(1, root.RequiredChildrenAk.Count());
+                        Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
@@ -6380,7 +6382,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
 
                         Assert.Same(root, removed.Parent);
-                        Assert.Equal(0, removed.Children.Count()); // Never loaded
+                        Assert.Empty(removed.Children); // Never loaded
                     }
                 },
                 context =>
@@ -6390,7 +6392,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRequiredAkGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildrenAk.Count());
+                        Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
@@ -6629,7 +6631,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                        Assert.Equal(1, root.OptionalChildren.Count());
+                        Assert.Single(root.OptionalChildren);
                         Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -6639,7 +6641,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(orphaned.All(e => e.ParentId == null));
 
                         Assert.Same(root, removed.Parent);
-                        Assert.Equal(0, removed.Children.Count()); // Never loaded
+                        Assert.Empty(removed.Children); // Never loaded
                     }
                 },
                 context =>
@@ -6648,7 +6650,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadOptionalGraph(context);
 
-                        Assert.Equal(1, root.OptionalChildren.Count());
+                        Assert.Single(root.OptionalChildren);
                         Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -6807,7 +6809,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                        Assert.Equal(1, root.OptionalChildrenAk.Count());
+                        Assert.Single(root.OptionalChildrenAk);
                         Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -6821,7 +6823,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(orphanedC.All(e => e.ParentId == null));
 
                         Assert.Same(root, removed.Parent);
-                        Assert.Equal(0, removed.Children.Count()); // Never loaded
+                        Assert.Empty(removed.Children); // Never loaded
                     }
                 },
                 context =>
@@ -6830,7 +6832,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadOptionalAkGraph(context);
 
-                        Assert.Equal(1, root.OptionalChildrenAk.Count());
+                        Assert.Single(root.OptionalChildrenAk);
                         Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -7022,7 +7024,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRequiredGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildren.Count());
+                        Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
@@ -7113,7 +7115,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadOptionalGraph(context);
 
-                        Assert.Equal(1, root.OptionalChildren.Count());
+                        Assert.Single(root.OptionalChildren);
                         Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -7473,7 +7475,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadOptionalAkGraph(context);
 
-                        Assert.Equal(1, root.OptionalChildrenAk.Count());
+                        Assert.Single(root.OptionalChildrenAk);
                         Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -7577,7 +7579,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRequiredAkGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildrenAk.Count());
+                        Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
@@ -7967,7 +7969,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRequiredGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildren.Count());
+                        Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                         Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
@@ -8299,7 +8301,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRequiredAkGraph(context);
 
-                        Assert.Equal(1, root.RequiredChildrenAk.Count());
+                        Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                         Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));

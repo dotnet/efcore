@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Animal>().OfType<Animal>().OrderBy(a => a.Species).ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var kiwis = context.Set<Animal>().Where(a => a is Kiwi).ToList();
 
-                Assert.Equal(1, kiwis.Count);
+                Assert.Single(kiwis);
             }
         }
 
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Animal>().Where(a => a is Kiwi && a.CountryId == 1).ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
             }
         }
 
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Animal>().Select(a => a is Kiwi).ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.Equal(1, animals.Count(a => a));
                 Assert.Equal(0, animals.Count(a => !a));
             }
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species).ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -91,9 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .OrderBy(a => a.Species)
                         .ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -109,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             b => new { b.EagleId })
                         .ToList();
 
-                Assert.Equal(1, animals.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Single(animals);
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(bird);
                 Assert.IsType<Kiwi>(bird);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -134,9 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var animals = context.Set<Animal>().OfType<Kiwi>().ToList();
 
-                Assert.Equal(1, animals.Count);
+                Assert.Single(animals);
                 Assert.IsType<Kiwi>(animals[0]);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -147,8 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var eagles = context.Set<Eagle>().ToList();
 
-                Assert.Equal(0, eagles.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(eagles);
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var eagle = context.Set<Eagle>().IgnoreQueryFilters().Single();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.NotNull(context.Entry(eagle).GetDatabaseValues());
             }
         }

@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                    Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
+                    Assert.Single(context1.ChangeTracker.Entries());
 
                     serviceScope.Dispose();
 

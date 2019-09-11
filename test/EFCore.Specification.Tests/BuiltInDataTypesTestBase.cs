@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                     ? await query.ToListAsync()
                     : query.ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
                 Assert.Equal(EmailTemplateTypeDto.PasswordResetRequest, results.Single().TemplateType);
             }
         }
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore
                     ? await query.ToListAsync()
                     : query.ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
                 Assert.Equal(EmailTemplateTypeDto.PasswordResetRequest, results.Single().TemplateType);
             }
         }

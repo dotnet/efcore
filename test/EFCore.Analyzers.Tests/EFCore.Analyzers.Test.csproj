@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelPackageVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="$(XUnitVersion)" />
+  </ItemGroup>
+
 </Project>

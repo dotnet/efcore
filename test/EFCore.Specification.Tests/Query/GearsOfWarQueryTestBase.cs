@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual void Include_where_list_contains_navigation(bool isAsync)
+        public virtual async Task Include_where_list_contains_navigation(bool isAsync)
         {
             using (var context = CreateContext())
             {
@@ -360,10 +360,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var gears = context.Gears
+                var query = context.Gears
                     .Include(g => g.Tag)
-                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id))
-                    .ToList();
+                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
+
+                var gears = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
 
                 Assert.Equal(5, gears.Count);
 
@@ -373,7 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual void Include_where_list_contains_navigation2(bool isAsync)
+        public virtual async Task Include_where_list_contains_navigation2(bool isAsync)
         {
             using (var context = CreateContext())
             {
@@ -381,10 +384,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var gears = context.Gears
+                var query = context.Gears
                     .Include(g => g.Tag)
-                    .Where(g => g.CityOfBirth.Location != null && tags.Contains(g.Tag.Id))
-                    .ToList();
+                    .Where(g => g.CityOfBirth.Location != null && tags.Contains(g.Tag.Id));
+
+                var gears = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
 
                 Assert.Equal(5, gears.Count);
 
@@ -394,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual void Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
+        public virtual async Task Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
         {
             using (var context = CreateContext())
             {
@@ -402,9 +408,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var gears = context.Gears
-                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id))
-                    .ToList();
+                var query = context.Gears
+                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
+
+                var gears = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
 
                 Assert.Equal(5, gears.Count);
 
@@ -470,9 +479,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        // issue #12827
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_join_and_inheritance_with_orderby_before_and_after_include(bool isAsync)
         {
             var expectedIncludes = new List<IExpectedInclude>
@@ -1092,7 +1100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Select(g => null != g.LeaderNickname ? g.LeaderNickname + g.LeaderNickname : null));
         }
 
-        [ConditionalTheory(Skip = "issue #9201")]
+        [ConditionalTheory(Skip = "issue #3836")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_optimization8(bool isAsync)
         {
@@ -1519,7 +1527,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [ConditionalTheory(Skip = "issue #14900")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_boolean(bool isAsync)
         {
@@ -1528,7 +1536,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => g.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
-        [ConditionalTheory(Skip = "issue #14900")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_boolean_with_pushdown(bool isAsync)
         {
@@ -1537,7 +1545,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => g.Weapons.OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
-        [ConditionalTheory(Skip = "issue #14900")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_distinct_firstordefault_boolean(bool isAsync)
         {
@@ -1546,7 +1554,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
-        [ConditionalTheory(Skip = "issue #14900")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_distinct_firstordefault_boolean_with_pushdown(bool isAsync)
         {
@@ -1600,7 +1608,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalFact(Skip = "issue #8582")]
+        [ConditionalFact]
         public virtual void Where_subquery_distinct_lastordefault_boolean()
         {
             using (var context = CreateContext())
@@ -1619,23 +1627,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "issue #8582")]
+        [ConditionalFact]
         public virtual void Where_subquery_distinct_last_boolean()
         {
             using (var context = CreateContext())
             {
                 var query = context.Gears
                     .OrderBy(g => g.Nickname)
-                    .Where(g => !g.HasSoulPatch && g.Weapons.Distinct().Last().IsAutomatic);
+                    .Where(g => !g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).Last().IsAutomatic);
 
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("Cole Train", result[0].Nickname);
             }
         }
 
-        [ConditionalTheory(Skip = "issue #14900")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_distinct_orderby_firstordefault_boolean(bool isAsync)
         {
@@ -1644,7 +1652,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()));
         }
 
-        [ConditionalTheory(Skip = "issue #14900")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_distinct_orderby_firstordefault_boolean_with_pushdown(bool isAsync)
         {
@@ -1653,7 +1661,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => g.HasSoulPatch && g.Weapons.Distinct().OrderBy(w => w.Id).FirstOrDefault().IsAutomatic));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue#17759")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_union_firstordefault_boolean(bool isAsync)
         {
@@ -1711,7 +1719,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             })));
         }
 
-        [ConditionalFact(Skip = "issue #9007")]
+        [ConditionalFact]
         public virtual void Concat_with_scalar_projection()
         {
             using (var context = CreateContext())
@@ -1744,7 +1752,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                RemoveNewLines(CoreStrings.QueryFailed("Concat<Weapon>(\n    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))\n            PendingSelector: (w) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))), \n    source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))\n            PendingSelector: (w0) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w0\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor")),
+                CoreStrings.QueryFailed("Concat<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(message));
         }
 
@@ -1769,7 +1777,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                RemoveNewLines(CoreStrings.QueryFailed("Union<Weapon>(\n    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))\n            PendingSelector: (w) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))), \n    source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(\n        source: NavigationExpansionExpression\n            Source: Where<Weapon>(\n                source: DbSet<Weapon>, \n                predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))\n            PendingSelector: (w0) => NavigationTreeExpression\n                Value: EntityReferenceWeapon\n                Expression: w0\n        , \n        predicate: (i) => Property<string>(NavigationTreeExpression\n            Value: EntityReferenceGear\n            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor")),
+                CoreStrings.QueryFailed("Union<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(message));
         }
 
@@ -1953,9 +1961,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.FullName);
         }
 
-        // issue #12786
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_order_by_on_inner_sequence_navigation_translated_to_subquery_composite_key(bool isAsync)
         {
             return AssertQuery<Gear, CogTag>(
@@ -2128,19 +2135,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select c);
         }
 
-        [ConditionalFact(Skip = "Test does not pass. See issue#4978")]
-        public virtual void Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var query = from c in context.Cities
-                            where (c.Location + "Added").Contains("Add")
-                            select c;
-
-                var result = query.ToList();
-
-                Assert.Equal(4, result.Count);
-            }
+            return AssertQuery<City>(
+                isAsync,
+                cs => from c in cs
+                      where (c.Location + "Added").Contains("Add")
+                      select c);
         }
 
         [ConditionalFact]
@@ -2274,7 +2277,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        [ConditionalTheory(Skip = "issue #9256")]
+        [ConditionalTheory(Skip = "issue #16899")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_complex_projection_result(bool isAsync)
         {
@@ -2367,22 +2370,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ts => ts.Where(t => !MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true));
         }
 
-        [ConditionalTheory(Skip = "issue #9254")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex1(bool isAsync)
         {
             return AssertQuery<CogTag>(
                 isAsync,
-                ts => ts.Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch)));
+                ts => ts.Where(t => !(t.Gear.HasSoulPatch ? true : t.Gear.HasSoulPatch)),
+                ts => ts.Where(t => !(MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == true
+                    ? (bool?)true
+                    : MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch)) == true));
         }
 
-        [ConditionalTheory(Skip = "issue #9254")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_predicate_negated_complex2(bool isAsync)
         {
             return AssertQuery<CogTag>(
                 isAsync,
-                ts => ts.Where(t => !(!t.Gear.HasSoulPatch ? false : t.Gear.HasSoulPatch)));
+                ts => ts.Where(t => !(!t.Gear.HasSoulPatch ? false : t.Gear.HasSoulPatch)),
+                ts => ts.Where(t => !(MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) == false
+                    ? (bool?)false
+                    : MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch)) == true));
         }
 
         [ConditionalTheory]
@@ -2885,7 +2894,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Orderby_added_for_client_side_GroupJoin_composite_dependent_to_principal_LOJ_when_incomplete_key_is_used(
             bool isAsync)
@@ -3417,7 +3426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\")"),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\")"),
                 RemoveNewLines(message));
         }
 
@@ -3436,7 +3445,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\")"),
+                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\")"),
                 RemoveNewLines(message));
         }
 
@@ -3454,7 +3463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("OrderByDescending<Gear, string>(    source: Where<Gear>(        source: DbSet<Gear>,         predicate: (g) => !(g.HasSoulPatch)),     keySelector: (g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name)"),
+                CoreStrings.TranslationFailed("OrderByDescending<Gear, string>(    source: Where<Gear>(        source: DbSet<Gear>,         predicate: (g) => !(g.HasSoulPatch)),     keySelector: (g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name)"),
                 RemoveNewLines(message));
         }
 
@@ -3482,7 +3491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private string RemoveNewLines(string message)
             => message.Replace("\n", "").Replace("\r", "");
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Client_method_on_collection_navigation_in_outer_join_key(bool isAsync)
         {
@@ -3915,13 +3924,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             };
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("Locust", result[0].Name);
                 Assert.Equal("Marcus", result[0].Nickname);
             }
         }
 
-        [ConditionalFact(Skip = "issue #8375")]
+        [ConditionalFact]
         public virtual void Comparing_entities_using_Equals_inheritance()
         {
             using (var ctx = CreateContext())
@@ -3965,7 +3974,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = context.Tags.Where(t => t.Gear is Officer && ((Officer)t.Gear).Reports.Count(r => r.Nickname == "Dom") > 0);
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 Assert.Equal("Marcus' Tag", result[0].Note);
             }
         }
@@ -3981,8 +3990,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
                 Assert.Equal(2, result.Count);
-                Assert.True(result.Contains("Queen Myrrah"));
-                Assert.True(result.Contains("Unknown"));
+                Assert.Contains("Queen Myrrah", result);
+                Assert.Contains("Unknown", result);
             }
         }
 
@@ -3997,8 +4006,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
                 Assert.Equal(2, result.Count);
-                Assert.True(result.Contains(true));
-                Assert.True(result.Contains(false));
+                Assert.Contains(true, result);
+                Assert.Contains(false, result);
             }
         }
 
@@ -4362,9 +4371,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
         }
 
-        // issue #12579
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collections_naked_navigation_with_ToList_followed_by_projecting_count(bool isAsync)
         {
             return AssertQueryScalar<Gear>(
@@ -5883,23 +5891,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 RemoveNewLines(message));
         }
 
-        // issue #12889
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
-        public virtual Task Include_collection_with_concat(bool isAsync)
-        {
-            var expectedIncludes = new List<IExpectedInclude>
-            {
-                new ExpectedInclude<Gear>(g => g.Weapons, "Weapons"),
-                new ExpectedInclude<Officer>(o => o.Weapons, "Weapons")
-            };
-
-            return AssertIncludeQuery<Gear>(
-                isAsync,
-                gs => gs.Include(g => g.Weapons).Concat(gs),
-                expectedIncludes);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Negated_bool_ternary_inside_anonymous_type_in_projection(bool isAsync)
@@ -6384,7 +6375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 var bucket = result[0].ToList();
                 Assert.Equal(2, bucket.Count);
                 Assert.NotNull(bucket[0].Members);
@@ -6416,7 +6407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory(Skip = "issue #15862")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_projecting_single_constant_null_of_non_mapped_type(bool isAsync)
         {
@@ -6430,7 +6421,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
-        [ConditionalTheory(Skip = "issue #15862")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_projecting_single_constant_of_non_mapped_type(bool isAsync)
         {
@@ -6468,7 +6459,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = ctx.Squads.Include(s => s.Members).GroupBy(s => (MyDTO)null);
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 var bucket = result[0].ToList();
                 Assert.Equal(2, bucket.Count);
                 Assert.NotNull(bucket[0].Members);
@@ -6534,7 +6525,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
-                    .OrderBy(o => o.Weapons.Count),
+                    .OrderBy(o => o.Weapons.Count).ThenBy(o => o.Nickname),
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Officer>(o => o.Reports, "Reports")
@@ -6566,7 +6557,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => os.OfType<Officer>()
                     .Include(o => o.Reports)
-                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()),
+                    .OrderBy(o => o.Weapons.OrderBy(w => w.Id).Select(w => w.IsAutomatic).FirstOrDefault()).ThenBy(o => o.Nickname),
                 new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Officer>(o => o.Reports, "Reports")
@@ -6581,7 +6572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Gear>(
                 isAsync,
                 gs => gs.OfType<Officer>()
-                    .OrderBy(o => o.Weapons.Count)
+                    .OrderBy(o => o.Weapons.Count).ThenBy(g => g.Nickname)
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
@@ -6597,7 +6588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(
                         o => o.Weapons.Where(
                                 w => w.IsAutomatic == gs.Where(g => g.Nickname == "Marcus").Select(g => g.HasSoulPatch).FirstOrDefault())
-                            .Count())
+                            .Count()).ThenBy(g => g.Nickname)
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
                 assertOrder: true,
                 elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
@@ -6968,7 +6959,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select m.Timeline.TimeOfDay);
         }
 
-        [ConditionalTheory(Skip = "issue #25249")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Include_Select_Average(bool isAsync)
         {
@@ -6977,7 +6968,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 gs => gs.Include(g => g.CityOfBirth).GroupBy(g => g.Rank).Select(g => g.Average(gg => gg.SquadId)));
         }
 
-        [ConditionalTheory(Skip = "issue #25249")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Include_Select_Sum(bool isAsync)
         {
@@ -7039,7 +7030,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "issue #12340")]
+        [ConditionalTheory(Skip = "issue #16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector(bool isAsync)
         {
@@ -7060,7 +7051,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "issue #12340")]
+        [ConditionalTheory(Skip = "issue #16752")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property(bool isAsync)
         {
@@ -7172,7 +7163,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
 
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
 
                 var topLevel = result[0];
 
@@ -7396,7 +7387,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #17234")]
+        [ConditionalFact(Skip = "Issue #17328")]
         public virtual void Nav_rewrite_Distinct_with_convert()
         {
             using (var ctx = CreateContext())
@@ -7407,7 +7398,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact(Skip = "Issue #17234")]
+        [ConditionalFact(Skip = "Issue #17328")]
         public virtual void Nav_rewrite_Distinct_with_convert_anonymous()
         {
             using (var ctx = CreateContext())
@@ -7546,6 +7537,78 @@ namespace Microsoft.EntityFrameworkCore.Query
                       from g2 in grouping.DefaultIfEmpty()
                       select g2 == null ? g1 : g2,
                 entryCount: 5);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_collection_navigation_nested_with_take_composite_key(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select ((Officer)t.Gear).Reports.Take(50),
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select Maybe(t.Gear, () => ((Officer)t.Gear).Reports.Take(50)),
+                elementSorter: e => ((IEnumerable<Gear>)e)?.Count() ?? 0,
+                elementAsserter: (e, a) =>
+                {
+                    var actualCollection = new List<Gear>();
+                    foreach (var actualElement in a)
+                    {
+                        actualCollection.Add(actualElement);
+                    }
+
+                    Assert.Equal(((IEnumerable<Gear>)e)?.Count() ?? 0, actualCollection.Count);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_collection_navigation_nested_composite_key(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select ((Officer)t.Gear).Reports,
+                ts => from t in ts
+                      where t.Gear is Officer
+                      select Maybe(t.Gear, () => ((Officer)t.Gear).Reports),
+                elementSorter: e => ((IEnumerable<Gear>)e)?.Count() ?? 0,
+                elementAsserter: (e, a) =>
+                {
+                    var actualCollection = new List<Gear>();
+                    foreach (var actualElement in a)
+                    {
+                        actualCollection.Add(actualElement);
+                    }
+
+                    Assert.Equal(((IEnumerable<Gear>)e)?.Count() ?? 0, actualCollection.Count);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_checks_in_correlated_predicate_are_correctly_translated(bool isAsync)
+        {
+            return AssertQuery<CogTag, Gear>(
+                isAsync,
+                (ts, gs) => from t in ts
+                            select new
+                            {
+                                key = t.Id,
+                                collection = (from g in gs
+                                         where t.GearNickName == g.Nickname && t.GearSquadId != null && t.GearSquadId == g.SquadId && t.GearNickName != null && t.Note != null && null != t.Note
+                                         select g).ToList()
+                            },
+                elementSorter: e => e.key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.key, a.key);
+                    CollectionAsserter<Gear>(elementSorter: gg => gg.Nickname, (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e.collection, a.collection);
+                });
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

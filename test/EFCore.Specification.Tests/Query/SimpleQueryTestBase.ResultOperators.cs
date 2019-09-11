@@ -685,15 +685,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             os => os.Where(o => ClientEvalPredicate(o)).OrderBy(o => ClientEvalSelectorStateless())))).Message));
         }
 
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
-        //public virtual Task Where_OrderBy_Count_client_eval_mixed(bool isAsync)
-        //{
-        //    return AssertCount<Order>(
-        //        isAsync,
-        //        os => os.Where(o => o.OrderID > 10).OrderBy(o => ClientEvalPredicate(o)));
-        //}
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task OrderBy_Where_Count_client_eval(bool isAsync)
@@ -1792,6 +1783,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Customer>(
                 isAsync,
                 cs => cs.Select(c => c.Orders.Select(o => (double?)o.OrderID).Min()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DefaultIfEmpty_selects_only_required_columns(bool isAsync)
+        {
+            return AssertQuery<Product>(
+                isAsync,
+                ps => ps.Select(p => new { p.ProductID, p.ProductName }).DefaultIfEmpty().Select(p => p.ProductName));
         }
     }
 }

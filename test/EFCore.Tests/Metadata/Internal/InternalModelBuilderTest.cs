@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
-            Assert.Equal(1, orderEntityTypeBuilder.Metadata.GetForeignKeys().Count());
+            Assert.Single(orderEntityTypeBuilder.Metadata.GetForeignKeys());
         }
 
         [ConditionalFact]

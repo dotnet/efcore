@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(OrderQuery), e => e?.CustomerID },
                 { typeof(Employee), e => e?.EmployeeID },
                 { typeof(Product), e => e?.ProductID },
-                { typeof(OrderDetail), e => e?.OrderID.ToString() + " " + e?.ProductID.ToString() }
+                { typeof(OrderDetail), e => (e?.OrderID.ToString(), e?.ProductID.ToString()) }
             };
 
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>();

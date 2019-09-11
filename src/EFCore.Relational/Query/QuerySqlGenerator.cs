@@ -93,21 +93,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool IsNonComposedSetOperation(SelectExpression selectExpression)
             => selectExpression.Offset == null
-               && selectExpression.Limit == null
-               && !selectExpression.IsDistinct
-               && selectExpression.Predicate == null
-               && selectExpression.Having == null
-               && selectExpression.Orderings.Count == 0
-               && selectExpression.GroupBy.Count == 0
-               && selectExpression.Tables.Count == 1
-               && selectExpression.Tables[0] is SetOperationBase setOperation
-               && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
-               && selectExpression.Projection.Select(
-                       (pe, index) => pe.Expression is ColumnExpression column
-                                      && column.Table.Equals(setOperation)
-                                      && string.Equals(
-                                          column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
-                   .All(e => e);
+                && selectExpression.Limit == null
+                && !selectExpression.IsDistinct
+                && selectExpression.Predicate == null
+                && selectExpression.Having == null
+                && selectExpression.Orderings.Count == 0
+                && selectExpression.GroupBy.Count == 0
+                && selectExpression.Tables.Count == 1
+                && selectExpression.Tables[0] is SetOperationBase setOperation
+                && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
+                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
+                    && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
+                    .All(e => e);
 
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {

@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(cache.GetOrAdd(config1, true), cache.GetOrAdd(config2, true));
 
-            Assert.Equal(1, loggerFactory.Log.Count);
+            Assert.Single(loggerFactory.Log);
 
             Assert.Equal(
                 CoreResources.LogServiceProviderCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(),
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Same(cache.GetOrAdd(config1, true), cache.GetOrAdd(config2, true));
 
-            Assert.Equal(1, loggerFactory.Log.Count);
+            Assert.Single(loggerFactory.Log);
 
             Assert.Equal(
                 CoreResources.LogServiceProviderCreated(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(),

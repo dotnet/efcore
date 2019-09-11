@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             if (_innerTable != null)
             {
-                return new EntityProjectionExpression(EntityType, _innerTable, true);
+                return new EntityProjectionExpression(EntityType, _innerTable, nullable: true);
             }
 
             var newCache = new Dictionary<IProperty, ColumnExpression>();

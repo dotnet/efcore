@@ -168,18 +168,18 @@ WHERE [t].[CompanyName] IS NOT NULL");
 @__ef_filter___quantity_0='50'
 
 SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
-FROM [Order Details] AS [o0]
+FROM [Order Details] AS [o]
 INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID] AS [CustomerID0], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
-    FROM [Orders] AS [o]
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t].[CustomerID] AS [CustomerID0], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+    FROM [Orders] AS [o0]
     LEFT JOIN (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
         WHERE ((@__ef_filter__TenantPrefix_1 = N'') AND @__ef_filter__TenantPrefix_1 IS NOT NULL) OR ([c].[CompanyName] IS NOT NULL AND (@__ef_filter__TenantPrefix_1 IS NOT NULL AND (([c].[CompanyName] LIKE [c].[CompanyName] + N'%') AND (((LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) = @__ef_filter__TenantPrefix_1) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) IS NOT NULL AND @__ef_filter__TenantPrefix_1 IS NOT NULL)) OR (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1)) IS NULL AND @__ef_filter__TenantPrefix_1 IS NULL)))))
-    ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
+    ) AS [t] ON [o0].[CustomerID] = [t].[CustomerID]
     WHERE [t].[CompanyName] IS NOT NULL
-) AS [t0] ON [o0].[OrderID] = [t0].[OrderID]
-WHERE [o0].[Quantity] > @__ef_filter___quantity_0");
+) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
+WHERE [o].[Quantity] > @__ef_filter___quantity_0");
         }
 
         public override void Navs_query()
@@ -187,23 +187,27 @@ WHERE [o0].[Quantity] > @__ef_filter___quantity_0");
             base.Navs_query();
 
             AssertSql(
-                @"@__ef_filter___quantity_1='50' (DbType = Int16)
-@__ef_filter__TenantPrefix_0='B' (Size = 4000)
+                @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
+@__ef_filter___quantity_1='50'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].*
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-    WHERE [o.Customer].[CompanyName] IS NOT NULL
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    LEFT JOIN (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        FROM [Customers] AS [c0]
+        WHERE ((@__ef_filter__TenantPrefix_0 = N'') AND @__ef_filter__TenantPrefix_0 IS NOT NULL) OR ([c0].[CompanyName] IS NOT NULL AND (@__ef_filter__TenantPrefix_0 IS NOT NULL AND (([c0].[CompanyName] LIKE [c0].[CompanyName] + N'%') AND (((LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) AND (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) IS NOT NULL AND @__ef_filter__TenantPrefix_0 IS NOT NULL)) OR (LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) IS NULL AND @__ef_filter__TenantPrefix_0 IS NULL)))))
+    ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
+    WHERE [t].[CompanyName] IS NOT NULL
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 INNER JOIN (
-    SELECT [od].*
-    FROM [Order Details] AS [od]
-    WHERE [od].[Quantity] > @__ef_filter___quantity_1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-WHERE (([c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0 + N'%' AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = N'')) AND ([t0].[Discount] < CAST(10 AS real))");
+    SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+    FROM [Order Details] AS [o0]
+    WHERE [o0].[Quantity] > @__ef_filter___quantity_1
+) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
+WHERE (((@__ef_filter__TenantPrefix_0 = N'') AND @__ef_filter__TenantPrefix_0 IS NOT NULL) OR ([c].[CompanyName] IS NOT NULL AND (@__ef_filter__TenantPrefix_0 IS NOT NULL AND (([c].[CompanyName] LIKE [c].[CompanyName] + N'%') AND (((LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) IS NOT NULL AND @__ef_filter__TenantPrefix_0 IS NOT NULL)) OR (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) IS NULL AND @__ef_filter__TenantPrefix_0 IS NULL)))))) AND ([t1].[Discount] < CAST(10 AS real))");
         }
 
         [ConditionalFact]

@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "Issue = #17238")]
-        public override Task SelectMany_Joined_Take(bool isAsync) => null;
+        public override Task SelectMany_Joined_Take(bool isAsync) => base.SelectMany_Joined_Take(isAsync);
 
         [ConditionalTheory(Skip = "Issue = #17239")]
-        public override Task Union_Take_Union_Take(bool isAsync) => null;
+        public override Task Union_Take_Union_Take(bool isAsync) => base.Union_Take_Union_Take(isAsync);
 
         // SQLite client-eval
         public override async Task Average_with_division_on_decimal(bool isAsync)
@@ -1317,6 +1317,10 @@ FROM (
         public override Task SelectMany_correlated_with_outer_3(bool isAsync) => null;
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
+
+        public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync) => null;
+
+        public override Task SelectMany_correlated_subquery_hard(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)

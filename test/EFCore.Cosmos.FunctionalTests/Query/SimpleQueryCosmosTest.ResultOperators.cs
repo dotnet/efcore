@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQueryCosmosTest
     {
-        [ConditionalTheory(Skip = "Issue#17246")]
+        [ConditionalFact(Skip = "Issue#17246")]
         public override void Select_All()
         {
             base.Select_All();
@@ -1224,7 +1224,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
+        [ConditionalFact(Skip = "Issue#17246 (Contains not implemented)")]
         public override void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_should_rewrite_to_identity_equality();
@@ -1290,7 +1290,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
+        [ConditionalFact(Skip = "Issue#17246 (Contains not implemented)")]
         public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
@@ -1432,6 +1432,12 @@ WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""México D.F."
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task DefaultIfEmpty_selects_only_required_columns(bool isAsync)
+        {
+            return base.DefaultIfEmpty_selects_only_required_columns(isAsync);
         }
     }
 }

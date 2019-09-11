@@ -669,7 +669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Collection_select_nav_prop_all_client(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.TranslationFailed("All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o0) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o0, \"CustomerID\")),     predicate: (o0) => o0.ShipCity == \"London\")"),
+                CoreStrings.TranslationFailed("All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o0) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") != null && Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o0, \"CustomerID\")),     predicate: (o0) => o0.ShipCity == \"London\")"),
                 RemoveNewLines((await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery<Customer>(
                         isAsync,
@@ -710,7 +710,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.TranslationFailed(
-                        "All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o, \"CustomerID\")),     predicate: (o) => o.ShipCity == \"London\")"),
+                        "All<Order>(    source: Where<Order>(        source: DbSet<Order>,         predicate: (o) => Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") != null && Property<string>(EntityShaperExpression:             EntityType: Customer            ValueBufferExpression:                 ProjectionBindingExpression: EmptyProjectionMember            IsNullable: False        , \"CustomerID\") == Property<string>(o, \"CustomerID\")),     predicate: (o) => o.ShipCity == \"London\")"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () => (from c in context.Set<Customer>()
@@ -826,9 +826,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Sum);
         }
 
-        // issue #12657
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory(Skip = "Issue#12657")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_sum_plus_one(bool isAsync)
         {
             return AssertQuery<Customer>(
@@ -1156,9 +1155,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2155);
         }
 
-        // issue #12816
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory(Skip = "Issue#17068")]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_anonymous_type_order_by_field_group_by_same_field(bool isAsync)
         {
             return AssertQuery<OrderDetail>(
@@ -1168,31 +1166,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(e => e.customer)
                     .GroupBy(e => e.customer, elementSelector: e => e.od)
                     .Select(e => e));
-        }
-
-        [ConditionalTheory(Skip = "issue #6061")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Project_first_or_default_on_empty_collection_of_value_types_returns_proper_default(bool isAsync)
-        {
-            Assert.Equal(
-                CoreStrings.TranslationFailed(
-                    "(o) => ClientMethod(o.OrderID)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery<Customer>(
-                            isAsync,
-                            cs => from c in cs
-                                  where c.CustomerID.Equals("FISSA")
-                                  select new
-                                  {
-                                      c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault()
-                                  },
-                            cs => from c in cs
-                                  select new
-                                  {
-                                      c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault()
-                                  },
-                            elementSorter: e => e.CustomerID))).Message));
         }
 
         [ConditionalTheory]
@@ -1387,7 +1360,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select grouping.ToList();
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 foreach (var order in result[0])
                 {
                     Assert.True(order.OrderDetails.Count > 0);
@@ -1407,7 +1380,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select grouping.ToList();
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
                 foreach (var order in result[0])
                 {
                     Assert.True(order.OrderDetails.Count > 0);

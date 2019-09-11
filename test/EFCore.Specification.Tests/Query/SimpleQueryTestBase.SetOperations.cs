@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(x => x),
                 assertOrder: true);
 
-        [ConditionalTheory(Skip = "Very similar to #16298")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync)
             => AssertQuery<Customer>(
@@ -397,7 +397,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Select(g => new { CustomerID = g.Key, Count = g.Count() })));
 
         [ConditionalTheory(Skip = "Issue#17339")]
+#pragma warning disable xUnit1016 // MemberData must reference a public member
         [MemberData(nameof(GetSetOperandTestCases))]
+#pragma warning restore xUnit1016 // MemberData must reference a public member
         public virtual Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
         {
             var (left, right) = (ExpressionGenerator(leftType), ExpressionGenerator(rightType));

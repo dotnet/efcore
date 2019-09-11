@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             Assert.Equal(2, graph.Edges.Count());
             Assert.Equal(2, graph.Edges.Intersect(new[] { edgeOne, edgeTwo }).Count());
 
-            Assert.Equal(0, graph.GetEdges(vertexTwo, vertexOne).Count());
+            Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Count());
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo }).Count());
         }
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.AddEdges(vertexOne, vertexTwo, new[] { edgeOne });
             graph.AddEdges(vertexOne, vertexTwo, new[] { edgeTwo, edgeThree });
 
-            Assert.Equal(0, graph.GetEdges(vertexTwo, vertexOne).Count());
+            Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
             Assert.Equal(3, graph.GetEdges(vertexOne, vertexTwo).Count());
             Assert.Equal(3, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo, edgeThree }).Count());
         }

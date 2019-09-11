@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -371,8 +371,8 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(0, parent.Children.Count());
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Empty(parent.Children);
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -408,7 +408,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(parent.Single);
             }
@@ -883,7 +883,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -914,7 +914,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -1111,7 +1111,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -1277,7 +1277,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -1308,7 +1308,7 @@ namespace Microsoft.EntityFrameworkCore
                 RecordLog();
                 context.ChangeTracker.LazyLoadingEnabled = false;
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -2006,7 +2006,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -2046,7 +2046,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -2085,7 +2085,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(child.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -2122,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(single.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -2161,8 +2161,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(0, parent.Children.Count());
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Empty(parent.Children);
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -2201,7 +2201,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -2241,7 +2241,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -2282,7 +2282,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(parent.Single);
             }
@@ -2318,10 +2318,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(0, children.Count);
-                Assert.Equal(0, parent.Children.Count());
+                Assert.Empty(children);
+                Assert.Empty(parent.Children);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -2358,7 +2358,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(child.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -2395,7 +2395,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(single.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -2432,7 +2432,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(single);
                 Assert.Null(parent.Single);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -3335,8 +3335,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(0, parent.Children.Count());
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Empty(parent.Children);
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -3375,7 +3375,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -3415,7 +3415,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -3456,7 +3456,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(parent.Single);
             }
@@ -3493,10 +3493,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(0, children.Count);
-                Assert.Equal(0, parent.Children.Count());
+                Assert.Empty(children);
+                Assert.Empty(parent.Children);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -3534,7 +3534,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(child.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -3572,7 +3572,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(single.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -3610,7 +3610,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(single);
                 Assert.Null(parent.Single);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -4346,7 +4346,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -4386,7 +4386,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -4425,7 +4425,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(child.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -4462,7 +4462,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(single.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -4820,7 +4820,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -4860,7 +4860,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -4899,7 +4899,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(child.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -4936,7 +4936,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(single.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -5294,7 +5294,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
                 Assert.Null(child.Parent);
             }
         }
@@ -5334,7 +5334,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 RecordLog();
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.Null(single.Parent);
             }
@@ -5373,7 +5373,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(child.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -5410,7 +5410,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Null(parent);
                 Assert.Null(single.Parent);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -5431,8 +5431,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 collectionEntry.Load();
 
-                Assert.Equal(0, parent.Children.Count());
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Empty(parent.Children);
+                Assert.Single(context.ChangeTracker.Entries());
 
                 Assert.True(collectionEntry.IsLoaded);
 
@@ -5469,7 +5469,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.True(referenceEntry.IsLoaded);
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 referenceEntry.IsLoaded = true;
 

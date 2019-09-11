@@ -386,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = context.Set<MultiContextFilter>().ToList();
-                Assert.Equal(1, query.Count);
+                Assert.Single(query);
 
                 context.Property = true;
 

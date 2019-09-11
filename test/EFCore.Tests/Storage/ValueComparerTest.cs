@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 => !InternalEquals(left, right);
         }
 
-        public void GenericCompareTest<T>(T value1, T value2, int? hashCode = null)
+        private void GenericCompareTest<T>(T value1, T value2, int? hashCode = null)
         {
             var comparer = new ValueComparer<T>(false);
             var equals = comparer.EqualsExpression.Compile();

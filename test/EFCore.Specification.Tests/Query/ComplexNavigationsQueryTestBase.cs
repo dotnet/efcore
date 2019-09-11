@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal("Language8", globalizations_1_label[2].Language.Name);
 
                 var globalizations_1_placeholder = result[1].Placeholder.Globalizations.OrderBy(g => g.Text).ToList();
-                Assert.Equal(1, globalizations_1_placeholder.Count);
+                Assert.Single(globalizations_1_placeholder);
                 Assert.Equal("Globalization9", globalizations_1_placeholder[0].Text);
                 Assert.Equal("Language9", globalizations_1_placeholder[0].Language.Name);
             }
@@ -756,9 +756,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id3 + " " + e.Id1);
         }
 
-        // issue #12787
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_navigation_nested2(bool isAsync)
         {
             return AssertQuery<Level1, Level3>(
@@ -2133,7 +2132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue#15872")]
+        [ConditionalTheory(Skip = "Issue#17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin2(bool isAsync)
         {
@@ -2281,7 +2280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#15872")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_take_optional_navigation(bool isAsync)
         {
@@ -2383,9 +2382,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        // issue #12794
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Orderby_SelectMany_with_Include1(bool isAsync)
         {
             return AssertIncludeQuery<Level1>(
@@ -3313,7 +3311,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          select new { Navigation = l2i.OneToOne_Required_FK_Inverse2, Constant = 7 }).First().Navigation.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #15832")]
+        [ConditionalTheory(Skip = "Issue #17756")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Required_navigation_on_a_subquery_with_First_in_predicate(bool isAsync)
         {
@@ -3641,7 +3639,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select Maybe(l2_outer, () => l2_outer.Name));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer_with_client_method(bool isAsync)
         {
@@ -3674,7 +3672,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return arg;
         }
 
-        [ConditionalTheory(Skip = "Issue#15872")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_inner(bool isAsync)
         {
@@ -3702,9 +3700,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select Maybe(l1_outer, () => l1_outer.Name));
         }
 
-        // issue #12806
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_with_orderby_on_inner_sequence_projecting_inner(
             bool isAsync)
         {
@@ -3781,7 +3778,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return true;
         }
 
-        [ConditionalTheory(Skip = "AlreadyFixed")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_result_operator(bool isAsync)
         {
@@ -3797,7 +3794,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_projection(bool isAsync)
         {
@@ -3813,7 +3810,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_projection_nested1(bool isAsync)
         {
@@ -3834,7 +3831,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select l1_outer.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_in_subquery_with_client_projection_nested2(bool isAsync)
         {
@@ -3889,7 +3886,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => Assert.Equal(e.Id + " " + e.client, a.Id + " " + a.client));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_client_method_in_OrderBy(bool isAsync)
         {
@@ -4169,7 +4166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue#15872")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Nested_group_join_with_take(bool isAsync)
         {
@@ -4368,7 +4365,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l2s => l2s.Select(l2 => l2s.OrderBy(l => l.Id).First().OneToOne_Required_FK_Inverse2.Name == "L1 02"));
         }
 
-        [ConditionalTheory(Skip = "issue #8526")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_with_client_eval_and_multi_level_navigation(bool isAsync)
         {
@@ -4450,7 +4447,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "issue #17531")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_collection_navigation_nested_with_take(bool isAsync)
         {
@@ -4460,7 +4457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50),
                 l1s => from l1 in l1s
                        select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50)),
-                elementSorter: e => e != null ? e.Count : 0,
+                elementSorter: e => ((IEnumerable<Level3>)e)?.Count() ?? 0,
                 elementAsserter: (e, a) =>
                 {
                     var actualCollection = new List<Level3>();
@@ -4651,7 +4648,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact(Skip = "issue #8722")]
+        [ConditionalFact]
         public virtual void Include_inside_subquery()
         {
             using (var ctx = CreateContext())
@@ -4659,7 +4656,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var query = ctx.LevelOne
                     .Where(l1 => l1.Id < 3)
                     .Select(
-                        l1 => new { subquery = ctx.LevelTwo.Include(l => l.OneToMany_Optional2).Where(l => l.Id > 0) });
+                        l1 => new { subquery = ctx.LevelTwo.Include(l => l.OneToMany_Optional2).Where(l => l.Id > 0).ToList() });
 
                 var result = query.ToList();
             }
@@ -5181,7 +5178,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = query.ToList();
 
                 Assert.True(result.All(r => r.l2.OneToMany_Required2 != null));
-                Assert.True(result.Any(r => r.OneToMany_Optional2.Count > 0));
+                Assert.Contains(result, r => r.OneToMany_Optional2.Count > 0);
             }
         }
 

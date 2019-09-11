@@ -1,34 +1,30 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>, IDisposable
+    public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>
     {
         public TransactionSqlServerTest(TransactionSqlServerFixture fixture)
             : base(fixture)
         {
-            TestSqlServerRetryingExecutionStrategy.Suspended = true;
         }
 
         protected override bool SnapshotSupported => true;
 
         protected override bool AmbientTransactionsSupported => true;
 
-        public virtual void Dispose()
-        {
-            TestSqlServerRetryingExecutionStrategy.Suspended = false;
-        }
-
         protected override DbContext CreateContextWithConnectionString()
         {
             var options = Fixture.AddOptions(
                     new DbContextOptionsBuilder()
-                        .UseSqlServer(TestStore.ConnectionString, b => b.ApplyConfiguration()))
+                        .UseSqlServer(
+                            TestStore.ConnectionString,
+                            b => b.ApplyConfiguration().ExecutionStrategy(c => new SqlServerExecutionStrategy(c))))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);
@@ -61,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 new SqlServerDbContextOptionsBuilder(
                         base.AddOptions(builder))
-                    .MaxBatchSize(1);
+                    .ExecutionStrategy(c => new SqlServerExecutionStrategy(c));
                 return builder;
             }
         }
