@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -20,8 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private SelectExpression _selectExpression;
         private bool _clientEval;
+
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
+
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         public RelationalProjectionBindingExpressionVisitor(
@@ -96,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
                             return _selectExpression.AddCollectionProjection(
                                 _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                materializeCollectionNavigationExpression.Subquery),
+                                    materializeCollectionNavigationExpression.Subquery),
                                 materializeCollectionNavigationExpression.Navigation, null);
 
                         case MethodCallExpression methodCallExpression:
@@ -107,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 var elementType = methodCallExpression.Method.GetGenericArguments()[0];
 
-                                var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression.Arguments[0]);
+                                var result = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                    methodCallExpression.Arguments[0]);
 
                                 return _selectExpression.AddCollectionProjection(result, null, elementType);
                             }
@@ -129,17 +132,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     }
 
                                     return QueryableMethods.IsAverageWithoutSelector(method)
-                                        || QueryableMethods.IsAverageWithSelector(method)
-                                        || method == QueryableMethods.MaxWithoutSelector
-                                        || method == QueryableMethods.MaxWithSelector
-                                        || method == QueryableMethods.MinWithoutSelector
-                                        || method == QueryableMethods.MinWithSelector
-                                        || QueryableMethods.IsSumWithoutSelector(method)
-                                        || QueryableMethods.IsSumWithSelector(method);
+                                           || QueryableMethods.IsAverageWithSelector(method)
+                                           || method == QueryableMethods.MaxWithoutSelector
+                                           || method == QueryableMethods.MaxWithSelector
+                                           || method == QueryableMethods.MinWithoutSelector
+                                           || method == QueryableMethods.MinWithSelector
+                                           || QueryableMethods.IsSumWithoutSelector(method)
+                                           || QueryableMethods.IsSumWithSelector(method);
                                 }
 
                                 if (!(subquery.ShaperExpression is ProjectionBindingExpression
-                                     || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
+                                      || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
                                 {
                                     return _selectExpression.AddSingleProjection(subquery);
                                 }
@@ -152,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var translation = _sqlTranslator.Translate(expression);
                     return translation == null
                         ? base.Visit(expression)
-                        : new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
+                        : new ProjectionBindingExpression(
+                            _selectExpression, _selectExpression.AddToProjection(translation), expression.Type);
                 }
                 else
                 {
@@ -201,13 +205,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(_selectExpression, _selectExpression.AddToProjection(entityProjectionExpression)));
                 }
-                else
-                {
-                    _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
 
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
-                }
+                _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
+
+                return entityShaperExpression.Update(
+                    new ProjectionBindingExpression(_selectExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
             if (extensionExpression is IncludeExpression includeExpression)
@@ -250,6 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         return null;
                     }
+
                     _projectionMembers.Pop();
                 }
             }

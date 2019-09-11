@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 { nameof(DateTime.Second), "second" },
                 { nameof(DateTime.Millisecond), "millisecond" }
             };
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -43,11 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     return _sqlExpressionFactory.Function(
                         "DATEPART",
-                        new[]
-                        {
-                            _sqlExpressionFactory.Fragment(datePart),
-                            instance
-                        },
+                        new[] { _sqlExpressionFactory.Fragment(datePart), instance },
                         returnType);
                 }
 
@@ -55,13 +52,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     case nameof(DateTime.Date):
                         return _sqlExpressionFactory.Function(
-                        "CONVERT",
-                        new[]{
-                                _sqlExpressionFactory.Fragment("date"),
-                                instance
-                        },
-                        returnType,
-                        instance.TypeMapping);
+                            "CONVERT",
+                            new[] { _sqlExpressionFactory.Fragment("date"), instance },
+                            returnType,
+                            instance.TypeMapping);
 
                     case nameof(DateTime.TimeOfDay):
                         return _sqlExpressionFactory.Convert(instance, returnType);

@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -22,11 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    },
+                    select new { c.ContactName, o.OrderID },
                 e => e.OrderID);
         }
 
@@ -39,12 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID
-                    select new
-                    {
-                        c,
-                        o
-                    },
-                e => e.c.CustomerID + " " + e.o.OrderID,
+                    select new { c, o },
+                e => (e.c.CustomerID, e.o.OrderID),
                 entryCount: 919);
         }
 
@@ -57,12 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID
-                    select new
-                    {
-                        A = c,
-                        B = c
-                    },
-                e => e.A.CustomerID + " " + e.B.CustomerID,
+                    select new { A = c, B = c },
+                e => (e.A.CustomerID, e.B.CustomerID),
                 entryCount: 89);
         }
 
@@ -76,17 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID
                     from e in es
-                    select new
-                    {
-                        c,
-                        o,
-                        e
-                    },
-                e => e.c.CustomerID + " " + e.o.OrderID + " " + e.e.EmployeeID,
+                    select new { c, o, e },
+                e => (e.c.CustomerID, e.o.OrderID, e.e.EmployeeID),
                 entryCount: 928);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_Join_select_many(bool isAsync)
         {
@@ -96,20 +78,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e1 in es.OrderBy(e => e.EmployeeID).Take(2)
                     join e2 in es.OrderBy(e => e.EmployeeID).Take(2) on e1.EmployeeID equals GetEmployeeID(e2)
                     from e3 in es.OrderBy(e => e.EmployeeID).Skip(6).Take(2)
-                    select new
-                    {
-                        e1,
-                        e2,
-                        e3
-                    },
-                e => e.e1.EmployeeID + " " + e.e2.EmployeeID + " " + e.e3.EmployeeID,
+                    select new { e1, e2, e3 },
+                e => (e.e1.EmployeeID, e.e2.EmployeeID, e.e3.EmployeeID),
                 entryCount: 4);
         }
 
-        private static uint GetEmployeeID(Employee employee)
-        {
-            return employee.EmployeeID;
-        }
+        private static uint GetEmployeeID(Employee employee) => employee.EmployeeID;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -120,11 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    }
+                    select new { c.ContactName, o.OrderID }
                     into p
                     select p,
                 e => e.OrderID);
@@ -141,11 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o1 in
                         (from o2 in os orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
                     where o1.CustomerID == "ALFKI"
-                    select new
-                    {
-                        c.ContactName,
-                        o1.OrderID
-                    },
+                    select new { c.ContactName, o1.OrderID },
                 e => e.OrderID);
         }
 
@@ -160,11 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o1 in
                         (from o2 in os orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1.CustomerID
                     where o1.CustomerID == "ALFKI"
-                    select new
-                    {
-                        c.ContactName,
-                        o1.OrderID
-                    },
+                    select new { c.ContactName, o1.OrderID },
                 e => e.OrderID);
         }
 
@@ -179,17 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o1 in
                         (from o2 in os
                          orderby o2.OrderID
-                         select new
-                         {
-                             o2
-                         }) on c.CustomerID equals o1.o2.CustomerID
+                         select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
                     where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
-                    select new
-                    {
-                        o1,
-                        o1.o2,
-                        Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate")
-                    },
+                    select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") },
                 e => e.o1.o2.OrderID,
                 entryCount: 6);
         }
@@ -205,17 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o1 in
                         (from o2 in os
                          orderby o2.OrderID
-                         select new
-                         {
-                             o2
-                         }).Take(5) on c.CustomerID equals o1.o2.CustomerID
+                         select new { o2 }).Take(5) on c.CustomerID equals o1.o2.CustomerID
                     where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
-                    select new
-                    {
-                        o1,
-                        o1.o2,
-                        Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate")
-                    },
+                    select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") },
                 e => e.o1.o2.OrderID);
         }
 
@@ -230,11 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o1 in
                         (from o2 in os where o2.OrderID > 0 orderby o2.OrderID select o2) on c.CustomerID equals o1.CustomerID
                     where o1.CustomerID == "ALFKI"
-                    select new
-                    {
-                        c.ContactName,
-                        o1.OrderID
-                    },
+                    select new { c.ContactName, o1.OrderID },
                 e => e.OrderID);
         }
 
@@ -249,11 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o1 in
                         (from o2 in os where o2.OrderID > 0 orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1.CustomerID
                     where o1.CustomerID == "ALFKI"
-                    select new
-                    {
-                        c.ContactName,
-                        o1.OrderID
-                    },
+                    select new { c.ContactName, o1.OrderID },
                 e => e.OrderID);
         }
 
@@ -265,21 +203,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) =>
                     from c in cs
-                    join o in os on new
-                        {
-                            a = c.CustomerID,
-                            b = c.CustomerID
-                        }
-                        equals new
-                        {
-                            a = o.CustomerID,
-                            b = o.CustomerID
-                        }
-                    select new
-                    {
-                        c,
-                        o
-                    },
+                    join o in os on new { a = c.CustomerID, b = c.CustomerID }
+                        equals new { a = o.CustomerID, b = o.CustomerID }
+                    select new { c, o },
                 e => e.o.OrderID,
                 entryCount: 919);
         }
@@ -304,18 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) =>
                     from c in cs
-                    join o in os on new Foo
-                    {
-                        Bar = c.CustomerID
-                    } equals new Foo
-                    {
-                        Bar = o.CustomerID
-                    }
-                    select new
-                    {
-                        c,
-                        o
-                    },
+                    join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
+                    select new { c, o },
                 e => e.c.CustomerID);
         }
 
@@ -396,11 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs1, cs2, cs3) =>
                     cs1.Join(
-                        cs2, o => o.CustomerID, i => i.CustomerID, (c1, c2) => new
-                        {
-                            c1,
-                            c2
-                        }).Join(cs3, o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3),
+                        cs2, o => o.CustomerID, i => i.CustomerID, (c1, c2) => new { c1, c2 }).Join(
+                        cs3, o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3),
                 entryCount: 91);
         }
 
@@ -412,12 +325,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (os1, os2) =>
                     os1.Join(
-                        os2, o => o.CustomerID, i => i.CustomerID, (_, o) => new
-                        {
-                            _,
-                            o
-                        }),
-                e => e._.OrderID + " " + e.o.OrderID,
+                        os2, o => o.CustomerID, i => i.CustomerID, (_, o) => new { _, o }),
+                e => (e._.OrderID, e.o.OrderID),
                 entryCount: 830);
         }
 
@@ -430,11 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os.OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID into orders
-                    select new
-                    {
-                        customer = c,
-                        orders = orders.ToList()
-                    },
+                    select new { customer = c, orders = orders.ToList() },
                 e => e.customer.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -453,11 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into orders
-                    select new
-                    {
-                        cust = c,
-                        ords = orders.Count()
-                    },
+                    select new { cust = c, ords = orders.Count() },
                 e => e.cust.CustomerID,
                 entryCount: 91);
         }
@@ -471,11 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs.Where(c => c.CustomerID != "VAFFE" && c.CustomerID != "DRACD").OrderBy(c => c.City).Take(5)
                     join o in os on c.CustomerID equals o.CustomerID into orders
-                    select new
-                    {
-                        cust = c,
-                        ords = orders.Count()
-                    },
+                    select new { cust = c, ords = orders.Count() },
                 assertOrder: true,
                 entryCount: 5);
         }
@@ -493,11 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .SelectMany(emps => emps)
                     .Select(
                         e =>
-                            new
-                            {
-                                Title = EF.Property<string>(e, "Title"),
-                                Id = e.EmployeeID
-                            }),
+                            new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
                 e => e.Id);
         }
 
@@ -514,11 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .SelectMany(emps => emps)
                     .Select(
                         e =>
-                            new
-                            {
-                                Title = EF.Property<string>(e, "Title"),
-                                Id = e.EmployeeID
-                            }),
+                            new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
                 e => e.Id);
         }
 
@@ -535,11 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .SelectMany(emps => emps)
                     .Select(
                         e =>
-                            new
-                            {
-                                Title = EF.Property<string>(e, "Title"),
-                                Id = e.EmployeeID
-                            }),
+                            new { Title = EF.Property<string>(e, "Title"), Id = e.EmployeeID }),
                 e => e.Id);
         }
 
@@ -581,10 +466,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into orders
                     from o in orders
-                    select new
-                    {
-                        o.OrderID
-                    },
+                    select new { o.OrderID },
                 e => e.OrderID);
         }
 
@@ -612,11 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, os) =>
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into orders
-                    select new
-                    {
-                        c,
-                        orders
-                    },
+                    select new { c, orders },
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -664,12 +542,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into orders
                     from o in orders
-                    select new
-                    {
-                        c,
-                        o
-                    },
-                e => e.c.CustomerID + " " + e.o.OrderID,
+                    select new { c, o },
+                e => (e.c.CustomerID, e.o.OrderID),
                 entryCount: 919);
         }
 
@@ -680,12 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => cs.GroupJoin(
-                    os, c => c.CustomerID, o => o.CustomerID, (c, o) => new
-                    {
-                        c.City,
-                        o
-                    }),
-                e => e.City + " " + CollectionSorter<Order>()(e.o),
+                    os, c => c.CustomerID, o => o.CustomerID, (c, o) => new { c.City, o }),
+                e => (e.City, CollectionSorter<Order>()(e.o)),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.City, a.City);
@@ -701,12 +571,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => cs.GroupJoin(
-                    os, c => c.CustomerID, o => o.CustomerID, (c, g) => new
-                    {
-                        c.City,
-                        g = g.Select(o => o.CustomerID)
-                    }),
-                e => e.City + " " + CollectionSorter<string>()(e.g),
+                    os, c => c.CustomerID, o => o.CustomerID, (c, g) => new { c.City, g = g.Select(o => o.CustomerID) }),
+                e => (e.City, CollectionSorter<string>()(e.g)),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.City, a.City);
@@ -721,10 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => cs.GroupJoin(
-                    os, c => c.CustomerID, o => o.CustomerID, (c, g) => new
-                    {
-                        g = g.Select(o => o.CustomerID)
-                    }),
+                    os, c => c.CustomerID, o => o.CustomerID, (c, g) => new { g = g.Select(o => o.CustomerID) }),
                 e => CollectionSorter<string>()(e.g),
                 elementAsserter: (e, a) => CollectionAsserter<string>(s => s)(e.g, a.g));
         }
@@ -747,11 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => os.GroupJoin(
-                    cs, o => o.CustomerID, c => c.CustomerID, (o, c) => new
-                    {
-                        o.CustomerID,
-                        c
-                    }),
+                    cs, o => o.CustomerID, c => c.CustomerID, (o, c) => new { o.CustomerID, c }),
                 e => e.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -768,11 +627,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => os.GroupJoin(
-                    cs, o => o.CustomerID, c => c.CustomerID, (o, g) => new
-                    {
-                        o.CustomerID,
-                        g = g.Select(c => c.City)
-                    }),
+                    cs, o => o.CustomerID, c => c.CustomerID, (o, g) => new { o.CustomerID, g = g.Select(c => c.City) }),
                 elementSorter: e => e.CustomerID,
                 elementAsserter: (e, a) =>
                 {
@@ -792,13 +647,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from o0 in os.OrderBy(o => o.OrderID).Take(1)
                     join o1 in os on c.CustomerID equals o1.CustomerID into orders
                     from o2 in orders
-                    select new
-                    {
-                        A = c.CustomerID,
-                        B = o0.CustomerID,
-                        C = o2.CustomerID
-                    },
-                e => e.A + " " + e.B + " " + e.C);
+                    select new { A = c.CustomerID, B = o0.CustomerID, C = o2.CustomerID },
+                e => (e.A, e.B, e.C));
         }
 
         [ConditionalTheory]
@@ -811,12 +661,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into orders
                     from o in orders.DefaultIfEmpty()
-                    select new
-                    {
-                        c,
-                        o
-                    },
-                e => e.c.CustomerID + " " + e.o?.OrderID,
+                    select new { c, o },
+                e => (e.c.CustomerID, e.o?.OrderID),
                 entryCount: 921);
         }
 
@@ -832,13 +678,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from o1 in orders1.DefaultIfEmpty()
                     join o2 in os on c.CustomerID equals o2.CustomerID into orders2
                     from o2 in orders2.DefaultIfEmpty()
-                    select new
-                    {
-                        c,
-                        o1,
-                        o2
-                    },
-                e => e.c.CustomerID + " " + e.o1?.OrderID + " " + e.o2?.OrderID,
+                    select new { c, o1, o2 },
+                e => (e.c.CustomerID, e.o1?.OrderID, e.o2?.OrderID),
                 entryCount: 921);
         }
 
@@ -852,12 +693,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e in es
                     join o in os on e.EmployeeID equals o.EmployeeID into orders
                     from o in orders.DefaultIfEmpty()
-                    select new
-                    {
-                        e,
-                        o
-                    },
-                e => e.e.EmployeeID + " " + e.o?.OrderID,
+                    select new { e, o },
+                e => (e.e.EmployeeID, e.o?.OrderID),
                 entryCount: 839);
         }
 
@@ -965,12 +802,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         cs,
                         o => o.CustomerID,
                         c => c.CustomerID,
-                        (o, cg) => new
-                        {
-                            o.OrderID,
-                            Name = cg.Select(c => c.ContactName).FirstOrDefault()
-                        }),
-                e => e.OrderID + " " + e.Name);
+                        (o, cg) => new { o.OrderID, Name = cg.Select(c => c.ContactName).FirstOrDefault() }),
+                e => (e.OrderID, e.Name));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -984,12 +817,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         cs,
                         o => o.CustomerID,
                         c => c.CustomerID,
-                        (o, cg) => new
-                        {
-                            o.OrderID,
-                            Name = cg.Select(c => c.ContactName).FirstOrDefault()
-                        }),
-                e => e.OrderID + " " + e.Name);
+                        (o, cg) => new { o.OrderID, Name = cg.Select(c => c.ContactName).FirstOrDefault() }),
+                e => (e.OrderID, e.Name));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -1003,12 +832,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         cs,
                         o => o.CustomerID,
                         c => c.CustomerID,
-                        (o, cg) => new
-                        {
-                            o.OrderID,
-                            Name = cg.Select(c => c.ContactName).FirstOrDefault()
-                        }),
-                e => e.OrderID + " " + e.Name);
+                        (o, cg) => new { o.OrderID, Name = cg.Select(c => c.ContactName).FirstOrDefault() }),
+                e => (e.OrderID, e.Name));
         }
 
         [ConditionalTheory]
@@ -1021,12 +846,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into lo
                     from o in lo.Where(x => x.OrderID > 5)
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    },
-                e => e.ContactName + " " + e.OrderID);
+                    select new { c.ContactName, o.OrderID },
+                e => (e.ContactName, e.OrderID));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -1039,12 +860,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into lo
                     from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate)
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    },
-                e => e.ContactName + " " + e.OrderID);
+                    select new { c.ContactName, o.OrderID },
+                e => (e.ContactName, e.OrderID));
         }
 
         [ConditionalTheory]
@@ -1057,12 +874,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into lo
                     from o in lo.Where(x => x.OrderID > 5).DefaultIfEmpty()
-                    select new
-                    {
-                        c.ContactName,
-                        o
-                    },
-                e => e.ContactName + " " + e.o?.OrderID,
+                    select new { c.ContactName, o },
+                e => (e.ContactName, e.o?.OrderID),
                 entryCount: 830);
         }
 
@@ -1076,12 +889,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs
                     join o in os on c.CustomerID equals o.CustomerID into lo
                     from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate).DefaultIfEmpty()
-                    select new
-                    {
-                        c.ContactName,
-                        o
-                    },
-                e => e.ContactName + " " + e.o?.OrderID,
+                    select new { c.ContactName, o },
+                e => (e.ContactName, e.o?.OrderID),
                 entryCount: 830);
         }
 
@@ -1113,6 +922,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where c.CustomerID.StartsWith("A")
                     select grouping.Count(),
                 assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupJoin_Subquery_with_Take_Then_SelectMany_Where(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            join o in os.OrderBy(o => o.OrderID).Take(100) on c.CustomerID equals o.CustomerID into lo
+                            from o in lo.Where(x => x.CustomerID.StartsWith("A"))
+                            select new { c.CustomerID, o.OrderID });
         }
     }
 }

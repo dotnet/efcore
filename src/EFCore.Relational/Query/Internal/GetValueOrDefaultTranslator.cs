@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class GetValueOrDefaultTranslator : IMethodCallTranslator
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
         public GetValueOrDefaultTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -25,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _sqlExpressionFactory.Coalesce(
                     instance,
                     arguments.Count == 0
-                            ? GetDefaultConstant(method.ReturnType)
-                            : arguments[0],
+                        ? GetDefaultConstant(method.ReturnType)
+                        : arguments[0],
                     instance.TypeMapping);
             }
 

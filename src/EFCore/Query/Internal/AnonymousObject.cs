@@ -79,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 hash.Add(value);
             }
+
             return hash.ToHashCode();
         }
     }

@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
             where TEntity : class
         {
             var internalQuery = typeof(DbQuery<TEntity>)
-                .GetProperty("System.Data.Entity.Internal.Linq.IInternalQueryAdapter.InternalQuery", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetProperty(
+                    "System.Data.Entity.Internal.Linq.IInternalQueryAdapter.InternalQuery", BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetMethod
                 .Invoke(query, Array.Empty<object>());
 

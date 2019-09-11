@@ -101,9 +101,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var serviceProvider = new ServiceCollection()
-                .AddDbContext<BooFooContext>(b =>
-                    b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
-                        .EnableServiceProviderCaching(false))
+                .AddDbContext<BooFooContext>(
+                    b =>
+                        b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
+                            .EnableServiceProviderCaching(false))
                 .BuildServiceProvider();
 
             using (var scope = serviceProvider.CreateScope())

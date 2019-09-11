@@ -14,24 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory(Skip = "issue #8248")]
-        public override Task Required_navigation_on_a_subquery_with_First_in_projection(bool isAsync)
-        {
-            return base.Required_navigation_on_a_subquery_with_First_in_projection(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #8526")]
-        public override Task Select_subquery_with_client_eval_and_navigation1(bool isAsync)
-        {
-            return base.Select_subquery_with_client_eval_and_navigation1(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #8526")]
-        public override Task Select_subquery_with_client_eval_and_navigation2(bool isAsync)
-        {
-            return base.Select_subquery_with_client_eval_and_navigation2(isAsync);
-        }
-
         // Naked instances not supported
         public override Task Entity_equality_empty(bool isAsync)
         {
@@ -112,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #13560")]
+        [ConditionalFact(Skip = "issue #13560")]
         public override void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
         {
             base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany();
@@ -178,6 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override void Member_pushdown_with_collection_navigation_in_the_middle()
+        {
+        }
+
+        public override void Include_inside_subquery()
         {
         }
     }

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     <para>
     ///         A convention that configures the foreign key properties associated with a navigation property
-    ///         based on the <see cref="ForeignKeyAttribute"/> specified on the properties or the navigation properties.
+    ///         based on the <see cref="ForeignKeyAttribute" /> specified on the properties or the navigation properties.
     ///     </para>
     ///     <para>
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
@@ -116,10 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (fkPropertyOnDependent != null)
                 {
-                    fkPropertiesToSet = new List<string>
-                    {
-                        fkPropertyOnDependent.GetSimpleMemberName()
-                    };
+                    fkPropertiesToSet = new List<string> { fkPropertyOnDependent.GetSimpleMemberName() };
                     upgradeDependentToPrincipalNavigationSource = true;
                 }
                 else
@@ -131,10 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
 
                     shouldInvert = true;
-                    fkPropertiesToSet = new List<string>
-                    {
-                        fkPropertyOnPrincipal.GetSimpleMemberName()
-                    };
+                    fkPropertiesToSet = new List<string> { fkPropertyOnPrincipal.GetSimpleMemberName() };
                     upgradePrincipalToDependentNavigationSource = true;
                 }
             }
@@ -237,7 +231,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static IConventionRelationshipBuilder SplitNavigationsToSeparateRelationships(IConventionRelationshipBuilder relationshipBuilder)
+        private static IConventionRelationshipBuilder SplitNavigationsToSeparateRelationships(
+            IConventionRelationshipBuilder relationshipBuilder)
         {
             var foreignKey = relationshipBuilder.Metadata;
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal.Name;

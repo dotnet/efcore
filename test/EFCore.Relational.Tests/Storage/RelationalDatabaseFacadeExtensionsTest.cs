@@ -75,11 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
                 Assert.Equal(
-                    new List<object>
-                    {
-                        1,
-                        2
-                    }, commandBuilder.Parameters);
+                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
         }
 
@@ -103,11 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
                 Assert.Equal(
-                    new List<object>
-                    {
-                        1,
-                        2
-                    }, commandBuilder.Parameters);
+                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
         }
 
@@ -140,11 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
                 Assert.Equal(
-                    new List<object>
-                    {
-                        1,
-                        "Cheese"
-                    }, commandBuilder.Parameters);
+                    new List<object> { 1, "Cheese" }, commandBuilder.Parameters);
             }
         }
 
@@ -164,39 +152,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         var cancellationToken = new CancellationToken();
                         await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object>
-                            {
-                                1,
-                                2
-                            }, cancellationToken);
+                            "<Some query>", new List<object> { 1, 2 }, cancellationToken);
                     }
                     else
                     {
                         await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object>
-                            {
-                                1,
-                                2
-                            });
+                            "<Some query>", new List<object> { 1, 2 });
                     }
                 }
                 else
                 {
                     context.Database.ExecuteSqlRaw(
-                        "<Some query>", new List<object>
-                        {
-                            1,
-                            2
-                        });
+                        "<Some query>", new List<object> { 1, 2 });
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
                 Assert.Equal(
-                    new List<object>
-                    {
-                        1,
-                        2
-                    }, commandBuilder.Parameters);
+                    new List<object> { 1, 2 }, commandBuilder.Parameters);
             }
         }
 
@@ -216,39 +188,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     {
                         var cancellationToken = new CancellationToken();
                         await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object>
-                            {
-                                1,
-                                "Pickle"
-                            }, cancellationToken);
+                            "<Some query>", new List<object> { 1, "Pickle" }, cancellationToken);
                     }
                     else
                     {
                         await context.Database.ExecuteSqlRawAsync(
-                            "<Some query>", new List<object>
-                            {
-                                1,
-                                "Pickle"
-                            });
+                            "<Some query>", new List<object> { 1, "Pickle" });
                     }
                 }
                 else
                 {
                     context.Database.ExecuteSqlRaw(
-                        "<Some query>", new List<object>
-                        {
-                            1,
-                            "Pickle"
-                        });
+                        "<Some query>", new List<object> { 1, "Pickle" });
                 }
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
                 Assert.Equal(
-                    new List<object>
-                    {
-                        1,
-                        "Pickle"
-                    }, commandBuilder.Parameters);
+                    new List<object> { 1, "Pickle" }, commandBuilder.Parameters);
             }
         }
 
@@ -281,10 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
                 Assert.Equal(
-                    new List<object>
-                    {
-                        1
-                    }, commandBuilder.Parameters);
+                    new List<object> { 1 }, commandBuilder.Parameters);
             }
         }
 
@@ -317,10 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 Assert.Equal("<Some query>", commandBuilder.Sql);
                 Assert.Equal(
-                    new List<object>
-                    {
-                        "Branston"
-                    }, commandBuilder.Parameters);
+                    new List<object> { "Branston" }, commandBuilder.Parameters);
             }
         }
 

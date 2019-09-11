@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 { typeof(Polygon).GetRuntimeProperty(nameof(Polygon.ExteriorRing)), "ExteriorRing" },
                 { typeof(Polygon).GetRuntimeProperty(nameof(Polygon.NumInteriorRings)), "NumInteriorRing" }
             };
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlitePolygonMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)

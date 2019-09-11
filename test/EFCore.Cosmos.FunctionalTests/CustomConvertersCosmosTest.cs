@@ -107,6 +107,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_insert_and_read_back_with_case_insensitive_string_key();
         }
 
+        [ConditionalFact(Skip = "Issue #16919")]
+        public override void Can_insert_and_query_struct_to_string_converter_for_pk()
+        {
+            base.Can_insert_and_query_struct_to_string_converter_for_pk();
+        }
+
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;

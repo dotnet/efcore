@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     /// </summary>
     public class InMemoryTableFactory
         // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-        : ChangeTracking.Internal.IdentityMapFactoryFactoryBase, IInMemoryTableFactory
+        : IdentityMapFactoryFactoryBase, IInMemoryTableFactory
     {
         private readonly bool _sensitiveLoggingEnabled;
 

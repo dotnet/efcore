@@ -89,19 +89,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Contains_with_local_tuple_array_closure(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.Contains_with_local_tuple_array_closure(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Last_when_no_order_by(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.Last_when_no_order_by(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task OrderBy_multiple_queries(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.OrderBy_multiple_queries(isAsync);
         }
 
         [ConditionalFact(Skip = "Issue#17386")]
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
@@ -175,5 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Where_equals_on_null_nullable_int_types(isAsync);
         }
+
+        // Casting int to object to string is invalid for InMemory
+        public override Task Like_with_non_string_column_using_double_cast(bool isAsync) => Task.CompletedTask;
     }
 }

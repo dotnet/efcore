@@ -918,8 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionForeignKey.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -930,8 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionForeignKey.PrincipalEntityType
         {
-            [DebuggerStepThrough]
-            get => PrincipalEntityType;
+            [DebuggerStepThrough] get => PrincipalEntityType;
         }
 
         /// <summary>
@@ -942,8 +940,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionKey IConventionForeignKey.PrincipalKey
         {
-            [DebuggerStepThrough]
-            get => PrincipalKey;
+            [DebuggerStepThrough] get => PrincipalKey;
         }
 
         /// <summary>
@@ -954,8 +951,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IConventionProperty> IConventionForeignKey.Properties
         {
-            [DebuggerStepThrough]
-            get => Properties;
+            [DebuggerStepThrough] get => Properties;
         }
 
         /// <summary>
@@ -966,8 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionNavigation IConventionForeignKey.DependentToPrincipal
         {
-            [DebuggerStepThrough]
-            get => DependentToPrincipal;
+            [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
         /// <summary>
@@ -978,8 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionNavigation IConventionForeignKey.PrincipalToDependent
         {
-            [DebuggerStepThrough]
-            get => PrincipalToDependent;
+            [DebuggerStepThrough] get => PrincipalToDependent;
         }
 
         /// <summary>

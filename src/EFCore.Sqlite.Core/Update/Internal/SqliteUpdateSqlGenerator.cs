@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
+            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, "rowid");
             commandStringBuilder.Append(" = ")
                 .Append("last_insert_rowid()");
         }
@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ResultSetMapping AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
+        protected override ResultSetMapping AppendSelectAffectedCountCommand(
+            StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));

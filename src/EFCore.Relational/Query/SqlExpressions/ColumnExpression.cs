@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -14,15 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public class ColumnExpression : SqlExpression
     {
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
-            : this(property.GetColumnName(), table, property.ClrType, property.GetRelationalTypeMapping(),
-                  nullable || property.IsNullable || property.DeclaringEntityType.BaseType != null)
+            : this(
+                property.GetColumnName(), table, property.ClrType, property.GetRelationalTypeMapping(),
+                nullable || property.IsNullable || property.DeclaringEntityType.BaseType != null)
         {
         }
 
         internal ColumnExpression(ProjectionExpression subqueryProjection, TableExpressionBase table)
-            : this(subqueryProjection.Alias, table,
-                  subqueryProjection.Type, subqueryProjection.Expression.TypeMapping,
-                  IsNullableProjection(subqueryProjection))
+            : this(
+                subqueryProjection.Alias, table,
+                subqueryProjection.Type, subqueryProjection.Expression.TypeMapping,
+                IsNullableProjection(subqueryProjection))
         {
         }
 
@@ -63,15 +65,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is ColumnExpression columnExpression
-                    && Equals(columnExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is ColumnExpression columnExpression
+                   && Equals(columnExpression));
 
         private bool Equals(ColumnExpression columnExpression)
             => base.Equals(columnExpression)
-            && string.Equals(Name, columnExpression.Name)
-            && Table.Equals(columnExpression.Table)
-            && IsNullable == columnExpression.IsNullable;
+               && string.Equals(Name, columnExpression.Name)
+               && Table.Equals(columnExpression.Table)
+               && IsNullable == columnExpression.IsNullable;
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name, Table, IsNullable);
 

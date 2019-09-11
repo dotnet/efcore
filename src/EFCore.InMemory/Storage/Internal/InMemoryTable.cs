@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
     public class InMemoryTable<TKey> : IInMemoryTable
     {
         // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-        private readonly ChangeTracking.Internal.IPrincipalKeyValueFactory<TKey> _keyValueFactory;
+        private readonly IPrincipalKeyValueFactory<TKey> _keyValueFactory;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly Dictionary<TKey, object[]> _rows;
 
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public InMemoryTable(
             // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
-            [NotNull] ChangeTracking.Internal.IPrincipalKeyValueFactory<TKey> keyValueFactory,
+            [NotNull] IPrincipalKeyValueFactory<TKey> keyValueFactory,
             bool sensitiveLoggingEnabled)
         {
             _keyValueFactory = keyValueFactory;
@@ -217,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
         // WARNING: The in-memory provider is using EF internal code here. This should not be copied by other providers. See #15096
         private TKey CreateKey(IUpdateEntry entry)
-            => _keyValueFactory.CreateFromCurrentValues((ChangeTracking.Internal.InternalEntityEntry)entry);
+            => _keyValueFactory.CreateFromCurrentValues((InternalEntityEntry)entry);
 
         private static object SnapshotValue(IProperty property, ValueComparer comparer, IUpdateEntry entry)
             => SnapshotValue(comparer, entry.GetCurrentValue(property));
@@ -230,7 +231,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         /// <param name="entry"> The update entry which resulted in the conflict(s). </param>
         /// <param name="concurrencyConflicts"> The conflicting properties with their associated database values. </param>
-        protected virtual void ThrowUpdateConcurrencyException([NotNull] IUpdateEntry entry, [NotNull] Dictionary<IProperty, object> concurrencyConflicts)
+        protected virtual void ThrowUpdateConcurrencyException(
+            [NotNull] IUpdateEntry entry, [NotNull] Dictionary<IProperty, object> concurrencyConflicts)
         {
             Check.NotNull(entry, nameof(entry));
             Check.NotNull(concurrencyConflicts, nameof(concurrencyConflicts));
@@ -242,7 +244,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                         entry.EntityType.DisplayName(),
                         entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
                         entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
-                        "{" + string.Join(", ", concurrencyConflicts.Select(c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture))) + "}"),
+                        "{" + string.Join(
+                                ", ",
+                                concurrencyConflicts.Select(
+                                    c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
+                            + "}"),
                     new[] { entry });
             }
 

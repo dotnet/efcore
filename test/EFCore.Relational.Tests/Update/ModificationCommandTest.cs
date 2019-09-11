@@ -474,12 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 model,
                 entityState,
                 new
-                    T1
-                    {
-                        Id = 1,
-                        Name1 = computeNonKeyValue ? null : "Test",
-                        Name2 = computeNonKeyValue ? null : "Test"
-                    });
+                    T1 { Id = 1, Name1 = computeNonKeyValue ? null : "Test", Name2 = computeNonKeyValue ? null : "Test" });
         }
     }
 }

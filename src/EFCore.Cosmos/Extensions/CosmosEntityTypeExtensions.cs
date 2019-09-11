@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -26,8 +26,10 @@ namespace Microsoft.EntityFrameworkCore
                   ?? GetDefaultContainer(entityType);
 
         private static string GetDefaultContainer(IEntityType entityType)
-            => entityType.Model.GetDefaultContainer()
-               ?? entityType.ShortName();
+            => entityType.IsOwned()
+               ? null
+               : entityType.Model.GetDefaultContainer()
+                  ?? entityType.ShortName();
 
         /// <summary>
         ///     Sets the name of the container to which the entity type is mapped.

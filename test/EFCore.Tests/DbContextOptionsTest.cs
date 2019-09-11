@@ -75,19 +75,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            var extension1 = new FakeDbContextOptionsExtension1
-            {
-                Something = "One "
-            };
-            var extension2 = new FakeDbContextOptionsExtension1
-            {
-                Something = "Two "
-            };
+            var extension1 = new FakeDbContextOptionsExtension1 { Something = "One " };
+            var extension2 = new FakeDbContextOptionsExtension1 { Something = "Two " };
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension1);
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension2);
 
-            Assert.Equal(1, optionsBuilder.Options.Extensions.Count());
+            Assert.Single(optionsBuilder.Options.Extensions);
             Assert.DoesNotContain(extension1, optionsBuilder.Options.Extensions);
             Assert.Contains(extension2, optionsBuilder.Options.Extensions);
 

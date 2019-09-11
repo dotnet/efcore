@@ -16,10 +16,7 @@ namespace EFCore.Analyzers.Test.TestUtilities
 {
     public abstract class DiagnosticAnalyzerTestBase
     {
-        private static readonly string[] _usings = new[] {
-            "System",
-            "Microsoft.EntityFrameworkCore"
-        };
+        private static readonly string[] _usings = { "System", "Microsoft.EntityFrameworkCore" };
 
         protected abstract DiagnosticAnalyzer CreateDiagnosticAnalyzer();
 
@@ -39,6 +36,7 @@ namespace EFCore.Analyzers.Test.TestUtilities
                     .Append(@using)
                     .AppendLine(";");
             }
+
             sb
                 .AppendLine()
                 .AppendLine("class C {")

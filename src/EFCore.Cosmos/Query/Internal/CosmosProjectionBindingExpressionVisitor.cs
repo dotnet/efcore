@@ -1,9 +1,8 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -26,8 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
         private SelectExpression _selectExpression;
         private bool _clientEval;
+
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
+
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         /// <summary>
@@ -181,6 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         return memberExpression.Update(innerExpression);
                     }
+
                     break;
 
                 default:
@@ -264,6 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         {
                             return null;
                         }
+
                         break;
 
                     default:
@@ -420,6 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         return null;
                     }
+
                     _projectionMembers.Pop();
                 }
             }

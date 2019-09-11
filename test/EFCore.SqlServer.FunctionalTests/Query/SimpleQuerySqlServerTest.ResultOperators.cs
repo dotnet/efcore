@@ -1370,5 +1370,17 @@ FROM [Customers] AS [c]");
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL)
 FROM [Customers] AS [c]");
         }
+
+        public override async Task DefaultIfEmpty_selects_only_required_columns(bool isAsync)
+        {
+            await base.DefaultIfEmpty_selects_only_required_columns(isAsync);
+
+            AssertSql(
+                @"SELECT [p].[ProductName]
+FROM (
+    SELECT NULL AS [empty]
+) AS [empty]
+LEFT JOIN [Products] AS [p] ON 1 = 1");
+        }
     }
 }

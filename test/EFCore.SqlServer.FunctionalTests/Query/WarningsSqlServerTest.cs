@@ -1,11 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class WarningsSqlServerTest : WarningsTestBase<QueryNoClientEvalSqlServerFixture>
+    public class WarningsSqlServerTest : WarningsTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public WarningsSqlServerTest(QueryNoClientEvalSqlServerFixture fixture)
+        public WarningsSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
         }

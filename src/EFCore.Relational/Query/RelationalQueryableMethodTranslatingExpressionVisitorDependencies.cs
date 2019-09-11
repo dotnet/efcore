@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public sealed class RelationalQueryableMethodTranslatingExpressionVisitorDependencies
@@ -78,8 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="relationalSqlTranslatingExpressionVisitorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryableMethodTranslatingExpressionVisitorDependencies With([NotNull] IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory)
-            => new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(relationalSqlTranslatingExpressionVisitorFactory, SqlExpressionFactory);
+        public RelationalQueryableMethodTranslatingExpressionVisitorDependencies With(
+            [NotNull] IRelationalSqlTranslatingExpressionVisitorFactory relationalSqlTranslatingExpressionVisitorFactory)
+            => new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
+                relationalSqlTranslatingExpressionVisitorFactory, SqlExpressionFactory);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -87,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalQueryableMethodTranslatingExpressionVisitorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(RelationalSqlTranslatingExpressionVisitorFactory, sqlExpressionFactory);
+            => new RelationalQueryableMethodTranslatingExpressionVisitorDependencies(
+                RelationalSqlTranslatingExpressionVisitorFactory, sqlExpressionFactory);
     }
 }

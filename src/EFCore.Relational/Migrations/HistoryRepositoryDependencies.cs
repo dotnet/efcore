@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public IRelationalTypeMappingSource TypeMappingSource { get; }
 
         /// <summary>
-        ///    Contains the <see cref="DbContext"/> currently in use.
+        ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
         public ICurrentDbContext CurrentContext { get; }
 

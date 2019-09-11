@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Transient"/>. This means that each
+    ///         The service lifetime is <see cref="ServiceLifetime.Transient" />. This means that each
     ///         entity instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
@@ -123,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 : Task.CompletedTask;
         }
 
-        private bool ShouldLoad(object entity, string navigationName,
+        private bool ShouldLoad(
+            object entity, string navigationName,
             out NavigationEntry navigationEntry)
         {
             if (_loadedStates != null

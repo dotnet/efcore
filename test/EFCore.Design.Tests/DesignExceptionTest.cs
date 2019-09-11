@@ -47,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("Bang!", transportedException.InnerException.Message);
         }
 
-        private TException SerializeAndDeserialize<TException>(TException exception) where TException : Exception
+        private TException SerializeAndDeserialize<TException>(TException exception)
+            where TException : Exception
         {
             var stream = new MemoryStream();
             var formatter = new BinaryFormatter();

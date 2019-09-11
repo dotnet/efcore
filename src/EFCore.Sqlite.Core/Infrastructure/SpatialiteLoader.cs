@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,7 +13,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyModel;
-
 using RuntimeEnvironment = Microsoft.DotNet.PlatformAbstractions.RuntimeEnvironment;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -63,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 connection.Open();
                 opened = true;
             }
+
             try
             {
                 Load(connection);

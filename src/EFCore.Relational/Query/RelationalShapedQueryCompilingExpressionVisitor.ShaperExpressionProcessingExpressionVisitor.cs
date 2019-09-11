@@ -1,7 +1,6 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private static readonly MemberInfo _resultContextValuesMemberInfo
                 = typeof(ResultContext).GetTypeInfo().GetMember(nameof(ResultContext.Values))[0];
+
             private static readonly MemberInfo _resultCoordinatorResultReadyMemberInfo
                 = typeof(ResultCoordinator).GetTypeInfo().GetMember(nameof(ResultCoordinator.ResultReady))[0];
 
@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             private class CollectionShaperFindingExpressionVisitor : ExpressionVisitor
             {
                 private bool _containsCollection;
+
                 public bool ContainsCollectionMaterialization(Expression expression)
                 {
                     _containsCollection = false;
@@ -99,7 +100,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (_containsCollectionMaterialization)
                 {
-                    var valueArrayInitializationExpression = Expression.Assign(_valuesArrayExpression,
+                    var valueArrayInitializationExpression = Expression.Assign(
+                        _valuesArrayExpression,
                         Expression.NewArrayInit(
                             typeof(object),
                             _valuesArrayInitializers));
@@ -113,9 +115,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var conditionalMaterializationExpressions = new List<Expression>();
 
-                    conditionalMaterializationExpressions.Add(Expression.IfThen(
-                        Expression.Equal(_valuesArrayExpression, Expression.Constant(null, typeof(object[]))),
-                        initializationBlock));
+                    conditionalMaterializationExpressions.Add(
+                        Expression.IfThen(
+                            Expression.Equal(_valuesArrayExpression, Expression.Constant(null, typeof(object[]))),
+                            initializationBlock));
 
                     conditionalMaterializationExpressions.AddRange(_collectionPopulatingExpressions);
 
@@ -230,10 +233,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             relationalCollectionShaperExpression)
                         {
                             var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
-                                _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
-                                    .Inject(relationalCollectionShaperExpression.InnerShaper);
+                                    _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
+                                .Inject(relationalCollectionShaperExpression.InnerShaper);
 
-                            _collectionPopulatingExpressions.Add(new CollectionPopulatingExpression(
+                            _collectionPopulatingExpressions.Add(
+                                new CollectionPopulatingExpression(
                                     relationalCollectionShaperExpression.Update(
                                         relationalCollectionShaperExpression.ParentIdentifier,
                                         relationalCollectionShaperExpression.OuterIdentifier,
@@ -242,19 +246,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     includeExpression.Navigation.ClrType,
                                     true));
 
-                            _includeExpressions.Add(new CollectionInitializingExpression(
-                                relationalCollectionShaperExpression.CollectionId,
-                                entity,
-                                relationalCollectionShaperExpression.ParentIdentifier,
-                                relationalCollectionShaperExpression.OuterIdentifier,
-                                includeExpression.Navigation,
-                                includeExpression.Navigation.ClrType));
+                            _includeExpressions.Add(
+                                new CollectionInitializingExpression(
+                                    relationalCollectionShaperExpression.CollectionId,
+                                    entity,
+                                    relationalCollectionShaperExpression.ParentIdentifier,
+                                    relationalCollectionShaperExpression.OuterIdentifier,
+                                    includeExpression.Navigation,
+                                    includeExpression.Navigation.ClrType));
                         }
                         else
                         {
-                            _includeExpressions.Add(includeExpression.Update(
-                                entity,
-                                Visit(includeExpression.NavigationExpression)));
+                            _includeExpressions.Add(
+                                includeExpression.Update(
+                                    entity,
+                                    Visit(includeExpression.NavigationExpression)));
                         }
 
                         return entity;
@@ -266,10 +272,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         if (!_mapping.TryGetValue(key, out var accessor))
                         {
                             var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
-                                _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
-                                    .Inject(relationalCollectionShaperExpression2.InnerShaper);
+                                    _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
+                                .Inject(relationalCollectionShaperExpression2.InnerShaper);
 
-                            _collectionPopulatingExpressions.Add(new CollectionPopulatingExpression(
+                            _collectionPopulatingExpressions.Add(
+                                new CollectionPopulatingExpression(
                                     relationalCollectionShaperExpression2.Update(
                                         relationalCollectionShaperExpression2.ParentIdentifier,
                                         relationalCollectionShaperExpression2.OuterIdentifier,
@@ -280,15 +287,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             var collectionParameter = Expression.Parameter(relationalCollectionShaperExpression2.Type);
                             _variables.Add(collectionParameter);
-                            _expressions.Add(Expression.Assign(
-                                collectionParameter,
-                                new CollectionInitializingExpression(
-                                    relationalCollectionShaperExpression2.CollectionId,
-                                    null,
-                                    relationalCollectionShaperExpression2.ParentIdentifier,
-                                    relationalCollectionShaperExpression2.OuterIdentifier,
-                                    relationalCollectionShaperExpression2.Navigation,
-                                    relationalCollectionShaperExpression2.Type)));
+                            _expressions.Add(
+                                Expression.Assign(
+                                    collectionParameter,
+                                    new CollectionInitializingExpression(
+                                        relationalCollectionShaperExpression2.CollectionId,
+                                        null,
+                                        relationalCollectionShaperExpression2.ParentIdentifier,
+                                        relationalCollectionShaperExpression2.OuterIdentifier,
+                                        relationalCollectionShaperExpression2.Navigation,
+                                        relationalCollectionShaperExpression2.Type)));
 
                             _valuesArrayInitializers.Add(collectionParameter);
                             accessor = Expression.Convert(
@@ -309,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private Expression GenerateKey(Expression expression)
                 => expression is ProjectionBindingExpression projectionBindingExpression
-                    && projectionBindingExpression.ProjectionMember != null
+                   && projectionBindingExpression.ProjectionMember != null
                     ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
                     : expression;
         }

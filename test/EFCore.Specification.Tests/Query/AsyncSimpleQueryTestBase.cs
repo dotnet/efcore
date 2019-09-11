@@ -67,10 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             c.CustomerID,
                             Posts = context.Orders.Where(o => o.CustomerID == c.CustomerID)
                                 .Select(
-                                    m => new
-                                    {
-                                        m.CustomerID
-                                    })
+                                    m => new { m.CustomerID })
                                 .ToList()
                         })
                     .ToListAsync();
@@ -84,10 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var results
                     = await context.Customers.Select(
-                            c => new
-                            {
-                                Orders = c.Orders.ToArray()
-                            })
+                            c => new { Orders = c.Orders.ToArray() })
                         .ToListAsync();
 
                 Assert.Equal(830, results.SelectMany(a => a.Orders).ToList().Count);
@@ -104,10 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             c => new
                             {
                                 Orders = c.Orders.Select(
-                                        o => new
-                                        {
-                                            OrderDetails = o.OrderDetails.ToArray()
-                                        })
+                                        o => new { OrderDetails = o.OrderDetails.ToArray() })
                                     .ToArray()
                             })
                         .ToListAsync();
@@ -123,10 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var results
                     = await context.Customers.Select(
-                            c => new
-                            {
-                                Orders = c.Orders.ToList()
-                            })
+                            c => new { Orders = c.Orders.ToList() })
                         .ToListAsync();
 
                 Assert.Equal(830, results.SelectMany(a => a.Orders).ToList().Count);
@@ -140,27 +128,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var results
                     = await context.Customers.Select(
-                            c => new
-                            {
-                                Orders = c.Orders.Where(o => o.OrderID > 10).ToList()
-                            })
+                            c => new { Orders = c.Orders.Where(o => o.OrderID > 10).ToList() })
                         .ToListAsync();
 
                 Assert.Equal(830, results.SelectMany(a => a.Orders).ToList().Count);
             }
         }
 
-        [ConditionalFact(Skip = "Issue#16318")]
+        [ConditionalFact]
         public virtual async Task Average_on_nav_subquery_in_projection()
         {
             using (var context = CreateContext())
             {
                 var results
                     = await context.Customers.Select(
-                            c => new
-                            {
-                                Ave = c.Orders.Average(o => o.Freight)
-                            })
+                            c => new { Ave = c.Orders.Average(o => o.OrderID) })
                         .ToListAsync();
 
                 Assert.Equal(91, results.ToList().Count);
@@ -210,20 +192,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results
                     = (await context.Customers
                         .Select(
-                            c => new
-                            {
-                                c.CustomerID,
-                                Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
-                            }).ToListAsync())
+                            c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID) })
+                        .ToListAsync())
                     .Select(
                         x => new
                         {
                             Orders = x.Orders
                                 .GroupJoin(
-                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
-                                    {
-                                        h.Customer
-                                    })
+                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
                         })
                     .ToList();
 
@@ -469,11 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID).Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR"
-                    }).ToListAsync();
+                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToListAsync();
 
                 Assert.All(query.Take(2), t => Assert.True(t.Value));
                 Assert.All(query.Skip(2), t => Assert.False(t.Value));
@@ -487,11 +459,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID)
                     .Select(
-                        c => new
-                        {
-                            c.CustomerID,
-                            Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON"
-                        }).ToListAsync();
+                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" })
+                    .ToListAsync();
 
                 Assert.All(query.Take(3), t => Assert.True(t.Value));
                 Assert.All(query.Skip(3), t => Assert.False(t.Value));
@@ -504,11 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID).Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR"
-                    }).ToListAsync();
+                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToListAsync();
 
                 Assert.All(query, t => Assert.False(t.Value));
             }
@@ -521,11 +486,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID)
                     .Select(
-                        c => new
-                        {
-                            c.CustomerID,
-                            Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON"
-                        }).ToListAsync();
+                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" })
+                    .ToListAsync();
 
                 Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.False(t.Value));
             }
@@ -537,11 +499,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID).Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON"
-                    }).ToListAsync();
+                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON" })
+                    .ToListAsync();
 
                 Assert.All(query.Take(3), t => Assert.True(t.Value));
                 Assert.All(query.Skip(3), t => Assert.False(t.Value));
@@ -554,11 +513,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = await context.Customers.OrderBy(c => c.CustomerID).Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON"
-                    }).ToListAsync();
+                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON" })
+                    .ToListAsync();
 
                 Assert.All(query, t => Assert.False(t.Value));
             }

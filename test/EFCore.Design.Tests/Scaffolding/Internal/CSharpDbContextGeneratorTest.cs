@@ -70,10 +70,7 @@ namespace TestNamespace
         {
             Test(
                 modelBuilder => { },
-                new ModelCodeGenerationOptions
-                {
-                    SuppressConnectionStringWarning = true
-                },
+                new ModelCodeGenerationOptions { SuppressConnectionStringWarning = true },
                 code =>
                 {
                     Assert.Equal(
@@ -193,7 +190,8 @@ namespace TestNamespace
                 modelBuilder => modelBuilder.Entity("Vista").ToView("Vista"),
                 new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code => Assert.Contains(".ToView(\"Vista\")", code.ContextFile.Code),
-                model => Assert.NotNull(model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinition)));
+                model => Assert.NotNull(
+                    model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinition)));
         }
 
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin

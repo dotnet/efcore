@@ -349,31 +349,13 @@ namespace Microsoft.EntityFrameworkCore
                         using (var transaction = context.Database.BeginTransaction())
                         {
                             context.Teams.Add(
-                                new Team
-                                {
-                                    Id = -1,
-                                    Name = "Wubbsy Racing",
-                                    Chassis = new Chassis
-                                    {
-                                        TeamId = -1,
-                                        Name = "Wubbsy"
-                                    }
-                                });
+                                new Team { Id = -1, Name = "Wubbsy Racing", Chassis = new Chassis { TeamId = -1, Name = "Wubbsy" } });
 
                             using (var innerContext = CreateF1Context())
                             {
                                 UseTransaction(innerContext.Database, transaction);
                                 innerContext.Teams.Add(
-                                    new Team
-                                    {
-                                        Id = -1,
-                                        Name = "Wubbsy Racing",
-                                        Chassis = new Chassis
-                                        {
-                                            TeamId = -1,
-                                            Name = "Wubbsy"
-                                        }
-                                    });
+                                    new Team { Id = -1, Name = "Wubbsy Racing", Chassis = new Chassis { TeamId = -1, Name = "Wubbsy" } });
 
                                 await innerContext.SaveChangesAsync();
 
@@ -484,11 +466,7 @@ namespace Microsoft.EntityFrameworkCore
                         using (context.Database.BeginTransaction())
                         {
                             var entry = context.Drivers.Add(
-                                new Driver
-                                {
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                });
+                                new Driver { Name = "Larry David", TeamId = Team.Ferrari });
 
                             if (async)
                             {
@@ -539,12 +517,7 @@ namespace Microsoft.EntityFrameworkCore
                         using (context.Database.BeginTransaction())
                         {
                             var entry = context.Drivers.Add(
-                                new Driver
-                                {
-                                    Id = 676,
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                });
+                                new Driver { Id = 676, Name = "Larry David", TeamId = Team.Ferrari });
 
                             entry.State = state;
 
