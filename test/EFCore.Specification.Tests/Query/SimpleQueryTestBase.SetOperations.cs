@@ -264,7 +264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(x => x),
                 assertOrder: true);
 
-        [ConditionalTheory(Skip = "Very similar to #16298")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync)
             => AssertQuery<Customer>(

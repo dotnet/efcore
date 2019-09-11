@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 928);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_Join_select_many(bool isAsync)
         {
