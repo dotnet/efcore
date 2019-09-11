@@ -1343,6 +1343,12 @@ FROM (
                         () => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync))).Message));
         }
 
+        [ConditionalTheory(Skip = "Issue#17230")]
+        public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

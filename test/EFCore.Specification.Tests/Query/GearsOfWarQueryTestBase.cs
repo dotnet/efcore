@@ -7611,6 +7611,121 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_Where_DefaultIfEmpty_with_navigation_in_the_collection_selector(bool isAsync)
+        {
+            var isAutomatic = true;
+
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs
+                      from w in g.Weapons.Where(ww => ww.IsAutomatic == isAutomatic).DefaultIfEmpty()
+                      select new
+                      {
+                          g.Nickname,
+                          g.FullName,
+                          Collection = w != null
+                      });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_inner_being_a_subquery_projecting_single_property(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs
+                      join inner in (
+                          from g2 in gs
+                          select g2.Nickname
+                      ) on g.Nickname equals inner
+                      select g);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_inner_being_a_subquery_projecting_anonymous_type_with_single_property(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => from g in gs
+                      join inner in (
+                           from g2 in gs
+                           select new { g2.Nickname }
+                           ) on g.Nickname equals inner.Nickname
+                      select g);
+        }
+
+        [ConditionalTheory(Skip = "issue #17475")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_based_on_complex_expression1(bool isAsync)
+        {
+            return AssertQuery<Faction>(
+                isAsync,
+                fs => fs.Where(f => f is LocustHorde ? (f as LocustHorde).Commander != null : false));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_based_on_complex_expression2(bool isAsync)
+        {
+            return AssertQuery<Faction>(
+                isAsync,
+                fs => fs.Where(f => f is LocustHorde).Where(f => ((LocustHorde)f).Commander != null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_based_on_complex_expression3(bool isAsync)
+        {
+            return AssertQuery<Faction>(
+                isAsync,
+                fs => fs.Where(f => f is LocustHorde).Select(f => ((LocustHorde)f).Commander));
+        }
+
+        [ConditionalTheory(Skip = "issue #17782")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_based_on_complex_expression4(bool isAsync)
+        {
+            return AssertQuery<Faction, LocustLeader>(
+                isAsync,
+                (fs, lls) => from lc1 in fs.Select(f => (f is LocustHorde) ? ((LocustHorde)f).Commander : null)
+                             from lc2 in lls.OfType<LocustCommander>()
+                             select (lc1 ?? lc2).DefeatedBy);
+        }
+
+        [ConditionalTheory(Skip = "issue #17782")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_based_on_complex_expression5(bool isAsync)
+        {
+            return AssertQuery<Faction, LocustLeader>(
+                isAsync,
+                (fs, lls) => from lc1 in fs.OfType<LocustHorde>().Select(lh => lh.Commander)
+                             join lc2 in lls.OfType<LocustCommander>() on true equals true
+                             select (lc1 ?? lc2).DefeatedBy);
+        }
+
+        [ConditionalTheory(Skip = "issue #17782")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Navigation_based_on_complex_expression6(bool isAsync)
+        {
+            return AssertQuery<Faction, LocustLeader>(
+                isAsync,
+                (fs, lls) => from lc1 in fs.OfType<LocustHorde>().Select(lh => lh.Commander)
+                             join lc2 in lls.OfType<LocustCommander>() on true equals true
+                             select (lc1.Name == "Queen Myrrah" ? lc1 : lc2).DefeatedBy);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_as_operator(bool isAsync)
+        {
+            return AssertQuery<LocustLeader>(
+                isAsync,
+                lls => lls.Select(ll => ll as LocustCommander));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
