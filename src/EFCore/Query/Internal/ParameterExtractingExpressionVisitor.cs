@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -563,9 +564,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _evaluatable = !(constantExpression.Value is IDetachableContext)
                                && !(constantExpression.Value is IQueryable);
+
 #pragma warning disable RCS1096 // Use bitwise operation instead of calling 'HasFlag'.
-                _containsClosure = constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate) // Closure
-                                   || constantExpression.Type == typeof(ValueBuffer); // Find method
+                _containsClosure
+                    = (constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate)
+                        && Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true)) // Closure
+                    || constantExpression.Type == typeof(ValueBuffer); // Find method
 #pragma warning restore RCS1096 // Use bitwise operation instead of calling 'HasFlag'.
 
                 return base.VisitConstant(constantExpression);
