@@ -91,6 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 conventionSet.ModelFinalizedConventions,
                 valueGenerationStrategyConvention,
                 typeof(ValidatingConvention));
+
+            ConventionSet.AddBefore(
+                conventionSet.ModelFinalizedConventions,
+                new SqlServerEnumConvention(Dependencies),
+                typeof(ValidatingConvention));
+
             ReplaceConvention(conventionSet.ModelFinalizedConventions, storeGenerationConvention);
 
             return conventionSet;
