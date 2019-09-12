@@ -7726,6 +7726,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 lls => lls.Select(ll => ll as LocustCommander));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_datetimeoffset_comparison_in_projection(bool isAsync)
+        {
+            return AssertQueryScalar<Mission>(
+                isAsync,
+                ms => ms.Select(m => m.Timeline > DateTimeOffset.Now));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
