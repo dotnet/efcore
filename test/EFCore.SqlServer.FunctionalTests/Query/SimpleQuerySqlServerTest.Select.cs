@@ -1126,5 +1126,19 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
         }
+
+        public override async Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            await base.SelectMany_whose_selector_references_outer_source(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[OrderDate], [t].[City] AS [CustomerCity]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderDate], [c].[City], [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+) AS [t]");
+        }
     }
 }

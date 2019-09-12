@@ -1316,6 +1316,8 @@ FROM (
 
         public override Task SelectMany_correlated_subquery_hard(bool isAsync) => null;
 
+        public override Task SelectMany_whose_selector_references_outer_source(bool isAsync) => null;
+
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
         {

@@ -4155,6 +4155,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Select_entity_compared_to_null(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            return base.SelectMany_whose_selector_references_outer_source(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
