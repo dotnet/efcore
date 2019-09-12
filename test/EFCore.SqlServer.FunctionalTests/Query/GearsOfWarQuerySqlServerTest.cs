@@ -7129,10 +7129,19 @@ FROM [LocustLeaders] AS [l]
 WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander')");
         }
 
+        public override async Task Select_datetimeoffset_comparison_in_projection(bool isAsync)
+        {
+            await base.Select_datetimeoffset_comparison_in_projection(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [m].[Timeline] > SYSDATETIMEOFFSET() THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Missions] AS [m]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-        protected override void ClearLog()
-            => Fixture.TestSqlLoggerFactory.Clear();
     }
 }
