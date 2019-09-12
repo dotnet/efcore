@@ -1373,5 +1373,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                                        select new { OrderDate = o.OrderDate, CustomerCity = c.City })
                             select g);
         }
+
+        [ConditionalTheory(Skip = "Issue#12148")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Select(c => new
+                {
+                    Order = (c.Orders.Any() ? c.Orders.FirstOrDefault() : null) == null ? null : new Order { }
+                }));
+        }
     }
 }
