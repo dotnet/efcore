@@ -34,6 +34,7 @@ WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
         {
             base.KeylessEntity_by_database_view();
 
+            // See issue#17804
             // when we have defining query and ToView, defining query wins
             //            AssertSql(
             //                @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]

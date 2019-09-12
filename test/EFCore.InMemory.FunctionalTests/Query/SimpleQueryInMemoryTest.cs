@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.SelectMany_correlated_with_outer_3(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue #17531")]
+        [ConditionalTheory]
         public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
             return base.DefaultIfEmpty_in_subquery_nested(isAsync);

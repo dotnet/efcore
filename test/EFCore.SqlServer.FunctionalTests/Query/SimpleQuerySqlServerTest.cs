@@ -76,7 +76,6 @@ ORDER BY [t0].[CustomerID]");
         {
             base.Lifting_when_subquery_nested_order_by_simple();
 
-            // TODO: Avoid unnecessary pushdown of subquery. See Issue#8094
             AssertSql(
                 @"@__p_0='2'
 
@@ -4601,18 +4600,6 @@ WHERE ([c].[CustomerID] LIKE N'A%') AND (((
     WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL
     ORDER BY [o0].[OrderDate]) IS NULL)");
         }
-
-//        public override async Task SelectMany_after_client_method(bool isAsync)
-//        {
-//            await base.SelectMany_after_client_method(isAsync);
-
-//            AssertSql(
-//                @"SELECT [c.Orders0].[CustomerID], [c.Orders0].[OrderDate]
-//FROM [Orders] AS [c.Orders0]",
-//                //
-//                @"SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-//FROM [Customers] AS [c0]");
-//        }
 
         public override async Task Collection_navigation_equal_to_null_for_subquery(bool isAsync)
         {

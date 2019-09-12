@@ -42,12 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Message);
         }
 
-        [ConditionalTheory(Skip = "Issue = #17238")]
-        public override Task SelectMany_Joined_Take(bool isAsync) => base.SelectMany_Joined_Take(isAsync);
-
-        [ConditionalTheory(Skip = "Issue = #17239")]
-        public override Task Union_Take_Union_Take(bool isAsync) => base.Union_Take_Union_Take(isAsync);
-
         // SQLite client-eval
         public override async Task Average_with_division_on_decimal(bool isAsync)
         {
@@ -1332,6 +1326,12 @@ FROM (
         public override Task Like_with_non_string_column_using_ToString(bool isAsync)
         {
             return base.Like_with_non_string_column_using_ToString(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17239")]
+        public override Task Union_Take_Union_Take(bool isAsync)
+        {
+            return base.Union_Take_Union_Take(isAsync);
         }
 
         public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
