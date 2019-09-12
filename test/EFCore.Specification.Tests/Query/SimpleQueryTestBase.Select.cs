@@ -1360,5 +1360,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where o.CustomerID == "ALFKI"
                       select o.Customer == null);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            from g in (from o in os
+                                       where c.CustomerID == o.CustomerID
+                                       select new { OrderDate = o.OrderDate, CustomerCity = c.City })
+                            select g);
+        }
     }
 }
