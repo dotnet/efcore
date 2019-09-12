@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
@@ -350,6 +351,38 @@ namespace Microsoft.EntityFrameworkCore
             public static explicit operator string(OrderId orderId) => orderId.StringValue;
         }
 
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<SimpleCounter>().Add(new SimpleCounter() { StyleKey = "Swag" });
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var query = context.Set<SimpleCounter>()
+                    .Where(c => c.StyleKey == "Swag"
+                                && c.IsTest == false
+                                && c.Discriminator == new Dictionary<string, string>());
+
+                var result = isAsync ? await query.SingleAsync() : query.Single();
+                Assert.NotNull(result);
+                context.Remove(result);
+                context.SaveChanges();
+            }
+        }
+
+        public class SimpleCounter
+        {
+            public int CounterId { get; set; }
+            public string StyleKey { get; set; }
+            public bool IsTest { get; set; }
+            public IDictionary<string, string> Discriminator { get; set; } = new Dictionary<string, string>();
+        }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
@@ -704,6 +737,40 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasKey(o => o.Id);
                         b.Property(o => o.Id).HasConversion(new OrderIdEntityFrameworkValueConverter());
                     });
+
+                // See issue#17814
+                if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.Cosmos")
+                {
+                    modelBuilder.Entity<SimpleCounter>(
+                        b =>
+                        {
+                            b.HasKey(c => c.CounterId);
+                            b.Property(c => c.Discriminator).HasConversion(
+                                d => StringToDictionarySerializer.Serialize(d),
+                                json => StringToDictionarySerializer.Deserialize(json));
+                        });
+                }
+            }
+
+            public static class StringToDictionarySerializer
+            {
+                public static string Serialize(IDictionary<string, string> dictionary)
+                {
+                    return string.Join(Environment.NewLine, dictionary.Select(kvp => $"{{{kvp.Key},{kvp.Value}}}"));
+                }
+
+                public static IDictionary<string, string> Deserialize(string s)
+                {
+                    var dictionary = new Dictionary<string, string>();
+                    var keyValuePairs = s.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var keyValuePair in keyValuePairs)
+                    {
+                        var parts = keyValuePair[1..^1].Split(",");
+                        dictionary[parts[0]] = parts[1];
+                    }
+
+                    return dictionary;
+                }
             }
 
             private class OrderIdEntityFrameworkValueConverter : ValueConverter<OrderId, string>
