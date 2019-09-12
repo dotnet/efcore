@@ -37,9 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                foreach( var property in entityType.GetProperties())
+                foreach( var property in entityType.GetDeclaredProperties())
                 {
-                    if(property.PropertyInfo.GetType().IsEnum)
+                    if(property?.PropertyInfo?.GetType().IsEnum ?? false)
                     {
                         property.SetIsNullable(false);
                         string sql = $"CHECK ({property.Name} IN(";
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         }
                         sql = sql.Remove(sql.Length - 2);
                         sql = sql + "))";
-                        string constraintName = $"CK_{entityType.Name}_{property.Name}_EnumConstraint";
+                        string constraintName = $"CK_{entityType.Name}_{property.Name}_Enum_Constraint";
                         entityType.AddCheckConstraint(constraintName, sql);
                     }
                 }
