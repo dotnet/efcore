@@ -508,6 +508,7 @@ WHERE [e].[EmployeeID] = 1");
 FROM [Employees] AS [e]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
+            // See issue#17498
             //Assert.Contains(
             //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
             //        "e.EmployeeID.Equals(Convert(__longPrm_0, Object))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
@@ -538,6 +539,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)",
 FROM [Employees] AS [e]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
+            // See issue#17498
             //Assert.Contains(
             //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
             //        "__longPrm_0.Equals(Convert(e.ReportsTo, Object))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
@@ -560,6 +562,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)",
 FROM [Employees] AS [e]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
+            // See issue#17498
             //Assert.Contains(
             //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
             //        "__nullableLongPrm_0.Equals(Convert(e.ReportsTo, Object))"),

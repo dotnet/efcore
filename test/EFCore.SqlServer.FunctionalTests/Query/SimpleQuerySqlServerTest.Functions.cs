@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -820,11 +821,11 @@ FROM [Order Details] AS [o]
 WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
         }
 
-        // TODO: Client Eval
-        public override Task Where_math_min(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task Where_math_min(bool isAsync) => base.Where_math_min(isAsync);
 
-        // TODO: Client Eval
-        public override Task Where_math_max(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task Where_math_max(bool isAsync) => base.Where_math_max(isAsync);
 
         public override async Task Where_guid_newguid(bool isAsync)
         {
@@ -1273,11 +1274,13 @@ FROM [Customers] AS [c]
 WHERE (LTRIM([c].[ContactTitle]) = N'Owner') AND LTRIM([c].[ContactTitle]) IS NOT NULL");
         }
 
-        // TODO: Client Eval
-        public override Task TrimStart_with_char_argument_in_predicate(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task TrimStart_with_char_argument_in_predicate(bool isAsync)
+            => base.TrimStart_with_char_argument_in_predicate(isAsync);
 
-        // TODO: Client Eval
-        public override Task TrimStart_with_char_array_argument_in_predicate(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
+            => base.TrimStart_with_char_array_argument_in_predicate(isAsync);
 
         public override async Task TrimEnd_without_arguments_in_predicate(bool isAsync)
         {
@@ -1289,11 +1292,13 @@ FROM [Customers] AS [c]
 WHERE (RTRIM([c].[ContactTitle]) = N'Owner') AND RTRIM([c].[ContactTitle]) IS NOT NULL");
         }
 
-        // TODO: Client Eval
-        public override Task TrimEnd_with_char_argument_in_predicate(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
+            => base.TrimEnd_with_char_argument_in_predicate(isAsync);
 
-        // TODO: Client Eval
-        public override Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
+            => base.TrimEnd_with_char_array_argument_in_predicate(isAsync);
 
         public override async Task Trim_without_argument_in_predicate(bool isAsync)
         {
@@ -1305,11 +1310,13 @@ FROM [Customers] AS [c]
 WHERE (LTRIM(RTRIM([c].[ContactTitle])) = N'Owner') AND LTRIM(RTRIM([c].[ContactTitle])) IS NOT NULL");
         }
 
-        // TODO: Client Eval
-        public override Task Trim_with_char_argument_in_predicate(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task Trim_with_char_argument_in_predicate(bool isAsync)
+            => base.Trim_with_char_argument_in_predicate(isAsync);
 
-        // TODO: Client Eval
-        public override Task Trim_with_char_array_argument_in_predicate(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17328")]
+        public override Task Trim_with_char_array_argument_in_predicate(bool isAsync)
+            => base.Trim_with_char_array_argument_in_predicate(isAsync);
 
         public override async Task Order_by_length_twice(bool isAsync)
         {
