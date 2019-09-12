@@ -67,6 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync));
         }
 
+        public override Task Collection_Last_member_access_in_projection_translated(bool isAsync)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Collection_Last_member_access_in_projection_translated(isAsync));
+        }
+
         // Sending client code to server
         [ConditionalFact(Skip = "Issue#17050")]
         public override void Client_code_using_instance_in_anonymous_type()
