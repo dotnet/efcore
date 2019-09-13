@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class ModelSource : IModelSource
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             = new ConcurrentDictionary<object, object>();
 
         /// <summary>
-        ///     Creates a new <see cref="ModelSource"/> instance.
+        ///     Creates a new <see cref="ModelSource" /> instance.
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         public ModelSource([NotNull] ModelSourceDependencies dependencies)
@@ -65,19 +65,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             retry:
             if (!cache.TryGetValue(cacheKey, out Lazy<IModel> model))
             {
-                if (!_modelSyncObjects.TryAdd(cacheKey, value: null))
+                var syncObject = new object();
+                if (!ReferenceEquals(_modelSyncObjects.GetOrAdd(cacheKey, syncObject), syncObject))
                 {
+                    lock (syncObject) { }
                     goto retry;
                 }
 
                 try
                 {
-                    // Using a Lazy here so that OnModelCreating, etc. really only gets called once, since it may not be thread safe.
-                    model = new Lazy<IModel>(
-                        () => CreateModel(context, conventionSetBuilder),
-                        LazyThreadSafetyMode.ExecutionAndPublication);
+                    lock (syncObject)
+                    {
+                        // Using a Lazy here so that OnModelCreating, etc. really only gets called once, since it may not be thread safe.
+                        model = new Lazy<IModel>(
+                            () => CreateModel(context, conventionSetBuilder),
+                            LazyThreadSafetyMode.ExecutionAndPublication);
 
-                    cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
+                        model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
+                    }
                 }
                 finally
                 {
