@@ -12,25 +12,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void GenerateConstraintWithAllEnumNames()
         {
-            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
-            var entityType = modelBuilder.Entity<Order>().Metadata;
-            var checkConstraint = entityType.FindCheckConstraint("CK_Order_CustomerType_Enum_Constraint");
+            var model = BuildModel();
 
-            Assert.NotNull(checkConstraint);
-            Assert.Equal(entityType, checkConstraint.EntityType);
-            Assert.Equal("CK_Order_CustomerType_Enum_Constraint", checkConstraint.Name);
-            Assert.Equal("CHECK (CustomerType IN('Standard', 'Premium'))", checkConstraint.Sql);
+            var checkConstraint = model.FindEntityType(typeof(Order))
+                                        .GetCheckConstraints()
+                                        .FirstOrDefault<ICheckConstraint>(constraint =>
+                                            constraint.Name == "CK_Order_CustomerType_Enum_Constraint");
+
+            Assert.Null(checkConstraint);
+            //Assert.Null(checkConstraint1);
+            // Assert.Equal(entityType, checkConstraint.EntityType);
+            // Assert.Equal("CK_Order_CustomerType_Enum_Constraint", checkConstraint.Name);
+            // Assert.Equal("CHECK (CustomerType IN('Standard', 'Premium'))", checkConstraint.Sql);
 
         }
 
-        public class Order
+        private static IModel BuildModel(bool generateValues = true)
+        {
+            var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+            builder.Entity<Order>();
+
+            return builder.FinalizeModel();
+        }
+
+        private class Order
         {
             public int Id { get; set; }
             public int CustomerId { get; set; }
             public CustomerType CustomerType{ get; set; }
         }
 
-        public enum CustomerType
+        private enum CustomerType
         {
             Standard,
             Premium
