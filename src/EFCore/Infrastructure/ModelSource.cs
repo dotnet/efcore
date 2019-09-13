@@ -31,8 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelSource : IModelSource
     {
-        private readonly ConcurrentDictionary<object, object> _modelSyncObjects
-            = new ConcurrentDictionary<object, object>();
+        private readonly object _syncObject = new object();
 
         /// <summary>
         ///     Creates a new <see cref="ModelSource" /> instance.
@@ -62,30 +61,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var cache = Dependencies.MemoryCache;
             var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context);
-            retry:
-            if (!cache.TryGetValue(cacheKey, out Lazy<IModel> model))
+            if (!cache.TryGetValue(cacheKey, out IModel model))
             {
-                if (!_modelSyncObjects.TryAdd(cacheKey, value: null))
+                // Make sure OnModelCreating really only gets called once, since it may not be thread safe.
+                lock (_syncObject)
                 {
-                    goto retry;
-                }
-
-                try
-                {
-                    // Using a Lazy here so that OnModelCreating, etc. really only gets called once, since it may not be thread safe.
-                    model = new Lazy<IModel>(
-                        () => CreateModel(context, conventionSetBuilder),
-                        LazyThreadSafetyMode.ExecutionAndPublication);
-
-                    cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
-                }
-                finally
-                {
-                    _modelSyncObjects.TryRemove(cacheKey, out _);
+                    if (!cache.TryGetValue(cacheKey, out model))
+                    {
+                        model = CreateModel(context, conventionSetBuilder);
+                        model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
+                    }
                 }
             }
 
-            return model.Value;
+            return model;
         }
 
         /// <summary>
