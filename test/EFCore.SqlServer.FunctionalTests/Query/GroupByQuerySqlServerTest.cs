@@ -52,6 +52,26 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task GroupBy_Property_Select_Distinct_Count(bool isAsync)
+        {
+            await base.GroupBy_Property_Select_Distinct_Count(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(DISTINCT [o].[EmployeeID])
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Property_Select_Distinct_Count_With_Key(bool isAsync)
+        {
+            await base.GroupBy_Property_Select_Distinct_Count_With_Key(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], COUNT(DISTINCT [o].[EmployeeID]) AS [count]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
         public override async Task GroupBy_Property_Select_LongCount(bool isAsync)
         {
             await base.GroupBy_Property_Select_LongCount(isAsync);

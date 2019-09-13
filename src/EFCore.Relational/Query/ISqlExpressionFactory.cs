@@ -102,5 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         SelectExpression Select(SqlExpression projection);
         SelectExpression Select(IEntityType entityType);
         SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments);
+
+        SelectDistinctExpression SelectDistinct(ColumnExpression column);
     }
 }

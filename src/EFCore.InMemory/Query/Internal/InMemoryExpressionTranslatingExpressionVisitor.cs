@@ -303,6 +303,29 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             selector);
 
                     case nameof(Enumerable.Count):
+                        if (methodCallExpression.Arguments.Count == 2 &&
+                            methodCallExpression.Arguments[1] is LambdaExpression lambda &&
+                            lambda.Body is MethodCallExpression anyCall && anyCall.Method.Name == nameof(Enumerable.Any) && anyCall.Arguments.Count == 1 &&
+                            anyCall.Arguments[0] is MethodCallExpression distinctCall && distinctCall.Method.Name == nameof(Enumerable.Distinct) &&
+                            distinctCall.Arguments[0] is NewArrayExpression newArray && newArray.Expressions.Count == 1)
+                        {
+                            var property = (MemberExpression)newArray.Expressions[0];
+                            var propertyInfo = (PropertyInfo)property.Member;
+
+                            MethodInfo selectMethod = InMemoryLinqOperatorProvider.Select.MakeGenericMethod(property.Expression.Type, propertyInfo.PropertyType);
+                            LambdaExpression propertyLambda = Expression.Lambda(property, (ParameterExpression)property.Expression);
+                            MethodCallExpression selectCall = Expression.Call(selectMethod, methodCallExpression.Arguments[0], propertyLambda);
+
+                            translation = Translate(GetSelector(selectCall, groupByShaperExpression));
+                            selector = Expression.Lambda(translation, groupByShaperExpression.ValueBufferParameter);
+
+                            selectMethod = InMemoryLinqOperatorProvider.Select.MakeGenericMethod(typeof(ValueBuffer), translation.Type);
+                            selectCall = Expression.Call(selectMethod, groupByShaperExpression.GroupingParameter, selector);
+
+                            distinctCall = Expression.Call(InMemoryLinqOperatorProvider.Distinct.MakeGenericMethod(selector.ReturnType), selectCall);
+                            return Expression.Call(InMemoryLinqOperatorProvider.CountWithoutPredicate.MakeGenericMethod(selector.ReturnType), distinctCall);
+                        }
+
                         return Expression.Call(
                             InMemoryLinqOperatorProvider.CountWithoutPredicate.MakeGenericMethod(typeof(ValueBuffer)),
                             groupByShaperExpression.GroupingParameter);

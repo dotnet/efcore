@@ -31,6 +31,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return base.VisitMethodCall(methodCallExpression);
                 }
 
+                if (methodCallExpression is MethodCallExpression countCall && countCall.Method.Name == nameof(Enumerable.Count) && countCall.Arguments.Count == 1 &&
+                    countCall.Arguments[0] is MethodCallExpression distinctCall && distinctCall.Method.Name == nameof(Enumerable.Distinct) &&
+                    distinctCall.Arguments[0] is MethodCallExpression selectCall && selectCall.Method.Name == nameof(Enumerable.Select))
+                {
+                    var selectLambda = (LambdaExpression)selectCall.Arguments[1];
+                    NewArrayExpression newArray = Expression.NewArrayInit(selectLambda.ReturnType, selectLambda.Body);
+                    distinctCall = distinctCall.Update(null, new[] { newArray });
+
+                    Func<IEnumerable<object>, bool> anyFunc = Enumerable.Any;
+                    MethodInfo anyMethod = anyFunc.Method.GetGenericMethodDefinition().MakeGenericMethod(selectLambda.ReturnType);
+                    MethodCallExpression anyCall = Expression.Call(anyMethod, distinctCall);
+
+                    LambdaExpression anyLambda = Expression.Lambda(anyCall, selectLambda.Parameters[0]);
+                    Func<IEnumerable<object>, Func<object, bool>, int> countFunc = Enumerable.Count;
+                    MethodInfo countMethod = countFunc.Method.GetGenericMethodDefinition().MakeGenericMethod(anyLambda.Parameters[0].Type);
+                    return Expression.Call(countMethod, selectCall.Arguments[0], anyLambda);
+                }
+
                 var arguments = VisitAndConvert(methodCallExpression.Arguments, nameof(VisitMethodCall)).ToArray();
 
                 var enumerableMethod = methodCallExpression.Method;

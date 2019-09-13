@@ -100,9 +100,29 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual SqlExpression TranslateCount(Expression expression = null)
         {
-            // TODO: Translate Count with predicate for GroupBy
+            SqlExpression sqlExpression = null;
+            if (expression != null && (sqlExpression = expression as SqlExpression) == null)
+            {
+                if (expression is MethodCallExpression anyCall && anyCall.Method.Name == nameof(Enumerable.Any) &&
+                    anyCall.Arguments[0] is MethodCallExpression distinctCall && distinctCall.Method.Name == nameof(Enumerable.Distinct) &&
+                    distinctCall.Arguments[0] is NewArrayExpression newArray && newArray.Expressions.Count == 1 &&
+                    newArray.Expressions[0] is MemberExpression property)
+                {
+                    sqlExpression = _sqlExpressionFactory.SelectDistinct((ColumnExpression)VisitMember(property));
+                }
+                else
+                {
+                    sqlExpression = Translate(expression);
+                }
+            }
+
+            if (sqlExpression == null)
+            {
+                sqlExpression = _sqlExpressionFactory.Fragment("*");
+            }
+
             return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(int)));
+                _sqlExpressionFactory.Function("COUNT", new[] { sqlExpression }, typeof(int)));
         }
 
         public virtual SqlExpression TranslateLongCount(Expression expression = null)
@@ -306,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var translatedAggregate = methodCallExpression.Method.Name switch
                 {
                     nameof(Enumerable.Average) => TranslateAverage(GetSelector(methodCallExpression, groupByShaperExpression)),
-                    nameof(Enumerable.Count) => TranslateCount(),
+                    nameof(Enumerable.Count) => TranslateCount(methodCallExpression.Arguments.Count == 1 ? null : GetSelector(methodCallExpression, groupByShaperExpression)),
                     nameof(Enumerable.LongCount) => TranslateLongCount(),
                     nameof(Enumerable.Max) => TranslateMax(GetSelector(methodCallExpression, groupByShaperExpression)),
                     nameof(Enumerable.Min) => TranslateMin(GetSelector(methodCallExpression, groupByShaperExpression)),

@@ -468,6 +468,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return selectExpression;
         }
 
+        public virtual SelectDistinctExpression SelectDistinct(ColumnExpression column)
+        {
+            return new SelectDistinctExpression(column, _boolTypeMapping);
+        }
+
         private void AddConditions(
             SelectExpression selectExpression,
             IEntityType entityType,

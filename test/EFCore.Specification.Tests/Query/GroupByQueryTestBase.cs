@@ -59,6 +59,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Property_Select_Distinct_Count(bool isAsync)
+        {
+            return AssertQueryScalar<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(g => g.Select(o => o.EmployeeID).Distinct().Count()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Property_Select_Distinct_Count_With_Key(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID).Select(g => new { g.Key, count = g.Select(o => o.EmployeeID).Distinct().Count() }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Property_Select_LongCount(bool isAsync)
         {
             return AssertQueryScalar<Order>(
@@ -1897,7 +1915,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                      from orderDetail in orderJoin.DefaultIfEmpty()
                      group new { orderDetail.ProductID, orderDetail.Quantity, orderDetail.UnitPrice } by new
                      {
-                         order.OrderID, order.OrderDate
+                         order.OrderID,
+                         order.OrderDate
                      }).Where(x => x.Key.OrderID == 10248),
                 elementAsserter: GroupingAsserter<dynamic, dynamic>(d => d.ProductID));
         }
@@ -2106,7 +2125,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                      from orderDetail in orderJoin
                      group new { orderDetail.ProductID, orderDetail.Quantity, orderDetail.UnitPrice } by new
                      {
-                         order.OrderID, order.OrderDate
+                         order.OrderID,
+                         order.OrderDate
                      }).Where(x => x.Key.OrderID == 10248),
                 elementAsserter: GroupingAsserter<dynamic, dynamic>(d => d.ProductID));
         }
