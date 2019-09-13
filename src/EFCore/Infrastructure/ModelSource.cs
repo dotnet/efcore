@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -31,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelSource : IModelSource
     {
-        private readonly ConcurrentDictionary<object, object> _modelSyncObjects
-            = new ConcurrentDictionary<object, object>();
+        private readonly ConcurrentDictionary<object, Lazy<IModel>> _models
+            = new ConcurrentDictionary<object, Lazy<IModel>>();
 
         /// <summary>
         ///     Creates a new <see cref="ModelSource"/> instance.
@@ -59,34 +58,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual IModel GetModel(
             DbContext context,
             IConventionSetBuilder conventionSetBuilder)
-        {
-            var cache = Dependencies.MemoryCache;
-            var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context);
-            retry:
-            if (!cache.TryGetValue(cacheKey, out Lazy<IModel> model))
-            {
-                if (!_modelSyncObjects.TryAdd(cacheKey, value: null))
-                {
-                    goto retry;
-                }
-
-                try
-                {
-                    // Using a Lazy here so that OnModelCreating, etc. really only gets called once, since it may not be thread safe.
-                    model = new Lazy<IModel>(
-                        () => CreateModel(context, conventionSetBuilder),
-                        LazyThreadSafetyMode.ExecutionAndPublication);
-
-                    cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
-                }
-                finally
-                {
-                    _modelSyncObjects.TryRemove(cacheKey, out _);
-                }
-            }
-
-            return model.Value;
-        }
+            => _models.GetOrAdd(
+                Dependencies.ModelCacheKeyFactory.Create(context),
+                // Using a Lazy here so that OnModelCreating, etc. really only gets called once, since it may not be thread safe.
+                k => new Lazy<IModel>(
+                    () => CreateModel(context, conventionSetBuilder),
+                    LazyThreadSafetyMode.ExecutionAndPublication)).Value;
 
         /// <summary>
         ///     Creates the model. This method is called when the model was not found in the cache.
