@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -10,17 +10,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
         {
-            var negated = expressionType switch {
-                ExpressionType.AndAlso            => ExpressionType.OrElse,
-                ExpressionType.OrElse             => ExpressionType.AndAlso,
-                ExpressionType.Equal              => ExpressionType.NotEqual,
-                ExpressionType.NotEqual           => ExpressionType.Equal,
-                ExpressionType.GreaterThan        => ExpressionType.LessThanOrEqual,
+            var negated = expressionType switch
+            {
+                ExpressionType.AndAlso => ExpressionType.OrElse,
+                ExpressionType.OrElse => ExpressionType.AndAlso,
+                ExpressionType.Equal => ExpressionType.NotEqual,
+                ExpressionType.NotEqual => ExpressionType.Equal,
+                ExpressionType.GreaterThan => ExpressionType.LessThanOrEqual,
                 ExpressionType.GreaterThanOrEqual => ExpressionType.LessThan,
-                ExpressionType.LessThan           => ExpressionType.GreaterThanOrEqual,
-                ExpressionType.LessThanOrEqual    => ExpressionType.GreaterThan,
+                ExpressionType.LessThan => ExpressionType.GreaterThanOrEqual,
+                ExpressionType.LessThanOrEqual => ExpressionType.GreaterThan,
                 _ => (ExpressionType?)null
-                };
+            };
 
             result = negated ?? default;
             return negated.HasValue;

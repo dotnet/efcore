@@ -65,10 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IProperty GetGenerationProperty([NotNull] this IProperty property)
         {
-            var traversalList = new List<IProperty>
-            {
-                property
-            };
+            var traversalList = new List<IProperty> { property };
 
             var index = 0;
             while (index < traversalList.Count)
@@ -164,10 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IReadOnlyList<IProperty> FindPrincipals([NotNull] this IProperty property)
         {
-            var principals = new List<IProperty>
-            {
-                property
-            };
+            var principals = new List<IProperty> { property };
             AddPrincipals(property, principals);
             return principals;
         }

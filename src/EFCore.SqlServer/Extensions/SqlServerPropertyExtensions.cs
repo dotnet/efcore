@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
         ///     </para>
         /// </summary>
-        /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None"/> if none was set. </returns>
+        /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy([NotNull] this IProperty property)
         {
             var annotation = property[SqlServerAnnotationNames.ValueGenerationStrategy];
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns a value indicating whether the property is compatible with any <see cref="SqlServerValueGenerationStrategy"/>.
+        ///     Returns a value indicating whether the property is compatible with any <see cref="SqlServerValueGenerationStrategy" />.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> <c>true</c> if compatible. </returns>

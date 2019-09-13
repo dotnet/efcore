@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             x.HasOne("Person", "Author").WithMany("Posts");
                             x.HasMany("Contribution", "Contributions").WithOne();
                         }),
-                new ModelCodeGenerationOptions
-                {
-                    UseDataAnnotations = true
-                },
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
                 {
                     var postFile = code.AdditionalFiles.First(f => f.Path == "Post.cs");
@@ -144,10 +141,7 @@ namespace TestNamespace
                             x.Property<int>("Serial");
                             x.HasKey("Key", "Serial");
                         }),
-                new ModelCodeGenerationOptions
-                {
-                    UseDataAnnotations = true
-                },
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
                 code =>
                 {
                     var postFile = code.AdditionalFiles.First(f => f.Path == "Post.cs");

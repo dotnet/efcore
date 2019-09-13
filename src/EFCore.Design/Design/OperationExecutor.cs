@@ -111,7 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Design
                     _language,
                     _designArgs);
 
-
         private DbContextOperations ContextOperations
             => _contextOperations
                 ??= new DbContextOperations(
@@ -180,9 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile,
-                ["MetadataFile"] = files.MetadataFile,
-                ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -199,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public GetContextInfo([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+            public GetContextInfo(
+                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -239,7 +237,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public UpdateDatabase([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+            public UpdateDatabase(
+                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -336,9 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile,
-                ["MetadataFile"] = files.MetadataFile,
-                ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -354,7 +351,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public GetContextTypes([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+            public GetContextTypes(
+                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -397,7 +395,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public GetMigrations([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+            public GetMigrations(
+                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -447,7 +446,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public ScaffoldContext([NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
+            public ScaffoldContext(
+                [NotNull] OperationExecutor executor, [NotNull] IOperationResultHandler resultHandler, [NotNull] IDictionary args)
                 : base(resultHandler)
             {
                 Check.NotNull(executor, nameof(executor));
@@ -492,11 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
                 schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames);
 
-            return new Hashtable
-            {
-                ["ContextFile"] = files.ContextFile,
-                ["EntityTypeFiles"] = files.AdditionalFiles.ToArray()
-            };
+            return new Hashtable { ["ContextFile"] = files.ContextFile, ["EntityTypeFiles"] = files.AdditionalFiles.ToArray() };
         }
 
         /// <summary>

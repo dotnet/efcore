@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression parentIdentifier, Expression outerIdentifier, Expression selfIdentifier, Expression innerShaper)
         {
             return parentIdentifier != ParentIdentifier
-                || outerIdentifier != OuterIdentifier
-                || selfIdentifier != SelfIdentifier
-                || innerShaper != InnerShaper
+                   || outerIdentifier != OuterIdentifier
+                   || selfIdentifier != SelfIdentifier
+                   || innerShaper != InnerShaper
                 ? new RelationalCollectionShaperExpression(
                     CollectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, Navigation, ElementType)
                 : this;
@@ -80,7 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expressionPrinter.Visit(InnerShaper);
                 expressionPrinter.AppendLine();
                 expressionPrinter.AppendLine($"Navigation: {Navigation?.Name}");
-
             }
         }
     }

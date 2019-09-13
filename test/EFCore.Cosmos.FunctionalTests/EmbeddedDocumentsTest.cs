@@ -18,16 +18,15 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class NestedDocumentsTest
+    public class EmbeddedDocumentsTest
     {
-        public NestedDocumentsTest(ITestOutputHelper testOutputHelper)
+        public EmbeddedDocumentsTest(ITestOutputHelper testOutputHelper)
         {
             TestSqlLoggerFactory = (TestSqlLoggerFactory)TestStoreFactory.CreateListLoggerFactory(_ => true);
             //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // #13579
-        // [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #17670")]
         public virtual async Task Can_update_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -56,8 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        // #13579
-        // [ConditionalFact]
+        [ConditionalFact]
         public virtual async Task Can_update_owner_with_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -65,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Operator firstOperator;
                 using (var context = CreateContext())
                 {
-                    firstOperator = context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator;
+                    firstOperator = context.Set<Vehicle>().OrderBy(o => o.Name).First().Operator;
                     firstOperator.Name += "1";
 
                     context.SaveChanges();
@@ -75,7 +73,40 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     Assert.Equal(
                         firstOperator.Name,
-                        context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator.Name);
+                        context.Set<Vehicle>().OrderBy(o => o.Name).First().Operator.Name);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Can_attach_owner_with_dependents()
+        {
+            await using (var testDatabase = CreateTestStore())
+            {
+                Vehicle firstVehicle;
+
+                using (var context = CreateContext())
+                {
+                    firstVehicle = context.Set<Vehicle>().OrderBy(o => o.Name).First();
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    //Issue #15289
+                    var firstVehicleEntry = context.Add(firstVehicle);
+                    firstVehicleEntry.State = EntityState.Unchanged;
+                    firstVehicle.Operator.Name += "1";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(
+                        firstVehicle.Operator.Name,
+                        context.Set<Vehicle>().OrderBy(o => o.Name).First().Operator.Name);
                 }
             }
         }
@@ -83,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual async Task Can_add_collection_dependent_to_owner()
         {
-            await using (var testDatabase = CreateTestStore())
+            await using (var testDatabase = CreateTestStore(seed: false))
             {
                 Address existingAddress1Person2;
                 Address existingAddress1Person3;
@@ -119,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Assert.Equal("Second", addressJson[nameof(Address.Street)]);
                     addressJson["unmappedId"] = 2;
 
-                    existingAddressEntry.Property<JObject>("__jObject").CurrentValue = addressJson;
+                    existingAddressEntry.Property<JObject>("__jObject").IsModified = true;
 
                     addedAddress3 = new Address { Street = "Another", City = "City" };
                     var existingLastAddress = people[2].Addresses.Last();
@@ -170,6 +201,65 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
+        public virtual async Task Can_use_non_int_keys_for_embedded_entities()
+        {
+            await using (var testDatabase = CreateTestStore(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity<Person>(
+                        eb => eb.OwnsMany(
+                            v => v.Addresses, b =>
+                            {
+                                b.Property<Guid>("Id");
+                            }));
+                }, seed: false))
+            {
+                Address address;
+                Guid addressGuid;
+                await using (var context = CreateContext())
+                {
+                    await context.Database.EnsureCreatedAsync();
+                    var person = new Person { Id = 1 };
+                    address = new Address { Street = "Second", City = "Village" };
+                    person.Addresses.Add(address);
+                    context.Add(person);
+
+                    var addressEntry = context.Entry(address);
+                    addressGuid = (Guid)addressEntry.Property("Id").CurrentValue;
+
+                    await context.SaveChangesAsync();
+                }
+
+                await using (var context = CreateContext())
+                {
+                    var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
+                    var addresses = people[0].Addresses.ToList();
+                    Assert.Single(addresses);
+
+                    Assert.Equal(address.Street, addresses[0].Street);
+                    Assert.Equal(address.City, addresses[0].City);
+
+                    var addressEntry = context.Entry(addresses[0]);
+                    Assert.Equal(addressGuid, (Guid)addressEntry.Property("Id").CurrentValue);
+                }
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue #17733")]
+        public virtual async Task Can_query_nested_embedded_types()
+        {
+            await using (var testDatabase = CreateTestStore())
+            {
+                using (var context = CreateContext())
+                {
+                    var missile = context.Set<Vehicle>().First(v => v.Name == "AIM-9M Sidewinder");
+
+                    Assert.Equal("Heat-seeking", missile.Operator.Details.Type);
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual async Task Can_query_just_nested_reference()
         {
             await using (var testDatabase = CreateTestStore())
@@ -188,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual async Task Can_query_just_nested_collection()
         {
-            await using (var testDatabase = CreateTestStore())
+            await using (var testDatabase = CreateTestStore(seed: false))
             {
                 using (var context = CreateContext())
                 {
@@ -198,14 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                             Id = 3,
                             Addresses = new[]
                             {
-                                new Address
-                                {
-                                    Street = "First", City = "City"
-                                },
-                                new Address
-                                {
-                                    Street = "Second", City = "City"
-                                }
+                                new Address { Street = "First", City = "City" }, new Address { Street = "Second", City = "City" }
                             }
                         });
 
@@ -224,17 +307,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public virtual async Task Inserting_dependent_without_principal_throws()
         {
-            await using (var testDatabase = CreateTestStore())
+            await using (var testDatabase = CreateTestStore(seed: false))
             {
                 using (var context = CreateContext())
                 {
                     context.Add(
-                        new LicensedOperator
-                        {
-                            Name = "Jack Jackson",
-                            LicenseType = "Class A CDC",
-                            VehicleName = "Fuel transport"
-                        });
+                        new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC", VehicleName = "Fuel transport" });
 
                     Assert.Equal(
                         CosmosStrings.OrphanedNestedDocumentSensitive(
@@ -253,17 +331,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    bike.Operator = new Operator
-                    {
-                        Name = "Chris Horner"
-                    };
+                    bike.Operator = new Operator { Name = "Chris Horner" };
 
                     context.ChangeTracker.DetectChanges();
 
-                    bike.Operator = new LicensedOperator
-                    {
-                        Name = "repairman"
-                    };
+                    bike.Operator = new LicensedOperator { Name = "repairman" };
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
@@ -286,12 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    var newBike = new Vehicle
-                    {
-                        Name = "Trek Pro Fit Madone 6 Series",
-                        Operator = bike.Operator,
-                        SeatingCapacity = 2
-                    };
+                    var newBike = new Vehicle { Name = "Trek Pro Fit Madone 6 Series", Operator = bike.Operator, SeatingCapacity = 2 };
 
                     var oldEntry = context.Remove(bike);
                     var newEntry = context.Add(newBike);
@@ -322,7 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         protected void AssertContainsSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 
-        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating = null)
+        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating = null, bool seed = true)
         {
             TestStore = TestStoreFactory.Create(DatabaseName);
 
@@ -331,7 +398,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
+
+            TestStore.Initialize(ServiceProvider, CreateContext, c =>
+            {
+                if (seed)
+                {
+                    ((TransportationContext)c).Seed();
+                }
+            });
 
             TestSqlLoggerFactory.Clear();
 
@@ -355,7 +429,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
         protected class EmbeddedTransportationContext : TransportationContext
         {
-            public EmbeddedTransportationContext(DbContextOptions options) : base(options)
+            public EmbeddedTransportationContext(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -394,17 +469,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 modelBuilder.Ignore<SolidRocket>();
 
                 modelBuilder.Entity<Person>(
-                    eb => eb.OwnsMany(v => v.Addresses, b =>
-                    {
-                        b.ToJsonProperty("Stored Addresses");
-                    }));
+                    eb => eb.OwnsMany(
+                        v => v.Addresses, b =>
+                        {
+                            b.ToJsonProperty("Stored Addresses");
+                        }));
             }
         }
 
         private class Person
         {
             public int Id { get; set; }
-            public ICollection<Address> Addresses { get; set; }
+            public ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
         }
 
         public class Address

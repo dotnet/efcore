@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class RowNumberExpression : SqlExpression
     {
-        public RowNumberExpression(IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings, RelationalTypeMapping typeMapping)
+        public RowNumberExpression(
+            IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings, RelationalTypeMapping typeMapping)
             : base(typeof(long), typeMapping)
         {
             Check.NotEmpty(orderings, nameof(orderings));
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual RowNumberExpression Update(IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings)
         {
             return (Partitions == null ? partitions == null : Partitions.SequenceEqual(partitions))
-                    && Orderings.SequenceEqual(orderings)
+                   && Orderings.SequenceEqual(orderings)
                 ? this
                 : new RowNumberExpression(partitions, orderings, TypeMapping);
         }
@@ -65,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.VisitList(Partitions);
                 expressionPrinter.Append(" ");
             }
+
             expressionPrinter.Append("ORDER BY ");
             expressionPrinter.VisitList(Orderings);
             expressionPrinter.Append(")");
@@ -72,14 +74,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is RowNumberExpression rowNumberExpression
-                    && Equals(rowNumberExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is RowNumberExpression rowNumberExpression
+                   && Equals(rowNumberExpression));
 
         private bool Equals(RowNumberExpression rowNumberExpression)
             => base.Equals(rowNumberExpression)
-            && (Partitions == null ? rowNumberExpression.Partitions == null : Partitions.SequenceEqual(rowNumberExpression.Partitions))
-            && Orderings.SequenceEqual(rowNumberExpression.Orderings);
+               && (Partitions == null ? rowNumberExpression.Partitions == null : Partitions.SequenceEqual(rowNumberExpression.Partitions))
+               && Orderings.SequenceEqual(rowNumberExpression.Orderings);
 
         public override int GetHashCode()
         {

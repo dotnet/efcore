@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -139,7 +138,6 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
-        [ConditionalFact]
         public override async Task DbQuery_query_async()
         {
             await base.DbQuery_query_async();
@@ -150,7 +148,6 @@ WHERE [c].[CustomerID] = N'ALFKI'");
                 @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
         }
 
-        [ConditionalFact]
         public override void DbQuery_query_first()
         {
             base.DbQuery_query_first();
@@ -163,7 +160,6 @@ FROM (
 ORDER BY [c].[CompanyName]");
         }
 
-        [ConditionalFact]
         public override async Task DbQuery_query_first_async()
         {
             await base.DbQuery_query_first_async();
@@ -176,7 +172,6 @@ FROM (
 ORDER BY [c].[CompanyName]");
         }
 
-        [ConditionalFact]
         public override void DbQuery_query()
         {
             base.DbQuery_query();

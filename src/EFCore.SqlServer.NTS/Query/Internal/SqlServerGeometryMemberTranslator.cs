@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerGeometryMemberTranslator(IRelationalTypeMappingSource typeMappingSource,
+        public SqlServerGeometryMemberTranslator(
+            IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
@@ -76,21 +77,39 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     var whenClauses = new List<CaseWhenClause>
                     {
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("Point"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("LineString"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("Polygon"), _sqlExpressionFactory.Constant(OgcGeometryType.Polygon)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("MultiPoint"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("MultiLineString"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("MultiPolygon"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("GeometryCollection"), _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("CircularString"), _sqlExpressionFactory.Constant(OgcGeometryType.CircularString)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("CompoundCurve"), _sqlExpressionFactory.Constant(OgcGeometryType.CompoundCurve)),
-                        new CaseWhenClause(_sqlExpressionFactory.Constant("CurvePolygon"), _sqlExpressionFactory.Constant(OgcGeometryType.CurvePolygon))
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("Point"), _sqlExpressionFactory.Constant(OgcGeometryType.Point)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("LineString"), _sqlExpressionFactory.Constant(OgcGeometryType.LineString)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("Polygon"), _sqlExpressionFactory.Constant(OgcGeometryType.Polygon)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("MultiPoint"), _sqlExpressionFactory.Constant(OgcGeometryType.MultiPoint)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("MultiLineString"),
+                            _sqlExpressionFactory.Constant(OgcGeometryType.MultiLineString)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("MultiPolygon"),
+                            _sqlExpressionFactory.Constant(OgcGeometryType.MultiPolygon)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("GeometryCollection"),
+                            _sqlExpressionFactory.Constant(OgcGeometryType.GeometryCollection)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("CircularString"),
+                            _sqlExpressionFactory.Constant(OgcGeometryType.CircularString)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("CompoundCurve"),
+                            _sqlExpressionFactory.Constant(OgcGeometryType.CompoundCurve)),
+                        new CaseWhenClause(
+                            _sqlExpressionFactory.Constant("CurvePolygon"),
+                            _sqlExpressionFactory.Constant(OgcGeometryType.CurvePolygon))
                     };
 
                     if (isGeography)
                     {
-                        whenClauses.Add(new CaseWhenClause(_sqlExpressionFactory.Constant("FullGlobe"), _sqlExpressionFactory.Constant((OgcGeometryType)126)));
+                        whenClauses.Add(
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Constant("FullGlobe"), _sqlExpressionFactory.Constant((OgcGeometryType)126)));
                     }
 
                     return _sqlExpressionFactory.Case(

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
+using Xunit.Sdk;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming
@@ -39,11 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Select(
-                    o => new
-                    {
-                        A = o.OrderID / (o.OrderID / 2),
-                        B = o.OrderID / o.OrderID / 2
-                    }),
+                    o => new { A = o.OrderID / (o.OrderID / 2), B = o.OrderID / o.OrderID / 2 }),
                 e => e.A + " " + e.B);
         }
 
@@ -111,10 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        f = boolean
-                    }),
+                    c => new { f = boolean }),
                 e => e.f);
 
             boolean = true;
@@ -122,10 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        f = boolean
-                    }),
+                    c => new { f = boolean }),
                 e => e.f);
         }
 
@@ -142,10 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => AssertQuery<Customer>(
                             isAsync,
                             cs => cs.Select(
-                                c => new
-                                {
-                                    f = boolean
-                                }).OrderBy(e => (bool?)e.f),
+                                c => new { f = boolean }).OrderBy(e => (bool?)e.f),
                             assertOrder: true))).Message));
         }
 
@@ -177,10 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City
-                    }),
+                    c => new { c.City }),
                 e => e.City);
         }
 
@@ -191,11 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        c.Phone
-                    }),
+                    c => new { c.City, c.Phone }),
                 e => e.Phone);
         }
 
@@ -206,12 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        c.Phone,
-                        c.Country
-                    }),
+                    c => new { c.City, c.Phone, c.Country }),
                 e => e.Phone);
         }
 
@@ -222,11 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        ConstantTrue = true
-                    }),
+                    c => new { c.CustomerID, ConstantTrue = true }),
                 e => e.CustomerID);
         }
 
@@ -237,11 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.CustomerID,
-                        Expression = c.CustomerID.Length + 5
-                    }),
+                    c => new { c.CustomerID, Expression = c.CustomerID.Length + 5 }),
                 e => e.CustomerID);
         }
 
@@ -252,11 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Product>(
                 isAsync,
                 ps => ps.Select(
-                    p => new
-                    {
-                        p.ProductID,
-                        IsAvailable = p.UnitsInStock > 0
-                    }),
+                    p => new { p.ProductID, IsAvailable = p.UnitsInStock > 0 }),
                 e => e.ProductID);
         }
 
@@ -287,11 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        c
-                    }),
+                    c => new { c.City, c }),
                 e => e.c.CustomerID,
                 entryCount: 91);
         }
@@ -303,14 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        c.City,
-                        Country = new
-                        {
-                            c.Country
-                        }
-                    }),
+                    c => new { c.City, Country = new { c.Country } }),
                 e => e.City);
         }
 
@@ -321,9 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                    }),
+                    c => new { }),
                 e => 1);
         }
 
@@ -334,10 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Select(
-                    c => new
-                    {
-                        X = 10
-                    }),
+                    c => new { X = 10 }),
                 e => e.X);
         }
 
@@ -447,10 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 .Where(o => o.OrderID < 10500)
                                 .Take(3)
                                 .Select(
-                                    o => new
-                                    {
-                                        Date = o.OrderDate
-                                    })
+                                    o => new { Date = o.OrderDate })
                         })
                     .ToList();
 
@@ -590,10 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.Where(c => c.CustomerID.StartsWith("A"))
                     .Select(
-                        c => new
-                        {
-                            c.Orders.Count
-                        }),
+                        c => new { c.Orders.Count }),
                 e => e.Count);
         }
 
@@ -633,10 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => from c in cs
                       where c.CustomerID.StartsWith("A")
-                      select new
-                      {
-                          A = new DateTime()
-                      },
+                      select new { A = new DateTime() },
                 e => e.A);
         }
 
@@ -780,12 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(o => o.CustomerID == "ALFKI")
                     .OrderBy(o => o.OrderID)
                     .Select(
-                        o => new
-                        {
-                            LongOrder = (long)o.OrderID,
-                            ShortOrder = (short)o.OrderID,
-                            Order = o.OrderID
-                        }),
+                        o => new { LongOrder = (long)o.OrderID, ShortOrder = (short)o.OrderID, Order = o.OrderID }),
                 assertOrder: true);
         }
 
@@ -861,7 +795,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Select(
                     c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e.Length),
                 cs => cs.Select(
-                    c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault()).Select(e => e == null ? 0 : e.Length));
+                        c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.CustomerID).Distinct().FirstOrDefault())
+                    .Select(e => e == null ? 0 : e.Length));
         }
 
         [ConditionalTheory]
@@ -1085,11 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQueryScalar<Order>(
                 isAsync,
                 os => os.Select(
-                        o => new
-                        {
-                            A = o.CustomerID,
-                            B = o.OrderDate
-                        })
+                        o => new { A = o.CustomerID, B = o.OrderDate })
                     .AsNoTracking() // Just to cause a subquery
                     .Select(e => e.B));
         }
@@ -1102,11 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => from c in cs
                       orderby c.CustomerID
-                      select new
-                      {
-                          A = c.CustomerID,
-                          B = c.CustomerID
-                      });
+                      select new { A = c.CustomerID, B = c.CustomerID });
         }
 
         [ConditionalTheory]
@@ -1117,11 +1044,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 os => from o in os
                       orderby o.CustomerID
-                      select new
-                      {
-                          A = o.Customer.CustomerID,
-                          B = o.CustomerID
-                      });
+                      select new { A = o.Customer.CustomerID, B = o.CustomerID });
         }
 
         [ConditionalTheory]
@@ -1148,8 +1071,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             from o in grouping.DefaultIfEmpty()
                             select o != null ? o.OrderDate.Value : new DateTime(1753, 1, 1));
         }
-
-
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -1188,13 +1109,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery<Order>(
                 isAsync,
-                os => os.Select(o => new
-                {
-                    One = o.CustomerID,
-                    Two = o.CustomerID == "ALFKI"
-                        ? new MyStruct { X = o.OrderID, Y = o.CustomerID.Length }
-                        : (MyStruct?)null
-                }),
+                os => os.Select(
+                    o => new
+                    {
+                        One = o.CustomerID,
+                        Two = o.CustomerID == "ALFKI"
+                            ? new MyStruct { X = o.OrderID, Y = o.CustomerID.Length }
+                            : (MyStruct?)null
+                    }),
                 elementSorter: e => e.One + " " + e.Two?.X);
         }
 
@@ -1244,11 +1166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => from c in cs
                             from o in os.Where(o => c.CustomerID == o.CustomerID).Select(o => c.City)
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            select new { c, o },
                 entryCount: 89);
         }
 
@@ -1259,12 +1177,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => from c in cs
-                            from o in os.Where(o => c.CustomerID == o.CustomerID).OrderBy(o => c.City).Take(2)
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            from o in os.Where(o => c.CustomerID == o.CustomerID)
+                                .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2)
+                            select new { c, o },
                 entryCount: 266);
         }
 
@@ -1276,11 +1191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => from c in cs
                             from o in os.Where(o => c.CustomerID == o.CustomerID).Select(o => c.City).DefaultIfEmpty()
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            select new { c, o },
                 entryCount: 91);
         }
 
@@ -1291,13 +1202,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Customer, Order>(
                 isAsync,
                 (cs, os) => from c in cs
-                            from o in os.Where(o => c.CustomerID == o.CustomerID).OrderBy(o => c.City).Take(2).DefaultIfEmpty()
-                            select new
-                            {
-                                c,
-                                o
-                            },
+                            from o in os.Where(o => c.CustomerID == o.CustomerID)
+                                .OrderBy(o => c.City).ThenBy(o => o.OrderID).Take(2).DefaultIfEmpty()
+                            select new { c, o },
                 entryCount: 268);
+        }
+
+        [ConditionalTheory] //Issue#6061
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => from c in cs
+                      where c.CustomerID.Equals("FISSA")
+                      select new { c.CustomerID, OrderId = c.Orders.OrderBy(o => o.OrderID).Select(o => o.OrderID).FirstOrDefault() });
         }
 
         [ConditionalTheory]
@@ -1308,6 +1227,163 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => cs.Select(c => os.Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length),
                 (cs, os) => cs.Select(c => 0));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Select(c => new CustomerListItem(c.CustomerID, c.City)).OrderBy(c => c.City),
+                assertOrder: true);
+        }
+
+        protected class CustomerListItem
+        {
+            public CustomerListItem(string id, string city)
+            {
+                Id = id;
+                City = city;
+            }
+
+            public string Id { get; }
+            public string City { get; }
+
+            public override bool Equals(object obj)
+                => obj != null
+                    && (ReferenceEquals(this, obj)
+                        || obj is CustomerListItem customerListItem
+                            && Id == customerListItem.Id
+                            && City == customerListItem.City);
+
+            public override int GetHashCode() => HashCode.Combine(Id, City);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Filtered_collection_projection_is_tracked(bool isAsync)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c =>
+                    new
+                    {
+                        Customer = c,
+                        FilteredOrders = c.Orders.Where(o => o.OrderID > 11000)
+                    });
+
+                var result = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count()));
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Filtered_collection_projection_with_to_list_is_tracked(bool isAsync)
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Customers
+                    .Where(c => c.CustomerID.StartsWith("A"))
+                    .Select(c =>
+                    new
+                    {
+                        Customer = c,
+                        FilteredOrders = c.Orders.Where(o => o.OrderID > 11000).ToList()
+                    });
+
+                var result = isAsync
+                    ? (await query.ToListAsync())
+                    : query.ToList();
+
+                Assert.Equal(4, result.Count);
+                Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count));
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.SelectMany(c => c.Orders.Select(o => new { OrderProperty = o.CustomerID, CustomerProperty = c.CustomerID })));
+        }
+
+        [ConditionalTheory(Skip = "issue #17763")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.SelectMany(c => c.Orders.Select(o => new { OrderProperty = o.ShipName, CustomerProperty = c.ContactName })));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_with_complex_expression_that_can_be_funcletized(bool isAsync)
+        {
+            return AssertQueryScalar<Customer, int>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("")),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID).Select(o => o.Customer.Orders),
+                elementAsserter: CollectionAsserter<Order>(),
+                assertOrder: true,
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_entity_compared_to_null(bool isAsync)
+        {
+            return AssertQueryScalar<Order, bool>(
+                isAsync,
+                os => from o in os
+                      where o.CustomerID == "ALFKI"
+                      select o.Customer == null);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            from g in (from o in os
+                                       where c.CustomerID == o.CustomerID
+                                       select new { OrderDate = o.OrderDate, CustomerCity = c.City })
+                            select g);
+        }
+
+        [ConditionalTheory(Skip = "Issue#12148")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Select(c => new
+                {
+                    Order = (c.Orders.Any() ? c.Orders.FirstOrDefault() : null) == null ? null : new Order { }
+                }));
         }
     }
 }

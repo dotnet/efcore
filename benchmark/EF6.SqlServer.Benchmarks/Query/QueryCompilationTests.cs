@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     {
         private static readonly OrdersFixture _fixture
             = new OrdersFixture("Perf_Query_Compilation_EF6", 0, 0, 0, 0);
+
         private OrdersContext _context;
         private IQueryable<Product> _simpleQuery;
         private IQueryable<DTO> _complexQuery;

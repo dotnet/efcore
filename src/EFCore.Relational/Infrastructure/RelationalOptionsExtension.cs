@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///    Information/metadata about the extension.
+        ///     Information/metadata about the extension.
         /// </summary>
         public abstract DbContextOptionsExtensionInfo Info { get; }
 
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///    Information/metadata for a <see cref="RelationalOptionsExtension"/>.
+        ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.
         /// </summary>
         protected abstract class RelationalExtensionInfo : DbContextOptionsExtensionInfo
         {

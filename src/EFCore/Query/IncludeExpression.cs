@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -34,16 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual IncludeExpression Update(Expression entityExpression, Expression navigationExpression)
             => entityExpression != EntityExpression || navigationExpression != NavigationExpression
-            ? new IncludeExpression(entityExpression, navigationExpression, Navigation)
-            : this;
+                ? new IncludeExpression(entityExpression, navigationExpression, Navigation)
+                : this;
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.AppendLine($"IncludeExpression(");
+            expressionPrinter.AppendLine("IncludeExpression(");
             using (expressionPrinter.Indent())
             {
                 expressionPrinter.Visit(EntityExpression);
-                expressionPrinter.AppendLine($", ");
+                expressionPrinter.AppendLine(", ");
                 expressionPrinter.Visit(NavigationExpression);
                 expressionPrinter.AppendLine($", {Navigation.Name})");
             }

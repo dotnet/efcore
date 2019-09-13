@@ -45,14 +45,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
         /// <summary>
-        /// Configures the context to use the provided Region.
+        ///     Configures the context to use the provided Region.
         /// </summary>
         /// <param name="region">CosmosDB region name</param>
         public virtual CosmosDbContextOptionsBuilder Region([NotNull] string region)
             => WithOption(e => e.WithRegion(Check.NotNull(region, nameof(region))));
 
         /// <summary>
-        /// Configures the context to use the provided connection mode.
+        ///     Configures the context to use the provided connection mode.
         /// </summary>
         /// <param name="connectionMode">CosmosDB connection mode</param>
         public virtual CosmosDbContextOptionsBuilder ConnectionMode(ConnectionMode connectionMode)

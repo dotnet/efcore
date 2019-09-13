@@ -381,14 +381,14 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
             base.FromSqlRaw_queryable_simple_projection_composed();
 
             // issue #16079
-//            AssertSql(
-//                @"SELECT [p].[ProductName]
-//FROM (
-//    SELECT *
-//    FROM ""Products""
-//    WHERE ""Discontinued"" <> CAST(1 AS bit)
-//    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
-//) AS [p]");
+            //            AssertSql(
+            //                @"SELECT [p].[ProductName]
+            //FROM (
+            //    SELECT *
+            //    FROM ""Products""
+            //    WHERE ""Discontinued"" <> CAST(1 AS bit)
+            //    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
+            //) AS [p]");
         }
 
         public override void FromSqlRaw_queryable_simple_include()
@@ -538,7 +538,7 @@ SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
             base.FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix();
 
             AssertSql(
-    @"somename='ALFKI' (Nullable = false) (Size = 5)
+                @"somename='ALFKI' (Nullable = false) (Size = 5)
 
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
         }
@@ -586,10 +586,7 @@ WHERE [o].[CustomerID] IN (
                                 .FromSqlRaw(
                                     @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                                     // ReSharper disable once FormatStringProblem
-                                    new SqlParameter
-                                    {
-                                        Value = "London"
-                                    })
+                                    new SqlParameter { Value = "London" })
                                 .Select(c => c.CustomerID)
                                 .Contains(o.CustomerID))
                     .ToArray();
@@ -750,11 +747,7 @@ SELECT * FROM ""Orders"" WHERE ""OrderID"" < @p0");
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqlParameter
-            {
-                ParameterName = name,
-                Value = value
-            };
+            => new SqlParameter { ParameterName = name, Value = value };
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

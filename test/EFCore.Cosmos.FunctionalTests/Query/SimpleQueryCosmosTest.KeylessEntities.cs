@@ -52,6 +52,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
                 @"");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
             await AssertQuery<Customer, OrderQuery>(
@@ -59,11 +60,7 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
                 (cs, ovs)
                     => from c in cs.Where(ct => ct.City == "London")
                        from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
-                       select new
-                       {
-                           c,
-                           o
-                       },
+                       select new { c, o },
                 e => e.c.CustomerID);
 
             AssertSql(
@@ -82,6 +79,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
             await base.KeylessEntity_with_defining_query_and_correlated_collection(isAsync);
@@ -92,7 +90,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "issue 312086")] // left join translation
+        [ConditionalTheory(Skip = "issue 12086")] // left join translation
         public override async Task KeylessEntity_select_where_navigation(bool isAsync)
         {
             await base.KeylessEntity_select_where_navigation(isAsync);
@@ -100,7 +98,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(@"");
         }
 
-        [ConditionalTheory(Skip = "issue 312086")] // left join translation
+        [ConditionalTheory(Skip = "issue 12086")] // left join translation
         public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {
             await AssertQuery<OrderQuery>(

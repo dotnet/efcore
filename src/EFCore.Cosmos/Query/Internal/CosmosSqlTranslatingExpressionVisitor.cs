@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -118,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     convertedType = unaryExpression.Type;
                 }
+
                 source = unaryExpression.Operand;
             }
 
@@ -206,6 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     return null;
                 }
+
                 arguments[i] = (SqlExpression)argument;
             }
 
@@ -251,10 +253,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
-                return Visit(Expression.Condition(
-                    Expression.NotEqual(binaryExpression.Left, Expression.Constant(null, binaryExpression.Left.Type)),
-                    binaryExpression.Left,
-                    binaryExpression.Right));
+                return Visit(
+                    Expression.Condition(
+                        Expression.NotEqual(binaryExpression.Left, Expression.Constant(null, binaryExpression.Left.Type)),
+                        binaryExpression.Left,
+                        binaryExpression.Right));
             }
 
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
@@ -322,7 +325,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             switch (unaryExpression.NodeType)
             {
-
                 case ExpressionType.Not:
                     return _sqlExpressionFactory.Not(sqlOperand);
 
@@ -332,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ExpressionType.Convert:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
-                            && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                         || unaryExpression.Type.UnwrapNullableType() == operand.Type
                         || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                     {
@@ -377,8 +379,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 case MemberInitExpression memberInitExpression:
                     return CanEvaluate(memberInitExpression.NewExpression)
-                        && memberInitExpression.Bindings.All(
-                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+                           && memberInitExpression.Bindings.All(
+                               mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
 
                 default:
                     return false;
@@ -469,8 +471,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return Visit(entityShaperExpression.ValueBufferExpression);
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-                    return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    return projectionBindingExpression.ProjectionMember != null
+                        ? ((SelectExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : null;
 
                 case NullConditionalExpression nullConditionalExpression:
                     return Visit(nullConditionalExpression.AccessOperation);

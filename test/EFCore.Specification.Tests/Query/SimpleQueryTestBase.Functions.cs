@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -782,10 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
-                    o => new
-                    {
-                        A = Math.Round((double)o.OrderID)
-                    }),
+                    o => new { A = Math.Round((double)o.OrderID) }),
                 e => e.A);
         }
 
@@ -796,10 +792,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.Where(o => o.OrderID < 10250).Select(
-                    o => new
-                    {
-                        A = Math.Truncate((double)o.OrderID)
-                    }),
+                    o => new { A = Math.Truncate((double)o.OrderID) }),
                 e => e.A);
         }
 
@@ -1280,11 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = context.Set<Customer>()
                     .Select(
-                        c => new
-                        {
-                            Id = c.CustomerID,
-                            Value = string.IsNullOrEmpty(c.Region)
-                        })
+                        c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
                     .ToList();
 
                 Assert.Equal(91, query.Count);
@@ -1298,11 +1287,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var query = context.Set<Customer>()
                     .Select(
-                        c => new
-                        {
-                            Id = c.CustomerID,
-                            Value = !string.IsNullOrEmpty(c.Region)
-                        })
+                        c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
                     .ToList();
 
                 Assert.Equal(91, query.Count);
@@ -1420,16 +1405,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        // issue #12598
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Order_by_length_twice_followed_by_projection_of_naked_collection_navigation(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID).Select(c => c.Orders),
+                assertOrder: true,
                 elementAsserter: CollectionAsserter<Order>(o => o.OrderID, (e, a) => Assert.Equal(e.OrderID, a.OrderID)),
-                entryCount: 91);
+                entryCount: 830);
         }
 
         [ConditionalTheory]

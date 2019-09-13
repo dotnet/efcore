@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Where_subquery_on_navigation_client_eval(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.Where_subquery_on_navigation_client_eval(isAsync);
         }
     }
 }

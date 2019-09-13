@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
 
             _applyServices.Invoke(new InMemoryOptionsExtension(), new object[] { services });
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(IInMemoryDatabase)));
+            Assert.Contains(services, sd => sd.ServiceType == typeof(IInMemoryDatabase));
         }
     }
 }

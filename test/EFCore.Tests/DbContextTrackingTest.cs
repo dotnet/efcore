@@ -58,34 +58,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 var principalEntry = await categoryAdder(context, principal);
                 var dependentEntry = await productAdder(context, dependent);
@@ -162,34 +139,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 await adder(context, new object[] { principal, dependent });
 
@@ -201,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(principal, context.Entry(principal).Entity);
                 Assert.Equal(expectedState, context.Entry(principal).State);
                 Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
+                Assert.Equal(
+                    expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
 
                 Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
                 Assert.Equal(expectedState, context.Entry(relatedDependent).State);
@@ -255,17 +210,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
                 var categoryEntry1 = await categoryAdder(context, category1);
                 var productEntry1 = await productAdder(context, product1);
@@ -339,17 +285,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
                 await categoryAdder(context, new[] { category1 });
                 await productAdder(context, new[] { product1 });
@@ -454,34 +391,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 var principalEntry = await categoryAdder(context, principal);
                 var dependentEntry = await productAdder(context, dependent);
@@ -558,34 +472,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var relatedDependent = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var principal = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages",
-                    Products = new List<Product>
-                    {
-                        relatedDependent
-                    }
-                };
+                var relatedDependent = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
+                var principal = new Category { Id = 1, Name = "Beverages", Products = new List<Product> { relatedDependent } };
 
-                var relatedPrincipal = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
-                var dependent = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m,
-                    Category = relatedPrincipal
-                };
+                var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+                var dependent = new Product { Id = 2, Name = "Bovril", Price = 4.99m, Category = relatedPrincipal };
 
                 await adder(context, new object[] { principal, dependent });
 
@@ -597,7 +488,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Same(principal, context.Entry(principal).Entity);
                 Assert.Equal(expectedState, context.Entry(principal).State);
                 Assert.Same(relatedPrincipal, context.Entry(relatedPrincipal).Entity);
-                Assert.Equal(expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
+                Assert.Equal(
+                    expectedState == EntityState.Deleted ? EntityState.Unchanged : expectedState, context.Entry(relatedPrincipal).State);
 
                 Assert.Same(relatedDependent, context.Entry(relatedDependent).Entity);
                 Assert.Equal(expectedState, context.Entry(relatedDependent).State);
@@ -651,17 +543,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
                 var categoryEntry1 = await categoryAdder(context, category1);
                 var productEntry1 = await productAdder(context, product1);
@@ -737,28 +620,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category1 = new Category
-                {
-                    Id = 0,
-                    Name = "Beverages"
-                };
-                var product1 = new Product
-                {
-                    Id = 0,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
+                var category1 = new Category { Id = 0, Name = "Beverages" };
+                var product1 = new Product { Id = 0, Name = "Marmite", Price = 7.99m };
 
                 await categoryAdder(
-                    context, new List<Category>
-                    {
-                        category1
-                    });
+                    context, new List<Category> { category1 });
                 await productAdder(
-                    context, new List<Product>
-                    {
-                        product1
-                    });
+                    context, new List<Product> { product1 });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(product1, context.Entry(product1).Entity);
@@ -829,14 +697,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var gu1 = new TheGu
-                {
-                    ShirtColor = "Red"
-                };
-                var gu2 = new TheGu
-                {
-                    ShirtColor = "Still Red"
-                };
+                var gu1 = new TheGu { ShirtColor = "Red" };
+                var gu2 = new TheGu { ShirtColor = "Still Red" };
 
                 if (attachFirst)
                 {
@@ -948,11 +810,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var entity = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
+                var entity = new Category { Id = 1, Name = "Beverages" };
                 var entry = context.Entry(entity);
 
                 entry.State = initialState;
@@ -968,22 +826,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1010,22 +855,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -1050,18 +882,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
                 context.Attach(category);
@@ -1087,18 +909,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
                 context.Attach(product);
@@ -1124,21 +936,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1163,21 +963,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -1202,22 +990,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1244,22 +1019,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1284,18 +1046,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -1321,18 +1073,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
                 context.Entry(product).State = EntityState.Unchanged;
@@ -1358,21 +1100,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1397,21 +1127,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1437,28 +1155,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1487,30 +1188,13 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
 
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
 
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -1540,25 +1224,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
 
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
 
                 category.Products = new List<Product>();
 
@@ -1590,25 +1260,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
 
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
 
                 category.Products = new List<Product>();
 
@@ -1640,27 +1296,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1688,27 +1328,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Attach(product);
 
@@ -1735,28 +1359,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1784,30 +1391,13 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
 
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
 
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 
@@ -1837,24 +1427,10 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
                 context.Entry(category).State = EntityState.Unchanged;
@@ -1884,25 +1460,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
 
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite",
-                    Category = category
-                };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
 
                 category.Products = new List<Product>();
 
@@ -1934,27 +1496,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(category).State = EntityState.Unchanged;
 
@@ -1982,27 +1528,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider()))
             {
                 var category7 = context.Attach(
-                    new Category
-                    {
-                        Id = 7,
-                        Products = new List<Product>()
-                    }).Entity;
+                    new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-                var category = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var product = new Product
-                {
-                    Id = 1,
-                    CategoryId = 7,
-                    Name = "Marmite"
-                };
-                category.Products = new List<Product>
-                {
-                    product
-                };
+                var category = new Category { Id = 1, Name = "Beverages" };
+                var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
+                category.Products = new List<Product> { product };
 
                 context.Entry(product).State = EntityState.Unchanged;
 

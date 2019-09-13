@@ -99,10 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             try
             {
                 return (IClrCollectionAccessor)boundMethod.Invoke(
-                    null, new object[]
-                    {
-                        navigation
-                    });
+                    null, new object[] { navigation });
             }
             catch (TargetInvocationException invocationException)
             {

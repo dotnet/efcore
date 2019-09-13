@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -149,9 +148,14 @@ MaxLengthDataTypes.String9000 ---> [nullable varbinary] [MaxLength = -1]
 NonNullableDependent.Id ---> [int] [Precision = 10 Scale = 0]
 NonNullableDependent.PrincipalId ---> [int] [Precision = 10 Scale = 0]
 NullablePrincipal.Id ---> [int] [Precision = 10 Scale = 0]
+Order.Id ---> [nvarchar] [MaxLength = 450]
 Person.Id ---> [int] [Precision = 10 Scale = 0]
 Person.Name ---> [nullable nvarchar] [MaxLength = -1]
 Person.SSN ---> [nullable int] [Precision = 10 Scale = 0]
+SimpleCounter.CounterId ---> [int] [Precision = 10 Scale = 0]
+SimpleCounter.Discriminator ---> [nullable nvarchar] [MaxLength = -1]
+SimpleCounter.IsTest ---> [bit]
+SimpleCounter.StyleKey ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]

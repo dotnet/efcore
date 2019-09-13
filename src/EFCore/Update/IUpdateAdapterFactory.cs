@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         /// <summary>
         ///     <para>
-        ///         Creates a standalone tracker that works with its own <see cref="IStateManager"/> and hence will not
+        ///         Creates a standalone tracker that works with its own <see cref="IStateManager" /> and hence will not
         ///         impact tracking on the state manager currently in use.
         ///     </para>
         ///     <para>

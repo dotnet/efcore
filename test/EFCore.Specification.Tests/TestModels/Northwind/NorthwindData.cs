@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -68,11 +67,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 customer.Orders.Add(order);
 
                 orderQueries.Add(
-                    new OrderQuery
-                    {
-                        CustomerID = order.CustomerID,
-                        Customer = order.Customer
-                    });
+                    new OrderQuery { CustomerID = order.CustomerID, Customer = order.Customer });
             }
 
             _orderQueries = orderQueries.ToArray();
@@ -202,9 +197,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 protected override Expression VisitMethodCall(MethodCallExpression expression)
                     => expression.Method.IsEFPropertyMethod()
                         ? Expression.Property(
-                            expression.Arguments[0].RemoveConvert(),
+                            RemoveConvert(expression.Arguments[0]),
                             Expression.Lambda<Func<string>>(expression.Arguments[1]).Compile().Invoke())
                         : base.VisitMethodCall(expression);
+            }
+
+            private static Expression RemoveConvert(Expression expression)
+            {
+                if (expression is UnaryExpression unaryExpression
+                    && (expression.NodeType == ExpressionType.Convert
+                        || expression.NodeType == ExpressionType.ConvertChecked))
+                {
+                    return RemoveConvert(unaryExpression.Operand);
+                }
+
+                return expression;
             }
 
             public IQueryable CreateQuery(Expression expression)

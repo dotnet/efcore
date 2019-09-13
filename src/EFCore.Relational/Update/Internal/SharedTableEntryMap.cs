@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema);
+                var factory = CreateSharedTableEntryMapFactory(
+                    tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema);
 
                 sharedTablesMap.Add(tableMapping.Key, factory);
             }

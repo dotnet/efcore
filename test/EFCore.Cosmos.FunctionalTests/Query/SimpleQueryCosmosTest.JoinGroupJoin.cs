@@ -41,12 +41,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     from c in cs.Where(c => c.CustomerID == "ALFKI")
                     join o in os on c.CustomerID equals o.CustomerID
                     from e in es
-                    select new
-                    {
-                        c,
-                        o,
-                        e
-                    },
+                    select new { c, o, e },
                 e => e.c.CustomerID + " " + e.o.OrderID + " " + e.e.EmployeeID,
                 entryCount: 16);
 
@@ -606,12 +601,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     from o0 in os.OrderBy(o => o.OrderID).Take(1)
                     join o1 in os on c.CustomerID equals o1.CustomerID into orders
                     from o2 in orders
-                    select new
-                    {
-                        A = c.CustomerID,
-                        B = o0.CustomerID,
-                        C = o2.CustomerID
-                    },
+                    select new { A = c.CustomerID, B = o0.CustomerID, C = o2.CustomerID },
                 e => e.A + " " + e.B + " " + e.C);
 
             AssertSql(
@@ -626,6 +616,12 @@ WHERE (c[""Discriminator""] = ""Order"")",
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task GroupJoin_Subquery_with_Take_Then_SelectMany_Where(bool isAsync)
+        {
+            return base.GroupJoin_Subquery_with_Take_Then_SelectMany_Where(isAsync);
         }
     }
 }

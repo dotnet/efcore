@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private static IEnumerable<CommandLineApplication> GetCommands()
         {
-            var app = new CommandLineApplication
-            {
-                Name = "ef"
-            };
+            var app = new CommandLineApplication { Name = "ef" };
 
             new RootCommand().Configure(app);
 

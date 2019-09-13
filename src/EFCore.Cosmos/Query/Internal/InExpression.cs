@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InExpression(SqlExpression item, bool negated, SqlExpression values, CoreTypeMapping typeMapping)
-           : base(typeof(bool), typeMapping)
+            : base(typeof(bool), typeMapping)
         {
             Item = item;
             IsNegated = negated;
@@ -110,15 +110,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is InExpression inExpression
-                    && Equals(inExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is InExpression inExpression
+                   && Equals(inExpression));
 
         private bool Equals(InExpression inExpression)
             => base.Equals(inExpression)
-            && Item.Equals(inExpression.Item)
-            && IsNegated.Equals(inExpression.IsNegated)
-            && (Values == null ? inExpression.Values == null : Values.Equals(inExpression.Values));
+               && Item.Equals(inExpression.Item)
+               && IsNegated.Equals(inExpression.IsNegated)
+               && (Values == null ? inExpression.Values == null : Values.Equals(inExpression.Values));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

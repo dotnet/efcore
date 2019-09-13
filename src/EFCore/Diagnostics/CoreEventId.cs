@@ -134,7 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The same entity is being tracked as a different weak entity type.
         ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
         /// </summary>
-        public static readonly EventId DuplicateDependentEntityTypeInstanceWarning = MakeUpdateId(Id.DuplicateDependentEntityTypeInstanceWarning);
+        public static readonly EventId DuplicateDependentEntityTypeInstanceWarning =
+            MakeUpdateId(Id.DuplicateDependentEntityTypeInstanceWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
         private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
@@ -172,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         [Obsolete]
-        public static readonly EventId RowLimitingOperationWithoutOrderByWarning = MakeQueryId(Id.RowLimitingOperationWithoutOrderByWarning);
+        public static readonly EventId RowLimitingOperationWithoutOrderByWarning =
+            MakeQueryId(Id.RowLimitingOperationWithoutOrderByWarning);
 
         /// <summary>
         ///     <para>
@@ -573,7 +575,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId MultipleInversePropertiesSameTargetWarning = MakeModelId(Id.MultipleInversePropertiesSameTargetWarning);
+        public static readonly EventId MultipleInversePropertiesSameTargetWarning =
+            MakeModelId(Id.MultipleInversePropertiesSameTargetWarning);
 
         /// <summary>
         ///     <para>
@@ -616,7 +619,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
-        public static readonly EventId ForeignKeyAttributesOnBothPropertiesWarning = MakeModelId(Id.ForeignKeyAttributesOnBothPropertiesWarning);
+        public static readonly EventId ForeignKeyAttributesOnBothPropertiesWarning =
+            MakeModelId(Id.ForeignKeyAttributesOnBothPropertiesWarning);
 
         /// <summary>
         ///     <para>
