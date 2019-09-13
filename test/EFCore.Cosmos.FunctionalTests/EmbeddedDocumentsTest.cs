@@ -18,15 +18,15 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
-    public class NestedDocumentsTest
+    public class EmbeddedDocumentsTest
     {
-        public NestedDocumentsTest(ITestOutputHelper testOutputHelper)
+        public EmbeddedDocumentsTest(ITestOutputHelper testOutputHelper)
         {
             TestSqlLoggerFactory = (TestSqlLoggerFactory)TestStoreFactory.CreateListLoggerFactory(_ => true);
             //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalFact(Skip = "Issue#17670")]
+        [ConditionalFact(Skip = "Issue #17670")]
         public virtual async Task Can_update_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact(Skip = "Issue#17670")]
+        [ConditionalFact]
         public virtual async Task Can_update_owner_with_dependents()
         {
             await using (var testDatabase = CreateTestStore())
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Operator firstOperator;
                 using (var context = CreateContext())
                 {
-                    firstOperator = context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator;
+                    firstOperator = context.Set<Vehicle>().OrderBy(o => o.Name).First().Operator;
                     firstOperator.Name += "1";
 
                     context.SaveChanges();
@@ -73,7 +73,40 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 {
                     Assert.Equal(
                         firstOperator.Name,
-                        context.Set<Vehicle>().OrderBy(o => o.Operator.VehicleName).First().Operator.Name);
+                        context.Set<Vehicle>().OrderBy(o => o.Name).First().Operator.Name);
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Can_attach_owner_with_dependents()
+        {
+            await using (var testDatabase = CreateTestStore())
+            {
+                Vehicle firstVehicle;
+
+                using (var context = CreateContext())
+                {
+                    firstVehicle = context.Set<Vehicle>().OrderBy(o => o.Name).First();
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    //Issue #15289
+                    var firstVehicleEntry = context.Add(firstVehicle);
+                    firstVehicleEntry.State = EntityState.Unchanged;
+                    firstVehicle.Operator.Name += "1";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    Assert.Equal(
+                        firstVehicle.Operator.Name,
+                        context.Set<Vehicle>().OrderBy(o => o.Name).First().Operator.Name);
                 }
             }
         }
@@ -117,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Assert.Equal("Second", addressJson[nameof(Address.Street)]);
                     addressJson["unmappedId"] = 2;
 
-                    existingAddressEntry.Property<JObject>("__jObject").CurrentValue = addressJson;
+                    existingAddressEntry.Property<JObject>("__jObject").IsModified = true;
 
                     addedAddress3 = new Address { Street = "Another", City = "City" };
                     var existingLastAddress = people[2].Addresses.Last();
@@ -173,12 +206,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             await using (var testDatabase = CreateTestStore(
                 modelBuilder =>
                 {
-                    modelBuilder.Entity<Vehicle>(
-                        eb =>
-                        {
-                            eb.OwnsOne(v => v.Operator).OwnsOne(v => v.Details);
-                        });
-
                     modelBuilder.Entity<Person>(
                         eb => eb.OwnsMany(
                             v => v.Addresses, b =>
@@ -191,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 Guid addressGuid;
                 await using (var context = CreateContext())
                 {
-                    context.Database.EnsureCreated();
+                    await context.Database.EnsureCreatedAsync();
                     var person = new Person { Id = 1 };
                     address = new Address { Street = "Second", City = "Village" };
                     person.Addresses.Add(address);
@@ -214,6 +241,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                     var addressEntry = context.Entry(addresses[0]);
                     Assert.Equal(addressGuid, (Guid)addressEntry.Property("Id").CurrentValue);
+                }
+            }
+        }
+
+        [ConditionalFact(Skip = "Issue #17733")]
+        public virtual async Task Can_query_nested_embedded_types()
+        {
+            await using (var testDatabase = CreateTestStore())
+            {
+                using (var context = CreateContext())
+                {
+                    var missile = context.Set<Vehicle>().First(v => v.Name == "AIM-9M Sidewinder");
+
+                    Assert.Equal("Heat-seeking", missile.Operator.Details.Type);
                 }
             }
         }

@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore
         #region Concurrency exceptions with complex types
 
         // Depends on an aggregate-friendly Reload, see #13890
-        //[ConditionalFact]
+        [ConditionalFact(Skip = "Issue#13890")]
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(

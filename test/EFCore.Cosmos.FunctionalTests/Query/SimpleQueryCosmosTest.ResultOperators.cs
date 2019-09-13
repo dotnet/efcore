@@ -1439,5 +1439,17 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             return base.DefaultIfEmpty_selects_only_required_columns(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Collection_Last_member_access_in_projection_translated(bool isAsync)
+        {
+            return base.Collection_Last_member_access_in_projection_translated(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Collection_LastOrDefault_member_access_in_projection_translated(bool isAsync)
+        {
+            return base.Collection_LastOrDefault_member_access_in_projection_translated(isAsync);
+        }
     }
 }

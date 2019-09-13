@@ -4,5 +4,4 @@
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 // Skip the entire assembly if not on Windows and no external SQL Server is configured
-
 [assembly: SqlServerConfiguredCondition]

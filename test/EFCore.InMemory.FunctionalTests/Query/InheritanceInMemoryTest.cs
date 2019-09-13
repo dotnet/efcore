@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalFact(Skip = "Issue#17504")]
+        [ConditionalFact]
         public override void Can_query_all_animal_views()
         {
             Assert.Equal(

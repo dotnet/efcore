@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs =>
                     from c in cs
 #pragma warning disable CS1718 // Comparison made to same variable
-                    // ReSharper disable once EqualExpressionComparison
+                        // ReSharper disable once EqualExpressionComparison
                     where c == c
 #pragma warning restore CS1718 // Comparison made to same variable
                     select c.CustomerID);
@@ -780,9 +780,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.ContactName);
         }
 
-        // issue #12574
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_Customers_Orders_Skip_Take_followed_by_constant_projection(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
@@ -791,8 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (from c in cs
                      join o in os on c.CustomerID equals o.CustomerID
                      orderby o.OrderID
-                     select new { c.ContactName, o.OrderID }).Skip(10).Take(5).Select(e => "Foo"),
-                e => e.ContactName);
+                     select new { c.ContactName, o.OrderID }).Skip(10).Take(5).Select(e => "Foo"));
         }
 
         [ConditionalTheory]
@@ -1434,7 +1432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue#16157")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_subquery_anon_nested(bool isAsync)
         {
@@ -1728,7 +1726,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: CollectionAsserter<Order>(o => o.OrderID));
         }
 
-        [ConditionalTheory(Skip = "Issue #17241")]
+        [ConditionalTheory(Skip = "Issue #16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_correlated_subquery_ordered(bool isAsync)
         {
@@ -1740,15 +1738,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: CollectionSorter<Order>(),
                 elementAsserter: CollectionAsserter<Order>());
         }
-
-        // TODO: Re-linq parser
-        // [ConditionalFact]
-        // public virtual Task Select_nested_ordered_enumerable_collection()
-        // {
-        //     AssertQuery<Customer>(cs =>
-        //         cs.Select(c => cs.AsEnumerable().OrderBy(c2 => c2.CustomerID)),
-        //         assertOrder: true);
-        // }
 
         [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
@@ -2355,7 +2344,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 15);
         }
 
-        [ConditionalTheory(Skip = "Issue #17240")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_correlated_subquery_hard(bool isAsync)
         {
@@ -2425,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                      select c));
         }
 
-        [ConditionalTheory(Skip = "TaskItem#6")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Any(bool isAsync)
         {
@@ -2434,7 +2423,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Any(o => o.OrderDate == new DateTime(2008, 10, 24))));
         }
 
-        [ConditionalTheory(Skip = "TaskItem#6")]
+        [ConditionalTheory(Skip = "Issue#17762")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Exists(bool isAsync)
         {
@@ -2443,7 +2432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => o.OrderDate == new DateTime(2008, 10, 24))));
         }
 
-        [ConditionalTheory(Skip = "TaskItem#6")]
+        [ConditionalTheory(Skip = "Issue#17762")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Exists_Inequality(bool isAsync)
         {
@@ -2453,7 +2442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "TaskItem#6")]
+        [ConditionalTheory(Skip = "Issue#17762")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Exists_Constant(bool isAsync)
         {
@@ -2462,7 +2451,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 cs => cs.Where(c => c.CustomerID == "ALFKI" && c.Orders.Exists(o => false)));
         }
 
-        [ConditionalTheory(Skip = "TaskItem#6")]
+        [ConditionalTheory(Skip = "Issue#17762")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_Join_Not_Exists(bool isAsync)
         {
@@ -2725,35 +2714,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c);
         }
 
-        // TODO: Composite keys, slow..
-
-        //        [ConditionalFact]
-        //        public virtual Task Multiple_joins_with_join_conditions_in_where()
-        //        {
-        //            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
-        //                from c in cs
-        //                from o in os.OrderBy(o1 => o1.OrderID).Take(10)
-        //                from od in ods
-        //                where o.CustomerID == c.CustomerID
-        //                    && o.OrderID == od.OrderID
-        //                where c.CustomerID == "ALFKI"
-        //                select od.ProductID,
-        //                assertOrder: true);
-        //        }
-        //        [ConditionalFact]
-        //
-        //        public virtual Task TestMultipleJoinsWithMissingJoinCondition()
-        //        {
-        //            AssertQuery<Customer, Order, OrderDetail>((cs, os, ods) =>
-        //                from c in cs
-        //                from o in os
-        //                from od in ods
-        //                where o.CustomerID == c.CustomerID
-        //                where c.CustomerID == "ALFKI"
-        //                select od.ProductID
-        //                );
-        //        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy(bool isAsync)
@@ -2922,16 +2882,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "OrderByOrderBy should ignore inner ordering")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_multiple(bool isAsync)
         {
             return AssertQuery<Customer>(
                 isAsync,
-                cs =>
-                    cs.OrderBy(c => c.CustomerID)
+                cs => cs.Where(c => c.CustomerID.StartsWith("A"))
+                        .OrderBy(c => c.CustomerID)
                         // ReSharper disable once MultipleOrderBy
                         .OrderBy(c => c.Country)
+                        .ThenBy(c => c.City)
                         .Select(c => c.City),
                 assertOrder: true);
         }
@@ -3423,22 +3384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        //[ConditionalFact]
-        //public virtual void Can_execute_non_generic()
-        //{
-        //    using (var context = CreateContext())
-        //    {
-        //        IQueryable<Product> products = context.Products;
-
-        //        Assert.NotNull(
-        //            products.Provider.Execute(
-        //                Expression.Call(
-        //                    new LinqOperatorProvider().First.MakeGenericMethod(typeof(Product)),
-        //                    products.Expression)));
-        //    }
-        //}
-
-        [ConditionalFact(Skip = "Issue #17242")]
+        [ConditionalFact(Skip = "Issue #16314")]
         public virtual void Select_Subquery_Single()
         {
             using (var context = CreateContext())
@@ -3514,7 +3460,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var orders
                     = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
-                       // ReSharper disable once UseMethodAny.0
+                           // ReSharper disable once UseMethodAny.0
                        where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                               where (from c in context.Set<Customer>()
                                      where c.CustomerID == o.CustomerID
@@ -4519,7 +4465,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.City1 + " " + e.City2);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ(bool isAsync)
         {
@@ -4535,7 +4481,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id1 + " " + e.Id2);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition1(
             bool isAsync)
@@ -4552,7 +4498,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id1 + " " + e.Id2);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task No_orderby_added_for_client_side_GroupJoin_dependent_to_principal_LOJ_with_additional_join_condition2(
             bool isAsync)
@@ -4569,7 +4515,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id1 + " " + e.Id2);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Orderby_added_for_client_side_GroupJoin_principal_to_dependent_LOJ(bool isAsync)
         {
@@ -5295,7 +5241,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Id1 + " " + e.Id2);
         }
 
-        [ConditionalTheory(Skip = "issue #8366")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Compare_two_collection_navigations_using_equals(bool isAsync)
         {
@@ -5354,7 +5300,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Complex Query")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync)
         {
@@ -5402,7 +5348,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
-        [ConditionalFact(Skip = "Issue #17243")]
+        [ConditionalFact(Skip = "Issue #16314")]
         public virtual void Streaming_chained_sync_query()
         {
             using (var context = CreateContext())
@@ -5626,7 +5572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Needs AsQueryable")]
+        [ConditionalTheory(Skip = "Issue#17756")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool isAsync)
         {

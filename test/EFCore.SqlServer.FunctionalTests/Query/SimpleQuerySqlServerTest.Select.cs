@@ -1065,5 +1065,87 @@ LEFT JOIN (
 WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
+
+        public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            await base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID] AS [OrderProperty], [t].[CustomerID0] AS [CustomerProperty]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[CustomerID], [c].[CustomerID] AS [CustomerID0], [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+) AS [t]");
+        }
+
+        public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool isAsync)
+        {
+            await base.SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Select_with_complex_expression_that_can_be_funcletized(bool isAsync)
+        {
+            await base.Select_with_complex_expression_that_can_be_funcletized(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN N'' = N'' THEN 0
+    ELSE CHARINDEX(N'', [c].[ContactName]) - 1
+END
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool isAsync)
+        {
+            await base.Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+ORDER BY [o].[OrderID], [o0].[OrderID]");
+        }
+
+        public override async Task Select_entity_compared_to_null(bool isAsync)
+        {
+            await base.Select_entity_compared_to_null(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [c].[CustomerID] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+        }
+
+        public override async Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            await base.SelectMany_whose_selector_references_outer_source(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[OrderDate], [t].[City] AS [CustomerCity]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderDate], [c].[City], [o].[OrderID], [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+) AS [t]");
+        }
+
+        public override async Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool isAsync)
+        {
+            await base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(isAsync);
+
+            AssertSql(" ");
+        }
     }
 }

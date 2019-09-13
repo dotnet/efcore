@@ -171,7 +171,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "CompositeKeyEndToEndTest";
 
-            //protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(BronieContext);
         }
 

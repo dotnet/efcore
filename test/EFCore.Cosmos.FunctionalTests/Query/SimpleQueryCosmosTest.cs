@@ -521,6 +521,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_anon_nested(bool isAsync)
         {
             await base.Where_subquery_anon_nested(isAsync);
@@ -1762,6 +1763,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task OrderBy_multiple(bool isAsync)
         {
             await base.OrderBy_multiple(isAsync);
@@ -3568,6 +3570,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync)
         {
             await base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(isAsync);
@@ -4126,6 +4129,42 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override Task OrderBy_object_type_server_evals(bool isAsync)
         {
             return base.OrderBy_object_type_server_evals(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_correlated_subquery_hard(bool isAsync)
+        {
+            return base.SelectMany_correlated_subquery_hard(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool isAsync)
+        {
+            return base.Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Select_entity_compared_to_null(bool isAsync)
+        {
+            return base.Select_entity_compared_to_null(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            return base.SelectMany_whose_selector_references_outer_source(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool isAsync)
+        {
+            return base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(isAsync);
         }
 
         private void AssertSql(params string[] expected)

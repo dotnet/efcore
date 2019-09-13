@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
@@ -103,9 +104,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var principal = context.Add(
                         new NullablePrincipal
-                            {
-                                Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
-                            })
+                        {
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                        })
                     .Entity;
 
                 var pkEntry = context.Entry(principal).Property(e => e.Id);
@@ -297,6 +299,89 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
 
             public IList<string> Strings { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_insert_and_query_struct_to_string_converter_for_pk()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<Order>().Add(new Order { Id = OrderId.Parse("Id1") });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            using (var context = CreateContext())
+            {
+                // Inline
+                var entity = context.Set<Order>().Where(o => (string)o.Id == "Id1").Single();
+
+                // constant from closure
+                const string idAsStringConstant = "Id1";
+                entity = context.Set<Order>().Where(o => (string)o.Id == idAsStringConstant).Single();
+
+                // Variable from closure
+                var idAsStringVariable = "Id1";
+                entity = context.Set<Order>().Where(o => (string)o.Id == idAsStringVariable).Single();
+
+                // Inline parsing function
+                entity = context.Set<Order>().Where(o => (string)o.Id == OrderId.Parse("Id1").StringValue).Single();
+            }
+        }
+
+        public class Order
+        {
+            public OrderId Id { get; set; }
+        }
+
+        public struct OrderId
+        {
+            private OrderId(string stringValue)
+            {
+                StringValue = stringValue;
+            }
+
+            public string StringValue { get; }
+
+            public static OrderId Parse(string stringValue)
+            {
+                return new OrderId(stringValue);
+            }
+
+            public static explicit operator string(OrderId orderId) => orderId.StringValue;
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<SimpleCounter>().Add(new SimpleCounter() { StyleKey = "Swag" });
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var query = context.Set<SimpleCounter>()
+                    .Where(c => c.StyleKey == "Swag"
+                                && c.IsTest == false
+                                && c.Discriminator == new Dictionary<string, string>());
+
+                var result = isAsync ? await query.SingleAsync() : query.Single();
+                Assert.NotNull(result);
+                context.Remove(result);
+                context.SaveChanges();
+            }
+        }
+
+        public class SimpleCounter
+        {
+            public int CounterId { get; set; }
+            public string StyleKey { get; set; }
+            public bool IsTest { get; set; }
+            public IDictionary<string, string> Discriminator { get; set; } = new Dictionary<string, string>();
         }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
@@ -645,6 +730,63 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList());
                         b.Property(e => e.Id).ValueGeneratedNever();
                     });
+
+                modelBuilder.Entity<Order>(
+                    b =>
+                    {
+                        b.HasKey(o => o.Id);
+                        b.Property(o => o.Id).HasConversion(new OrderIdEntityFrameworkValueConverter());
+                    });
+
+                // See issue#17814
+                if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.Cosmos")
+                {
+                    modelBuilder.Entity<SimpleCounter>(
+                        b =>
+                        {
+                            b.HasKey(c => c.CounterId);
+                            b.Property(c => c.Discriminator).HasConversion(
+                                d => StringToDictionarySerializer.Serialize(d),
+                                json => StringToDictionarySerializer.Deserialize(json));
+                        });
+                }
+            }
+
+            public static class StringToDictionarySerializer
+            {
+                public static string Serialize(IDictionary<string, string> dictionary)
+                {
+                    return string.Join(Environment.NewLine, dictionary.Select(kvp => $"{{{kvp.Key},{kvp.Value}}}"));
+                }
+
+                public static IDictionary<string, string> Deserialize(string s)
+                {
+                    var dictionary = new Dictionary<string, string>();
+                    var keyValuePairs = s.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var keyValuePair in keyValuePairs)
+                    {
+                        var parts = keyValuePair[1..^1].Split(",");
+                        dictionary[parts[0]] = parts[1];
+                    }
+
+                    return dictionary;
+                }
+            }
+
+            private class OrderIdEntityFrameworkValueConverter : ValueConverter<OrderId, string>
+            {
+                public OrderIdEntityFrameworkValueConverter() : this(null)
+                {
+                }
+
+                public OrderIdEntityFrameworkValueConverter(ConverterMappingHints mappingHints)
+                    : base(
+                        orderId => orderId.StringValue,
+                        stringValue => OrderId.Parse(stringValue),
+                        mappingHints
+                    )
+                {
+                }
             }
         }
     }

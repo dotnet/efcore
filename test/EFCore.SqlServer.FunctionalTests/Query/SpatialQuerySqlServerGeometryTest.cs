@@ -85,10 +85,10 @@ FROM [PolygonEntity] AS [p]");
 //FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "No Server Translation.")]
+        // No SqlServer Translation
         public override Task Buffer_quadrantSegments(bool isAsync)
         {
-            return base.Buffer_quadrantSegments(isAsync);
+            return Task.CompletedTask;
         }
 
         public override async Task Centroid(bool isAsync)
@@ -140,16 +140,16 @@ FROM [MultiLineStringEntity] AS [m]");
 FROM [LineStringEntity] AS [l]");
         }
 
-        [ConditionalTheory(Skip = "No Server Translation.")]
+        // No SqlServer Translation
         public override Task CoveredBy(bool isAsync)
         {
             return base.CoveredBy(isAsync);
         }
 
-        [ConditionalTheory(Skip = "No Server Translation.")]
+        // No SqlServer Translation
         public override Task Covers(bool isAsync)
         {
-            return base.Covers(isAsync);
+            return Task.CompletedTask;
         }
 
         public override async Task Crosses(bool isAsync)
@@ -596,7 +596,7 @@ FROM [PolygonEntity] AS [p]");
 //FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "No Server Translation.")]
+        // No SqlServer Translation
         public override Task Reverse(bool isAsync)
         {
             return base.Reverse(isAsync);
@@ -685,10 +685,10 @@ FROM [LineStringEntity] AS [l]");
 //FROM [PolygonEntity] AS [e]");
         }
 
-        [ConditionalTheory(Skip = "No Server Translation.")]
+        // No SqlServer Translation
         public override Task Union_void(bool isAsync)
         {
-            return base.Union_void(isAsync);
+            return Task.CompletedTask;
         }
 
         public override async Task Within(bool isAsync)

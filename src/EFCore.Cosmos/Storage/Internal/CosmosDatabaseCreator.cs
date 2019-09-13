@@ -91,10 +91,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken);
             foreach (var entityType in _model.GetEntityTypes())
             {
-                created |= await _cosmosClient.CreateContainerIfNotExistsAsync(
-                    entityType.GetContainer(),
-                    GetPartitionKeyStoreName(entityType),
-                    cancellationToken);
+                var containerName = entityType.GetContainer();
+                if (containerName != null)
+                {
+                    created |= await _cosmosClient.CreateContainerIfNotExistsAsync(
+                        containerName,
+                        GetPartitionKeyStoreName(entityType),
+                        cancellationToken);
+                }
             }
 
             if (created)

@@ -18,5 +18,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue #17230")]
+        public override Task Project_collection_navigation_nested_with_take(bool isAsync)
+        {
+            return base.Project_collection_navigation_nested_with_take(isAsync);
+        }
+
+        [ConditionalFact(Skip = "Issue #17230")]
+        public override void Include_inside_subquery()
+        {
+            base.Include_inside_subquery();
+        }
     }
 }

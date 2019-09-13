@@ -685,15 +685,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             os => os.Where(o => ClientEvalPredicate(o)).OrderBy(o => ClientEvalSelectorStateless())))).Message));
         }
 
-        //[ConditionalTheory]
-        //[MemberData(nameof(IsAsyncData))]
-        //public virtual Task Where_OrderBy_Count_client_eval_mixed(bool isAsync)
-        //{
-        //    return AssertCount<Order>(
-        //        isAsync,
-        //        os => os.Where(o => o.OrderID > 10).OrderBy(o => ClientEvalPredicate(o)));
-        //}
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task OrderBy_Where_Count_client_eval(bool isAsync)
@@ -1801,6 +1792,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Product>(
                 isAsync,
                 ps => ps.Select(p => new { p.ProductID, p.ProductName }).DefaultIfEmpty().Select(p => p.ProductName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_Last_member_access_in_projection_translated(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => c.Orders.OrderByDescending(o => o.OrderID).Last().CustomerID == c.CustomerID),
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => Maybe<string>(c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault(),
+                                    () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID) == c.CustomerID),
+                entryCount: 7);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_LastOrDefault_member_access_in_projection_translated(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID == c.CustomerID),
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => Maybe<string>(c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault(),
+                                    () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID) == c.CustomerID),
+                entryCount: 7);
         }
     }
 }

@@ -34,6 +34,7 @@ WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
         {
             base.KeylessEntity_by_database_view();
 
+            // See issue#17804
             // when we have defining query and ToView, defining query wins
             //            AssertSql(
             //                @"SELECT [a].[CategoryName], [a].[ProductID], [a].[ProductName]
@@ -68,15 +69,11 @@ WHERE (((@__ef_filter___searchTerm_1 = N'') AND @__ef_filter___searchTerm_1 IS N
             await base.KeylessEntity_with_mixed_tracking(isAsync);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID]
 FROM [Customers] AS [c]
-CROSS JOIN (
-    SELECT [o].[CustomerID]
-    FROM (
-        select * from ""Orders""
-    ) AS [o]
-) AS [t]
-WHERE [t].[CustomerID] = [c].[CustomerID]");
+INNER JOIN (
+    select * from ""Orders""
+) AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override async Task KeylessEntity_with_defining_query(bool isAsync)
@@ -96,7 +93,14 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
             await base.KeylessEntity_with_defining_query_and_correlated_collection(isAsync);
 
             AssertSql(
-                "");
+                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    select * from ""Orders""
+) AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL
+ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
         public override async Task KeylessEntity_select_where_navigation(bool isAsync)
@@ -125,7 +129,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE (([c].[CustomerID] = [o0].[CustomerID]) AND ([c].[CustomerID] IS NOT NULL AND [o0].[CustomerID] IS NOT NULL)) OR ([c].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))");
+    WHERE [c].[CustomerID] IS NOT NULL AND (([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL))");
         }
 
         [ConditionalFact]

@@ -6384,16 +6384,19 @@ OUTER APPLY (
     SELECT [s].[ThingId], [t].[Id]
     FROM [Things] AS [t]
     LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
-    WHERE (((
+    WHERE (
         SELECT TOP(1) [v].[Id]
         FROM [Values] AS [v]
-        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) = [t].[Value11023Id]) AND ((
-        SELECT TOP(1) [v].[Id]
-        FROM [Values] AS [v]
-        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NOT NULL AND [t].[Value11023Id] IS NOT NULL)) OR ((
-        SELECT TOP(1) [v].[Id]
-        FROM [Values] AS [v]
-        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NULL AND [t].[Value11023Id] IS NULL)
+        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NOT NULL AND ((((
+        SELECT TOP(1) [v0].[Id]
+        FROM [Values] AS [v0]
+        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) = [t].[Value11023Id]) AND ((
+        SELECT TOP(1) [v0].[Id]
+        FROM [Values] AS [v0]
+        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) IS NOT NULL AND [t].[Value11023Id] IS NOT NULL)) OR ((
+        SELECT TOP(1) [v0].[Id]
+        FROM [Values] AS [v0]
+        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) IS NULL AND [t].[Value11023Id] IS NULL))
 ) AS [t0]
 ORDER BY [e].[Id], [t0].[Id]");
                 }
