@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -166,8 +165,7 @@ namespace Microsoft.EntityFrameworkCore
                 : base(
                     new ModelSourceDependencies(
                         new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>(),
-                        new MemoryCache(new MemoryCacheOptions() { SizeLimit = 200 })))
+                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>()))
             {
             }
         }
