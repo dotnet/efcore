@@ -2,15 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that sets a flag on the model to always skip detecting changes if no entity type is using the
-    ///     <see cref="ChangeTrackingStrategy.Snapshot" /> strategy.
+    ///     A convention that creates check constraint for Enum column in a model.
     /// </summary>
     public class SqlServerEnumConvention : IModelFinalizedConvention
     {
@@ -39,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach( var property in entityType.GetDeclaredProperties())
                 {
-                    if(property?.PropertyInfo?.GetType().IsEnum ?? false)
+                    if(property.GetIdentifyingMemberInfo()?.GetType().IsEnum ?? false
+                        && (property.FindTypeMapping()?.Converter ?? property.GetValueConverter())?.ProviderClrType == typeof(string))
                     {
-                        property.SetIsNullable(false);
                         string sql = $"CHECK ({property.Name} IN(";
                         var enumNames = property.PropertyInfo.GetType().GetEnumNames();
                         foreach (var item in enumNames)
@@ -55,9 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                 }
             }
-
-            //TODO: Ask Core team.
-            //modelBuilder.HasAnnotation(SQLserverAnnot.EnumCheckConstraint, "true");
         }
     }
 }
