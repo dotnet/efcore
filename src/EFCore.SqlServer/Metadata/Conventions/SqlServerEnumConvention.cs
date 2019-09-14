@@ -39,12 +39,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach( var property in entityType.GetDeclaredProperties())
                 {
+
                     if(property?.PropertyInfo?.PropertyType.IsEnum ?? false)
                     {
-
-                        StringBuilder sql = new StringBuilder($"CHECK ({property.Name} IN(");
                         bool isStringColumn = (property.FindTypeMapping()?.Converter
                                 ?? property.GetValueConverter())?.ProviderClrType == typeof(string);
+                        bool isIntColumn = (property.FindTypeMapping()?.Converter
+                                ?? property.GetValueConverter())?.ProviderClrType == typeof(int);
+                        if(!isStringColumn || !isIntColumn)
+                            continue;
+                        StringBuilder sql = new StringBuilder($"CHECK ({property.Name} IN(");
                         if(isStringColumn)
                         {
                             var enumNames = property.PropertyInfo.PropertyType.GetEnumNames();
