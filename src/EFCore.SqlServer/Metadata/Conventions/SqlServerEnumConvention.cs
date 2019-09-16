@@ -14,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// </summary>
     public class SqlServerEnumConvention : IModelFinalizedConvention
     {
-        private IInClauseGenerator[] _inClauseGenerator;
-
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerEnumConvention" />.
         /// </summary>
@@ -23,17 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public SqlServerEnumConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
-            _inClauseGenerator = new IInClauseGenerator[]
-                {
-                    new InClauseGenerator<sbyte>(),
-                    new InClauseGenerator<int>(),
-                    new InClauseGenerator<long>(),
-                    new InClauseGenerator<short>(),
-                    new InClauseGenerator<byte>(),
-                    new InClauseGenerator<ulong>(),
-                    new InClauseGenerator<uint>(),
-                    new InClauseGenerator<ushort>()
-                };
         }
 
         /// <summary>
@@ -54,86 +41,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     if(property?.PropertyInfo?.PropertyType.IsEnum ?? false)
                     {
-                        var columnType = (property.FindTypeMapping()?.Converter ?? property.GetValueConverter())?.ProviderClrType;
+                        var valueConverter = property.FindTypeMapping()?.Converter ?? property.GetValueConverter();
+                        var columnType = valueConverter?.ProviderClrType;
                         bool isStringColumn = columnType == typeof(string);
-                        bool isIntColumn = IsColumnTypeInt(columnType);
-                        if(!isStringColumn && !isIntColumn)
-                            continue;
 
-                        StringBuilder sql = new StringBuilder($"CHECK ({property.Name} IN(");
-                        if(isStringColumn)
+                        var sql = new StringBuilder($"CHECK ({property.Name} IN(");
+                        var enumValues = Enum.GetValues(property.PropertyInfo.PropertyType);
+                        if(enumValues.Length <= 0)
+                            continue;
+                        foreach (var item in enumValues)
                         {
-                            var enumNames = property.PropertyInfo.PropertyType.GetEnumNames();
-                            if(enumNames.Length <= 0)
-                                continue;
-                            foreach (var item in enumNames)
-                            {
-                                sql.Append($"'{item}', ");
-                            }
+                            var value = valueConverter.ConvertToProvider(item);
+                            var formatedValue = isStringColumn ? $"'{value}', " : $"{value}, ";
+                            sql.Append(formatedValue);
                         }
-                        else
-                        {
-                            var enumValues = Enum.GetValues(property.PropertyInfo.PropertyType);
-                            if(enumValues.Length <= 0)
-                                continue;
-                            var inClause = GenerateInClause(property, columnType);
-                            if(string.IsNullOrEmpty(inClause.ToString()))
-                                continue;
-                            sql.Append(inClause);
-                        }
+
                         sql.Remove(sql.Length - 2, 2);
                         sql.Append("))");
                         string constraintName = $"CK_{entityType.GetTableName()}_{property.GetColumnName()}_Enum_Constraint";
                         entityType.AddCheckConstraint(constraintName, sql.ToString());
                     }
                 }
-            }
-        }
-        private StringBuilder GenerateInClause(IConventionProperty property, Type columnType)
-        {
-            var sql = new StringBuilder();
-            foreach (var item in _inClauseGenerator)
-            {
-                if(item.Type == property.PropertyInfo.PropertyType.GetEnumUnderlyingType())
-                {
-                    sql = item.GenerateInClause(property);
-                }
-            }
-            return sql;
-        }
-
-        private bool IsColumnTypeInt(Type columnType)
-        {
-            bool isInt = false;
-            foreach (var item in _inClauseGenerator)
-            {
-                if(item.Type == columnType)
-                {
-                    isInt = true;
-                }
-            }
-            return isInt;
-        }
-
-        interface IInClauseGenerator
-        {
-            Type Type{ get; }
-            StringBuilder GenerateInClause(IConventionProperty property);
-        }
-
-        class InClauseGenerator<T> : IInClauseGenerator
-        {
-            public Type Type => typeof(T);
-
-            public StringBuilder GenerateInClause(IConventionProperty property)
-            {
-                StringBuilder sql = new StringBuilder();
-                var enumValues = Enum.GetValues(property.PropertyInfo.PropertyType);
-                foreach (T item in enumValues)
-                {
-                    sql.Append($"{item}, ");
-                }
-                return sql;
             }
         }
     }

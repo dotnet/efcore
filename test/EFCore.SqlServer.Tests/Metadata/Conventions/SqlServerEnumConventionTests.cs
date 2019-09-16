@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Generate_check_constraint_with_all_enum_names()
         {
-
             var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             builder.Entity<Order>()
                         .Property(o => o.OrderStatus).HasConversion<string>();
@@ -28,13 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_Order_OrderStatus_Enum_Constraint", checkConstraint.Name);
             Assert.Equal("CHECK (OrderStatus IN('Active', 'Completed'))", checkConstraint.Sql);
-
         }
 
         [ConditionalFact]
         public void Generate_check_constraint_with_all_enum_values()
         {
-
             var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             builder.Entity<Customer>();
 
@@ -48,13 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_Customer_CustomerType_Enum_Constraint", checkConstraint.Name);
             Assert.Equal("CHECK (CustomerType IN(0, 1))", checkConstraint.Sql);
-
         }
 
         [ConditionalFact]
         public void Should_not_generate_gheck_constraint_for_empty_enum()
         {
-
             var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             builder.Entity<Seller>()
                         .Property(p => p.SellerStatusString)
@@ -79,7 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Generate_check_constraint_for_enum_with_flag()
         {
-
             var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             builder.Entity<File>();
 
@@ -93,7 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_File_FileStatus_Enum_Constraint", checkConstraint.Name);
             Assert.Equal("CHECK (FileStatus IN(0, 1, 2, 4))", checkConstraint.Sql);
-
         }
 
         private class Seller

@@ -1017,6 +1017,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<long>(""Day"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""CHECK (Day IN(0, 1, 2, 3, 4, 5, 6))"");
                 });"),
                 model => Assert.Equal(typeof(long), model.GetEntityTypes().First().GetDiscriminatorProperty().ClrType));
         }
@@ -1049,6 +1051,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<string>(""Day"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""CHECK (Day IN('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'))"");
                 });"),
                 model =>
                 {
@@ -1871,6 +1875,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""CHECK (Day IN(0, 1, 2, 3, 4, 5, 6))"");
                 });"),
                 o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
         }
@@ -1905,6 +1911,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""CHECK (Day IN('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'))"");
 
                     b.HasData(
                         new
@@ -1967,6 +1975,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""CHECK (Day IN(0, 1, 2, 3, 4, 5, 6))"");
                 });", usingSystem: true),
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
@@ -3292,6 +3302,22 @@ namespace RootNamespace
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithManyProperties"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum16_Enum_Constraint"", ""CHECK (Enum16 IN(1))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum32_Enum_Constraint"", ""CHECK (Enum32 IN(1))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum64_Enum_Constraint"", ""CHECK (Enum64 IN(1))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum8_Enum_Constraint"", ""CHECK (Enum8 IN(1))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumS8_Enum_Constraint"", ""CHECK (EnumS8 IN(-128))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU16_Enum_Constraint"", ""CHECK (EnumU16 IN(65535))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU32_Enum_Constraint"", ""CHECK (EnumU32 IN(4294967295))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU64_Enum_Constraint"", ""CHECK (EnumU64 IN(1234567890123456789))"");
 
                     b.HasData(
                         new
