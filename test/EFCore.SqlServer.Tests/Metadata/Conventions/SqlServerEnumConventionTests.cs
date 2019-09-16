@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_Order_OrderStatus_Enum_Constraint", checkConstraint.Name);
-            Assert.Equal("CHECK (OrderStatus IN('Active', 'Completed'))", checkConstraint.Sql);
+            Assert.Equal("CHECK (OrderStatus IN(N'Active', N'Completed'))", checkConstraint.Sql);
         }
 
         [ConditionalFact]
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Generate_check_constraint_for_enum_with_flag()
+        public void Should_not_generate_check_constraint_for_enum_with_flag()
         {
             var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             builder.Entity<File>();
@@ -84,9 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                         .FirstOrDefault<ICheckConstraint>(constraint =>
                                             constraint.Name == "CK_File_FileStatus_Enum_Constraint");
 
-            Assert.NotNull(checkConstraint);
-            Assert.Equal("CK_File_FileStatus_Enum_Constraint", checkConstraint.Name);
-            Assert.Equal("CHECK (FileStatus IN(0, 1, 2, 4))", checkConstraint.Sql);
+            Assert.Null(checkConstraint);
         }
 
         private class Seller

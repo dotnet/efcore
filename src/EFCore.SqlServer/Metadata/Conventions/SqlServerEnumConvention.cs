@@ -6,6 +6,9 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -39,21 +42,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach( var property in entityType.GetDeclaredProperties())
                 {
-                    if(property?.PropertyInfo?.PropertyType.IsEnum ?? false)
+                    var typeMapping = property.FindTypeMapping();
+                    var propertyType = property.GetIdentifyingMemberInfo()?.GetMemberType();
+                    if ((propertyType?.IsEnum ?? false)
+                        && typeMapping != null
+                        && propertyType.GetCustomAttribute(typeof(System.FlagsAttribute), true) == null)
                     {
-                        var valueConverter = property.FindTypeMapping()?.Converter ?? property.GetValueConverter();
-                        var columnType = valueConverter?.ProviderClrType;
-                        bool isStringColumn = columnType == typeof(string);
-
                         var sql = new StringBuilder($"CHECK ({property.Name} IN(");
-                        var enumValues = Enum.GetValues(property.PropertyInfo.PropertyType);
+                        var enumValues = Enum.GetValues(propertyType);
                         if(enumValues.Length <= 0)
                             continue;
                         foreach (var item in enumValues)
                         {
-                            var value = valueConverter.ConvertToProvider(item);
-                            var formatedValue = isStringColumn ? $"'{value}', " : $"{value}, ";
-                            sql.Append(formatedValue);
+                            var value = ((RelationalTypeMapping)typeMapping).GenerateSqlLiteral(item);
+                            sql.Append($"{value}, ");
                         }
 
                         sql.Remove(sql.Length - 2, 2);
