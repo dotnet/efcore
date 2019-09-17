@@ -1595,6 +1595,11 @@ namespace Microsoft.EntityFrameworkCore
                 RelationalEventId.CommandExecuting.Name,
                 RelationalEventId.CommandExecuted.Name);
 
+        protected static void AssertSql(string expected, string actual)
+            => Assert.Equal(
+                expected,
+                actual.Replace("\r", string.Empty).Replace("\n", " "));
+
         protected abstract class CommandInterceptorBase : IDbCommandInterceptor
         {
             private readonly DbCommandMethod _commandMethod;

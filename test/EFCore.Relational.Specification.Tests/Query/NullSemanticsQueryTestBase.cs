@@ -944,6 +944,44 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Null_semantics_with_null_check_simple()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query1 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA == e.NullableIntB);
+                var result1 = query1.ToList();
+
+                var query2 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA != e.NullableIntB);
+                var result2 = query2.ToList();
+
+                var query3 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA == e.IntC);
+                var result3 = query3.ToList();
+
+                var query4 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntB != null && e.NullableIntA == e.NullableIntB);
+                var result4 = query4.ToList();
+
+                var query5 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntB != null && e.NullableIntA != e.NullableIntB);
+                var result5 = query5.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Null_semantics_with_null_check_complex()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query1 = ctx.Entities1.Where(e => e.NullableIntA != null && ((e.NullableIntC != e.NullableIntA) || (e.NullableIntB != null && e.NullableIntA != e.NullableIntB)));
+                var result1 = query1.ToList();
+
+                var query2 = ctx.Entities1.Where(e => e.NullableIntA != null && ((e.NullableIntC != e.NullableIntA) || (e.NullableIntA != e.NullableIntB)));
+                var result2 = query2.ToList();
+
+                var query3 = ctx.Entities1.Where(e => (e.NullableIntA != null || e.NullableIntB != null) && e.NullableIntA == e.NullableIntC);
+                var result3 = query3.ToList();
+            }
+        }
+
         protected static TResult Maybe<TResult>(object caller, Func<TResult> expression)
             where TResult : class
         {

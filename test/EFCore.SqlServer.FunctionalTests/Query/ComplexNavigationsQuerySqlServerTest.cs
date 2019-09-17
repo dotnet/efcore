@@ -4650,7 +4650,28 @@ ORDER BY [l2].[Id]");
             await base.Member_pushdown_with_multiple_collections(isAsync);
 
             AssertSql(
-                @"");
+                @"SELECT (
+    SELECT TOP(1) [l].[Name]
+    FROM [LevelThree] AS [l]
+    WHERE (
+        SELECT TOP(1) [l0].[Id]
+        FROM [LevelTwo] AS [l0]
+        WHERE ([l2].[Id] = [l0].[OneToMany_Optional_Inverse2Id]) AND [l0].[OneToMany_Optional_Inverse2Id] IS NOT NULL
+        ORDER BY [l0].[Id]) IS NOT NULL AND ((((
+        SELECT TOP(1) [l1].[Id]
+        FROM [LevelTwo] AS [l1]
+        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND [l1].[OneToMany_Optional_Inverse2Id] IS NOT NULL
+        ORDER BY [l1].[Id]) = [l].[OneToMany_Optional_Inverse3Id]) AND ((
+        SELECT TOP(1) [l1].[Id]
+        FROM [LevelTwo] AS [l1]
+        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND [l1].[OneToMany_Optional_Inverse2Id] IS NOT NULL
+        ORDER BY [l1].[Id]) IS NOT NULL AND [l].[OneToMany_Optional_Inverse3Id] IS NOT NULL)) OR ((
+        SELECT TOP(1) [l1].[Id]
+        FROM [LevelTwo] AS [l1]
+        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND [l1].[OneToMany_Optional_Inverse2Id] IS NOT NULL
+        ORDER BY [l1].[Id]) IS NULL AND [l].[OneToMany_Optional_Inverse3Id] IS NULL))
+    ORDER BY [l].[Id])
+FROM [LevelOne] AS [l2]");
         }
 
         public override async Task Null_check_removal_applied_recursively(bool isAsync)

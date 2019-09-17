@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
+using Xunit.Sdk;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming
@@ -1307,6 +1308,70 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count));
                 Assert.Equal(6, context.ChangeTracker.Entries().Count());
             }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.SelectMany(c => c.Orders.Select(o => new { OrderProperty = o.CustomerID, CustomerProperty = c.CustomerID })));
+        }
+
+        [ConditionalTheory(Skip = "issue #17763")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.SelectMany(c => c.Orders.Select(o => new { OrderProperty = o.ShipName, CustomerProperty = c.ContactName })));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_with_complex_expression_that_can_be_funcletized(bool isAsync)
+        {
+            return AssertQueryScalar<Customer, int>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("")),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool isAsync)
+        {
+            return AssertQuery<Order>(
+                isAsync,
+                os => os.OrderBy(o => o.OrderID).Select(o => o.Customer.Orders),
+                elementAsserter: CollectionAsserter<Order>(),
+                assertOrder: true,
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_entity_compared_to_null(bool isAsync)
+        {
+            return AssertQueryScalar<Order, bool>(
+                isAsync,
+                os => from o in os
+                      where o.CustomerID == "ALFKI"
+                      select o.Customer == null);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            return AssertQuery<Customer, Order>(
+                isAsync,
+                (cs, os) => from c in cs
+                            from g in (from o in os
+                                       where c.CustomerID == o.CustomerID
+                                       select new { OrderDate = o.OrderDate, CustomerCity = c.City })
+                            select g);
         }
     }
 }

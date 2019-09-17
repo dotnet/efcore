@@ -150,6 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Include_collection_with_multiple_orderbys_property(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#17803")]
+        public override Task Member_pushdown_with_multiple_collections(bool isAsync)
+        {
+            return base.Member_pushdown_with_multiple_collections(isAsync);
+        }
+
         // Cannot create DbSet for Level2
         public override void Join_with_navigations_in_the_result_selector2()
         {

@@ -1793,5 +1793,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ps => ps.Select(p => new { p.ProductID, p.ProductName }).DefaultIfEmpty().Select(p => p.ProductName));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_Last_member_access_in_projection_translated(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => c.Orders.OrderByDescending(o => o.OrderID).Last().CustomerID == c.CustomerID),
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => Maybe<string>(c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault(),
+                                    () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID) == c.CustomerID),
+                entryCount: 7);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_LastOrDefault_member_access_in_projection_translated(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID == c.CustomerID),
+                cs => cs.Where(c => c.CustomerID.StartsWith("F"))
+                    .Where(c => Maybe<string>(c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault(),
+                                    () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID) == c.CustomerID),
+                entryCount: 7);
+        }
     }
 }
