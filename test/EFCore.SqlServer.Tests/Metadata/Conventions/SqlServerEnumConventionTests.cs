@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_Order_OrderStatus_Enum_Constraint", checkConstraint.Name);
-            Assert.Equal("CHECK (OrderStatus IN(N'Active', N'Completed'))", checkConstraint.Sql);
+            Assert.Equal("OrderStatus IN(N'Active', N'Completed')", checkConstraint.Sql);
         }
 
         [ConditionalFact]
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_Customer_CustomerType_Enum_Constraint", checkConstraint.Name);
-            Assert.Equal("CHECK (CustomerType IN(0, 1))", checkConstraint.Sql);
+            Assert.Equal("CustomerType IN(0, 1)", checkConstraint.Sql);
         }
 
         [ConditionalFact]
