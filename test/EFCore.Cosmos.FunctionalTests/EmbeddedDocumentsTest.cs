@@ -245,8 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        [ConditionalFact(Skip = "Issue #17733")]
-        public virtual async Task Can_query_nested_embedded_types()
+        [ConditionalFact]
+        public virtual async Task Can_query_and_modify_nested_embedded_types()
         {
             await using (var testDatabase = CreateTestStore())
             {
@@ -255,6 +255,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     var missile = context.Set<Vehicle>().First(v => v.Name == "AIM-9M Sidewinder");
 
                     Assert.Equal("Heat-seeking", missile.Operator.Details.Type);
+
+                    missile.Operator.Details.Type = "IR";
+
+                    await context.SaveChangesAsync();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var missile = context.Set<Vehicle>().First(v => v.Name == "AIM-9M Sidewinder");
+
+                    Assert.Equal("IR", missile.Operator.Details.Type);
                 }
             }
         }
