@@ -195,7 +195,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where o1.Customer.City == o2.Customer.City
                       select new { o1, o2 },
                 elementSorter: e => e.o1.OrderID + " " + e.o2.OrderID,
-                elementAsserter: (e, a) => Assert.Equal(e.o1.OrderID, a.o1.OrderID),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual<Order>(e.o1, a.o1);
+                    AssertEqual<Order>(e.o2, a.o2);
+                },
                 entryCount: 107);
         }
 
@@ -483,8 +487,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.A.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.A.CustomerID, a.A.CustomerID);
-                    Assert.Equal(e.B.CustomerID, a.B.CustomerID);
+                    AssertEqual<Customer>(e.A, a.A);
+                    AssertEqual<Customer>(e.B, a.B);
                 },
                 entryCount: 89);
         }
@@ -502,8 +506,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.A.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.A.CustomerID, a.A.CustomerID);
-                    Assert.Equal(e.B.CustomerID, a.B.CustomerID);
+                    AssertEqual<Customer>(e.A, a.A);
+                    AssertEqual<Customer>(e.B, a.B);
                 },
                 entryCount: 1);
         }
@@ -522,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
-                    CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
+                    AssertCollection<Order>(e.Orders, a.Orders);
                 },
                 entryCount: 30);
         }
@@ -558,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
-                    CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
+                    AssertCollection<Order>(e.Orders, a.Orders);
                 },
                 assertOrder: true,
                 entryCount: 30);
@@ -577,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.OrderID, a.OrderID);
-                    CollectionAsserter<Order>(o => o.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID))(e.Orders, a.Orders);
+                    AssertCollection<Order>(e.Orders, a.Orders);
                 },
                 entryCount: 6);
         }
@@ -594,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where od.Order.CustomerID == "ALFKI" || od.Order.CustomerID == "ANTON"
                     select new { od.Order.Customer.Orders },
                 assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<Order>(ee => ee.OrderID, (ee, aa) => Assert.Equal(ee.OrderID, aa.OrderID)),
+                elementAsserter: (e, a) => AssertCollection<Order>(e.Orders, a.Orders),
                 entryCount: 13);
         }
 
@@ -1291,14 +1295,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.c.CustomerID, a.c.CustomerID);
-                    CollectionAsserter<OrderDetail>(
-                        ee => ee.OrderID + " " + ee.ProductID,
-                        (ee, aa) =>
-                        {
-                            Assert.Equal(ee.OrderID, aa.OrderID);
-                            Assert.Equal(ee.ProductID, aa.ProductID);
-                        });
+                    AssertEqual<Customer>(e.c, a.c);
+                    AssertCollection<OrderDetail>(e.G, a.G);
                 },
                 entryCount: 1);
         }
@@ -1315,13 +1313,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             orderby c.CustomerID
                             select grouping.Select(o => o.OrderDetails).ToList(),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    var expected = ((IEnumerable<IEnumerable<OrderDetail>>)e).SelectMany(i => i).ToList();
-                    var actual = ((IEnumerable<IEnumerable<OrderDetail>>)e).SelectMany(i => i).ToList();
-
-                    Assert.Equal(expected, actual);
-                });
+                elementAsserter: CustomCollectionAsserter<dynamic>(
+                    elementSorter: e => CollectionSorter<OrderDetail>(),
+                    elementAsserter: (ee, aa) => AssertCollection<OrderDetail>(ee, aa)));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -1341,10 +1335,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.c.CustomerID, a.c.CustomerID);
 
-                    var expected = ((IEnumerable<IEnumerable<OrderDetail>>)e.G).SelectMany(i => i).ToList();
-                    var actual = ((IEnumerable<IEnumerable<OrderDetail>>)e.G).SelectMany(i => i).ToList();
-
-                    Assert.Equal(expected, actual);
+                    CustomCollectionAsserter<dynamic>(
+                        elementSorter: e => CollectionSorter<OrderDetail>(),
+                        elementAsserter: (ee, aa) => AssertCollection<OrderDetail>(ee, aa))(e.G, a.G);
                 },
                 entryCount: 4);
         }

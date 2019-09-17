@@ -1957,7 +1957,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(g => g.Key)
                     .Select(g => g.OrderBy(o => o)),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<int>());
+                elementAsserter: (e, a) => AssertCollection<int>(e, a, ordered: true));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -1970,7 +1970,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(g => g.Key)
                     .Select(g => g.OrderBy(o => o.OrderID)),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>());
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a, ordered: true));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]

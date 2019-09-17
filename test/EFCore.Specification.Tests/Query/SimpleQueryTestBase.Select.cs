@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
-using Xunit.Sdk;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable InconsistentNaming
@@ -377,8 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  && o.OrderDate.Value.Year == 1997)
                         .Select(o => o.OrderID)
                         .OrderBy(o => o),
-                e => ((IEnumerable<int>)e).Count(),
-                elementAsserter: (e, a) => CollectionAsserter<int>(i => i));
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection<int>(e, a, ordered: true));
         }
 
         [ConditionalFact]
@@ -558,13 +556,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     orderby o2.OrderID
                                     select o1.OrderID)),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    var expected = ((IEnumerable<IEnumerable<int>>)e).SelectMany(i => i).ToList();
-                    var actual = ((IEnumerable<IEnumerable<int>>)e).SelectMany(i => i).ToList();
-
-                    Assert.Equal(expected, actual);
-                });
+                elementAsserter: (e, a) => CustomCollectionAsserter<dynamic>(
+                    elementAsserter: (ee, aa) => CustomCollectionAsserter<dynamic>(
+                        elementAsserter: (eee, aaa) => AssertCollection<int>(eee, aaa, ordered: true))));
         }
 
         [ConditionalTheory]
@@ -1345,7 +1339,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Order>(
                 isAsync,
                 os => os.OrderBy(o => o.OrderID).Select(o => o.Customer.Orders),
-                elementAsserter: CollectionAsserter<Order>(),
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
                 assertOrder: true,
                 entryCount: 830);
         }

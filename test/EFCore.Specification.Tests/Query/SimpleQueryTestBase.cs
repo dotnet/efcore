@@ -1708,7 +1708,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs.OrderBy(cc => cc.CustomerID).Take(3)
                     select os.Where(o => o.CustomerID == c.CustomerID),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>(o => o.OrderID));
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a));
         }
 
         [ConditionalTheory(Skip = "Issue#16314")]
@@ -1723,7 +1723,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     orderby c.CustomerID
                     select os.Where(o => o.CustomerID == c.CustomerID),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>(o => o.OrderID));
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a));
         }
 
         [ConditionalTheory(Skip = "Issue #16314")]
@@ -1736,7 +1736,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in cs.OrderBy(c => c.CustomerID).Take(3)
                     select os.OrderBy(o => o.OrderID).ThenBy(o => c.CustomerID).Skip(100).Take(2),
                 elementSorter: CollectionSorter<Order>(),
-                elementAsserter: CollectionAsserter<Order>());
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a, ordered: true));
         }
 
         [ConditionalTheory(Skip = "Issue#16314")]
@@ -1762,8 +1762,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerId, a.CustomerId);
-                    Assert.Equal((IEnumerable<int>)e.OrderIds, (IEnumerable<int>)a.OrderIds);
-                    Assert.Equal(e.Customer, a.Customer);
+                    AssertCollection<int>(e.OrderIds, a.OrderIds);
+                    AssertEqual<Customer>(e.Customer, a.Customer);
                 },
                 entryCount: 1);
         }
@@ -1781,13 +1781,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     orderby e3.EmployeeID
                                     select e3)),
                 e => ((IEnumerable<IEnumerable<Employee>>)e).Count(),
-                elementAsserter: (e, a) =>
-                {
-                    var expected = ((IEnumerable<IEnumerable<Employee>>)e).SelectMany(i => i).ToList();
-                    var actual = ((IEnumerable<IEnumerable<Employee>>)e).SelectMany(i => i).ToList();
-
-                    Assert.Equal(expected, actual);
-                });
+                elementAsserter: CustomCollectionAsserter(
+                    elementSorter: CollectionSorter<Employee>(),
+                    elementAsserter: (ee, aa) => AssertCollection<Employee>(ee, aa, ordered: true)));
         }
 
         [ConditionalTheory]
@@ -5521,7 +5517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby g.Key
                       select g.OrderByDescending(x => x.OrderID),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>(elementAsserter: (e, a) => Assert.Equal(e.OrderID, a.OrderID)));
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a, ordered: true));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -5537,7 +5533,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby g.Key
                       select g.OrderByDescending(x => x.OrderID),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>(elementAsserter: (e, a) => Assert.Equal(e.OrderID, a.OrderID)));
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a, ordered: true));
         }
 
         [ConditionalTheory]
@@ -5557,7 +5553,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                   orderby g.Key
                                   select g.OrderByDescending(x => x.OrderID),
                             assertOrder: true,
-                            elementAsserter: CollectionAsserter<Order>(elementAsserter: (e, a) => Assert.Equal(e.OrderID, a.OrderID)))))
+                            elementAsserter: (e, a) => AssertCollection<Order>(e, a, ordered: true))))
                     .Message));
         }
 

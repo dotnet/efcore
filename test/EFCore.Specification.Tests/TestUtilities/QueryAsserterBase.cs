@@ -14,6 +14,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public virtual ISetExtractor SetExtractor { get; set; }
         public virtual IExpectedData ExpectedData { get; set; }
 
+        public abstract void AssertEqual<T>(
+            T expected,
+            T actual,
+            Action<dynamic, dynamic> asserter = null);
+
+        public abstract void AssertCollection<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            bool ordered = false);
+
         #region AssertSingleResult
 
         public abstract Task AssertSingleResult<TItem1>(
