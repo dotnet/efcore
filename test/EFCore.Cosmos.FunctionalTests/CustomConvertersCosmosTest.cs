@@ -113,12 +113,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_insert_and_query_struct_to_string_converter_for_pk();
         }
 
-        [ConditionalTheory(Skip = "Issue #17814")]
-        public override Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
-        {
-            return base.Can_query_custom_type_not_mapped_by_default_equality(isAsync);
-        }
-
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
@@ -147,6 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 shadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
                 var nullableShadowJObject = (Property)modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property("__jObject").Metadata;
                 nullableShadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
+
+                modelBuilder.Entity<SimpleCounter>(b => b.ToContainer("SimpleCounters"));
             }
         }
     }

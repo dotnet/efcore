@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
 
                     Assert.Equal("Second", addressJson[nameof(Address.Street)]);
-                    Assert.Equal(4, addressJson.Count);
+                    Assert.Equal(3, addressJson.Count);
                     Assert.Equal(2, addressJson["unmappedId"]);
 
                     addresses = people[2].Addresses.ToList();

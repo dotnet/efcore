@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<SimpleCounter>().Add(new SimpleCounter() { StyleKey = "Swag" });
+                context.Set<SimpleCounter>().Add(new SimpleCounter() { CounterId = 1, StyleKey = "Swag" });
                 context.SaveChanges();
             }
 
@@ -738,18 +738,15 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(o => o.Id).HasConversion(new OrderIdEntityFrameworkValueConverter());
                     });
 
-                // See issue#17814
-                if (context.Database.ProviderName != "Microsoft.EntityFrameworkCore.Cosmos")
-                {
-                    modelBuilder.Entity<SimpleCounter>(
-                        b =>
-                        {
-                            b.HasKey(c => c.CounterId);
-                            b.Property(c => c.Discriminator).HasConversion(
-                                d => StringToDictionarySerializer.Serialize(d),
-                                json => StringToDictionarySerializer.Deserialize(json));
-                        });
-                }
+                modelBuilder.Entity<SimpleCounter>(
+                    b =>
+                    {
+                        b.Property(e => e.CounterId).ValueGeneratedNever();
+                        b.HasKey(c => c.CounterId);
+                        b.Property(c => c.Discriminator).HasConversion(
+                            d => StringToDictionarySerializer.Serialize(d),
+                            json => StringToDictionarySerializer.Deserialize(json));
+                    });
             }
 
             public static class StringToDictionarySerializer
