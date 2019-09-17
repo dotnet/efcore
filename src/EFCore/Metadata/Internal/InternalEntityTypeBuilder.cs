@@ -661,6 +661,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool CanAddProperty(Type propertyType, string name,ConfigurationSource? typeConfigurationSource)
+        {
+            var conflictingMember = Metadata.FindPropertiesInHierarchy(name).FirstOrDefault();
+            if (conflictingMember != null
+                && conflictingMember.IsShadowProperty()
+                && conflictingMember.ClrType != propertyType
+                && typeConfigurationSource != null
+                && !typeConfigurationSource.Overrides(conflictingMember.GetTypeConfigurationSource()))
+            {
+                return false;
+            }
+
+            if (Metadata.ClrType == null)
+            {
+                return true;
+            }
+
+            var memberInfo = Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+            if (memberInfo != null
+                && propertyType != memberInfo.GetMemberType()
+                && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true
+                && typeConfigurationSource != null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual InternalServicePropertyBuilder ServiceProperty(
             [NotNull] MemberInfo memberInfo, ConfigurationSource configurationSource)
         {
@@ -3415,11 +3450,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string name,
             Type discriminatorType,
             bool fromDataAnnotation)
-            => (name == null && discriminatorType == null)
+            => ((name == null && discriminatorType == null)
                || ((name == null || discriminatorProperty?.Name == name)
                    && (discriminatorType == null || discriminatorProperty?.ClrType == discriminatorType))
                || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-               .Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource());
+                    .Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
+            && (discriminatorProperty != null
+                 || Metadata.RootType().Builder.CanAddProperty(
+                        discriminatorType ?? _defaultDiscriminatorType,
+                        name ?? _defaultDiscriminatorName,
+                        typeConfigurationSource: discriminatorType != null
+                            ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
+                            : (ConfigurationSource?)null));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

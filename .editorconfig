@@ -197,8 +197,8 @@ dotnet_naming_rule.interface_naming.symbols = interface_symbol
 dotnet_naming_rule.interface_naming.style = interface_style
 dotnet_naming_rule.interface_naming.severity = suggestion
 
-# Classes, Structs, Enums, Properties, Methods, Events, Namespaces
-dotnet_naming_symbols.class_symbol.applicable_kinds = class, struct, enum, property, method, event, namespace
+# Classes, Structs, Enums, Properties, Methods, Local Functions, Events, Namespaces
+dotnet_naming_symbols.class_symbol.applicable_kinds = class, struct, enum, property, method, local_function, event, namespace
 dotnet_naming_symbols.class_symbol.applicable_accessibilities = *
 
 dotnet_naming_rule.class_naming.symbols = class_symbol

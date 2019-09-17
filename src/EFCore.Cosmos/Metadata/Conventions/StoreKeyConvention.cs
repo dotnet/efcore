@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class StoreKeyConvention :
         IEntityTypeAddedConvention,
         IForeignKeyOwnershipChangedConvention,
+        IForeignKeyRemovedConvention,
         IEntityTypeAnnotationChangedConvention,
         IEntityTypeBaseTypeChangedConvention
     {
@@ -111,6 +112,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(context, nameof(context));
 
             Process(relationshipBuilder.Metadata.DeclaringEntityType.Builder);
+        }
+
+        /// <summary>
+        ///     Called after a foreign key is removed.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="foreignKey"> The removed foreign key. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessForeignKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionForeignKey foreignKey,
+            IConventionContext<IConventionForeignKey> context)
+        {
+            if (foreignKey.IsOwnership)
+            {
+                Process(foreignKey.DeclaringEntityType.Builder);
+            }
         }
 
         /// <summary>

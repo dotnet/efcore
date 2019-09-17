@@ -204,8 +204,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        document[entityType.GetDiscriminatorProperty().GetPropertyName()] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetPropertyName();
+                        if (propertyName != null)
+                        {
+                            document[propertyName] =
+                                JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        }
                     }
 
                     return _cosmosClient.ReplaceItem(
@@ -255,8 +259,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        document[entityType.GetDiscriminatorProperty().GetPropertyName()] =
-                            JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetPropertyName();
+                        if (propertyName != null)
+                        {
+                            document[propertyName] =
+                                JToken.FromObject(entityType.GetDiscriminatorValue(), CosmosClientWrapper.Serializer);
+                        }
                     }
 
                     return _cosmosClient.ReplaceItemAsync(
