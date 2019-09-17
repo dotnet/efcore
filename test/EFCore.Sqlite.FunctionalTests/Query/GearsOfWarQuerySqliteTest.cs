@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public GearsOfWarQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture)
             : base(fixture)
         {
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         // SQLite client-eval
@@ -160,5 +161,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Project_collection_navigation_nested_with_take_composite_key(isAsync);
         }
+
+        public override async Task Select_datetimeoffset_comparison_in_projection(bool isAsync)
+        {
+            await base.Select_datetimeoffset_comparison_in_projection(isAsync);
+
+            AssertSql(
+                @"SELECT ""m"".""Timeline""
+FROM ""Missions"" AS ""m""");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

@@ -1140,5 +1140,12 @@ CROSS APPLY (
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
 ) AS [t]");
         }
+
+        public override async Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool isAsync)
+        {
+            await base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(isAsync);
+
+            AssertSql(" ");
+        }
     }
 }
