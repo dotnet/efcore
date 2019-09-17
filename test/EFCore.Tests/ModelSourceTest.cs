@@ -148,6 +148,12 @@ namespace Microsoft.EntityFrameworkCore
             var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
                 .Single(m => m.Key == "PackageVersion").Value;
 
+            var prereleaseIndex = packageVersion.IndexOf("-", StringComparison.Ordinal);
+            if (prereleaseIndex != -1)
+            {
+                packageVersion = packageVersion.Substring(0, prereleaseIndex);
+            }
+
             Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
 

@@ -12,7 +12,7 @@ dotnet ef dbcontext scaffold
 dotnet ef database drop
 dotnet ef database update
     </Description>
-    <TargetFramework>netcoreapp5.0</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>

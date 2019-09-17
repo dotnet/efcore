@@ -61,11 +61,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected void AssertSql(string expected, string actual)
-            => Assert.Equal(
-                expected,
-                actual.Replace("\r", string.Empty).Replace("\n", " "));
-
         protected (DbContext, TInterceptor) CreateContext<TInterceptor>(bool inject = false)
             where TInterceptor : class, IInterceptor, new()
         {
