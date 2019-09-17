@@ -28,7 +28,11 @@ namespace Microsoft.EntityFrameworkCore
                 CreateContext(),
                 nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
+            const string expected = @"Animal.Id ---> [varbinary] [MaxLength = 4]
+AnimalIdentification.AnimalId ---> [varbinary] [MaxLength = 4]
+AnimalIdentification.Id ---> [varbinary] [MaxLength = 4]
+AnimalIdentification.Method ---> [varbinary] [MaxLength = 4]
+BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
 BinaryKeyDataType.Ex ---> [nullable varbinary] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
@@ -159,6 +163,11 @@ UnicodeDataTypes.StringUnicode ---> [nullable varbinary] [MaxLength = -1]
 ";
 
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
+        }
+
+        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+        {
+            // The query needs to generate TOP(1)
         }
 
         public class EverythingIsBytesSqlServerFixture : BuiltInDataTypesFixtureBase
