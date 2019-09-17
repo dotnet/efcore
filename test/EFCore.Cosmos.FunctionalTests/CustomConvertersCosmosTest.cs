@@ -113,6 +113,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_insert_and_query_struct_to_string_converter_for_pk();
         }
 
+        [ConditionalFact(Skip = "Issue #17670")]
+        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+        {
+            base.Can_read_back_mapped_enum_from_collection_first_or_default();
+        }
+
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;

@@ -1980,6 +1980,23 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Can_read_back_mapped_enum_from_collection_first_or_default()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from animal in context.Set<Animal>()
+                            select new
+                            {
+                                animal.Id,
+                                animal.IdentificationMethods.FirstOrDefault().Method
+                            };
+
+                var result = query.SingleOrDefault();
+                Assert.Equal(IdentificationMethod.EarTag, result.Method);
+            }
+        }
+
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
@@ -2213,6 +2230,22 @@ namespace Microsoft.EntityFrameworkCore
                             EnumU32 = EnumU32.SomeValue,
                             EnumU16 = EnumU16.SomeValue,
                             EnumS8 = EnumS8.SomeValue
+                        });
+
+                modelBuilder.Entity<Animal>()
+                    .HasData(
+                        new Animal
+                        {
+                            Id = 1
+                        });
+
+                modelBuilder.Entity<AnimalIdentification>()
+                    .HasData(
+                        new AnimalIdentification
+                        {
+                            Id = 1,
+                            AnimalId = 1,
+                            Method = IdentificationMethod.EarTag,
                         });
             }
 
@@ -2982,6 +3015,26 @@ namespace Microsoft.EntityFrameworkCore
                 get => _enumS8;
                 set => _enumS8 = (EnumS8)value;
             }
+        }
+
+        protected class Animal
+        {
+            public int Id { get; set; }
+            public ICollection<AnimalIdentification> IdentificationMethods { get; set; }
+        }
+
+        protected class AnimalIdentification
+        {
+            public int Id { get; set; }
+            public int AnimalId { get; set; }
+            public IdentificationMethod Method { get; set; }
+        }
+
+        protected enum IdentificationMethod
+        {
+            Notch,
+            EarTag,
+            Rfid
         }
     }
 }
