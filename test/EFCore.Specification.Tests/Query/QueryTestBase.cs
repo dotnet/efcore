@@ -1589,11 +1589,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return (e, a) =>
             {
                 Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
-                CustomCollectionAsserter(elementSorter, elementAsserter)(e, a);
+                CollectionAsserter(elementSorter, elementAsserter)(e, a);
             };
         }
 
-        public static Action<dynamic, dynamic> CustomCollectionAsserter<TElement>(
+        public static Action<dynamic, dynamic> CollectionAsserter<TElement>(
             Func<TElement, object> elementSorter = null,
             Action<TElement, TElement> elementAsserter = null)
         {

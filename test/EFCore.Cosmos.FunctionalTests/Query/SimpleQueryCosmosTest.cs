@@ -4132,6 +4132,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task AsQueryable_in_query_server_evals(bool isAsync)
+        {
+            return base.AsQueryable_in_query_server_evals(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_correlated_subquery_hard(bool isAsync)
         {
             return base.SelectMany_correlated_subquery_hard(isAsync);
