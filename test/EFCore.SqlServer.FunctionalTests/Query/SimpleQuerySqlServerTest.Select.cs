@@ -1147,5 +1147,18 @@ CROSS APPLY (
 
             AssertSql(" ");
         }
+
+        public override async Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool isAsync)
+        {
+            await base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(isAsync);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [o].[EmployeeID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]");
+        }
     }
 }

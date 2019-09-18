@@ -1385,5 +1385,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Order = (c.Orders.Any() ? c.Orders.FirstOrDefault() : null) == null ? null : new Order { }
                 }));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool isAsync)
+        {
+            return AssertQueryScalar<Customer>(
+                isAsync,
+                cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.EmployeeID).FirstOrDefault()));
+        }
     }
 }
