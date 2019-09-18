@@ -120,6 +120,18 @@
   <data name="CosmosNotInUse" xml:space="preserve">
     <value>Cosmos-specific methods can only be used when the context is using the Cosmos provider.</value>
   </data>
+  <data name="CreateContainerFailed" xml:space="preserve">
+    <value>Create container failed. Status code: {statusCode}. Message: '{errorMessage}'</value>
+  </data>
+  <data name="CreateItemFailed" xml:space="preserve">
+    <value>Create item failed. Status code: {statusCode}. Message: '{errorMessage}'</value>
+  </data>
+  <data name="DeleteDatabaseFailed" xml:space="preserve">
+    <value>Delete database failed. Status code: {statusCode}. Message: '{errorMessage}'</value>
+  </data>
+  <data name="DeleteItemFailed" xml:space="preserve">
+    <value>Delete item failed. Status code: {statusCode}. Message: '{errorMessage}'</value>
+  </data>
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
     <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.</value>
   </data>
@@ -146,5 +158,11 @@
   </data>
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property.</value>
+  </data>
+  <data name="QueryFailed" xml:space="preserve">
+    <value>Query failed. Status code: {statusCode}. Message: '{errorMessage}'</value>
+  </data>
+  <data name="ReplaceItemFailed" xml:space="preserve">
+    <value>Replace item failed. Status code: {statusCode}. Message: '{errorMessage}'</value>
   </data>
 </root>

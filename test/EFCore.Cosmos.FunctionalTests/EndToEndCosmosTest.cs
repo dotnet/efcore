@@ -4,7 +4,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Newtonsoft.Json.Linq;
 using Xunit;
@@ -142,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new CustomerContext(options))
             {
-                var customerFromStore = context.Set<Customer>().Single();
+                var customerFromStore = await context.Set<Customer>().SingleAsync();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
@@ -179,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new CustomerContext(options))
             {
-                Assert.Empty(context.Set<Customer>().ToList());
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
             }
         }
 
@@ -216,13 +218,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Database.EnsureCreated();
 
                 context.Add(customer);
+                context.Add(new Customer { Id = 42, Name = "Theon Twin", PartitionKey = 2 });
 
                 context.SaveChanges();
             }
 
             using (var context = new PartitionKeyContext(options))
             {
-                var customerFromStore = context.Set<Customer>().Single();
+                var customerFromStore = context.Set<Customer>().OrderBy(c => c.PartitionKey).First();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
@@ -235,13 +238,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new PartitionKeyContext(options))
             {
-                var customerFromStore = context.Set<Customer>().Single();
+                context.Set<Customer>().OrderBy(c => c.PartitionKey).First().PartitionKey = 2;
+
+                Assert.Equal(CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            }
+
+            using (var context = new PartitionKeyContext(options))
+            {
+                var customerFromStore = context.Set<Customer>().OrderBy(c => c.PartitionKey).First();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
                 Assert.Equal(1, customerFromStore.PartitionKey);
 
                 context.Remove(customerFromStore);
+
+                context.Remove(context.Set<Customer>().OrderBy(c => c.PartitionKey).Last());
 
                 context.SaveChanges();
             }
@@ -261,8 +274,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>().HasPartitionKey(c => c.PartitionKey);
-                modelBuilder.Entity<Customer>().Property(c => c.PartitionKey).HasConversion<string>();
+                modelBuilder.Entity<Customer>(cb =>
+                {
+                    cb.HasPartitionKey(c => c.PartitionKey);
+                    cb.Property(c => c.PartitionKey).HasConversion<string>();
+                    cb.HasKey(c => new { c.Id, c.PartitionKey });
+                });
             }
         }
 
@@ -432,6 +449,44 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Add_update_delete_query_throws_if_no_container()
+        {
+            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName+"Empty");
+            var options = Fixture.CreateOptions(testDatabase);
+
+            var customer = new Customer { Id = 42, Name = "Theon" };
+            using (var context = new CustomerContext(options))
+            {
+                context.Add(customer);
+
+                Assert.StartsWith(CosmosStrings.CreateItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                context.Add(customer).State = EntityState.Modified;
+
+                Assert.StartsWith(CosmosStrings.ReplaceItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                context.Add(customer).State = EntityState.Deleted;
+
+                Assert.StartsWith(CosmosStrings.DeleteItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.StartsWith(CosmosStrings.QueryFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Customer>().SingleAsync())).Message);
             }
         }
 
