@@ -101,6 +101,89 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
+        public override void AssertCollection22<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            Func<TElement, object> elementSorter,
+            Action<TElement, TElement> elementAsserter,
+            bool ordered = false)
+        {
+            if (expected == null != (actual == null))
+            {
+                throw new InvalidOperationException(
+                    $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
+            }
+
+            _entitySorters.TryGetValue(typeof(TElement), out var sorter);
+            _entityAsserters.TryGetValue(typeof(TElement), out var asserter);
+
+            elementSorter ??= sorter ?? (e => e);
+            elementAsserter ??= asserter ?? Assert.Equal;
+
+            if (!ordered)
+            {
+                var sortedActual = actual.OrderBy(elementSorter).ToList();
+                var sortedExpected = expected.OrderBy(elementSorter).ToList();
+
+                Assert.Equal(sortedExpected.Count, sortedActual.Count);
+                for (var i = 0; i < sortedExpected.Count; i++)
+                {
+                    elementAsserter(sortedExpected[i], sortedActual[i]);
+                }
+            }
+            else
+            {
+                var expectedList = expected.ToList();
+                var actualList = actual.ToList();
+
+                Assert.Equal(expectedList.Count, actualList.Count);
+                for (var i = 0; i < expectedList.Count; i++)
+                {
+                    elementAsserter(expectedList[i], actualList[i]);
+                }
+            }
+        }
+
+        public override void AssertCollectionScalar<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            Func<TElement, object> elementSorter,
+            Action<TElement, TElement> elementAsserter,
+            bool ordered = false)
+        {
+            if (expected == null != (actual == null))
+            {
+                throw new InvalidOperationException(
+                    $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
+            }
+
+            elementAsserter ??= Assert.Equal;
+            elementSorter ??= e => e;
+
+            if (!ordered)
+            {
+                var sortedActual = actual.OrderBy(elementSorter).ToList();
+                var sortedExpected = expected.OrderBy(elementSorter).ToList();
+
+                Assert.Equal(sortedExpected.Count, sortedActual.Count);
+                for (var i = 0; i < sortedExpected.Count; i++)
+                {
+                    elementAsserter(sortedExpected[i], sortedActual[i]);
+                }
+            }
+            else
+            {
+                var expectedList = expected.ToList();
+                var actualList = actual.ToList();
+
+                Assert.Equal(expectedList.Count, actualList.Count);
+                for (var i = 0; i < expectedList.Count; i++)
+                {
+                    elementAsserter(expectedList[i], actualList[i]);
+                }
+            }
+        }
+
         #region AssertSingleResult
 
         public override async Task AssertSingleResult<TItem1>(
@@ -283,12 +366,88 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #endregion
 
+        public override async Task AssertQueryTyped<TItem1, TResult>(
+            Tuple<TItem1> sets,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
+            Func<TResult, object> elementSorter,
+            Action<TResult, TResult> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
+        {
+            using (var context = _contextCreator())
+            {
+                var query = actualQuery(SetExtractor.Set<TItem1>(context));
+                if (ProceduralQueryGeneration && !isAsync)
+                {
+                    new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
+
+                    return;
+                }
+
+                OrderingSettingsVerifier22(assertOrder, query.Expression.Type, elementSorter);
+
+                var actual = isAsync
+                    ? await query.ToArrayAsync()
+                    : query.ToArray();
+
+                var expected = expectedQuery(ExpectedData.Set<TItem1>()).ToArray();
+
+                var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
+                if (firstNonNullableElement != null)
+                {
+                    if (!assertOrder && elementSorter == null)
+                    {
+                        _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out var sorter);
+                        elementSorter = sorter;
+                    }
+
+                    if (elementAsserter == null)
+                    {
+                        _entityAsserters.TryGetValue(firstNonNullableElement.GetType(), out var asserter);
+                        elementAsserter = asserter;
+                    }
+                }
+
+                TestHelpers.AssertResults(
+                    expected,
+                    actual,
+                    elementSorter,
+                    elementAsserter,
+                    assertOrder);
+
+                Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
+            }
+        }
+
         #region AssertQuery
 
         private void OrderingSettingsVerifier(bool assertOrder, Type type)
             => OrderingSettingsVerifier(assertOrder, type, elementSorter: null);
 
         private void OrderingSettingsVerifier(bool assertOrder, Type type, Func<dynamic, object> elementSorter)
+        {
+            if (!assertOrder
+                && type.IsGenericType
+                && (type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>)
+                    || type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>)))
+            {
+                throw new InvalidOperationException(
+                    "Query result is OrderedQueryable - you need to set AssertQuery option: 'assertOrder' to 'true'. If the resulting order is non-deterministic by design, add identity projection to the top of the query to disable this check.");
+            }
+
+            if (assertOrder && elementSorter != null)
+            {
+                throw new InvalidOperationException("You shouldn't apply element sorter when 'assertOrder' is set to 'true'.");
+            }
+        }
+
+        private void OrderingSettingsVerifier22<TResult>(bool assertOrder, Type type)
+            => OrderingSettingsVerifier22<TResult>(assertOrder, type, elementSorter: null);
+
+        private void OrderingSettingsVerifier22<TResult>(bool assertOrder, Type type, Func<TResult, object> elementSorter)
         {
             if (!assertOrder
                 && type.IsGenericType

@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Simple_level1_include(bool isAsync)
-        {
+        {// assert include query
             return AssertQuery<Level1>(
                 isAsync,
                 l1s => l1s.Include(l1 => l1.OneToOne_Required_PK1), elementSorter: e => e.Id);
@@ -345,9 +345,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Simple_level1(bool isAsync)
         {
-            return AssertQuery<Level1>(
+            return AssertQueryTyped(
                 isAsync,
-                l1s => l1s, elementSorter: e => e.Id);
+                Sets<Level1>(),
+                l1s => l1s);
+
+
+
+                //, elementSorter: e => e.Id);
         }
 
         [ConditionalTheory]
@@ -403,6 +408,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Simple_level1_level2_level3_include(bool isAsync)
         {
+            // TODO: assertinclude query
             return AssertQuery<Level1>(
                 isAsync,
                 l1s => l1s.Include(l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2.OneToOne_Required_PK3),
@@ -484,9 +490,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s =>
                     from e1 in l1s
                     where Maybe(e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Name.ToUpper()) == "L2 01"
-                    select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select e1);
         }
 
         [ConditionalTheory]
@@ -895,11 +899,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nav_prop_collection_one_to_many_required(bool isAsync)
         {
-            return AssertQuery<Level1>(
+            return AssertQueryTyped(
                 isAsync,
+                Sets<Level1>(),
                 l1s => l1s.OrderBy(e => e.Id).Select(e => e.OneToMany_Required1.Select(i => i.Id)),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection<int>(e, a));
+                elementAsserter: (e, a) => AssertCollectionScalar(e, a));
         }
 
         [ConditionalTheory]
@@ -4994,8 +4999,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_check_in_anonymous_type_projection_should_not_be_removed(bool isAsync)
         {
-            return AssertQuery<Level1>(
+            return AssertQueryTyped(
                 isAsync,
+                Sets<Level1>(),
                 l1s => l1s.OrderBy(l1 => l1.Id).Select(
                     l1 => new
                     {
@@ -5008,20 +5014,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }).ToList()
                     }),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter<dynamic>(
-                        elementSorter: e1 => e1.Level3.Name,
-                        elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Name, a1.Level3.Name))(e.Level2s, a.Level2s);
-                });
+                elementAsserter: (e, a) => AssertCollection22(
+                    e.Level2s,
+                    a.Level2s,
+                    elementSorter: ee => true,
+                    elementAsserter: (ee, aa) => Assert.Equal(ee.Level3.Name, ee.Level3.Name)));
+                //{
+                //    CollectionAsserter<dynamic>(
+                //        elementSorter: e1 => e1.Level3.Name,
+                //        elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Name, a1.Level3.Name))(e.Level2s, a.Level2s);
+                //});
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_check_in_Dto_projection_should_not_be_removed(bool isAsync)
         {
-            return AssertQuery<Level1>(
+            return AssertQueryTyped(
                 isAsync,
+                Sets<Level1>(),
                 l1s => l1s.OrderBy(l1 => l1.Id).Select(
                     l1 => new
                     {
@@ -5034,12 +5045,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }).ToList()
                     }),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter<dynamic>(
-                        elementSorter: e1 => e1.Level3.Value,
-                        elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Value, a1.Level3.Value))(e.Level2s, a.Level2s);
-                });
+                elementAsserter: (e, a) => AssertCollection22(
+                    e.Level2s,
+                    a.Level2s,
+                    elementSorter: ee => ee.Level3.Value,
+                    elementAsserter: (ee, aa) => Assert.Equal(ee.Level3.Value, aa.Level3.Value)));
+                
+
+
+
+
+
+
+
+            //return AssertQuery<Level1>(
+            //    isAsync,
+            //    l1s => l1s.OrderBy(l1 => l1.Id).Select(
+            //        l1 => new
+            //        {
+            //            Level2s = l1.OneToMany_Optional1.Select(
+            //                l2 => new
+            //                {
+            //                    Level3 = l2.OneToOne_Required_FK2 == null
+            //                        ? null
+            //                        : new ProjectedDto<string> { Value = l2.OneToOne_Required_FK2.Name }
+            //                }).ToList()
+            //        }),
+            //    assertOrder: true,
+            //    elementAsserter: (e, a) =>
+            //    {
+            //        CollectionAsserter<dynamic>(
+            //            elementSorter: e1 => e1.Level3.Value,
+            //            elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Value, a1.Level3.Value))(e.Level2s, a.Level2s);
+            //    });
         }
 
         private class ProjectedDto<T>

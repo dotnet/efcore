@@ -24,6 +24,22 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             IEnumerable<TElement> actual,
             bool ordered = false);
 
+        public abstract void AssertCollection22<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            Func<TElement, object> elementSorter,
+            Action<TElement, TElement> elementAsserter,
+            bool ordered = false)
+            where TElement: class;
+
+        public abstract void AssertCollectionScalar<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            Func<TElement, object> elementSorter,
+            Action<TElement, TElement> elementAsserter,
+            bool ordered = false)
+            where TElement : struct;
+
         #region AssertSingleResult
 
         public abstract Task AssertSingleResult<TItem1>(
@@ -93,6 +109,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             where TItem3 : class;
 
         #endregion
+
+        public abstract Task AssertQueryTyped<TItem1, TResult>(
+            Tuple<TItem1> sets,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
+            Func<TResult, object> elementSorter,
+            Action<TResult, TResult> elementAsserter,
+            bool assertOrder,
+            int entryCount,
+            bool isAsync,
+            string testMethodName)
+            where TItem1 : class
+            where TResult : class;
 
         #region AssertQuery
 

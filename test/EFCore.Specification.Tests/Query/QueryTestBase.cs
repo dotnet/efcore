@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -21,6 +20,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TFixture Fixture { get; }
 
         public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+
+        protected static Tuple<TItem1> Sets<TItem1>()
+            where TItem1: class
+            => new Tuple<TItem1>(null);
+
+        protected static Tuple<TItem1, TItem2> Sets<TItem1, TItem2>()
+            where TItem1 : class
+            where TItem2 : class
+            => new Tuple<TItem1, TItem2>(null, null);
+
+        protected static Tuple<TItem1, TItem2, TItem3> Sets<TItem1, TItem2, TItem3>()
+            where TItem1 : class
+            where TItem2 : class
+            where TItem3 : class
+            => new Tuple<TItem1, TItem2, TItem3>(null, null, null);
 
         #region AssertAny
 
@@ -1010,6 +1024,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #endregion
 
+        public Task AssertQueryTyped<TItem1, TResult>(
+            bool isAsync,
+            Tuple<TItem1> sets,
+            Func<IQueryable<TItem1>, IQueryable<TResult>> query,
+            Func<TResult, object> elementSorter = null,
+            Action<TResult, TResult> elementAsserter = null,
+            bool assertOrder = false,
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
+            where TItem1 : class
+            where TResult : class
+            => Fixture.QueryAsserter.AssertQueryTyped(
+                sets, query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
+
         #region AssertQuery
 
         public Task AssertQuery<TItem1>(
@@ -1597,6 +1625,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             IEnumerable<TElement> actual,
             bool ordered = false)
             => Fixture.QueryAsserter.AssertCollection(expected, actual, ordered);
+
+        public void AssertCollection22<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null,
+            bool ordered = false)
+            where TElement: class
+            => Fixture.QueryAsserter.AssertCollection22(expected, actual, elementSorter, elementAsserter, ordered);
+
+        public void AssertCollectionScalar<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null,
+            bool ordered = false)
+            where TElement : struct
+            => Fixture.QueryAsserter.AssertCollectionScalar(expected, actual, elementSorter, elementAsserter, ordered);
+
 
         public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(
             Func<TElement, object> elementSorter = null,
