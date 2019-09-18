@@ -1821,5 +1821,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID) == c.CustomerID),
                 entryCount: 7);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_explicit_cast_over_column(bool isAsync)
+        {
+            return AssertSum<Order, Order>(
+                isAsync,
+                os => os,
+                o => (long?)o.OrderID);
+        }
+
     }
 }

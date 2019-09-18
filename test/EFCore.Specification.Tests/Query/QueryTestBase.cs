@@ -825,6 +825,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected Task AssertSum<TItem1, TSelector>(
             bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
+            Expression<Func<TSelector, long>> selector,
+            Action<object, object> asserter = null)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertSum(query, query, selector, selector, asserter, isAsync);
+
+        protected Task AssertSum<TItem1, TSelector>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
+            Expression<Func<TSelector, long?>> selector,
+            Action<object, object> asserter = null)
+            where TItem1 : class
+            => Fixture.QueryAsserter.AssertSum(query, query, selector, selector, asserter, isAsync);
+
+        protected Task AssertSum<TItem1, TSelector>(
+            bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
             Expression<Func<TSelector, decimal>> selector,
             Action<object, object> asserter = null)
             where TItem1 : class
