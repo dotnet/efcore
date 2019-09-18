@@ -1357,6 +1357,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Explicit_cast_in_arithmatic_operation_is_preserved(bool isAsync)
+        {
+            return AssertQueryScalar<Order, decimal>(
+                isAsync,
+                os => from o in os
+                      where o.OrderID == 10243
+                      select (decimal)o.OrderID / (decimal)(o.OrderID + 1000));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_whose_selector_references_outer_source(bool isAsync)
         {
             return AssertQuery<Customer, Order>(
