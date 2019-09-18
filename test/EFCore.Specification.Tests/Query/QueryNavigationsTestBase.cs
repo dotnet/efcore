@@ -1313,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             orderby c.CustomerID
                             select grouping.Select(o => o.OrderDetails).ToList(),
                 assertOrder: true,
-                elementAsserter: CustomCollectionAsserter<dynamic>(
+                elementAsserter: CollectionAsserter<dynamic>(
                     elementSorter: e => CollectionSorter<OrderDetail>(),
                     elementAsserter: (ee, aa) => AssertCollection<OrderDetail>(ee, aa)));
         }
@@ -1335,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.c.CustomerID, a.c.CustomerID);
 
-                    CustomCollectionAsserter<dynamic>(
+                    CollectionAsserter<dynamic>(
                         elementSorter: e => CollectionSorter<OrderDetail>(),
                         elementAsserter: (ee, aa) => AssertCollection<OrderDetail>(ee, aa))(e.G, a.G);
                 },

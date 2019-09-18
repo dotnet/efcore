@@ -4699,6 +4699,22 @@ ORDER BY [o].[OrderID], [o].[OrderDate], [c].[CustomerID], [c].[City]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
 
+        public override async Task AsQueryable_in_query_server_evals(bool isAsync)
+        {
+            await base.AsQueryable_in_query_server_evals(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[OrderDate], [t].[OrderID]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT TOP(1) [o].[OrderDate], [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND ((DATEPART(year, [o].[OrderDate]) = 1998) AND DATEPART(year, [o].[OrderDate]) IS NOT NULL)
+    ORDER BY [o].[OrderID]
+) AS [t]
+ORDER BY [c].[CustomerID], [t].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
