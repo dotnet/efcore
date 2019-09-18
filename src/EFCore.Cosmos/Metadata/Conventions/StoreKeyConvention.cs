@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
@@ -46,24 +47,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private static void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
+            IConventionKey newKey = null;
+            IConventionProperty idProperty = null;
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType == null
                 && entityType.IsDocumentRoot()
                 && !entityType.IsKeyless)
             {
-                var idProperty = entityTypeBuilder.Property(typeof(string), IdPropertyName);
-                idProperty.HasValueGenerator((_, __) => new IdValueGenerator());
-                entityTypeBuilder.HasKey(new[] { idProperty.Metadata });
+                idProperty = entityTypeBuilder.Property(typeof(string), IdPropertyName, setTypeConfigurationSource: false)
+                    ?.Metadata;
+
+                if (idProperty != null)
+                {
+                    if (idProperty.ClrType == typeof(string))
+                    {
+                        idProperty.Builder.HasValueGenerator((_, __) => new IdValueGenerator());
+                    }
+
+                    var partitionKey = entityType.GetPartitionKeyPropertyName();
+                    if (partitionKey != null)
+                    {
+                        var partitionKeyProperty = entityType.FindProperty(partitionKey);
+                        if (partitionKeyProperty != null)
+                        {
+                            newKey = entityTypeBuilder.HasKey(new[] { idProperty, partitionKeyProperty })?.Metadata;
+                        }
+                    }
+                    else
+                    {
+                        newKey = entityTypeBuilder.HasKey(new[] { idProperty })?.Metadata;
+                    }
+                }
             }
             else
             {
-                var idProperty = entityType.FindDeclaredProperty(IdPropertyName);
-                if (idProperty != null)
+                idProperty = entityType.FindDeclaredProperty(IdPropertyName);
+            }
+
+            if (idProperty != null)
+            {
+                foreach (var key in idProperty.GetContainingKeys().ToList())
                 {
-                    var key = entityType.FindKey(idProperty);
-                    if (key != null)
+                    if (key != newKey)
                     {
-                        entityType.Builder.HasNoKey(key);
+                        key.DeclaringEntityType.Builder.HasNoKey(key);
                     }
                 }
             }
@@ -150,7 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(context, nameof(context));
 
-            if (name == CosmosAnnotationNames.ContainerName)
+            if (name == CosmosAnnotationNames.ContainerName
+                || name == CosmosAnnotationNames.PartitionKeyName)
             {
                 Process(entityTypeBuilder);
             }
