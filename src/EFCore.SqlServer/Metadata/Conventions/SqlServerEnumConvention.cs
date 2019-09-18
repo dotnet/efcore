@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         var enumValues = Enum.GetValues(propertyType);
                         if(enumValues.Length <= 0)
                             continue;
-                        var sql = new StringBuilder($"{property.Name} IN(");
+                        var sql = new StringBuilder($"{property.GetColumnName()} IN(");
                         foreach (var item in enumValues)
                         {
                             var value = ((RelationalTypeMapping)typeMapping).GenerateSqlLiteral(item);
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         sql.Remove(sql.Length - 2, 2);
                         sql.Append(")");
-                        string constraintName = $"CK_{entityType.GetTableName()}_{property.Name}_Enum_Constraint";
+                        string constraintName = $"CK_{entityType.GetTableName()}_{property.GetColumnName()}_Enum_Constraint";
                         entityType.AddCheckConstraint(constraintName, sql.ToString());
                     }
                 }
