@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         var enumValues = Enum.GetValues(propertyType);
                         if(enumValues.Length <= 0)
                             continue;
-                        var sql = new StringBuilder($"{property.GetColumnName()} IN(");
+                        var sql = new StringBuilder($"[{property.GetColumnName()}] IN(");
                         foreach (var item in enumValues)
                         {
                             var value = ((RelationalTypeMapping)typeMapping).GenerateSqlLiteral(item);
