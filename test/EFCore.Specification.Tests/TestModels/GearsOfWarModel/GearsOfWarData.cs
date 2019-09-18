@@ -61,6 +61,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                 return (IQueryable<TEntity>)Gears.AsQueryable();
             }
 
+            if (typeof(TEntity) == typeof(Officer))
+            {
+                return (IQueryable<TEntity>)Gears.OfType<Officer>().AsQueryable();
+            }
+
             if (typeof(TEntity) == typeof(Mission))
             {
                 return (IQueryable<TEntity>)Missions.AsQueryable();

@@ -7659,6 +7659,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ms => ms.Select(m => m.Timeline > DateTimeOffset.Now));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OfType_in_subquery_works(bool isAsync)
+        {
+            return AssertQuery<Officer>(
+                isAsync,
+                os => os.SelectMany(o => o.Reports.OfType<Officer>().Select(o1 => o1.AssignedCity)));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
