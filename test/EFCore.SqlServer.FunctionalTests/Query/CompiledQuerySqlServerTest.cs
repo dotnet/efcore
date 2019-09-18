@@ -182,6 +182,18 @@ ORDER BY [c].[CompanyName]");
                 @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
         }
 
+        public override void Compiled_query_when_does_not_end_in_query_operator()
+        {
+            base.Compiled_query_when_does_not_end_in_query_operator();
+
+            AssertSql(
+                @"@__customerID='ALFKI' (Size = 5)
+
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
