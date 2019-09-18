@@ -1399,5 +1399,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.Select(c => c.Orders.OrderBy(o => o.OrderID).Select(o => o.EmployeeID).FirstOrDefault()));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task ToList_Count_in_projection_works(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("A"))
+                        .Select(c => new
+                        {
+                            c,
+                            Count = c.Orders.ToList().Count()
+                        }),
+                entryCount: 4,
+                elementSorter: r => r.c.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    Assert.Equal(e.Count, a.Count);
+                });
+        }
     }
 }

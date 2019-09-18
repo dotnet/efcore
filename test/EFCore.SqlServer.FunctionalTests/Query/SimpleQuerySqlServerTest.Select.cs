@@ -1170,5 +1170,18 @@ CROSS APPLY (
     ORDER BY [o].[OrderID])
 FROM [Customers] AS [c]");
         }
+
+        public override async Task ToList_Count_in_projection_works(bool isAsync)
+        {
+            await base.ToList_Count_in_projection_works(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AS [Count]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'");
+        }
     }
 }
