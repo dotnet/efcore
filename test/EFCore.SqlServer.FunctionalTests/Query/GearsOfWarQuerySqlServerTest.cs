@@ -7141,6 +7141,22 @@ END
 FROM [Missions] AS [m]");
         }
 
+        public override async Task OfType_in_subquery_works(bool isAsync)
+        {
+            await base.OfType_in_subquery_works(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Name], [t].[Location], [t].[Nation]
+FROM [Gears] AS [g]
+INNER JOIN (
+    SELECT [c].[Name], [c].[Location], [c].[Nation], [g0].[Nickname], [g0].[SquadId], [g0].[LeaderNickname], [g0].[LeaderSquadId]
+    FROM [Gears] AS [g0]
+    LEFT JOIN [Cities] AS [c] ON [g0].[AssignedCityName] = [c].[Name]
+    WHERE [g0].[Discriminator] IN (N'Gear', N'Officer') AND ([g0].[Discriminator] = N'Officer')
+) AS [t] ON (([g].[Nickname] = [t].[LeaderNickname]) AND [t].[LeaderNickname] IS NOT NULL) AND ([g].[SquadId] = [t].[LeaderSquadId])
+WHERE [g].[Discriminator] = N'Officer'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

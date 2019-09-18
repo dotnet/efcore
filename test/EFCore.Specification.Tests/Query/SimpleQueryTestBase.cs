@@ -1781,7 +1781,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     orderby e3.EmployeeID
                                     select e3)),
                 e => ((IEnumerable<IEnumerable<Employee>>)e).Count(),
-                elementAsserter: CustomCollectionAsserter(
+                elementAsserter: CollectionAsserter(
                     elementSorter: CollectionSorter<Employee>(),
                     elementAsserter: (ee, aa) => AssertCollection<Employee>(ee, aa, ordered: true)));
         }
@@ -5706,5 +5706,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 20,
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task AsQueryable_in_query_server_evals(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.OrderBy(c => c.CustomerID)
+                        .Select(c => c.Orders.AsQueryable()
+                                        .Where(ValidYear)
+                                        .OrderBy(o => o.OrderID)
+                                        .Take(1)
+                                        .Select(o => new { OrderDate = o.OrderDate }).ToList()),
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<dynamic>(
+                    ec => ec.OrderDate,
+                    (ec, ac) => Assert.Equal(ec.OrderDate, ac.OrderDate))(e, a));
+        }
+
+        private static Expression<Func<Order, bool>> ValidYear => a => a.OrderDate.Value.Year == 1998;
     }
 }

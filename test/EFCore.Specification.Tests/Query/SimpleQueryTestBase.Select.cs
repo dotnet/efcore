@@ -556,8 +556,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     orderby o2.OrderID
                                     select o1.OrderID)),
                 assertOrder: true,
-                elementAsserter: (e, a) => CustomCollectionAsserter<dynamic>(
-                    elementAsserter: (ee, aa) => CustomCollectionAsserter<dynamic>(
+                elementAsserter: (e, a) => CollectionAsserter<dynamic>(
+                    elementAsserter: (ee, aa) => CollectionAsserter<dynamic>(
                         elementAsserter: (eee, aaa) => AssertCollection<int>(eee, aaa, ordered: true))));
         }
 

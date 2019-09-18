@@ -69,7 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
                 = new Dictionary<Expression, (IEntityType, Expression)>();
 
-            private (IEntityType EntityType, ParameterExpression JObjectVariable) _ownerInfo;
             private ParameterExpression _ordinalParameter;
 
             public CosmosProjectionBindingRemovingExpressionVisitor(
@@ -117,15 +116,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 var accessExpression = entityProjectionExpression.AccessExpression;
                                 _projectionBindings[accessExpression] = parameterExpression;
                                 storeName ??= entityProjectionExpression.Name;
-                                if (_ownerInfo.EntityType != null)
-                                {
-                                    _ownerMappings[accessExpression] = _ownerInfo;
-                                }
 
                                 switch (accessExpression)
                                 {
                                     case ObjectAccessExpression innerObjectAccessExpression:
                                         innerAccessExpression = innerObjectAccessExpression.AccessExpression;
+                                        _ownerMappings[accessExpression] =
+                                            (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
                                         break;
                                     case RootReferenceExpression _:
                                         innerAccessExpression = _jObjectParameter;
@@ -241,15 +238,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var ordinalParameter = Expression.Parameter(typeof(int), jArray.Name + "Ordinal");
 
                         _projectionBindings[objectArrayProjection.InnerProjection.AccessExpression] = jObjectParameter;
-                        if (_ownerInfo.EntityType != null)
-                        {
-                            _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = _ownerInfo;
-                        }
-                        else
-                        {
-                            _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = (
-                                objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
-                        }
+
+                        _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = (
+                            objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
 
                         var previousOrdinalParameter = _ordinalParameter;
                         _ordinalParameter = ordinalParameter;
@@ -303,10 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             includingClrType, relatedEntityClrType, navigation, inverseNavigation);
                         var initialize = GenerateInitialize(includingClrType, navigation);
 
-                        var previousOwner = _ownerInfo;
-                        _ownerInfo = (navigation.DeclaringEntityType, jObjectVariable);
                         var navigationExpression = Visit(includeExpression.NavigationExpression);
-                        _ownerInfo = previousOwner;
 
                         shaperExpressions.Add(
                             Expression.Call(
@@ -560,9 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     if (!entityType.IsDocumentRoot())
                     {
                         var ownership = entityType.FindOwnership();
-
-                        if (ownership != null
-                            && !ownership.IsUnique
+                        if (!ownership.IsUnique
                             && property.IsPrimaryKey()
                             && !property.IsForeignKey()
                             && property.ClrType == typeof(int))
