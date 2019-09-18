@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                foreach( var property in entityType.GetDeclaredProperties())
+                foreach (var property in entityType.GetDeclaredProperties())
                 {
                     var typeMapping = property.FindTypeMapping();
                     var propertyType = property.GetIdentifyingMemberInfo()?.GetMemberType();
@@ -49,9 +49,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         && !propertyType.IsDefined(typeof(FlagsAttribute), true))
                     {
                         var enumValues = Enum.GetValues(propertyType);
-                        if(enumValues.Length <= 0)
+                        if (enumValues.Length <= 0)
+                        {
                             continue;
-                        var sql = new StringBuilder($"[{property.GetColumnName()}] IN(");
+                        }
+
+                        var sql = new StringBuilder();
+                        sql.Append("[");
+                        sql.Append(property.GetColumnName());
+                        sql.Append("] IN("); ;
                         foreach (var item in enumValues)
                         {
                             var value = ((RelationalTypeMapping)typeMapping).GenerateSqlLiteral(item);
@@ -60,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                         sql.Remove(sql.Length - 2, 2);
                         sql.Append(")");
-                        string constraintName = $"CK_{entityType.GetTableName()}_{property.GetColumnName()}_Enum_Constraint";
+
+                        var constraintName = $"CK_{entityType.GetTableName()}_{property.GetColumnName()}_Enum_Constraint";
                         entityType.AddCheckConstraint(constraintName, sql.ToString());
                     }
                 }

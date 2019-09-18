@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var checkConstraint = model.FindEntityType(typeof(Order))
                                         .GetCheckConstraints()
-                                        .FirstOrDefault<ICheckConstraint>(constraint =>
-                                            constraint.Name == "CK_Order_OrderStatus_Enum_Constraint");
+                                        .FirstOrDefault();
 
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_Order_OrderStatus_Enum_Constraint", checkConstraint.Name);
@@ -39,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var checkConstraint = model.FindEntityType(typeof(Customer))
                                         .GetCheckConstraints()
-                                        .FirstOrDefault<ICheckConstraint>(constraint =>
-                                            constraint.Name == "CK_Customer_CustomerType_Enum_Constraint");
+                                        .FirstOrDefault();
 
             Assert.NotNull(checkConstraint);
             Assert.Equal("CK_Customer_CustomerType_Enum_Constraint", checkConstraint.Name);
@@ -59,13 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var checkConstraintString = model.FindEntityType(typeof(Seller))
                                         .GetCheckConstraints()
-                                        .FirstOrDefault<ICheckConstraint>(constraint =>
-                                            constraint.Name == "CK_Seller_SellerStatusString_Enum_Constraint");
+                                        .FirstOrDefault();
 
             var checkConstraintInt = model.FindEntityType(typeof(Seller))
                                         .GetCheckConstraints()
-                                        .FirstOrDefault<ICheckConstraint>(constraint =>
-                                            constraint.Name == "CK_Seller_checkConstraintInt_Enum_Constraint");
+                                        .FirstOrDefault();
 
             Assert.Null(checkConstraintString);
             Assert.Null(checkConstraintInt);
@@ -81,15 +77,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var checkConstraint = model.FindEntityType(typeof(File))
                                         .GetCheckConstraints()
-                                        .FirstOrDefault<ICheckConstraint>(constraint =>
-                                            constraint.Name == "CK_File_FileStatus_Enum_Constraint");
+                                        .FirstOrDefault();
 
             Assert.Null(checkConstraint);
         }
 
         private class Seller
         {
-            public int Id{ get; set; }
+            public int Id { get; set; }
             public string SellerName { get; set; }
             public SellerStatus SellerStatusString { get; set; }
             public SellerStatus SellerStatusInt { get; set; }
@@ -103,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
             public int CustomerId { get; set; }
-            public OrderStatus OrderStatus{ get; set; }
+            public OrderStatus OrderStatus { get; set; }
         }
 
         private enum OrderStatus
@@ -116,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
             public int CustomerName { get; set; }
-            public CustomerType CustomerType{ get; set; }
+            public CustomerType CustomerType { get; set; }
         }
 
         private enum CustomerType
@@ -127,9 +122,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private class File
         {
-            public int Id{ get; set; }
-            public string Path{ get; set; }
-            public FileStatus FileStatus{ get; set; }
+            public int Id { get; set; }
+            public string Path { get; set; }
+            public FileStatus FileStatus { get; set; }
         }
 
         [Flags]
