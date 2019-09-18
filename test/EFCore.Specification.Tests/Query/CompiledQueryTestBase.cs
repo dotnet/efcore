@@ -531,6 +531,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Compiled_query_when_does_not_end_in_query_operator()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context, string customerID)
+                    => context.Customers.Where(c => c.CustomerID == customerID).Count() == 1);
+
+            using (var context = CreateContext())
+            {
+                Assert.True(query(context, "ALFKI"));
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }
 }
