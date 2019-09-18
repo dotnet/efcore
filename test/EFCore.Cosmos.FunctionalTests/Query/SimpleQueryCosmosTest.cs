@@ -4155,6 +4155,16 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Select_entity_compared_to_null(isAsync);
         }
 
+        public override async Task Explicit_cast_in_arithmatic_operation_is_preserved(bool isAsync)
+        {
+            await base.Explicit_cast_in_arithmatic_operation_is_preserved(isAsync);
+
+            AssertSql(
+                @"SELECT c[""OrderID""], (c[""OrderID""] + 1000) AS c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task SelectMany_whose_selector_references_outer_source(bool isAsync)
         {

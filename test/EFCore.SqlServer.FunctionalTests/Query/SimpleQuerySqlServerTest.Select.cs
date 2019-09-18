@@ -1127,6 +1127,16 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
         }
 
+        public override async Task Explicit_cast_in_arithmatic_operation_is_preserved(bool isAsync)
+        {
+            await base.Explicit_cast_in_arithmatic_operation_is_preserved(isAsync);
+
+            AssertSql(
+                @"SELECT CAST([o].[OrderID] AS decimal(18,2)) / CAST(([o].[OrderID] + 1000) AS decimal(18,2))
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 10243");
+        }
+
         public override async Task SelectMany_whose_selector_references_outer_source(bool isAsync)
         {
             await base.SelectMany_whose_selector_references_outer_source(isAsync);
