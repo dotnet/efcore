@@ -4167,6 +4167,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool isAsync)
+        {
+            return base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
