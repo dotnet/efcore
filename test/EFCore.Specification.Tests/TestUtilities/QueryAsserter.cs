@@ -37,6 +37,70 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _includeResultAsserter = new IncludeQueryResultAsserter(_entitySorters, _entityAsserters);
         }
 
+        public override void AssertEqual<T>(T expected, T actual, Action<dynamic, dynamic> asserter = null)
+        {
+            if (asserter == null && expected != null)
+            {
+                _entityAsserters.TryGetValue(expected.GetType(), out asserter);
+            }
+
+            asserter ??= Assert.Equal;
+            asserter(expected, actual);
+        }
+
+        public override void AssertCollection<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            bool ordered = false)
+        {
+            if (expected == null !=  (actual == null))
+            {
+                throw new InvalidOperationException(
+                    $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
+            }
+
+            _entitySorters.TryGetValue(typeof(TElement), out var elementSorter);
+            _entityAsserters.TryGetValue(typeof(TElement), out var elementAsserter);
+            elementAsserter ??= Assert.Equal;
+
+            if (!ordered)
+            {
+                if (elementSorter != null)
+                {
+                    var sortedActual = ((IEnumerable<dynamic>)actual).OrderBy(elementSorter).ToList();
+                    var sortedExpected = ((IEnumerable<dynamic>)expected).OrderBy(elementSorter).ToList();
+
+                    Assert.Equal(sortedExpected.Count, sortedActual.Count);
+                    for (var i = 0; i < sortedExpected.Count; i++)
+                    {
+                        elementAsserter(sortedExpected[i], sortedActual[i]);
+                    }
+                }
+                else
+                {
+                    var sortedActual = actual.OrderBy(e => e).ToList();
+                    var sortedExpected = expected.OrderBy(e => e).ToList();
+
+                    Assert.Equal(sortedExpected.Count, sortedActual.Count);
+                    for (var i = 0; i < sortedExpected.Count; i++)
+                    {
+                        elementAsserter(sortedExpected[i], sortedActual[i]);
+                    }
+                }
+            }
+            else
+            {
+                var expectedList = expected.ToList();
+                var actualList = actual.ToList();
+
+                Assert.Equal(expectedList.Count, actualList.Count);
+                for (var i = 0; i < expectedList.Count; i++)
+                {
+                    elementAsserter(expectedList[i], actualList[i]);
+                }
+            }
+        }
+
         #region AssertSingleResult
 
         public override async Task AssertSingleResult<TItem1>(
@@ -63,21 +127,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>());
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -106,21 +156,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>());
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -149,21 +185,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>());
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -192,21 +214,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>());
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -237,21 +245,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>());
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -282,21 +276,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>());
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1116,21 +1096,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).First();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1152,21 +1118,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).First(expectedFirstPredicate);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1190,21 +1142,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).FirstOrDefault();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1224,21 +1162,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>()).FirstOrDefault();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1262,21 +1186,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>(), ExpectedData.Set<TItem3>())
                     .FirstOrDefault();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1298,21 +1208,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).FirstOrDefault(expectedPredicate);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1336,21 +1232,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Single();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1370,21 +1252,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>()).Single();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1406,21 +1274,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Single(expectedFirstPredicate);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1444,21 +1298,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).SingleOrDefault();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1480,21 +1320,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).SingleOrDefault(expectedPredicate);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1518,21 +1344,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Last();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1554,21 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Last(expectedPredicate);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1592,21 +1390,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).LastOrDefault();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1628,21 +1412,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).LastOrDefault(expectedPredicate);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1820,21 +1590,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Min();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1854,21 +1610,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Min();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1890,21 +1632,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Min(expectedSelector);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1928,21 +1656,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Max();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1962,21 +1676,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Max();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -1998,21 +1698,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Max(expectedSelector);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
@@ -2035,20 +1721,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum();
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2067,21 +1740,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum();
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2102,20 +1761,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2136,21 +1782,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum(expectedSelector);
 
-                if (asserter == null
-                    && expected != null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2171,20 +1803,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2205,20 +1824,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2239,20 +1845,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>(), ExpectedData.Set<TItem2>()).Sum(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2275,20 +1868,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average();
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2307,20 +1887,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average();
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2339,20 +1906,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average();
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2373,20 +1927,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2407,20 +1948,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2441,20 +1969,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }
@@ -2475,20 +1990,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData.Set<TItem1>()).Average(expectedSelector);
 
-                if (asserter == null)
-                {
-                    _entityAsserters.TryGetValue(expected.GetType(), out asserter);
-                }
-
-                if (asserter != null)
-                {
-                    asserter(expected, actual);
-                }
-                else
-                {
-                    Assert.Equal(expected, actual);
-                }
-
+                AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
             }
         }

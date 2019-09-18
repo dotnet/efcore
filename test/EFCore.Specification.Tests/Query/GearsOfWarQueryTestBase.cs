@@ -1479,8 +1479,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Tag1.Id + " " + e.Tag2.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.Tag1.Id, a.Tag1.Id);
-                    Assert.Equal(e.Tag2.Id, a.Tag2.Id);
+                    AssertEqual<CogTag>(e.Tag1, a.Tag1);
+                    AssertEqual<CogTag>(e.Tag2, a.Tag2);
                 });
         }
 
@@ -1855,8 +1855,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.t1.Id + " " + e.t2.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.t1.Id, a.t1.Id);
-                    Assert.Equal(e.t2.Id, a.t2.Id);
+                    AssertEqual<CogTag>(e.t1, a.t1);
+                    AssertEqual<CogTag>(e.t2, e.t2);
                 });
         }
 
@@ -1908,7 +1908,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.A.Nickname,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.A.Nickname, e.A.Nickname);
+                    AssertEqual<Gear>(e.A, a.A);
                     Assert.Equal(e.B, e.B);
                 });
         }
@@ -2546,7 +2546,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note)
                     .Select(t => gs.OrderBy(g => g.Nickname).Skip(t.Gear.SquadId)),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a, ordered: true));
         }
 
         [ConditionalTheory(Skip = "Issue#16313")]
@@ -2558,7 +2558,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (ts, gs) => ts.Where(t => t.Note != "K.I.A.").OrderBy(t => t.Note)
                     .Select(t => gs.OrderBy(g => g.Nickname).Take(t.Gear.SquadId)),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a, ordered: true));
         }
 
         [ConditionalTheory]
@@ -2572,7 +2572,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(g => g.Nickname)
                     .Select(g => g.Weapons.Where(w => w.Name != "Lancer").ToList()),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+                elementAsserter: (e, a) => AssertCollection<Weapon>(e, a));
         }
 
         [ConditionalTheory]
@@ -2583,7 +2583,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 gs => gs.OfType<Officer>().OrderBy(g => g.Nickname).Select(g => g.Reports.Where(r => r.Nickname != "Dom").ToList()),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a));
         }
 
         [ConditionalTheory(Skip = "Issue#16314")]
@@ -2594,7 +2594,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (ts, gs) => ts.OrderBy(t => t.Note).Select(t => gs.Where(g => g.Nickname == t.GearNickName)),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(g => g.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a));
         }
 
         [ConditionalTheory]
@@ -3088,8 +3088,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => AssertQuery<Gear>(
                 isAsync,
-                gs => gs.Where(g => ClientEquals(g.Tag.Note, prm)),
-                elementAsserter: (e, a) => Assert.Equal(e.Nickname, a.Nickname)))).Message;
+                gs => gs.Where(g => ClientEquals(g.Tag.Note, prm))))).Message;
 
             Assert.Equal(
                 CoreStrings.TranslationFailed("Where<TransparentIdentifier<Gear, CogTag>>(    source: LeftJoin<Gear, CogTag, AnonymousObject, TransparentIdentifier<Gear, CogTag>>(        outer: DbSet<Gear>,         inner: DbSet<CogTag>,         outerKeySelector: (g) => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         innerKeySelector: (c) => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         resultSelector: (o, i) => new TransparentIdentifier<Gear, CogTag>(            Outer = o,             Inner = i        )),     predicate: (g) => ClientEquals(        first: g.Inner.Note,         second: (Unhandled parameter: __prm_0)))"),
@@ -4368,7 +4367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby g.Nickname
                       select g.Weapons.ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+                elementAsserter: (e, a) => AssertCollection<Weapon>(e, a));
         }
 
         [ConditionalTheory]
@@ -4395,7 +4394,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby g.Nickname
                       select g.Weapons.ToArray(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+                elementAsserter: (e, a) => AssertCollection<Weapon>(e, a));
         }
 
         [ConditionalTheory]
@@ -4411,7 +4410,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where w.IsAutomatic || w.Name != "foo"
                               select w).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+                elementAsserter: (e, a) => AssertCollection<Weapon>(e, a));
         }
 
         [ConditionalTheory]
@@ -4427,7 +4426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where w.IsAutomatic || w.Name != "foo"
                               select w).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+                elementAsserter: (e, a) => AssertCollection<Weapon>(e, a));
         }
 
         [ConditionalTheory]
@@ -4443,7 +4442,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where w.IsAutomatic || w.Name != "foo"
                               select w).ToArray(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Weapon>(e => e.Id, (e, a) => Assert.Equal(e.Id, a.Id)));
+                elementAsserter: (e, a) => AssertCollection<Weapon>(e, a));
         }
 
         [ConditionalTheory]
@@ -4460,7 +4459,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               orderby w.Name descending
                               select w).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Weapon>(elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id)));
+                elementAsserter: (e, a) => AssertCollection<Weapon>(e, a, ordered: true));
         }
 
         [ConditionalTheory]
@@ -4487,7 +4486,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<dynamic>(elementSorter: ee => ee.FullName)(e.Collection, a.Collection);
+                    CustomCollectionAsserter<dynamic>(elementSorter: ee => ee.FullName)(e.Collection, a.Collection);
                 });
         }
 
@@ -4504,7 +4503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where w.IsAutomatic || w.Name != "foo"
                               select w.Name).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<string>(e => e));
+                elementAsserter: (e, a) => AssertCollection<string>(e, a));
         }
 
         [ConditionalTheory]
@@ -4520,7 +4519,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where w.IsAutomatic || w.Name != "foo"
                               select "BFG").ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<string>());
+                elementAsserter: (e, a) => AssertCollection<string>(e, a));
         }
 
         [ConditionalTheory]
@@ -4536,7 +4535,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                               where w.IsAutomatic || w.Name != "foo"
                               select true).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<bool>());
+                elementAsserter: (e, a) => AssertCollection<bool>(e, a));
         }
 
         [ConditionalTheory]
@@ -4550,13 +4549,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where g.Nickname != "Marcus"
                       select g.Squad.Missions.Where(m => m.MissionId != 17).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<SquadMission>(
-                    e => e.MissionId + " " + e.SquadId,
-                    (e, a) =>
-                    {
-                        Assert.Equal(e.MissionId, a.MissionId);
-                        Assert.Equal(e.SquadId, a.SquadId);
-                    }));
+                elementAsserter: (e, a) => AssertCollection<SquadMission>(e, a));
         }
 
         [ConditionalTheory]
@@ -4581,7 +4574,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Name, a.Name);
-                    CollectionAsserter<dynamic>(ee => ee.FullName + " " + ee.Rank)(e.Collection, a.Collection);
+                    CustomCollectionAsserter<dynamic>(ee => ee.FullName + " " + ee.Rank)(e.Collection, a.Collection);
                 });
         }
 
@@ -4598,18 +4591,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       where ps.SquadId < 7
                                       select ps).ToList()).ToList(),
                 elementSorter: CollectionSorter<object>(),
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter(
-                        CollectionSorter<SquadMission>(),
-                        CollectionAsserter<SquadMission>(
-                            ee => ee.SquadId + " " + ee.MissionId,
-                            (ee, aa) =>
-                            {
-                                Assert.Equal(ee.SquadId, aa.SquadId);
-                                Assert.Equal(ee.MissionId, aa.MissionId);
-                            }))(e, a);
-                });
+                elementAsserter: CustomCollectionAsserter(
+                    elementSorter: CollectionSorter<SquadMission>(),
+                    elementAsserter: (ee, aa) => AssertCollection<SquadMission>(ee, aa)));
         }
 
         [ConditionalTheory]
@@ -4625,18 +4609,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       where ps.SquadId < 2
                                       select ps).ToList()),
                 elementSorter: CollectionSorter<object>(),
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter(
-                        CollectionSorter<SquadMission>(),
-                        CollectionAsserter<SquadMission>(
-                            ee => ee.SquadId + " " + ee.MissionId,
-                            (ee, aa) =>
-                            {
-                                Assert.Equal(ee.SquadId, aa.SquadId);
-                                Assert.Equal(ee.MissionId, aa.MissionId);
-                            }))(e, a);
-                });
+                elementAsserter: CustomCollectionAsserter(
+                    elementSorter: CollectionSorter<SquadMission>(),
+                    elementAsserter: (ee, aa) => AssertCollection<SquadMission>(ee, aa)));
         }
 
         [ConditionalTheory]
@@ -4652,18 +4627,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       where ps.SquadId < 7
                                       select ps)).ToList(),
                 elementSorter: CollectionSorter<object>(),
-                elementAsserter: (e, a) =>
-                {
-                    CollectionAsserter(
-                        CollectionSorter<SquadMission>(),
-                        CollectionAsserter<SquadMission>(
-                            ee => ee.SquadId + " " + ee.MissionId,
-                            (ee, aa) =>
-                            {
-                                Assert.Equal(ee.SquadId, aa.SquadId);
-                                Assert.Equal(ee.MissionId, aa.MissionId);
-                            }))(e, a);
-                });
+                elementAsserter: CustomCollectionAsserter(
+                    elementSorter: CollectionSorter<SquadMission>(),
+                    elementAsserter: (ee, aa) => AssertCollection<SquadMission>(ee, aa)));
         }
 
         [ConditionalTheory]
@@ -4695,14 +4661,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-                    CollectionAsserter<dynamic>(
-                        ee => ee.FullName,
-                        (ee, aa) =>
+                    CustomCollectionAsserter<dynamic>(
+                        elementSorter: ee => ee.FullName,
+                        elementAsserter:(ee, aa) =>
                         {
                             Assert.Equal(ee.FullName, aa.FullName);
-                            CollectionAsserter<dynamic>(
-                                eee => eee.Name,
-                                (eee, aaa) => Assert.Equal(eee.Name, aaa.Name))(ee.InnerCollection, aa.InnerCollection);
+                            AssertCollection<Weapon>(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
                 });
         }
@@ -4725,8 +4689,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-                    CollectionAsserter<Weapon>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.First, a.First);
-                    CollectionAsserter<Weapon>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.Second, a.Second);
+                    AssertCollection<Weapon>(e.First, a.First);
+                    AssertCollection<Weapon>(e.Second, a.Second);
                 });
         }
 
@@ -4749,8 +4713,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-                    CollectionAsserter<Weapon>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.First, a.First);
-                    CollectionAsserter<Weapon>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.Second, a.Second);
+                    AssertCollection<Weapon>(e.First, a.First);
+                    AssertCollection<Weapon>(e.Second, a.Second);
                 });
         }
 
@@ -4783,8 +4747,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<dynamic>()(e.First, a.First);
-                    CollectionAsserter<dynamic>()(e.Second, a.Second);
+                    CustomCollectionAsserter<dynamic>()(e.First, a.First);
+                    CustomCollectionAsserter<dynamic>()(e.Second, a.Second);
                 });
         }
 
@@ -4823,10 +4787,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-
-                    CollectionAsserter<dynamic>(
-                        ee => ee.Id,
-                        (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OuterCollection2, a.OuterCollection2);
+                    AssertCollection<Weapon>(e.OuterCollection2, a.OuterCollection2, ordered: true);
                 });
         }
 
@@ -4852,13 +4813,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-
-                    CollectionAsserter<dynamic>(
-                        ee => ee.Id,
-                        (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OuterCollection2, a.OuterCollection2);
+                    AssertCollection<Weapon>(e.OuterCollection2, a.OuterCollection2, ordered: true);
                 });
         }
-
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -4881,10 +4838,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-
-                    CollectionAsserter<dynamic>(
-                        ee => ee.Id,
-                        (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OuterCollection2, a.OuterCollection2);
+                    AssertCollection<Weapon>(e.OuterCollection2, a.OuterCollection2, ordered: true);
                 });
         }
 
@@ -4936,24 +4890,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.FullName, a.FullName);
 
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         ee => ee.FullName,
                         (ee, aa) =>
                         {
                             Assert.Equal(ee.FullName, aa.FullName);
-                            CollectionAsserter<dynamic>(
+                            CustomCollectionAsserter<dynamic>(
                                 eee => eee.Id,
                                 (eee, aaa) =>
                                 {
                                     Assert.Equal(eee.Id, aaa.Id);
-                                    CollectionAsserter<dynamic>(eeee => eeee.Name)(eee.InnerFirst, aaa.InnerFirst);
-                                    CollectionAsserter<dynamic>()(eee.InnerSecond, aaa.InnerSecond);
+                                    CustomCollectionAsserter<dynamic>(eeee => eeee.Name)(eee.InnerFirst, aaa.InnerFirst);
+                                    CustomCollectionAsserter<dynamic>()(eee.InnerSecond, aaa.InnerSecond);
                                 })(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
 
-                    CollectionAsserter<dynamic>(
-                        ee => ee.Id,
-                        (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.OuterCollection2, a.OuterCollection2);
+                    AssertCollection<Weapon>(e.OuterCollection2, a.OuterCollection2, ordered: true);
                 });
         }
 
@@ -4979,7 +4931,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-                    CollectionAsserter<dynamic>(ee => ee.ReportName)(e.Collection, a.Collection);
+                    CustomCollectionAsserter<dynamic>(ee => ee.ReportName)(e.Collection, a.Collection);
                 });
         }
 
@@ -5005,7 +4957,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-                    CollectionAsserter<dynamic>(ee => ee.ReportName)(e.Collection, a.Collection);
+                    CustomCollectionAsserter<dynamic>(ee => ee.ReportName)(e.Collection, a.Collection);
                 });
         }
 
@@ -5038,12 +4990,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         ee => ee.FullName,
                         (ee, aa) =>
                         {
                             Assert.Equal(ee.FullName, aa.FullName);
-                            CollectionAsserter<dynamic>(eee => eee.Name)(ee.InnerCollection, aa.InnerCollection);
+                            CustomCollectionAsserter<dynamic>(eee => eee.Name)(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
                 });
         }
@@ -5077,12 +5029,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         ee => ee.FullName,
                         (ee, aa) =>
                         {
                             Assert.Equal(ee.FullName, aa.FullName);
-                            CollectionAsserter<dynamic>(eee => eee.Name)(ee.InnerCollection, aa.InnerCollection);
+                            CustomCollectionAsserter<dynamic>(eee => eee.Name)(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
                 });
         }
@@ -5115,9 +5067,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.GearNickname, e.GearNickname);
                     Assert.Equal(e.SquadName, e.SquadName);
 
-                    CollectionAsserter<Weapon>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.Collection1, a.Collection1);
-                    CollectionAsserter<Gear>(ee => ee.Nickname, (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(
-                        e.Collection2, a.Collection2);
+                    AssertCollection<Weapon>(e.Collection1, a.Collection1);
+                    AssertCollection<Gear>(e.Collection2, a.Collection2);
                 });
         }
 
@@ -5129,8 +5080,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Skip(1)),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                    CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a, ordered: true));
         }
 
         [ConditionalTheory(Skip = "Issue#16313")]
@@ -5141,8 +5091,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Take(2)),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                    CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a, ordered: true));
         }
 
         [ConditionalTheory]
@@ -5153,8 +5102,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Distinct()),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                    CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e, a));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a, ordered: true));
         }
 
         [ConditionalTheory]
@@ -5164,8 +5112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Squad>(
                 isAsync,
                 ss => ss.OrderBy(s => s.Name).Select(s => s.Members.OrderBy(m => m.Nickname).Select(m => m.FullName).FirstOrDefault()),
-                assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<Gear>(elementAsserter: (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname)));
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -5198,7 +5145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<string>(ee => ee)(e.WeaponNames, a.WeaponNames);
+                    AssertCollection<string>(e.WeaponNames, a.WeaponNames);
                 });
         }
 
@@ -5221,7 +5168,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     orderby t.Note
                     select g != null ? g.Weapons.Select(w => w.Name) : new List<string>(),
                 assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<string>(ee => ee));
+                elementAsserter: (e, a) => AssertCollection<string>(e, a));
         }
 
         [ConditionalTheory]
@@ -5252,7 +5199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Note, a.Note);
-                    CollectionAsserter<string>(ee => ee)(e.ReportNames, a.ReportNames);
+                    AssertCollection<string>(e.ReportNames, a.ReportNames);
                 });
         }
 
@@ -5284,9 +5231,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : new List<List<Weapon>>(),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
-                    CollectionAsserter<dynamic>(
-                        elementAsserter: (ee, aa) => CollectionAsserter<Weapon>(
-                            eee => eee.Id, (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))));
+                    CustomCollectionAsserter<dynamic>(
+                        elementAsserter: (ee, aa) => AssertCollection<Weapon>(ee, aa)));
         }
 
         [ConditionalTheory]
@@ -5311,12 +5257,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         elementAsserter: (ee, aa) =>
                         {
+                            AssertCollection<Weapon>(ee.Item1, aa.Weapons, ordered: true);
                             Assert.Equal(ee.Item2, aa.Rank);
-                            CollectionAsserter<Weapon>(
-                                elementAsserter: (eee, aaa) => Assert.Equal(eee.Id, aaa.Id))(ee.Item1, aa.Weapons);
                         })(e, a);
                 });
         }
@@ -5349,12 +5294,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.FullName, a.FullName);
 
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         ee => ee.Id,
                         (ee, aa) =>
                         {
                             Assert.Equal(ee.Id, aa.Id);
-                            CollectionAsserter<dynamic>(eee => eee.Nickname)(ee.InnerCollection, aa.InnerCollection);
+                            CustomCollectionAsserter<dynamic>(eee => eee.Nickname)(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
                 });
         }
@@ -5391,18 +5336,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         ee => ee.FullName,
                         (ee, aa) =>
                         {
                             Assert.Equal(ee.FullName, aa.FullName);
-                            CollectionAsserter<dynamic>(
+                            CustomCollectionAsserter<dynamic>(
                                 eee => eee.Id,
                                 (eee, aaa) =>
                                 {
                                     Assert.Equal(eee.Id, aaa.Id);
-                                    CollectionAsserter<dynamic>()(eee.InnerSecond, aaa.InnerSecond);
+                                    CustomCollectionAsserter<dynamic>()(eee.InnerSecond, aaa.InnerSecond);
                                 })(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
                 });
@@ -5436,13 +5380,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         ee => ee.Id,
                         (ee, aa) =>
                         {
                             Assert.Equal(ee.Id, aa.Id);
-                            CollectionAsserter<dynamic>(eee => eee.Nickname)(ee.InnerCollection, aa.InnerCollection);
+                            CustomCollectionAsserter<dynamic>(eee => eee.Nickname)(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
                 });
         }
@@ -5483,18 +5426,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.FullName, a.FullName);
-
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         ee => ee.FullName,
                         (ee, aa) =>
                         {
                             Assert.Equal(ee.FullName, aa.FullName);
-                            CollectionAsserter<dynamic>(
+                            CustomCollectionAsserter<dynamic>(
                                 eee => eee.Id,
                                 (eee, aaa) =>
                                 {
                                     Assert.Equal(eee.Id, aaa.Id);
-                                    CollectionAsserter<dynamic>()(eee.InnerSecond, aaa.InnerSecond);
+                                    CustomCollectionAsserter<dynamic>()(eee.InnerSecond, aaa.InnerSecond);
                                 })(ee.InnerCollection, aa.InnerCollection);
                         })(e.OuterCollection, a.OuterCollection);
                 });
@@ -5809,7 +5751,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       select t.Note).ToList()
                     },
                 assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+                elementAsserter: (e, a) => AssertCollection<string>(e.Collection, a.Collection));
         }
 
         [ConditionalTheory]
@@ -5828,7 +5770,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       select t.Note).ToList()
                     },
                 assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+                elementAsserter: (e, a) => AssertCollection<string>(e.Collection, a.Collection));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -5847,7 +5789,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       select t.Note).ToList()
                     },
                 assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+                elementAsserter: (e, a) => AssertCollection<string>(e.Collection, a.Collection));
         }
 
         [ConditionalTheory]
@@ -5867,7 +5809,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       select t.Note).ToList()
                     },
                 assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<string>(elementSorter: ee => ee)(e.Collection, a.Collection));
+                elementAsserter: (e, a) => AssertCollection<string>(e.Collection, a.Collection));
         }
 
         [ConditionalTheory]
@@ -6399,7 +6341,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
+                    AssertCollection<string>(e.Weapons, a.Weapons);
                 });
         }
 
@@ -6484,7 +6426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<string>()(e.Weapons, a.Weapons);
+                    AssertCollection<string>(e.Weapons, a.Weapons);
                 }))).Message;
 
             Assert.Equal(
@@ -6575,7 +6517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(o => o.Weapons.Count).ThenBy(g => g.Nickname)
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a));
         }
 
         [ConditionalTheory]
@@ -6591,7 +6533,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .Count()).ThenBy(g => g.Nickname)
                     .Select(o => o.Reports.Where(g => !g.HasSoulPatch).ToList()),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(ee => ee.FullName, (ee, aa) => Assert.Equal(ee.FullName, aa.FullName)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a));
         }
 
         [ConditionalFact]
@@ -6791,7 +6733,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             SquadId = g.SquadId
                         }).ToList<Gear>()),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a));
         }
 
         [ConditionalTheory]
@@ -6814,7 +6756,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             SquadId = g.SquadId
                         }).ToArray<Gear>()),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Gear>(e => e.Nickname, (e, a) => Assert.Equal(e.Nickname, a.Nickname)));
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a, ordered: true));
         }
 
         [ConditionalTheory(Skip = "Issue#15713")]
@@ -6831,7 +6773,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
-                    CollectionAsserter<string>(ee => ee)(e.Weapons, a.Weapons);
+                    AssertCollection<string>(e.Weapons, a.Weapons);
                 });
         }
 
@@ -7552,16 +7494,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where t.Gear is Officer
                       select Maybe(t.Gear, () => ((Officer)t.Gear).Reports.Take(50)),
                 elementSorter: e => ((IEnumerable<Gear>)e)?.Count() ?? 0,
-                elementAsserter: (e, a) =>
-                {
-                    var actualCollection = new List<Gear>();
-                    foreach (var actualElement in a)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Gear>)e)?.Count() ?? 0, actualCollection.Count);
-                });
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a));
         }
 
         [ConditionalTheory]
@@ -7577,16 +7510,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where t.Gear is Officer
                       select Maybe(t.Gear, () => ((Officer)t.Gear).Reports),
                 elementSorter: e => ((IEnumerable<Gear>)e)?.Count() ?? 0,
-                elementAsserter: (e, a) =>
-                {
-                    var actualCollection = new List<Gear>();
-                    foreach (var actualElement in a)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Gear>)e)?.Count() ?? 0, actualCollection.Count);
-                });
+                elementAsserter: (e, a) => AssertCollection<Gear>(e, a));
         }
 
         [ConditionalTheory]
@@ -7607,7 +7531,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.key, a.key);
-                    CollectionAsserter<Gear>(elementSorter: gg => gg.Nickname, (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e.collection, a.collection);
+                    AssertCollection<Gear>(e.collection, a.collection);
                 });
         }
 

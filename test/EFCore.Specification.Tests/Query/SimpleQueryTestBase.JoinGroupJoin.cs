@@ -343,8 +343,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.customer.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.customer.CustomerID, a.customer.CustomerID);
-                    CollectionAsserter<Order>(o => o.OrderID)(e.orders, a.orders);
+                    AssertEqual<Customer>(e.customer, a.customer);
+                    AssertCollection<Order>(e.orders, a.orders);
                 },
                 entryCount: 91);
         }
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join o in os on c.CustomerID equals o.CustomerID into orders
                     select orders,
                 elementSorter: CollectionSorter<Order>(),
-                elementAsserter: CollectionAsserter<Order>(o => o.OrderID),
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
                 entryCount: 830);
         }
 
@@ -498,8 +498,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.c.CustomerID, a.c.CustomerID);
-                    CollectionAsserter<Order>(o => o.OrderID)(e.orders, a.orders);
+                    AssertEqual<Customer>(e.c, a.c);
+                    AssertCollection<Order>(e.orders, a.orders);
                 },
                 entryCount: 921);
         }
@@ -555,11 +555,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => cs.GroupJoin(
                     os, c => c.CustomerID, o => o.CustomerID, (c, o) => new { c.City, o }),
-                e => (e.City, CollectionSorter<Order>()(e.o)),
+                elementSorter: e => (e.City, CollectionSorter<Order>()(e.o)),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.City, a.City);
-                    CollectionAsserter<Order>(o => o.OrderID)(e.o, a.o);
+                    AssertCollection<Order>(e.o, a.o);
                 },
                 entryCount: 830);
         }
@@ -572,11 +572,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => cs.GroupJoin(
                     os, c => c.CustomerID, o => o.CustomerID, (c, g) => new { c.City, g = g.Select(o => o.CustomerID) }),
-                e => (e.City, CollectionSorter<string>()(e.g)),
+                elementSorter: e => (e.City, CollectionSorter<string>()(e.g)),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.City, a.City);
-                    CollectionAsserter<string>(s => s)(e.g, a.g);
+                    AssertCollection<string>(e.g, a.g);
                 });
         }
 
@@ -588,8 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => cs.GroupJoin(
                     os, c => c.CustomerID, o => o.CustomerID, (c, g) => new { g = g.Select(o => o.CustomerID) }),
-                e => CollectionSorter<string>()(e.g),
-                elementAsserter: (e, a) => CollectionAsserter<string>(s => s)(e.g, a.g));
+                elementSorter: e => CollectionSorter<string>()(e.g),
+                elementAsserter: (e, a) => AssertCollection<string>(e.g, a.g));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 (cs, os) => cs.GroupJoin(os, c => c.CustomerID, o => o.CustomerID, (c, g) => g.Select(o => o.CustomerID)),
                 elementSorter: CollectionSorter<string>(),
-                elementAsserter: CollectionAsserter<string>(s => s));
+                elementAsserter: (e, a) => AssertCollection<string>(e, a));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -615,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
-                    CollectionAsserter<Customer>(c => c.CustomerID)(e.c, a.c);
+                    AssertCollection<Customer>(e.c, a.c);
                 },
                 entryCount: 89);
         }
@@ -632,7 +632,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
-                    CollectionAsserter<string>(s => s)(e.g, a.g);
+                    AssertCollection<string>(e.g, a.g);
                 });
         }
 

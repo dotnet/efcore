@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -1916,6 +1917,31 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotNull(address.Line2);
 
                 Assert.Same(address, person.Address);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Top_level_projection_track_entities_before_passing_to_client_method()
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var query = (from p in context.Set<Parent>()
+                             select DtoFactory.CreateDto(p)).FirstOrDefault();
+
+                Assert.NotNull(((dynamic)query).Single);
+            }
+        }
+
+        private static class DtoFactory
+        {
+            public static object CreateDto(Parent parent)
+            {
+                return new
+                {
+                    parent.Id,
+                    parent.Single,
+                    parent.Single.ParentId
+                };
             }
         }
 

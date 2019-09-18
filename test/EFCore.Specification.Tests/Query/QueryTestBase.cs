@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -1301,6 +1302,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<uint?>> query,
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
+            where TItem1 : class
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
+
+        public Task AssertQueryScalar<TItem1>(
+            bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<double?>> query,
             bool assertOrder = false)
             where TItem1 : class
@@ -1564,18 +1573,29 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Helpers - Asserters
 
+        public void AssertEqual<T>(T expected, T actual, Action<dynamic, dynamic> asserter = null)
+            => Fixture.QueryAsserter.AssertEqual(expected, actual, asserter);
+
+        public void AssertCollection<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            bool ordered = false)
+            => Fixture.QueryAsserter.AssertCollection(expected, actual, ordered);
+
         public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(
-            Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {
                 Assert.Equal(((IGrouping<TKey, TElement>)e).Key, ((IGrouping<TKey, TElement>)a).Key);
-                CollectionAsserter(elementSorter, elementAsserter)(e, a);
+                CustomCollectionAsserter(elementSorter, elementAsserter)(e, a);
             };
         }
 
-        public static Action<dynamic, dynamic> CollectionAsserter<TElement>(
-            Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
+        public static Action<dynamic, dynamic> CustomCollectionAsserter<TElement>(
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {

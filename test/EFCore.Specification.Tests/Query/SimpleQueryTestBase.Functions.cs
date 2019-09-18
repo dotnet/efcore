@@ -1413,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 cs => cs.OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID).Select(c => c.Orders),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>(o => o.OrderID, (e, a) => Assert.Equal(e.OrderID, a.OrderID)),
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
                 entryCount: 830);
         }
 

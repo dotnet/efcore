@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(c => c.CustomerID)
                     .Select(cv => cv.Orders.Where(cc => true).ToList()),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>(),
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
                 entryCount: 6);
         }
 

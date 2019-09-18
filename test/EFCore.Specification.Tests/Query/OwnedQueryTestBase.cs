@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Take(5)
                         .Select(op => new { op }),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertOwnedPerson(e.op, a.op));
+                elementAsserter: (e, a) => AssertEqual<OwnedPerson>(e.op, a.op));
         }
 
         [ConditionalTheory]
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ops => ops.Where(p => p.Orders.Count > 0).OrderBy(p => p.Id).Select(p => p.Orders),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Order>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id)));
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a));
         }
 
         [ConditionalTheory]
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ops => ops.Where(p => p.PersonAddress.Country.Planet.Id != 42).OrderBy(p => p.Id).Select(p => new { p.Orders }),
                 assertOrder: true,
-                elementAsserter: (e, a) => CollectionAsserter<Order>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.Orders, a.Orders));
+                elementAsserter: (e, a) => AssertCollection<Order>(e.Orders, a.Orders));
         }
 
         [ConditionalTheory]
@@ -214,10 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
-                    CollectionAsserter<Order>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.Orders, a.Orders);
-                    AssertAddress(e.PersonAddress, a.PersonAddress);
-                    Assert.Equal(e.Planet.Id, a.Planet.Id);
-                    Assert.Equal(e.Planet.StarId, a.Planet.StarId);
+                    AssertCollection<Order>(e.Orders, a.Orders);
+                    AssertEqual<OwnedAddress>(e.PersonAddress, a.PersonAddress);
+                    AssertEqual<Planet>(e.Planet, a.Planet);
                 });
         }
 
@@ -237,8 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Count, a.Count);
-                    Assert.Equal(e.Planet.Id, a.Planet.Id);
-                    Assert.Equal(e.Planet.StarId, a.Planet.StarId);
+                    AssertEqual<Planet>(e.Planet, a.Planet);
                 });
         }
 
@@ -250,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ops => ops.Where(p => p.PersonAddress.Country.Planet.Id != 7).Select(p => new { p }),
                 elementSorter: e => e.p.Id,
-                elementAsserter: (e, a) => AssertOwnedPerson(e.p, a.p));
+                elementAsserter: (e, a) => AssertEqual<OwnedPerson>(e.p, a.p));
         }
 
         [ConditionalTheory]
@@ -270,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ops => ops.OrderBy(p => p.Id).Select(p => p.PersonAddress.Country.Planet.Moons),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<Moon>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Diameter, aa.Diameter)));
+                elementAsserter: (e, a) => AssertCollection<Moon>(e, a));
         }
 
         [ConditionalTheory]
@@ -366,45 +364,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
-        protected static void AssertOwnedPerson(OwnedPerson expected, OwnedPerson actual)
-        {
-            if (expected == null && actual == null)
-            {
-                return;
-            }
-
-            Assert.Equal(expected.Id, actual.Id);
-            AssertAddress(expected.PersonAddress, actual.PersonAddress);
-
-            Assert.Equal(expected.Orders.Count, actual.Orders.Count);
-            foreach (var element in expected.Orders.OrderBy(ee => ee.Id).Zip(actual.Orders.OrderBy(aa => aa.Id), (e, a) => new { e, a }))
-            {
-                Assert.Equal(element.e.Id, element.a.Id);
-                Assert.Equal(element.e.Client.Id, element.a.Client.Id);
-            }
-
-            if (expected is Branch expectedBranch)
-            {
-                AssertAddress(expectedBranch.PersonAddress, ((Branch)actual).PersonAddress);
-            }
-
-            if (expected is LeafA expectedLeafA)
-            {
-                AssertAddress(expectedLeafA.LeafAAddress, ((LeafA)actual).LeafAAddress);
-            }
-
-            if (expected is LeafB expectedLeafB)
-            {
-                AssertAddress(expectedLeafB.LeafBAddress, ((LeafB)actual).LeafBAddress);
-            }
-        }
-
-        protected static void AssertAddress(OwnedAddress expectedAddress, OwnedAddress actualAddress)
-        {
-            Assert.Equal(expectedAddress.Country.PlanetId, actualAddress.Country.PlanetId);
-            Assert.Equal(expectedAddress.Country.Name, actualAddress.Country.Name);
-        }
-
         public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
         {
             private static void AssertAddress(OwnedAddress expectedAddress, OwnedAddress actualAddress)
@@ -439,6 +398,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     // owned entities - still need comparers in case they are projected directly
                     { typeof(Order), e => e?.Id },
+                    { typeof(OwnedAddress), e => e?.Country.Name },
+                    { typeof(OwnedCountry), e => e?.Name },
                     { typeof(Element), e => e?.Id },
                     { typeof(Throned), e => e?.Property },
                 };
@@ -455,6 +416,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 AssertAddress(e.PersonAddress, a.PersonAddress);
                                 AssertOrders(e.Orders, a.Orders);
                             }
+
+                            if (e is Branch branch)
+                            {
+                                AssertAddress(branch.BranchAddress, ((Branch)a).BranchAddress);
+                            }
+
+                            if (e is LeafA leafA)
+                            {
+                                AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
+                            }
+
+                            if (e is LeafB leafB)
+                            {
+                                AssertAddress(leafB.LeafBAddress, ((LeafB)a).LeafBAddress);
+                            }
                         }
                     },
                     {
@@ -467,6 +443,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 AssertAddress(e.PersonAddress, a.PersonAddress);
                                 AssertAddress(e.BranchAddress, a.BranchAddress);
                                 AssertOrders(e.Orders, a.Orders);
+                            }
+
+                            if (e is LeafA leafA)
+                            {
+                                AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
                             }
                         }
                     },
@@ -569,6 +550,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                             if (a != null)
                             {
                                 Assert.Equal(e.Id, a.Id);
+                            }
+                        }
+                    },
+                    {
+                        typeof(OwnedAddress), (e, a) =>
+                        {
+                            AssertAddress(e, a);
+                        }
+                    },
+                    {
+                        typeof(OwnedCountry), (e, a) =>
+                        {
+                            Assert.Equal(e == null, a == null);
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Name, a.Name);
+                                Assert.Equal(e.PlanetId, a.PlanetId);
                             }
                         }
                     },

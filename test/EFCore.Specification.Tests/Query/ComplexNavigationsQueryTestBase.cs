@@ -899,16 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 l1s => l1s.OrderBy(e => e.Id).Select(e => e.OneToMany_Required1.Select(i => i.Id)),
                 assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    var expectedList = ((IEnumerable<int>)e).OrderBy(ee => ee).ToList();
-                    var actualList = ((IEnumerable<int>)a).OrderBy(aa => aa).ToList();
-                    Assert.Equal(expectedList.Count, actualList.Count);
-                    for (var i = 0; i < expectedList.Count; i++)
-                    {
-                        Assert.Equal(expectedList[i], actualList[i]);
-                    }
-                });
+                elementAsserter: (e, a) => AssertCollection<int>(e, a));
         }
 
         [ConditionalTheory]
@@ -2208,7 +2199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<Level3>(
                 isAsync,
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse3.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse3),
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
+                elementAsserter: (e, a) => AssertEqual<Level2>(e, a),
                 assertOrder: true);
         }
 
@@ -2221,7 +2212,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse3.Id)
                     .Select(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse3")),
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse3.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse3),
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
+                elementAsserter: (e, a) => AssertEqual<Level2>(e, a),
                 assertOrder: true);
         }
 
@@ -2234,7 +2225,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l3s => l3s.OrderBy(l3 => EF.Property<Level2>(l3, "OneToOne_Required_FK_Inverse3").Id)
                     .Select(l3 => l3.OneToOne_Required_FK_Inverse3),
                 l3s => l3s.OrderBy(l3 => l3.OneToOne_Required_FK_Inverse3.Id).Select(l3 => l3.OneToOne_Required_FK_Inverse3),
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
+                elementAsserter: (e, a) => AssertEqual<Level2>(e, a),
                 assertOrder: true);
         }
 
@@ -2247,7 +2238,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l3s => from l3 in l3s
                        orderby l3.OneToOne_Required_FK_Inverse3.Id
                        select l3.OneToOne_Required_FK_Inverse3.OneToOne_Required_FK_Inverse2,
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id),
+                elementAsserter: (e, a) => AssertEqual<Level1>(e, a),
                 assertOrder: true);
         }
 
@@ -2922,8 +2913,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.l1?.Id + " " + e.l2?.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.l1.Id, a.l1.Id);
-                    Assert.Equal(e.l2.Id, a.l2.Id);
+                    AssertEqual<Level1>(e.l1, a.l1);
+                    AssertEqual<Level2>(e.l2, a.l2);
                 });
         }
 
@@ -2952,8 +2943,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.l2?.Id + " " + e.l1?.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.l2.Id, a.l2.Id);
-                    Assert.Equal(e.l1.Id, a.l1.Id);
+                    AssertEqual<Level2>(e.l2, a.l2);
+                    AssertEqual<Level1>(e.l1, a.l1);
                 });
         }
 
@@ -2981,8 +2972,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.l4?.Id + " " + e.l2?.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.l4.Id, a.l4.Id);
-                    Assert.Equal(e.l2.Id, a.l2.Id);
+                    AssertEqual<Level4>(e.l4, a.l4);
+                    AssertEqual<Level2>(e.l2, a.l2);
                 });
         }
 
@@ -3012,8 +3003,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.l4?.Id + " " + e.l2?.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.l4?.Id, a.l4?.Id);
-                    Assert.Equal(e.l2?.Id, a.l2?.Id);
+                    AssertEqual<Level4>(e.l4, a.l4);
+                    AssertEqual<Level2>(e.l2, a.l2);
                 });
         }
 
@@ -3051,8 +3042,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.l4?.Id + " " + e.l2?.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.l4.Id, a.l4.Id);
-                    Assert.Equal(e.l2.Id, a.l2.Id);
+                    AssertEqual<Level4>(e.l4, a.l4);
+                    AssertEqual<Level2>(e.l2, a.l2);
                 });
         }
 
@@ -3179,8 +3170,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Entity.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.Entity.Id, a.Entity.Id);
-                    CollectionAsserter<Level2>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(e.Collection, a.Collection);
+                    AssertEqual<Level4>(e.Entity, a.Entity);
+                    AssertCollection<Level2>(e.Collection, a.Collection);
                     Assert.Equal(e.Property, a.Property);
                 });
         }
@@ -3227,8 +3218,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.l1.Id + " " + e.l2.Id,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.l1.Id, a.l1.Id);
-                    Assert.Equal(e.l2.Id, a.l2.Id);
+                    AssertEqual<Level1>(e.l1, a.l1);
+                    AssertEqual<Level2>(e.l2, a.l2);
                 });
         }
 
@@ -3242,7 +3233,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                               join l2 in l2s on l1.Id equals l2s.Select(l => l.Id).OrderBy(l => l).FirstOrDefault()
                               select new { l1, l2 },
                 elementSorter: e => e.l1.Id + " " + e.l2.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.l1.Name + " " + e.l2.Name, a.l1.Name + " " + a.l2.Name));
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual<Level1>(e.l1, a.l1);
+                    AssertEqual<Level2>(e.l2, a.l2);
+                });
         }
 
         [ConditionalTheory(Skip = " Issue#16093")]
@@ -3255,9 +3250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => l1s.Where(
                     l1 => MaybeScalar<bool>(
                               l1.OneToOne_Optional_FK1,
-                              () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Distinct().Select(l3 => l3.Id).Contains(1)) == true),
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
+                              () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Distinct().Select(l3 => l3.Id).Contains(1)) == true));
         }
 
         [ConditionalTheory]
@@ -3276,9 +3269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                       l2.OneToOne_Optional_FK2,
                                       () => MaybeScalar<int>(
                                           l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3,
-                                          () => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Id))).All(a => true)),
-                    elementSorter: e => e.Id,
-                    elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id)))).Message;
+                                          () => l2.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Id))).All(a => true))))).Message;
 
             Assert.Contains("ClientMethod((Nullable<int>)", message);
         }
@@ -3441,7 +3432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.property,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.entity?.Id, a.entity?.Id);
+                    AssertEqual<Level2>(e.entity, a.entity);
                     Assert.Equal(e.property, a.property);
                 });
         }
@@ -4043,9 +4034,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            join l2 in l2s on l1_inner.Id equals l2.Level1_Optional_Id into grouping
                            from l2 in grouping.DefaultIfEmpty()
                            select l1_inner).Count() > 4
-                    select l1,
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -4061,9 +4050,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            join l2 in l2s on l1_inner.Id equals l2.Level1_Optional_Id into grouping
                            from l2 in grouping.DefaultIfEmpty()
                            select l1_inner).Distinct().Count() > 4
-                    select l1,
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -4097,9 +4084,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join l2 in l2s
                         on new { A = MaybeScalar<int>(l1.OneToMany_Optional_Self_Inverse1, () => l1.OneToMany_Optional_Self_Inverse1.Id) }
                         equals new { A = l2.Level1_Optional_Id }
-                    select l1,
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -4135,9 +4120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             A = l2.Level1_Optional_Id,
                             B = MaybeScalar<int>(l2.OneToMany_Optional_Self_Inverse2, () => l2.OneToMany_Optional_Self_Inverse2.Id)
                         }
-                    select l1,
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -4412,16 +4395,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => from l1 in l1s
                        select l1.OneToMany_Optional1,
                 elementSorter: e => e != null ? e.Count : 0,
-                elementAsserter: (e, a) =>
-                {
-                    var actualCollection = new List<Level2>();
-                    foreach (var actualElement in a)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level2>)e)?.Count() ?? 0, actualCollection.Count);
-                });
+                elementAsserter: (e, a) => AssertCollection<Level2>(e, a));
         }
 
         [ConditionalTheory]
@@ -4433,18 +4407,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => from l1 in l1s
                        select l1.OneToOne_Optional_FK1.OneToMany_Optional2,
                 l1s => from l1 in l1s
-                       select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2),
-                elementSorter: e => e != null ? e.Count : 0,
-                elementAsserter: (e, a) =>
-                {
-                    var actualCollection = new List<Level3>();
-                    foreach (var actualElement in a)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level3>)e)?.Count() ?? 0, actualCollection.Count);
-                });
+                       select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2) ?? new List<Level3>(),
+                elementSorter: e => e.Count,
+                elementAsserter: (e, a) => AssertCollection<Level3>(e, a));
         }
 
         [ConditionalTheory]
@@ -4456,18 +4421,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 l1s => from l1 in l1s
                        select l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50),
                 l1s => from l1 in l1s
-                       select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50)),
+                       select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Take(50)) ?? new List<Level3>(),
                 elementSorter: e => ((IEnumerable<Level3>)e)?.Count() ?? 0,
-                elementAsserter: (e, a) =>
-                {
-                    var actualCollection = new List<Level3>();
-                    foreach (var actualElement in a)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level3>)e)?.Count() ?? 0, actualCollection.Count);
-                });
+                elementAsserter: (e, a) => AssertCollection<Level3>(e, a));
         }
 
         [ConditionalTheory]
@@ -4483,18 +4439,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                "OneToOne_Optional_FK1"),
                            "OneToMany_Optional2"),
                 l1s => from l1 in l1s
-                       select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2),
-                elementSorter: e => e != null ? e.Count : 0,
-                elementAsserter: (e, a) =>
-                {
-                    var actualCollection = new List<Level3>();
-                    foreach (var actualElement in a)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level3>)e)?.Count() ?? 0, actualCollection.Count);
-                });
+                       select Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2) ?? new List<Level3>(),
+                elementSorter: e => e.Count,
+                elementAsserter: (e, a) => AssertCollection<Level3>(e, a));
         }
 
         [ConditionalTheory]
@@ -4511,20 +4458,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                            l1.Id,
                            OneToMany_Optional2 = Maybe(
                                l1.OneToOne_Optional_FK1,
-                               () => l1.OneToOne_Optional_FK1.OneToMany_Optional2)
+                               () => l1.OneToOne_Optional_FK1.OneToMany_Optional2) ?? new List<Level3>()
                        },
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-
-                    var actualCollection = new List<Level3>();
-                    foreach (var actualElement in a.OneToMany_Optional2)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level3>)e.OneToMany_Optional2)?.Count() ?? 0, actualCollection.Count);
+                    AssertCollection<Level3>(e.OneToMany_Optional2, a.OneToMany_Optional2);
                 });
         }
 
@@ -4562,14 +4502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-
-                    var actualCollection = new List<Level2>();
-                    foreach (var actualElement in a.collection)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level2>)e.collection).Count(), actualCollection.Count);
+                    AssertCollection<Level2>(e.collection, a.collection);
                 });
         }
 
@@ -4585,14 +4518,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.l1.Id, a.l1.Id);
-
-                    var actualCollection = new List<Level2>();
-                    foreach (var actualElement in a.OneToMany_Optional1)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level2>)e.OneToMany_Optional1).Count(), actualCollection.Count);
+                    AssertCollection<Level2>(e.OneToMany_Optional1, a.OneToMany_Optional1);
                 });
         }
 
@@ -4608,14 +4534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.l1.Id, a.l1.Id);
-
-                    var actualCollection = new List<Level2>();
-                    foreach (var actualElement in a.OneToMany_Optional1)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level2>)e.OneToMany_Optional1).Count(), actualCollection.Count);
+                    AssertCollection<Level2>(e.OneToMany_Optional1, a.OneToMany_Optional1);
                 });
         }
 
@@ -4631,20 +4550,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select new
                        {
                            l1.OneToOne_Optional_FK1,
-                           OneToMany_Optional2 = Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2)
+                           OneToMany_Optional2 = Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.OneToMany_Optional2) ?? new List<Level3>()
                        },
                 elementSorter: e => e.OneToOne_Optional_FK1?.Id,
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.OneToOne_Optional_FK1?.Id, a.OneToOne_Optional_FK1?.Id);
-
-                    var actualCollection = new List<Level3>();
-                    foreach (var actualElement in a.OneToMany_Optional2)
-                    {
-                        actualCollection.Add(actualElement);
-                    }
-
-                    Assert.Equal(((IEnumerable<Level3>)e.OneToMany_Optional2)?.Count() ?? 0, actualCollection.Count);
+                    AssertCollection<Level3>(e.OneToMany_Optional2, a.OneToMany_Optional2);
                 });
         }
 
@@ -5098,7 +5010,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         elementSorter: e1 => e1.Level3.Name,
                         elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Name, a1.Level3.Name))(e.Level2s, a.Level2s);
                 });
@@ -5124,7 +5036,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
-                    CollectionAsserter<dynamic>(
+                    CustomCollectionAsserter<dynamic>(
                         elementSorter: e1 => e1.Level3.Value,
                         elementAsserter: (e1, a1) => Assert.Equal(e1.Level3.Value, a1.Level3.Value))(e.Level2s, a.Level2s);
                 });
@@ -5146,8 +5058,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    CollectionAsserter<Level3>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(
-                        e.OneToMany_Optional2, a.OneToMany_Optional2);
+                    AssertCollection<Level3>(e.OneToMany_Optional2, a.OneToMany_Optional2);
                 });
         }
 
@@ -5163,8 +5074,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    CollectionAsserter<Level4>(ee => ee.Id, (ee, aa) => Assert.Equal(ee.Id, aa.Id))(
-                        e.OneToMany_Optional3, a.OneToMany_Optional3);
+                    AssertCollection<Level4>(e.OneToMany_Optional3, a.OneToMany_Optional3);
                 });
         }
 
