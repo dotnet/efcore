@@ -589,6 +589,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract Task AssertSum<TItem1, TSelector>(
             Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
+            Expression<Func<TSelector, long>> actualSelector,
+            Expression<Func<TSelector, long>> expectedSelector,
+            Action<object, object> asserter = null,
+            bool isAsync = false)
+            where TItem1 : class;
+
+        public abstract Task AssertSum<TItem1, TSelector>(
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
+            Expression<Func<TSelector, long?>> actualSelector,
+            Expression<Func<TSelector, long?>> expectedSelector,
+            Action<object, object> asserter = null,
+            bool isAsync = false)
+            where TItem1 : class;
+
+        public abstract Task AssertSum<TItem1, TSelector>(
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
             Expression<Func<TSelector, decimal>> actualSelector,
             Expression<Func<TSelector, decimal>> expectedSelector,
             Action<object, object> asserter = null,

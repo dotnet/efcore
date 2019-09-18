@@ -1332,5 +1332,14 @@ WHERE ([c].[CustomerID] LIKE N'F%') AND (((
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
     ORDER BY [o].[OrderID]) IS NOT NULL)");
         }
+
+        public override async Task Sum_over_explicit_cast_over_column(bool isAsync)
+        {
+            await base.Sum_over_explicit_cast_over_column(isAsync);
+
+            AssertSql(
+                @"SELECT SUM(CAST([o].[OrderID] AS bigint))
+FROM [Orders] AS [o]");
+        }
     }
 }

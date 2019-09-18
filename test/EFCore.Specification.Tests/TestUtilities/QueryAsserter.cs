@@ -1790,6 +1790,48 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertSum<TItem1, TSelector>(
             Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
             Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
+            Expression<Func<TSelector, long>> actualSelector,
+            Expression<Func<TSelector, long>> expectedSelector,
+            Action<object, object> asserter = null,
+            bool isAsync = false)
+        {
+            using (var context = _contextCreator())
+            {
+                var actual = isAsync
+                    ? await actualQuery(SetExtractor.Set<TItem1>(context)).SumAsync(actualSelector)
+                    : actualQuery(SetExtractor.Set<TItem1>(context)).Sum(actualSelector);
+
+                var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum(expectedSelector);
+
+                AssertEqual(expected, actual, asserter);
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
+        }
+
+        public override async Task AssertSum<TItem1, TSelector>(
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
+            Expression<Func<TSelector, long?>> actualSelector,
+            Expression<Func<TSelector, long?>> expectedSelector,
+            Action<object, object> asserter = null,
+            bool isAsync = false)
+        {
+            using (var context = _contextCreator())
+            {
+                var actual = isAsync
+                    ? await actualQuery(SetExtractor.Set<TItem1>(context)).SumAsync(actualSelector)
+                    : actualQuery(SetExtractor.Set<TItem1>(context)).Sum(actualSelector);
+
+                var expected = expectedQuery(ExpectedData.Set<TItem1>()).Sum(expectedSelector);
+
+                AssertEqual(expected, actual, asserter);
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
+        }
+
+        public override async Task AssertSum<TItem1, TSelector>(
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
+            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
             Expression<Func<TSelector, decimal>> actualSelector,
             Expression<Func<TSelector, decimal>> expectedSelector,
             Action<object, object> asserter = null,

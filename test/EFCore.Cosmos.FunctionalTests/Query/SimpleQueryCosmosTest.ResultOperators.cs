@@ -1451,5 +1451,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             return base.Collection_LastOrDefault_member_access_in_projection_translated(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#16146")]
+        public override Task Sum_over_explicit_cast_over_column(bool isAsync)
+        {
+            return base.Sum_over_explicit_cast_over_column(isAsync);
+        }
     }
 }
