@@ -1420,5 +1420,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.Count, a.Count);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task LastOrDefault_member_access_in_projection_translates_to_server(bool isAsync)
+        {
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => c.CustomerID.StartsWith("A"))
+                        .Select(c => new
+                        {
+                            c,
+                            OrderDate = c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().OrderDate
+                        }),
+                entryCount: 4);
+        }
     }
 }

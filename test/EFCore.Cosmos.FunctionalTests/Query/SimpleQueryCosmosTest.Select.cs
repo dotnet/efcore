@@ -883,5 +883,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             return base.ToList_Count_in_projection_works(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task LastOrDefault_member_access_in_projection_translates_to_server(bool isAsync)
+        {
+            return base.LastOrDefault_member_access_in_projection_translates_to_server(isAsync);
+        }
     }
 }
