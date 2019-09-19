@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Workaround while there is no 5.0 SDK available, copy known apphost/framework reference info from 3.0. -->
-    <KnownAppHostPack Include="@(KnownAppHostPack->WithMetadataValue('TargetFramework', 'netcoreapp3.0'))"
-        TargetFramework="netcoreapp5.0" />
-    <KnownFrameworkReference Include="@(KnownFrameworkReference->WithMetadataValue('TargetFramework', 'netcoreapp3.0'))"
-        TargetFramework="netcoreapp5.0" />
 
     <!-- Reference base shared framework at incoming dependency flow version, not bundled sdk version. -->
     <FrameworkReference Update="Microsoft.NETCore.App"
