@@ -1001,6 +1001,16 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ABCDE"", ""ALFKI""))");
         }
 
+        public override async Task Contains_with_local_object_list_closure(bool isAsync)
+        {
+            await base.Contains_with_local_object_list_closure(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ABCDE"", ""ALFKI""))");
+        }
+
         public override async Task Contains_with_local_list_closure_all_null(bool isAsync)
         {
             await base.Contains_with_local_list_closure_all_null(isAsync);
