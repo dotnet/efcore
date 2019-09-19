@@ -1001,6 +1001,16 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ABCDE"", ""ALFKI""))");
         }
 
+        public override async Task Contains_with_local_object_list_closure(bool isAsync)
+        {
+            await base.Contains_with_local_object_list_closure(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ABCDE"", ""ALFKI""))");
+        }
+
         public override async Task Contains_with_local_list_closure_all_null(bool isAsync)
         {
             await base.Contains_with_local_list_closure_all_null(isAsync);
@@ -1450,6 +1460,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override Task Collection_LastOrDefault_member_access_in_projection_translated(bool isAsync)
         {
             return base.Collection_LastOrDefault_member_access_in_projection_translated(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#16146")]
+        public override Task Sum_over_explicit_cast_over_column(bool isAsync)
+        {
+            return base.Sum_over_explicit_cast_over_column(isAsync);
         }
     }
 }

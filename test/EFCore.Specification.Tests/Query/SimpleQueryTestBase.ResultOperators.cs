@@ -1232,6 +1232,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_with_local_object_list_closure(bool isAsync)
+        {
+            var ids = new List<object> { "ABCDE", "ALFKI" };
+            return AssertQuery<Customer>(
+                isAsync,
+                cs => cs.Where(c => ids.Contains(EF.Property<object>(c, nameof(Customer.CustomerID)))), entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains_with_local_list_closure_all_null(bool isAsync)
         {
             var ids = new List<string> { null, null };
@@ -1821,5 +1831,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     () => c.Orders.OrderByDescending(o => o.OrderID).LastOrDefault().CustomerID) == c.CustomerID),
                 entryCount: 7);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_explicit_cast_over_column(bool isAsync)
+        {
+            return AssertSum<Order, Order>(
+                isAsync,
+                os => os,
+                o => (long?)o.OrderID);
+        }
+
     }
 }

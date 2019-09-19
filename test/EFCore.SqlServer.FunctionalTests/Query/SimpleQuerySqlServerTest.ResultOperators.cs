@@ -803,6 +803,16 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
         }
 
+        public override async Task Contains_with_local_object_list_closure(bool isAsync)
+        {
+            await base.Contains_with_local_object_list_closure(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
+        }
+
         public override async Task Contains_with_local_list_closure_all_null(bool isAsync)
         {
             await base.Contains_with_local_list_closure_all_null(isAsync);
@@ -1331,6 +1341,15 @@ WHERE ([c].[CustomerID] LIKE N'F%') AND (((
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
     ORDER BY [o].[OrderID]) IS NOT NULL)");
+        }
+
+        public override async Task Sum_over_explicit_cast_over_column(bool isAsync)
+        {
+            await base.Sum_over_explicit_cast_over_column(isAsync);
+
+            AssertSql(
+                @"SELECT SUM(CAST([o].[OrderID] AS bigint))
+FROM [Orders] AS [o]");
         }
     }
 }
