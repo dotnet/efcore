@@ -1,8 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
@@ -11,525 +15,485 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class FunkyDataQueryTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : FunkyDataQueryTestBase<TFixture>.FunkyDataQueryFixtureBase, new()
     {
-        protected FunkyDataQueryTestBase(TFixture fixture) => Fixture = fixture;
-
-        protected TFixture Fixture { get; }
-
-        [ConditionalFact]
-        public virtual void String_contains_on_argument_with_wildcard_constant()
+        protected FunkyDataQueryTestBase(TFixture fixture)
+            : base(fixture)
         {
-            using (var ctx = CreateContext())
-            {
-                var result1 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains("%B")).Select(c => c.FirstName).ToList();
-                var expected1 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.Contains("%B"));
-                Assert.True(expected1.Count() == result1.Count);
-
-                var result2 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains("a_")).Select(c => c.FirstName).ToList();
-                var expected2 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.Contains("a_"));
-                Assert.True(expected2.Count() == result2.Count);
-
-                var result3 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains(null)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result3.Count);
-
-                var result4 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains("")).Select(c => c.FirstName).ToList();
-                Assert.True(ctx.FunkyCustomers.Count() == result4.Count);
-
-                var result5 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains("_Ba_")).Select(c => c.FirstName).ToList();
-                var expected5 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.Contains("_Ba_"));
-                Assert.True(expected5.Count() == result5.Count);
-
-                var result6 = ctx.FunkyCustomers.Where(c => !c.FirstName.Contains("%B%a%r")).Select(c => c.FirstName).ToList();
-                var expected6 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && !c.Contains("%B%a%r"));
-                Assert.True(expected6.Count() == result6.Count);
-
-                var result7 = ctx.FunkyCustomers.Where(c => !c.FirstName.Contains("")).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result7.Count);
-
-                var result8 = ctx.FunkyCustomers.Where(c => !c.FirstName.Contains(null)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result8.Count);
-            }
         }
 
-        [ConditionalFact]
-        public virtual void String_contains_on_argument_with_wildcard_parameter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task String_contains_on_argument_with_wildcard_constant(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var prm1 = "%B";
-                var result1 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains(prm1)).Select(c => c.FirstName).ToList();
-                var expected1 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.Contains(prm1));
-                Assert.True(expected1.Count() == result1.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains("%B")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B")) == true).Select(c => c.FirstName));
 
-                var prm2 = "a_";
-                var result2 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains(prm2)).Select(c => c.FirstName).ToList();
-                var expected2 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.Contains(prm2));
-                Assert.True(expected2.Count() == result2.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains("a_")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("a_")) == true).Select(c => c.FirstName));
 
-                var prm3 = (string)null;
-                var result3 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains(prm3)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result3.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains(null)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
 
-                var prm4 = "";
-                var result4 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains(prm4)).Select(c => c.FirstName).ToList();
-                Assert.True(ctx.FunkyCustomers.Count() == result4.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains("")).Select(c => c.FirstName),
+                fcs => fcs.Select(c => c.FirstName));
 
-                var prm5 = "_Ba_";
-                var result5 = ctx.FunkyCustomers.Where(c => c.FirstName.Contains(prm5)).Select(c => c.FirstName).ToList();
-                var expected5 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.Contains(prm5));
-                Assert.True(expected5.Count() == result5.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains("_Ba_")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("_Ba_")) == true).Select(c => c.FirstName));
 
-                var prm6 = "%B%a%r";
-                var result6 = ctx.FunkyCustomers.Where(c => !c.FirstName.Contains(prm6)).Select(c => c.FirstName).ToList();
-                var expected6 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && !c.Contains(prm6));
-                Assert.True(expected6.Count() == result6.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.Contains("%B%a%r")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B%a%r")) == true).Select(c => c.FirstName));
 
-                var prm7 = "";
-                var result7 = ctx.FunkyCustomers.Where(c => !c.FirstName.Contains(prm7)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result7.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.Contains("")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("")) == true).Select(c => c.FirstName));
 
-                var prm8 = (string)null;
-                var result8 = ctx.FunkyCustomers.Where(c => !c.FirstName.Contains(prm8)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result8.Count);
-            }
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.Contains(null)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
         }
 
-        [ConditionalFact]
-        public virtual void String_contains_on_argument_with_wildcard_column()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task String_contains_on_argument_with_wildcard_parameter(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => r.fn.Contains(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+            var prm1 = "%B";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains(prm1)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm1)) == true).Select(c => c.FirstName));
 
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.Contains(r.ln)))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+            var prm2 = "a_";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains(prm2)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm2)) == true).Select(c => c.FirstName));
 
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
+            var prm3 = (string)null;
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains(prm3)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+
+            var prm4 = "";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains(prm4)).Select(c => c.FirstName),
+                fcs => fcs.Select(c => c.FirstName));
+
+            var prm5 = "_Ba_";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.Contains(prm5)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm5)) == true).Select(c => c.FirstName));
+
+            var prm6 = "%B%a%r";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.Contains(prm6)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm6)) == true).Select(c => c.FirstName));
+
+            var prm7 = "";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.Contains(prm7)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+
+            var prm8 = (string)null;
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.Contains(prm8)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_contains_on_argument_with_wildcard_column(bool isAsync)
+        {
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.fn.Contains(r.ln)),
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln == "" || MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.Contains(r.ln))) == true),
+                elementSorter: e => (e.fn, e.ln),
+                elementAsserter: (e, a) =>
                 {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
+                    Assert.Equal(e.fn, a.fn);
+                    Assert.Equal(e.ln, a.ln);
+                });
         }
 
-        [ConditionalFact]
-        public virtual void String_contains_on_argument_with_wildcard_column_negated()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_contains_on_argument_with_wildcard_column_negated(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => !r.fn.Contains(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => !r.fn.Contains(r.ln)),
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.Contains(r.ln))) == true));
+        }
 
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.Contains(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task String_starts_with_on_argument_with_wildcard_constant(bool isAsync)
+        {
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith("%B")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B")) == true).Select(c => c.FirstName));
 
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith("a_")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("a_")) == true).Select(c => c.FirstName));
+
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith(null)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith("")).Select(c => c.FirstName),
+                fcs => fcs.Select(c => c.FirstName));
+
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith("_Ba_")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("_Ba_")) == true).Select(c => c.FirstName));
+
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.StartsWith("%B%a%r")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B%a%r")) == true).Select(c => c.FirstName));
+
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.StartsWith("")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("")) == true).Select(c => c.FirstName));
+
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.StartsWith(null)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task String_starts_with_on_argument_with_wildcard_parameter(bool isAsync)
+        {
+            var prm1 = "%B";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith(prm1)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm1)) == true).Select(c => c.FirstName));
+
+            var prm2 = "a_";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith(prm2)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm2)) == true).Select(c => c.FirstName));
+
+            var prm3 = (string)null;
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith(prm3)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+
+            var prm4 = "";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith(prm4)).Select(c => c.FirstName),
+                fcs => fcs.Select(c => c.FirstName));
+
+            var prm5 = "_Ba_";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.StartsWith(prm5)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm5)) == true).Select(c => c.FirstName));
+
+            var prm6 = "%B%a%r";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.StartsWith(prm6)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm6)) == true).Select(c => c.FirstName));
+
+            var prm7 = "";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.StartsWith(prm7)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+
+            var prm8 = (string)null;
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.StartsWith(prm8)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_starts_with_on_argument_with_wildcard_column(bool isAsync)
+        {
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.fn.StartsWith(r.ln)),
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln == "" || MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.StartsWith(r.ln))) == true),
+                elementSorter: e => (e.fn, e.ln),
+                elementAsserter: (e, a) =>
                 {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
+                    Assert.Equal(e.fn, a.fn);
+                    Assert.Equal(e.ln, a.ln);
+                });
         }
 
-        [ConditionalFact]
-        public virtual void String_starts_with_on_argument_with_wildcard_constant()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_starts_with_on_argument_with_wildcard_column_negated(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var result1 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith("%B")).Select(c => c.FirstName).ToList();
-                var expected1 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.StartsWith("%B"));
-                Assert.True(expected1.Count() == result1.Count);
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => !r.fn.StartsWith(r.ln)),
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.StartsWith(r.ln))) == true));
 
-                var result2 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith("a_")).Select(c => c.FirstName).ToList();
-                var expected2 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.StartsWith("a_"));
-                Assert.True(expected2.Count() == result2.Count);
-
-                var result3 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith(null)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result3.Count);
-
-                var result4 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith("")).Select(c => c.FirstName).ToList();
-                Assert.True(ctx.FunkyCustomers.Count() == result4.Count);
-
-                var result5 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith("_Ba_")).Select(c => c.FirstName).ToList();
-                var expected5 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.StartsWith("_Ba_"));
-                Assert.True(expected5.Count() == result5.Count);
-
-                var result6 = ctx.FunkyCustomers.Where(c => !c.FirstName.StartsWith("%B%a%r")).Select(c => c.FirstName).ToList();
-                var expected6 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && !c.StartsWith("%B%a%r"));
-                Assert.True(expected6.Count() == result6.Count);
-
-                var result7 = ctx.FunkyCustomers.Where(c => !c.FirstName.StartsWith("")).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result7.Count);
-
-                var result8 = ctx.FunkyCustomers.Where(c => !c.FirstName.StartsWith(null)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result8.Count);
-            }
         }
 
-        [ConditionalFact]
-        public virtual void String_starts_with_on_argument_with_wildcard_parameter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task String_ends_with_on_argument_with_wildcard_constant(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var prm1 = "%B";
-                var result1 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith(prm1)).Select(c => c.FirstName).ToList();
-                var expected1 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.StartsWith(prm1));
-                Assert.True(expected1.Count() == result1.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith("%B")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B")) == true).Select(c => c.FirstName));
 
-                var prm2 = "a_";
-                var result2 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith(prm2)).Select(c => c.FirstName).ToList();
-                var expected2 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.StartsWith(prm2));
-                Assert.True(expected2.Count() == result2.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith("a_")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("a_")) == true).Select(c => c.FirstName));
 
-                var prm3 = (string)null;
-                var result3 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith(prm3)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result3.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith(null)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
 
-                var prm4 = "";
-                var result4 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith(prm4)).Select(c => c.FirstName).ToList();
-                Assert.True(ctx.FunkyCustomers.Count() == result4.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith("")).Select(c => c.FirstName),
+                fcs => fcs.Select(c => c.FirstName));
 
-                var prm5 = "_Ba_";
-                var result5 = ctx.FunkyCustomers.Where(c => c.FirstName.StartsWith(prm5)).Select(c => c.FirstName).ToList();
-                var expected5 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.StartsWith(prm5));
-                Assert.True(expected5.Count() == result5.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith("_Ba_")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("_Ba_")) == true).Select(c => c.FirstName));
 
-                var prm6 = "%B%a%r";
-                var result6 = ctx.FunkyCustomers.Where(c => !c.FirstName.StartsWith(prm6)).Select(c => c.FirstName).ToList();
-                var expected6 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && !c.StartsWith(prm6));
-                Assert.True(expected6.Count() == result6.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.EndsWith("%B%a%r")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B%a%r")) == true).Select(c => c.FirstName));
 
-                var prm7 = "";
-                var result7 = ctx.FunkyCustomers.Where(c => !c.FirstName.StartsWith(prm7)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result7.Count);
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.EndsWith("")).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("")) == true).Select(c => c.FirstName));
 
-                var prm8 = (string)null;
-                var result8 = ctx.FunkyCustomers.Where(c => !c.FirstName.StartsWith(prm8)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result8.Count);
-            }
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.EndsWith(null)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
         }
 
-        [ConditionalFact]
-        public virtual void String_starts_with_on_argument_with_wildcard_column()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task String_ends_with_on_argument_with_wildcard_parameter(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => r.fn.StartsWith(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+            var prm1 = "%B";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith(prm1)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm1)) == true).Select(c => c.FirstName));
 
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.StartsWith(r.ln)))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+            var prm2 = "a_";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith(prm2)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm2)) == true).Select(c => c.FirstName));
 
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
+            var prm3 = (string)null;
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith(prm3)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+
+            var prm4 = "";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith(prm4)).Select(c => c.FirstName),
+                fcs => fcs.Select(c => c.FirstName));
+
+            var prm5 = "_Ba_";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => c.FirstName.EndsWith(prm5)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm5)) == true).Select(c => c.FirstName));
+
+            var prm6 = "%B%a%r";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.EndsWith(prm6)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm6)) == true).Select(c => c.FirstName));
+
+            var prm7 = "";
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.EndsWith(prm7)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+
+            var prm8 = (string)null;
+            await AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Where(c => !c.FirstName.EndsWith(prm8)).Select(c => c.FirstName),
+                fcs => fcs.Where(c => false).Select(c => c.FirstName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ends_with_on_argument_with_wildcard_column(bool isAsync)
+        {
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.fn.EndsWith(r.ln)),
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln == "" || MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true),
+                elementSorter: e => (e.fn, e.ln),
+                elementAsserter: (e, a) =>
                 {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
+                    Assert.Equal(e.fn, a.fn);
+                    Assert.Equal(e.ln, a.ln);
+                });
         }
 
-        [ConditionalFact]
-        public virtual void String_starts_with_on_argument_with_wildcard_column_negated()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ends_with_on_argument_with_wildcard_column_negated(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => !r.fn.StartsWith(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => !r.fn.EndsWith(r.ln)),
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true));
 
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.StartsWith(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+        }
 
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ends_with_inside_conditional(bool isAsync)
+        {
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.fn.EndsWith(r.ln) ? true : false),
+                fcs => fcs.Select(c => c.FirstName)
+                    .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln == "" || MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true ? true : false),
+                elementSorter: e => (e.fn, e.ln),
+                elementAsserter: (e, a) =>
                 {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
+                    Assert.Equal(e.fn, a.fn);
+                    Assert.Equal(e.ln, a.ln);
+                });
         }
 
-        [ConditionalFact]
-        public virtual void String_ends_with_on_argument_with_wildcard_constant()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ends_with_inside_conditional_negated(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var result1 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith("%B")).Select(c => c.FirstName).ToList();
-                var expected1 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.EndsWith("%B"));
-                Assert.True(expected1.Count() == result1.Count);
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => !r.fn.EndsWith(r.ln) ? true : false),
+                fcs => fcs.Select(c => c.FirstName)
+                .SelectMany(c => fcs.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true ? true : false));
 
-                var result2 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith("_r")).Select(c => c.FirstName).ToList();
-                var expected2 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.EndsWith("_r"));
-                Assert.True(expected2.Count() == result2.Count);
-
-                var result3 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith(null)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result3.Count);
-
-                var result4 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith("")).Select(c => c.FirstName).ToList();
-                Assert.True(ctx.FunkyCustomers.Count() == result4.Count);
-
-                var result5 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith("a__r_")).Select(c => c.FirstName).ToList();
-                var expected5 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.EndsWith("a__r_"));
-                Assert.True(expected5.Count() == result5.Count);
-
-                var result6 = ctx.FunkyCustomers.Where(c => !c.FirstName.EndsWith("%B%a%r")).Select(c => c.FirstName).ToList();
-                var expected6 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && !c.EndsWith("%B%a%r"));
-                Assert.True(expected6.Count() == result6.Count);
-
-                var result7 = ctx.FunkyCustomers.Where(c => !c.FirstName.EndsWith("")).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result7.Count);
-
-                var result8 = ctx.FunkyCustomers.Where(c => !c.FirstName.EndsWith(null)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result8.Count);
-            }
         }
 
-        [ConditionalFact]
-        public virtual void String_ends_with_on_argument_with_wildcard_parameter()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ends_with_equals_nullable_column(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var prm1 = "%B";
-                var result1 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith(prm1)).Select(c => c.FirstName).ToList();
-                var expected1 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.EndsWith(prm1));
-                Assert.True(expected1.Count() == result1.Count);
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.SelectMany(c => fcs, (c1, c2) => new { c1, c2 })
+                    .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value),
 
-                var prm2 = "_r";
-                var result2 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith(prm2)).Select(c => c.FirstName).ToList();
-                var expected2 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.EndsWith(prm2));
-                Assert.True(expected2.Count() == result2.Count);
-
-                var prm3 = (string)null;
-                var result3 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith(prm3)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result3.Count);
-
-                var prm4 = "";
-                var result4 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith(prm4)).Select(c => c.FirstName).ToList();
-                Assert.True(ctx.FunkyCustomers.Count() == result4.Count);
-
-                var prm5 = "a__r_";
-                var result5 = ctx.FunkyCustomers.Where(c => c.FirstName.EndsWith(prm5)).Select(c => c.FirstName).ToList();
-                var expected5 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && c.EndsWith(prm5));
-                Assert.True(expected5.Count() == result5.Count);
-
-                var prm6 = "%B%a%r";
-                var result6 = ctx.FunkyCustomers.Where(c => !c.FirstName.EndsWith(prm6)).Select(c => c.FirstName).ToList();
-                var expected6 = ctx.FunkyCustomers.Select(c => c.FirstName).ToList().Where(c => c != null && !c.EndsWith(prm6));
-                Assert.True(expected6.Count() == result6.Count);
-
-                var prm7 = "";
-                var result7 = ctx.FunkyCustomers.Where(c => !c.FirstName.EndsWith(prm7)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result7.Count);
-
-                var prm8 = (string)null;
-                var result8 = ctx.FunkyCustomers.Where(c => !c.FirstName.EndsWith(prm8)).Select(c => c.FirstName).ToList();
-                Assert.True(0 == result8.Count);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void String_ends_with_on_argument_with_wildcard_column()
-        {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => r.fn.EndsWith(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
-
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
-
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
+                fcs => fcs.SelectMany(c => fcs, (c1, c2) => new { c1, c2 })
+                    .Where(r => MaybeScalar(r.c1.FirstName, () => MaybeScalar<bool>(r.c2.LastName, () => r.c1.FirstName.EndsWith(r.c2.LastName))) == true
+                        == MaybeScalar<bool>(r.c1.NullableBool, () => r.c1.NullableBool.Value) == true),
+                elementSorter: e => (e.c1.Id, e.c2.Id),
+                elementAsserter: (e, a) =>
                 {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
+                    AssertEqual<FunkyCustomer>(e.c1, a.c1);
+                    AssertEqual<FunkyCustomer>(e.c2, a.c2);
+                });
         }
 
-        [ConditionalFact]
-        public virtual void String_ends_with_on_argument_with_wildcard_column_negated()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_ends_with_not_equals_nullable_column(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => !r.fn.EndsWith(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
+            return AssertQuery<FunkyCustomer>(
+                isAsync,
+                fcs => fcs.SelectMany(c => fcs, (c1, c2) => new { c1, c2 })
+                    .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value),
 
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln))
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
-
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
+                fcs => fcs.SelectMany(c => fcs, (c1, c2) => new { c1, c2 })
+                    .Where(r => MaybeScalar(r.c1.FirstName, () => MaybeScalar<bool>(r.c2.LastName, () => r.c1.FirstName.EndsWith(r.c2.LastName))) == true
+                        != MaybeScalar<bool>(r.c1.NullableBool, () => r.c1.NullableBool.Value) == true),
+                elementSorter: e => (e.c1.Id, e.c2.Id),
+                elementAsserter: (e, a) =>
                 {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void String_ends_with_inside_conditional()
-        {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => r.fn.EndsWith(r.ln) ? true : false)
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
-
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length == 0 || (r.fn != null && r.ln != null && r.fn.EndsWith(r.ln)) ? true : false)
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
-
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
-                {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void String_ends_with_inside_conditional_negated()
-        {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.FunkyCustomers.Select(c => c.FirstName)
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => !r.fn.EndsWith(r.ln) ? true : false)
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
-
-                var expected = ctx.FunkyCustomers.Select(c => c.FirstName).ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.Select(c2 => c2.LastName).ToList(), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln?.Length != 0 && r.fn != null && r.ln != null && !r.fn.EndsWith(r.ln) ? true : false)
-                    .ToList().OrderBy(r => r.fn).ThenBy(r => r.ln).ToList();
-
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
-                {
-                    Assert.True(expected[i].fn == result[i].fn);
-                    Assert.True(expected[i].ln == result[i].ln);
-                }
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void String_ends_with_equals_nullable_column()
-        {
-            using (var ctx = CreateContext())
-            {
-                var expected = ctx.FunkyCustomers.ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.ToList(), (c1, c2) => new { c1, c2 })
-                    .Where(
-                        r => (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue
-                              && r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value)
-                             || (r.c2.LastName == null && r.c1.NullableBool == false))
-                    .ToList().Select(
-                        r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName)
-                    .ToList();
-
-                ClearLog();
-
-                var result = ctx.FunkyCustomers
-                    .SelectMany(
-                        c => ctx.FunkyCustomers, (c1, c2) => new { c1, c2 })
-                    .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value)
-                    .ToList().Select(
-                        r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName)
-                    .ToList();
-
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
-                {
-                    Assert.True(expected[i].FirstName == result[i].FirstName);
-                    Assert.True(expected[i].LastName == result[i].LastName);
-                }
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void String_ends_with_not_equals_nullable_column()
-        {
-            using (var ctx = CreateContext())
-            {
-                var expected = ctx.FunkyCustomers.ToList()
-                    .SelectMany(
-                        c => ctx.FunkyCustomers.ToList(), (c1, c2) => new { c1, c2 })
-                    .Where(
-                        r =>
-                            (r.c2.LastName != null && r.c1.FirstName != null && r.c1.NullableBool.HasValue
-                             && r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
-                            || r.c1.NullableBool == null
-                            || (r.c2.LastName == null && r.c1.NullableBool == true))
-                    .ToList().Select(
-                        r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName)
-                    .ToList();
-
-                ClearLog();
-
-                var result = ctx.FunkyCustomers
-                    .SelectMany(
-                        c => ctx.FunkyCustomers, (c1, c2) => new { c1, c2 })
-                    .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value)
-                    .ToList().Select(
-                        r => new { r.c1.FirstName, r.c2.LastName, r.c1.NullableBool }).OrderBy(r => r.FirstName).ThenBy(r => r.LastName)
-                    .ToList();
-
-                Assert.Equal(result.Count, expected.Count);
-                for (var i = 0; i < result.Count; i++)
-                {
-                    Assert.True(expected[i].FirstName == result[i].FirstName);
-                    Assert.True(expected[i].LastName == result[i].LastName);
-                }
-            }
+                    AssertEqual<FunkyCustomer>(e.c1, a.c1);
+                    AssertEqual<FunkyCustomer>(e.c2, a.c2);
+                });
         }
 
         protected FunkyDataContext CreateContext() => Fixture.CreateContext();
@@ -538,9 +502,49 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>
+        public abstract class FunkyDataQueryFixtureBase : SharedStoreFixtureBase<FunkyDataContext>, IQueryFixtureBase
         {
+            public FunkyDataQueryFixtureBase()
+            {
+                var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+                {
+                    { typeof(FunkyCustomer), e => e?.Id },
+                };
+
+                var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+                {
+                    {
+                        typeof(FunkyCustomer), (e, a) =>
+                        {
+                            Assert.Equal(e == null, a == null);
+                            if (a != null)
+                            {
+                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(e.FirstName, a.FirstName);
+                                Assert.Equal(e.LastName, a.LastName);
+                                Assert.Equal(e.NullableBool, a.NullableBool);
+                            }
+                        }
+                    },
+                };
+
+                QueryAsserter = new QueryAsserter<FunkyDataContext>(
+                    CreateContext,
+                    new FunkyDataData(),
+                    entitySorters,
+                    entityAsserters);
+            }
+
             protected override string StoreName { get; } = "FunkyDataQueryTest";
+
+            public QueryAsserterBase QueryAsserter { get; set; }
+
+            public override FunkyDataContext CreateContext()
+            {
+                var context = base.CreateContext();
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                return context;
+            }
 
             protected override void Seed(FunkyDataContext context) => FunkyDataContext.Seed(context);
         }
