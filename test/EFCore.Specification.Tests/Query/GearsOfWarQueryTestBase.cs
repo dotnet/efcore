@@ -7668,6 +7668,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.SelectMany(o => o.Reports.OfType<Officer>().Select(o1 => o1.AssignedCity)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Nullable_bool_comparison_is_translated_to_server(bool isAsync)
+        {
+            return AssertQuery<LocustHorde>(
+                isAsync,
+                lhs => lhs.Select(lh => new { IsEradicated = lh.Eradicated == true }));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

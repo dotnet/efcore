@@ -56,6 +56,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                 return (IQueryable<TEntity>)Factions.AsQueryable();
             }
 
+            if (typeof(TEntity) == typeof(LocustHorde))
+            {
+                return (IQueryable<TEntity>)Factions.OfType<LocustHorde>().AsQueryable();
+            }
+
             if (typeof(TEntity) == typeof(Gear))
             {
                 return (IQueryable<TEntity>)Gears.AsQueryable();
