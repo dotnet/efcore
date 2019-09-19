@@ -7157,6 +7157,19 @@ INNER JOIN (
 WHERE [g].[Discriminator] = N'Officer'");
         }
 
+        public override async Task Nullable_bool_comparison_is_translated_to_server(bool isAsync)
+        {
+            await base.Nullable_bool_comparison_is_translated_to_server(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ([f].[Eradicated] = CAST(1 AS bit)) AND [f].[Eradicated] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsEradicated]
+FROM [Factions] AS [f]
+WHERE [f].[Discriminator] = N'LocustHorde'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
