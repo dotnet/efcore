@@ -7677,6 +7677,41 @@ namespace Microsoft.EntityFrameworkCore.Query
                 lhs => lhs.Select(lh => new { IsEradicated = lh.Eradicated == true }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Acessing_reference_navigation_collection_composition_generates_single_query(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => gs.OrderBy(g => g.Nickname).Select(g => new
+                {
+                    Weapons = g.Weapons.Select(w => new
+                    {
+                        w.Id,
+                        w.IsAutomatic,
+                        w.SynergyWith.Name
+                    })
+                }),
+                gs => gs.OrderBy(g => g.Nickname).Select(g => new
+                {
+                    Weapons = g.Weapons.Select(w => new
+                    {
+                        w.Id,
+                        w.IsAutomatic,
+                        Name = Maybe<string>(w.SynergyWith, () => w.SynergyWith.Name)
+                    })
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<dynamic>(
+                    ea => ea.Id,
+                    (ee, aa) =>
+                    {
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.IsAutomatic, aa.IsAutomatic);
+                        Assert.Equal(ee.Name, aa.Name);
+                    })(e.Weapons, a.Weapons));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
