@@ -2396,6 +2396,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 os => os.GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
         }
 
+        [ConditionalTheory(Skip = "Issue#15097")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Count_after_GroupBy_without_aggregate(bool isAsync)
+        {
+            await AssertCount<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID));
+        }
+
+        [ConditionalTheory(Skip = "Issue#15097")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task LongCount_after_GroupBy_without_aggregate(bool isAsync)
+        {
+            await AssertLongCount<Order>(
+                isAsync,
+                os => os.GroupBy(o => o.CustomerID));
+        }
+
         #endregion
     }
 }

@@ -2006,6 +2006,20 @@ END");
 END");
         }
 
+        public override async Task Count_after_GroupBy_without_aggregate(bool isAsync)
+        {
+            await base.Count_after_GroupBy_without_aggregate(isAsync);
+
+            AssertSql(" ");
+        }
+
+        public override async Task LongCount_after_GroupBy_without_aggregate(bool isAsync)
+        {
+            await base.LongCount_after_GroupBy_without_aggregate(isAsync);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
