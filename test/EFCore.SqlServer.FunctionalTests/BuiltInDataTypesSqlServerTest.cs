@@ -2479,6 +2479,9 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
             const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
+AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalIdentification.AnimalId ---> [int] [Precision = 10 Scale = 0]
 AnimalIdentification.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalIdentification.Method ---> [int] [Precision = 10 Scale = 0]
