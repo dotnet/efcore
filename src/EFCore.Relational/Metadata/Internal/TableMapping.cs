@@ -93,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var property in EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredProperties))
             {
                 var columnName = property.GetColumnName();
-                if (!dictionary.ContainsKey(columnName))
+                if (!dictionary.TryGetValue(columnName, out var otherProperty)
+                    || (otherProperty.IsColumnNullable() && !property.IsColumnNullable()))
                 {
                     dictionary[columnName] = property;
                 }

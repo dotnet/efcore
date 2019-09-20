@@ -440,11 +440,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>();
-            modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Id");
+            modelBuilder.Entity<Dog>().Property<int?>("OtherId").HasColumnName("Id");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                    nameof(Animal), nameof(Animal.Id), nameof(Dog), nameof(Dog.Type), nameof(Animal.Id), nameof(Animal)),
+                    nameof(Animal), nameof(Animal.Id), nameof(Dog), "OtherId", nameof(Animal.Id), nameof(Animal)),
                 modelBuilder.Model);
         }
 

@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 currentTypeString));
                     }
 
-                    if (property.IsColumnNullable() != duplicateProperty.IsColumnNullable())
+                    if (property.IsNullable != duplicateProperty.IsNullable)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DuplicateColumnNameNullabilityMismatch(
