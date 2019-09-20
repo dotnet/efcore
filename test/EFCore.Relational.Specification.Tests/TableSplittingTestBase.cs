@@ -176,6 +176,44 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Can_share_required_columns()
+        {
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<Vehicle>(vb => {
+                        vb.Property(v => v.SeatingCapacity).HasColumnName("SeatingCapacity");
+                    });
+                    modelBuilder.Entity<Engine>(cb =>
+                    {
+                        cb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity");
+                    });
+                    modelBuilder.Entity<FuelTank>(fb =>
+                    {
+                        fb.Ignore(f => f.Engine);
+                    });
+                }, seed: false))
+            {
+                using (var context = CreateContext())
+                {
+                    var scooterEntry = context.Add(new PoweredVehicle { Name = "Electric scooter", SeatingCapacity = 1, Engine = new Engine() });
+
+                    scooterEntry.Reference(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue = 1;
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Electric scooter");
+
+                    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter.Engine).Property<int>("SeatingCapacity").CurrentValue);
+                }
+            }
+        }
+
         protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
         {
             using (CreateTestStore(onModelCreating))
@@ -380,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<FuelTank>().ToTable("Vehicles");
         }
 
-        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)
+        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating, bool seed = true)
         {
             TestStore = TestStoreFactory.Create(DatabaseName);
 
@@ -389,7 +427,13 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed());
+            TestStore.Initialize(ServiceProvider, CreateContext, c =>
+            {
+                if (seed)
+                {
+                    ((TransportationContext)c).Seed();
+                }
+            });
 
             TestSqlLoggerFactory.Clear();
 
