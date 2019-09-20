@@ -1096,16 +1096,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             v => Assert.Equal(42, v));
                         AssertMultidimensionalArray(
                             m.Values,
-                            v => Assert.Equal("San Francisco", v),
-                            v => Assert.Equal("Lombard", v),
                             v => Assert.Equal("London", v),
-                            v => Assert.Equal("Abbey Road", v));
+                            v => Assert.Equal("Abbey Road", v),
+                            v => Assert.Equal("San Francisco", v),
+                            v => Assert.Equal("Lombard", v));
                         Assert.Collection(
                             m.Columns,
-                            v => Assert.Equal("ShippingAddress_City", v),
-                            v => Assert.Equal("ShippingAddress_Street", v),
                             v => Assert.Equal("BillingAddress_City", v),
-                            v => Assert.Equal("BillingAddress_Street", v));
+                            v => Assert.Equal("BillingAddress_Street", v),
+                            v => Assert.Equal("ShippingAddress_City", v),
+                            v => Assert.Equal("ShippingAddress_Street", v));
                     }),
                 downOps => Assert.Collection(
                     downOps,

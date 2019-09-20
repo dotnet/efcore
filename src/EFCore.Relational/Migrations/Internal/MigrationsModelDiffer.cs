@@ -2036,9 +2036,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private object GetValue(ColumnModification columnModification)
         {
             var converter = GetValueConverter(columnModification.Property);
+            var value = columnModification.UseCurrentValueParameter
+                ? columnModification.Value
+                : columnModification.OriginalValue;
             return converter != null
-                ? converter.ConvertToProvider(columnModification.Value)
-                : columnModification.Value;
+                ? converter.ConvertToProvider(value)
+                : value;
         }
 
         #endregion

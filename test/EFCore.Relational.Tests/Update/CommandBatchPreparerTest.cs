@@ -641,7 +641,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             var columnMod = command.ColumnModifications[0];
 
             Assert.Equal(nameof(FakeEntity.Id), columnMod.ColumnName);
-            Assert.Equal(first.Id, columnMod.Value);
+            Assert.False(columnMod.UseCurrentValueParameter);
+            Assert.True(columnMod.UseOriginalValueParameter);
             Assert.Equal(first.Id, columnMod.OriginalValue);
             Assert.True(columnMod.IsCondition);
             Assert.True(columnMod.IsKey);
@@ -776,12 +777,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        [InlineData(EntityState.Added, true)]
-        [InlineData(EntityState.Added, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        [ConditionalTheory]
-        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_principal(EntityState state, bool sensitiveLogging)
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
+        [ConditionalTheory(Skip = "Issue #17947")]
+        public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_principal(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
@@ -796,24 +795,56 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var modelData = new UpdateAdapter(stateManager);
 
-            if (sensitiveLogging)
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), "{Id: 42}", state),
-                    Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
-                            .BatchCommands(new[] { firstEntry }, modelData).ToArray()).Message);
-            }
-            else
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatch(
-                        nameof(DerivedRelatedFakeEntity), nameof(FakeEntity), nameof(FakeEntity), state),
-                    Assert.Throws<InvalidOperationException>(
-                        () => CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
-                            .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
-            }
+            var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                            .BatchCommands(new[] { firstEntry }, modelData).ToArray();
+
+            Assert.Single(commandBatches);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+
+            var command = commandBatches.First().ModificationCommands.Single();
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(4, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
+            Assert.True(columnMod.UseOriginalValueParameter);
+            Assert.False(columnMod.UseCurrentValueParameter);
+            Assert.Equal(first.Id, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal("Discriminator", columnMod.ColumnName);
+            Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.Value);
+            Assert.Equal(nameof(DerivedRelatedFakeEntity), columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.RelatedId), columnMod.ColumnName);
+            Assert.Equal(first.RelatedId, columnMod.Value);
+            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[3];
+
+            Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
+            Assert.Equal(second.AnotherId, columnMod.Value);
+            Assert.Equal(second.AnotherId, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         [InlineData(EntityState.Added)]
@@ -840,13 +871,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Single(batches);
         }
 
-        [InlineData(EntityState.Added, true)]
-        [InlineData(EntityState.Added, false)]
-        [InlineData(EntityState.Deleted, true)]
-        [InlineData(EntityState.Deleted, false)]
-        [ConditionalTheory]
-        public void BatchCommands_throws_on_incomplete_updates_for_shared_table_no_middle_dependent(
-            EntityState state, bool sensitiveLogging)
+        [InlineData(EntityState.Added)]
+        [InlineData(EntityState.Deleted)]
+        [ConditionalTheory(Skip = "Issue #17947")]
+        public void BatchCommands_creates_batch_on_incomplete_updates_for_shared_table_no_middle_dependent(EntityState state)
         {
             var currentDbContext = CreateContextServices(CreateSharedTableModel()).GetRequiredService<ICurrentDbContext>();
             var stateManager = currentDbContext.GetDependencies().StateManager;
@@ -861,26 +889,45 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var modelData = new UpdateAdapter(stateManager);
 
-            if (sensitiveLogging)
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                        nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), "{Id: 42}", state),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
-                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
-            }
-            else
-            {
-                Assert.Equal(
-                    RelationalStrings.SharedRowEntryCountMismatch(
-                        nameof(AnotherFakeEntity), nameof(FakeEntity), nameof(DerivedRelatedFakeEntity), state),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                            CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: false)
-                                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray()).Message);
-            }
+            var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
+                                    .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
+
+            Assert.Equal(2, commandBatches.Length);
+            Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
+
+            var command = commandBatches.First().ModificationCommands.Single();
+            Assert.Equal(EntityState.Modified, command.EntityState);
+            Assert.Equal(3, command.ColumnModifications.Count);
+
+            var columnMod = command.ColumnModifications[0];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.Id), columnMod.ColumnName);
+            Assert.Equal(first.Id, columnMod.Value);
+            Assert.Equal(first.Id, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.True(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.False(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[1];
+
+            Assert.Equal(nameof(DerivedRelatedFakeEntity.RelatedId), columnMod.ColumnName);
+            Assert.Equal(first.RelatedId, columnMod.Value);
+            Assert.Equal(first.RelatedId, columnMod.OriginalValue);
+            Assert.True(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
+
+            columnMod = command.ColumnModifications[2];
+
+            Assert.Equal(nameof(AnotherFakeEntity.AnotherId), columnMod.ColumnName);
+            Assert.Equal(second.AnotherId, columnMod.Value);
+            Assert.Equal(second.AnotherId, columnMod.OriginalValue);
+            Assert.False(columnMod.IsCondition);
+            Assert.False(columnMod.IsKey);
+            Assert.False(columnMod.IsRead);
+            Assert.True(columnMod.IsWrite);
         }
 
         private static IServiceProvider CreateContextServices(IModel model)

@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
         private IReadOnlyList<ColumnModification> _columnModifications;
         private bool _requiresResultPropagation;
+        private bool _mainEntryAdded;
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -104,22 +105,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             get
             {
-                if (_entries.Count > 0)
+                if (_mainEntryAdded)
                 {
-                    for (var i = 0; i < _entries.Count; i++)
-                    {
-                        var entry = _entries[0];
-                        if (entry.SharedIdentityEntry != null)
-                        {
-                            return EntityState.Modified;
-                        }
-
-                        var state = entry.EntityState;
-                        if (state != EntityState.Unchanged)
-                        {
-                            return state;
-                        }
-                    }
+                    var entry = _entries[0];
+                    return entry.SharedIdentityEntry != null ? EntityState.Modified : entry.EntityState;
                 }
 
                 return EntityState.Modified;
@@ -152,7 +141,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Adds an <see cref="IUpdateEntry" /> to this command representing an entity to be inserted, updated, or deleted.
         /// </summary>
         /// <param name="entry"> The entry representing the entity to add. </param>
+        [Obsolete("Use AddEntry with most parameters")]
         public virtual void AddEntry([NotNull] IUpdateEntry entry)
+            => AddEntry(entry, mainEntry: false);
+
+        /// <summary>
+        ///     Adds an <see cref="IUpdateEntry" /> to this command representing an entity to be inserted, updated, or deleted.
+        /// </summary>
+        /// <param name="entry"> The entry representing the entity to add. </param>
+        /// <param name="mainEntry"> A value indicating whether this is the main entry for the row. </param>
+        public virtual void AddEntry([NotNull] IUpdateEntry entry, bool mainEntry)
         {
             Check.NotNull(entry, nameof(entry));
 
@@ -166,38 +164,65 @@ namespace Microsoft.EntityFrameworkCore.Update
                     throw new ArgumentException(RelationalStrings.ModificationCommandInvalidEntityState(entry.EntityState));
             }
 
-            if (_entries.Count > 0)
+            if (mainEntry)
             {
-                var currentState = EntityState;
-                var entryState = entry.SharedIdentityEntry == null
-                    ? entry.EntityState
-                    : EntityState.Modified;
-                if (currentState != entryState
-                    && entryState != EntityState.Unchanged)
-                {
-                    if (_sensitiveLoggingEnabled)
-                    {
-                        throw new InvalidOperationException(
-                            RelationalStrings.ConflictingRowUpdateTypesSensitive(
-                                entry.EntityType.DisplayName(),
-                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
-                                entryState,
-                                _entries[0].EntityType.DisplayName(),
-                                _entries[0].BuildCurrentValuesString(_entries[0].EntityType.FindPrimaryKey().Properties),
-                                currentState));
-                    }
+                Check.DebugAssert(!_mainEntryAdded, "Only expected a single main entry");
 
-                    throw new InvalidOperationException(
-                        RelationalStrings.ConflictingRowUpdateTypes(
-                            entry.EntityType.DisplayName(),
-                            entryState,
-                            _entries[0].EntityType.DisplayName(),
-                            currentState));
+                for (var i = 0; i < _entries.Count; i++)
+                {
+                    ValidateState(entry, _entries[i]);
                 }
+
+                _mainEntryAdded = true;
+                _entries.Insert(0, entry);
+            }
+            else
+            {
+                if (_mainEntryAdded)
+                {
+                    ValidateState(_entries[0], entry);
+                }
+
+                _entries.Add(entry);
             }
 
-            _entries.Add(entry);
             _columnModifications = null;
+        }
+
+        private void ValidateState(IUpdateEntry mainEntry, IUpdateEntry entry)
+        {
+            var mainEntryState = mainEntry.SharedIdentityEntry == null
+                                ? mainEntry.EntityState
+                                : EntityState.Modified;
+            if (mainEntryState == EntityState.Modified)
+            {
+                return;
+            }
+
+            var entryState = entry.SharedIdentityEntry == null
+                                ? entry.EntityState
+                                : EntityState.Modified;
+            if (mainEntryState != entryState)
+            {
+                if (_sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingRowUpdateTypesSensitive(
+                            entry.EntityType.DisplayName(),
+                            entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
+                            entryState,
+                            mainEntry.EntityType.DisplayName(),
+                            mainEntry.BuildCurrentValuesString(mainEntry.EntityType.FindPrimaryKey().Properties),
+                            mainEntryState));
+                }
+
+                throw new InvalidOperationException(
+                    RelationalStrings.ConflictingRowUpdateTypes(
+                        entry.EntityType.DisplayName(),
+                        entryState,
+                        mainEntry.EntityType.DisplayName(),
+                        mainEntryState));
+            }
         }
 
         private IReadOnlyList<ColumnModification> GenerateColumnModifications()
@@ -231,6 +256,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             foreach (var entry in _entries)
             {
+                var nonMainEntry = updating
+                    && (entry.EntityState == EntityState.Deleted
+                        || entry.EntityState == EntityState.Added);
+
                 foreach (var property in entry.EntityType.GetProperties())
                 {
                     var isKey = property.IsPrimaryKey();
@@ -247,7 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         {
                             writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
                         }
-                        else if (updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                        else if ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                                  || (!isKey && nonMainEntry))
                         {
                             writeValue = columnPropagator?.TryPropagate(property, (InternalEntityEntry)entry)
                                          ?? entry.IsModified(property);
@@ -353,15 +383,27 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                         break;
                     case EntityState.Added:
-                        if (!_write)
+                        _currentValue = entry.GetCurrentValue(property);
+
+                        var comparer = property.GetValueComparer() ?? property.FindTypeMapping()?.Comparer;
+                        if (comparer == null)
                         {
-                            _currentValue = entry.GetCurrentValue(property);
                             _write = !Equals(_originalValue, _currentValue);
+                        }
+                        else
+                        {
+                            _write = !comparer.Equals(_originalValue, _currentValue);
                         }
 
                         break;
                     case EntityState.Deleted:
                         _originalValue = entry.GetOriginalValue(property);
+                        if (!_write
+                            && !property.IsPrimaryKey())
+                        {
+                            _write = true;
+                            _currentValue = null;
+                        }
                         break;
                 }
             }
