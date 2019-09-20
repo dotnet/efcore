@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 {
-    public abstract class ComplexNavigationsData : IExpectedData
+    public abstract class ComplexNavigationsData : ISetSource
     {
         public IReadOnlyList<Level1> LevelOnes { get; }
         public IReadOnlyList<Level2> LevelTwos { get; }

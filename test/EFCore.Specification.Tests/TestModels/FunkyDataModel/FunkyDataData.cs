@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel
 {
-    public class FunkyDataData : IExpectedData
+    public class FunkyDataData : ISetSource
     {
         public IReadOnlyList<FunkyCustomer> FunkyCustomers { get; }
 

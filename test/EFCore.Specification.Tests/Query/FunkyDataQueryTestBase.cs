@@ -509,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var entitySorters = new Dictionary<Type, Func<dynamic, object>>
                 {
                     { typeof(FunkyCustomer), e => e?.Id },
-                };
+                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
 
                 var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
                 {
@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }
                         }
                     },
-                };
+                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
 
                 QueryAsserter = new QueryAsserter<FunkyDataContext>(
                     CreateContext,

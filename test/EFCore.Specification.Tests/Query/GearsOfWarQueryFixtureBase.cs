@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -30,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(SquadMission), e => e?.SquadId + " " + e?.MissionId },
                 { typeof(Weapon), e => e?.Id },
                 { typeof(LocustHighCommand), e => e?.Id }
-            };
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
             {
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 }
-            };
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
             QueryAsserter = new QueryAsserter<GearsOfWarContext>(
                 CreateContext,

@@ -1476,7 +1476,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = Fixture.QueryAsserter.SetExtractor.Set<Level1>(context).Select(
+                var actual = Fixture.QueryAsserter.SetSourceCreator(context).Set<Level1>().Select(
                     e => new MyOuterDto
                     {
                         Id = e.Id,
@@ -1564,10 +1564,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Result_operator_nav_prop_reference_optional_Sum(bool isAsync)
         {
-            return AssertSum<Level1, Level1>(
+            return AssertSum(
                 isAsync,
-                l1s => l1s,
-                l1s => l1s,
+                ss => ss.Set<Level1>(),
+                ss => ss.Set<Level1>(),
                 actualSelector: e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id,
                 expectedSelector: e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id));
         }
@@ -1576,10 +1576,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Result_operator_nav_prop_reference_optional_Min(bool isAsync)
         {
-            return AssertMin<Level1, Level1>(
+            return AssertMin(
                 isAsync,
-                l1s => l1s,
-                l1s => l1s,
+                ss => ss.Set<Level1>(),
+                ss => ss.Set<Level1>(),
                 actualSelector: e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id,
                 expectedSelector: e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id));
         }
@@ -1588,10 +1588,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Result_operator_nav_prop_reference_optional_Max(bool isAsync)
         {
-            return AssertMax<Level1, Level1>(
+            return AssertMax(
                 isAsync,
-                l1s => l1s,
-                l1s => l1s,
+                ss => ss.Set<Level1>(),
+                ss => ss.Set<Level1>(),
                 actualSelector: e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id,
                 expectedSelector: e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id));
         }
@@ -1600,10 +1600,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Result_operator_nav_prop_reference_optional_Average(bool isAsync)
         {
-            return AssertAverage<Level1, Level1>(
+            return AssertAverage(
                 isAsync,
-                l1s => l1s,
-                l1s => l1s,
+                ss => ss.Set<Level1>(),
+                ss => ss.Set<Level1>(),
                 actualSelector: e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id,
                 expectedSelector: e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id));
         }
@@ -1612,10 +1612,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Result_operator_nav_prop_reference_optional_Average_with_identity_selector(bool isAsync)
         {
-            return AssertAverage<Level1, int?>(
+            return AssertAverage(
                 isAsync,
-                l1s => l1s.Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id),
-                l1s => l1s.Select(e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id)),
+                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id),
+                ss => ss.Set<Level1>().Select(e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id)),
                 actualSelector: e => e,
                 expectedSelector: e => e);
         }
@@ -1624,23 +1624,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Result_operator_nav_prop_reference_optional_Average_without_selector(bool isAsync)
         {
-            return AssertAverage<Level1>(
+            return AssertAverage(
                 isAsync,
-                l1s => l1s.Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id),
-                l1s => l1s.Select(e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id)));
+                ss => ss.Set<Level1>().Select(e => (int?)e.OneToOne_Optional_FK1.Level1_Required_Id),
+                ss => ss.Set<Level1>().Select(e => MaybeScalar<int>(e.OneToOne_Optional_FK1, () => e.OneToOne_Optional_FK1.Level1_Required_Id)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Result_operator_nav_prop_reference_optional_via_DefaultIfEmpty(bool isAsync)
         {
-            return AssertSum<Level1, Level2, Level2>(
+            return AssertSum(
                 isAsync,
-                (l1s, l2s) =>
-                    from l1 in l1s
-                    join l2 in l2s on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                    from l2 in groupJoin.DefaultIfEmpty()
-                    select l2,
+                ss => from l1 in ss.Set<Level1>()
+                      join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                      from l2 in groupJoin.DefaultIfEmpty()
+                      select l2,
                 selector: e => e == null ? 0 : e.Level1_Required_Id);
         }
 
@@ -4664,7 +4663,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-                var entity = Fixture.QueryAsserter.SetExtractor.Set<Level2>(context).OrderBy(l2 => l2.Id).First();
+                var entity = Fixture.QueryAsserter.SetSourceCreator(context).Set<Level2>().OrderBy(l2 => l2.Id).First();
                 var entry = context.ChangeTracker.Entries().Single();
                 Assert.Same(entity, entry.Entity);
 
