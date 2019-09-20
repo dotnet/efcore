@@ -305,10 +305,10 @@ namespace Microsoft.Data.Sqlite
             var timer = new Stopwatch();
             var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
-            DataReader = new SqliteDataReader(this, timer, GetStatements(timer), closeConnection);
-            DataReader.NextResult();
+            var dataReader = new SqliteDataReader(this, timer, GetStatements(timer), closeConnection);
+            dataReader.NextResult();
 
-            return DataReader = DataReader;
+            return DataReader = dataReader;
         }
 
         private IEnumerable<sqlite3_stmt> GetStatements(Stopwatch timer)
