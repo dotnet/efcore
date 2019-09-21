@@ -1,18 +1,30 @@
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
-  <ItemGroup>
-    <!-- Use the latest version instead of the one bundled with the SDK -->
-    <KnownFrameworkReference Update="Microsoft.NETCore.App">
-      <LatestRuntimeFrameworkVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRuntimeVersion)</LatestRuntimeFrameworkVersion>
-      <DefaultRuntimeFrameworkVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRuntimeVersion)</DefaultRuntimeFrameworkVersion>
-      <TargetingPackVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRefPackageVersion)</TargetingPackVersion>
-    </KnownFrameworkReference>
-    <KnownFrameworkReference Update="NETStandard.Library">
-      <TargetingPackVersion Condition="'%(TargetFramework)' == 'netstandard2.1'">$(NETStandardLibraryRefPackageVersion)</TargetingPackVersion>
-    </KnownFrameworkReference>
+  <PropertyGroup>
+    <!-- Workaround while there is no 5.0 SDK available, suppress unsupported version error. -->
+    <NETCoreAppMaximumVersion>5.0</NETCoreAppMaximumVersion>
+  </PropertyGroup>
 
-    <!-- Workaround for netstandard2.1 projects until we can get a preview 8 SDK containing https://github.com/dotnet/sdk/pull/3463 fix. -->
+  <ItemGroup>
+    <!-- Workaround while there is no 5.0 SDK available, copy known apphost/framework reference info from 3.0. -->
+    <KnownAppHostPack Include="@(KnownAppHostPack->WithMetadataValue('TargetFramework', 'netcoreapp3.0'))"
+        TargetFramework="netcoreapp5.0" />
+    <KnownFrameworkReference Include="@(KnownFrameworkReference->WithMetadataValue('TargetFramework', 'netcoreapp3.0'))"
+        TargetFramework="netcoreapp5.0" />
+
+    <!-- Reference base shared framework at incoming dependency flow version, not bundled sdk version. -->
+    <FrameworkReference Update="Microsoft.NETCore.App"
+        Condition="'$(TargetFramework)' == 'netcoreapp5.0'"
+        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRuntimeVersion)"
+        TargetingPackVersion="$(MicrosoftNETCoreAppRefPackageVersion)" />
+
+    <!-- Reference netstandard library at incoming dependency flow version, not bundled sdk version. -->
+    <FrameworkReference Update="NETStandard.Library"
+        Condition="'$(TargetFramework)' == 'netstandard2.1'"
+        TargetingPackVersion="$(NETStandardLibraryRefPackageVersion)" />
+
+    <!-- Workaround for netstandard2.1 projects until we can get a 5.0 SDK containing https://github.com/dotnet/sdk/pull/3463 fix. -->
     <KnownFrameworkReference Update="NETStandard.Library">
       <RuntimeFrameworkName>NETStandard.Library</RuntimeFrameworkName>
     </KnownFrameworkReference>
