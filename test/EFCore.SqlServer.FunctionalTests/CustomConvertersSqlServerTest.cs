@@ -25,6 +25,9 @@ namespace Microsoft.EntityFrameworkCore
                 nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
             const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
+AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalIdentification.AnimalId ---> [int] [Precision = 10 Scale = 0]
 AnimalIdentification.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalIdentification.Method ---> [int] [Precision = 10 Scale = 0]
@@ -32,6 +35,10 @@ BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLengt
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
+Blog.BlogId ---> [int] [Precision = 10 Scale = 0]
+Blog.Discriminator ---> [nvarchar] [MaxLength = -1]
+Blog.RssUrl ---> [nullable nvarchar] [MaxLength = -1]
+Blog.Url ---> [nullable nvarchar] [MaxLength = -1]
 BuiltInDataTypes.Enum16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum64 ---> [bigint] [Precision = 19 Scale = 0]

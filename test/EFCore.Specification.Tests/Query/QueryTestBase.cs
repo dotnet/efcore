@@ -1615,6 +1615,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return (e, a) =>
             {
+                if (e == null && a == null)
+                {
+                    return;
+                }
+
                 var actual = elementSorter != null
                     ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
                     : ((IEnumerable<TElement>)a).ToList();

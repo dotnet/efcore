@@ -7692,6 +7692,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 13);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Accessing_property_of_optional_navigation_in_child_projection_works(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => ts.OrderBy(e => e.Note).Select(
+                    t => new
+                    {
+                        Items = t.Gear != null
+                            ? t.Gear.Weapons.Select(w => new { w.Owner.Nickname }).ToList()
+                            : null
+                    }),
+                assertOrder: true,
+                elementAsserter: (e,a) => CollectionAsserter<dynamic>(
+                    ee => ee.Nickname,
+                    (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e.Items, a.Items));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

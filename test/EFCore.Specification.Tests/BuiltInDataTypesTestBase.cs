@@ -1997,6 +1997,23 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Can_read_back_bool_mapped_as_int_through_navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from animal in context.Set<Animal>()
+                            where animal.Details != null
+                            select new
+                            {
+                                animal.Details.BoolField
+                            };
+
+                var result = Assert.Single(query.ToList());
+                Assert.True(result.BoolField);
+            }
+        }
+
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
@@ -2238,6 +2255,15 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Id = 1
                         });
+
+                modelBuilder.Entity<AnimalDetails>()
+                    .HasData(
+                    new AnimalDetails
+                    {
+                        Id = 1,
+                        AnimalId = 1,
+                        BoolField = true
+                    });
 
                 modelBuilder.Entity<AnimalIdentification>()
                     .HasData(
@@ -3021,6 +3047,16 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
             public ICollection<AnimalIdentification> IdentificationMethods { get; set; }
+            public AnimalDetails Details { get; set; }
+        }
+
+        protected class AnimalDetails
+        {
+            public int Id { get; set; }
+            public int? AnimalId { get; set; }
+
+            [Column(TypeName = "int")]
+            public bool BoolField { get; set; }
         }
 
         protected class AnimalIdentification

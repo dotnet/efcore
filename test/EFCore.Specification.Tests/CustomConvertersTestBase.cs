@@ -384,6 +384,36 @@ namespace Microsoft.EntityFrameworkCore
             public IDictionary<string, string> Discriminator { get; set; } = new Dictionary<string, string>();
         }
 
+        [ConditionalFact]
+        public virtual void Field_on_derived_type_retrieved_via_cast_applies_value_converter()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Blog>()
+                                .Where(b => b.BlogId == 2)
+                                .Select(x => new
+                                {
+                                    BlogId = x.BlogId,
+                                    Url = x.Url,
+                                    RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
+                                }).ToList();
+
+                var result = Assert.Single(query);
+                Assert.Equal("http://rssblog.com/rss", result.RssUrl);
+            }
+        }
+
+        protected class Blog
+        {
+            public int BlogId { get; set; }
+            public string Url { get; set; }
+        }
+
+        protected class RssBlog : Blog
+        {
+            public string RssUrl { get; set; }
+        }
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -747,6 +777,32 @@ namespace Microsoft.EntityFrameworkCore
                             d => StringToDictionarySerializer.Serialize(d),
                             json => StringToDictionarySerializer.Deserialize(json));
                     });
+
+                var urlConverter = new UrlSchemeRemover();
+                modelBuilder.Entity<Blog>(
+                    b =>
+                    {
+                        b.Property(e => e.Url).HasConversion(urlConverter);
+                        b.HasData(
+                            new Blog
+                            {
+                                BlogId = 1,
+                                Url = "http://blog.com"
+                            });
+                    });
+
+                modelBuilder.Entity<RssBlog>(
+                    b =>
+                    {
+                        b.Property(e => e.RssUrl).HasConversion(urlConverter);
+                        b.HasData(
+                            new RssBlog
+                            {
+                                BlogId = 2,
+                                Url = "http://rssblog.com",
+                                RssUrl = "http://rssblog.com/rss"
+                            });
+                    });
             }
 
             public static class StringToDictionarySerializer
@@ -784,6 +840,11 @@ namespace Microsoft.EntityFrameworkCore
                     )
                 {
                 }
+            }
+
+            private class UrlSchemeRemover : ValueConverter<string, string>
+            {
+                public UrlSchemeRemover() : base(x => x.Remove(0, 7), x => "http://" + x) { }
             }
         }
     }
