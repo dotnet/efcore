@@ -409,7 +409,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-
             TestStore.Initialize(ServiceProvider, CreateContext, c =>
             {
                 if (seed)
