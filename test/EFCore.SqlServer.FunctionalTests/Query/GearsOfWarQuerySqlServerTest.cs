@@ -7170,6 +7170,22 @@ FROM [Factions] AS [f]
 WHERE [f].[Discriminator] = N'LocustHorde'");
         }
 
+        public override async Task Reference_include_chain_loads_correctly_when_middle_is_null(bool isAsync)
+        {
+            await base.Reference_include_chain_loads_correctly_when_middle_is_null(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOrBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [s].[Id], [s].[InternalNumber], [s].[Name]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
+LEFT JOIN [Squads] AS [s] ON [t0].[SquadId] = [s].[Id]
+ORDER BY [t].[Note]");
+        }
+
         public override async Task Accessing_property_of_optional_navigation_in_child_projection_works(bool isAsync)
         {
             await base.Accessing_property_of_optional_navigation_in_child_projection_works(isAsync);
