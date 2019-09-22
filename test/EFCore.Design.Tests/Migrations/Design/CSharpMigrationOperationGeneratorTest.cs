@@ -1489,6 +1489,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         [ConditionalFact]
+        public void CreateTableOperation_TableComment_ColumnComment()
+        {
+            Test(
+                new CreateTableOperation
+                {
+                    Name = "Post",
+                    Schema = "dbo",
+                    Columns = { new AddColumnOperation { Name = "AltId1", ClrType = typeof(int), Comment = "My Column comment" } },
+                    Comment = "My Operation Comment"
+                },
+                "mb.CreateTable(" + _eol +
+                "    name: \"Post\"," + _eol +
+                "    schema: \"dbo\"," + _eol +
+                "    columns: table => new" + _eol +
+                "    {" + _eol +
+                "        AltId1 = table.Column<int>(nullable: false, comment: \"My Column comment\")" + _eol +
+                "    }," + _eol +
+                "    constraints: table =>" + _eol +
+                "    {" + _eol +
+                "    }," + _eol +
+                "    comment: \"My Operation Comment\");",
+                o =>
+                {
+                    Assert.Equal("My Operation Comment", o.Comment);
+                    Assert.Equal("My Column comment", o.Columns[0].Comment);
+                });
+        }
+
+        [ConditionalFact]
         public void DropColumnOperation_required_args()
         {
             Test(

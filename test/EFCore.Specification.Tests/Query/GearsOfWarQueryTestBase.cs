@@ -4663,11 +4663,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.FullName, a.FullName);
                     CollectionAsserter<dynamic>(
                         elementSorter: ee => ee.FullName,
-                        elementAsserter:(ee, aa) =>
-                        {
-                            Assert.Equal(ee.FullName, aa.FullName);
-                            AssertCollection<Weapon>(ee.InnerCollection, aa.InnerCollection);
-                        })(e.OuterCollection, a.OuterCollection);
+                        elementAsserter: (ee, aa) =>
+                         {
+                             Assert.Equal(ee.FullName, aa.FullName);
+                             AssertCollection<Weapon>(ee.InnerCollection, aa.InnerCollection);
+                         })(e.OuterCollection, a.OuterCollection);
                 });
         }
 
@@ -7524,8 +7524,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 key = t.Id,
                                 collection = (from g in gs
-                                         where t.GearNickName == g.Nickname && t.GearSquadId != null && t.GearSquadId == g.SquadId && t.GearNickName != null && t.Note != null && null != t.Note
-                                         select g).ToList()
+                                              where t.GearNickName == g.Nickname && t.GearSquadId != null && t.GearSquadId == g.SquadId && t.GearNickName != null && t.Note != null && null != t.Note
+                                              select g).ToList()
                             },
                 elementSorter: e => e.key,
                 elementAsserter: (e, a) =>
@@ -7675,6 +7675,75 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery<LocustHorde>(
                 isAsync,
                 lhs => lhs.Select(lh => new { IsEradicated = lh.Eradicated == true }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Acessing_reference_navigation_collection_composition_generates_single_query(bool isAsync)
+        {
+            return AssertQuery<Gear>(
+                isAsync,
+                gs => gs.OrderBy(g => g.Nickname).Select(g => new
+                {
+                    Weapons = g.Weapons.Select(w => new
+                    {
+                        w.Id,
+                        w.IsAutomatic,
+                        w.SynergyWith.Name
+                    })
+                }),
+                gs => gs.OrderBy(g => g.Nickname).Select(g => new
+                {
+                    Weapons = g.Weapons.Select(w => new
+                    {
+                        w.Id,
+                        w.IsAutomatic,
+                        Name = Maybe<string>(w.SynergyWith, () => w.SynergyWith.Name)
+                    })
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) => CollectionAsserter<dynamic>(
+                    ea => ea.Id,
+                    (ee, aa) =>
+                    {
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.IsAutomatic, aa.IsAutomatic);
+                        Assert.Equal(ee.Name, aa.Name);
+                    })(e.Weapons, a.Weapons));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reference_include_chain_loads_correctly_when_middle_is_null(bool isAsync)
+        {
+            return AssertIncludeQuery<CogTag>(
+                isAsync,
+                ts => ts.AsTracking().OrderBy(t => t.Note).Include(t => t.Gear).ThenInclude(g => g.Squad),
+                new List<IExpectedInclude>
+                {
+                    new ExpectedInclude<CogTag>(t => t.Gear, "Gear"),
+                    new ExpectedInclude<Gear>(t => t.Squad, "Squad", "Gear")
+                },
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Accessing_property_of_optional_navigation_in_child_projection_works(bool isAsync)
+        {
+            return AssertQuery<CogTag>(
+                isAsync,
+                ts => ts.OrderBy(e => e.Note).Select(
+                    t => new
+                    {
+                        Items = t.Gear != null
+                            ? t.Gear.Weapons.Select(w => new { w.Owner.Nickname }).ToList()
+                            : null
+                    }),
+                assertOrder: true,
+                elementAsserter: (e,a) => CollectionAsserter<dynamic>(
+                    ee => ee.Nickname,
+                    (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e.Items, a.Items));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
