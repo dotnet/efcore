@@ -6807,6 +6807,141 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
 
         #endregion
 
+        #region Issue15137
+
+        [ConditionalFact]
+        public virtual async Task Run_something()
+        {
+            using (CreateDatabase15137())
+            {
+                using (var context = new MyContext15137(_options))
+                {
+                    var container = await context.Trades
+                            .Select(x => new
+                            {
+                                Id = x.Id,
+                                Assets = x.Assets.AsQueryable()
+                                    .Select(y => new
+                                    {
+                                        Id = y.Id,
+                                        Contract = new
+                                        {
+                                            Id = y.Contract.Id,
+                                            Season = new
+                                            {
+                                                Id = y.Contract.Season.Id,
+                                                IsPastTradeDeadline = (y.Contract.Season.Games.Max(z => (int?)z.GameNumber) ?? 0) > 10
+                                            }
+                                        }
+                                    })
+                                    .ToList()
+                            })
+                            .SingleAsync();
+
+                    AssertSql(
+                        @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[c]
+FROM (
+    SELECT TOP(2) [t].[Id]
+    FROM [Trades] AS [t]
+) AS [t0]
+LEFT JOIN (
+    SELECT [d0].[Id], [d1].[Id] AS [Id0], [d2].[Id] AS [Id1], CASE
+        WHEN COALESCE((
+            SELECT MAX([d].[GameNumber])
+            FROM [DbGame] AS [d]
+            WHERE [d2].[Id] IS NOT NULL AND (([d2].[Id] = [d].[SeasonId]) AND [d].[SeasonId] IS NOT NULL)), 0) > 10 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c], [d0].[DbTradeId]
+    FROM [DbTradeAsset] AS [d0]
+    INNER JOIN [DbContract] AS [d1] ON [d0].[ContractId] = [d1].[Id]
+    LEFT JOIN [DbSeason] AS [d2] ON [d1].[SeasonId] = [d2].[Id]
+) AS [t1] ON [t0].[Id] = [t1].[DbTradeId]
+ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
+                }
+            }
+        }
+
+        private class MyContext15137 : DbContext
+        {
+            public DbSet<DbTrade> Trades { get; set; }
+
+            public MyContext15137(DbContextOptions options) : base(options)
+            {
+            }
+        }
+
+        private SqlServerTestStore CreateDatabase15137()
+            => CreateTestStore(
+                () => new MyContext15137(_options),
+                context =>
+                {
+                    var dbTrade = new DbTrade
+                    {
+                        Assets = new List<DbTradeAsset>
+                        {
+                            new DbTradeAsset
+                            {
+                                Contract = new DbContract
+                                {
+                                    Season = new DbSeason
+                                    {
+                                        Games = new List<DbGame>
+                                        {
+                                            new DbGame
+                                            {
+                                                GameNumber = 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    context.Trades.Add(dbTrade);
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private class DbTrade
+        {
+            public int Id { get; set; }
+            public List<DbTradeAsset> Assets { get; set; }
+        }
+
+        private class DbTradeAsset
+        {
+            public int Id { get; set; }
+            public int ContractId { get; set; }
+
+            public DbContract Contract { get; set; }
+        }
+
+        private class DbContract
+        {
+            public int Id { get; set; }
+
+            public DbSeason Season { get; set; }
+        }
+
+        private class DbSeason
+        {
+            public int Id { get; set; }
+
+            public List<DbGame> Games { get; set; }
+        }
+
+        private class DbGame
+        {
+            public int Id { get; set; }
+            public int GameNumber { get; set; }
+
+            public DbSeason Season { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(

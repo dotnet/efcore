@@ -119,6 +119,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_read_back_mapped_enum_from_collection_first_or_default();
         }
 
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Can_read_back_bool_mapped_as_int_through_navigation()
+        {
+            base.Can_read_back_bool_mapped_as_int_through_navigation();
+        }
+
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
