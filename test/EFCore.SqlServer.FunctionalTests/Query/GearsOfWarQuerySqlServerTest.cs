@@ -7170,6 +7170,22 @@ FROM [Factions] AS [f]
 WHERE [f].[Discriminator] = N'LocustHorde'");
         }
 
+        public override async Task Acessing_reference_navigation_collection_composition_generates_single_query(bool isAsync)
+        {
+            await base.Acessing_reference_navigation_collection_composition_generates_single_query(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [t].[Id], [t].[IsAutomatic], [t].[Name]
+FROM [Gears] AS [g]
+LEFT JOIN (
+    SELECT [w].[Id], [w].[IsAutomatic], [w0].[Name], [w].[OwnerFullName]
+    FROM [Weapons] AS [w]
+    LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
+) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+ORDER BY [g].[Nickname], [g].[SquadId], [t].[Id]");
+        }
+
         public override async Task Reference_include_chain_loads_correctly_when_middle_is_null(bool isAsync)
         {
             await base.Reference_include_chain_loads_correctly_when_middle_is_null(isAsync);
