@@ -55,13 +55,17 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
-            await AssertQuery<Customer, OrderQuery>(
+            await AssertQuery(
                 isAsync,
-                (cs, ovs)
-                    => from c in cs.Where(ct => ct.City == "London")
-                       from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
-                       select new { c, o },
-                e => e.c.CustomerID);
+                ss => from c in ss.Set<Customer>().Where(ct => ct.City == "London")
+                      from o in ss.Set<OrderQuery>().Where(ov => ov.CustomerID == c.CustomerID)
+                      select new { c, o },
+                elementSorter: e => (e.c.CustomerID, e.o.CustomerID),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.c, a.c);
+                    AssertEqual(e.o, a.o);
+                });
 
             AssertSql(
                 @"SELECT c
@@ -101,11 +105,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "issue 12086")] // left join translation
         public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {
-            await AssertQuery<OrderQuery>(
+            await AssertQuery(
                 isAsync,
-                ovs => from ov in ovs.Where(o => o.CustomerID == "ALFKI")
-                       where ov.Customer.Orders.Any()
-                       select ov);
+                ss => from ov in ss.Set<OrderQuery>().Where(o => o.CustomerID == "ALFKI")
+                      where ov.Customer.Orders.Any()
+                      select ov);
 
             AssertSql(@"");
         }

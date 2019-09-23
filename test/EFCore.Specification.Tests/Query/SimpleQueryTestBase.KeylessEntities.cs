@@ -7,28 +7,26 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
-// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    // ReSharper disable once UnusedTypeParameter
     public abstract partial class SimpleQueryTestBase<TFixture>
     {
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_simple(bool isAsync)
         {
-            return AssertQuery<CustomerView>(
+            return AssertQuery(
                 isAsync,
-                cvs => cvs);
+                ss => ss.Set<CustomerView>());
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_where_simple(bool isAsync)
         {
-            return AssertQuery<CustomerView>(
+            return AssertQuery(
                 isAsync,
-                cvs => cvs.Where(c => c.City == "London"));
+                ss => ss.Set<CustomerView>().Where(c => c.City == "London"));
         }
 
         [ConditionalFact]
@@ -71,22 +69,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query(bool isAsync)
         {
-            return AssertQuery<OrderQuery>(
+            return AssertQuery(
                 isAsync,
-                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
+                ss => ss.Set<OrderQuery>().Where(ov => ov.CustomerID == "ALFKI"));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
-            return AssertQuery<OrderQuery>(
+            return AssertQuery(
                 isAsync,
-                ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
+                ss => ss.Set<OrderQuery>().Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
                     .OrderBy(c => c.CustomerID)
                     .Select(cv => cv.Orders.Where(cc => true).ToList()),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
+                elementAsserter: (e, a) => AssertCollection(e, a),
                 entryCount: 6);
         }
 
@@ -94,12 +92,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
-            return AssertQuery<Customer, OrderQuery>(
+            return AssertQuery(
                 isAsync,
-                (cs, ovs)
-                    => from c in cs
-                       from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
-                       select new { c, o },
+                ss => from c in ss.Set<Customer>()
+                      from o in ss.Set<OrderQuery>().Where(ov => ov.CustomerID == c.CustomerID)
+                      select new { c, o },
                 e => e.c.CustomerID,
                 entryCount: 89);
         }
@@ -156,9 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_select_where_navigation(bool isAsync)
         {
-            return AssertQuery<OrderQuery>(
+            return AssertQuery(
                 isAsync,
-                ovs => from ov in ovs
+                ss => from ov in ss.Set<OrderQuery>()
                        where ov.Customer.City == "Seattle"
                        select ov);
         }
@@ -167,9 +164,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
         {
-            return AssertQuery<OrderQuery>(
+            return AssertQuery(
                 isAsync,
-                ovs => from ov in ovs
+                ss => from ov in ss.Set<OrderQuery>()
                        where ov.Customer.Orders.Any()
                        select ov);
         }

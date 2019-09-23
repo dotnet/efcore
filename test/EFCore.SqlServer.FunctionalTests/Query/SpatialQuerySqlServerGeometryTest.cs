@@ -230,9 +230,9 @@ FROM [GeoPointEntity] AS [g]");
 
         public override async Task Distance_constant_srid_4326(bool isAsync)
         {
-            await AssertQuery<PointEntity>(
+            await AssertQuery(
                 isAsync,
-                es => es.Select(
+                ss => ss.Set<PointEntity>().Select(
                     e => new
                     {
                         e.Id,

@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_add(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID + 10 == 10258),
+                ss => ss.Set<Order>().Where(o => o.OrderID + 10 == 10258),
                 entryCount: 1);
 
             AssertSql(
@@ -31,9 +31,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] + 10) = 10258))")
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_subtract(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID - 10 == 10238),
+                ss => ss.Set<Order>().Where(o => o.OrderID - 10 == 10238),
                 entryCount: 1);
 
             AssertSql(
@@ -46,9 +46,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] - 10) = 10238))")
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_multiply(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID * 1 == 10248),
+                ss => ss.Set<Order>().Where(o => o.OrderID * 1 == 10248),
                 entryCount: 1);
 
             AssertSql(
@@ -61,9 +61,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] * 1) = 10248))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_divide(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID / 1 == 10248),
+                ss => ss.Set<Order>().Where(o => o.OrderID / 1 == 10248),
                 entryCount: 1);
 
             AssertSql(
@@ -76,9 +76,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] / 1) = 10248))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_modulo(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID % 10248 == 0),
+                ss => ss.Set<Order>().Where(o => o.OrderID % 10248 == 0),
                 entryCount: 1);
 
             AssertSql(
@@ -117,9 +117,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] = ""ALFKI""
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_bitwise_leftshift(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => (o.OrderID << 1) == 20496),
+                ss => ss.Set<Order>().Where(o => (o.OrderID << 1) == 20496),
                 entryCount: 1);
 
             AssertSql(
@@ -132,9 +132,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] << 1) = 20496))")
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_bitwise_rightshift(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => (o.OrderID >> 1) == 5124),
+                ss => ss.Set<Order>().Where(o => (o.OrderID >> 1) == 5124),
                 entryCount: 2);
 
             AssertSql(
@@ -147,9 +147,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] >> 1) = 5124))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_logical_and(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.City == "Seattle" && c.ContactTitle == "Owner"),
+                ss => ss.Set<Customer>().Where(c => c.City == "Seattle" && c.ContactTitle == "Owner"),
                 entryCount: 1);
 
             AssertSql(
@@ -162,9 +162,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""City""] = ""Seattle"") AN
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_logical_or(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR"),
                 entryCount: 2);
 
             AssertSql(
@@ -177,9 +177,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] = ""ALFKI""
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_logical_not(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => !(c.City != "Seattle")),
+                ss => ss.Set<Customer>().Where(c => !(c.City != "Seattle")),
                 entryCount: 1);
 
             AssertSql(
@@ -192,9 +192,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND NOT((c[""City""] != ""Seattle""
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_equality(bool isAsync)
         {
-            await AssertQuery<Employee>(
+            await AssertQuery(
                 isAsync,
-                es => es.Where(e => e.ReportsTo == 2),
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo == 2),
                 entryCount: 5);
 
             AssertSql(
@@ -207,9 +207,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = 2))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_inequality(bool isAsync)
         {
-            await AssertQuery<Employee>(
+            await AssertQuery(
                 isAsync,
-                es => es.Where(e => e.ReportsTo != 2),
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo != 2),
                 entryCount: 4);
 
             AssertSql(
@@ -222,9 +222,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] != 2))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_greaterthan(bool isAsync)
         {
-            await AssertQuery<Employee>(
+            await AssertQuery(
                 isAsync,
-                es => es.Where(e => e.ReportsTo > 2),
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo > 2),
                 entryCount: 3);
 
             AssertSql(
@@ -237,9 +237,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] > 2))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_greaterthanorequal(bool isAsync)
         {
-            await AssertQuery<Employee>(
+            await AssertQuery(
                 isAsync,
-                es => es.Where(e => e.ReportsTo >= 2),
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo >= 2),
                 entryCount: 8);
 
             AssertSql(
@@ -252,9 +252,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] >= 2))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_lessthan(bool isAsync)
         {
-            await AssertQuery<Employee>(
+            await AssertQuery(
                 isAsync,
-                es => es.Where(e => e.ReportsTo < 2));
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo < 2));
 
             AssertSql(
                 @"SELECT c
@@ -266,9 +266,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] < 2))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_lessthanorequal(bool isAsync)
         {
-            await AssertQuery<Employee>(
+            await AssertQuery(
                 isAsync,
-                es => es.Where(e => e.ReportsTo <= 2),
+                ss => ss.Set<Employee>().Where(e => e.ReportsTo <= 2),
                 entryCount: 5);
 
             AssertSql(
@@ -281,9 +281,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] <= 2))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_string_concat(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID + "END" == "ALFKIEND"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID + "END" == "ALFKIEND"),
                 entryCount: 1);
 
             AssertSql(
@@ -296,9 +296,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] || ""END"")
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_unary_minus(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => -o.OrderID == -10248),
+                ss => ss.Set<Order>().Where(o => -o.OrderID == -10248),
                 entryCount: 1);
 
             AssertSql(
@@ -311,9 +311,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (-(c[""OrderID""]) = -10248))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_bitwise_not(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => ~o.OrderID == -10249),
+                ss => ss.Set<Order>().Where(o => ~o.OrderID == -10249),
                 entryCount: 1);
 
             AssertSql(
@@ -326,10 +326,10 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (~(c[""OrderID""]) = -10249))");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_ternary(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
 #pragma warning disable IDE0029 // Use coalesce expression
-                cs => cs.Where(c => (c.Region != null ? c.Region : "SP") == "BC"),
+                ss => ss.Set<Customer>().Where(c => (c.Region != null ? c.Region : "SP") == "BC"),
 #pragma warning restore IDE0029 // Use coalesce expression
                 entryCount: 2);
 
@@ -343,9 +343,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""Region""] != null) ? c["
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_coalesce(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => (c.Region ?? "SP") == "BC"),
+                ss => ss.Set<Customer>().Where(c => (c.Region ?? "SP") == "BC"),
                 entryCount: 2);
 
             AssertSql(
@@ -369,9 +369,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_as_queryable_expression(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Where(c => c.Orders.AsQueryable().Any(_filter)),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Where(c => c.Orders.AsQueryable().Any(_filter)),
                 entryCount: 1);
 
             AssertSql(
@@ -1773,13 +1773,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = @__p_0))")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_multiple_contains_in_subquery_with_or(bool isAsync)
         {
-            await AssertQuery<OrderDetail, Product, Order>(
+            await AssertQuery(
                 isAsync,
-                (ods, ps, os) =>
-                    ods.Where(od => od.OrderID < 10250).Where(
-                        od =>
-                            ps.OrderBy(p => p.ProductID).Take(1).Select(p => p.ProductID).Contains(od.ProductID)
-                            || os.OrderBy(o => o.OrderID).Take(1).Select(o => o.OrderID).Contains(od.OrderID)),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250).Where(
+                    od => ss.Set<Product>().OrderBy(p => p.ProductID).Take(1).Select(p => p.ProductID).Contains(od.ProductID)
+                        || ss.Set<Order>().OrderBy(o => o.OrderID).Take(1).Select(o => o.OrderID).Contains(od.OrderID)),
                 entryCount: 3);
 
             AssertSql(
@@ -1791,13 +1789,11 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] < 10250))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_multiple_contains_in_subquery_with_and(bool isAsync)
         {
-            await AssertQuery<OrderDetail, Product, Order>(
+            await AssertQuery(
                 isAsync,
-                (ods, ps, os) =>
-                    ods.Where(od => od.OrderID < 10260).Where(
-                        od =>
-                            ps.OrderBy(p => p.ProductID).Take(20).Select(p => p.ProductID).Contains(od.ProductID)
-                            && os.OrderBy(o => o.OrderID).Take(10).Select(o => o.OrderID).Contains(od.OrderID)),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10260).Where(
+                    od => ss.Set<Product>().OrderBy(p => p.ProductID).Take(20).Select(p => p.ProductID).Contains(od.ProductID)
+                        && ss.Set<Order>().OrderBy(o => o.OrderID).Take(10).Select(o => o.OrderID).Contains(od.OrderID)),
                 entryCount: 5);
 
             AssertSql(
@@ -1809,12 +1805,11 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] < 10260))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_contains_on_navigation(bool isAsync)
         {
-            await AssertQuery<Order, Customer>(
+            await AssertQuery(
                 isAsync,
-                (os, cs) => os.Where(o => o.OrderID > 10354 && o.OrderID < 10360)
-                    .Where(
-                        o => cs.Where(c => c.City == "London")
-                            .Any(c => c.Orders.Contains(o))),
+                ss => ss.Set<Order>().Where(o => o.OrderID > 10354 && o.OrderID < 10360)
+                    .Where(o => ss.Set<Customer>().Where(c => c.City == "London")
+                        .Any(c => c.Orders.Contains(o))),
                 entryCount: 2);
 
             AssertSql(
@@ -1826,9 +1821,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 10354) AND (c["
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_FirstOrDefault_is_null(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "PARIS").Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "PARIS").Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
                 entryCount: 1);
 
             AssertSql(
@@ -1840,9 +1835,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""PARIS"")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_FirstOrDefault_compared_to_entity(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Where(
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Where(
                     c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10243 }));
 
             AssertSql(

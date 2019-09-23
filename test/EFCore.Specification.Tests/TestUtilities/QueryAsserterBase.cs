@@ -23,7 +23,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public abstract void AssertCollection<TElement>(
             IEnumerable<TElement> expected,
             IEnumerable<TElement> actual,
-            bool ordered = false);
+            bool ordered = false,
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null);
 
         #region AssertSingleResult
 
@@ -106,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         #region AssertQuery
 
-        public abstract Task AssertQueryTyped<TResult>(
+        public abstract Task AssertQuery<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Func<TResult, object> elementSorter,
@@ -116,42 +118,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool isAsync,
             string testMethodName)
             where TResult : class;
-
-        public abstract Task AssertQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter,
-            Action<dynamic, dynamic> elementAsserter,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class;
-
-        public abstract Task AssertQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter,
-            Action<dynamic, dynamic> elementAsserter,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class;
-
-        public abstract Task AssertQuery<TItem1, TItem2, TItem3>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter,
-            Action<dynamic, dynamic> elementAsserter,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class;
 
         #endregion
 
