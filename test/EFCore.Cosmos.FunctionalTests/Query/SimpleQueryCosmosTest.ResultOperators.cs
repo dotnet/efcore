@@ -109,9 +109,9 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Sum_over_subquery_is_client_eval(bool isAsync)
         {
-            await AssertSum<Customer, Customer>(
+            await AssertSum(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
                 selector: c => c.Orders.Sum(o => o.OrderID));
 
             AssertSql(
@@ -123,9 +123,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Sum_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            await AssertSum<Customer, Customer>(
+            await AssertSum(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c => c.Orders.Sum(
                     o => 5 + o.OrderDetails.Where(od => od.OrderID >= 10250 && od.OrderID <= 10300).Sum(od => od.ProductID)));
 
@@ -138,9 +138,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""CENTC"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Sum_over_min_subquery_is_client_eval(bool isAsync)
         {
-            await AssertSum<Customer, Customer>(
+            await AssertSum(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c => c.Orders.Sum(
                     o => 5 + o.OrderDetails.Where(od => od.OrderID >= 10250 && od.OrderID <= 10300).Min(od => od.ProductID)));
 
@@ -312,9 +312,9 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Average_over_subquery_is_client_eval(bool isAsync)
         {
-            await AssertAverage<Customer, Customer>(
+            await AssertAverage(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
                 selector: c => c.Orders.Where(o => o.OrderID < 10250).Sum(o => o.OrderID));
 
             AssertSql(
@@ -326,9 +326,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Average_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            await AssertAverage<Customer, Customer>(
+            await AssertAverage(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c => (decimal)c.Orders
                     .Average(o => 5 + o.OrderDetails.Where(od => od.OrderID > 10250 && od.OrderID < 10300).Average(od => od.ProductID)));
 
@@ -341,9 +341,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""CENTC"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Average_over_max_subquery_is_client_eval(bool isAsync)
         {
-            await AssertAverage<Customer, Customer>(
+            await AssertAverage(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c => (decimal)c.Orders
                     .Average(o => 5 + o.OrderDetails.Where(od => od.OrderID > 10250 && od.OrderID < 10300).Max(od => od.ProductID)));
 
@@ -441,9 +441,9 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Min_over_subquery_is_client_eval(bool isAsync)
         {
-            await AssertMin<Customer, Customer>(
+            await AssertMin(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
                 selector: c => c.Orders.Sum(o => o.OrderID));
 
             AssertSql(
@@ -455,9 +455,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Min_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            await AssertMin<Customer, Customer>(
+            await AssertMin(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c =>
                     c.Orders.Min(o => 5 + o.OrderDetails.Where(od => od.OrderID > 10250 && od.OrderID < 10300).Min(od => od.ProductID)));
 
@@ -470,9 +470,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""CENTC"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Min_over_max_subquery_is_client_eval(bool isAsync)
         {
-            await AssertMin<Customer, Customer>(
+            await AssertMin(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c =>
                     c.Orders.Min(o => 5 + o.OrderDetails.Where(od => od.OrderID > 10250 && od.OrderID < 10300).Max(od => od.ProductID)));
 
@@ -518,9 +518,9 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (c[""ProductID""] < 40))");
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Max_over_subquery_is_client_eval(bool isAsync)
         {
-            await AssertMax<Customer, Customer>(
+            await AssertMax(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
                 selector: c => c.Orders.Sum(o => o.OrderID));
 
             AssertSql(
@@ -532,9 +532,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Max_over_nested_subquery_is_client_eval(bool isAsync)
         {
-            await AssertMax<Customer, Customer>(
+            await AssertMax(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c =>
                     c.Orders.Max(o => 5 + o.OrderDetails.Where(od => od.OrderID > 10250 && od.OrderID < 10300).Max(od => od.ProductID)));
 
@@ -547,9 +547,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""CENTC"")
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Max_over_sum_subquery_is_client_eval(bool isAsync)
         {
-            await AssertMax<Customer, Customer>(
+            await AssertMax(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "CENTC"),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "CENTC"),
                 selector: c =>
                     c.Orders.Max(o => 5 + o.OrderDetails.Where(od => od.OrderID > 10250 && od.OrderID < 10300).Sum(od => od.ProductID)));
 

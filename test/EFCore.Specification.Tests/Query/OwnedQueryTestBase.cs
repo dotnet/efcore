@@ -70,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task No_ignored_include_warning_when_implicit_load(bool isAsync)
         {
-            return AssertCount<OwnedPerson>(
+            return AssertCount(
                 isAsync,
-                ops => ops);
+                ss => ss.Set<OwnedPerson>());
         }
 
         [ConditionalTheory]
@@ -340,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_loads_reference_nav_automatically_in_projection(bool isAsync)
         {
-            return AssertSingle<Fink>(
+            return AssertSingle(
                 isAsync,
-                fs => fs.Select(e => e.Barton));
+                ss => ss.Set<Fink>().Select(e => e.Barton));
         }
 
         [ConditionalFact]
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     { typeof(OwnedCountry), e => e?.Name },
                     { typeof(Element), e => e?.Id },
                     { typeof(Throned), e => e?.Property },
-                };
+                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
 
                 var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
                 {
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             }
                         }
                     },
-                };
+                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
 
                 QueryAsserter = new QueryAsserter<PoolableDbContext>(
                     CreateContext,
@@ -760,7 +760,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        public class OwnedQueryData : IExpectedData
+        public class OwnedQueryData : ISetSource
         {
             private readonly IReadOnlyList<OwnedPerson> _ownedPeople;
             private readonly IReadOnlyList<Planet> _planets;

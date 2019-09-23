@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public abstract class ISetExtractor
+    public interface ISetSource
     {
-        public abstract IQueryable<TEntity> Set<TEntity>(DbContext context)
+        public IQueryable<TEntity> Set<TEntity>()
             where TEntity : class;
     }
 }

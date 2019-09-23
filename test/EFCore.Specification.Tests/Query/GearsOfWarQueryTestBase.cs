@@ -503,8 +503,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             SquadId = (int?)o.SquadId,
                             o.Nickname
                         },
-                        (t, o) => o).OrderBy(ee => ee.FullName).Include(o => o.Reports).OrderBy(oo => oo.HasSoulPatch),
-                expectedIncludes);
+                        (t, o) => o).OrderBy(ee => ee.FullName).Include(o => o.Reports).OrderBy(oo => oo.HasSoulPatch).ThenByDescending(oo => oo.Nickname),
+                expectedIncludes,
+                assertOrder: true);
         }
 
         [ConditionalTheory]
@@ -733,9 +734,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Bitwise_projects_values_in_select(bool isAsync)
         {
-            return AssertFirst<Gear>(
+            return AssertFirst(
                 isAsync,
-                gs => gs
+                ss => ss.Set<Gear>()
                     .Where(g => (g.Rank & MilitaryRank.Corporal) == MilitaryRank.Corporal)
                     .Select(
                         b => new
@@ -841,9 +842,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_enum_has_flag(bool isAsync)
         {
-            return AssertFirst<Gear>(
+            return AssertFirst(
                 isAsync,
-                gs => gs.Where(g => g.Rank.HasFlag(MilitaryRank.Corporal))
+                ss => ss.Set<Gear>()
+                    .Where(g => g.Rank.HasFlag(MilitaryRank.Corporal))
                     .Select(
                         b => new
                         {
@@ -1513,14 +1515,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_Navigation_Null_Coalesce_To_Clr_Type(bool isAsync)
         {
-            return AssertFirst<Weapon>(
+            return AssertFirst(
                 isAsync,
-                ws => ws.OrderBy(w => w.Id).Select(
+                ss => ss.Set<Weapon>().OrderBy(w => w.Id).Select(
                     w => new Weapon
                     {
                         IsAutomatic = (bool?)w.SynergyWith.IsAutomatic ?? false
                     }),
-                ws => ws.OrderBy(w => w.Id).Select(
+                ss => ss.Set<Weapon>().OrderBy(w => w.Id).Select(
                     w => new Weapon
                     {
                         IsAutomatic = MaybeScalar<bool>(w.SynergyWith, () => w.SynergyWith.IsAutomatic) ?? false
@@ -1684,34 +1686,35 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Concat_with_count(bool isAsync)
         {
-            return AssertCount<Gear>(
+            return AssertCount(
                 isAsync,
-                gs => gs.Concat(gs));
+                ss => ss.Set<Gear>().Concat(ss.Set<Gear>()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Concat_scalars_with_count(bool isAsync)
         {
-            return AssertCount<Gear>(
+            return AssertCount(
                 isAsync,
-                gs => gs.Select(g => g.Nickname).Concat(gs.Select(g2 => g2.FullName)));
+                ss => ss.Set<Gear>().Select(g => g.Nickname).Concat(ss.Set<Gear>().Select(g2 => g2.FullName)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Concat_anonymous_with_count(bool isAsync)
         {
-            return AssertCount<Gear>(
+            return AssertCount(
                 isAsync,
-                gs => gs.Select(
+                ss => ss.Set<Gear>()
+                    .Select(
                         g => new
                         {
                             Gear = g,
                             Name = g.Nickname
                         })
                     .Concat(
-                        gs.Select(
+                        ss.Set<Gear>().Select(
                             g2 => new
                             {
                                 Gear = g2,
@@ -2513,9 +2516,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_all(bool isAsync)
         {
-            return AssertAll<CogTag, CogTag>(
+            return AssertAll(
                 isAsync,
-                ts => ts.Where(t => t.Note != "K.I.A."),
+                ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A."),
                 predicate: t => t.Gear.HasSoulPatch);
         }
 
@@ -2954,12 +2957,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_with_optional_navigation_is_translated_to_sql(bool isAsync)
         {
-            return AssertSum<Gear>(
+            return AssertSum(
                 isAsync,
-                gs => (from g in gs
+                ss => (from g in ss.Set<Gear>()
                        where g.Tag.Note != "Foo"
                        select g.SquadId),
-                gs => (from g in gs
+                ss => (from g in ss.Set<Gear>()
                        where Maybe(g.Tag, () => g.Tag.Note) != "Foo"
                        select g.SquadId));
         }
@@ -2968,12 +2971,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Count_with_optional_navigation_is_translated_to_sql(bool isAsync)
         {
-            return AssertCount<Gear>(
+            return AssertCount(
                 isAsync,
-                gs => (from g in gs
+                ss => (from g in ss.Set<Gear>()
                        where g.Tag.Note != "Foo"
                        select g.HasSoulPatch),
-                gs => (from g in gs
+                ss => (from g in ss.Set<Gear>()
                        where Maybe(g.Tag, () => g.Tag.Note) != "Foo"
                        select g.HasSoulPatch));
         }
@@ -3004,11 +3007,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Count_with_unflattened_groupjoin_is_evaluated_on_client(bool isAsync)
         {
-            return AssertCount<Gear, CogTag>(
+            return AssertCount(
                 isAsync,
-                (gs, ts) => gs
+                ss => ss.Set<Gear>()
                     .GroupJoin(
-                        ts,
+                        ss.Set<CogTag>(),
                         g => new
                         {
                             k1 = g.Nickname,
@@ -3026,14 +3029,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task FirstOrDefault_with_manually_created_groupjoin_is_translated_to_sql(bool isAsync)
         {
-            return AssertFirstOrDefault<Squad, Gear>(
+            return AssertFirstOrDefault(
                 isAsync,
-                (ss, gs) =>
-                    from s in ss
-                    join g in gs on s.Id equals g.SquadId into grouping
-                    from g in grouping.DefaultIfEmpty()
-                    where s.Name == "Kilo"
-                    select s);
+                ss => from s in ss.Set<Squad>()
+                      join g in ss.Set<Gear>() on s.Id equals g.SquadId into grouping
+                      from g in grouping.DefaultIfEmpty()
+                      where s.Name == "Kilo"
+                      select s);
         }
 
         [ConditionalTheory]
@@ -3051,9 +3053,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task All_with_optional_navigation_is_translated_to_sql(bool isAsync)
         {
-            return AssertAll<Gear, Gear>(
+            return AssertAll(
                 isAsync,
-                gs => from g in gs
+                ss => from g in ss.Set<Gear>()
                       select g,
                 predicate: g => g.Tag.Note != "Foo");
         }
@@ -5466,9 +5468,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_with_top_level_Count(bool isAsync)
         {
-            return AssertCount<Gear>(
+            return AssertCount(
                 isAsync,
-                gs => gs.Select(g => g.Weapons));
+                ss => ss.Set<Gear>().Select(g => g.Weapons));
         }
 
         [ConditionalFact]

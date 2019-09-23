@@ -1236,12 +1236,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Count(bool isAsync)
         {
-            await AssertCount<Customer, Order>(
+            await AssertCount(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(ct => ct.City == "London")
-                    from o in os
-                    select c.CustomerID);
+                ss => from c in ss.Set<Customer>().Where(ct => ct.City == "London")
+                      from o in ss.Set<Order>()
+                      select c.CustomerID);
 
             AssertSql(
                 @"SELECT c
@@ -1252,12 +1251,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_LongCount(bool isAsync)
         {
-            await AssertLongCount<Customer, Order>(
+            await AssertLongCount(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(ct => ct.City == "London")
-                    from o in os
-                    select c.CustomerID);
+                ss => from c in ss.Set<Customer>().Where(ct => ct.City == "London")
+                      from o in ss.Set<Order>()
+                      select c.CustomerID);
 
             AssertSql(
                 @"SELECT c
@@ -1515,15 +1513,14 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Take_with_single_select_many(bool isAsync)
         {
-            await AssertSingle<Customer, Order>(
+            await AssertSingle(
                 isAsync,
-                (cs, os) =>
-                    (from c in cs.Where(cu => cu.CustomerID == "ALFKI")
-                     from o in os.Where(or => or.OrderID < 10300)
-                     orderby c.CustomerID, o.OrderID
-                     select new { c, o })
-                    .Take(1)
-                    .Cast<object>(),
+                ss => (from c in ss.Set<Customer>().Where(cu => cu.CustomerID == "ALFKI")
+                       from o in ss.Set<Order>().Where(or => or.OrderID < 10300)
+                       orderby c.CustomerID, o.OrderID
+                       select new { c, o })
+                        .Take(1)
+                        .Cast<object>(),
                 entryCount: 2);
 
             AssertSql(

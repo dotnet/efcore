@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
-    public partial class NorthwindData : IExpectedData
+    public partial class NorthwindData : ISetSource
     {
         private readonly Customer[] _customers;
         private readonly CustomerView[] _customerViews;

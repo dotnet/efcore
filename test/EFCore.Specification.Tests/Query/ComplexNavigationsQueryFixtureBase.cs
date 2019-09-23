@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(InheritanceDerived2), e => e?.Id },
                 { typeof(InheritanceLeaf1), e => e?.Id },
                 { typeof(InheritanceLeaf2), e => e?.Id }
-            };
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
             var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
             {
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 }
-            };
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
             QueryAsserter = new QueryAsserter<ComplexNavigationsContext>(
                 CreateContext,

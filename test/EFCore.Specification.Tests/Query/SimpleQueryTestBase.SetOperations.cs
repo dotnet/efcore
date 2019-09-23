@@ -375,10 +375,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "#16243")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_eval_Union_FirstOrDefault(bool isAsync)
-            => AssertFirstOrDefault<Customer>(
-                isAsync, cs => cs
+            => AssertFirstOrDefault(
+                isAsync,
+                ss => ss.Set<Customer>()
                     .Select(c => ClientSideMethod(c))
-                    .Union(cs));
+                    .Union(ss.Set<Customer>()));
 
         private static Customer ClientSideMethod(Customer c) => c;
 

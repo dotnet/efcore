@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -25,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 { typeof(Employee), e => e?.EmployeeID },
                 { typeof(Product), e => e?.ProductID },
                 { typeof(OrderDetail), e => (e?.OrderID.ToString(), e?.ProductID.ToString()) }
-            };
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>();
+            var entityAsserters = new Dictionary<Type, object>();
 
             QueryAsserter = new QueryAsserter<NorthwindContext>(
                 CreateContext,

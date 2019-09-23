@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 {
-    public class GearsOfWarData : IExpectedData
+    public class GearsOfWarData : ISetSource
     {
         public IReadOnlyList<City> Cities { get; }
         public IReadOnlyList<CogTag> Tags { get; }
