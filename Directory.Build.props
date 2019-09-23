@@ -21,11 +21,12 @@
     <DebugType>portable</DebugType>
     <PackageLicenseUrl Condition="'$(PackageLicenseExpression)' == ''">https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
     <PackageIcon>packageIcon.png</PackageIcon>
+    <PackageIconFullPath>$(MSBuildThisFileDirectory)packageIcon.png</PackageIconFullPath>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="**\*.rd.xml" />
-    <None Include="$(MSBuildThisFileDirectory)packageIcon.png" Pack="true" PackagePath="\"/>
+    <None Include="$(PackageIconFullPath)" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>
