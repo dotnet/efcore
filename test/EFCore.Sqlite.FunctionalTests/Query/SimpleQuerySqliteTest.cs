@@ -993,9 +993,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_year_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).Year));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Year));
 
             AssertSql(
                 @"SELECT CAST(strftime('%Y', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS INTEGER)
@@ -1069,9 +1069,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_millisecond_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
 
             AssertSql(
                 @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS REAL) * 1000.0) % 1000.0
@@ -1109,9 +1109,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_TimeOfDay_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
 
             AssertSql(
                 @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years'), '0'), '.')

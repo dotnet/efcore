@@ -1195,9 +1195,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Indexof_with_emptystring(bool isAsync)
         {
-            return AssertQueryScalar<Customer>(
+            return AssertQueryScalar(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf(string.Empty)));
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf(string.Empty)));
         }
 
         [ConditionalTheory]
@@ -1413,7 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID).Select(c => c.Orders),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
+                elementAsserter: (e, a) => AssertCollection(e, a),
                 entryCount: 830);
         }
 

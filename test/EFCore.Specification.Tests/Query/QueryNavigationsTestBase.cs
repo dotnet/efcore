@@ -356,9 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_Where_Navigation_Included(bool isAsync)
         {
-            return AssertIncludeQuery<Order>(
+            return AssertIncludeQuery(
                 isAsync,
-                os => from o in os.Include(o => o.Customer)
+                ss => from o in ss.Set<Order>().Include(o => o.Customer)
                       where o.Customer.City == "Seattle"
                       select o,
                 new List<IExpectedInclude> { new ExpectedInclude<Order>(o => o.Customer, "Customer") },
@@ -375,9 +375,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new ExpectedInclude<Order>(o => o.Customer, "Customer", "Order")
             };
 
-            return AssertIncludeQuery<OrderDetail>(
+            return AssertIncludeQuery(
                 isAsync,
-                ods => ods
+                ss => ss.Set<OrderDetail>()
                     .Include(od => od.Order.Customer)
                     .Where(od => od.Order.Customer.City == "London"),
                 expectedIncludes,
@@ -583,7 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where od.Order.CustomerID == "ALFKI" || od.Order.CustomerID == "ANTON"
                       select new { od.Order.Customer.Orders },
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection<Order>(e.Orders, a.Orders),
+                elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders),
                 entryCount: 13);
         }
 
@@ -604,10 +604,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Collection_select_nav_prop_predicate(bool isAsync)
         {
-            return AssertQueryScalar<Customer>(
+            return AssertQueryScalar(
                 isAsync,
-                cs => cs.Select(c => c.Orders.Count > 0),
-                cs => cs.Select(c => (c.Orders ?? new List<Order>()).Count > 0));
+                ss => ss.Set<Customer>().Select(c => c.Orders.Count > 0),
+                ss => ss.Set<Customer>().Select(c => (c.Orders ?? new List<Order>()).Count > 0));
         }
 
         [ConditionalTheory]
@@ -1095,8 +1095,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                       group o by o.Customer.City
                       into og
                       select og,
-                elementSorter: GroupingSorter<string, Order>(),
-                elementAsserter: GroupingAsserter<string, Order>(o => o.OrderID, (e, a) => Assert.Equal(e.OrderID, a.OrderID)),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) => AssertGrouping(e, a),
                 entryCount: 830);
         }
 
@@ -1109,14 +1109,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from od in ss.Set<OrderDetail>()
                       where od.Order.CustomerID == "ALFKI"
                       group od by od.Quantity,
-                elementSorter: GroupingSorter<short, OrderDetail>(),
-                elementAsserter: GroupingAsserter<short, OrderDetail>(
-                    e => e.OrderID + " " + e.ProductID,
-                    (e, a) =>
-                    {
-                        Assert.Equal(e.OrderID, a.OrderID);
-                        Assert.Equal(e.ProductID, a.ProductID);
-                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) => AssertGrouping(e, a),
                 entryCount: 12);
         }
 
@@ -1131,14 +1125,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                       group od by customer
                       into odg
                       select odg,
-                elementSorter: GroupingSorter<string, OrderDetail>(),
-                elementAsserter: GroupingAsserter<string, OrderDetail>(
-                    e => e.OrderID + " " + e.ProductID,
-                    (e, a) =>
-                    {
-                        Assert.Equal(e.OrderID, a.OrderID);
-                        Assert.Equal(e.ProductID, a.ProductID);
-                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) => AssertGrouping(e, a),
                 entryCount: 2155);
         }
 
@@ -1248,11 +1236,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_groupjoin_with_orderby_key_descending(bool isAsync)
         {
-            return AssertQueryScalar<Customer, Order>(
+            return AssertQueryScalar(
                 isAsync,
-                (cs, os) =>
-                    from c in cs
-                    join o in os on c.CustomerID equals o.CustomerID into grouping
+                ss =>
+                    from c in ss.Set<Customer>()
+                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
                     where c.CustomerID.StartsWith("A")
                     orderby c.CustomerID descending
                     select grouping.Count());
@@ -1293,9 +1281,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby c.CustomerID
                       select grouping.Select(o => o.OrderDetails).ToList(),
                 assertOrder: true,
-                elementAsserter: CollectionAsserter<dynamic>(
-                    elementSorter: e => CollectionSorter<OrderDetail>(),
-                    elementAsserter: (ee, aa) => AssertCollection<OrderDetail>(ee, aa)));
+                elementAsserter: (e, a) => AssertCollection(e, a, elementAsserter: (ee, aa) => AssertCollection(ee, aa)));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -1313,11 +1299,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(e.c.CustomerID, a.c.CustomerID);
-
-                    CollectionAsserter<dynamic>(
-                        elementSorter: e => CollectionSorter<OrderDetail>(),
-                        elementAsserter: (ee, aa) => AssertCollection<OrderDetail>(ee, aa))(e.G, a.G);
+                    AssertEqual(e.c, a.c);
+                    AssertCollection(e.G, a.G);
                 },
                 entryCount: 4);
         }

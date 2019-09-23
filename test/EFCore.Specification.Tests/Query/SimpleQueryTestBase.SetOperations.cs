@@ -63,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Except_simple_followed_by_projecting_constant(bool isAsync)
         {
-            return AssertQueryScalar<Customer>(
-                isAsync, cs => cs
-                    .Except(cs)
+            return AssertQueryScalar(
+                isAsync, ss => ss.Set<Customer>()
+                    .Except(ss.Set<Customer>())
                     .Select(e => 1));
         }
 
