@@ -63,9 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var shaperLambda = (LambdaExpression)shaper;
 
             return Expression.New(
-                (IsAsync
-                    ? typeof(AsyncQueryingEnumerable<>)
-                    : typeof(QueryingEnumerable<>)).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                 Expression.Constant(RelationalDependencies.QuerySqlGeneratorFactory),
                 Expression.Constant(RelationalDependencies.SqlExpressionFactory),
