@@ -8,6 +8,7 @@
     <dependencies>
       <group targetFramework=".NETCoreApp2.1" />
     </dependencies>
+    <icon>packageIcon.png</icon>
   </metadata>
 
   <files>
