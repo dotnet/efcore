@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -5617,8 +5618,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Customers.Select(c => InstanceMethod(c)).ToList());
+                Assert.Equal(
+                    CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
+                        GetType().DisplayName(),
+                        nameof(InstanceMethod)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.Select(c => InstanceMethod(c)).ToList()).Message);
             }
         }
 
@@ -5629,8 +5634,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Customers.Select(c => StaticMethod(this, c)).ToList());
+                Assert.Equal(
+                    CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
+                        GetType().DisplayName(),
+                        nameof(StaticMethod)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.Select(c => StaticMethod(this, c)).ToList()).Message);
             }
         }
 
@@ -5641,8 +5650,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Customers.Select(c => new { A = this }).ToList());
+                Assert.Equal(
+                    CoreStrings.ClientProjectionCapturingConstantInTree(
+                        GetType().DisplayName()),
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.Customers.Select(c => new { A = this }).ToList()).Message);
             }
         }
 
