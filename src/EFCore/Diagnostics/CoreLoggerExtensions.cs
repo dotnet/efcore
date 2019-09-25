@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
@@ -1219,14 +1218,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     new TwoPropertyBaseCollectionsEventData(
                         definition,
                         RequiredAttributeOnBothNavigations,
-                        new[]
-                        {
-                            firstNavigation
-                        },
-                        new[]
-                        {
-                            secondNavigation
-                        }));
+                        new[] { firstNavigation },
+                        new[] { secondNavigation }));
             }
         }
 
@@ -1275,14 +1268,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     new TwoPropertyBaseCollectionsEventData(
                         definition,
                         NonNullableReferenceOnBothNavigations,
-                        new[]
-                        {
-                            firstNavigation
-                        },
-                        new[]
-                        {
-                            secondNavigation
-                        }));
+                        new[] { firstNavigation },
+                        new[] { secondNavigation }));
             }
         }
 
@@ -1488,14 +1475,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     new TwoPropertyBaseCollectionsEventData(
                         definition,
                         MultiplePrimaryKeyCandidates,
-                        new[]
-                        {
-                            firstProperty
-                        },
-                        new[]
-                        {
-                            secondProperty
-                        }));
+                        new[] { firstProperty },
+                        new[] { secondProperty }));
             }
         }
 
@@ -1592,10 +1573,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         definition,
                         MultipleInversePropertiesSameTargetWarning,
                         conflictingNavigations,
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(inverseNavigation, targetType)
-                        }));
+                        new[] { new Tuple<MemberInfo, Type>(inverseNavigation, targetType) }));
             }
         }
 
@@ -1648,10 +1626,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
                         NonDefiningInverseNavigationWarning,
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType)
-                        },
+                        new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
                         new[]
                         {
                             new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
@@ -1714,10 +1689,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     new TwoUnmappedPropertyCollectionsEventData(
                         definition,
                         NonOwnershipInverseNavigationWarning,
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType)
-                        },
+                        new[] { new Tuple<MemberInfo, Type>(navigation, declaringType.ClrType) },
                         new[]
                         {
                             new Tuple<MemberInfo, Type>(inverseNavigation, targetType.ClrType),
@@ -1843,14 +1815,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     new TwoPropertyBaseCollectionsEventData(
                         definition,
                         ForeignKeyAttributesOnBothNavigationsWarning,
-                        new[]
-                        {
-                            firstNavigation
-                        },
-                        new[]
-                        {
-                            secondNavigation
-                        }));
+                        new[] { firstNavigation },
+                        new[] { secondNavigation }));
             }
         }
 
@@ -1903,10 +1869,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                         {
                             new Tuple<MemberInfo, Type>(navigation.GetIdentifyingMemberInfo(), navigation.DeclaringEntityType.ClrType)
                         },
-                        new[]
-                        {
-                            new Tuple<MemberInfo, Type>(property, property.DeclaringType)
-                        }));
+                        new[] { new Tuple<MemberInfo, Type>(property, property.DeclaringType) }));
             }
         }
 

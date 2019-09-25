@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that configures the principal side of the relationship as required if the
-    ///     <see cref="RequiredAttribute"/> is applied on the navigation property to the principal entity type 
+    ///     <see cref="RequiredAttribute" /> is applied on the navigation property to the principal entity type.
     /// </summary>
     public class RequiredNavigationAttributeConvention : NavigationAttributeConventionBase<RequiredAttribute>
     {

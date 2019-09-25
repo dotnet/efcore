@@ -82,12 +82,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (shouldBeOwned == true
-                && entityType != null
-                && !entityType.IsOwned()
-                && configurationSource == ConfigurationSource.Explicit
-                && entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                && entityType != null)
             {
-                throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+                if (!entityType.IsOwned()
+                    && configurationSource == ConfigurationSource.Explicit
+                    && entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+                }
+
+                foreach (var derivedType in entityType.GetDerivedTypes())
+                {
+                    if (!derivedType.IsOwned()
+                        && configurationSource == ConfigurationSource.Explicit
+                        && derivedType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ClashingNonOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()));
+                    }
+                }
             }
 
             if (entityType != null)
@@ -602,7 +615,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionModelBuilder IConventionModelBuilder.HasNoEntityType(IConventionEntityType entityType, bool fromDataAnnotation)
-            => HasNoEntityType((EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => HasNoEntityType(
+                (EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

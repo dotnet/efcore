@@ -300,4 +300,10 @@
   <data name="WorkingDirDescription" xml:space="preserve">
     <value>The working directory of the tool invoking this command.</value>
   </data>
+  <data name="BuildStarted" xml:space="preserve">
+    <value>Build started...</value>
+  </data>
+  <data name="BuildSucceeded" xml:space="preserve">
+    <value>Build succeeded.</value>
+  </data>
 </root>

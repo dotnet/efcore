@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     {
         private static readonly OrdersFixture _fixture
             = new OrdersFixture("Perf_Query_Funcletization_EF6", 100, 0, 0, 0);
+
         private const int _funcletizationIterationCount = 100;
 
         private OrdersContext _context;

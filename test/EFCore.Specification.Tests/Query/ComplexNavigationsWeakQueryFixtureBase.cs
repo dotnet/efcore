@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected ComplexNavigationsWeakQueryFixtureBase()
         {
-            QueryAsserter.SetExtractor = new ComplexNavigationsWeakSetExtractor();
+            QueryAsserter.SetSourceCreator = ctx => new ComplexNavigationsWeakSetExtractor(ctx);
             QueryAsserter.ExpectedData = new ComplexNavigationsWeakData();
         }
 
@@ -236,26 +236,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override void Seed(ComplexNavigationsContext context)
             => ComplexNavigationsData.Seed(context, tableSplitting: true);
 
-        private class ComplexNavigationsWeakSetExtractor : ISetExtractor
+        private class ComplexNavigationsWeakSetExtractor : ISetSource
         {
-            public override IQueryable<TEntity> Set<TEntity>(DbContext context)
+            private readonly DbContext _context;
+
+            public ComplexNavigationsWeakSetExtractor(DbContext context)
+            {
+                _context = context;
+            }
+
+            public IQueryable<TEntity> Set<TEntity>()
+                where TEntity : class
             {
                 if (typeof(TEntity) == typeof(Level1))
                 {
-                    return (IQueryable<TEntity>)GetLevelOne(context);
+                    return (IQueryable<TEntity>)GetLevelOne(_context);
                 }
 
                 if (typeof(TEntity) == typeof(Level2))
                 {
-                    return (IQueryable<TEntity>)GetLevelTwo(context);
+                    return (IQueryable<TEntity>)GetLevelTwo(_context);
                 }
 
                 if (typeof(TEntity) == typeof(Level3))
                 {
-                    return (IQueryable<TEntity>)GetLevelThree(context);
+                    return (IQueryable<TEntity>)GetLevelThree(_context);
                 }
 
-                return typeof(TEntity) == typeof(Level4) ? (IQueryable<TEntity>)GetLevelFour(context) : context.Set<TEntity>();
+                return typeof(TEntity) == typeof(Level4) ? (IQueryable<TEntity>)GetLevelFour(_context) : _context.Set<TEntity>();
             }
 
             private static IQueryable<Level1> GetLevelOne(DbContext context)

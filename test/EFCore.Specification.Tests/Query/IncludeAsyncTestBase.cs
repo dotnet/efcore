@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(91, customers.Count);
                 Assert.Equal(830, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
                 Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(5, customers.Count);
                 Assert.Equal(48, customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).Count());
                 Assert.True(customers.Where(c => c.Orders != null).SelectMany(c => c.Orders).All(o => o.Customer != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Equal(455, customers.Count);
                 Assert.Equal(4150, customers.SelectMany(c => c.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -306,14 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = await (from c in context.Set<Customer>().Include(c => c.Orders)
                              join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
                              where c.CustomerID == "ALFKI"
-                             select new
-                             {
-                                 c,
-                                 g
-                             })
+                             select new { c, g })
                         .ToListAsync();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(6, customers.SelectMany(c => c.c.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.c.Orders).All(o => o.Customer != null));
                 Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
@@ -330,14 +326,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                              join o in context.Set<Order>().Include(o => o.OrderDetails)
                                  on c.CustomerID equals o.CustomerID into g
                              where c.CustomerID == "ALFKI"
-                             select new
-                             {
-                                 c,
-                                 g
-                             })
+                             select new { c, g })
                         .ToListAsync();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(6, customers.SelectMany(c => c.g).Count());
                 Assert.True(customers.SelectMany(c => c.g).SelectMany(o => o.OrderDetails).All(od => od.Order != null));
                 Assert.Equal(1 + 6 + 12, context.ChangeTracker.Entries().Count());
@@ -355,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                              group c by c.City)
                         .ToListAsync();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(6, customers.SelectMany(c => c.Single().Orders).Count());
                 Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
             }
@@ -406,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = await context.Set<Customer>()
                         .SingleAsync(c => c.CustomerID == "ALFKI");
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 var customer2
                     = await context.Set<Customer>()
@@ -429,7 +421,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = await context.Set<Customer>()
                         .SingleAsync(c => c.CustomerID == "ALFKI");
 
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
 
                 var customer2
                     = await context.Set<Customer>()
@@ -440,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.Null(customer1.Orders);
                 Assert.Equal(6, customer2.Orders.Count);
                 Assert.True(customer2.Orders.All(o => o.Customer != null));
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Single(context.ChangeTracker.Entries());
             }
         }
 
@@ -470,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToListAsync();
 
                 Assert.Equal(91, productIds.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -485,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Where(c => c.CustomerID == "ALFKI")
                         .ToListAsync();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(6, customers.SelectMany(c => c.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
                 Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
@@ -503,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Include(c => c.Orders)
                         .ToListAsync();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(6, customers.SelectMany(c => c.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.Orders).All(o => o.Customer != null));
                 Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
@@ -525,11 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(c => c.CustomerID)
                                  .Skip(2)
                                  .Take(2)
-                             select new
-                             {
-                                 c1,
-                                 c2
-                             })
+                             select new { c1, c2 })
                         .ToListAsync();
 
                 Assert.Equal(4, customers.Count);
@@ -556,15 +544,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(c => c.CustomerID)
                                  .Skip(2)
                                  .Take(2)
-                             select new
-                             {
-                                 c1,
-                                 c2
-                             })
+                             select new { c1, c2 })
                         .Take(1)
                         .ToListAsync();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(6, customers.SelectMany(c => c.c1.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.c1.Orders).All(o => o.Customer != null));
                 Assert.Equal(7, customers.SelectMany(c => c.c2.Orders).Count());
@@ -587,15 +571,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(c => c.CustomerID)
                                  .Skip(2)
                                  .Take(2)
-                             select new
-                             {
-                                 c1,
-                                 c2
-                             })
+                             select new { c1, c2 })
                         .Take(1)
                         .ToListAsync();
 
-                Assert.Equal(1, customers.Count);
+                Assert.Single(customers);
                 Assert.Equal(6, customers.SelectMany(c => c.c1.Orders).Count());
                 Assert.True(customers.SelectMany(c => c.c1.Orders).All(o => o.Customer != null));
                 Assert.True(customers.All(c => c.c2.Orders == null));
@@ -620,18 +600,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .ThenBy(o => o.OrderID)
                                  .Skip(2)
                                  .Take(2)
-                             select new
-                             {
-                                 o1,
-                                 o2
-                             })
+                             select new { o1, o2 })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
                 Assert.True(orders.All(o => o.o1.Customer != null));
                 Assert.True(orders.All(o => o.o2.Customer != null));
-                Assert.Equal(1, orders.Select(o => o.o1.Customer).Distinct().Count());
-                Assert.Equal(1, orders.Select(o => o.o2.Customer).Distinct().Count());
+                Assert.Single(orders.Select(o => o.o1.Customer).Distinct());
+                Assert.Single(orders.Select(o => o.o2.Customer).Distinct());
                 Assert.Equal(5, context.ChangeTracker.Entries().Count());
             }
         }
@@ -650,11 +626,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .OrderBy(o => o.OrderID)
                                  .Skip(2)
                                  .Take(2)
-                             select new
-                             {
-                                 o1,
-                                 o2
-                             })
+                             select new { o1, o2 })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
@@ -679,11 +651,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                  .Include(o => o.Customer)
                                  .Skip(2)
                                  .Take(2)
-                             select new
-                             {
-                                 o1,
-                                 o2
-                             })
+                             select new { o1, o2 })
                         .ToListAsync();
 
                 Assert.Equal(4, orders.Count);
@@ -884,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(830, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -937,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .ToListAsync();
 
                 Assert.Equal(830, orders.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -954,7 +922,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(6, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
-                Assert.Equal(1, orders.Select(o => o.Customer).Distinct().Count());
+                Assert.Single(orders.Select(o => o.Customer).Distinct());
                 Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
             }
         }
@@ -972,7 +940,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal(6, orders.Count);
                 Assert.True(orders.All(o => o.Customer != null));
-                Assert.Equal(1, orders.Select(o => o.Customer).Distinct().Count());
+                Assert.Single(orders.Select(o => o.Customer).Distinct());
                 Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());
             }
         }

@@ -63,7 +63,7 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
                     .Where(c => EF.Functions.FreeText(c.Title, "Representative"))
                     .ToListAsync();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
+                Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -89,7 +89,7 @@ WHERE FREETEXT([c].[Title], N'Representative')");
                     .Where(c => EF.Functions.FreeText(c.Title, "Representative Sales"))
                     .Count();
 
-                Assert.Equal(result, 9);
+                Assert.Equal(9, result);
 
                 AssertSql(
                     @"SELECT COUNT(*)
@@ -106,7 +106,7 @@ WHERE FREETEXT([c].[Title], N'Representative Sales')");
             {
                 var result = context.Employees.SingleOrDefault(c => EF.Functions.FreeText(c.Title, "President", 1033));
 
-                Assert.Equal(result.EmployeeID, 2u);
+                Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
                     @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -125,7 +125,7 @@ WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
                     .Where(c => EF.Functions.FreeText(c.Title, "Representative President", 1033))
                     .ToList();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
+                Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -146,7 +146,7 @@ WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
                              && EF.Functions.FreeText(c.Title, "Manager", 1033))
                     .FirstOrDefault();
 
-                Assert.Equal(result.EmployeeID, 5u);
+                Assert.Equal(5u, result.EmployeeID);
 
                 AssertSql(
                     @"SELECT TOP(1) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -179,7 +179,7 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
                              && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
-                Assert.Equal(result.EmployeeID, 8u);
+                Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -202,7 +202,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
                              && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
-                Assert.Equal(result.EmployeeID, 8u);
+                Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -310,7 +310,7 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                     .Where(c => EF.Functions.Contains(c.Title, "Representative"))
                     .ToListAsync();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
+                Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -327,7 +327,7 @@ WHERE CONTAINS([c].[Title], N'Representative')");
             {
                 var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", 1033));
 
-                Assert.Equal(result.EmployeeID, 2u);
+                Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
                     @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -405,7 +405,7 @@ WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
                     .LastOrDefault();
 
                 Assert.NotNull(result);
-                Assert.Equal(result.EmployeeID, 8u);
+                Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
                     @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
@@ -571,7 +571,7 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
                     .Select(c => EF.Functions.IsDate(c.CustomerID))
                     .FirstOrDefault();
 
-                Assert.Equal(actual, false);
+                Assert.False(actual);
 
                 AssertSql(
                     @"SELECT TOP(1) CAST(ISDATE([o].[CustomerID]) AS bit)
@@ -591,13 +591,12 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
                     .Select(c => EF.Functions.IsDate(c.OrderDate.Value.ToString()))
                     .FirstOrDefault();
 
-                Assert.Equal(actual, true);
+                Assert.True(actual);
 
                 AssertSql(
                     @"SELECT TOP(1) CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
 FROM [Orders] AS [o]
 WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
-
             }
         }
 

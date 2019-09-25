@@ -126,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A foreign key references a missing table at the principal end.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
-        public static readonly EventId ForeignKeyReferencesMissingPrincipalTableWarning = MakeScaffoldingId(Id.ForeignKeyReferencesMissingPrincipalTableWarning);
+        public static readonly EventId ForeignKeyReferencesMissingPrincipalTableWarning =
+            MakeScaffoldingId(Id.ForeignKeyReferencesMissingPrincipalTableWarning);
 
         /// <summary>
         ///     A table was found.
@@ -168,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A principal column referenced by a foreign key was not found.
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
-        public static readonly EventId ForeignKeyPrincipalColumnMissingWarning = MakeScaffoldingId(Id.ForeignKeyPrincipalColumnMissingWarning);
+        public static readonly EventId ForeignKeyPrincipalColumnMissingWarning =
+            MakeScaffoldingId(Id.ForeignKeyPrincipalColumnMissingWarning);
 
         /// <summary>
         ///     A reflexive foreign key constraint was skipped.

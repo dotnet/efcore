@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="loggingOptions"> Logging options. </param>
         /// <param name="eventId"> The <see cref="Microsoft.Extensions.Logging.EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
-        /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/>. </param>
+        /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />. </param>
         protected EventDefinitionBase(
             [NotNull] ILoggingOptions loggingOptions,
             EventId eventId,
@@ -47,9 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 var behavior = warningsConfiguration.GetBehavior(eventId);
                 _warningBehavior = behavior ?? (level == LogLevel.Warning
-                        && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
-                        ? WarningBehavior.Throw
-                        : WarningBehavior.Log);
+                                                && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
+                                       ? WarningBehavior.Throw
+                                       : WarningBehavior.Log);
             }
             else
             {
@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual LogLevel Level { [DebuggerStepThrough] get; }
 
         /// <summary>
-        ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/> to suppress this event as an error.
+        ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" /> to suppress this event
+        ///     as an error.
         /// </summary>
         public virtual string EventIdCode { get; }
 
@@ -99,10 +100,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             private string _message;
 
-            public string Message {
+            public string Message
+            {
                 get => _message ?? throw new InvalidOperationException();
                 private set => _message = value;
             }
+
             void ILogger.Log<TState>(
                 LogLevel logLevel,
                 EventId eventId,

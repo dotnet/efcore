@@ -122,13 +122,15 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
             }
         }
 
-        [SingleRunJob, Description("AutoDetectChanges=True")]
+        [SingleRunJob]
+        [Description("AutoDetectChanges=True")]
         public class ChildVariationsWithAutoDetectChangesOn : ChildVariations
         {
             protected override bool AutoDetectChanges => true;
         }
 
-        [SingleRunJob, Description("AutoDetectChanges=True")]
+        [SingleRunJob]
+        [Description("AutoDetectChanges=True")]
         public class ParentVariationsWithAutoDetectChangesOn : ParentVariations
         {
             protected override bool AutoDetectChanges => true;

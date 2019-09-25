@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var options = Fixture.AddOptions(
                     new DbContextOptionsBuilder().UseSqlite(TestStore.ConnectionString)
-                    .ConfigureWarnings(w => w.Log(RelationalEventId.AmbientTransactionWarning)))
+                        .ConfigureWarnings(w => w.Log(RelationalEventId.AmbientTransactionWarning)))
                 .UseInternalServiceProvider(Fixture.ServiceProvider);
 
             return new DbContext(options.Options);

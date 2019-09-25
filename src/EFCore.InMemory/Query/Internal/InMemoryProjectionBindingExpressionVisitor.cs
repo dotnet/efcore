@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -20,8 +20,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private InMemoryQueryExpression _queryExpression;
         private bool _clientEval;
+
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
+
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         public InMemoryProjectionBindingExpressionVisitor(
@@ -250,6 +252,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     {
                         return null;
                     }
+
                     _projectionMembers.Pop();
                 }
             }

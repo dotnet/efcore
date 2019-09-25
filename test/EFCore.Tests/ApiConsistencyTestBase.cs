@@ -62,36 +62,36 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual Dictionary<Type, (Type Mutable, Type Convention)> MetadataTypes
             => new Dictionary<Type, (Type, Type)>();
 
-        private static readonly HashSet<Type> _ignoredMetadataReturnTypes = new HashSet<Type>()
-            {
-                typeof(bool),
-                typeof(bool?),
-                typeof(int),
-                typeof(int?),
-                typeof(string),
-                typeof(object),
-                typeof(Type),
-                typeof(DeleteBehavior),
-                typeof(ValueGenerated),
-                typeof(PropertyAccessMode),
-                typeof(PropertySaveBehavior),
-                typeof(ChangeTrackingStrategy),
-                typeof(ValueComparer),
-                typeof(ValueConverter),
-                typeof(Func<IProperty, IEntityType, ValueGenerator>),
-                typeof(IClrCollectionAccessor),
-                typeof(IClrPropertyGetter),
-                typeof(IClrPropertySetter),
-                typeof(LambdaExpression),
-                typeof(ServiceParameterBinding),
-                typeof(PropertyInfo),
-                typeof(FieldInfo),
-                typeof(MemberInfo),
-                typeof(CoreTypeMapping),
-                typeof(IAnnotation),
-                typeof(IEnumerable<IAnnotation>),
-                typeof(IEnumerable<IDictionary<string, object>>)
-            };
+        private static readonly HashSet<Type> _ignoredMetadataReturnTypes = new HashSet<Type>
+        {
+            typeof(bool),
+            typeof(bool?),
+            typeof(int),
+            typeof(int?),
+            typeof(string),
+            typeof(object),
+            typeof(Type),
+            typeof(DeleteBehavior),
+            typeof(ValueGenerated),
+            typeof(PropertyAccessMode),
+            typeof(PropertySaveBehavior),
+            typeof(ChangeTrackingStrategy),
+            typeof(ValueComparer),
+            typeof(ValueConverter),
+            typeof(Func<IProperty, IEntityType, ValueGenerator>),
+            typeof(IClrCollectionAccessor),
+            typeof(IClrPropertyGetter),
+            typeof(IClrPropertySetter),
+            typeof(LambdaExpression),
+            typeof(ServiceParameterBinding),
+            typeof(PropertyInfo),
+            typeof(FieldInfo),
+            typeof(MemberInfo),
+            typeof(CoreTypeMapping),
+            typeof(IAnnotation),
+            typeof(IEnumerable<IAnnotation>),
+            typeof(IEnumerable<IDictionary<string, object>>)
+        };
 
         protected virtual HashSet<Type> IgnoredMetadataReturnTypes => _ignoredMetadataReturnTypes;
 
@@ -99,22 +99,23 @@ namespace Microsoft.EntityFrameworkCore
         public void Mutable_metadata_types_have_matching_methods()
         {
             var errors =
-                MetadataTypes.Select(typeTuple =>
-                    from readonlyMethod in typeTuple.Key.GetMethods(PublicInstance | BindingFlags.Static)
-                    where readonlyMethod.Name != "get_Item"
-                        && readonlyMethod.Name != "FindRuntimeEntityType"
-                        && readonlyMethod.Name != "GetConcreteDerivedTypesInclusive"
-                        && readonlyMethod.Name != "GetClosestCommonParent"
-                        && readonlyMethod.Name != "LeastDerivedType"
-                        && readonlyMethod.Name != "GetAllBaseTypesInclusive"
-                        && readonlyMethod.Name != "GetAllBaseTypesInclusiveAscending"
-                    join mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
-                        on readonlyMethod.Name equals mutableMethod.Name into mutableGroup
-                    from mutableMethod in mutableGroup.DefaultIfEmpty()
-                    select (readonlyMethod, mutableMethod))
-                .SelectMany(m => m.Select(MatchMutable))
-                .Where(e => e != null)
-                .ToList();
+                MetadataTypes.Select(
+                        typeTuple =>
+                            from readonlyMethod in typeTuple.Key.GetMethods(PublicInstance | BindingFlags.Static)
+                            where readonlyMethod.Name != "get_Item"
+                                  && readonlyMethod.Name != "FindRuntimeEntityType"
+                                  && readonlyMethod.Name != "GetConcreteDerivedTypesInclusive"
+                                  && readonlyMethod.Name != "GetClosestCommonParent"
+                                  && readonlyMethod.Name != "LeastDerivedType"
+                                  && readonlyMethod.Name != "GetAllBaseTypesInclusive"
+                                  && readonlyMethod.Name != "GetAllBaseTypesInclusiveAscending"
+                            join mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
+                                on readonlyMethod.Name equals mutableMethod.Name into mutableGroup
+                            from mutableMethod in mutableGroup.DefaultIfEmpty()
+                            select (readonlyMethod, mutableMethod))
+                    .SelectMany(m => m.Select(MatchMutable))
+                    .Where(e => e != null)
+                    .ToList();
 
             Assert.False(
                 errors.Count > 0,
@@ -142,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (mutableMethod.ReturnType != expectedReturnTypes.Mutable)
                     {
-                        return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have {expectedReturnTypes.Mutable} return type";
+                        return
+                            $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have {expectedReturnTypes.Mutable} return type";
                     }
                 }
                 else
@@ -153,7 +155,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         if (mutableMethod.ReturnType.TryGetSequenceType() != expectedReturnTypes.Mutable)
                         {
-                            return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
+                            return
+                                $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
                         }
                     }
                 }
@@ -166,19 +169,20 @@ namespace Microsoft.EntityFrameworkCore
         public void Convention_metadata_types_have_matching_methods()
         {
             var errors =
-                MetadataTypes.Select(typeTuple =>
-                    from mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
-                    where !mutableMethod.Name.StartsWith("set_")
-                        && mutableMethod.Name != "get_Item"
-                        && mutableMethod.Name != "RemoveIgnored"
-                        && mutableMethod.Name != "GetContainingPrimaryKey"
-                    join conventionMethod in typeTuple.Value.Convention.GetMethods(PublicInstance | BindingFlags.Static)
-                        on mutableMethod.Name equals conventionMethod.Name into conventionGroup
-                    from conventionMethod in conventionGroup.DefaultIfEmpty()
-                    select (mutableMethod, conventionMethod))
-                .SelectMany(m => m.Select(MatchConvention))
-                .Where(e => e != null)
-                .ToList();
+                MetadataTypes.Select(
+                        typeTuple =>
+                            from mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
+                            where !mutableMethod.Name.StartsWith("set_")
+                                  && mutableMethod.Name != "get_Item"
+                                  && mutableMethod.Name != "RemoveIgnored"
+                                  && mutableMethod.Name != "GetContainingPrimaryKey"
+                            join conventionMethod in typeTuple.Value.Convention.GetMethods(PublicInstance | BindingFlags.Static)
+                                on mutableMethod.Name equals conventionMethod.Name into conventionGroup
+                            from conventionMethod in conventionGroup.DefaultIfEmpty()
+                            select (mutableMethod, conventionMethod))
+                    .SelectMany(m => m.Select(MatchConvention))
+                    .Where(e => e != null)
+                    .ToList();
 
             Assert.False(
                 errors.Count > 0,
@@ -206,7 +210,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (conventionMethod.ReturnType != expectedReturnType)
                     {
-                        return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have {expectedReturnType} return type";
+                        return
+                            $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have {expectedReturnType} return type";
                     }
                 }
                 else
@@ -217,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         if (conventionMethod.ReturnType.TryGetSequenceType() != expectedReturnType)
                         {
-                            return $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnType}>.";
+                            return
+                                $"{conventionMethod.DeclaringType.Name}.{conventionMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnType}>.";
                         }
                     }
                 }
@@ -237,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore
                 = (from sd in serviceCollection
                    where sd.ServiceType.Namespace.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
                          && sd.ServiceType != typeof(IDiagnosticsLogger<>)
-                             && sd.ServiceType != typeof(LoggingDefinitions)
+                         && sd.ServiceType != typeof(LoggingDefinitions)
                    let it = TryGetImplementationType(sd)
                    where !it.IsInterface
                    let ns = it.Namespace
@@ -391,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
             var asyncMethodsWithoutToken
                 = (from method in asyncMethods
                    where !withoutCancellationToken.Contains(method.DeclaringType.Name + "." + method.Name)
-                       && method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
+                         && method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
                    select method).ToList();
 
             var missingOverloads
@@ -424,12 +430,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Public_api_bool_parameters_should_not_be_prefixed()
         {
-            var prefixes = new[]
-            {
-                "is",
-                "can",
-                "has"
-            };
+            var prefixes = new[] { "is", "can", "has" };
 
             var parameters = (
                     from type in GetAllTypes(TargetAssembly.GetExportedTypes())

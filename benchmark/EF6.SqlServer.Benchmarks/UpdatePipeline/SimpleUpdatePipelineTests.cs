@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
         {
             protected static readonly OrdersFixture _fixture
                 = new OrdersFixture("Perf_UpdatePipeline_Simple_EF6", 0, 1000, 0, 0);
+
             protected OrdersContext _context;
             private DbContextTransaction _transaction;
             private int _recordsAffected = -1;

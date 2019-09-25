@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -22,14 +22,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             return _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Convert(
-                        _sqlExpressionFactory.Function(
+                    _sqlExpressionFactory.Function(
                         "ISDATE",
-                        new[]
-                        {
-                            arguments[1]
-                        },
+                        new[] { arguments[1] },
                         _methodInfo.ReturnType),
-                  _methodInfo.ReturnType)
+                    _methodInfo.ReturnType)
                 : null;
         }
     }

@@ -254,8 +254,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] >= 2))");
         {
             await AssertQuery<Employee>(
                 isAsync,
-                es => es.Where(e => e.ReportsTo < 2),
-                entryCount: 0);
+                es => es.Where(e => e.ReportsTo < 2));
 
             AssertSql(
                 @"SELECT c
@@ -1844,10 +1843,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""PARIS"")
             await AssertQuery<Customer>(
                 isAsync,
                 cs => cs.Where(c => c.CustomerID == "ALFKI").Where(
-                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order
-                    {
-                        OrderID = 10243
-                    }));
+                    c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == new Order { OrderID = 10243 }));
 
             AssertSql(
                 @"SELECT c
@@ -1887,6 +1883,18 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
         public override Task Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
         {
             return base.Filter_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            return base.Like_with_non_string_column_using_ToString(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Like_with_non_string_column_using_double_cast(bool isAsync)
+        {
+            return base.Like_with_non_string_column_using_double_cast(isAsync);
         }
     }
 }

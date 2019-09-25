@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///      Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
+        ///     Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type to get navigation properties for. </param>
         /// <returns> All navigation properties on the given entity type. </returns>
         public static IEnumerable<IMutableNavigation> GetNavigations([NotNull] this IMutableEntityType entityType)
-        => ((EntityType)entityType).GetNavigations();
+            => ((EntityType)entityType).GetNavigations();
 
         /// <summary>
         ///     <para>

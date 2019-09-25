@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #pragma warning disable IDE0022 // Use block body for methods
 // ReSharper disable SuggestBaseTypeForParameter
@@ -20,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class SqlServerTestStore : RelationalTestStore
     {
-        public const int CommandTimeout = 600;
+        public const int CommandTimeout = 300;
         private static string CurrentDirectory => Environment.CurrentDirectory;
 
         public static SqlServerTestStore GetNorthwindStore()
             => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
-                .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null, null, null);
+                .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null);
 
         public static SqlServerTestStore GetOrCreate(string name)
             => new SqlServerTestStore(name);
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public SqlServerTestStore InitializeSqlServer(
             IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed, null);
+            => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed);
 
         public SqlServerTestStore InitializeSqlServer(
             IServiceProvider serviceProvider, Func<SqlServerTestStore, DbContext> createContext, Action<DbContext> seed)
@@ -95,13 +94,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public virtual DbContextOptionsBuilder AddProviderOptions(
-            DbContextOptionsBuilder builder,
-            Action<SqlServerDbContextOptionsBuilder> configureSqlServer)
-            => builder.UseSqlServer(Connection, b => configureSqlServer?.Invoke(b));
-
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => AddProviderOptions(builder, configureSqlServer: null);
+            => builder.UseSqlServer(Connection, b => b.ApplyConfiguration());
 
         private bool CreateDatabase(Action<DbContext> clean)
         {
@@ -109,7 +103,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
                 {
-                    if (_scriptPath != null)
+                    // Only reseed scripted databases during CI runs
+                    if (_scriptPath != null
+                        && !TestEnvironment.IsCI)
                     {
                         return false;
                     }
@@ -328,15 +324,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             DbConnection connection, Func<DbCommand, T> execute, string sql,
             bool useTransaction = false, object[] parameters = null)
             => new TestSqlServerRetryingExecutionStrategy().Execute(
-                    new
-                    {
-                        connection,
-                        execute,
-                        sql,
-                        useTransaction,
-                        parameters
-                    },
-                    state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters));
+                new
+                {
+                    connection,
+                    execute,
+                    sql,
+                    useTransaction,
+                    parameters
+                },
+                state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters));
 
         private static T ExecuteCommand<T>(
             DbConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction, object[] parameters)
@@ -459,8 +455,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
-                MultipleActiveResultSets = multipleActiveResultSets ?? new Random().Next(0, 2) == 1,
-                InitialCatalog = name
+                MultipleActiveResultSets = multipleActiveResultSets ?? new Random().Next(0, 2) == 1, InitialCatalog = name
             };
             if (fileName != null)
             {

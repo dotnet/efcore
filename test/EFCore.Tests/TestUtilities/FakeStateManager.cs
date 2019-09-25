@@ -105,8 +105,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             throw new NotImplementedException();
 
         public InternalEntityEntry TryGetEntry(object entity, bool throwOnNonUniqueness = true) => throw new NotImplementedException();
+
         public InternalEntityEntry TryGetEntry(object entity, IEntityType type, bool throwOnTypeMismatch = true)
             => throw new NotImplementedException();
+
         public IInternalEntityEntryNotifier InternalEntityEntryNotifier => throw new NotImplementedException();
         public void StateChanging(InternalEntityEntry entry, EntityState newState) => throw new NotImplementedException();
         public IValueGenerationManager ValueGenerationManager => throw new NotImplementedException();
@@ -130,10 +132,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public InternalEntityEntry FindPrincipalUsingRelationshipSnapshot(InternalEntityEntry entityEntry, IForeignKey foreignKey) =>
             throw new NotImplementedException();
 
-        public DbContext Context => new DbContext(new DbContextOptionsBuilder()
-            .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-            .UseInMemoryDatabase("D")
-            .Options);
+        public DbContext Context => new DbContext(
+            new DbContextOptionsBuilder()
+                .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                .UseInMemoryDatabase("D")
+                .Options);
 
         public IModel Model => throw new NotImplementedException();
         public event EventHandler<EntityTrackedEventArgs> Tracked;
@@ -142,7 +145,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void OnStateChanged(InternalEntityEntry internalEntityEntry, EntityState oldState) => StateChanged?.Invoke(null, null);
         public bool SensitiveLoggingEnabled { get; }
         public void CascadeChanges(bool force) => throw new NotImplementedException();
-        public void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null) => throw new NotImplementedException();
+
+        public void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null) =>
+            throw new NotImplementedException();
 
         public InternalEntityEntry TryGetEntry([NotNull] IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
         {
