@@ -862,12 +862,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         b.Property<int>("Up").HasField("_forUp");
                         b.Property(e => e.Down).HasField("_forDown");
+                        b.Property<int?>("_forWierd").HasField("_forWierd");
                     });
 
                 var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Equal("_forUp", entityType.FindProperty("Up").GetFieldName());
                 Assert.Equal("_forDown", entityType.FindProperty("Down").GetFieldName());
+                Assert.Equal("_forWierd", entityType.FindProperty("_forWierd").GetFieldName());
             }
 
             [ConditionalFact]

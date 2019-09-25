@@ -220,6 +220,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             private int _forUp;
             private string _forDown;
+#pragma warning disable IDE0044 // Add readonly modifier
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable CS0169 // Remove unused private fields
+            private int? _forWierd;
+#pragma warning restore CS0169 // Remove unused private fields
+#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore IDE0044 // Add readonly modifier
 
             public int Id { get; set; }
 

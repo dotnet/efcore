@@ -149,24 +149,24 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Indicates whether the original value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseOriginalValueParameter => _useParameters && IsCondition && IsConcurrencyToken;
+        public virtual bool UseOriginalValueParameter => _useParameters && IsCondition;
 
         /// <summary>
         ///     Indicates whether the current value of the property must be passed as a parameter to the SQL
         /// </summary>
-        public virtual bool UseCurrentValueParameter => _useParameters && (IsWrite || IsCondition && !IsConcurrencyToken);
+        public virtual bool UseCurrentValueParameter => _useParameters && IsWrite;
 
         /// <summary>
         ///     The parameter name to use for the current value parameter (<see cref="UseCurrentValueParameter" />), if needed.
         /// </summary>
         public virtual string ParameterName
-            => _parameterName ?? (_parameterName = _generateParameterName());
+            => _parameterName ?? (_parameterName = UseCurrentValueParameter ? _generateParameterName() : null);
 
         /// <summary>
         ///     The parameter name to use for the original value parameter (<see cref="UseOriginalValueParameter" />), if needed.
         /// </summary>
         public virtual string OriginalParameterName
-            => _originalParameterName ?? (_originalParameterName = _generateParameterName());
+            => _originalParameterName ?? (_originalParameterName = UseOriginalValueParameter ? _generateParameterName() : null);
 
         /// <summary>
         ///     The name of the column.
@@ -187,7 +187,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual object Value
         {
-            get => Entry == null ? _value : Entry.GetCurrentValue(Property);
+            get => Entry == null
+                ? _value
+                : Entry.EntityState == EntityState.Deleted ? null : Entry.GetCurrentValue(Property);
             [param: CanBeNull]
             set
             {

@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Deleted);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var dbDataReader = CreateFakeDataReader();
 
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -244,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
-            command.AddEntry(entry);
+            command.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(new[] { "Col1" }, new List<object[]>()));
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, false, false, true)
+                            isRead: false, isWrite: true, isKey: false, isCondition: false, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            false, false, false, true, false, true)
+                            isRead: false, isWrite: false, isKey: false, isCondition: true, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -419,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         [ConditionalFact]
-        public void PopulateParameters_creates_parameter_for_write_and_condition_ModificationCommand()
+        public void PopulateParameters_creates_parameters_for_write_and_condition_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             var property = entry.EntityType.FindProperty("Id");
@@ -439,16 +439,18 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            false, true, false, true, false, true)
+                            isRead: false, isWrite: true, isKey: false, isCondition: true, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
 
-            Assert.Equal(1, storeCommand.RelationalCommand.Parameters.Count);
+            Assert.Equal(2, storeCommand.RelationalCommand.Parameters.Count);
             Assert.Equal("p0", storeCommand.RelationalCommand.Parameters[0].InvariantName);
+            Assert.Equal("p1", storeCommand.RelationalCommand.Parameters[1].InvariantName);
 
-            Assert.Equal(1, storeCommand.ParameterValues.Count);
+            Assert.Equal(2, storeCommand.ParameterValues.Count);
             Assert.Equal(1, storeCommand.ParameterValues["p0"]);
+            Assert.Equal(1, storeCommand.ParameterValues["p1"]);
         }
 
         [ConditionalFact]
@@ -472,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            true, false, false, false, false, true)
+                            isRead: true, isWrite: false, isKey: false, isCondition: false, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
