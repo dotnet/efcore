@@ -7748,6 +7748,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     (ee, aa) => Assert.Equal(ee.Nickname, aa.Nickname))(e.Items, a.Items));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_navigation_ofType_filter_works(bool isAsync)
+        {
+            return AssertQuery<City>(
+                isAsync,
+                cs => cs.Where(c => c.BornGears.OfType<Officer>().Any(o => o.Nickname == "Marcus")));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
