@@ -909,5 +909,26 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
+
+        [Fact]
+        public void ExecuteReader_works_after_failure()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT 1 FROM dual";
+
+                var ex = Assert.Throws<SqliteException>(() => command.ExecuteScalar());
+                Assert.Equal(SQLITE_ERROR, ex.SqliteErrorCode);
+
+                connection.ExecuteNonQuery("CREATE TABLE dual (dummy); INSERT INTO dual (dummy) VALUES ('X');");
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal(1L, result);
+            }
+        }
     }
 }
