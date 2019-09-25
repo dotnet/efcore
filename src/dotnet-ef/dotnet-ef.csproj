@@ -29,6 +29,14 @@ dotnet ef database update
     <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
   </PropertyGroup>
 
+  <!-- Include placeholder file for missing TFMs -->
+  <ItemGroup>
+    <None Include="lib\**\*">
+      <Pack>True</Pack>
+      <PackagePath>lib</PackagePath>
+    </None>
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="..\ef\CommandLineUtils\*.cs" />
     <Compile Include="..\ef\Commands\CommandBase.cs" />
