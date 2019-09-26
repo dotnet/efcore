@@ -164,10 +164,10 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""ProductID""] = 1))");
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Sum_on_float_column_in_subquery(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID < 10250).Select(
-                    o => new { o.OrderID, Sum = o.OrderDetails.Sum(od => od.Discount) }),
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10250)
+                    .Select(o => new { o.OrderID, Sum = o.OrderDetails.Sum(od => od.Discount) }),
                 e => e.OrderID);
 
             AssertSql(
@@ -367,9 +367,9 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""ProductID""] = 1))");
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Average_on_float_column_in_subquery(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID < 10250).Select(
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(
                     o => new { o.OrderID, Sum = o.OrderDetails.Average(od => od.Discount) }),
                 e => e.OrderID);
 
@@ -382,9 +382,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         [ConditionalTheory(Skip = "Issue#16146")]
         public override async Task Average_on_float_column_in_subquery_with_cast(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => os.Where(o => o.OrderID < 10250)
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10250)
                     .Select(
                         o => new { o.OrderID, Sum = o.OrderDetails.Average(od => (float?)od.Discount) }),
                 e => e.OrderID);

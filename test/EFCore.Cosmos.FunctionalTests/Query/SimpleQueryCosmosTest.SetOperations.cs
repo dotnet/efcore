@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Intersect_non_entity(bool isAsync) => Task.CompletedTask;
         public override Task Union(bool isAsync) => Task.CompletedTask;
         public override Task Union_nested(bool isAsync) => Task.CompletedTask;
-        public override void Union_non_entity(bool isAsync) { }
+        // issue #18002
+        //public override void Union_non_entity(bool isAsync) { }
         public override Task Union_OrderBy_Skip_Take(bool isAsync) => Task.CompletedTask;
         public override Task Union_Where(bool isAsync) => Task.CompletedTask;
         public override Task Union_Skip_Take_OrderBy_ThenBy_Where(bool isAsync) => Task.CompletedTask;

@@ -35,13 +35,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Join_select_many(bool isAsync)
         {
-            await AssertQuery<Customer, Order, Employee>(
+            await AssertQuery(
                 isAsync,
-                (cs, os, es) =>
-                    from c in cs.Where(c => c.CustomerID == "ALFKI")
-                    join o in os on c.CustomerID equals o.CustomerID
-                    from e in es
-                    select new { c, o, e },
+                ss => from c in ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
+                      from e in ss.Set<Employee>()
+                      select new { c, o, e },
                 e => e.c.CustomerID + " " + e.o.OrderID + " " + e.e.EmployeeID,
                 entryCount: 16);
 
@@ -594,15 +593,15 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task GroupJoin_subquery_projection_outer_mixed(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(c => c.CustomerID == "ALFKI")
-                    from o0 in os.OrderBy(o => o.OrderID).Take(1)
-                    join o1 in os on c.CustomerID equals o1.CustomerID into orders
+                ss =>
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                    from o0 in ss.Set<Order>().OrderBy(o => o.OrderID).Take(1)
+                    join o1 in ss.Set<Order>() on c.CustomerID equals o1.CustomerID into orders
                     from o2 in orders
                     select new { A = c.CustomerID, B = o0.CustomerID, C = o2.CustomerID },
-                e => e.A + " " + e.B + " " + e.C);
+                e => (e.A, e.B, e.C));
 
             AssertSql(
                 @"SELECT c

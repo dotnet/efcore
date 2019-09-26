@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             if (asserter == null && expected != null)
             {
-                _entityAsserters.TryGetValue(expected.GetType(), out var entityAsserter);
+                _entityAsserters.TryGetValue(typeof(T), out var entityAsserter);
                 asserter ??= (Action<dynamic, dynamic>)entityAsserter;
             }
 
@@ -52,22 +52,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override void AssertCollection<TElement>(
             IEnumerable<TElement> expected,
             IEnumerable<TElement> actual,
-            bool ordered = false)
+            bool ordered = false,
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null)
         {
-            if (expected == null !=  (actual == null))
+            if (expected == null != (actual == null))
             {
                 throw new InvalidOperationException(
                     $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
             }
 
-            Func<TElement, object> elementSorter;
-            Action<TElement, TElement> elementAsserter;
-
             _entitySorters.TryGetValue(typeof(TElement), out var sorter);
             _entityAsserters.TryGetValue(typeof(TElement), out var asserter);
 
-            elementSorter = (Func<TElement, object>)sorter;
-            elementAsserter = (Action<TElement, TElement>)asserter ?? Assert.Equal;
+            elementSorter ??= (Func<TElement, object>)sorter;
+            elementAsserter ??= (Action<TElement, TElement>)asserter ?? Assert.Equal;
 
             if (!ordered)
             {
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     var sortedActual = actual.OrderBy(elementSorter).ToList();
                     var sortedExpected = expected.OrderBy(elementSorter).ToList();
-                    
+
                     Assert.Equal(sortedExpected.Count, sortedActual.Count);
                     for (var i = 0; i < sortedExpected.Count; i++)
                     {
@@ -300,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public override async Task AssertQueryTyped<TResult>(
+        public override async Task AssertQuery<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Func<TResult, object> elementSorter,
@@ -328,34 +327,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData).ToArray();
 
-                // TODO: temporary, use typeof(TResult) once tests are converted to new pattern
-                var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
-                if (firstNonNullableElement != null)
+                if (!assertOrder && elementSorter == null)
                 {
-                    if (!assertOrder && elementSorter == null)
-                    {
-                        _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out var sorter);
-                        elementSorter = (Func<TResult, object>)sorter;
-                    }
-
-                    if (elementAsserter == null)
-                    {
-                        _entityAsserters.TryGetValue(firstNonNullableElement.GetType(), out var asserter);
-                        elementAsserter = (Action<TResult, TResult>)asserter;
-                    }
+                    _entitySorters.TryGetValue(typeof(TResult), out var sorter);
+                    elementSorter = (Func<TResult, object>)sorter;
                 }
 
-                //if (!assertOrder && elementSorter == null)
-                //{
-                //    _entitySorters.TryGetValue(typeof(TResult), out var sorter);
-                //    elementSorter = sorter;
-                //}
-
-                //if (elementAsserter == null)
-                //{
-                //    _entityAsserters.TryGetValue(typeof(TResult), out var asserter);
-                //    elementAsserter = asserter;
-                //}
+                if (elementAsserter == null)
+                {
+                    _entityAsserters.TryGetValue(typeof(TResult), out var asserter);
+                    elementAsserter = (Action<TResult, TResult>)asserter;
+                }
 
                 TestHelpers.AssertResults(
                     expected,
@@ -366,78 +348,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
-        }
-
-        public override Task AssertQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter,
-            Action<dynamic, dynamic> elementAsserter,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertQueryTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                elementSorter,
-                elementAsserter,
-                assertOrder,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public override Task AssertQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter,
-            Action<dynamic, dynamic> elementAsserter,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-
-            return AssertQueryTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                elementSorter,
-                elementAsserter,
-                assertOrder,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public override Task AssertQuery<TItem1, TItem2, TItem3>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter,
-            Action<dynamic, dynamic> elementAsserter,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-
-            return AssertQueryTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                elementSorter,
-                elementAsserter,
-                assertOrder,
-                entryCount,
-                isAsync,
-                testMethodName);
         }
 
         #endregion

@@ -742,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertQuery
 
-        public Task AssertQueryTyped<TResult>(
+        public Task AssertQuery<TResult>(
             bool isAsync,
             Func<ISetSource, IQueryable<TResult>> query,
             Func<TResult, object> elementSorter = null,
@@ -751,10 +751,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TResult : class
-            => Fixture.QueryAsserter.AssertQueryTyped(
+            => Fixture.QueryAsserter.AssertQuery(
                 query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
-        public Task AssertQueryTyped<TResult>(
+        public Task AssertQuery<TResult>(
             bool isAsync,
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
@@ -764,86 +764,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
             where TResult : class
-            => Fixture.QueryAsserter.AssertQueryTyped(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
-
-        public Task AssertQuery<TItem1>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(
-                query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
-
-        public Task AssertQuery<TItem1>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertQuery(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
-
-        public Task AssertQuery<TItem1, TItem2>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            where TItem1 : class
-            where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(
-                query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
-
-        public Task AssertQuery<TItem1, TItem2>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            where TItem1 : class
-            where TItem2 : class
-            => Fixture.QueryAsserter.AssertQuery(
-                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
-
-        public Task AssertQuery<TItem1, TItem2, TItem3>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-            => AssertQuery(isAsync, query, query, elementSorter, elementAsserter, assertOrder, entryCount, testMethodName);
-
-        public Task AssertQuery<TItem1, TItem2, TItem3>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
-            Func<dynamic, object> elementSorter = null,
-            Action<dynamic, dynamic> elementAsserter = null,
-            bool assertOrder = false,
-            int entryCount = 0,
-            [CallerMemberName] string testMethodName = null)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
             => Fixture.QueryAsserter.AssertQuery(
                 actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
@@ -1350,8 +1270,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public void AssertCollection<TElement>(
             IEnumerable<TElement> expected,
             IEnumerable<TElement> actual,
-            bool ordered = false)
-            => Fixture.QueryAsserter.AssertCollection(expected, actual, ordered);
+            bool ordered = false,
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null)
+            => Fixture.QueryAsserter.AssertCollection(expected, actual, ordered, elementSorter, elementAsserter);
 
         public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(
             Func<TElement, object> elementSorter = null,

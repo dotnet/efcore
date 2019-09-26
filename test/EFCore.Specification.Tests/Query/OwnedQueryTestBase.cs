@@ -25,45 +25,45 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_with_owned_entity_equality_operator(bool isAsync)
         {
-            return AssertQuery<LeafA, LeafB>(
+            return AssertQuery(
                 isAsync,
-                (las, lbs) => from a in las
-                              from b in lbs
-                              where a.LeafAAddress == b.LeafBAddress
-                              select a);
-        }
+                ss => from a in ss.Set<LeafA>()
+                      from b in ss.Set<LeafB>()
+                      where a.LeafAAddress == b.LeafBAddress
+                      select a);
+}
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_with_owned_entity_equality_method(bool isAsync)
         {
-            return AssertQuery<LeafA, LeafB>(
+            return AssertQuery(
                 isAsync,
-                (las, lbs) => from a in las
-                              from b in lbs
-                              where a.LeafAAddress.Equals(b.LeafBAddress)
-                              select a);
+                ss => from a in ss.Set<LeafA>()
+                      from b in ss.Set<LeafB>()
+                      where a.LeafAAddress.Equals(b.LeafBAddress)
+                      select a);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_with_owned_entity_equality_object_method(bool isAsync)
         {
-            return AssertQuery<LeafA, LeafB>(
+            return AssertQuery(
                 isAsync,
-                (las, lbs) => from a in las
-                              from b in lbs
-                              where Equals(a.LeafAAddress, b.LeafBAddress)
-                              select a);
+                ss => from a in ss.Set<LeafA>()
+                      from b in ss.Set<LeafB>()
+                      where Equals(a.LeafAAddress, b.LeafBAddress)
+                      select a);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_for_base_type_loads_all_owned_navs(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops);
+                ss => ss.Set<OwnedPerson>());
         }
 
         [ConditionalTheory]
@@ -79,36 +79,36 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_for_branch_type_loads_all_owned_navs(bool isAsync)
         {
-            return AssertQuery<Branch>(
+            return AssertQuery(
                 isAsync,
-                bs => bs);
+                ss => ss.Set<Branch>());
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_for_leaf_type_loads_all_owned_navs(bool isAsync)
         {
-            return AssertQuery<LeafA>(
+            return AssertQuery(
                 isAsync,
-                bs => bs);
+                ss => ss.Set<LeafA>());
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_when_group_by(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.GroupBy(op => op.Id));
+                ss => ss.Set<OwnedPerson>().GroupBy(op => op.Id));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_when_subquery(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Distinct()
+                ss => ss.Set<OwnedPerson>().Distinct()
                         .OrderBy(p => p.Id)
                         .Take(5)
                         .Select(op => new { op }),
@@ -120,9 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Where(p => p.PersonAddress.Country.Name == "USA")
+                ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA")
                     .Select(p => p.PersonAddress.Country.Name));
         }
 
@@ -130,18 +130,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_projecting_entity(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Where(p => p.PersonAddress.Country.Name == "USA"));
+                ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Name == "USA"));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_collection(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Where(p => p.Orders.Count > 0).OrderBy(p => p.Id).Select(p => p.Orders),
+                ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count > 0).OrderBy(p => p.Id).Select(p => p.Orders),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection<Order>(e, a));
         }
@@ -159,25 +159,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_collection_with_composition_complex(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Client.PersonAddress.Country.Name).FirstOrDefault()));
+                ss => ss.Set<OwnedPerson>().Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Client.PersonAddress.Country.Name).FirstOrDefault()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_on_owned_collection(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.SelectMany(p => p.Orders));
+                ss => ss.Set<OwnedPerson>().SelectMany(p => p.Orders));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Set_throws_for_owned_type(bool isAsync)
         {
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery<OwnedAddress>(isAsync, ops => ops));
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => AssertQuery(isAsync, ss => ss.Set<OwnedAddress>()));
 
             Assert.Equal(
                 CoreStrings.InvalidSetTypeWeak(nameof(OwnedAddress)),
@@ -188,18 +188,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Select(p => p.PersonAddress.Country.Planet));
+                ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Where(p => p.PersonAddress.Country.Planet.Id != 42).OrderBy(p => p.Id).Select(p => new { p.Orders }),
+                ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 42).OrderBy(p => p.Id).Select(p => new { p.Orders }),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection<Order>(e.Orders, a.Orders));
         }
@@ -208,9 +208,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_multiple_owned_navigations(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.OrderBy(p => p.Id).Select(p => new { p.Orders, p.PersonAddress, p.PersonAddress.Country.Planet }),
+                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => new { p.Orders, p.PersonAddress, p.PersonAddress.Country.Planet }),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
@@ -224,9 +224,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.OrderBy(p => p.Id).Select(
+                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(
                     p => new
                     {
                         Count = p.Orders.Where(o => o.Client.PersonAddress.Country.Planet.Star.Id != 42).Count(),
@@ -244,9 +244,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Where(p => p.PersonAddress.Country.Planet.Id != 7).Select(p => new { p }),
+                ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 7).Select(p => new { p }),
                 elementSorter: e => e.p.Id,
                 elementAsserter: (e, a) => AssertEqual<OwnedPerson>(e.p, a.p));
         }
@@ -264,9 +264,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.OrderBy(p => p.Id).Select(p => p.PersonAddress.Country.Planet.Moons),
+                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress.Country.Planet.Moons),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection<Moon>(e, a));
         }
@@ -275,18 +275,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.SelectMany(p => p.PersonAddress.Country.Planet.Moons));
+                ss => ss.Set<OwnedPerson>().SelectMany(p => p.PersonAddress.Country.Planet.Moons));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.SelectMany(p => p.PersonAddress.Country.Planet.Star.Composition));
+                ss => ss.Set<OwnedPerson>().SelectMany(p => p.PersonAddress.Country.Planet.Star.Composition));
         }
 
         [ConditionalTheory]
@@ -302,18 +302,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Select(p => p.PersonAddress.Country.Planet.Star));
+                ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Star));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Select(p => p.PersonAddress.Country.Planet.Star.Name),
+                ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Star.Name),
                 elementSorter: e => e);
         }
 
@@ -321,9 +321,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.Where(p => p.PersonAddress.Country.Planet.Star.Name == "Sol")
+                ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Star.Name == "Sol")
                     .Select(p => p.PersonAddress.Country.Planet.Star));
         }
 
@@ -331,9 +331,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool isAsync)
         {
-            return AssertQuery<OwnedPerson>(
+            return AssertQuery(
                 isAsync,
-                ops => ops.OfType<LeafA>());
+                ss => ss.Set<OwnedPerson>().OfType<LeafA>());
         }
 
         [ConditionalTheory]
