@@ -7229,6 +7229,19 @@ LEFT JOIN (
 ORDER BY [t].[Note], [t].[Id], [t2].[Id]");
         }
 
+        public override async Task Collection_navigation_ofType_filter_works(bool isAsync)
+        {
+            await base.Collection_navigation_ofType_filter_works(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Gears] AS [g]
+    WHERE (([g].[Discriminator] IN (N'Gear', N'Officer') AND ([c].[Name] = [g].[CityOrBirthName])) AND ([g].[Discriminator] = N'Officer')) AND ([g].[Nickname] = N'Marcus'))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
