@@ -1222,4 +1222,13 @@
   <data name="ClashingNonOwnedDerivedEntityType" xml:space="preserve">
     <value>The type '{entityType}' cannot be marked as owned because the derived entity type - '{derivedType}' has been configured as non-owned.</value>
   </data>
+  <data name="ClientProjectionCapturingConstantInMethodArgument" xml:space="preserve">
+    <value>Client projection contains reference to constant expression of '{constantType}' which is being passed as argument to method '{methodName}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+  </data>
+  <data name="ClientProjectionCapturingConstantInMethodInstance" xml:space="preserve">
+    <value>Client projection contains reference to constant expression of '{constantType}' through instance method '{methodName}'. This could potentially cause memory leak. Consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+  </data>
+  <data name="ClientProjectionCapturingConstantInTree" xml:space="preserve">
+    <value>Client projection contains reference to constant expression of '{constantType}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
+  </data>
 </root>

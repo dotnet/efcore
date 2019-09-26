@@ -172,17 +172,47 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _typeMappingSource = typeMappingSource;
             }
 
+            private bool ValidConstant(ConstantExpression constantExpression)
+            {
+                return constantExpression.Value == null
+                    || _typeMappingSource.FindMapping(constantExpression.Type) != null;
+            }
+
             protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
-                if (constantExpression.Value == null
-                    || _typeMappingSource.FindMapping(constantExpression.Type) != null)
+                if (!ValidConstant(constantExpression))
                 {
-                    return constantExpression;
+                    throw new InvalidOperationException(
+                        CoreStrings.ClientProjectionCapturingConstantInTree(constantExpression.Type.DisplayName()));
                 }
 
-                throw new InvalidOperationException(
-                    $"Client projection contains reference to constant expression of type: {constantExpression.Type.DisplayName()}. " +
-                    "This could potentially cause memory leak.");
+                return constantExpression;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (RemoveConvert(methodCallExpression.Object) is ConstantExpression constantInstance
+                    && !ValidConstant(constantInstance))
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
+                            constantInstance.Type.DisplayName(),
+                            methodCallExpression.Method.Name));
+                }
+
+                foreach (var argument in methodCallExpression.Arguments)
+                {
+                    if (RemoveConvert(argument) is ConstantExpression constantArgument
+                        && !ValidConstant(constantArgument))
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
+                                constantArgument.Type.DisplayName(),
+                                methodCallExpression.Method.Name));
+                    }
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -191,6 +221,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                        || extensionExpression is ProjectionBindingExpression
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
+            }
+
+            private static Expression RemoveConvert(Expression expression)
+            {
+                while (expression != null
+                       && (expression.NodeType == ExpressionType.Convert
+                           || expression.NodeType == ExpressionType.ConvertChecked))
+                {
+                    expression = RemoveConvert(((UnaryExpression)expression).Operand);
+                }
+
+                return expression;
             }
         }
 
