@@ -26,10 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public async Task Can_add_update_delete_end_to_end()
+        public void Can_add_update_delete_end_to_end()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -75,8 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_add_update_delete_end_to_end_async()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -122,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_add_update_delete_detached_entity_end_to_end_async()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
             string storeId = null;
@@ -208,24 +205,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_add_update_delete_end_to_end_with_partition_key()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var customer = new Customer { Id = 42, Name = "Theon", PartitionKey = 1 };
 
             using (var context = new PartitionKeyContext(options))
             {
-                context.Database.EnsureCreated();
+                await context.Database.EnsureCreatedAsync();
 
                 context.Add(customer);
                 context.Add(new Customer { Id = 42, Name = "Theon Twin", PartitionKey = 2 });
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             using (var context = new PartitionKeyContext(options))
             {
-                var customerFromStore = context.Set<Customer>().OrderBy(c => c.PartitionKey).First();
+                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
@@ -233,12 +229,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 customerFromStore.Name = "Theon Greyjoy";
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             using (var context = new PartitionKeyContext(options))
             {
-                context.Set<Customer>().OrderBy(c => c.PartitionKey).First().PartitionKey = 2;
+                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
+                customerFromStore.PartitionKey = 2;
 
                 Assert.Equal(CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
@@ -246,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new PartitionKeyContext(options))
             {
-                var customerFromStore = context.Set<Customer>().OrderBy(c => c.PartitionKey).First();
+                var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -254,14 +251,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 context.Remove(customerFromStore);
 
-                context.Remove(context.Set<Customer>().OrderBy(c => c.PartitionKey).Last());
+                context.Remove(await context.Set<Customer>().OrderBy(c => c.PartitionKey).LastAsync());
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             using (var context = new PartitionKeyContext(options))
             {
-                Assert.Empty(context.Set<Customer>().ToList());
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
             }
         }
 
@@ -286,18 +283,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_use_detached_entities_without_discriminators()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
             using (var context = new NoDiscriminatorCustomerContext(options))
             {
-                context.Database.EnsureCreated();
+                await context.Database.EnsureCreatedAsync();
 
                 context.Add(customer);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             using (var context = new NoDiscriminatorCustomerContext(options))
@@ -306,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 customer.Name = "Theon Greyjoy";
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             using (var context = new NoDiscriminatorCustomerContext(options))
@@ -318,12 +314,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
                 context.Add(customer).State = EntityState.Deleted;
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
 
             using (var context = new NoDiscriminatorCustomerContext(options))
             {
-                Assert.Empty(context.Set<Customer>().ToList());
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
             }
         }
 
@@ -341,10 +337,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public async Task Can_update_unmapped_properties()
+        public void Can_update_unmapped_properties()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
@@ -411,31 +406,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_use_non_persisted_properties()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 
             using (var context = new UnmappedCustomerContext(options))
             {
-                context.Database.EnsureCreated();
+                await context.Database.EnsureCreatedAsync();
 
                 context.Add(customer);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
                 Assert.Equal("Theon", customer.Name);
             }
 
             using (var context = new UnmappedCustomerContext(options))
             {
-                var customerFromStore = context.Set<Customer>().Single();
+                var customerFromStore = await context.Set<Customer>().SingleAsync();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Null(customerFromStore.Name);
 
                 customerFromStore.Name = "Theon Greyjoy";
 
-                Assert.Equal(0, context.SaveChanges());
+                Assert.Equal(0, await context.SaveChangesAsync());
             }
         }
 
@@ -493,8 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Using_a_conflicting_incompatible_id_throws()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             using (var context = new ConflictingIncompatibleIdContext(options))
             {
@@ -533,8 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_add_update_delete_end_to_end_with_conflicting_id()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-            var options = Fixture.CreateOptions(testDatabase);
+            var options = Fixture.CreateOptions();
 
             var entity = new ConflictingId { id = "42", Name = "Theon" };
 
@@ -607,9 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_have_non_string_property_named_Discriminator()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName);
-
-            using (var context = new NonStringDiscriminatorContext(Fixture.CreateOptions(testDatabase)))
+            using (var context = new NonStringDiscriminatorContext(Fixture.CreateOptions()))
             {
                 context.Database.EnsureCreated();
 
@@ -645,9 +635,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
-        public class CosmosFixture : ServiceProviderFixtureBase
+        public class CosmosFixture : ServiceProviderFixtureBase, IAsyncLifetime
         {
+            public CosmosFixture()
+            {
+                TestStore = CosmosTestStore.Create(DatabaseName);
+            }
+
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
+            public virtual CosmosTestStore TestStore { get; }
+
+            public DbContextOptions CreateOptions()
+            {
+                TestStore.Initialize(null, (Func<DbContext>)null);
+                return CreateOptions(TestStore);
+            }
+
+            public Task InitializeAsync() => Task.CompletedTask;
+
+            public Task DisposeAsync() => TestStore.DisposeAsync();
         }
     }
 }
