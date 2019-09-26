@@ -213,14 +213,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     Assert.Throws<InvalidOperationException>(
                         () => query(context, new[] { "ALFKI" }).First().CustomerID).Message);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     Assert.Throws<InvalidOperationException>(
                         () => query(context, new[] { "ANATR" }).First().CustomerID).Message);
             }
@@ -477,14 +479,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => query(context, new[] { "ALFKI" }).ToListAsync())).Message);
             }
 
             using (var context = CreateContext())
             {
-                Assert.Equal("Unsupported Binary operator type specified.",
+                Assert.Equal(
+                    "Unsupported Binary operator type specified.",
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => query(context, new[] { "ANATR" }).ToListAsync())).Message);
             }
@@ -524,6 +528,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 Assert.Empty(await query(context).ToListAsync());
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Compiled_query_when_does_not_end_in_query_operator()
+        {
+            var query = EF.CompileQuery(
+                (NorthwindContext context, string customerID)
+                    => context.Customers.Where(c => c.CustomerID == customerID).Count() == 1);
+
+            using (var context = CreateContext())
+            {
+                Assert.True(query(context, "ALFKI"));
             }
         }
 

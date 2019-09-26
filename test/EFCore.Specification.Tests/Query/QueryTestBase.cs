@@ -19,11 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected TFixture Fixture { get; }
 
-        public static IEnumerable<object[]> IsAsyncData = new[]
-        {
-            new object[] { false },
-            new object[] { true }
-        };
+        public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 
         #region AssertAny
 
@@ -105,61 +101,60 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertAll
 
-        protected Task AssertAll<TItem1, TPredicate>(
+        protected Task AssertAll<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate)
-            where TItem1 : class
-            => AssertAll(isAsync, query, query, predicate, predicate);
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate)
+            => Fixture.QueryAsserter.AssertAll(
+                query, query, predicate, predicate, isAsync);
 
-        protected Task AssertAll<TItem1, TPredicate>(
+        protected Task AssertAll<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertAll(actualQuery, expectedQuery, actualPredicate, expectedPredicate, isAsync);
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate)
+            => Fixture.QueryAsserter.AssertAll(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, isAsync);
 
         #endregion
 
         #region AssertFirst
 
-        protected Task AssertFirst<TItem1>(
+        protected Task AssertFirst<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertFirst(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertFirst(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertFirst<TItem1>(
+        protected Task AssertFirst<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertFirst(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertFirst(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertFirst<TItem1, TPredicate>(
+        protected Task AssertFirst<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertFirst(isAsync, query, query, predicate, predicate, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertFirst(
+                query, query, predicate, predicate, asserter, entryCount, isAsync);
 
-        protected Task AssertFirst<TItem1, TPredicate>(
+        protected Task AssertFirst<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertFirst(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
@@ -167,81 +162,40 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertFirstOrDefault
 
-        protected Task AssertFirstOrDefault<TItem1>(
+        protected Task AssertFirstOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertFirstOrDefault(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertFirstOrDefault(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertFirstOrDefault<TItem1>(
+        protected Task AssertFirstOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertFirstOrDefault(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertFirstOrDefault(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertFirstOrDefault<TItem1, TItem2>(
+        protected Task AssertFirstOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertFirstOrDefault(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertFirstOrDefault(
+                query, query, predicate, predicate, asserter, entryCount, isAsync);
 
-        protected Task AssertFirstOrDefault<TItem1, TItem2>(
+        protected Task AssertFirstOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            where TItem2 : class
-            => Fixture.QueryAsserter.AssertFirstOrDefault(actualQuery, expectedQuery, asserter, entryCount, isAsync);
-
-        protected Task AssertFirstOrDefault<TItem1, TItem2, TItem3>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> query,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-            => AssertFirstOrDefault(isAsync, query, query, asserter, entryCount);
-
-        protected Task AssertFirstOrDefault<TItem1, TItem2, TItem3>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-            => Fixture.QueryAsserter.AssertFirstOrDefault(actualQuery, expectedQuery, asserter, entryCount, isAsync);
-
-        protected Task AssertFirstOrDefault<TItem1, TPredicate>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertFirstOrDefault(isAsync, query, query, predicate, predicate, asserter, entryCount);
-
-        protected Task AssertFirstOrDefault<TItem1, TPredicate>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertFirstOrDefault(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
@@ -249,60 +203,40 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertSingle
 
-        protected Task AssertSingle<TItem1>(
+        protected Task AssertSingle<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertSingle(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingle(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertSingle<TItem1>(
+        protected Task AssertSingle<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingle(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingle(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertSingle<TItem1, TItem2>(
+        protected Task AssertSingle<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertSingle(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingle(
+                query, query, predicate, predicate, asserter, entryCount, isAsync);
 
-        protected Task AssertSingle<TItem1, TItem2>(
+        protected Task AssertSingle<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            where TItem2 : class
-            => Fixture.QueryAsserter.AssertSingle(actualQuery, expectedQuery, asserter, entryCount, isAsync);
-
-        protected Task AssertSingle<TItem1, TPredicate>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertSingle(isAsync, query, query, predicate, predicate, asserter, entryCount);
-
-        protected Task AssertSingle<TItem1, TPredicate>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertSingle(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
@@ -310,41 +244,40 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertSingleOrDefault
 
-        protected Task AssertSingleOrDefault<TItem1>(
+        protected Task AssertSingleOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertSingleOrDefault(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleOrDefault(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertSingleOrDefault<TItem1>(
+        protected Task AssertSingleOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSingleOrDefault(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertSingleOrDefault(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertSingleOrDefault<TItem1, TPredicate>(
+        protected Task AssertSingleOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertSingleOrDefault(isAsync, query, query, predicate, predicate, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertSingleOrDefault(
+                query, query, predicate, predicate, asserter, entryCount, isAsync);
 
-        protected Task AssertSingleOrDefault<TItem1, TPredicate>(
+        protected Task AssertSingleOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertSingleOrDefault(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
@@ -352,41 +285,40 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertLast
 
-        protected Task AssertLast<TItem1>(
+        protected Task AssertLast<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertLast(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertLast(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertLast<TItem1>(
+        protected Task AssertLast<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertLast(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertLast(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertLast<TItem1, TPredicate>(
+        protected Task AssertLast<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertLast(isAsync, query, query, predicate, predicate, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertLast(
+                query, query, predicate, predicate, asserter, entryCount, isAsync);
 
-        protected Task AssertLast<TItem1, TPredicate>(
+        protected Task AssertLast<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertLast(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
@@ -394,41 +326,40 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertLastOrDefault
 
-        protected Task AssertLastOrDefault<TItem1>(
+        protected Task AssertLastOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertLastOrDefault(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertLastOrDefault(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertLastOrDefault<TItem1>(
+        protected Task AssertLastOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertLastOrDefault(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertLastOrDefault(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertLastOrDefault<TItem1, TPredicate>(
+        protected Task AssertLastOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertLastOrDefault(isAsync, query, query, predicate, predicate, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertLastOrDefault(
+                query, query, predicate, predicate, asserter, entryCount, isAsync);
 
-        protected Task AssertLastOrDefault<TItem1, TPredicate>(
+        protected Task AssertLastOrDefault<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertLastOrDefault(
                 actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, isAsync);
 
@@ -436,568 +367,405 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region AssertCount
 
-        protected Task AssertCount<TItem1>(
+        protected Task AssertCount<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query)
-            where TItem1 : class
-            => AssertCount(isAsync, query, query);
+            Func<ISetSource, IQueryable<TResult>> query)
+            => Fixture.QueryAsserter.AssertCount(query, query, isAsync);
 
-        protected Task AssertCount<TItem1>(
+        protected Task AssertCount<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery)
-            where TItem1 : class
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery)
             => Fixture.QueryAsserter.AssertCount(actualQuery, expectedQuery, isAsync);
 
-        protected Task AssertCount<TItem1>(
+        protected Task AssertCount<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<bool>> query)
-            where TItem1 : class
-            => AssertCount(isAsync, query, query);
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, bool>> predicate)
+            => Fixture.QueryAsserter.AssertCount(
+                query, query, predicate, predicate, isAsync);
 
-        protected Task AssertCount<TItem1>(
+        protected Task AssertCount<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<bool>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<bool>> expectedQuery)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertCount(actualQuery, expectedQuery, isAsync);
-
-        protected Task AssertCount<TItem1, TPredicate>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> query,
-            Expression<Func<TPredicate, bool>> predicate)
-            where TItem1 : class
-            => AssertCount(isAsync, query, query, predicate, predicate);
-
-        protected Task AssertCount<TItem1, TPredicate>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertCount(actualQuery, expectedQuery, actualPredicate, expectedPredicate, isAsync);
-
-        protected Task AssertCount<TItem1, TItem2>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertCount(isAsync, query, query);
-
-        protected Task AssertCount<TItem1, TItem2>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery)
-            where TItem1 : class
-            where TItem2 : class
-            => Fixture.QueryAsserter.AssertCount(actualQuery, expectedQuery, isAsync);
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, bool>> actualPredicate,
+            Expression<Func<TResult, bool>> expectedPredicate)
+            => Fixture.QueryAsserter.AssertCount(
+                actualQuery, expectedQuery, actualPredicate, expectedPredicate, isAsync);
 
         #endregion
 
         #region AssertLongCount
 
-        protected Task AssertLongCount<TItem1>(
+        protected Task AssertLongCount<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query)
-            where TItem1 : class
-            => AssertLongCount(isAsync, query, query);
+            Func<ISetSource, IQueryable<TResult>> query)
+            => Fixture.QueryAsserter.AssertLongCount(query, query, isAsync);
 
-        protected Task AssertLongCount<TItem1>(
+        protected Task AssertLongCount<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertLongCount(actualQuery, expectedQuery, isAsync);
-
-        protected Task AssertLongCount<TItem1, TItem2>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertLongCount(isAsync, query, query);
-
-        protected Task AssertLongCount<TItem1, TItem2>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery)
-            where TItem1 : class
-            where TItem2 : class
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery)
             => Fixture.QueryAsserter.AssertLongCount(actualQuery, expectedQuery, isAsync);
 
         #endregion
 
         #region AssertMin
 
-        protected Task AssertMin<TItem1>(
+        protected Task AssertMin<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertMin(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertMin(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertMin<TItem1>(
+        protected Task AssertMin<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMin(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertMin(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertMin<TItem1>(
+        protected Task AssertMin<TResult, TSelector>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, TSelector>> selector,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertMin(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertMin(
+                query, query, selector, selector, asserter, entryCount, isAsync);
 
-        protected Task AssertMin<TItem1>(
+        protected Task AssertMin<TResult, TSelector>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, TSelector>> actualSelector,
+            Expression<Func<TResult, TSelector>> expectedSelector,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMin(actualQuery, expectedQuery, asserter, entryCount, isAsync);
-
-        protected Task AssertMin<TItem1>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<long>> query,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertMin(isAsync, query, query, asserter, entryCount);
-
-        protected Task AssertMin<TItem1>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<long>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<long>> expectedQuery,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMin(actualQuery, expectedQuery, asserter, entryCount, isAsync);
-
-        protected Task AssertMin<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int>> selector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertMin(isAsync, query, query, selector, selector, asserter, entryCount);
-
-        protected Task AssertMin<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int>> actualSelector,
-            Expression<Func<TSelector, int>> expectedSelector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMin(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
-
-        protected Task AssertMin<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int?>> selector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertMin(isAsync, query, query, selector, selector, asserter, entryCount);
-
-        protected Task AssertMin<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int?>> actualSelector,
-            Expression<Func<TSelector, int?>> expectedSelector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMin(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
-
-        protected Task AssertMin<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, decimal>> selector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertMin(isAsync, query, query, selector, selector, asserter, entryCount);
-
-        protected Task AssertMin<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, decimal>> actualSelector,
-            Expression<Func<TSelector, decimal>> expectedSelector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMin(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertMin(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
 
         #endregion
 
         #region AssertMax
 
-        protected Task AssertMax<TItem1>(
+        protected Task AssertMax<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertMax(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertMax(
+                query, query, asserter, entryCount, isAsync);
 
-        protected Task AssertMax<TItem1>(
+        protected Task AssertMax<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMax(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertMax(
+                actualQuery, expectedQuery, asserter, entryCount, isAsync);
 
-        protected Task AssertMax<TItem1>(
+        protected Task AssertMax<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> query,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, int>> selector,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertMax(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertMax(
+                query, query, selector, selector, asserter, entryCount, isAsync);
 
-        protected Task AssertMax<TItem1>(
+        protected Task AssertMax<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, int>> actualSelector,
+            Expression<Func<TResult, int>> expectedSelector,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMax(actualQuery, expectedQuery, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertMax(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
 
-        protected Task AssertMax<TItem1>(
+        protected Task AssertMax<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<long>> query,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, int?>> actualSelector,
+            Expression<Func<TResult, int?>> expectedSelector,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => AssertMax(isAsync, query, query, asserter, entryCount);
+            => Fixture.QueryAsserter.AssertMax(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
 
-        protected Task AssertMax<TItem1>(
+        protected Task AssertMax<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<long>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<long>> expectedQuery,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, decimal>> selector,
             Action<object, object> asserter = null,
             int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMax(actualQuery, expectedQuery, asserter, entryCount, isAsync);
-
-        protected Task AssertMax<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int>> selector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertMax(isAsync, query, query, selector, selector, asserter, entryCount);
-
-        protected Task AssertMax<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int>> actualSelector,
-            Expression<Func<TSelector, int>> expectedSelector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMax(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
-
-        protected Task AssertMax<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int?>> selector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertMax(isAsync, query, query, selector, selector, asserter, entryCount);
-
-        protected Task AssertMax<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int?>> actualSelector,
-            Expression<Func<TSelector, int?>> expectedSelector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMax(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
-
-        protected Task AssertMax<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, decimal>> selector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => AssertMax(isAsync, query, query, selector, selector, asserter, entryCount);
-
-        protected Task AssertMax<TItem1, TSelector>(
-            bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, decimal>> actualSelector,
-            Expression<Func<TSelector, decimal>> expectedSelector,
-            Action<object, object> asserter = null,
-            int entryCount = 0)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertMax(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, isAsync);
+            => Fixture.QueryAsserter.AssertMax(
+                query, query, selector, selector, asserter, entryCount, isAsync);
 
         #endregion
 
         #region AssertSum
 
-        protected Task AssertSum<TItem1>(
+        protected Task AssertSum(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> query,
+            Func<ISetSource, IQueryable<int>> query,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertSum(isAsync, query, query, asserter);
+            => Fixture.QueryAsserter.AssertSum(query, query, asserter, isAsync);
 
-        protected Task AssertSum<TItem1>(
+        protected Task AssertSum(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
+            Func<ISetSource, IQueryable<int>> actualQuery,
+            Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<object, object> asserter = null)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, isAsync);
 
-        protected Task AssertSum<TItem1>(
+        protected Task AssertSum(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int?>> query,
+            Func<ISetSource, IQueryable<int?>> query,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertSum(isAsync, query, query, asserter);
+            => Fixture.QueryAsserter.AssertSum(query, query, asserter, isAsync);
 
-        protected Task AssertSum<TItem1>(
+        protected Task AssertSum(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
+            Func<ISetSource, IQueryable<int?>> actualQuery,
+            Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<object, object> asserter = null)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, int>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(query, query, selector, selector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int>> actualSelector,
-            Expression<Func<TSelector, int>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, int>> actualSelector,
+            Expression<Func<TResult, int>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int?>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, int?>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(query, query, selector, selector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int?>> actualSelector,
-            Expression<Func<TSelector, int?>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, int?>> actualSelector,
+            Expression<Func<TResult, int?>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, decimal>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, long>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(query, query, selector, selector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, decimal>> actualSelector,
-            Expression<Func<TSelector, decimal>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, long?>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, float>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, decimal>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(query, query, selector, selector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, float>> actualSelector,
-            Expression<Func<TSelector, float>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, decimal>> actualSelector,
+            Expression<Func<TResult, decimal>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TItem2, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, float>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            where TItem2 : class
-            => Fixture.QueryAsserter.AssertSum(query, query, selector, selector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertSum<TItem1, TItem2, TSelector>(
+        protected Task AssertSum<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int>> actualSelector,
-            Expression<Func<TSelector, int>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, float>> actualSelector,
+            Expression<Func<TResult, float>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            where TItem2 : class
-            => Fixture.QueryAsserter.AssertSum(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertSum(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
         #endregion
 
         #region AssertAverage
 
-        protected Task AssertAverage<TItem1>(
+        protected Task AssertAverage(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> query,
+            Func<ISetSource, IQueryable<int>> query,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertAverage(isAsync, query, query);
+            => Fixture.QueryAsserter.AssertAverage(query, query, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1>(
+        protected Task AssertAverage(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
+            Func<ISetSource, IQueryable<int>> actualQuery,
+            Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<object, object> asserter = null)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1>(
+        protected Task AssertAverage(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
+            Func<ISetSource, IQueryable<int?>> actualQuery,
+            Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<object, object> asserter = null)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1>(
+        protected Task AssertAverage(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<long>> query,
+            Func<ISetSource, IQueryable<long>> query,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertAverage(isAsync, query, query);
+            => Fixture.QueryAsserter.AssertAverage(query, query, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1>(
+        protected Task AssertAverage(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<long>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<long>> expectedQuery,
+            Func<ISetSource, IQueryable<long>> actualQuery,
+            Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<object, object> asserter = null)
-            where TItem1 : class
             => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, int>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertAverage(isAsync, query, query, selector, selector, asserter);
+            => Fixture.QueryAsserter.AssertAverage(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int>> actualSelector,
-            Expression<Func<TSelector, int>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, int>> actualSelector,
+            Expression<Func<TResult, int>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertAverage(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, int?>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, int?>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertAverage(isAsync, query, query, selector, selector, asserter);
+            => Fixture.QueryAsserter.AssertAverage(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, int?>> actualSelector,
-            Expression<Func<TSelector, int?>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, int?>> actualSelector,
+            Expression<Func<TResult, int?>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertAverage(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, decimal>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, decimal>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertAverage(isAsync, query, query, selector, selector, asserter);
+            => Fixture.QueryAsserter.AssertAverage(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, decimal>> actualSelector,
-            Expression<Func<TSelector, decimal>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, decimal>> actualSelector,
+            Expression<Func<TResult, decimal>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertAverage(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> query,
-            Expression<Func<TSelector, float>> selector,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Expression<Func<TResult, float>> selector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => AssertAverage(isAsync, query, query, selector, selector, asserter);
+            => Fixture.QueryAsserter.AssertAverage(
+                query, query, selector, selector, asserter, isAsync);
 
-        protected Task AssertAverage<TItem1, TSelector>(
+        protected Task AssertAverage<TResult>(
             bool isAsync,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TSelector>> expectedQuery,
-            Expression<Func<TSelector, float>> actualSelector,
-            Expression<Func<TSelector, float>> expectedSelector,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Expression<Func<TResult, float>> actualSelector,
+            Expression<Func<TResult, float>> expectedSelector,
             Action<object, object> asserter = null)
-            where TItem1 : class
-            => Fixture.QueryAsserter.AssertAverage(actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
+            => Fixture.QueryAsserter.AssertAverage(
+                actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, isAsync);
 
         #endregion
 
         #region AssertQuery
+
+        public Task AssertQueryTyped<TResult>(
+            bool isAsync,
+            Func<ISetSource, IQueryable<TResult>> query,
+            Func<TResult, object> elementSorter = null,
+            Action<TResult, TResult> elementAsserter = null,
+            bool assertOrder = false,
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
+            where TResult : class
+            => Fixture.QueryAsserter.AssertQueryTyped(
+                query, query, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
+
+        public Task AssertQueryTyped<TResult>(
+            bool isAsync,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> expectedQuery,
+            Func<TResult, object> elementSorter = null,
+            Action<TResult, TResult> elementAsserter = null,
+            bool assertOrder = false,
+            int entryCount = 0,
+            [CallerMemberName] string testMethodName = null)
+            where TResult : class
+            => Fixture.QueryAsserter.AssertQueryTyped(
+                actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, isAsync, testMethodName);
 
         public Task AssertQuery<TItem1>(
             bool isAsync,
@@ -1305,6 +1073,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public Task AssertQueryScalar<TItem1>(
             bool isAsync,
+            Func<IQueryable<TItem1>, IQueryable<uint?>> query,
+            bool assertOrder = false,
+            [CallerMemberName] string testMethodName = null)
+            where TItem1 : class
+            => AssertQueryScalar(isAsync, query, query, assertOrder, testMethodName);
+
+        public Task AssertQueryScalar<TItem1>(
+            bool isAsync,
             Func<IQueryable<TItem1>, IQueryable<double?>> query,
             bool assertOrder = false)
             where TItem1 : class
@@ -1568,8 +1344,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region Helpers - Asserters
 
+        public void AssertEqual<T>(T expected, T actual, Action<dynamic, dynamic> asserter = null)
+            => Fixture.QueryAsserter.AssertEqual(expected, actual, asserter);
+
+        public void AssertCollection<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            bool ordered = false)
+            => Fixture.QueryAsserter.AssertCollection(expected, actual, ordered);
+
         public static Action<dynamic, dynamic> GroupingAsserter<TKey, TElement>(
-            Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {
@@ -1579,10 +1365,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public static Action<dynamic, dynamic> CollectionAsserter<TElement>(
-            Func<TElement, object> elementSorter = null, Action<TElement, TElement> elementAsserter = null)
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null)
         {
             return (e, a) =>
             {
+                if (e == null && a == null)
+                {
+                    return;
+                }
+
                 var actual = elementSorter != null
                     ? ((IEnumerable<TElement>)a).OrderBy(elementSorter).ToList()
                     : ((IEnumerable<TElement>)a).ToList();
@@ -1621,8 +1413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             where TResult : class
         {
             return caller == null
-                ? new List<TResult>
-                    { default }
+                ? new List<TResult> { default }
                 : caller.DefaultIfEmpty();
         }
 

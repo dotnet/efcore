@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     Convention that converts accesses of DbSets inside query filters and defining queries into EntityQueryables.
-    ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the query pipeline.
+    ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
+    ///     query pipeline.
     /// </summary>
     public class QueryFilterDefiningQueryRewritingConvention : IModelFinalizedConvention
     {
@@ -95,7 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && methodCallExpression.Type.IsGenericType
                     && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
                 {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(methodCallExpression.Type.GetGenericArguments()[0]);
+                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(
+                        methodCallExpression.Type.GetGenericArguments()[0]);
                 }
 
                 return base.VisitMethodCall(methodCallExpression);

@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
@@ -77,17 +76,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ovs => ovs.Where(ov => ov.CustomerID == "ALFKI"));
         }
 
-        [ConditionalTheory(Skip = "issue #12873")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
         {
             return AssertQuery<OrderQuery>(
                 isAsync,
                 ovs => ovs.Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
-                    .Select(cv => cv.Orders.Where(cc => true).ToList()));
+                    .OrderBy(c => c.CustomerID)
+                    .Select(cv => cv.Orders.Where(cc => true).ToList()),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
+                entryCount: 6);
         }
 
-        [ConditionalTheory(Skip = "issue #15081")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_mixed_tracking(bool isAsync)
         {
@@ -96,12 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (cs, ovs)
                     => from c in cs
                        from o in ovs.Where(ov => ov.CustomerID == c.CustomerID)
-                       select new
-                       {
-                           c,
-                           o
-                       },
-                e => e.c.CustomerID);
+                       select new { c, o },
+                e => e.c.CustomerID,
+                entryCount: 89);
         }
 
         [ConditionalTheory]
@@ -120,9 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 else
                 {
                     await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => Task.FromResult((from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
-                                               where ov.CustomerID == "ALFKI"
-                                               select ov).ToList()));
+                        () => Task.FromResult(
+                            (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
+                             where ov.CustomerID == "ALFKI"
+                             select ov).ToList()));
                 }
             }
         }
@@ -143,9 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 else
                 {
                     await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => Task.FromResult((from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
-                                               where ov.CustomerID == "ALFKI"
-                                               select ov).ToList()));
+                        () => Task.FromResult(
+                            (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
+                             where ov.CustomerID == "ALFKI"
+                             select ov).ToList()));
                 }
             }
         }

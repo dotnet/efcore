@@ -400,6 +400,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string WorkingDirDescription
             => GetString("WorkingDirDescription");
 
+        /// <summary>
+        ///     Build started...
+        /// </summary>
+        public static string BuildStarted
+            => GetString("BuildStarted");
+
+        /// <summary>
+        ///     Build succeeded.
+        /// </summary>
+        public static string BuildSucceeded
+            => GetString("BuildSucceeded");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

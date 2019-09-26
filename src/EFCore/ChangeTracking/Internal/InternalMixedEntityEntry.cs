@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public override object GetOrCreateCollection(INavigation navigation, bool forMaterialization)
             => navigation.IsShadowProperty()
                 ? GetOrCreateCollectionTyped(navigation)
-                : base.GetOrCreateCollection(navigation,forMaterialization);
+                : base.GetOrCreateCollection(navigation, forMaterialization);
 
         private ICollection<object> GetOrCreateCollectionTyped(INavigation navigation)
         {

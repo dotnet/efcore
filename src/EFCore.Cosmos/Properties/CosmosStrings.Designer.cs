@@ -25,6 +25,38 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CosmosNotInUse");
 
         /// <summary>
+        ///     Create container failed. Status code: {statusCode}. Message: '{errorMessage}'
+        /// </summary>
+        public static string CreateContainerFailed([CanBeNull] object statusCode, [CanBeNull] object errorMessage)
+            => string.Format(
+                GetString("CreateContainerFailed", nameof(statusCode), nameof(errorMessage)),
+                statusCode, errorMessage);
+
+        /// <summary>
+        ///     Create item failed. Status code: {statusCode}. Message: '{errorMessage}'
+        /// </summary>
+        public static string CreateItemFailed([CanBeNull] object statusCode, [CanBeNull] object errorMessage)
+            => string.Format(
+                GetString("CreateItemFailed", nameof(statusCode), nameof(errorMessage)),
+                statusCode, errorMessage);
+
+        /// <summary>
+        ///     Delete database failed. Status code: {statusCode}. Message: '{errorMessage}'
+        /// </summary>
+        public static string DeleteDatabaseFailed([CanBeNull] object statusCode, [CanBeNull] object errorMessage)
+            => string.Format(
+                GetString("DeleteDatabaseFailed", nameof(statusCode), nameof(errorMessage)),
+                statusCode, errorMessage);
+
+        /// <summary>
+        ///     Delete item failed. Status code: {statusCode}. Message: '{errorMessage}'
+        /// </summary>
+        public static string DeleteItemFailed([CanBeNull] object statusCode, [CanBeNull] object errorMessage)
+            => string.Format(
+                GetString("DeleteItemFailed", nameof(statusCode), nameof(errorMessage)),
+                statusCode, errorMessage);
+
+        /// <summary>
         ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type mapped to the container '{container}' needs to have a unique discriminator value.
         /// </summary>
         public static string DuplicateDiscriminatorValue([CanBeNull] object entityType1, [CanBeNull] object discriminatorValue, [CanBeNull] object entityType2, [CanBeNull] object container)
@@ -49,12 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType, container);
 
         /// <summary>
-        ///     The entity type '{entityType}' does not have a partition key set, but it is mapped to the collection '{collection}' shared by entity types with partition keys.
+        ///     The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.
         /// </summary>
-        public static string NoPartitionKey([CanBeNull] object entityType, [CanBeNull] object collection)
+        public static string NoPartitionKey([CanBeNull] object entityType, [CanBeNull] object container)
             => string.Format(
-                GetString("NoPartitionKey", nameof(entityType), nameof(collection)),
-                entityType, collection);
+                GetString("NoPartitionKey", nameof(entityType), nameof(container)),
+                entityType, container);
 
         /// <summary>
         ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
@@ -95,6 +127,22 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyStoreNameMismatch", nameof(property1), nameof(entityType1), nameof(storeName1), nameof(property2), nameof(entityType2), nameof(storeName2)),
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
+
+        /// <summary>
+        ///     Query failed. Status code: {statusCode}. Message: '{errorMessage}'
+        /// </summary>
+        public static string QueryFailed([CanBeNull] object statusCode, [CanBeNull] object errorMessage)
+            => string.Format(
+                GetString("QueryFailed", nameof(statusCode), nameof(errorMessage)),
+                statusCode, errorMessage);
+
+        /// <summary>
+        ///     Replace item failed. Status code: {statusCode}. Message: '{errorMessage}'
+        /// </summary>
+        public static string ReplaceItemFailed([CanBeNull] object statusCode, [CanBeNull] object errorMessage)
+            => string.Format(
+                GetString("ReplaceItemFailed", nameof(statusCode), nameof(errorMessage)),
+                statusCode, errorMessage);
 
         private static string GetString(string name, params string[] formatterNames)
         {

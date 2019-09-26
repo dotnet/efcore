@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public class CommandInterceptionWithDiagnosticsSqlServerTest
-            : CommandInterceptionSqlServerTestBase, IClassFixture<CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
+            : CommandInterceptionSqlServerTestBase,
+                IClassFixture<CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
         {
             public CommandInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
                 : base(fixture)

@@ -60,7 +60,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'Employer ID comment', 'SCHEMA', 
                             ClrType = typeof(string),
                             IsNullable = false,
                             Comment = "Name comment"
-                        },
+                        }
                     },
                     Comment = "Table comment"
                 });
@@ -102,7 +102,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'Name comment', 'SCHEMA', @defaul
                             ClrType = typeof(string),
                             IsNullable = false,
                             Comment = "Name comment"
-                        },
+                        }
                     }
                 });
 
@@ -133,7 +133,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'Name comment', 'SCHEMA', @defaul
         {
             base.CreateIndexOperation_with_filter_where_clause();
 
-            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
+            AssertSql(
+                @"CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
 ");
         }
 
@@ -141,7 +142,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'Name comment', 'SCHEMA', @defaul
         {
             base.CreateIndexOperation_with_filter_where_clause_and_is_unique();
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND <> '';
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND <> '';
 ");
         }
 
@@ -149,12 +151,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'Name comment', 'SCHEMA', @defaul
         public void AlterTableOperation_with_new_comment()
         {
             Generate(
-                new AlterTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo",
-                    Comment = "My Comment"
-                });
+                new AlterTableOperation { Name = "People", Schema = "dbo", Comment = "My Comment" });
 
             AssertSql(
                 @"EXEC sp_addextendedproperty 'MS_Description', N'My Comment', 'SCHEMA', N'dbo', 'TABLE', N'People';
@@ -174,13 +171,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'Name comment', 'SCHEMA', @defaul
                         }),
                 new AlterTableOperation
                 {
-                    Schema = "dbo",
-                    Name = "People",
-                    Comment = "My Comment 2",
-                    OldTable = new TableOperation
-                    {
-                        Comment = "My Comment"
-                    }
+                    Schema = "dbo", Name = "People", Comment = "My Comment 2", OldTable = new TableOperation { Comment = "My Comment" }
                 });
 
             AssertSql(
@@ -200,15 +191,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                         {
                             x.HasComment("My Comment");
                         }),
-                new AlterTableOperation
-                {
-                    Schema = "dbo",
-                    Name = "People",
-                    OldTable = new TableOperation
-                    {
-                        Comment = "My Comment"
-                    }
-                });
+                new AlterTableOperation { Schema = "dbo", Name = "People", OldTable = new TableOperation { Comment = "My Comment" } });
 
             AssertSql(
                 @"EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', N'dbo', 'TABLE', N'People';
@@ -221,13 +204,11 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
             Generate(
                 new AddColumnOperation
                 {
-                    Table = "People",
-                    Name = "FullName",
-                    ClrType = typeof(string),
-                    ComputedColumnSql = "FirstName + ' ' + LastName"
+                    Table = "People", Name = "FullName", ClrType = typeof(string), ComputedColumnSql = "FirstName + ' ' + LastName"
                 });
 
-            AssertSql(@"ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;
+            AssertSql(
+                @"ALTER TABLE [People] ADD [FullName] AS FirstName + ' ' + LastName;
 ");
         }
 
@@ -245,7 +226,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     ComputedColumnSql = "CURRENT_TIMESTAMP"
                 });
 
-            AssertSql(@"ALTER TABLE [People] ADD [Birthday] AS CURRENT_TIMESTAMP;
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Birthday] AS CURRENT_TIMESTAMP;
 ");
         }
 
@@ -264,7 +246,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     [SqlServerAnnotationNames.Identity] = "1, 1"
                 });
 
-            AssertSql(@"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
 ");
         }
 
@@ -284,9 +267,11 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                         SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
-            AssertSql(@"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;
 ");
         }
+
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_seed_increment()
         {
@@ -302,7 +287,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     [SqlServerAnnotationNames.Identity] = "100,5"
                 });
 
-            AssertSql(@"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY(100,5);
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY(100,5);
 ");
         }
 
@@ -310,7 +296,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_without_column_type();
 
-            AssertSql(@"ALTER TABLE [People] ADD [Alias] nvarchar(max) NOT NULL;
+            AssertSql(
+                @"ALTER TABLE [People] ADD [Alias] nvarchar(max) NOT NULL;
 ");
         }
 
@@ -318,7 +305,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_with_unicode_no_model();
 
-            AssertSql(@"ALTER TABLE [Person] ADD [Name] varchar(max) NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] varchar(max) NULL;
 ");
         }
 
@@ -326,7 +314,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_with_maxLength();
 
-            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
 ");
         }
 
@@ -345,7 +334,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     DefaultValue = new DateTime(2019, 1, 1)
                 });
 
-            AssertSql(@"ALTER TABLE [dbo].[People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:00.000';
+            AssertSql(
+                @"ALTER TABLE [dbo].[People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:00.000';
 ");
         }
 
@@ -364,7 +354,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     DefaultValue = new DateTime(2019, 1, 1)
                 });
 
-            AssertSql(@"ALTER TABLE [dbo].[People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T00:00:00';
+            AssertSql(
+                @"ALTER TABLE [dbo].[People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T00:00:00';
 ");
         }
 
@@ -372,7 +363,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_with_maxLength_overridden();
 
-            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(32) NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] nvarchar(32) NULL;
 ");
         }
 
@@ -380,7 +372,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_with_maxLength_on_derived();
 
-            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] nvarchar(30) NULL;
 ");
         }
 
@@ -388,7 +381,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_with_ansi();
 
-            AssertSql(@"ALTER TABLE [Person] ADD [Name] varchar(max) NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] varchar(max) NULL;
 ");
         }
 
@@ -396,7 +390,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_with_unicode_overridden();
 
-            AssertSql(@"ALTER TABLE [Person] ADD [Name] nvarchar(max) NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [Name] nvarchar(max) NULL;
 ");
         }
 
@@ -404,7 +399,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         {
             base.AddColumnOperation_with_shared_column();
 
-            AssertSql(@"ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;
+            AssertSql(
+                @"ALTER TABLE [Base] ADD [Foo] nvarchar(max) NULL;
 ");
         }
 
@@ -422,7 +418,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     IsNullable = true
                 });
 
-            AssertSql(@"ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
 ");
         }
 
@@ -439,7 +436,8 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     IsNullable = true
                 });
 
-            AssertSql(@"ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
+            AssertSql(
+                @"ALTER TABLE [Person] ADD [RowVersion] rowversion NULL;
 ");
         }
 
@@ -447,13 +445,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
         public virtual void AddColumnOperation_with_comment()
         {
             Generate(
-                new AddColumnOperation
-                {
-                    Table = "People",
-                    Name = "FullName",
-                    ClrType = typeof(string),
-                    Comment = "My comment"
-                });
+                new AddColumnOperation { Table = "People", Name = "FullName", ClrType = typeof(string), Comment = "My comment" });
 
             AssertSql(
                 @"ALTER TABLE [People] ADD [FullName] nvarchar(max) NOT NULL;
@@ -486,14 +478,10 @@ EXEC sp_addextendedproperty 'MS_Description', N'My comment', 'SCHEMA', N'my', 'T
         public virtual void AddPrimaryKeyOperation_nonclustered()
         {
             Generate(
-                new AddPrimaryKeyOperation
-                {
-                    Table = "People",
-                    Columns = new[] { "Id" },
-                    [SqlServerAnnotationNames.Clustered] = false
-                });
+                new AddPrimaryKeyOperation { Table = "People", Columns = new[] { "Id" }, [SqlServerAnnotationNames.Clustered] = false });
 
-            AssertSql(@"ALTER TABLE [People] ADD PRIMARY KEY NONCLUSTERED ([Id]);
+            AssertSql(
+                @"ALTER TABLE [People] ADD PRIMARY KEY NONCLUSTERED ([Id]);
 ");
         }
 
@@ -534,10 +522,7 @@ ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;
             Generate(
                 new AlterColumnOperation
                 {
-                    Table = "People",
-                    Name = "Id",
-                    ClrType = typeof(int),
-                    [SqlServerAnnotationNames.Identity] = "1, 1"
+                    Table = "People", Name = "Id", ClrType = typeof(int), [SqlServerAnnotationNames.Identity] = "1, 1"
                 });
 
             AssertSql(
@@ -581,10 +566,7 @@ ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;
             Generate(
                 new AlterColumnOperation
                 {
-                    Table = "People",
-                    Name = "FullName",
-                    ClrType = typeof(string),
-                    ComputedColumnSql = "[FirstName] + ' ' + [LastName]"
+                    Table = "People", Name = "FullName", ClrType = typeof(string), ComputedColumnSql = "[FirstName] + ' ' + [LastName]"
                 });
 
             AssertSql(
@@ -618,11 +600,7 @@ ALTER TABLE [People] ADD [FullName] AS [FirstName] + ' ' + [LastName];
                     Name = "FullName",
                     ClrType = typeof(string),
                     ComputedColumnSql = "[FirstName] + ' ' + [LastName]",
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        ComputedColumnSql = "[LastName] + ', ' + [FirstName]"
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), ComputedColumnSql = "[LastName] + ', ' + [FirstName]" }
                 });
 
             AssertSql(
@@ -660,6 +638,7 @@ CREATE INDEX [IX_Person_FullName] ON [Person] ([FullName]);
                             {
                                 x.IsMemoryOptimized();
                             }
+
                             x.Property<string>("Name");
                             x.HasKey("Name");
                             x.HasIndex("Name");
@@ -670,10 +649,7 @@ CREATE INDEX [IX_Person_FullName] ON [Person] ([FullName]);
                     Name = "Name",
                     ClrType = typeof(string),
                     MaxLength = 30,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string)
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string) }
                 });
 
             AssertSql(
@@ -708,11 +684,7 @@ ALTER TABLE [Person] ADD INDEX [IX_Person_Name] NONCLUSTERED ([Name]);
                     Name = "Name",
                     ClrType = typeof(string),
                     IsNullable = true,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = false
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = false }
                 });
 
             AssertSql(
@@ -746,11 +718,7 @@ ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;
                     ClrType = typeof(string),
                     MaxLength = 30,
                     IsNullable = true,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true }
                 });
 
             AssertSql(
@@ -800,11 +768,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
                     ClrType = typeof(string),
                     MaxLength = 30,
                     IsNullable = true,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true }
                 });
 
             AssertSql(
@@ -841,11 +805,7 @@ CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]
                     ClrType = typeof(string),
                     MaxLength = 30,
                     IsNullable = true,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true }
                 });
 
             AssertSql(
@@ -912,11 +872,7 @@ ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(30) NULL;
                     Name = "FirstName",
                     ClrType = typeof(string),
                     IsNullable = false,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true }
                 });
 
             AssertSql(
@@ -951,18 +907,9 @@ CREATE INDEX [IX_Person_FirstName_LastName] ON [Person] ([FirstName], [LastName]
                     ClrType = typeof(string),
                     MaxLength = 30,
                     IsNullable = true,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true }
                 },
-                new CreateIndexOperation
-                {
-                    Name = "IX_Person_Name",
-                    Table = "Person",
-                    Columns = new[] { "Name" }
-                });
+                new CreateIndexOperation { Name = "IX_Person_Name", Table = "Person", Columns = new[] { "Name" } });
 
             AssertSql(
                 @"DECLARE @var0 sysname;
@@ -1009,11 +956,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
                     ClrType = typeof(string),
                     MaxLength = 30,
                     IsNullable = true,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true }
                 },
                 new CreateIndexOperation
                 {
@@ -1048,11 +991,7 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]) WITH (ONLINE = ON);
                     Name = "Id",
                     ClrType = typeof(long),
                     [SqlServerAnnotationNames.Identity] = "1, 1",
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(int),
-                        [SqlServerAnnotationNames.Identity] = "1, 1"
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(int), [SqlServerAnnotationNames.Identity] = "1, 1" }
                 });
 
             AssertSql(
@@ -1107,10 +1046,7 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
                         Name = "Id",
                         ClrType = typeof(int),
                         [SqlServerAnnotationNames.Identity] = "1, 1",
-                        OldColumn = new ColumnOperation
-                        {
-                            ClrType = typeof(int)
-                        }
+                        OldColumn = new ColumnOperation { ClrType = typeof(int) }
                     }));
 
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
@@ -1128,10 +1064,7 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
                         Name = "Id",
                         ClrType = typeof(int),
                         [SqlServerAnnotationNames.ValueGenerationStrategy] = SqlServerValueGenerationStrategy.IdentityColumn,
-                        OldColumn = new ColumnOperation
-                        {
-                            ClrType = typeof(int)
-                        }
+                        OldColumn = new ColumnOperation { ClrType = typeof(int) }
                     }));
 
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
@@ -1148,11 +1081,7 @@ ALTER TABLE [Person] ALTER COLUMN [Id] bigint NOT NULL;
                         Table = "Person",
                         Name = "Id",
                         ClrType = typeof(int),
-                        OldColumn = new ColumnOperation
-                        {
-                            ClrType = typeof(int),
-                            [SqlServerAnnotationNames.Identity] = "1, 1"
-                        }
+                        OldColumn = new ColumnOperation { ClrType = typeof(int), [SqlServerAnnotationNames.Identity] = "1, 1" }
                     }));
 
             Assert.Equal(SqlServerStrings.AlterIdentityColumn, ex.Message);
@@ -1225,12 +1154,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment', 'SCHEMA', N'dbo', '
                     ClrType = typeof(string),
                     IsNullable = false,
                     Comment = "My Comment 2",
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true,
-                        Comment = "My Comment"
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true, Comment = "My Comment" }
                 });
 
             AssertSql(
@@ -1264,12 +1188,7 @@ EXEC sp_addextendedproperty 'MS_Description', N'My Comment 2', 'SCHEMA', N'dbo',
                     Name = "Name",
                     ClrType = typeof(string),
                     IsNullable = false,
-                    OldColumn = new ColumnOperation
-                    {
-                        ClrType = typeof(string),
-                        IsNullable = true,
-                        Comment = "My Comment"
-                    }
+                    OldColumn = new ColumnOperation { ClrType = typeof(string), IsNullable = true, Comment = "My Comment" }
                 });
 
             AssertSql(
@@ -1288,10 +1207,7 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', N'dbo', 'TABLE', N'Peop
         public virtual void CreateDatabaseOperation()
         {
             Generate(
-                new SqlServerCreateDatabaseOperation
-                {
-                    Name = "Northwind"
-                });
+                new SqlServerCreateDatabaseOperation { Name = "Northwind" });
 
             AssertSql(
                 @"CREATE DATABASE [Northwind];
@@ -1308,11 +1224,7 @@ END;
         public virtual void CreateDatabaseOperation_with_filename()
         {
             Generate(
-                new SqlServerCreateDatabaseOperation
-                {
-                    Name = "Northwind",
-                    FileName = "Narf.mdf"
-                });
+                new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "Narf.mdf" });
 
             var expectedFile = Path.GetFullPath("Narf.mdf");
             var expectedLog = Path.GetFullPath("Narf_log.ldf");
@@ -1336,11 +1248,7 @@ END;
             var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             Generate(
-                new SqlServerCreateDatabaseOperation
-                {
-                    Name = "Northwind",
-                    FileName = "|DataDirectory|Narf.mdf"
-                });
+                new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "|DataDirectory|Narf.mdf" });
 
             var expectedFile = Path.Combine(baseDirectory, "Narf.mdf");
             var expectedLog = Path.Combine(baseDirectory, "Narf_log.ldf");
@@ -1366,11 +1274,7 @@ END;
             AppDomain.CurrentDomain.SetData("DataDirectory", dataDirectory);
 
             Generate(
-                new SqlServerCreateDatabaseOperation
-                {
-                    Name = "Northwind",
-                    FileName = "|DataDirectory|Narf.mdf"
-                });
+                new SqlServerCreateDatabaseOperation { Name = "Northwind", FileName = "|DataDirectory|Narf.mdf" });
 
             AppDomain.CurrentDomain.SetData("DataDirectory", null);
 
@@ -1394,10 +1298,7 @@ END;
         public virtual void AlterDatabaseOperationOperation()
         {
             Generate(
-                new AlterDatabaseOperation
-                {
-                    [SqlServerAnnotationNames.MemoryOptimized] = true
-                });
+                new AlterDatabaseOperation { [SqlServerAnnotationNames.MemoryOptimized] = true });
 
             Assert.Contains(
                 "CONTAINS MEMORY_OPTIMIZED_DATA;",
@@ -1408,7 +1309,8 @@ END;
         {
             base.CreateIndexOperation_nonunique();
 
-            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]);
+            AssertSql(
+                @"CREATE INDEX [IX_People_Name] ON [People] ([Name]);
 ");
         }
 
@@ -1416,7 +1318,8 @@ END;
         {
             base.CreateIndexOperation_unique();
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;
 ");
         }
 
@@ -1434,7 +1337,8 @@ END;
                     IsUnique = true
                 });
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]);
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]);
 ");
         }
 
@@ -1444,13 +1348,11 @@ END;
             Generate(
                 new CreateIndexOperation
                 {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "Name" },
-                    [SqlServerAnnotationNames.Clustered] = true
+                    Name = "IX_People_Name", Table = "People", Columns = new[] { "Name" }, [SqlServerAnnotationNames.Clustered] = true
                 });
 
-            AssertSql(@"CREATE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);
+            AssertSql(
+                @"CREATE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);
 ");
         }
 
@@ -1467,7 +1369,8 @@ END;
                     [SqlServerAnnotationNames.Clustered] = true
                 });
 
-            AssertSql(@"CREATE UNIQUE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);
+            AssertSql(
+                @"CREATE UNIQUE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);
 ");
         }
 
@@ -1483,7 +1386,8 @@ END;
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
+            AssertSql(
+                @"CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
 ");
         }
 
@@ -1500,7 +1404,8 @@ END;
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            AssertSql(@"CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';
+            AssertSql(
+                @"CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';
 ");
         }
 
@@ -1517,7 +1422,8 @@ END;
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL;
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL;
 ");
         }
 
@@ -1535,7 +1441,8 @@ END;
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '';
 ");
         }
 
@@ -1554,7 +1461,8 @@ END;
                     [SqlServerAnnotationNames.CreatedOnline] = true
                 });
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '' WITH (ONLINE = ON);
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL AND <> '' WITH (ONLINE = ON);
 ");
         }
 
@@ -1572,7 +1480,8 @@ END;
                     [SqlServerAnnotationNames.Include] = new[] { "FirstName", "LastName" }
                 });
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
 ");
         }
 
@@ -1581,15 +1490,10 @@ END;
         {
             Generate(
                 modelBuilder => modelBuilder.Entity("People").Property<string>("Name"),
-                new CreateIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "Name" },
-                    IsUnique = true
-                });
+                new CreateIndexOperation { Name = "IX_People_Name", Table = "People", Columns = new[] { "Name" }, IsUnique = true });
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
 ");
         }
 
@@ -1597,20 +1501,16 @@ END;
         public virtual void CreateIndexOperation_unique_bound_not_null()
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People", x =>
-                {
-                    x.Property<string>("Name").IsRequired();
-                    x.HasKey("Name");
-                }),
-                new CreateIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "Name" },
-                    IsUnique = true
-                });
+                modelBuilder => modelBuilder.Entity(
+                    "People", x =>
+                    {
+                        x.Property<string>("Name").IsRequired();
+                        x.HasKey("Name");
+                    }),
+                new CreateIndexOperation { Name = "IX_People_Name", Table = "People", Columns = new[] { "Name" }, IsUnique = true });
 
-            AssertSql(@"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]);
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]);
 ");
         }
 
@@ -1620,21 +1520,23 @@ END;
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable(bool obsolete)
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People", x =>
-                {
-                    if (obsolete)
+                modelBuilder => modelBuilder.Entity(
+                    "People", x =>
                     {
+                        if (obsolete)
+                        {
 #pragma warning disable 618
-                        x.ToTable("People", "dbo").ForSqlServerIsMemoryOptimized().Property<string>("Name");
+                            x.ToTable("People", "dbo").ForSqlServerIsMemoryOptimized().Property<string>("Name");
 #pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.ToTable("People", "dbo").IsMemoryOptimized().Property<string>("Name");
-                    }
-                    x.Property<int>("Id");
-                    x.HasKey("Id");
-                }),
+                        }
+                        else
+                        {
+                            x.ToTable("People", "dbo").IsMemoryOptimized().Property<string>("Name");
+                        }
+
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                    }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1644,7 +1546,8 @@ END;
                     IsUnique = true
                 });
 
-            AssertSql(@"ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);
+            AssertSql(
+                @"ALTER TABLE [dbo].[People] ADD INDEX [IX_People_Name] ([Name]);
 ");
         }
 
@@ -1654,21 +1557,23 @@ END;
         public virtual void CreateIndexOperation_memoryOptimized_unique_nullable_with_filter(bool obsolete)
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People", x =>
-                {
-                    if (obsolete)
+                modelBuilder => modelBuilder.Entity(
+                    "People", x =>
                     {
+                        if (obsolete)
+                        {
 #pragma warning disable 618
-                        x.ForSqlServerIsMemoryOptimized().Property<string>("Name");
+                            x.ForSqlServerIsMemoryOptimized().Property<string>("Name");
 #pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.IsMemoryOptimized().Property<string>("Name");
-                    }
-                    x.Property<int>("Id");
-                    x.HasKey("Id");
-                }),
+                        }
+                        else
+                        {
+                            x.IsMemoryOptimized().Property<string>("Name");
+                        }
+
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                    }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1678,7 +1583,8 @@ END;
                     Filter = "[Name] IS NOT NULL AND <> ''"
                 });
 
-            AssertSql(@"ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);
+            AssertSql(
+                @"ALTER TABLE [People] ADD INDEX [IX_People_Name] ([Name]);
 ");
         }
 
@@ -1688,20 +1594,22 @@ END;
         public virtual void CreateIndexOperation_memoryOptimized_unique_nonclustered_not_nullable(bool obsolete)
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People", x =>
-                {
-                    if (obsolete)
+                modelBuilder => modelBuilder.Entity(
+                    "People", x =>
                     {
+                        if (obsolete)
+                        {
 #pragma warning disable 618
-                        x.ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired();
+                            x.ForSqlServerIsMemoryOptimized().Property<string>("Name").IsRequired();
 #pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.IsMemoryOptimized().Property<string>("Name").IsRequired();
-                    }
-                    x.HasKey("Name");
-                }),
+                        }
+                        else
+                        {
+                            x.IsMemoryOptimized().Property<string>("Name").IsRequired();
+                        }
+
+                        x.HasKey("Name");
+                    }),
                 new CreateIndexOperation
                 {
                     Name = "IX_People_Name",
@@ -1711,7 +1619,8 @@ END;
                     [SqlServerAnnotationNames.Clustered] = false
                 });
 
-            AssertSql(@"ALTER TABLE [People] ADD INDEX [IX_People_Name] UNIQUE NONCLUSTERED ([Name]);
+            AssertSql(
+                @"ALTER TABLE [People] ADD INDEX [IX_People_Name] UNIQUE NONCLUSTERED ([Name]);
 ");
         }
 
@@ -1719,12 +1628,10 @@ END;
         public virtual void CreateSchemaOperation()
         {
             Generate(
-                new EnsureSchemaOperation
-                {
-                    Name = "my"
-                });
+                new EnsureSchemaOperation { Name = "my" });
 
-            AssertSql(@"IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');
+            AssertSql(
+                @"IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my];');
 ");
         }
 
@@ -1732,10 +1639,7 @@ END;
         public virtual void CreateSchemaOperation_dbo()
         {
             Generate(
-                new EnsureSchemaOperation
-                {
-                    Name = "dbo"
-                });
+                new EnsureSchemaOperation { Name = "dbo" });
 
             AssertSql("");
         }
@@ -1759,10 +1663,7 @@ ALTER TABLE [dbo].[People] DROP COLUMN [LuckyNumber];
         public virtual void DropDatabaseOperation()
         {
             Generate(
-                new SqlServerDropDatabaseOperation
-                {
-                    Name = "Northwind"
-                });
+                new SqlServerDropDatabaseOperation { Name = "Northwind" });
 
             AssertSql(
                 @"IF SERVERPROPERTY('EngineEdition') <> 5
@@ -1779,7 +1680,8 @@ DROP DATABASE [Northwind];
         {
             base.DropIndexOperation();
 
-            AssertSql(@"DROP INDEX [IX_People_Name] ON [dbo].[People];
+            AssertSql(
+                @"DROP INDEX [IX_People_Name] ON [dbo].[People];
 ");
         }
 
@@ -1789,28 +1691,27 @@ DROP DATABASE [Northwind];
         public virtual void DropIndexOperation_memoryOptimized(bool obsolete)
         {
             Generate(
-                modelBuilder => modelBuilder.Entity("People", x =>
-                {
-                    if (obsolete)
+                modelBuilder => modelBuilder.Entity(
+                    "People", x =>
                     {
+                        if (obsolete)
+                        {
 #pragma warning disable 618
-                        x.ForSqlServerIsMemoryOptimized();
+                            x.ForSqlServerIsMemoryOptimized();
 #pragma warning restore 618
-                    }
-                    else
-                    {
-                        x.IsMemoryOptimized();
-                    }
-                    x.Property<int>("Id");
-                    x.HasKey("Id");
-                }),
-                new DropIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People"
-                });
+                        }
+                        else
+                        {
+                            x.IsMemoryOptimized();
+                        }
 
-            AssertSql(@"ALTER TABLE [People] DROP INDEX [IX_People_Name];
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                    }),
+                new DropIndexOperation { Name = "IX_People_Name", Table = "People" });
+
+            AssertSql(
+                @"ALTER TABLE [People] DROP INDEX [IX_People_Name];
 ");
         }
 
@@ -1818,14 +1719,10 @@ DROP DATABASE [Northwind];
         public virtual void MoveSequenceOperation_legacy()
         {
             Generate(
-                new RenameSequenceOperation
-                {
-                    Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo",
-                    NewSchema = "my"
-                });
+                new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo", NewSchema = "my" });
 
-            AssertSql(@"ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];
+            AssertSql(
+                @"ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];
 ");
         }
 
@@ -1836,13 +1733,11 @@ DROP DATABASE [Northwind];
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameSequenceOperation
                 {
-                    Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo",
-                    NewName = "EntityFrameworkHiLoSequence",
-                    NewSchema = "my"
+                    Name = "EntityFrameworkHiLoSequence", Schema = "dbo", NewName = "EntityFrameworkHiLoSequence", NewSchema = "my"
                 });
 
-            AssertSql(@"ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];
+            AssertSql(
+                @"ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];
 ");
         }
 
@@ -1853,9 +1748,7 @@ DROP DATABASE [Northwind];
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameSequenceOperation
                 {
-                    Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo",
-                    NewName = "EntityFrameworkHiLoSequence"
+                    Name = "EntityFrameworkHiLoSequence", Schema = "dbo", NewName = "EntityFrameworkHiLoSequence"
                 });
 
             AssertSql(
@@ -1868,14 +1761,10 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiL
         public virtual void MoveTableOperation_legacy()
         {
             Generate(
-                new RenameTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo",
-                    NewSchema = "hr"
-                });
+                new RenameTableOperation { Name = "People", Schema = "dbo", NewSchema = "hr" });
 
-            AssertSql(@"ALTER SCHEMA [hr] TRANSFER [dbo].[People];
+            AssertSql(
+                @"ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 ");
         }
 
@@ -1884,15 +1773,10 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiL
         {
             Generate(
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
-                new RenameTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo",
-                    NewName = "People",
-                    NewSchema = "hr"
-                });
+                new RenameTableOperation { Name = "People", Schema = "dbo", NewName = "People", NewSchema = "hr" });
 
-            AssertSql(@"ALTER SCHEMA [hr] TRANSFER [dbo].[People];
+            AssertSql(
+                @"ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 ");
         }
 
@@ -1901,12 +1785,7 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[EntityFrameworkHiL
         {
             Generate(
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
-                new RenameTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo",
-                    NewName = "People"
-                });
+                new RenameTableOperation { Name = "People", Schema = "dbo", NewName = "People" });
 
             AssertSql(
                 @"DECLARE @defaultSchema sysname = SCHEMA_NAME();
@@ -1918,15 +1797,10 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
         public virtual void RenameColumnOperation()
         {
             Generate(
-                new RenameColumnOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "Name",
-                    NewName = "FullName"
-                });
+                new RenameColumnOperation { Table = "People", Schema = "dbo", Name = "Name", NewName = "FullName" });
 
-            AssertSql(@"EXEC sp_rename N'[dbo].[People].[Name]', N'FullName', N'COLUMN';
+            AssertSql(
+                @"EXEC sp_rename N'[dbo].[People].[Name]', N'FullName', N'COLUMN';
 ");
         }
 
@@ -1934,15 +1808,10 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
         public virtual void RenameIndexOperation()
         {
             Generate(
-                new RenameIndexOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "IX_People_Name",
-                    NewName = "IX_People_FullName"
-                });
+                new RenameIndexOperation { Table = "People", Schema = "dbo", Name = "IX_People_Name", NewName = "IX_People_FullName" });
 
-            AssertSql(@"EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';
+            AssertSql(
+                @"EXEC sp_rename N'[dbo].[People].[IX_People_Name]', N'IX_People_FullName', N'INDEX';
 ");
         }
 
@@ -1965,14 +1834,10 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
         public virtual void RenameSequenceOperation_legacy()
         {
             Generate(
-                new RenameSequenceOperation
-                {
-                    Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo",
-                    NewName = "MySequence"
-                });
+                new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo", NewName = "MySequence" });
 
-            AssertSql(@"EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
+            AssertSql(
+                @"EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
 ");
         }
 
@@ -1983,13 +1848,11 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
                 new RenameSequenceOperation
                 {
-                    Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo",
-                    NewName = "MySequence",
-                    NewSchema = "dbo"
+                    Name = "EntityFrameworkHiLoSequence", Schema = "dbo", NewName = "MySequence", NewSchema = "dbo"
                 });
 
-            AssertSql(@"EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
+            AssertSql(
+                @"EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
 ");
         }
 
@@ -1998,7 +1861,8 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
         {
             base.RenameTableOperation_legacy();
 
-            AssertSql(@"EXEC sp_rename N'[dbo].[People]', N'Person';
+            AssertSql(
+                @"EXEC sp_rename N'[dbo].[People]', N'Person';
 ");
         }
 
@@ -2007,7 +1871,8 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
         {
             base.RenameTableOperation();
 
-            AssertSql(@"EXEC sp_rename N'[dbo].[People]', N'Person';
+            AssertSql(
+                @"EXEC sp_rename N'[dbo].[People]', N'Person';
 ");
         }
 
@@ -2021,7 +1886,8 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
                           "comment"
                 });
 
-            AssertSql(@"-- Multiline comment
+            AssertSql(
+                @"-- Multiline comment
 ");
         }
 
@@ -2036,7 +1902,8 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [dbo].[People];');
                           "GO"
                 });
 
-            AssertSql(@"-- Ready set
+            AssertSql(
+                @"-- Ready set
 ");
         }
 
@@ -2081,12 +1948,10 @@ GO
         public virtual void SqlOperation_ignores_non_go()
         {
             Generate(
-                new SqlOperation
-                {
-                    Sql = "-- I GO 2"
-                });
+                new SqlOperation { Sql = "-- I GO 2" });
 
-            AssertSql(@"-- I GO 2
+            AssertSql(
+                @"-- I GO 2
 ");
         }
 

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
     ///     <para>
-    ///         A factory for creating <see cref="QueryCompilationContext"/> instances.
+    ///         A factory for creating <see cref="QueryCompilationContext" /> instances.
     ///     </para>
     ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each

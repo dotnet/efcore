@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -26,25 +26,32 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private static readonly MethodInfo _selectMethodInfo
                 = typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(nameof(Enumerable.Select))
                     .Single(mi => mi.GetParameters().Length == 2 && mi.GetParameters()[1].ParameterType.GetGenericArguments().Length == 3);
+
             private static readonly MethodInfo _castMethodInfo
                 = typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(nameof(Enumerable.Cast))
                     .Single(mi => mi.GetParameters().Length == 1);
+
             private static readonly MethodInfo _getItemMethodInfo
                 = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
                     .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                     .GetMethod;
+
             private static readonly PropertyInfo _jTokenTypePropertyInfo
                 = typeof(JToken).GetTypeInfo().GetRuntimeProperties()
                     .Single(mi => mi.Name == nameof(JToken.Type));
+
             private static readonly MethodInfo _jTokenToObjectMethodInfo
                 = typeof(JToken).GetTypeInfo().GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
+
             private static readonly MethodInfo _toObjectMethodInfo
                 = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo().GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(SafeToObject));
+
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
                 = typeof(IClrCollectionAccessor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(IClrCollectionAccessor.Add));
+
             private static readonly MethodInfo _collectionAccessorGetOrCreateMethodInfo
                 = typeof(IClrCollectionAccessor).GetTypeInfo()
                     .GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate));
@@ -55,11 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             private readonly IDictionary<ParameterExpression, Expression> _materializationContextBindings
                 = new Dictionary<ParameterExpression, Expression>();
+
             private readonly IDictionary<Expression, ParameterExpression> _projectionBindings
                 = new Dictionary<Expression, ParameterExpression>();
+
             private readonly IDictionary<Expression, (IEntityType EntityType, Expression JObjectExpression)> _ownerMappings
                 = new Dictionary<Expression, (IEntityType, Expression)>();
-            private (IEntityType EntityType, ParameterExpression JObjectVariable) _ownerInfo;
+
             private ParameterExpression _ordinalParameter;
 
             public CosmosProjectionBindingRemovingExpressionVisitor(
@@ -88,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 var projection = GetProjection(projectionBindingExpression);
                                 projectionExpression = projection.Expression;
                                 storeName = projection.Alias;
-                            } else if (projectionExpression is UnaryExpression convertExpression)
+                            }
+                            else if (projectionExpression is UnaryExpression convertExpression)
                             {
                                 projectionExpression = ((UnaryExpression)convertExpression.Operand).Operand;
                             }
@@ -106,21 +116,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 var accessExpression = entityProjectionExpression.AccessExpression;
                                 _projectionBindings[accessExpression] = parameterExpression;
                                 storeName ??= entityProjectionExpression.Name;
-                                if (_ownerInfo.EntityType != null)
-                                {
-                                    _ownerMappings[accessExpression] = _ownerInfo;
-                                }
 
                                 switch (accessExpression)
                                 {
                                     case ObjectAccessExpression innerObjectAccessExpression:
                                         innerAccessExpression = innerObjectAccessExpression.AccessExpression;
+                                        _ownerMappings[accessExpression] =
+                                            (innerObjectAccessExpression.Navigation.DeclaringEntityType, innerAccessExpression);
                                         break;
                                     case RootReferenceExpression _:
                                         innerAccessExpression = _jObjectParameter;
                                         break;
                                     default:
-                                        throw new InvalidOperationException(CoreStrings.QueryFailed(binaryExpression.Print(), GetType().Name));
+                                        throw new InvalidOperationException(
+                                            CoreStrings.QueryFailed(binaryExpression.Print(), GetType().Name));
                                 }
                             }
 
@@ -147,7 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                             _materializationContextBindings[parameterExpression] = entityProjectionExpression.AccessExpression;
 
-                            var updatedExpression = Expression.New(newExpression.Constructor,
+                            var updatedExpression = Expression.New(
+                                newExpression.Constructor,
                                 Expression.Constant(ValueBuffer.Empty),
                                 newExpression.Arguments[1]);
 
@@ -228,14 +238,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var ordinalParameter = Expression.Parameter(typeof(int), jArray.Name + "Ordinal");
 
                         _projectionBindings[objectArrayProjection.InnerProjection.AccessExpression] = jObjectParameter;
-                        if (_ownerInfo.EntityType != null)
-                        {
-                            _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = _ownerInfo;
-                        }
-                        else
-                        {
-                            _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = (objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
-                        }
+
+                        _ownerMappings[objectArrayProjection.InnerProjection.AccessExpression] = (
+                            objectArrayProjection.Navigation.DeclaringEntityType, objectArrayProjection.AccessExpression);
 
                         var previousOrdinalParameter = _ordinalParameter;
                         _ordinalParameter = ordinalParameter;
@@ -289,10 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             includingClrType, relatedEntityClrType, navigation, inverseNavigation);
                         var initialize = GenerateInitialize(includingClrType, navigation);
 
-                        var previousOwner = _ownerInfo;
-                        _ownerInfo = (navigation.DeclaringEntityType, jObjectVariable);
                         var navigationExpression = Visit(includeExpression.NavigationExpression);
-                        _ownerInfo = previousOwner;
 
                         shaperExpressions.Add(
                             Expression.Call(
@@ -452,7 +454,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         inverseNavigation.IsCollection()
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
-
                 }
 
                 return Expression.Lambda(Expression.Block(typeof(void), expressions), entityParameter, relatedEntityParameter)
@@ -470,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 var entityParameter = Expression.Parameter(entityType);
 
-                var getOrCreateExpression =  Expression.Call(
+                var getOrCreateExpression = Expression.Call(
                     Expression.Constant(navigation.GetCollectionAccessor()),
                     _collectionAccessorGetOrCreateMethodInfo,
                     entityParameter,
@@ -547,9 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     if (!entityType.IsDocumentRoot())
                     {
                         var ownership = entityType.FindOwnership();
-
-                        if (ownership != null
-                            && !ownership.IsUnique
+                        if (!ownership.IsUnique
                             && property.IsPrimaryKey()
                             && !property.IsForeignKey()
                             && property.ClrType == typeof(int))
@@ -641,12 +640,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
 
                     body = Expression.Condition(
-                            Expression.OrElse(
-                                Expression.Equal(jTokenParameter, Expression.Default(typeof(JToken))),
-                                Expression.Equal(Expression.MakeMemberAccess(jTokenParameter, _jTokenTypePropertyInfo),
-                                    Expression.Constant(JTokenType.Null))),
-                            Expression.Default(clrType),
-                            body);
+                        Expression.OrElse(
+                            Expression.Equal(jTokenParameter, Expression.Default(typeof(JToken))),
+                            Expression.Equal(
+                                Expression.MakeMemberAccess(jTokenParameter, _jTokenTypePropertyInfo),
+                                Expression.Constant(JTokenType.Null))),
+                        Expression.Default(clrType),
+                        body);
 
                     valueExpression = Expression.Invoke(Expression.Lambda(body, jTokenParameter), jTokenExpression);
                 }

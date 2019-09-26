@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -541,8 +542,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal(
                 RelationalStrings.DuplicateCheckConstraint("CK_Customer_AlternateId", entityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() =>
-                       entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id")).Message);
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id")).Message);
         }
 
         [ConditionalFact]

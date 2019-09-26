@@ -9,7 +9,7 @@ using Xunit.Sdk;
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
 {
     /// <summary>
-    ///     Used dynamically from <see cref="ConditionalTheoryAttribute"/>.
+    ///     Used dynamically from <see cref="ConditionalTheoryAttribute" />.
     ///     Make sure to update that class if you move this type.
     /// </summary>
     public class ConditionalTheoryDiscoverer : TheoryDiscoverer
@@ -29,7 +29,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit
                 discoveryOptions.MethodDisplayOrDefault(),
                 discoveryOptions.MethodDisplayOptionsOrDefault(),
                 testMethod);
-
         }
 
         protected override IEnumerable<IXunitTestCase> CreateTestCasesForDataRow(

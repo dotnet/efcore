@@ -107,10 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (setToDependent)
                 {
-                    var collection = new HashSet<object>
-                    {
-                        dependent
-                    };
+                    var collection = new HashSet<object> { dependent };
                     principalEntry.Collection("Products").CurrentValue = collection;
                 }
 

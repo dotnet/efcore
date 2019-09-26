@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var oldAnnotation = FindAnnotation(name);
             if (oldAnnotation != null
-                   && Equals(oldAnnotation.Value, value))
+                && Equals(oldAnnotation.Value, value))
             {
                 return;
             }

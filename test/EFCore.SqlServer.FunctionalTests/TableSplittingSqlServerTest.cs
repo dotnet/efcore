@@ -85,16 +85,6 @@ WHERE [v].[Discriminator] IN (N'Vehicle', N'PoweredVehicle')
 ORDER BY [v].[Name]");
         }
 
-        public override void Can_use_with_chained_relationships()
-        {
-            base.Can_use_with_chained_relationships();
-        }
-
-        public override void Can_use_with_fanned_relationships()
-        {
-            base.Can_use_with_fanned_relationships();
-        }
-
         public override void Can_query_shared()
         {
             base.Can_query_shared();

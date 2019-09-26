@@ -116,13 +116,15 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.ChangeTracker
             //       API for bulk update in EF6.x
         }
 
-        [SingleRunJob, Description("AutoDetectChanges=True")]
+        [SingleRunJob]
+        [Description("AutoDetectChanges=True")]
         public class AddDataVariationsWithAutoDetectChangesOn : AddDataVariations
         {
             protected override bool AutoDetectChanges => true;
         }
 
-        [SingleRunJob, Description("AutoDetectChanges=True")]
+        [SingleRunJob]
+        [Description("AutoDetectChanges=True")]
         public class ExistingDataVariationsWithAutoDetectChangesOn : ExistingDataVariations
         {
             protected override bool AutoDetectChanges => true;
