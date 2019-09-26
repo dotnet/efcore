@@ -20,5 +20,6 @@
     <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.dll" target="tools/netcoreapp2.0/any/" />
     <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.pdb" target="tools/netcoreapp2.0/any/" />
     <file src="../../artifacts/bin/ef/$configuration$/netcoreapp2.0/ef.runtimeconfig.json" target="tools/netcoreapp2.0/any/" />
+    <file src="$PackageIcon$" target="" />
   </files>
 </package>
