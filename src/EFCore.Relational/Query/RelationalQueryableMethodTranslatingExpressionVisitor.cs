@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
-        private SqlBinaryExpression CreateJoinPredicate(
+        private SqlExpression CreateJoinPredicate(
             ShapedQueryExpression outer,
             LambdaExpression outerKeySelector,
             ShapedQueryExpression inner,
@@ -513,48 +513,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             var outerKey = RemapLambdaBody(outer, outerKeySelector);
             var innerKey = RemapLambdaBody(inner, innerKeySelector);
 
-            if (outerKey is NewExpression outerNew)
+            if (outerKey is NewExpression outerNew
+                && outerNew.Type != typeof(AnonymousObject))
             {
                 var innerNew = (NewExpression)innerKey;
 
-                return outerNew.Type == typeof(AnonymousObject)
-                    ? CreateJoinPredicate(
-                        ((NewArrayExpression)outerNew.Arguments[0]).Expressions,
-                        ((NewArrayExpression)innerNew.Arguments[0]).Expressions)
-                    : CreateJoinPredicate(outerNew.Arguments, innerNew.Arguments);
+                SqlExpression result = null;
+                for (var i = 0; i < outerNew.Arguments.Count; i++)
+                {
+                    var joinPredicate = CreateJoinPredicate(outerNew.Arguments[i], innerNew.Arguments[i]);
+                    result = result == null
+                        ? joinPredicate
+                        : _sqlExpressionFactory.AndAlso(result, joinPredicate);
+                }
+
+                return result;
             }
 
             return CreateJoinPredicate(outerKey, innerKey);
         }
 
-        private SqlBinaryExpression CreateJoinPredicate(
-            IReadOnlyList<Expression> outerExpressions,
-            IReadOnlyList<Expression> innerExpressions)
-        {
-            SqlBinaryExpression result = null;
-            for (var i = 0; i < outerExpressions.Count; i++)
-            {
-                result = result == null
-                    ? CreateJoinPredicate(outerExpressions[i], innerExpressions[i])
-                    : _sqlExpressionFactory.AndAlso(
-                        result,
-                        CreateJoinPredicate(outerExpressions[i], innerExpressions[i]));
-            }
-
-            return result;
-        }
-
-        private SqlBinaryExpression CreateJoinPredicate(
-            Expression outerKey,
-            Expression innerKey)
-        {
-            var left = TranslateExpression(outerKey);
-            var right = TranslateExpression(innerKey);
-
-            return left != null && right != null
-                ? _sqlExpressionFactory.Equal(left, right)
-                : null;
-        }
+        private SqlExpression CreateJoinPredicate(Expression outerKey, Expression innerKey)
+            => TranslateExpression(Expression.Equal(outerKey, innerKey));
 
         protected override ShapedQueryExpression TranslateLastOrDefault(
             ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
