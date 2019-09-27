@@ -10,7 +10,7 @@ variables:
   - name: _DotNetArtifactsCategory
     value: ENTITYFRAMEWORKCORE
   - name: _CosmosConnectionUrl
-    value: https://ef-nightly-test.documents.azure.com:443/
+    value: https://localhost:8081
   - name: _CosmosToken
     value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
 
@@ -112,8 +112,12 @@ stages:
             pool:
               vmImage: ubuntu-16.04
             variables:
-              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'IndividualCI', 'BatchedCI')) }}:
+              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
+                - _CosmosConnectionUrl: https://ef-nightly-test.documents.azure.com:443/
                 - _CosmosToken: $(ef-nightly-cosmos-key)
+              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), eq(variables['Build.Reason'], 'PullRequest')) }}:
+                - _CosmosConnectionUrl: https://ef-pr-test.documents.azure.com:443/
+                - _CosmosToken: $(ef-pr-cosmos-test)
             steps:
               - bash: sudo apt-get install -y libsqlite3-mod-spatialite
                 displayName: Install SpatiaLite

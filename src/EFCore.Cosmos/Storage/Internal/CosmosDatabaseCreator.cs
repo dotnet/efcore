@@ -64,17 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             if (created)
             {
-                var updateAdapter = _updateAdapterFactory.CreateStandalone();
-                foreach (var entityType in _model.GetEntityTypes())
-                {
-                    foreach (var targetSeed in entityType.GetSeedData())
-                    {
-                        var entry = updateAdapter.CreateEntry(targetSeed, entityType);
-                        entry.EntityState = EntityState.Added;
-                    }
-                }
-
-                _database.SaveChanges(updateAdapter.GetEntriesToSave());
+                Seed();
             }
 
             return created;
@@ -103,20 +93,51 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             if (created)
             {
-                var updateAdapter = _updateAdapterFactory.CreateStandalone();
-                foreach (var entityType in _model.GetEntityTypes())
-                {
-                    foreach (var targetSeed in entityType.GetSeedData())
-                    {
-                        var entry = updateAdapter.CreateEntry(targetSeed, entityType);
-                        entry.EntityState = EntityState.Added;
-                    }
-                }
-
-                await _database.SaveChangesAsync(updateAdapter.GetEntriesToSave(), cancellationToken);
+                await SeedAsync(cancellationToken);
             }
 
             return created;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void Seed()
+        {
+            var updateAdapter = AddSeedData();
+
+            _database.SaveChanges(updateAdapter.GetEntriesToSave());
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task SeedAsync(CancellationToken cancellationToken = default)
+        {
+            var updateAdapter = AddSeedData();
+
+            return _database.SaveChangesAsync(updateAdapter.GetEntriesToSave(), cancellationToken);
+        }
+
+        private IUpdateAdapter AddSeedData()
+        {
+            var updateAdapter = _updateAdapterFactory.CreateStandalone();
+            foreach (var entityType in _model.GetEntityTypes())
+            {
+                foreach (var targetSeed in entityType.GetSeedData())
+                {
+                    var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                    entry.EntityState = EntityState.Added;
+                }
+            }
+
+            return updateAdapter;
         }
 
         /// <summary>

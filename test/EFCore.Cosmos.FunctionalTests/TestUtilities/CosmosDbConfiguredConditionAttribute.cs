@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
@@ -14,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
     {
         private static bool? _connectionAvailable;
 
-        public string SkipReason => "Unable to connect to CosmosDb Emulator. Please install/start emulator service.";
+        public string SkipReason => "Unable to connect to Cosmos DB. Please install/start the emulator service or configure a valid endpoint.";
 
         public async ValueTask<bool> IsMetAsync()
         {
@@ -62,17 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             }
         }
 
-        private static bool IsNotConfigured(Exception firstException)
-        {
-            switch (firstException)
+        private static bool IsNotConfigured(Exception exception)
+            => exception switch
             {
-                case HttpRequestException re:
-                    return true;
-                default:
-                    return firstException.Message.StartsWith(
-                        "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
-                        StringComparison.Ordinal);
-            }
-        }
+                HttpRequestException re => re.InnerException is SocketException,
+                _ => exception.Message.Contains(
+                           "The input authorization token can't serve the request. Please check that the expected payload is built as per the protocol, and check the key being used.",
+                           StringComparison.Ordinal),
+            };
     }
 }
