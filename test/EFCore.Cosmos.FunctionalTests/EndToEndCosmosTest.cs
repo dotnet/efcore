@@ -2,7 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
@@ -23,6 +27,46 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public EndToEndCosmosTest(CosmosFixture fixture)
         {
             Fixture = fixture;
+        }
+
+        [Fact]
+        public async Task Can_delete_non_existent_database()
+        {
+            try
+            {
+                using var client = new CosmosClient(TestEnvironment.DefaultConnection, TestEnvironment.AuthToken,
+                    new CosmosClientOptions
+                    {
+                        ConnectionMode = ConnectionMode.Direct
+                    });
+                var database = (await client.CreateDatabaseIfNotExistsAsync("ContainerRepro")).Database;
+
+                var failureTimes = new List<TimeSpan>();
+                for (var i = 0; i < 20; i++)
+                {
+                    var sw = new Stopwatch();
+                    sw.Start();
+                    try
+                    {
+                        await database.CreateContainerIfNotExistsAsync(new ContainerProperties { Id = i.ToString() });
+                    }
+                    catch (CosmosException ce)
+                    {
+                        sw.Stop();
+                        if (ce.StatusCode != HttpStatusCode.TooManyRequests)
+                        {
+                            throw;
+                        }
+                        failureTimes.Add(sw.Elapsed);
+                    }
+                }
+
+                await database.DeleteAsync();
+                Assert.Empty(failureTimes);
+            }
+            catch (HttpRequestException)
+            {
+            }
         }
 
         [ConditionalFact]
