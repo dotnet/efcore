@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -457,30 +457,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 context.Add(customer);
 
-                Assert.StartsWith(CosmosStrings.CreateItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+                Assert.StartsWith("Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
                 context.Add(customer).State = EntityState.Modified;
 
-                Assert.StartsWith(CosmosStrings.ReplaceItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+                Assert.StartsWith("Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
                 context.Add(customer).State = EntityState.Deleted;
 
-                Assert.StartsWith(CosmosStrings.DeleteItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+                Assert.StartsWith("Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
-                Assert.StartsWith(CosmosStrings.QueryFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Customer>().SingleAsync())).Message);
+                Assert.StartsWith("Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.Set<Customer>().SingleAsync())).Message);
             }
         }
 

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
@@ -100,16 +101,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             if (exception is HttpException httpException)
             {
-                var statusCode = (int)httpException.Response.StatusCode;
-                return statusCode == 429
-                       || statusCode == 503;
+                var statusCode = httpException.Response.StatusCode;
+                return statusCode == HttpStatusCode.ServiceUnavailable
+                       || statusCode == HttpStatusCode.TooManyRequests;
             }
 
             if (exception is WebException webException)
             {
-                var statusCode = (int)((HttpWebResponse)webException.Response).StatusCode;
-                return statusCode == 429
-                       || statusCode == 503;
+                var statusCode = ((HttpWebResponse)webException.Response).StatusCode;
+                return statusCode == HttpStatusCode.ServiceUnavailable
+                       || statusCode == HttpStatusCode.TooManyRequests;
+            }
+
+            if (exception is CosmosException cosmosException)
+            {
+                var statusCode = cosmosException.StatusCode;
+                return statusCode == HttpStatusCode.ServiceUnavailable
+                       || statusCode == HttpStatusCode.TooManyRequests;
             }
 
             return false;
@@ -177,6 +185,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         return delay <= TimeSpan.Zero ? TimeSpan.FromMilliseconds(1) : delay;
                     }
                 }
+            }
+
+            if (exception is CosmosException cosmosException
+                && cosmosException.RetryAfter != null)
+            {
+                return cosmosException.RetryAfter;
             }
 
             return null;
