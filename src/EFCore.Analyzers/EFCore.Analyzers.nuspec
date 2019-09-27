@@ -5,6 +5,7 @@
     <dependencies>
       <group targetFramework=".NETStandard1.3" />
     </dependencies>
+    <icon>packageIcon.png</icon>
   </metadata>
 
   <files>
