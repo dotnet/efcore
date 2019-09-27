@@ -184,14 +184,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             using (var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false))
             {
-                if (response.IsSuccessStatusCode
-                    || response.StatusCode == HttpStatusCode.NotFound)
+                if (response.StatusCode == HttpStatusCode.NotFound)
                 {
-                    return response.StatusCode == HttpStatusCode.NoContent;
+                    return false;
                 }
                 else
                 {
-                    throw new InvalidOperationException(CosmosStrings.DeleteDatabaseFailed(response.StatusCode, response.ErrorMessage));
+                    response.EnsureSuccessStatusCode();
+                    return response.StatusCode == HttpStatusCode.NoContent;
                 }
             }
         }
@@ -239,14 +239,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     cancellationToken: cancellationToken)
                 .ConfigureAwait(false))
             {
-                if (response.IsSuccessStatusCode
-                    || response.StatusCode == HttpStatusCode.Conflict)
+                if (response.StatusCode == HttpStatusCode.Conflict)
                 {
-                    return response.StatusCode == HttpStatusCode.Created;
+                    return false;
                 }
                 else
                 {
-                    throw new InvalidOperationException(CosmosStrings.CreateContainerFailed(response.StatusCode, response.ErrorMessage));
+                    response.EnsureSuccessStatusCode();
+                    return response.StatusCode == HttpStatusCode.Created;
                 }
             }
         }
@@ -299,14 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var partitionKey = CreatePartitionKey(parameters.PartitionKey);
                 using (var response = await container.CreateItemStreamAsync(stream, partitionKey, null, cancellationToken))
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return response.StatusCode == HttpStatusCode.Created;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException(CosmosStrings.CreateItemFailed(response.StatusCode, response.ErrorMessage));
-                    }
+                    response.EnsureSuccessStatusCode();
+                    return response.StatusCode == HttpStatusCode.Created;
                 }
             }
         }
@@ -362,14 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 using (var response = await container.ReplaceItemStreamAsync(
                     stream, parameters.ItemId, partitionKey, null, cancellationToken))
                 {
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return response.StatusCode == HttpStatusCode.OK;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException(CosmosStrings.ReplaceItemFailed(response.StatusCode, response.ErrorMessage));
-                    }
+                    response.EnsureSuccessStatusCode();
+                    return response.StatusCode == HttpStatusCode.OK;
                 }
             }
         }
@@ -428,14 +416,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             using (var response = await items.DeleteItemStreamAsync(
                 parameters.DocumentId, partitionKey, cancellationToken: cancellationToken))
             {
-                if (response.IsSuccessStatusCode)
-                {
-                    return response.StatusCode == HttpStatusCode.NoContent;
-                }
-                else
-                {
-                    throw new InvalidOperationException(CosmosStrings.DeleteItemFailed(response.StatusCode, response.ErrorMessage));
-                }
+                response.EnsureSuccessStatusCode();
+                return response.StatusCode == HttpStatusCode.NoContent;
             }
         }
 
@@ -547,10 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         }
 
                         _responseMessage = _query.ReadNextAsync().GetAwaiter().GetResult();
-                        if (!_responseMessage.IsSuccessStatusCode)
-                        {
-                            throw new InvalidOperationException(CosmosStrings.QueryFailed(_responseMessage.StatusCode, _responseMessage.ErrorMessage));
-                        }
+                        _responseMessage.EnsureSuccessStatusCode();
 
                         _responseStream = _responseMessage.Content;
                         _reader = new StreamReader(_responseStream);
@@ -669,10 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         }
 
                         _responseMessage = await _query.ReadNextAsync(_cancellationToken);
-                        if (!_responseMessage.IsSuccessStatusCode)
-                        {
-                            throw new InvalidOperationException(CosmosStrings.QueryFailed(_responseMessage.StatusCode, _responseMessage.ErrorMessage));
-                        }
+                        _responseMessage.EnsureSuccessStatusCode();
 
                         _responseStream = _responseMessage.Content;
                         _reader = new StreamReader(_responseStream);
