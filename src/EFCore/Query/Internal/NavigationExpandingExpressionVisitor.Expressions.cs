@@ -139,9 +139,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected class EntityReference : Expression, IPrintableExpression
         {
+            private Type _entityReferenceType;
+
             public EntityReference(IEntityType entityType)
             {
                 EntityType = entityType;
+                _entityReferenceType = entityType.ClrType;
                 IncludePaths = new IncludeTreeNode(entityType, this);
             }
 
@@ -169,6 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 result.IncludePaths = IncludePaths.Clone(result);
 
                 return result;
+            }
+
+            public virtual EntityReference Cast(Type castedType)
+            {
+                var clonedEntityReference = Clone();
+                clonedEntityReference._entityReferenceType = castedType;
+                return clonedEntityReference;
             }
 
             public virtual void SetLastInclude(IncludeTreeNode lastIncludeTree)
@@ -200,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual bool IsOptional { get; private set; }
 
             public override ExpressionType NodeType => ExpressionType.Extension;
-            public override Type Type => EntityType.ClrType;
+            public override Type Type => _entityReferenceType;
         }
 
         protected class NavigationTreeNode : Expression

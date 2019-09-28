@@ -1135,6 +1135,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     newStructure = newEntityReference;
                 }
+                else
+                {
+                    // If casted type was not found in the types from hierarchy
+                    // (e.g. is an interface), we should cast the entityReference
+                    newStructure = entityReference.Cast(castType);
+                }
             }
             else
             {
