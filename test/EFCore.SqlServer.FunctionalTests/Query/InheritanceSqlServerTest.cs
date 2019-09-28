@@ -200,6 +200,15 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Ki
 FROM [Plant] AS [p]
 WHERE [p].[Genus] IN (1, 0) AND ([p].[Genus] = 0)");
         }
+        public override void Can_use_cast_to_ianimal()
+        {
+            base.Can_use_cast_to_ianimal();
+
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'");
+        }
 
         public override void Can_query_all_animals()
         {

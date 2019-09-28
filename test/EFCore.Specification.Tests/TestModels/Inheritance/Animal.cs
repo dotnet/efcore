@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
 {
-    public abstract class Animal
+    public abstract class Animal : IAnimal
     {
         public string Species { get; set; }
         public string Name { get; set; }

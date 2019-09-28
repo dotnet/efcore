@@ -230,6 +230,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Can_use_cast_to_ianimal()
+        {
+            using (var context = CreateContext())
+            {
+                var animals = context.Set<Kiwi>().Cast<IAnimal>().ToList();
+
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Can_query_all_animals()
         {
             using (var context = CreateContext())
