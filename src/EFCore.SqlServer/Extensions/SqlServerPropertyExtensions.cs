@@ -312,10 +312,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var type = property.ClrType;
 
-            return (type.IsInteger()
-                    || type == typeof(decimal))
-                   && (property.FindTypeMapping()?.Converter
-                       ?? property.GetValueConverter()) == null;
+            var isInteger = type.IsInteger();
+            var valueConverter = property.FindTypeMapping()?.Converter ?? property.GetValueConverter();
+            var isIntegralTypeWithoutValueConversion = (isInteger || type == typeof(decimal)) && valueConverter is null;
+            var isNotIntegralTypeButHasValueConversionToIntegralType = !isInteger && valueConverter is object && valueConverter.ProviderClrType.IsInteger();
+
+            return isIntegralTypeWithoutValueConversion || isNotIntegralTypeButHasValueConversionToIntegralType;
         }
     }
 }
