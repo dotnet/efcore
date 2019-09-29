@@ -143,16 +143,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<OwnedPerson>().Where(p => p.Orders.Count > 0).OrderBy(p => p.Id).Select(p => p.Orders),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection<Order>(e, a));
+                elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_collection_with_composition(bool isAsync)
         {
-            return AssertQueryScalar<OwnedPerson>(
+            return AssertQueryScalar(
                 isAsync,
-                ops => ops.OrderBy(p => p.Id).Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Id != 42).FirstOrDefault()));
+                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Id != 42).FirstOrDefault()));
         }
 
         [ConditionalTheory]
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 42).OrderBy(p => p.Id).Select(p => new { p.Orders }),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection<Order>(e.Orders, a.Orders));
+                elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders));
         }
 
         [ConditionalTheory]
@@ -214,9 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
-                    AssertCollection<Order>(e.Orders, a.Orders);
-                    AssertEqual<OwnedAddress>(e.PersonAddress, a.PersonAddress);
-                    AssertEqual<Planet>(e.Planet, a.Planet);
+                    AssertCollection(e.Orders, a.Orders);
+                    AssertEqual(e.PersonAddress, a.PersonAddress);
+                    AssertEqual(e.Planet, a.Planet);
                 });
         }
 
@@ -248,16 +248,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 7).Select(p => new { p }),
                 elementSorter: e => e.p.Id,
-                elementAsserter: (e, a) => AssertEqual<OwnedPerson>(e.p, a.p));
+                elementAsserter: (e, a) => AssertEqual(e.p, a.p));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool isAsync)
         {
-            return AssertQueryScalar<OwnedPerson>(
+            return AssertQueryScalar(
                 isAsync,
-                ops => ops.Select(p => p.PersonAddress.Country.Planet.Id));
+                ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Id));
         }
 
         [ConditionalTheory]
@@ -268,7 +268,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.PersonAddress.Country.Planet.Moons),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection<Moon>(e, a));
+                elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
         [ConditionalTheory]
@@ -293,9 +293,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool isAsync)
         {
-            return AssertQueryScalar<OwnedPerson>(
+            return AssertQueryScalar(
                 isAsync,
-                ops => ops.Select(p => p.PersonAddress.Country.Planet.Moons.Count));
+                ss => ss.Set<OwnedPerson>().Select(p => p.PersonAddress.Country.Planet.Moons.Count));
         }
 
         [ConditionalTheory]

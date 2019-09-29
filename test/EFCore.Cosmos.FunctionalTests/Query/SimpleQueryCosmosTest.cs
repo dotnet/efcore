@@ -1027,11 +1027,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task All_top_level_subquery(bool isAsync)
         {
-            await AssertSingleResult<Customer>(
+            await AssertSingleResult(
                 isAsync,
-                syncQuery: cs => cs.All(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))),
-                asyncQuery: cs =>
-                    cs.AllAsync(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
+                syncQuery: ss => ss.Set<Customer>()
+                    .All(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))),
+                asyncQuery: ss => ss.Set<Customer>()
+                    .AllAsync(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1042,12 +1043,16 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task All_top_level_subquery_ef_property(bool isAsync)
         {
-            await AssertSingleResult<Customer>(
+            await AssertSingleResult(
                 isAsync,
-                syncQuery: cs => cs.All(
-                    c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
-                asyncQuery: cs => cs.AllAsync(
-                    c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+                syncQuery: ss => ss.Set<Customer>()
+                    .All(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>()
+                        .Any(c2 => ss.Set<Customer>()
+                            .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
+                asyncQuery: ss => ss.Set<Customer>()
+                    .AllAsync(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>()
+                        .Any(c2 => ss.Set<Customer>()
+                            .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c

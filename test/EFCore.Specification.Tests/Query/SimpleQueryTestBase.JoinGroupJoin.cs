@@ -239,21 +239,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var ids = new uint[] { 1, 2 };
 
-            await AssertQueryScalar<Employee>(
+            await AssertQueryScalar(
                 isAsync,
-                es =>
-                    from e in es
-                    join id in ids on e.EmployeeID equals id
-                    select e.EmployeeID);
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID);
 
             ids = new uint[] { 3 };
 
-            await AssertQueryScalar<Employee>(
+            await AssertQueryScalar(
                 isAsync,
-                es =>
-                    from e in es
-                    join id in ids on e.EmployeeID equals id
-                    select e.EmployeeID);
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID);
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -261,22 +259,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Join_local_string_closure_is_cached_correctly(bool isAsync)
         {
             var ids = "12";
-
-            await AssertQueryScalar<Employee>(
+            await AssertQueryScalar(
                 isAsync,
-                es =>
-                    from e in es
-                    join id in ids on e.EmployeeID equals id
-                    select e.EmployeeID);
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID);
 
             ids = "3";
-
-            await AssertQueryScalar<Employee>(
+            await AssertQueryScalar(
                 isAsync,
-                es =>
-                    from e in es
-                    join id in ids on e.EmployeeID equals id
-                    select e.EmployeeID);
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID);
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -284,22 +278,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Join_local_bytes_closure_is_cached_correctly(bool isAsync)
         {
             var ids = new byte[] { 1, 2 };
-
-            await AssertQueryScalar<Employee>(
+            await AssertQueryScalar(
                 isAsync,
-                es =>
-                    from e in es
-                    join id in ids on e.EmployeeID equals id
-                    select e.EmployeeID);
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID);
 
             ids = new byte[] { 3 };
-
-            await AssertQueryScalar<Employee>(
+            await AssertQueryScalar(
                 isAsync,
-                es =>
-                    from e in es
-                    join id in ids on e.EmployeeID equals id
-                    select e.EmployeeID);
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID);
         }
 
         [ConditionalTheory]
@@ -340,8 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.customer.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    AssertEqual<Customer>(e.customer, a.customer);
-                    AssertCollection<Order>(e.orders, a.orders);
+                    AssertEqual(e.customer, a.customer);
+                    AssertCollection(e.orders, a.orders);
                 },
                 entryCount: 91);
         }
@@ -477,8 +467,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in ss.Set<Customer>()
                     join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                     select orders,
-                elementSorter: CollectionSorter<Order>(),
-                elementAsserter: (e, a) => AssertCollection<Order>(e, a),
+                elementSorter: e => e.Count(),
+                elementAsserter: (e, a) => AssertCollection(e, a),
                 entryCount: 830);
         }
 
@@ -495,8 +485,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.c.CustomerID,
                 elementAsserter: (e, a) =>
                 {
-                    AssertEqual<Customer>(e.c, a.c);
-                    AssertCollection<Order>(e.orders, a.orders);
+                    AssertEqual(e.c, a.c);
+                    AssertCollection(e.orders, a.orders);
                 },
                 entryCount: 921);
         }
@@ -552,11 +542,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Customer>().GroupJoin(
                     ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, o) => new { c.City, o }),
-                elementSorter: e => (e.City, CollectionSorter<Order>()(e.o)),
+                elementSorter: e => (e.City, e.o.Count()),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.City, a.City);
-                    AssertCollection<Order>(e.o, a.o);
+                    AssertCollection(e.o, a.o);
                 },
                 entryCount: 830);
         }
@@ -569,11 +559,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Customer>().GroupJoin(
                     ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => new { c.City, g = g.Select(o => o.CustomerID) }),
-                elementSorter: e => (e.City, CollectionSorter<string>()(e.g)),
+                elementSorter: e => (e.City, e.g.Count()),
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.City, a.City);
-                    AssertCollection<string>(e.g, a.g);
+                    AssertCollection(e.g, a.g);
                 });
         }
 
@@ -585,8 +575,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Customer>().GroupJoin(
                     ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => new { g = g.Select(o => o.CustomerID) }),
-                elementSorter: e => CollectionSorter<string>()(e.g),
-                elementAsserter: (e, a) => AssertCollection<string>(e.g, a.g));
+                elementSorter: e => e.g.Count(),
+                elementAsserter: (e, a) => AssertCollection(e.g, a.g));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -596,8 +586,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Customer>().GroupJoin(ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => g.Select(o => o.CustomerID)),
-                elementSorter: CollectionSorter<string>(),
-                elementAsserter: (e, a) => AssertCollection<string>(e, a));
+                elementSorter: e => e.Count(),
+                elementAsserter: (e, a) => AssertCollection(e, a));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -612,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
-                    AssertCollection<Customer>(e.c, a.c);
+                    AssertCollection(e.c, a.c);
                 },
                 entryCount: 89);
         }
@@ -629,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.CustomerID, a.CustomerID);
-                    AssertCollection<string>(e.g, a.g);
+                    AssertCollection(e.g, a.g);
                 });
         }
 
@@ -895,14 +885,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_order_by_key_descending1(bool isAsync)
         {
-            return AssertQueryScalar<Customer, Order>(
+            return AssertQueryScalar(
                 isAsync,
-                (cs, os) =>
-                    from c in cs
-                    join o in os on c.CustomerID equals o.CustomerID into grouping
-                    where c.CustomerID.StartsWith("A")
-                    orderby c.CustomerID descending
-                    select grouping.Count(),
+                ss => from c in ss.Set<Customer>()
+                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
+                      where c.CustomerID.StartsWith("A")
+                      orderby c.CustomerID descending
+                      select grouping.Count(),
                 assertOrder: true);
         }
 
@@ -910,14 +899,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_order_by_key_descending2(bool isAsync)
         {
-            return AssertQueryScalar<Customer, Order>(
+            return AssertQueryScalar(
                 isAsync,
-                (cs, os) =>
-                    from c in cs
-                    orderby c.CustomerID descending
-                    join o in os on c.CustomerID equals o.CustomerID into grouping
-                    where c.CustomerID.StartsWith("A")
-                    select grouping.Count(),
+                ss => from c in ss.Set<Customer>()
+                      orderby c.CustomerID descending
+                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
+                      where c.CustomerID.StartsWith("A")
+                      select grouping.Count(),
                 assertOrder: true);
         }
 

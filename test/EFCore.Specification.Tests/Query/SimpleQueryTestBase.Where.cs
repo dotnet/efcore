@@ -1194,9 +1194,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_primitive(bool isAsync)
         {
-            return AssertQueryScalar<Employee>(
+            return AssertQueryScalar(
                 isAsync,
-                es => es.Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
+                ss => ss.Set<Employee>().Select(e => e.EmployeeID).Take(9).Where(i => i == 5));
         }
 
         [ConditionalTheory]
@@ -1843,9 +1843,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Time_of_day_datetime(bool isAsync)
         {
-            return AssertQueryScalar<Order>(
+            return AssertQueryScalar(
                 isAsync,
-                o => o.Select(c => c.OrderDate.Value.TimeOfDay));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.TimeOfDay));
         }
 
         [ConditionalTheory]

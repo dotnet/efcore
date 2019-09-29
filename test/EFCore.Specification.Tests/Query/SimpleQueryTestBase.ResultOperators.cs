@@ -1016,12 +1016,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(bool isAsync)
         {
-            return AssertQueryScalar<Customer>(
+            return AssertQueryScalar(
                 isAsync,
-                cs => cs.OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
                     c => (int?)c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails.OrderBy(od => od.ProductID).FirstOrDefault()
                         .ProductID),
-                cs => cs.OrderBy(c => c.CustomerID).Select(
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(
                     c => MaybeScalar<int>(
                         Maybe(
                             c.Orders.OrderBy(o => o.OrderID).FirstOrDefault(),
@@ -1388,10 +1388,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains_top_level(bool isAsync)
         {
-            return AssertSingleResult<Customer>(
+            return AssertSingleResult(
                 isAsync,
-                syncQuery: cs => cs.Select(c => c.CustomerID).Contains("ALFKI"),
-                asyncQuery: cs => cs.Select(c => c.CustomerID).ContainsAsync("ALFKI"));
+                syncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).Contains("ALFKI"),
+                asyncQuery: ss => ss.Set<Customer>().Select(c => c.CustomerID).ContainsAsync("ALFKI"));
         }
 
         [ConditionalTheory]
@@ -1763,27 +1763,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cast_before_aggregate_is_preserved(bool isAsync)
         {
-            return AssertQueryScalar<Customer>(
+            return AssertQueryScalar(
                 isAsync,
-                cs => cs.Select(c => c.Orders.Select(o => (double?)o.OrderID).Average()));
+                ss => ss.Set<Customer>().Select(c => c.Orders.Select(o => (double?)o.OrderID).Average()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Enumerable_min_is_mapped_to_Queryable_1(bool isAsync)
         {
-            return AssertQueryScalar<Customer>(
+            return AssertQueryScalar(
                 isAsync,
-                cs => cs.Select(c => c.Orders.Min(o => (double?)o.OrderID)));
+                ss => ss.Set<Customer>().Select(c => c.Orders.Min(o => (double?)o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Enumerable_min_is_mapped_to_Queryable_2(bool isAsync)
         {
-            return AssertQueryScalar<Customer>(
+            return AssertQueryScalar(
                 isAsync,
-                cs => cs.Select(c => c.Orders.Select(o => (double?)o.OrderID).Min()));
+                ss => ss.Set<Customer>().Select(c => c.Orders.Select(o => (double?)o.OrderID).Min()));
         }
 
         [ConditionalTheory]

@@ -37,82 +37,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _includeResultAsserter = new IncludeQueryResultAsserter(_entitySorters, _entityAsserters);
         }
 
-        public override void AssertEqual<T>(T expected, T actual, Action<dynamic, dynamic> asserter = null)
-        {
-            if (asserter == null && expected != null)
-            {
-                _entityAsserters.TryGetValue(typeof(T), out var entityAsserter);
-                asserter ??= (Action<dynamic, dynamic>)entityAsserter;
-            }
-
-            asserter ??= Assert.Equal;
-            asserter(expected, actual);
-        }
-
-        public override void AssertCollection<TElement>(
-            IEnumerable<TElement> expected,
-            IEnumerable<TElement> actual,
-            bool ordered = false,
-            Func<TElement, object> elementSorter = null,
-            Action<TElement, TElement> elementAsserter = null)
-        {
-            if (expected == null != (actual == null))
-            {
-                throw new InvalidOperationException(
-                    $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
-            }
-
-            _entitySorters.TryGetValue(typeof(TElement), out var sorter);
-            _entityAsserters.TryGetValue(typeof(TElement), out var asserter);
-
-            elementSorter ??= (Func<TElement, object>)sorter;
-            elementAsserter ??= (Action<TElement, TElement>)asserter ?? Assert.Equal;
-
-            if (!ordered)
-            {
-                if (elementSorter != null)
-                {
-                    var sortedActual = actual.OrderBy(elementSorter).ToList();
-                    var sortedExpected = expected.OrderBy(elementSorter).ToList();
-
-                    Assert.Equal(sortedExpected.Count, sortedActual.Count);
-                    for (var i = 0; i < sortedExpected.Count; i++)
-                    {
-                        elementAsserter(sortedExpected[i], sortedActual[i]);
-                    }
-                }
-                else
-                {
-                    var sortedActual = actual.OrderBy(e => e).ToList();
-                    var sortedExpected = expected.OrderBy(e => e).ToList();
-
-                    Assert.Equal(sortedExpected.Count, sortedActual.Count);
-                    for (var i = 0; i < sortedExpected.Count; i++)
-                    {
-                        elementAsserter(sortedExpected[i], sortedActual[i]);
-                    }
-                }
-            }
-            else
-            {
-                var expectedList = expected.ToList();
-                var actualList = actual.ToList();
-
-                Assert.Equal(expectedList.Count, actualList.Count);
-                for (var i = 0; i < expectedList.Count; i++)
-                {
-                    elementAsserter(expectedList[i], actualList[i]);
-                }
-            }
-        }
-
-        #region AssertSingleResult
-
         public override async Task AssertSingleResultTyped<TResult>(
             Func<ISetSource, TResult> actualSyncQuery,
             Func<ISetSource, Task<TResult>> actualAsyncQuery,
             Func<ISetSource, TResult> expectedQuery,
-            Action<object, object> asserter,
+            Action<TResult, TResult> asserter,
             int entryCount,
             bool isAsync,
             string testMethodName)
@@ -134,168 +63,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 AssertEqual(expected, actual, asserter);
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
-            }
-        }
-
-        public override Task AssertSingleResult<TItem1>(
-            Func<IQueryable<TItem1>, object> actualSyncQuery,
-            Func<IQueryable<TItem1>, Task<object>> actualAsyncQuery,
-            Func<IQueryable<TItem1>, object> expectedQuery,
-            Action<object, object> asserter,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, object> setSourceActualSyncQuery = ss => actualSyncQuery(ss.Set<TItem1>());
-            Func<ISetSource, Task<object>> setSourceActualAsyncQuery = ss => actualAsyncQuery(ss.Set<TItem1>());
-            Func<ISetSource, object> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertSingleResultTyped(
-                setSourceActualSyncQuery,
-                setSourceActualAsyncQuery,
-                setSourceExpectedQuery,
-                asserter,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public override Task AssertSingleResult<TItem1, TResult>(
-            Func<IQueryable<TItem1>, TResult> actualSyncQuery,
-            Func<IQueryable<TItem1>, Task<TResult>> actualAsyncQuery,
-            Func<IQueryable<TItem1>, TResult> expectedQuery,
-            Action<object, object> asserter,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, TResult> setSourceActualSyncQuery = ss => actualSyncQuery(ss.Set<TItem1>());
-            Func<ISetSource, Task<TResult>> setSourceActualAsyncQuery = ss => actualAsyncQuery(ss.Set<TItem1>());
-            Func<ISetSource, TResult> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertSingleResultTyped(
-                setSourceActualSyncQuery,
-                setSourceActualAsyncQuery,
-                setSourceExpectedQuery,
-                asserter,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public override Task AssertSingleResult<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, object> actualSyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<object>> actualAsyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, object> expectedQuery,
-            Action<object, object> asserter,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, object> setSourceActualSyncQuery = ss => actualSyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, Task<object>> setSourceActualAsyncQuery = ss => actualAsyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, object> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-
-            return AssertSingleResultTyped(
-                setSourceActualSyncQuery,
-                setSourceActualAsyncQuery,
-                setSourceExpectedQuery,
-                asserter,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public override Task AssertSingleResult<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> actualSyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, Task<TResult>> actualAsyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, TResult> expectedQuery,
-            Action<object, object> asserter,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, TResult> setSourceActualSyncQuery = ss => actualSyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, Task<TResult>> setSourceActualAsyncQuery = ss => actualAsyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, TResult> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-
-            return AssertSingleResultTyped(
-                setSourceActualSyncQuery,
-                setSourceActualAsyncQuery,
-                setSourceExpectedQuery,
-                asserter,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public override Task AssertSingleResult<TItem1, TItem2, TItem3>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> actualSyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<object>> actualAsyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, object> expectedQuery,
-            Action<object, object> asserter,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, object> setSourceActualSyncQuery = ss => actualSyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-            Func<ISetSource, Task<object>> setSourceActualAsyncQuery = ss => actualAsyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-            Func<ISetSource, object> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-
-            return AssertSingleResultTyped(
-                setSourceActualSyncQuery,
-                setSourceActualAsyncQuery,
-                setSourceExpectedQuery,
-                asserter,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public override Task AssertSingleResult<TItem1, TItem2, TItem3, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, TResult> actualSyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, Task<TResult>> actualAsyncQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, TResult> expectedQuery,
-            Action<object, object> asserter,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, TResult> setSourceActualSyncQuery = ss => actualSyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-            Func<ISetSource, Task<TResult>> setSourceActualAsyncQuery = ss => actualAsyncQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-            Func<ISetSource, TResult> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-
-            return AssertSingleResultTyped(
-                setSourceActualSyncQuery,
-                setSourceActualAsyncQuery,
-                setSourceExpectedQuery,
-                asserter,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        #endregion
-
-        #region AssertQuery
-
-        private void OrderingSettingsVerifier(bool assertOrder, Type type)
-            => OrderingSettingsVerifier(assertOrder, type, elementSorter: null);
-
-        private void OrderingSettingsVerifier(bool assertOrder, Type type, object elementSorter)
-        {
-            if (!assertOrder
-                && type.IsGenericType
-                && (type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>)
-                    || type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>)))
-            {
-                throw new InvalidOperationException(
-                    "Query result is OrderedQueryable - you need to set AssertQuery option: 'assertOrder' to 'true'. If the resulting order is non-deterministic by design, add identity projection to the top of the query to disable this check.");
-            }
-
-            if (assertOrder && elementSorter != null)
-            {
-                throw new InvalidOperationException("You shouldn't apply element sorter when 'assertOrder' is set to 'true'.");
             }
         }
 
@@ -350,19 +117,27 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
+        private void OrderingSettingsVerifier(bool assertOrder, Type type)
+            => OrderingSettingsVerifier(assertOrder, type, elementSorter: null);
 
-        #region AssertQueryScalar
+        private void OrderingSettingsVerifier(bool assertOrder, Type type, object elementSorter)
+        {
+            if (!assertOrder
+                && type.IsGenericType
+                && (type.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>)
+                    || type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>)))
+            {
+                throw new InvalidOperationException(
+                    "Query result is OrderedQueryable - you need to set AssertQuery option: 'assertOrder' to 'true'. If the resulting order is non-deterministic by design, add identity projection to the top of the query to disable this check.");
+            }
 
-        public virtual Task AssertQueryScalarTyped<TResult>(
-            Func<ISetSource, IQueryable<TResult>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TResult : struct
-            => AssertQueryScalarTyped(query, query, assertOrder, isAsync, testMethodName);
+            if (assertOrder && elementSorter != null)
+            {
+                throw new InvalidOperationException("You shouldn't apply element sorter when 'assertOrder' is set to 'true'.");
+            }
+        }
 
-        public virtual async Task AssertQueryScalarTyped<TResult>(
+        public override async Task AssertQueryScalar<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             bool assertOrder,
@@ -397,143 +172,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        // one argument
-
-        public virtual Task AssertQueryScalar<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<int>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalar<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<int>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalar<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<long>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalar<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<short>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalarAsync<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<bool>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalarAsync<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TResult : struct
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public override Task AssertQueryScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<TResult>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>());
-            Func<ISetSource, IQueryable<TResult>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertQueryScalarTyped(setSourceActualQuery, setSourceExpectedQuery, assertOrder, isAsync, testMethodName);
-        }
-
-        // two arguments
-
-        public virtual Task AssertQueryScalar<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalar<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
-
-        public override Task AssertQueryScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<TResult>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, IQueryable<TResult>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-
-            return AssertQueryScalarTyped(setSourceActualQuery, setSourceExpectedQuery, assertOrder, isAsync, testMethodName);
-        }
-
-        // three arguments
-
-        public virtual Task AssertQueryScalar<TItem1, TItem2, TItem3>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<int>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class
-            where TItem3 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public override Task AssertQueryScalar<TItem1, TItem2, TItem3, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<TResult>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<TResult>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-            Func<ISetSource, IQueryable<TResult>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-
-            return AssertQueryScalarTyped(setSourceActualQuery, setSourceExpectedQuery, assertOrder, isAsync, testMethodName);
-        }
-
-        #endregion
-
-        #region AssertQueryNullableScalar
-
-        public virtual Task AssertQueryScalarTyped<TResult>(
-            Func<ISetSource, IQueryable<TResult?>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TResult : struct
-            => AssertQueryScalarTyped(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual async Task AssertQueryScalarTyped<TResult>(
+        public override async Task AssertQueryScalar<TResult>(
             Func<ISetSource, IQueryable<TResult?>> actualQuery,
             Func<ISetSource, IQueryable<TResult?>> expectedQuery,
             bool assertOrder,
@@ -568,94 +207,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        // one argument
-
-        public virtual Task AssertQueryScalar<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<int?>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalar<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<int?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<int?>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertQueryScalar<TItem1, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
-
-        public override Task AssertQueryScalar<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<TResult?>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>());
-            Func<ISetSource, IQueryable<TResult?>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertQueryScalarTyped(setSourceActualQuery, setSourceExpectedQuery, assertOrder, isAsync, testMethodName);
-        }
-
-        // two arguments
-
-        public virtual Task AssertQueryScalar<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> query,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertQueryScalar(query, query, assertOrder, isAsync, testMethodName);
-
-        public virtual Task AssertQueryScalar<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<int?>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertQueryScalar<TItem1, TItem2, int>(actualQuery, expectedQuery, assertOrder, isAsync, testMethodName);
-
-        public override Task AssertQueryScalar<TItem1, TItem2, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TResult?>> expectedQuery,
-            bool assertOrder,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<TResult?>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, IQueryable<TResult?>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-
-            return AssertQueryScalarTyped(setSourceActualQuery, setSourceExpectedQuery, assertOrder, isAsync, testMethodName);
-        }
-
-        #endregion
-
-        #region AssertIncludeQuery
-
-        public Task<List<TResult>> AssertIncludeQueryTyped<TResult>(
-            Func<ISetSource, IQueryable<TResult>> query,
-            List<IExpectedInclude> expectedIncludes,
-            Func<TResult, object> elementSorter,
-            List<Func<TResult, TResult>> clientProjections,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-            where TResult : class
-            => AssertIncludeQueryTyped(query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
-
-        public async Task<List<TResult>> AssertIncludeQueryTyped<TResult>(
+        public override async Task<List<TResult>> AssertIncludeQuery<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             List<IExpectedInclude> expectedIncludes,
             Func<TResult, object> elementSorter,
-            List<Func<TResult, TResult>> clientProjections,
+            List<Func<TResult, object>> clientProjections,
             bool assertOrder,
             int entryCount,
             bool isAsync,
@@ -679,23 +236,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData).ToList();
 
-                if (!assertOrder)
-                {
-                    if (elementSorter == null)
-                    {
-                        var firstNonNullableElement = expected.FirstOrDefault(e => e != null);
-                        if (firstNonNullableElement != null)
-                        {
-                            _entitySorters.TryGetValue(firstNonNullableElement.GetType(), out var sorter);
-                            elementSorter = (Func<TResult, object>)sorter;
-                        }
-                    }
 
-                    if (elementSorter != null)
-                    {
-                        actual = actual.OrderBy(elementSorter).ToList();
-                        expected = expected.OrderBy(elementSorter).ToList();
-                    }
+                if (!assertOrder && elementSorter == null)
+                {
+                    _entitySorters.TryGetValue(typeof(TResult), out var sorter);
+                    elementSorter = (Func<TResult, object>)sorter;
                 }
 
                 if (clientProjections != null)
@@ -719,90 +264,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public Task<List<object>> AssertIncludeQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> query,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter,
-            List<Func<dynamic, object>> clientProjections,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            => AssertIncludeQuery(
-                query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
+        #region Assert termination operation methods
 
-        public override Task<List<object>> AssertIncludeQuery<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter,
-            List<Func<dynamic, object>> clientProjections,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertIncludeQueryTyped<object>(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                expectedIncludes,
-                elementSorter,
-                clientProjections,
-                assertOrder,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        public Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> query,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter,
-            List<Func<dynamic, object>> clientProjections,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-            where TItem1 : class
-            where TItem2 : class
-            => AssertIncludeQuery(
-                query, query, expectedIncludes, elementSorter, clientProjections, assertOrder, entryCount, isAsync, testMethodName);
-
-        public override Task<List<object>> AssertIncludeQuery<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
-            List<IExpectedInclude> expectedIncludes,
-            Func<dynamic, object> elementSorter,
-            List<Func<dynamic, object>> clientProjections,
-            bool assertOrder,
-            int entryCount,
-            bool isAsync,
-            string testMethodName)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-
-            return AssertIncludeQueryTyped<object>(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                expectedIncludes,
-                elementSorter,
-                clientProjections,
-                assertOrder,
-                entryCount,
-                isAsync,
-                testMethodName);
-        }
-
-        #endregion
-
-        #region AssertAny
-
-        public override async Task AssertAnyTyped<TResult>(
+        public override async Task AssertAny<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             bool isAsync = false)
@@ -819,63 +283,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public override Task AssertAny<TItem1>(
-            Func<IQueryable<TItem1>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<object>> expectedQuery,
-            bool isAsync = false)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertAnyTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                isAsync);
-        }
-
-        public override Task AssertAny<TItem1, TResult>(
-            Func<IQueryable<TItem1>, IQueryable<TResult>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false)
-        {
-            Func<ISetSource, IQueryable<TResult>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>());
-            Func<ISetSource, IQueryable<TResult>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertAnyTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                isAsync);
-        }
-
-        public override Task AssertAny<TItem1, TItem2>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<object>> expectedQuery,
-            bool isAsync = false)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>());
-
-            return AssertAnyTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                isAsync);
-        }
-
-        public override Task AssertAny<TItem1, TItem2, TItem3>(
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TItem2>, IQueryable<TItem3>, IQueryable<object>> expectedQuery,
-            bool isAsync = false)
-        {
-            Func<ISetSource, IQueryable<object>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-            Func<ISetSource, IQueryable<object>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>(), ss.Set<TItem2>(), ss.Set<TItem3>());
-
-            return AssertAnyTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                isAsync);
-        }
-
-        public override async Task AssertAnyTyped<TResult>(
+        public override async Task AssertAny<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
@@ -906,28 +314,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public override Task AssertAny<TItem1, TPredicate>(
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> actualQuery,
-            Func<IQueryable<TItem1>, IQueryable<TPredicate>> expectedQuery,
-            Expression<Func<TPredicate, bool>> actualPredicate,
-            Expression<Func<TPredicate, bool>> expectedPredicate,
-            bool isAsync = false)
-        {
-            Func<ISetSource, IQueryable<TPredicate>> setSourceActualQuery = ss => actualQuery(ss.Set<TItem1>());
-            Func<ISetSource, IQueryable<TPredicate>> setSourceExpectedQuery = ss => expectedQuery(ss.Set<TItem1>());
-
-            return AssertAnyTyped(
-                setSourceActualQuery,
-                setSourceExpectedQuery,
-                actualPredicate,
-                expectedPredicate,
-                isAsync);
-        }
-
-        #endregion
-
-        #region AssertAll
-
         public override async Task AssertAll<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
@@ -947,14 +333,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertFirst
-
         public override async Task AssertFirst<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -976,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualFirstPredicate,
             Expression<Func<TResult, bool>> expectedFirstPredicate,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -993,14 +375,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertFirstOrDefault
-
         public override async Task AssertFirstOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1022,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1039,14 +417,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertSingle
-
         public override async Task AssertSingle<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1068,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualFirstPredicate,
             Expression<Func<TResult, bool>> expectedFirstPredicate,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1085,14 +459,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertSingleOrDefault
-
         public override async Task AssertSingleOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1114,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1131,14 +501,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertLast
-
         public override async Task AssertLast<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1160,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1177,14 +543,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertLastOrDefault
-
         public override async Task AssertLastOrDefault<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1206,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1222,10 +584,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Assert.Equal(entryCount, context.ChangeTracker.Entries().Count());
             }
         }
-
-        #endregion
-
-        #region AssertCount
 
         public override async Task AssertCount<TResult>(
             Func<ISetSource , IQueryable<TResult>> actualQuery,
@@ -1265,10 +623,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertLongCount
-
         public override async Task AssertLongCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
@@ -1307,14 +661,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertMin
-
         public override async Task AssertMin<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1336,7 +686,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, TSelector>> actualSelector,
             Expression<Func<TResult, TSelector>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1353,14 +703,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertMax
-
         public override async Task AssertMax<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1382,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, TSelector>> actualSelector,
             Expression<Func<TResult, TSelector>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
             bool isAsync = false)
         {
@@ -1399,14 +745,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertSum
-
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<int, int> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1425,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertSum(
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<int?, int?> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1446,7 +788,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<int, int> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1467,7 +809,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<int?, int?> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1488,7 +830,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<long, long> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1509,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<long?, long?> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1530,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<decimal, decimal> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1551,7 +893,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult,  float>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<float, float> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1567,14 +909,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        #endregion
-
-        #region AssertAverage
-
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<double, double> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1593,7 +931,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<double?, double?> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1612,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertAverage(
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
-            Action<object, object> asserter = null,
+            Action<double, double> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1633,7 +971,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<double, double> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1654,7 +992,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<double?, double?> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1675,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<decimal, decimal> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1696,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
-            Action<object, object> asserter = null,
+            Action<float, float> asserter = null,
             bool isAsync = false)
         {
             using (var context = _contextCreator())
@@ -1709,6 +1047,92 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 AssertEqual(expected, actual, asserter);
                 Assert.Empty(context.ChangeTracker.Entries());
+            }
+        }
+
+        #endregion
+
+        #region Helpers
+
+        public override void AssertEqual<T>(T expected, T actual, Action<T, T> asserter = null)
+        {
+            if (asserter == null && expected != null)
+            {
+                _entityAsserters.TryGetValue(typeof(T), out var entityAsserter);
+                asserter ??= (Action<T, T>)entityAsserter;
+            }
+
+            asserter ??= Assert.Equal;
+            asserter(expected, actual);
+        }
+
+        public override void AssertEqual<T>(T? expected, T? actual, Action<T?, T?> asserter = null)
+            where T : struct
+        {
+            asserter ??= Assert.Equal;
+
+            asserter(expected, actual);
+        }
+
+        public override void AssertCollection<TElement>(
+            IEnumerable<TElement> expected,
+            IEnumerable<TElement> actual,
+            bool ordered = false,
+            Func<TElement, object> elementSorter = null,
+            Action<TElement, TElement> elementAsserter = null)
+        {
+            if (expected == null && actual == null)
+            {
+                return;
+            }
+
+            if (expected == null != (actual == null))
+            {
+                throw new InvalidOperationException(
+                    $"Nullability doesn't match. Expected: {(expected == null ? "NULL" : "NOT NULL")}. Actual: {(actual == null ? "NULL." : "NOT NULL.")}.");
+            }
+
+            _entitySorters.TryGetValue(typeof(TElement), out var sorter);
+            _entityAsserters.TryGetValue(typeof(TElement), out var asserter);
+
+            elementSorter ??= (Func<TElement, object>)sorter;
+            elementAsserter ??= (Action<TElement, TElement>)asserter ?? Assert.Equal;
+
+            if (!ordered)
+            {
+                if (elementSorter != null)
+                {
+                    var sortedActual = actual.OrderBy(elementSorter).ToList();
+                    var sortedExpected = expected.OrderBy(elementSorter).ToList();
+
+                    Assert.Equal(sortedExpected.Count, sortedActual.Count);
+                    for (var i = 0; i < sortedExpected.Count; i++)
+                    {
+                        elementAsserter(sortedExpected[i], sortedActual[i]);
+                    }
+                }
+                else
+                {
+                    var sortedActual = actual.OrderBy(e => e).ToList();
+                    var sortedExpected = expected.OrderBy(e => e).ToList();
+
+                    Assert.Equal(sortedExpected.Count, sortedActual.Count);
+                    for (var i = 0; i < sortedExpected.Count; i++)
+                    {
+                        elementAsserter(sortedExpected[i], sortedActual[i]);
+                    }
+                }
+            }
+            else
+            {
+                var expectedList = expected.ToList();
+                var actualList = actual.ToList();
+
+                Assert.Equal(expectedList.Count, actualList.Count);
+                for (var i = 0; i < expectedList.Count; i++)
+                {
+                    elementAsserter(expectedList[i], actualList[i]);
+                }
             }
         }
 
