@@ -380,11 +380,11 @@ WHERE [c].[Id] = 2");
             base.Scalar_Function_Let_Not_Parameter_Instance();
 
             AssertSql(
-                @"@__8__locals1_customerId_1='2'
+                @"@__customerId_1='2'
 
-SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__8__locals1_customerId_1) AS [OrderCount]
+SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__8__locals1_customerId_1) AND @__8__locals1_customerId_1 IS NOT NULL");
+WHERE ([c].[Id] = @__customerId_1) AND @__customerId_1 IS NOT NULL");
         }
 
         public override void Scalar_Function_Let_Nested_Instance()
