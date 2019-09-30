@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_stored_procedure_re_projection(bool async)
+        public virtual async Task<DbException> From_sql_queryable_stored_procedure_re_projection(bool async)
         {
             using var context = CreateContext();
             var query = context
@@ -81,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
@@ -128,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_stored_procedure_composed(bool async)
+        public virtual async Task<DbException> From_sql_queryable_stored_procedure_composed(bool async)
         {
             using var context = CreateContext();
             try
@@ -148,7 +150,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
@@ -177,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_stored_procedure_with_parameter_composed(bool async)
+        public virtual async Task<DbException> From_sql_queryable_stored_procedure_with_parameter_composed(bool async)
         {
             using var context = CreateContext();
             try
@@ -197,7 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
@@ -226,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_stored_procedure_take(bool async)
+        public virtual async Task<DbException> From_sql_queryable_stored_procedure_take(bool async)
         {
             using var context = CreateContext();
             try
@@ -246,7 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
@@ -275,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_stored_procedure_min(bool async)
+        public virtual async Task<DbException> From_sql_queryable_stored_procedure_min(bool async)
         {
             using var context = CreateContext();
             try
@@ -292,7 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
@@ -316,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_stored_procedure_with_include_throws(bool async)
+        public virtual async Task<DbException> From_sql_queryable_stored_procedure_with_include_throws(bool async)
         {
             using var context = CreateContext();
             try
@@ -334,14 +340,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_with_multiple_stored_procedures(bool async)
+        public virtual async Task<DbException> From_sql_queryable_with_multiple_stored_procedures(bool async)
         {
             using var context = CreateContext();
             var query = from a in context.Set<MostExpensiveProduct>()
@@ -362,7 +369,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
@@ -392,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_stored_procedure_and_select(bool async)
+        public virtual async Task<DbException> From_sql_queryable_stored_procedure_and_select(bool async)
         {
             using var context = CreateContext();
             var query = from mep in context.Set<MostExpensiveProduct>()
@@ -413,7 +421,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
@@ -442,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<Exception> From_sql_queryable_select_and_stored_procedure(bool async)
+        public virtual async Task<DbException> From_sql_queryable_select_and_stored_procedure(bool async)
         {
             using var context = CreateContext();
             var query = from p in context.Set<Product>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
@@ -462,7 +471,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             catch (Exception e)
             {
-                return e;
+                Assert.IsAssignableFrom<DbException>(e);
+                return (DbException)e;
             }
         }
 
