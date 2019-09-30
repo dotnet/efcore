@@ -219,6 +219,16 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
 ORDER BY [o].[Id]");
         }
 
+        public override void Scalar_Function_SqlFragment_Static()
+        {
+            base.Scalar_Function_SqlFragment_Static();
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE ([c].[LastName] = 'Two') AND [c].[LastName] IS NOT NULL");
+        }
+
         #endregion
 
         #region Instance
