@@ -66,9 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 jObjectParameter);
 
             return Expression.New(
-                (IsAsync
-                    ? typeof(AsyncQueryingEnumerable<>)
-                    : typeof(QueryingEnumerable<>)).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext)),
                 Expression.Constant(_sqlExpressionFactory),
                 Expression.Constant(_querySqlGeneratorFactory),
