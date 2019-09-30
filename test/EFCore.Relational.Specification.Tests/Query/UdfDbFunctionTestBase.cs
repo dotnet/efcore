@@ -120,6 +120,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 throw new NotImplementedException();
             }
 
+            public static string GetSqlFragmentStatic()
+            {
+                throw new NotImplementedException();
+            }
+
             public long MyCustomLengthInstance(string s)
             {
                 throw new Exception();
@@ -212,6 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .HasName("GetCustomerWithMostOrdersAfterDate");
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetReportingPeriodStartDateStatic)))
                     .HasName("GetReportingPeriodStartDate");
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetSqlFragmentStatic)))
+                    .HasTranslation(args => new SqlFragmentExpression("'Two'"));
                 var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic));
                 modelBuilder.HasDbFunction(isDateMethodInfo)
                     .HasTranslation(args => SqlFunctionExpression.Create("IsDate", args, isDateMethodInfo.ReturnType, null));
@@ -834,6 +841,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.Equal("Customer", result);
             }
+        }
+
+        [ConditionalFact]
+        public virtual void Scalar_Function_SqlFragment_Static()
+        {
+            using var context = CreateContext();
+
+            var len = context.Customers.Count(c => c.LastName == UDFSqlContext.GetSqlFragmentStatic());
+
+            Assert.Equal(1, len);
         }
 
         #endregion

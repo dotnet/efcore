@@ -8,13 +8,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class SqlFragmentExpression : SqlExpression
     {
-        internal SqlFragmentExpression(string sql)
+        public SqlFragmentExpression(string sql)
             : base(typeof(string), null)
         {
             Sql = sql;
         }
 
-        public string Sql { get; }
+        public virtual string Sql { get; }
+
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
         public override void Print(ExpressionPrinter expressionPrinter)
             => expressionPrinter.Append(Sql);
