@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             // Only show SQL when verbose
             if (_categoryName == DbLoggerCategory.Database.Command.Name
-                && eventId.Id == RelationalEventId.CommandExecuted.Id)
+                && eventId.Id == RelationalEventId.CommandExecuting.Id)
             {
                 logLevel = LogLevel.Debug;
             }
