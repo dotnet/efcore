@@ -71,7 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             [NotNull] IEnumerable<string> tables,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool configurationClasses,
+            [CanBeNull] string configurationClassSuffix)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -105,7 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ContextNamespace = contextNamespace,
                     Language = _language,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
-                    ContextName = dbContextClassName
+                    ContextName = dbContextClassName,
+                    GenerateEntityTypeConfigurationFiles = configurationClasses,
+                    EntityTypeConfigurationClassSuffix = configurationClassSuffix
                 });
 
             return scaffolder.Save(

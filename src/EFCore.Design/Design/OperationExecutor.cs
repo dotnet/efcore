@@ -179,7 +179,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -335,7 +337,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             return new Hashtable
             {
-                ["MigrationFile"] = files.MigrationFile, ["MetadataFile"] = files.MetadataFile, ["SnapshotFile"] = files.SnapshotFile
+                ["MigrationFile"] = files.MigrationFile,
+                ["MetadataFile"] = files.MetadataFile,
+                ["SnapshotFile"] = files.SnapshotFile
             };
         }
 
@@ -463,11 +467,13 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var useDataAnnotations = (bool)args["useDataAnnotations"];
                 var overwriteFiles = (bool)args["overwriteFiles"];
                 var useDatabaseNames = (bool)args["useDatabaseNames"];
+                var configurationClasses = (bool)args["configurationClasses"];
+                var configurationClassSuffix = (string)args["configurationClassSuffix"];
 
                 Execute(
                     () => executor.ScaffoldContextImpl(
                         provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                        schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames));
+                        schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames, configurationClasses, configurationClassSuffix));
             }
         }
 
@@ -481,7 +487,9 @@ namespace Microsoft.EntityFrameworkCore.Design
             [NotNull] IEnumerable<string> tableFilters,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool configurationClasses,
+            [CanBeNull] string configurationClassSuffix)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
@@ -490,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var files = DatabaseOperations.ScaffoldContext(
                 provider, connectionString, outputDir, outputDbContextDir, dbContextClassName,
-                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames);
+                schemaFilters, tableFilters, useDataAnnotations, overwriteFiles, useDatabaseNames, configurationClasses, configurationClassSuffix);
 
             return new Hashtable { ["ContextFile"] = files.ContextFile, ["EntityTypeFiles"] = files.AdditionalFiles.ToArray() };
         }

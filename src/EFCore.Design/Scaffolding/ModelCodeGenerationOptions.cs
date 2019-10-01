@@ -17,6 +17,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public virtual bool UseDataAnnotations { get; set; }
 
         /// <summary>
+        ///     Gets or sets a value indicated whether to generate entity configuration in IEntityTypeConfiguration files.
+        /// </summary>
+        /// <value>A value indicating whether to generate entity configuration in IEntityTypeConfiguration files.</value>
+        public virtual bool GenerateEntityTypeConfigurationFiles { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the suffix for EntityTypeConfiguration classes.
+        /// </summary>
+        /// <value>Gets or sets the suffix for EntityTypeConfiguration classes.</value>
+        public virtual string EntityTypeConfigurationClassSuffix { get; [param: CanBeNull] set; }
+
+        /// <summary>
         ///     Gets or sets a value indicating whether to suppress the connection string sensitive information warning.
         /// </summary>
         /// <value> A value indicating whether to suppress the connection string sensitive information warning. </value>

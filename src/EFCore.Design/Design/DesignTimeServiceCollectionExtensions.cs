@@ -61,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<ICandidateNamingService, CandidateNamingService>()
                 .AddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
                 .AddSingleton<ICSharpEntityTypeGenerator, CSharpEntityTypeGenerator>()
+                .AddSingleton<ICSharpEntityTypeConfigurationGenerator, CSharpEntityTypeConfigurationGenerator>()
+                .AddSingleton<ICSharpFluentConfigurationCodeGenerator, CSharpFluentConfigurationCodeGenerator>()
                 .AddSingleton<ICSharpHelper, CSharpHelper>()
                 .AddSingleton<ICSharpMigrationOperationGenerator, CSharpMigrationOperationGenerator>()
                 .AddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()

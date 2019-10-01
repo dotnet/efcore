@@ -1,0 +1,492 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
+
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
+{        /// <summary>
+         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+         ///     any release. You should only use it directly in your code with extreme caution and knowing that
+         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+         /// </summary>
+    public class CSharpFluentConfigurationCodeGenerator : ICSharpFluentConfigurationCodeGenerator
+    {
+        private readonly ICSharpHelper _code;
+        private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public CSharpFluentConfigurationCodeGenerator([NotNull] ICSharpHelper cSharpHelper,
+            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator)
+        {
+            Check.NotNull(cSharpHelper, nameof(cSharpHelper));
+
+            _code = cSharpHelper;
+            _annotationCodeGenerator = annotationCodeGenerator;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public IList<string> GenerateTableOrView(IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var tableName = entityType.GetTableName();
+            var schema = entityType.GetSchema();
+            var defaultSchema = entityType.Model.GetDefaultSchema();
+
+            var explicitSchema = schema != null && schema != defaultSchema;
+            var explicitTable = explicitSchema || tableName != null && tableName != entityType.GetDbSetName();
+
+            var isView = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition) != null;
+            if (explicitTable || isView)
+            {
+                var parameterString = _code.Literal(tableName);
+                if (explicitSchema)
+                {
+                    parameterString += ", " + _code.Literal(schema);
+                }
+
+                var lines = new List<string>
+                {
+                    $".{(isView ? nameof(RelationalEntityTypeBuilderExtensions.ToView) : nameof(RelationalEntityTypeBuilderExtensions.ToTable))}({parameterString})"
+                };
+
+                return lines;
+
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public IList<string> GenerateKey(IKey key, bool generateHasNoKey, bool includeDataAnnotations)
+        {
+            Check.NotNull(key, nameof(key));
+
+            if (key == null)
+            {
+                return generateHasNoKey ? new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" } : null;
+            }
+
+            var annotations = key.GetAnnotations().ToList();
+
+            var explicitName = key.GetName() != key.GetDefaultName();
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
+
+            if (key.Properties.Count == 1
+                && annotations.Count == 0)
+            {
+                if (key is Key concreteKey
+                    && key.Properties.SequenceEqual(
+                        KeyDiscoveryConvention.DiscoverKeyProperties(
+                            concreteKey.DeclaringEntityType,
+                            concreteKey.DeclaringEntityType.GetProperties())))
+                {
+                    return null;
+                }
+
+                if (!explicitName
+                    && !includeDataAnnotations)
+                {
+                    return null;
+                }
+            }
+
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasKey)}(e => {GenerateLambdaToKey(key.Properties, "e")})" };
+
+            if (explicitName)
+            {
+                lines.Add(
+                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}" +
+                    $"({_code.Literal(key.GetName())})");
+            }
+
+            var annotationsToRemove = new List<IAnnotation>();
+
+            foreach (var annotation in annotations)
+            {
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(key, annotation))
+                {
+                    annotationsToRemove.Add(annotation);
+                }
+                else
+                {
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(key, annotation);
+                    if (methodCall != null)
+                    {
+                        lines.Add(_code.Fragment(methodCall));
+                        annotationsToRemove.Add(annotation);
+                    }
+                }
+            }
+
+            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+
+            return lines;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public IList<string> GenerateProperty(IProperty property, bool includeDataAnnotations)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}(e => e.{property.Name})" };
+
+            var annotations = property.GetAnnotations().ToList();
+
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValueSql);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.Comment);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.ComputedColumnSql);
+            RemoveAnnotation(ref annotations, RelationalAnnotationNames.IsFixedLength);
+            RemoveAnnotation(ref annotations, ScaffoldingAnnotationNames.ColumnOrdinal);
+
+            if (includeDataAnnotations)
+            {
+                if (!property.IsNullable
+                    && property.ClrType.IsNullableType()
+                    && !property.IsPrimaryKey())
+                {
+                    lines.Add($".{nameof(PropertyBuilder.IsRequired)}()");
+                }
+
+                var columnName = property.GetColumnName();
+
+                if (columnName != null
+                    && columnName != property.Name)
+                {
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnName)}" +
+                        $"({_code.Literal(columnName)})");
+                }
+
+                var columnType = property.GetConfiguredColumnType();
+
+                if (columnType != null)
+                {
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}" +
+                        $"({_code.Literal(columnType)})");
+                }
+
+                var maxLength = property.GetMaxLength();
+
+                if (maxLength.HasValue)
+                {
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.HasMaxLength)}" +
+                        $"({_code.Literal(maxLength.Value)})");
+                }
+            }
+
+            if (property.IsUnicode() != null)
+            {
+                lines.Add(
+                    $".{nameof(PropertyBuilder.IsUnicode)}" +
+                    $"({(property.IsUnicode() == false ? "false" : "")})");
+            }
+
+            if (property.IsFixedLength())
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}()");
+            }
+
+            if (property.GetDefaultValue() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}" +
+                    $"({_code.UnknownLiteral(property.GetDefaultValue())})");
+            }
+
+            if (property.GetDefaultValueSql() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql)}" +
+                    $"({_code.Literal(property.GetDefaultValueSql())})");
+            }
+
+            if (property.GetComment() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasComment)}" +
+                    $"({_code.Literal(property.GetComment())})");
+            }
+
+            if (property.GetComputedColumnSql() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql)}" +
+                    $"({_code.Literal(property.GetComputedColumnSql())})");
+            }
+
+            var valueGenerated = property.ValueGenerated;
+            var isRowVersion = false;
+            if (((IConventionProperty)property).GetValueGeneratedConfigurationSource().HasValue
+                && RelationalValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
+            {
+                string methodName;
+                switch (valueGenerated)
+                {
+                    case ValueGenerated.OnAdd:
+                        methodName = nameof(PropertyBuilder.ValueGeneratedOnAdd);
+                        break;
+
+                    case ValueGenerated.OnAddOrUpdate:
+                        isRowVersion = property.IsConcurrencyToken;
+                        methodName = isRowVersion
+                            ? nameof(PropertyBuilder.IsRowVersion)
+                            : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate);
+                        break;
+
+                    case ValueGenerated.Never:
+                        methodName = nameof(PropertyBuilder.ValueGeneratedNever);
+                        break;
+
+                    default:
+                        methodName = "";
+                        break;
+                }
+
+                lines.Add($".{methodName}()");
+            }
+
+            if (property.IsConcurrencyToken
+                && !isRowVersion)
+            {
+                lines.Add($".{nameof(PropertyBuilder.IsConcurrencyToken)}()");
+            }
+
+            var annotationsToRemove = new List<IAnnotation>();
+
+            foreach (var annotation in annotations)
+            {
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(property, annotation))
+                {
+                    annotationsToRemove.Add(annotation);
+                }
+                else
+                {
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(property, annotation);
+                    if (methodCall != null)
+                    {
+                        lines.Add(_code.Fragment(methodCall));
+                        annotationsToRemove.Add(annotation);
+                    }
+                }
+            }
+
+            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+
+            switch (lines.Count)
+            {
+                //if we have only 1 line, then the property is so basic it's not worth including
+                case 1:
+                    return null;
+                case 2:
+                    lines = new List<string> { lines[0] + lines[1] };
+                    break;
+            }
+
+            return lines;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public IList<string> GenerateRelationship(IForeignKey foreignKey, bool includeDataAnnotations)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            var canUseDataAnnotations = true;
+            var annotations = foreignKey.GetAnnotations().ToList();
+
+            var lines = new List<string>
+            {
+                $".{nameof(EntityTypeBuilder.HasOne)}("
+                + (foreignKey.DependentToPrincipal != null ? $"d => d.{foreignKey.DependentToPrincipal.Name}" : null) + ")",
+                $".{(foreignKey.IsUnique ? nameof(ReferenceNavigationBuilder.WithOne) : nameof(ReferenceNavigationBuilder.WithMany))}"
+                + "(" + (foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : null) + ")"
+            };
+
+            if (!foreignKey.PrincipalKey.IsPrimaryKey())
+            {
+                canUseDataAnnotations = false;
+                lines.Add(
+                    $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
+                    + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")
+                    + $"(p => {GenerateLambdaToKey(foreignKey.PrincipalKey.Properties, "p")})");
+            }
+
+            lines.Add(
+                $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
+                + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")
+                + $"(d => {GenerateLambdaToKey(foreignKey.Properties, "d")})");
+
+            var defaultOnDeleteAction = foreignKey.IsRequired
+                ? DeleteBehavior.Cascade
+                : DeleteBehavior.ClientSetNull;
+
+            if (foreignKey.DeleteBehavior != defaultOnDeleteAction)
+            {
+                canUseDataAnnotations = false;
+                lines.Add(
+                    $".{nameof(ReferenceReferenceBuilder.OnDelete)}" +
+                    $"({_code.Literal(foreignKey.DeleteBehavior)})");
+            }
+
+            if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
+            {
+                canUseDataAnnotations = false;
+                lines.Add(
+                    ".HasConstraintName" +
+                    $"({_code.Literal(foreignKey.GetConstraintName())})");
+                RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
+            }
+
+            var annotationsToRemove = new List<IAnnotation>();
+
+            foreach (var annotation in annotations)
+            {
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(foreignKey, annotation))
+                {
+                    annotationsToRemove.Add(annotation);
+                }
+                else
+                {
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(foreignKey, annotation);
+                    if (methodCall != null)
+                    {
+                        canUseDataAnnotations = false;
+                        lines.Add(_code.Fragment(methodCall));
+                        annotationsToRemove.Add(annotation);
+                    }
+                }
+            }
+
+            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+
+            return !includeDataAnnotations || !canUseDataAnnotations ? lines : null;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public IList<string> GenerateIndex(IIndex index)
+        {
+            var lines = new List<string> { $".{nameof(EntityTypeBuilder.HasIndex)}(e => {GenerateLambdaToKey(index.Properties, "e")})" };
+
+            var annotations = index.GetAnnotations().ToList();
+
+            if (!string.IsNullOrEmpty((string)index[RelationalAnnotationNames.Name]))
+            {
+                lines.Add(
+                    $".{nameof(RelationalIndexBuilderExtensions.HasName)}" +
+                    $"({_code.Literal(index.GetName())})");
+                RemoveAnnotation(ref annotations, RelationalAnnotationNames.Name);
+            }
+
+            if (index.IsUnique)
+            {
+                lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
+            }
+
+            if (index.GetFilter() != null)
+            {
+                lines.Add(
+                    $".{nameof(RelationalIndexBuilderExtensions.HasFilter)}" +
+                    $"({_code.Literal(index.GetFilter())})");
+                RemoveAnnotation(ref annotations, RelationalAnnotationNames.Filter);
+            }
+
+            var annotationsToRemove = new List<IAnnotation>();
+
+            foreach (var annotation in annotations)
+            {
+                if (annotation.Value == null
+                    || _annotationCodeGenerator.IsHandledByConvention(index, annotation))
+                {
+                    annotationsToRemove.Add(annotation);
+                }
+                else
+                {
+                    var methodCall = _annotationCodeGenerator.GenerateFluentApi(index, annotation);
+                    if (methodCall != null)
+                    {
+                        lines.Add(_code.Fragment(methodCall));
+                        annotationsToRemove.Add(annotation);
+                    }
+                }
+            }
+
+            lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
+
+            return lines;
+        }
+
+        private static string GenerateLambdaToKey(
+            IReadOnlyList<IProperty> properties,
+            string lambdaIdentifier)
+        {
+            return properties.Count <= 0
+                ? ""
+                : properties.Count == 1
+                    ? $"{lambdaIdentifier}.{properties[0].Name}"
+                    : $"new {{ {string.Join(", ", properties.Select(p => lambdaIdentifier + "." + p.Name))} }}";
+        }
+
+        private static void RemoveAnnotation(ref List<IAnnotation> annotations, string annotationName)
+            => annotations.Remove(annotations.SingleOrDefault(a => a.Name == annotationName));
+
+        private IList<string> GenerateAnnotations(IEnumerable<IAnnotation> annotations)
+            => annotations.Select(GenerateAnnotation).ToList();
+
+        private string GenerateAnnotation(IAnnotation annotation)
+            => $".HasAnnotation({_code.Literal(annotation.Name)}, " +
+               $"{_code.UnknownLiteral(annotation.Value)})";
+    }
+}

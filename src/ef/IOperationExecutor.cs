@@ -27,7 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
             IEnumerable<string> tableFilters,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames);
+            bool useDatabaseNames,
+            bool useConfigurationClasses,
+            string configurationClassSuffix);
 
         string ScriptMigration(string fromMigration, string toMigration, bool idempotent, string contextType);
 

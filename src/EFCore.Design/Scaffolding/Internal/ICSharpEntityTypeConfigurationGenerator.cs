@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public interface ICSharpDbContextGenerator
+    public interface ICSharpEntityTypeConfigurationGenerator
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,12 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        string WriteCode(
-            [NotNull] IModel model,
-            [NotNull] string @namespace,
-            [NotNull] string contextName,
-            [NotNull] string connectionString,
-            bool suppressConnectionStringWarning,
-            EntityConfigurationLocation entityConfigurationLocation);
+        string WriteCode([NotNull] IEntityType entityType, [NotNull] string @namespace, string classSuffix);
     }
 }

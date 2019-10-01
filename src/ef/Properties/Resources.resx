@@ -318,4 +318,10 @@
   <data name="DbContextScriptDescription" xml:space="preserve">
     <value>Generate a script to create all tables for the DbContext.</value>
   </data>
+  <data name="ConfigurationClassesDescription" xml:space="preserve">
+    <value>Use IEntityTypeConfiguration classes to configure the model (where possible).</value>
+  </data>
+  <data name="ConfigurationClassSuffix" xml:space="preserve">
+    <value>A suffix to add to IEntityTypeConfiguration classes. Defaults to "EntityConfiguration".</value>
+  </data>
 </root>

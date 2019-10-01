@@ -11,6 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandArgument _connection;
         private CommandArgument _provider;
         private CommandOption _dataAnnotations;
+        private CommandOption _configurationClasses;
+        private CommandOption _configurationClassSuffix;
         private CommandOption _context;
         private CommandOption _contextDir;
         private CommandOption _force;
@@ -28,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _provider = command.Argument("<PROVIDER>", Resources.ProviderDescription);
 
             _dataAnnotations = command.Option("-d|--data-annotations", Resources.DataAnnotationsDescription);
+            _configurationClasses = command.Option("--configuration-classes", Resources.ConfigurationClassesDescription);
+            _configurationClassSuffix = command.Option("--configuration-class-suffix <SUFFIX>", Resources.ConfigurationClassSuffixDescription);
             _context = command.Option("-c|--context <NAME>", Resources.ContextNameDescription);
             _contextDir = command.Option("--context-dir <PATH>", Resources.ContextDirDescription);
             _force = command.Option("-f|--force", Resources.DbContextScaffoldForceDescription);
