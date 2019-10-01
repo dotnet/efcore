@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Cosmos_client_instance_is_shared_between_contexts()
         {
-            await using (var testDatabase = CosmosTestStore.Create(DatabaseName))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName))
             {
                 var options = CreateOptions(testDatabase);
 
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     Assert.Same(client, context.Database.GetCosmosClient());
                 }
 
-                await using (var testDatabase2 = CosmosTestStore.Create(DatabaseName, o => o.Region(Regions.AustraliaCentral)))
+                await using (var testDatabase2 = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(Regions.AustraliaCentral)))
                 {
                     options = CreateOptions(testDatabase2);
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var regionName = Regions.AustraliaCentral;
 
-            await using (var testDatabase = CosmosTestStore.Create(DatabaseName, o => o.Region(regionName)))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region(regionName)))
             {
                 var options = CreateOptions(testDatabase);
 
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             var exception = await Assert.ThrowsAsync<ArgumentException>(
                 async () =>
                 {
-                    await using (var testDatabase = CosmosTestStore.Create(DatabaseName, o => o.Region("FakeRegion")))
+                    await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.Region("FakeRegion")))
                     {
                         var options = CreateOptions(testDatabase);
 
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var connectionMode = ConnectionMode.Direct;
 
-            await using (var testDatabase = CosmosTestStore.Create(DatabaseName, o => o.ConnectionMode(connectionMode)))
+            await using (var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName, o => o.ConnectionMode(connectionMode)))
             {
                 var options = CreateOptions(testDatabase);
 
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
                 async () =>
                 {
-                    await using (var testDatabase = CosmosTestStore.Create(
+                    await using (var testDatabase = CosmosTestStore.CreateInitialized(
                         DatabaseName, o => o.ConnectionMode((ConnectionMode)123456)))
                     {
                         var options = CreateOptions(testDatabase);

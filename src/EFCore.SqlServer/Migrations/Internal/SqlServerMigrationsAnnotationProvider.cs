@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -43,7 +45,48 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IModel model) => ForRemove(model);
+        public override IEnumerable<IAnnotation> For(IModel model)
+        {
+            var maxSize = model.GetDatabaseMaxSize();
+            var serviceTier = model.GetServiceTier();
+            var performanceLevel = model.GetPerformanceLevel();
+            if (maxSize != null
+                || serviceTier != null
+                || performanceLevel != null)
+            {
+                var options = new StringBuilder();
+
+                if (maxSize != null)
+                {
+                    options.Append("MAXSIZE = ");
+                    options.Append(maxSize);
+                    options.Append(", ");
+                }
+
+                if (serviceTier != null)
+                {
+                    options.Append("EDITION = ");
+                    options.Append(serviceTier);
+                    options.Append(", ");
+                }
+
+                if (performanceLevel != null)
+                {
+                    options.Append("SERVICE_OBJECTIVE = ");
+                    options.Append(performanceLevel);
+                    options.Append(", ");
+                }
+
+                options.Remove(options.Length - 2, 2);
+
+                yield return new Annotation(SqlServerAnnotationNames.EditionOptions, options.ToString());
+            }
+
+            foreach (var annotationForRemove in ForRemove(model))
+            {
+                yield return annotationForRemove;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

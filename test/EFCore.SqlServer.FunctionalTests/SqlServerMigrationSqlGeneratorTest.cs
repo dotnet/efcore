@@ -1295,7 +1295,7 @@ END;
         }
 
         [ConditionalFact]
-        public virtual void AlterDatabaseOperationOperation()
+        public virtual void AlterDatabaseOperation_memory_optimized()
         {
             Generate(
                 new AlterDatabaseOperation { [SqlServerAnnotationNames.MemoryOptimized] = true });

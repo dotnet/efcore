@@ -23,67 +23,80 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     {
         [ConditionalFact]
-        public void Alter_table_to_MemoryOptimized()
+        public void Alter_database_edition_options()
         {
             Execute(
-                source => source.Entity(
-                    "Person",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").IsClustered(false);
-                    }),
-                target => target.Entity(
-                    "Person",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").IsClustered(false);
-                        x.IsMemoryOptimized();
-                    }),
-                operations =>
+                _ => { },
+                source => source.HasDatabaseMaxSize("100 MB")
+                    .HasPerformanceLevel("'S0'"),
+                target => target
+                    .HasServiceTier("'basic'"),
+                upOps =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(1, upOps.Count);
 
-                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
-                    Assert.True(IsMemoryOptimized(alterDatabaseOperation));
-                    Assert.Null(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(upOps[0]);
+                    Assert.Equal(
+                        "EDITION = 'basic'",
+                        alterDatabaseOperation[SqlServerAnnotationNames.EditionOptions]);
+                    Assert.Equal(
+                        "MAXSIZE = 100 MB, SERVICE_OBJECTIVE = 'S0'",
+                        alterDatabaseOperation.OldDatabase[SqlServerAnnotationNames.EditionOptions]);
+                },
+                downOps =>
+                {
+                    Assert.Equal(1, downOps.Count);
 
-                    var alterTableOperation = Assert.IsType<AlterTableOperation>(operations[1]);
-                    Assert.Equal("Person", alterTableOperation.Name);
-                    Assert.True(IsMemoryOptimized(alterTableOperation));
-                    Assert.Null(IsMemoryOptimized(alterTableOperation.OldTable));
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(downOps[0]);
+                    Assert.Equal(
+                        "MAXSIZE = 100 MB, SERVICE_OBJECTIVE = 'S0'",
+                        alterDatabaseOperation[SqlServerAnnotationNames.EditionOptions]);
+                    Assert.Equal(
+                        "EDITION = 'basic'",
+                        alterDatabaseOperation.OldDatabase[SqlServerAnnotationNames.EditionOptions]);
                 });
         }
 
         [ConditionalFact]
-        public void Alter_table_from_MemoryOptimized()
+        public void Alter_table_MemoryOptimized()
         {
             Execute(
-                source => source.Entity(
+                common => common.Entity(
                     "Person",
                     x =>
                     {
                         x.Property<int>("Id");
                         x.HasKey("Id").IsClustered(false);
-                        x.IsMemoryOptimized();
                     }),
+                _ => { },
                 target => target.Entity(
                     "Person",
                     x =>
                     {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").IsClustered(false);
+                        x.IsMemoryOptimized();
                     }),
-                operations =>
+                upOps =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(2, upOps.Count);
 
-                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(upOps[0]);
+                    Assert.True(IsMemoryOptimized(alterDatabaseOperation));
+                    Assert.Null(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+
+                    var alterTableOperation = Assert.IsType<AlterTableOperation>(upOps[1]);
+                    Assert.Equal("Person", alterTableOperation.Name);
+                    Assert.True(IsMemoryOptimized(alterTableOperation));
+                    Assert.Null(IsMemoryOptimized(alterTableOperation.OldTable));
+                },
+                downOps =>
+                {
+                    Assert.Equal(2, downOps.Count);
+
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(downOps[0]);
                     Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
                     Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
 
-                    var alterTableOperation = Assert.IsType<AlterTableOperation>(operations[1]);
+                    var alterTableOperation = Assert.IsType<AlterTableOperation>(downOps[1]);
                     Assert.Equal("Person", alterTableOperation.Name);
                     Assert.Null(IsMemoryOptimized(alterTableOperation));
                     Assert.True(IsMemoryOptimized(alterTableOperation.OldTable));
