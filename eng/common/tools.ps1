@@ -160,13 +160,26 @@ function InitializeDotNetCli([bool]$install) {
 }
 
 function GetDotNetInstallScript([string] $dotnetRoot) {
-  $installScript = Join-Path $dotnetRoot "dotnet-install.ps1"
+  $installFileName = "dotnet-install.ps1"
+  $installScript = Join-Path $dotnetRoot $installFileName
   if (!(Test-Path $installScript)) {
     Create-Directory $dotnetRoot
     $ProgressPreference = 'SilentlyContinue' # Don't display the console progress UI - it's a huge perf hit
-    Invoke-WebRequest "https://dot.net/$dotnetInstallScriptVersion/dotnet-install.ps1" -OutFile $installScript
-  }
 
+    try {
+      $installFileUrl = "https://dot.net/$dotnetInstallScriptVersion/$installFileName"
+      Invoke-WebRequest $installFileUrl -OutFile $installScript
+    }
+    catch [System.Net.WebException] {
+      Write-Error "Unable to download $($installFileName) from $($installFileUrl)"
+    }
+    catch [System.IO.IOException] {
+      Write-Error "Unable to write $($installFileName) from $($installFileUrl) to $($installScript)"
+    }
+    catch {
+      Write-Error "Something wrong happened while trying to download $($installFileName) from $($installFileUrl) to $($installScript)"
+    }
+  }
   return $installScript
 }
 
