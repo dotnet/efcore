@@ -444,9 +444,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             base.Dispose();
 
-            if (_fileName != null)
+            if (_fileName != null // Clean up the database using a local file, as it might get deleted later
+                || (TestEnvironment.IsSqlAzure && !Shared))
             {
-                // Clean up the database using a local file, as it might get deleted later
                 DeleteDatabase();
             }
         }

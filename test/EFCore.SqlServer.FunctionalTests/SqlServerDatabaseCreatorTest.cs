@@ -759,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider();
         }
 
-        public class BloggingContext : DbContext
+        protected class BloggingContext : DbContext
         {
             private readonly string _connectionString;
 

@@ -12,17 +12,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class TestStore : IDisposable
     {
-        private readonly bool _shared;
         private static readonly TestStoreIndex _globalTestStoreIndex = new TestStoreIndex();
         public IServiceProvider ServiceProvider { get; protected set; }
 
         protected TestStore(string name, bool shared)
         {
             Name = name;
-            _shared = shared;
+            Shared = shared;
         }
 
         public string Name { get; protected set; }
+        public bool Shared { get; }
 
         public virtual TestStore Initialize(
             IServiceProvider serviceProvider,
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 createContext = CreateDefaultContext;
             }
 
-            if (_shared)
+            if (Shared)
             {
                 GetTestStoreIndex(serviceProvider).CreateShared(GetType().Name + Name, () => Initialize(createContext, seed, clean));
             }
