@@ -26,12 +26,13 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>8.0</LangVersion>
     <DebugType>portable</DebugType>
-    <PackageLicenseUrl Condition="'$(PackageLicenseExpression)' == ''">https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
-    <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
+    <PackageIcon>packageIcon.png</PackageIcon>
+    <PackageIconFullPath>$(MSBuildThisFileDirectory)packageIcon.png</PackageIconFullPath>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="**\*.rd.xml" />
+    <None Include="$(PackageIconFullPath)" Pack="true" PackagePath="\"/>
   </ItemGroup>
 </Project>
