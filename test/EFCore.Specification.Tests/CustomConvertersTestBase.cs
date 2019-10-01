@@ -403,15 +403,73 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Value_conversion_is_appropriately_used_for_join_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var blogId = 1;
+                var query = (from b in context.Set<Blog>()
+                             join p in context.Set<Post>()
+                                 on new { BlogId = (int?)b.BlogId, b.IsVisible, AnotherId = b.BlogId }
+                                 equals new { p.BlogId, IsVisible = true, AnotherId = blogId }
+                             where b.IsVisible
+                             select b.Url).ToList();
+
+                var result = Assert.Single(query);
+                Assert.Equal("http://blog.com", result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Value_conversion_is_appropriately_used_for_left_join_condition()
+        {
+            using (var context = CreateContext())
+            {
+                var blogId = 1;
+                var query = (from b in context.Set<Blog>()
+                             join p in context.Set<Post>()
+                                 on new { BlogId = (int?)b.BlogId, b.IsVisible, AnotherId = b.BlogId }
+                                 equals new { p.BlogId, IsVisible = true, AnotherId = blogId } into g
+                             from p in g.DefaultIfEmpty()
+                             where b.IsVisible
+                             select b.Url).ToList();
+
+                var result = Assert.Single(query);
+                Assert.Equal("http://blog.com", result);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
+
+                var result = Assert.Single(query);
+                Assert.Equal("http://blog.com", result.Url);
+            }
+        }
+
         protected class Blog
         {
             public int BlogId { get; set; }
             public string Url { get; set; }
+            public bool IsVisible { get; set; }
+            public List<Post> Posts { get; set; }
         }
 
         protected class RssBlog : Blog
         {
             public string RssUrl { get; set; }
+        }
+
+        protected class Post
+        {
+            public int PostId { get; set; }
+            public int? BlogId { get; set; }
+            public Blog Blog { get; set; }
         }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
@@ -783,11 +841,13 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.Property(e => e.Url).HasConversion(urlConverter);
+                        b.Property(e => e.IsVisible).HasConversion(new BoolToStringConverter("N", "Y"));
                         b.HasData(
                             new Blog
                             {
                                 BlogId = 1,
-                                Url = "http://blog.com"
+                                Url = "http://blog.com",
+                                IsVisible = true
                             });
                     });
 
@@ -800,9 +860,23 @@ namespace Microsoft.EntityFrameworkCore
                             {
                                 BlogId = 2,
                                 Url = "http://rssblog.com",
-                                RssUrl = "http://rssblog.com/rss"
+                                RssUrl = "http://rssblog.com/rss",
+                                IsVisible = false
                             });
                     });
+
+                modelBuilder.Entity<Post>()
+                    .HasData(
+                        new Post
+                        {
+                            PostId = 1,
+                            BlogId = 1
+                        },
+                        new Post
+                        {
+                            PostId = 2,
+                            BlogId = null
+                        });
             }
 
             public static class StringToDictionarySerializer
