@@ -8,6 +8,7 @@
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
     </dependencies>
+    <icon>packageIcon.png</icon>
   </metadata>
   <files>
     <file src="lib\**\*" target="lib/" />
