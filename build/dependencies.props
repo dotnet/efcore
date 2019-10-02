@@ -44,9 +44,9 @@
     <MicrosoftNETCoreApp20PackageVersion>2.0.9</MicrosoftNETCoreApp20PackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
     <mod_spatialitePackageVersion>4.3.0.1</mod_spatialitePackageVersion>
-    <NetTopologySuiteCorePackageVersion>1.15.1</NetTopologySuiteCorePackageVersion>
-    <NetTopologySuiteIOSpatiaLitePackageVersion>1.15.0</NetTopologySuiteIOSpatiaLitePackageVersion>
-    <NetTopologySuiteIOSqlServerBytesPackageVersion>1.15.0</NetTopologySuiteIOSqlServerBytesPackageVersion>
+    <NetTopologySuiteCorePackageVersion>[1.15.1,2.0.0)</NetTopologySuiteCorePackageVersion>
+    <NetTopologySuiteIOSpatiaLitePackageVersion>[1.15.0,2.0.0)</NetTopologySuiteIOSpatiaLitePackageVersion>
+    <NetTopologySuiteIOSqlServerBytesPackageVersion>[1.15.0,2.0.0)</NetTopologySuiteIOSqlServerBytesPackageVersion>
     <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <OracleManagedDataAccessPackageVersion>12.2.1100</OracleManagedDataAccessPackageVersion>
     <RemotionLinqPackageVersion>2.2.0</RemotionLinqPackageVersion>
