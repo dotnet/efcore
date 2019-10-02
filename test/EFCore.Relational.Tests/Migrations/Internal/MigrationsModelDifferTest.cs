@@ -7898,6 +7898,56 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
+        [ConditionalFact]
+        public void Create_table_handles_same_name_but_different_schemas_and_identifying_relationship()
+        {
+            Execute(
+                (ModelBuilder _) => { },
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity1",
+                        x =>
+                        {
+                            x.ToTable("Entity");
+
+                            x.Property<int>("Id");
+                            x.Property<string>("Property1");
+                        })
+                    .Entity(
+                        "Entity2",
+                        x =>
+                        {
+                            x.ToTable("Entity", "other");
+
+                            x.Property<int>("Id");
+                            x.Property<string>("Property2");
+
+                            x.HasOne("Entity1", null).WithMany().HasForeignKey("Id");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+
+                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+
+                    var operation1 = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("Entity", operation1.Name);
+                    Assert.Null(operation1.Schema);
+                    Assert.Collection(
+                        operation1.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("Property1", x.Name));
+
+                    var operation2 = Assert.IsType<CreateTableOperation>(operations[2]);
+                    Assert.Equal("Entity", operation2.Name);
+                    Assert.Equal("other", operation2.Schema);
+                    Assert.Collection(
+                        operation2.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("Property2", x.Name));
+                });
+        }
+
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
     }
 }
