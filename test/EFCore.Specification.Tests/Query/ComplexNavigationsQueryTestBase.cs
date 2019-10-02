@@ -1437,48 +1437,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => (e.Name, e.Id));
         }
 
-        [ConditionalFact]
-        public virtual void Optional_navigation_projected_into_DTO()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Optional_navigation_projected_into_DTO(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var actual = Fixture.QueryAsserter.SetSourceCreator(context).Set<Level1>().Select(
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Level1>().Select(
                     e => new MyOuterDto
                     {
                         Id = e.Id,
                         Name = e.Name,
                         Inner = e.OneToOne_Optional_FK1 != null
-                            ? new MyInnerDto { Id = (int?)e.OneToOne_Optional_FK1.Id, Name = e.OneToOne_Optional_FK1.Name }
+                            ? new MyInnerDto { Id = e.OneToOne_Optional_FK1.Id, Name = e.OneToOne_Optional_FK1.Name }
                             : null
-                    }).ToList().OrderBy(e => e.Id + " " + e.Name + " " + e.Inner).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Level1>().Select(
-                    e => new MyOuterDto
-                    {
-                        Id = e.Id,
-                        Name = e.Name,
-                        Inner = e.OneToOne_Optional_FK1 != null
-                            ? new MyInnerDto { Id = (int?)e.OneToOne_Optional_FK1.Id, Name = e.OneToOne_Optional_FK1.Name }
-                            : null
-                    }).ToList().OrderBy(e => e.Id + " " + e.Name + " " + e.Inner).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
                 {
-                    Assert.Equal(expected[i].Id, actual[i].Id);
-                    Assert.Equal(expected[i].Name, actual[i].Name);
-
-                    if (expected[i].Inner == null)
-                    {
-                        Assert.Null(actual[i].Inner);
-                    }
-                    else
-                    {
-                        Assert.Equal(expected[i].Inner.Id, actual[i].Inner.Id);
-                        Assert.Equal(expected[i].Inner.Name, actual[i].Inner.Name);
-                    }
-                }
-            }
+                    Assert.Equal(e.Id, a.Id);
+                    Assert.Equal(e.Name, a.Name);
+                    Assert.Equal(e.Inner?.Id, a.Inner?.Id);
+                    Assert.Equal(e.Inner?.Name, a.Inner?.Name);
+                });
         }
 
         public class MyOuterDto
@@ -2814,27 +2795,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (e, a) => Assert.Equal(e.Id, a.Id));
         }
 
-        [ConditionalFact]
-        public virtual void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from l1 in ctx.LevelOne
-                            join l2 in ctx.LevelFour.SelectMany(
-                                    l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2) on l1.Id
-                                equals l2.Level1_Optional_Id
-                            select new { l1, l2 };
-
-                var result = query.ToList();
-
-                Assert.Equal(2, result.Count);
-            }
+            return AssertQuery(
+                isAsync,
+                ss => from l1 in ss.Set<Level1>()
+                      join l2 in ss.Set<Level4>().SelectMany(
+                              l4 => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2) on l1.Id
+                          equals l2.Level1_Optional_Id
+                      select new { l1, l2 },
+                ss => from l1 in ss.Set<Level1>()
+                      join l2 in ss.Set<Level4>().SelectMany(
+                              l4 => Maybe(
+                                  l4.OneToOne_Required_FK_Inverse4,
+                                  () => Maybe(
+                                      l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3,
+                                      () => l4.OneToOne_Required_FK_Inverse4.OneToOne_Optional_FK_Inverse3.OneToMany_Required_Self2)) ?? new List<Level2>()) on l1.Id
+                          equals l2.Level1_Optional_Id
+                      select new { l1, l2 },
+                elementSorter: e => (e.l1.Id, e.l2.Id),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.l1, a.l1);
+                    AssertEqual(e.l2, a.l2);
+                });
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(
-            bool isAsync)
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(bool isAsync)
         {
             return AssertQuery(
                 isAsync,
@@ -2867,8 +2858,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(
-            bool isAsync)
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(bool isAsync)
         {
             return AssertQuery(
                 isAsync,
@@ -2897,8 +2887,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(
-            bool isAsync)
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany3(bool isAsync)
         {
             return AssertQuery(
                 isAsync,
@@ -2924,8 +2913,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(
-            bool isAsync)
+        public virtual Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany4(bool isAsync)
         {
             return AssertQuery(
                 isAsync,
@@ -3030,8 +3018,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task
-            Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
+        public virtual Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
         {
             return AssertQuery(
                 isAsync,
@@ -4256,19 +4243,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select l3).Distinct().OrderBy(l => l.Id).Skip(1).FirstOrDefault().Name);
         }
 
-        [ConditionalFact(Skip = "issue #8523")]
-        public virtual void Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy()
+        [ConditionalTheory(Skip = "issue #8523")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from l1 in ctx.LevelOne
-                            where l1.Id < 3
-                            select (from l3 in ctx.LevelThree
-                                    orderby l3.Id
-                                    select l3).Distinct().Skip(1).FirstOrDefault().Name;
-
-                var result = query.ToList();
-            }
+            return AssertQuery(
+                isAsync,
+                ss => from l1 in ss.Set<Level1>()
+                      where l1.Id < 3
+                      select (from l3 in ss.Set<Level3>()
+                              orderby l3.Id
+                              select l3).Distinct().Skip(1).FirstOrDefault().Name);
         }
 
         [ConditionalTheory]
@@ -4445,18 +4430,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact]
-        public virtual void Include_inside_subquery()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_inside_subquery(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne
-                    .Where(l1 => l1.Id < 3)
-                    .Select(
-                        l1 => new { subquery = ctx.LevelTwo.Include(l => l.OneToMany_Optional2).Where(l => l.Id > 0).ToList() });
-
-                var result = query.ToList();
-            }
+            // can't use AssertIncludeQuery here, see #18191
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .Where(l1 => l1.Id <3)
+                    .OrderBy(l1 => l1.Id)
+                    .Select(l1 => new { subquery = ss.Set<Level2>().Include(l => l.OneToMany_Optional2).Where(l => l.Id > 0).ToList() }),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e.subquery, a.subquery));
         }
 
         [ConditionalTheory]
@@ -4960,18 +4946,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalFact]
-        public virtual void SelectMany_navigation_property_with_include_and_followed_by_select_collection_navigation()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_navigation_property_with_include_and_followed_by_select_collection_navigation(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.SelectMany(l1 => l1.OneToMany_Optional1).Include(l2 => l2.OneToMany_Required2)
-                    .Select(l2 => new { l2, l2.OneToMany_Optional2 });
-                var result = query.ToList();
-
-                Assert.True(result.All(r => r.l2.OneToMany_Required2 != null));
-                Assert.Contains(result, r => r.OneToMany_Optional2.Count > 0);
-            }
+            // can't use AssertIncludeQuery here, see #18191
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .SelectMany(l1 => l1.OneToMany_Optional1)
+                    .Include(l2 => l2.OneToMany_Required2)
+                    .Select(l2 => new { l2, l2.OneToMany_Optional2 }),
+                elementSorter: e => e.l2.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.l2, a.l2);
+                    AssertCollection(e.l2.OneToMany_Required2, a.l2.OneToMany_Required2);
+                    AssertCollection(e.OneToMany_Optional2, a.OneToMany_Optional2);
+                });
         }
 
         [ConditionalTheory]
@@ -5517,27 +5509,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void IncludeCollection8()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task IncludeCollection8(bool isAsync)
         {
-            using (var ctx = CreateContext())
+            var expectedIncludes = new List<IExpectedInclude>
             {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
-                    .Where(l1 => l1.OneToMany_Optional1.Where(l2 => l2.OneToOne_Optional_PK2.Name != "Foo").Count() > 0);
+                new ExpectedInclude<Level1>(e => e.OneToMany_Optional1, "OneToMany_Optional1"),
+                new ExpectedInclude<Level2>(e => e.OneToOne_Optional_PK2, "OneToOne_Optional_PK2", "OneToMany_Optional1"),
+                new ExpectedInclude<Level3>(e => e.OneToOne_Optional_FK3, "OneToOne_Optional_FK3", "OneToMany_Optional1.OneToOne_Optional_PK2"),
+            };
 
-                var result = query.ToList();
-            }
+            return AssertIncludeQuery(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToMany_Optional1)
+                    .ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
+                    .Where(l1 => l1.OneToMany_Optional1.Where(l2 => l2.OneToOne_Optional_PK2.Name != "Foo").Count() > 0),
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToMany_Optional1)
+                    .ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
+                    .Where(l1 => l1.OneToMany_Optional1.Where(l2 => Maybe(l2.OneToOne_Optional_PK2, () => l2.OneToOne_Optional_PK2.Name) != "Foo").Count() > 0),
+                expectedIncludes);
         }
 
-        [ConditionalFact]
-        public virtual void Include_with_all_method_include_gets_ignored()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_with_all_method_include_gets_ignored(bool isAsync)
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToOne_Optional_FK1).Include(l1 => l1.OneToMany_Optional1)
-                    .All(l1 => l1.Name != "Foo");
-            }
+            return AssertAll(
+                isAsync,
+                ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Optional_FK1).Include(l1 => l1.OneToMany_Optional1),
+                predicate: l1 => l1.Name != "Foo");
         }
 
         [ConditionalTheory]
@@ -5590,6 +5595,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                                                    orderby l4.Id
                                                    select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name != "Foo"
                             select l1;
+
+                var result = query.ToList();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Member_pushdown_chain_3_levels_deep_entity()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = from l1 in ctx.LevelOne
+                            orderby l1.Id
+                            select (from l2 in ctx.LevelTwo
+                                    orderby l2.Id
+                                    where l2.Level1_Optional_Id == l1.Id
+                                    select (from l3 in ctx.LevelThree
+                                            orderby l3.Id
+                                            where l3.Level2_Required_Id == l2.Id
+                                            select (from l4 in ctx.LevelFour
+                                                    where l4.Level3_Required_Id == l3.Id
+                                                    orderby l4.Id
+                                                    select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
 
                 var result = query.ToList();
             }

@@ -20,5 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Complex_query_with_optional_navigations_and_client_side_evaluation(isAsync);
         }
+
+        [ConditionalFact(Skip = "issue #18194")]
+        public override void Member_pushdown_chain_3_levels_deep_entity()
+        {
+            base.Member_pushdown_chain_3_levels_deep_entity();
+        }
     }
 }

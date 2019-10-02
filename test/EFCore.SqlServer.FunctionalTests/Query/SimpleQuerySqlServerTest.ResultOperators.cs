@@ -1351,5 +1351,20 @@ WHERE ([c].[CustomerID] LIKE N'F%') AND (((
                 @"SELECT SUM(CAST([o].[OrderID] AS bigint))
 FROM [Orders] AS [o]");
         }
+
+        public override async Task Count_on_projection_with_client_eval(bool isAsync)
+        {
+            await base.Count_on_projection_with_client_eval(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]",
+                //
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]",
+                //
+                @"SELECT COUNT(*)
+FROM [Orders] AS [o]");
+        }
     }
 }
