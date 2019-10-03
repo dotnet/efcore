@@ -678,7 +678,7 @@ END");
             base.Compare_nullable_with_null_parameter_equal();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
+                @"@__prm_0=NULL (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -770,7 +770,7 @@ WHERE ((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND 
             base.Where_multiple_ors_with_nullable_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
+                @"@__prm_0=NULL (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -782,8 +782,8 @@ WHERE (([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL) O
             base.Where_multiple_ands_with_nullable_parameter_and_constant();
 
             AssertSql(
-                @"@__prm1_0='' (Size = 4000)
-@__prm2_1='' (Size = 4000)
+                @"@__prm1_0=NULL (Size = 4000)
+@__prm2_1=NULL (Size = 4000)
 @__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
@@ -796,8 +796,8 @@ WHERE (((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND
             base.Where_multiple_ands_with_nullable_parameter_and_constant_not_optimized();
 
             AssertSql(
-                @"@__prm1_0='' (Size = 4000)
-@__prm2_1='' (Size = 4000)
+                @"@__prm1_0=NULL (Size = 4000)
+@__prm2_1=NULL (Size = 4000)
 @__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
@@ -820,7 +820,7 @@ WHERE COALESCE([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)");
             base.Where_equal_nullable_with_null_value_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
+                @"@__prm_0=NULL (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -832,7 +832,7 @@ WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL
             base.Where_not_equal_nullable_with_null_value_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
+                @"@__prm_0=NULL (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -1091,7 +1091,7 @@ WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = CAST(1 AS bit))
             base.Where_equal_using_relational_null_semantics_with_parameter();
 
             AssertSql(
-                @"@__prm_0=''
+                @"@__prm_0=NULL
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -1123,7 +1123,7 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
             base.Where_not_equal_using_relational_null_semantics_with_parameter();
 
             AssertSql(
-                @"@__prm_0=''
+                @"@__prm_0=NULL
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -1199,7 +1199,7 @@ WHERE @__p_0 = CAST(1 AS bit)");
             base.Where_comparison_null_semantics_optimization_works_with_complex_predicates();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
+                @"@__prm_0=NULL (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]

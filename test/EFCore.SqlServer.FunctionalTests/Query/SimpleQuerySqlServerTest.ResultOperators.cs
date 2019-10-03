@@ -1152,7 +1152,7 @@ WHERE [o].[OrderID] IN (10248, 10249)");
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
 
             AssertSql(
-                @"@__entity_equality_p_0_OrderID='' (DbType = Int32)
+                @"@__entity_equality_p_0_OrderID=NULL (DbType = Int32)
 
 SELECT CASE
     WHEN @__entity_equality_p_0_OrderID IN (
