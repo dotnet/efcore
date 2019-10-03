@@ -124,7 +124,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 resultingFiles.AdditionalFiles.Add(
                     new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
 
-
                 //if the config needs to go into a custom configuration class, then we do that here
                 if(configLocation == EntityConfigurationLocation.IEntityTypeConfiguration)
                 {
@@ -133,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     // output EntityTypeConfiguration .cs file
                     var configFilename = entityType.DisplayName()+ options.EntityTypeConfigurationClassSuffix + FileExtension;
                     resultingFiles.AdditionalFiles.Add(
-                        new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
+                        new ScaffoldedFile { Path = configFilename, Code = generatedCode });
                 }
             }
 

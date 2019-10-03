@@ -321,7 +321,10 @@
   <data name="ConfigurationClassesDescription" xml:space="preserve">
     <value>Use IEntityTypeConfiguration classes to configure the model (where possible).</value>
   </data>
-  <data name="ConfigurationClassSuffix" xml:space="preserve">
-    <value>A suffix to add to IEntityTypeConfiguration classes. Defaults to "EntityConfiguration".</value>
+  <data name="ConfigurationClassSuffixDescription" xml:space="preserve">
+    <value>A suffix to add to IEntityTypeConfiguration class names. Defaults to "EntityConfiguration".</value>
+  </data>
+  <data name="Test" xml:space="preserve">
+    <value>Testing</value>
   </data>
 </root>

@@ -86,8 +86,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public IList<string> GenerateKey(IKey key, bool generateHasNoKey, bool includeDataAnnotations)
         {
-            Check.NotNull(key, nameof(key));
-
             if (key == null)
             {
                 return generateHasNoKey ? new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" } : null;
@@ -407,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             lines.AddRange(GenerateAnnotations(annotations.Except(annotationsToRemove)));
 
-            return !includeDataAnnotations || !canUseDataAnnotations ? lines : null;
+            return includeDataAnnotations || !canUseDataAnnotations ? lines : null;
         }
 
         /// <summary>

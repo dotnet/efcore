@@ -306,4 +306,10 @@
   <data name="BuildSucceeded" xml:space="preserve">
     <value>Build succeeded.</value>
   </data>
+  <data name="ConfigurationClassesDescription" xml:space="preserve">
+    <value>Use IEntityTypeConfiguration classes to configure the model (where possible).</value>
+  </data>
+  <data name="ConfigurationClassSuffixDescription" xml:space="preserve">
+    <value>A suffix to add to IEntityTypeConfiguration class names. Defaults to "EntityConfiguration".</value>
+  </data>
 </root>

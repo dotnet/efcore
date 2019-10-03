@@ -456,6 +456,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string DbContextScriptDescription
             => GetString("DbContextScriptDescription");
 
+        /// <summary>
+        ///     Use IEntityTypeConfiguration classes to configure the model (where possible).
+        /// </summary>
+        public static string ConfigurationClassesDescription
+            => GetString("ConfigurationClassesDescription");
+
+        /// <summary>
+        ///     A suffix to add to IEntityTypeConfiguration class names. Defaults to "EntityConfiguration".
+        /// </summary>
+        public static string ConfigurationClassSuffixDescription
+            => GetString("ConfigurationClassSuffixDescription");
+
+        /// <summary>
+        ///     Testing
+        /// </summary>
+        public static string Test
+            => GetString("Test");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

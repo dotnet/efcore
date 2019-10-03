@@ -81,14 +81,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            _sb.AppendLine($"public partial class {entityType.Name}{classSuffix}: IEntityTypeConfiguration<{entityType.Name}> ");
+            _sb.AppendLine($"public partial class {entityType.Name}{classSuffix} : IEntityTypeConfiguration<{entityType.Name}>");
 
             _sb.AppendLine("{");
 
             using (_sb.Indent())
             {
                 _sb.AppendLine($"public void Configure(EntityTypeBuilder<{entityType.Name}> {BuilderIdentifier})");
-                _sb.AppendLine("{");
+                _sb.Append("{");
 
                 using (_sb.Indent())
                 {
@@ -162,6 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 return;
             }
 
+            //add a blank line at the top
+            _sb.AppendLine();
+
             //append the first line directly to the builder
             _sb.Append($"{BuilderIdentifier}{lines[0]}");
 
@@ -176,9 +179,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             _sb.AppendLine(";");
-
-            //enforce a blank line at the bottom of each fluent block.
-            _sb.AppendLine();
         }
     }
 }

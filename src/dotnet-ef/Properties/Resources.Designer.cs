@@ -412,6 +412,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         public static string BuildSucceeded
             => GetString("BuildSucceeded");
 
+        /// <summary>
+        ///     Use IEntityTypeConfiguration classes to configure the model (where possible).
+        /// </summary>
+        public static string ConfigurationClassesDescription
+            => GetString("ConfigurationClassesDescription");
+
+        /// <summary>
+        ///     A suffix to add to IEntityTypeConfiguration class names. Defaults to "EntityConfiguration".
+        /// </summary>
+        public static string ConfigurationClassSuffixDescription
+            => GetString("ConfigurationClassSuffixDescription");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
