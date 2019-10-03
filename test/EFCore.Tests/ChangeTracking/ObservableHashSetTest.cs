@@ -132,12 +132,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             foreach (var item in testData)
             {
-                Assert.True(hashSet.Contains(item));
+                Assert.Contains(item, hashSet);
             }
 
             foreach (var item in CreateTestData(1000, 10000).Except(testData))
             {
-                Assert.False(hashSet.Contains(item));
+                Assert.DoesNotContain(item, hashSet);
             }
         }
 
@@ -174,11 +174,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalFact]
         public void Can_remove()
         {
-            var hashSet = new ObservableHashSet<string>
-            {
-                "Palmer",
-                "Carmack"
-            };
+            var hashSet = new ObservableHashSet<string> { "Palmer", "Carmack" };
             var countChanging = 0;
             var countChanged = 0;
             var collectionChanged = 0;
@@ -229,11 +225,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalFact]
         public void Can_union_with()
         {
-            var hashSet = new ObservableHashSet<string>
-            {
-                "Palmer",
-                "Carmack"
-            };
+            var hashSet = new ObservableHashSet<string> { "Palmer", "Carmack" };
             var countChanging = 0;
             var countChanged = 0;
             var collectionChanged = 0;
@@ -269,13 +261,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalFact]
         public void Can_intersect_with()
         {
-            var hashSet = new ObservableHashSet<string>
-            {
-                "Brendan",
-                "Carmack",
-                "Nate",
-                "Palmer"
-            };
+            var hashSet = new ObservableHashSet<string> { "Brendan", "Carmack", "Nate", "Palmer" };
             var countChanging = 0;
             var countChanged = 0;
             var collectionChanged = 0;
@@ -311,13 +297,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalFact]
         public void Can_except_with()
         {
-            var hashSet = new ObservableHashSet<string>
-            {
-                "Brendan",
-                "Carmack",
-                "Nate",
-                "Palmer"
-            };
+            var hashSet = new ObservableHashSet<string> { "Brendan", "Carmack", "Nate", "Palmer" };
             var countChanging = 0;
             var countChanged = 0;
             var collectionChanged = 0;
@@ -353,13 +333,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalFact]
         public void Can_symmetrical_except_with()
         {
-            var hashSet = new ObservableHashSet<string>
-            {
-                "Brendan",
-                "Carmack",
-                "Nate",
-                "Palmer"
-            };
+            var hashSet = new ObservableHashSet<string> { "Brendan", "Carmack", "Nate", "Palmer" };
             var countChanging = 0;
             var countChanged = 0;
             var collectionChanged = 0;
@@ -477,13 +451,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [ConditionalFact]
         public void Can_remove_with_predicate()
         {
-            var hashSet = new ObservableHashSet<string>
-            {
-                "Brendan",
-                "Carmack",
-                "Nate",
-                "Palmer"
-            };
+            var hashSet = new ObservableHashSet<string> { "Brendan", "Carmack", "Nate", "Palmer" };
             var countChanging = 0;
             var countChanged = 0;
             var collectionChanged = 0;

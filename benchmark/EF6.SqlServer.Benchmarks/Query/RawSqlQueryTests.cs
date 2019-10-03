@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     public class RawSqlQueryTests
     {
         private static readonly OrdersFixture _fixture
-            = new OrdersFixture("Perf_Query_RawSql_EF6", 1000, 1000, 2, 2,
+            = new OrdersFixture(
+                "Perf_Query_RawSql_EF6", 1000, 1000, 2, 2,
                 ctx => ctx.Database.ExecuteSqlCommand(
                     @"CREATE PROCEDURE dbo.SearchProducts
                         @minPrice decimal(18, 2),
@@ -23,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
                     BEGIN
                         SELECT * FROM dbo.Products WHERE CurrentPrice >= @minPrice AND CurrentPrice <= @maxPrice
                     END"));
+
         private OrdersContext _context;
 
         [Params(true, false)]
@@ -34,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
         [GlobalSetup]
         public virtual void CreateContext()
         {
-
             _context = _fixture.CreateContext();
 
             Assert.Equal(1000, _context.Products.Count());

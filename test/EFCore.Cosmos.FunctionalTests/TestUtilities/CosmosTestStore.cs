@@ -2,11 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             => new CosmosTestStore(name, shared: false, extensionConfiguration: extensionConfiguration);
 
         public static CosmosTestStore CreateInitialized(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
-            => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null, null, null);
+            => (CosmosTestStore)Create(name, extensionConfiguration).Initialize(null, (Func<DbContext>)null);
 
         public static CosmosTestStore GetOrCreate(string name) => new CosmosTestStore(name);
 
@@ -32,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             => new CosmosTestStore(name, dataFilePath: dataFilePath);
 
         private CosmosTestStore(
-            string name, bool shared = true, string dataFilePath = null, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
+            string name, bool shared = true, string dataFilePath = null,
+            Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
             : base(CreateName(name), shared)
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
@@ -49,7 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             }
         }
 
-        private static string CreateName(string name) => name == "Northwind" ? name : (name + _runId.ToString());
+        private static string CreateName(string name) => TestEnvironment.IsEmulator || name == "Northwind"
+            ? name
+            : (name + _runId);
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
@@ -126,6 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                                                             goto NextEntityType;
                                                         }
                                                     }
+
                                                     break;
                                             }
                                         }
@@ -140,14 +147,71 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         public override void Clean(DbContext context)
         {
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
+            CleanAsync(context).GetAwaiter().GetResult();
         }
 
         public override async Task CleanAsync(DbContext context)
         {
-            await context.Database.EnsureDeletedAsync();
-            await context.Database.EnsureCreatedAsync();
+            var cosmosClientWrapper = context.GetService<CosmosClientWrapper>();
+            var created = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync();
+            try
+            {
+                if (!created)
+                {
+                    var cosmosClient = context.Database.GetCosmosClient();
+                    var database = cosmosClient.GetDatabase(Name);
+                    var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
+                    while (containerIterator.HasMoreResults)
+                    {
+                        foreach (var containerProperties in await containerIterator.ReadNextAsync())
+                        {
+                            var container = database.GetContainer(containerProperties.Id);
+                            var itemIterator = container.GetItemQueryIterator<JObject>(
+                                new QueryDefinition("SELECT c.id FROM c"));
+                            var partitionKeyPath = containerProperties.PartitionKeyPath;
+
+                            var items = new List<(string, string)>();
+                            while (itemIterator.HasMoreResults)
+                            {
+                                foreach (var itemId in await itemIterator.ReadNextAsync())
+                                {
+                                    items.Add((itemId["id"].ToString(), itemId[partitionKeyPath]?.ToString()));
+                                }
+                            }
+
+                            foreach (var item in items)
+                            {
+                                await container.DeleteItemAsync<object>(
+                                    item.Item1,
+                                    item.Item2 == null ? PartitionKey.None : new PartitionKey(item.Item1));
+                            }
+                        }
+                    }
+
+                    created = await context.Database.EnsureCreatedAsync();
+                    if (!created)
+                    {
+                        var creator = (CosmosDatabaseCreator)context.GetService<IDatabaseCreator>();
+                        await creator.SeedAsync();
+                    }
+                }
+                else
+                {
+                    await context.Database.EnsureCreatedAsync();
+                }
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    await context.Database.EnsureDeletedAsync();
+                }
+                catch (Exception)
+                {
+                }
+
+                throw;
+            }
         }
 
         public override void Dispose()

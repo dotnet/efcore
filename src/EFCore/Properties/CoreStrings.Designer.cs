@@ -1369,7 +1369,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);
 
         /// <summary>
-        ///     Error generated for warning '{eventName}: {message}'. This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.
+        ///     Error generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.
         /// </summary>
         public static string WarningAsErrorTemplate([CanBeNull] object eventName, [CanBeNull] object message, [CanBeNull] object eventId)
             => string.Format(
@@ -2197,6 +2197,38 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("IncludeOnEntityWithDefiningQueryNotSupported", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     The type '{entityType}' cannot be marked as owned because the derived entity type - '{derivedType}' has been configured as non-owned.
+        /// </summary>
+        public static string ClashingNonOwnedDerivedEntityType([CanBeNull] object entityType, [CanBeNull] object derivedType)
+            => string.Format(
+                GetString("ClashingNonOwnedDerivedEntityType", nameof(entityType), nameof(derivedType)),
+                entityType, derivedType);
+
+        /// <summary>
+        ///     Client projection contains reference to constant expression of '{constantType}' which is being passed as argument to method '{methodName}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.
+        /// </summary>
+        public static string ClientProjectionCapturingConstantInMethodArgument([CanBeNull] object constantType, [CanBeNull] object methodName)
+            => string.Format(
+                GetString("ClientProjectionCapturingConstantInMethodArgument", nameof(constantType), nameof(methodName)),
+                constantType, methodName);
+
+        /// <summary>
+        ///     Client projection contains reference to constant expression of '{constantType}' through instance method '{methodName}'. This could potentially cause memory leak. Consider making the method static so that it does not capture constant in the instance. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.
+        /// </summary>
+        public static string ClientProjectionCapturingConstantInMethodInstance([CanBeNull] object constantType, [CanBeNull] object methodName)
+            => string.Format(
+                GetString("ClientProjectionCapturingConstantInMethodInstance", nameof(constantType), nameof(methodName)),
+                constantType, methodName);
+
+        /// <summary>
+        ///     Client projection contains reference to constant expression of '{constantType}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.
+        /// </summary>
+        public static string ClientProjectionCapturingConstantInTree([CanBeNull] object constantType)
+            => string.Format(
+                GetString("ClientProjectionCapturingConstantInTree", nameof(constantType)),
+                constantType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

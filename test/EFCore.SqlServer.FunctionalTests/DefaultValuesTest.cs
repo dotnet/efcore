@@ -23,24 +23,14 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.EnsureCreatedResiliently();
 
                 context.Chippers.Add(
-                    new Chipper
-                    {
-                        Id = "Default"
-                    });
+                    new Chipper { Id = "Default" });
 
                 context.SaveChanges();
 
                 var honeyDijon = context.Add(
-                    new KettleChips
-                    {
-                        Name = "Honey Dijon"
-                    }).Entity;
+                    new KettleChips { Name = "Honey Dijon" }).Entity;
                 var buffaloBleu = context.Add(
-                    new KettleChips
-                    {
-                        Name = "Buffalo Bleu",
-                        BestBuyDate = new DateTime(2111, 1, 11)
-                    }).Entity;
+                    new KettleChips { Name = "Buffalo Bleu", BestBuyDate = new DateTime(2111, 1, 11) }).Entity;
 
                 context.SaveChanges();
 

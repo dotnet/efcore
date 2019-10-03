@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal UnitPrice { get; set; }
+
         public virtual Album Album { get; set; }
         public virtual Order Order { get; set; }
     }

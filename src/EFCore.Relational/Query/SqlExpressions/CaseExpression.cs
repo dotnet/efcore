@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var test = (SqlExpression)visitor.Visit(whenClause.Test);
                 var result = (SqlExpression)visitor.Visit(whenClause.Result);
 
-                if (test != whenClause.Test || result != whenClause.Result)
+                if (test != whenClause.Test
+                    || result != whenClause.Result)
                 {
                     changed |= true;
                     whenClauses.Add(new CaseWhenClause(test, result));
@@ -109,15 +110,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is CaseExpression caseExpression
-                    && Equals(caseExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is CaseExpression caseExpression
+                   && Equals(caseExpression));
 
         private bool Equals(CaseExpression caseExpression)
             => base.Equals(caseExpression)
-            && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
-            && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
-            && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
+               && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
+               && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
+               && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
 
         public override int GetHashCode()
         {
@@ -128,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 hash.Add(WhenClauses[i]);
             }
+
             hash.Add(ElseResult);
             return hash.ToHashCode();
         }

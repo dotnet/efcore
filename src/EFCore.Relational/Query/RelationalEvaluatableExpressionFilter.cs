@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -15,16 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         Represents a filter for evaluatable expressions.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
     {
         /// <summary>
         ///     <para>
-        ///         Creates a new <see cref="RelationalEvaluatableExpressionFilter"/> instance.
+        ///         Creates a new <see cref="RelationalEvaluatableExpressionFilter" /> instance.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally

@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => _context.Products.Include(p => p.OrderDetails).ToList()).Message));
         }
 
-        [ConditionalFact(Skip = "issue #15081")]
+        [ConditionalFact]
         public virtual void Navs_query()
         {
             var results

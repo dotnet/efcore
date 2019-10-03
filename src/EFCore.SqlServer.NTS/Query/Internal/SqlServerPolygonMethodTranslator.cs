@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _getInteriorRingN = typeof(Polygon).GetRuntimeMethod(nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
+        private static readonly MethodInfo _getInteriorRingN = typeof(Polygon).GetRuntimeMethod(
+            nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -38,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     return _sqlExpressionFactory.Function(
                         instance,
                         "RingN",
-                        new[] {
+                        new[]
+                        {
                             _sqlExpressionFactory.Add(
                                 arguments[0],
                                 _sqlExpressionFactory.Constant(2))
@@ -46,19 +48,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         method.ReturnType,
                         _typeMappingSource.FindMapping(method.ReturnType, storeType));
                 }
-                else
-                {
-                    return _sqlExpressionFactory.Function(
-                        instance,
-                        "STInteriorRingN",
-                        new[] {
-                            _sqlExpressionFactory.Add(
-                                arguments[0],
-                                _sqlExpressionFactory.Constant(1))
-                        },
-                        method.ReturnType,
-                        _typeMappingSource.FindMapping(method.ReturnType, storeType));
-                }
+
+                return _sqlExpressionFactory.Function(
+                    instance,
+                    "STInteriorRingN",
+                    new[]
+                    {
+                        _sqlExpressionFactory.Add(
+                            arguments[0],
+                            _sqlExpressionFactory.Constant(1))
+                    },
+                    method.ReturnType,
+                    _typeMappingSource.FindMapping(method.ReturnType, storeType));
             }
 
             return null;

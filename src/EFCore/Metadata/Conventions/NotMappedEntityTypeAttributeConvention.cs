@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that ignores entity types that have the <see cref="NotMappedAttribute"/>.
+    ///     A convention that ignores entity types that have the <see cref="NotMappedAttribute" />.
     /// </summary>
     public class NotMappedEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<NotMappedAttribute>
     {

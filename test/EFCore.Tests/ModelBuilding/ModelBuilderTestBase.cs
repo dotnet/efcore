@@ -101,17 +101,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var builder = CreateModelBuilder();
 
                 builder.Entity<Hob>().HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2
-                    });
+                    e => new { e.Id1, e.Id2 });
                 builder.Entity<Nob>().HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2
-                    });
+                    e => new { e.Id1, e.Id2 });
 
                 return builder;
             }
@@ -165,12 +157,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual TestModelBuilder FinalizeModel()
-            {
-                ModelBuilder.FinalizeModel();
-
-                return this;
-            }
+            public virtual IModel FinalizeModel() => ModelBuilder.FinalizeModel();
 
             public virtual string GetDisplayName(Type entityType) => entityType.Name;
 

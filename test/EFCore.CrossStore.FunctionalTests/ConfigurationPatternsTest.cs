@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -259,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         using (var context2 = createBlogContext())
                         {
-                            Assert.Equal(0, context2.ChangeTracker.Entries().Count());
+                            Assert.Empty(context2.ChangeTracker.Entries());
                             Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
                             var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();

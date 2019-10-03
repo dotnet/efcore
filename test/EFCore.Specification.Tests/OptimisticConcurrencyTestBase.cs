@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore
         #region Concurrency exceptions with complex types
 
         // Depends on an aggregate-friendly Reload, see #13890
-        //[ConditionalFact]
+        [ConditionalFact(Skip = "Issue#13890")]
         public virtual Task Concurrency_issue_where_a_complex_type_nested_member_is_the_concurrency_token_can_be_handled()
         {
             return ConcurrencyTestAsync(
@@ -349,31 +349,13 @@ namespace Microsoft.EntityFrameworkCore
                         using (var transaction = context.Database.BeginTransaction())
                         {
                             context.Teams.Add(
-                                new Team
-                                {
-                                    Id = -1,
-                                    Name = "Wubbsy Racing",
-                                    Chassis = new Chassis
-                                    {
-                                        TeamId = -1,
-                                        Name = "Wubbsy"
-                                    }
-                                });
+                                new Team { Id = -1, Name = "Wubbsy Racing", Chassis = new Chassis { TeamId = -1, Name = "Wubbsy" } });
 
                             using (var innerContext = CreateF1Context())
                             {
                                 UseTransaction(innerContext.Database, transaction);
                                 innerContext.Teams.Add(
-                                    new Team
-                                    {
-                                        Id = -1,
-                                        Name = "Wubbsy Racing",
-                                        Chassis = new Chassis
-                                        {
-                                            TeamId = -1,
-                                            Name = "Wubbsy"
-                                        }
-                                    });
+                                    new Team { Id = -1, Name = "Wubbsy Racing", Chassis = new Chassis { TeamId = -1, Name = "Wubbsy" } });
 
                                 await innerContext.SaveChangesAsync();
 
@@ -484,11 +466,7 @@ namespace Microsoft.EntityFrameworkCore
                         using (context.Database.BeginTransaction())
                         {
                             var entry = context.Drivers.Add(
-                                new Driver
-                                {
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                });
+                                new Driver { Name = "Larry David", TeamId = Team.Ferrari });
 
                             if (async)
                             {
@@ -539,12 +517,7 @@ namespace Microsoft.EntityFrameworkCore
                         using (context.Database.BeginTransaction())
                         {
                             var entry = context.Drivers.Add(
-                                new Driver
-                                {
-                                    Id = 676,
-                                    Name = "Larry David",
-                                    TeamId = Team.Ferrari
-                                });
+                                new Driver { Id = 676, Name = "Larry David", TeamId = Team.Ferrari });
 
                             entry.State = state;
 

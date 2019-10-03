@@ -104,7 +104,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
         public void AppendBulkInsertOperation_appends_insert_if_store_generated_columns_exist()
         {
             var stringBuilder = new StringBuilder();
-            var command = CreateInsertCommand(identityKey: true, isComputed: true);
+            var command = CreateInsertCommand();
 
             var sqlGenerator = (ISqlServerUpdateSqlGenerator)CreateSqlGenerator();
             var grouping = sqlGenerator.AppendBulkInsertOperation(stringBuilder, new[] { command, command }, 0);

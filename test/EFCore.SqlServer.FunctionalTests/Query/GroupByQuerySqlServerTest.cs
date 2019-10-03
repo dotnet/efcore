@@ -202,6 +202,22 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        public override async Task GroupBy_aggregate_projecting_conditional_expression(bool isAsync)
+        {
+            await base.GroupBy_aggregate_projecting_conditional_expression(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderDate] AS [Key], CASE
+    WHEN COUNT(*) = 0 THEN 1
+    ELSE SUM(CASE
+        WHEN ([o].[OrderID] % 2) = 0 THEN 1
+        ELSE 0
+    END) / COUNT(*)
+END AS [SomeValue]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderDate]");
+        }
+
         public override async Task GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(bool isAsync)
         {
             await base.GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(isAsync);
@@ -1988,6 +2004,20 @@ END");
         GROUP BY [o].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
+        }
+
+        public override async Task Count_after_GroupBy_without_aggregate(bool isAsync)
+        {
+            await base.Count_after_GroupBy_without_aggregate(isAsync);
+
+            AssertSql(" ");
+        }
+
+        public override async Task LongCount_after_GroupBy_without_aggregate(bool isAsync)
+        {
+            await base.LongCount_after_GroupBy_without_aggregate(isAsync);
+
+            AssertSql(" ");
         }
 
         private void AssertSql(params string[] expected)

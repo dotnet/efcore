@@ -38,14 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks
                     .With(StatisticColumn.OperationsPerSecond, new ParamsSummaryColumn())
                     .With(
                         MarkdownExporter.GitHub, new CsvExporter(
-                        CsvSeparator.Comma,
-                        new SummaryStyle
-                        {
-                            PrintUnitsInHeader = true,
-                            PrintUnitsInContent = false,
-                            TimeUnit = TimeUnit.Microsecond,
-                            SizeUnit = SizeUnit.KB
-                        }));
+                            CsvSeparator.Comma,
+                            new SummaryStyle
+                            {
+                                PrintUnitsInHeader = true,
+                                PrintUnitsInContent = false,
+                                TimeUnit = TimeUnit.Microsecond,
+                                SizeUnit = SizeUnit.KB
+                            }));
             }
 
             BenchmarkSwitcher.FromAssembly(assembly).Run(args, config);

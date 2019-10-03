@@ -4,7 +4,6 @@
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -25,10 +24,22 @@ namespace Microsoft.EntityFrameworkCore
                 CreateContext(),
                 nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
+            const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
+AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.AnimalId ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Method ---> [int] [Precision = 10 Scale = 0]
+BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]
+Blog.BlogId ---> [int] [Precision = 10 Scale = 0]
+Blog.Discriminator ---> [nvarchar] [MaxLength = -1]
+Blog.IsVisible ---> [nvarchar] [MaxLength = 1]
+Blog.RssUrl ---> [nullable nvarchar] [MaxLength = -1]
+Blog.Url ---> [nullable nvarchar] [MaxLength = -1]
 BuiltInDataTypes.Enum16 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.Enum64 ---> [bigint] [Precision = 19 Scale = 0]
@@ -149,9 +160,16 @@ MaxLengthDataTypes.String9000 ---> [nullable varbinary] [MaxLength = -1]
 NonNullableDependent.Id ---> [int] [Precision = 10 Scale = 0]
 NonNullableDependent.PrincipalId ---> [int] [Precision = 10 Scale = 0]
 NullablePrincipal.Id ---> [int] [Precision = 10 Scale = 0]
+Order.Id ---> [nvarchar] [MaxLength = 450]
 Person.Id ---> [int] [Precision = 10 Scale = 0]
 Person.Name ---> [nullable nvarchar] [MaxLength = -1]
 Person.SSN ---> [nullable int] [Precision = 10 Scale = 0]
+Post.BlogId ---> [nullable int] [Precision = 10 Scale = 0]
+Post.PostId ---> [int] [Precision = 10 Scale = 0]
+SimpleCounter.CounterId ---> [int] [Precision = 10 Scale = 0]
+SimpleCounter.Discriminator ---> [nullable nvarchar] [MaxLength = -1]
+SimpleCounter.IsTest ---> [bit]
+SimpleCounter.StyleKey ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]

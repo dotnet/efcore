@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -27,10 +26,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder => modelBuilder.Entity("People").Property<string>("Name").IsRequired(),
                 new CreateIndexOperation
                 {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "Name" },
-                    Filter = "[Name] IS NOT NULL"
+                    Name = "IX_People_Name", Table = "People", Columns = new[] { "Name" }, Filter = "[Name] IS NOT NULL"
                 });
 
         [ConditionalFact]
@@ -76,12 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AddColumnOperation_without_column_type()
             => Generate(
-                new AddColumnOperation
-                {
-                    Table = "People",
-                    Name = "Alias",
-                    ClrType = typeof(string)
-                });
+                new AddColumnOperation { Table = "People", Name = "Alias", ClrType = typeof(string) });
 
         [ConditionalFact]
         public virtual void AddColumnOperation_with_ansi()
@@ -219,13 +210,7 @@ namespace Microsoft.EntityFrameworkCore
                     modelBuilder.Entity<Derived1>();
                     modelBuilder.Entity<Derived2>();
                 },
-                new AddColumnOperation
-                {
-                    Table = "Base",
-                    Name = "Foo",
-                    ClrType = typeof(string),
-                    IsNullable = true
-                });
+                new AddColumnOperation { Table = "Base", Name = "Foo", ClrType = typeof(string), IsNullable = true });
 
         private class Base
         {
@@ -265,41 +250,23 @@ namespace Microsoft.EntityFrameworkCore
             => Generate(
                 new AddForeignKeyOperation
                 {
-                    Table = "People",
-                    Columns = new[] { "SpouseId" },
-                    PrincipalTable = "People",
-                    PrincipalColumns = new[] { "Id" }
+                    Table = "People", Columns = new[] { "SpouseId" }, PrincipalTable = "People", PrincipalColumns = new[] { "Id" }
                 });
 
         [ConditionalFact]
         public virtual void AddForeignKeyOperation_without_principal_columns()
             => Generate(
-                new AddForeignKeyOperation
-                {
-                    Table = "People",
-                    Columns = new[] { "SpouseId" },
-                    PrincipalTable = "People"
-                });
+                new AddForeignKeyOperation { Table = "People", Columns = new[] { "SpouseId" }, PrincipalTable = "People" });
 
         [ConditionalFact]
         public virtual void AddPrimaryKeyOperation_with_name()
             => Generate(
-                new AddPrimaryKeyOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "PK_People",
-                    Columns = new[] { "Id1", "Id2" }
-                });
+                new AddPrimaryKeyOperation { Table = "People", Schema = "dbo", Name = "PK_People", Columns = new[] { "Id1", "Id2" } });
 
         [ConditionalFact]
         public virtual void AddPrimaryKeyOperation_without_name()
             => Generate(
-                new AddPrimaryKeyOperation
-                {
-                    Table = "People",
-                    Columns = new[] { "Id" }
-                });
+                new AddPrimaryKeyOperation { Table = "People", Columns = new[] { "Id" } });
 
         [ConditionalFact]
         public virtual void AddUniqueConstraintOperation_with_name()
@@ -315,21 +282,14 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AddUniqueConstraintOperation_without_name()
             => Generate(
-                new AddUniqueConstraintOperation
-                {
-                    Table = "People",
-                    Columns = new[] { "SSN" }
-                });
+                new AddUniqueConstraintOperation { Table = "People", Columns = new[] { "SSN" } });
 
         [ConditionalFact]
         public virtual void CreateCheckConstraintOperation_with_name()
             => Generate(
                 new CreateCheckConstraintOperation
                 {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "CK_People_DriverLicense",
-                    Sql = "DriverLicense_Number > 0"
+                    Table = "People", Schema = "dbo", Name = "CK_People_DriverLicense", Sql = "DriverLicense_Number > 0"
                 });
 
         [ConditionalFact]
@@ -349,12 +309,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AlterColumnOperation_without_column_type()
             => Generate(
-                new AlterColumnOperation
-                {
-                    Table = "People",
-                    Name = "LuckyNumber",
-                    ClrType = typeof(int)
-                });
+                new AlterColumnOperation { Table = "People", Name = "LuckyNumber", ClrType = typeof(int) });
 
         [ConditionalFact]
         public virtual void AlterSequenceOperation_with_minValue_and_maxValue()
@@ -372,33 +327,18 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AlterSequenceOperation_without_minValue_and_maxValue()
             => Generate(
-                new AlterSequenceOperation
-                {
-                    Name = "EntityFrameworkHiLoSequence",
-                    IncrementBy = 1
-                });
+                new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence", IncrementBy = 1 });
 
         [ConditionalFact]
         public virtual void RenameTableOperation_legacy()
             => Generate(
-                new RenameTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo",
-                    NewName = "Person"
-                });
+                new RenameTableOperation { Name = "People", Schema = "dbo", NewName = "Person" });
 
         [ConditionalFact]
         public virtual void RenameTableOperation()
             => Generate(
                 modelBuilder => modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0"),
-                new RenameTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo",
-                    NewName = "Person",
-                    NewSchema = "dbo"
-                });
+                new RenameTableOperation { Name = "People", Schema = "dbo", NewName = "Person", NewSchema = "dbo" });
 
         [ConditionalFact]
         public virtual void CreateIndexOperation_unique()
@@ -415,13 +355,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void CreateIndexOperation_nonunique()
             => Generate(
-                new CreateIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Columns = new[] { "Name" },
-                    IsUnique = false
-                });
+                new CreateIndexOperation { Name = "IX_People_Name", Table = "People", Columns = new[] { "Name" }, IsUnique = false });
 
         [ConditionalFact]
         public virtual void CreateIndexOperation_with_where_clauses()
@@ -470,10 +404,7 @@ namespace Microsoft.EntityFrameworkCore
             => Generate(
                 new CreateSequenceOperation
                 {
-                    Name = "EntityFrameworkHiLoSequence",
-                    ClrType = typeof(long),
-                    StartValue = 3,
-                    IncrementBy = 1
+                    Name = "EntityFrameworkHiLoSequence", ClrType = typeof(long), StartValue = 3, IncrementBy = 1
                 });
 
         [ConditionalFact]
@@ -485,13 +416,7 @@ namespace Microsoft.EntityFrameworkCore
                     Schema = "dbo",
                     Columns =
                     {
-                        new AddColumnOperation
-                        {
-                            Name = "Id",
-                            Table = "People",
-                            ClrType = typeof(int),
-                            IsNullable = false
-                        },
+                        new AddColumnOperation { Name = "Id", Table = "People", ClrType = typeof(int), IsNullable = false },
                         new AddColumnOperation
                         {
                             Name = "EmployerId",
@@ -509,31 +434,14 @@ namespace Microsoft.EntityFrameworkCore
                             IsNullable = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
-                    {
-                        Columns = new[] { "Id" }
-                    },
-                    UniqueConstraints =
-                    {
-                        new AddUniqueConstraintOperation
-                        {
-                            Columns = new[] { "SSN" }
-                        }
-                    },
-                    CheckConstraints =
-                    {
-                        new CreateCheckConstraintOperation
-                        {
-                            Sql = "SSN > 0"
-                        }
-                    },
+                    PrimaryKey = new AddPrimaryKeyOperation { Columns = new[] { "Id" } },
+                    UniqueConstraints = { new AddUniqueConstraintOperation { Columns = new[] { "SSN" } } },
+                    CheckConstraints = { new CreateCheckConstraintOperation { Sql = "SSN > 0" } },
                     ForeignKeys =
                     {
                         new AddForeignKeyOperation
                         {
-                            Columns = new[] { "EmployerId" },
-                            PrincipalTable = "Companies",
-                            PrincipalColumns = new[] { "Id" }
+                            Columns = new[] { "EmployerId" }, PrincipalTable = "Companies", PrincipalColumns = new[] { "Id" }
                         }
                     },
                     Comment = "Table comment"
@@ -547,101 +455,54 @@ namespace Microsoft.EntityFrameworkCore
                     Name = "Anonymous",
                     Columns =
                     {
-                        new AddColumnOperation
-                        {
-                            Name = "Value",
-                            Table = "Anonymous",
-                            ClrType = typeof(int),
-                            IsNullable = false
-                        }
+                        new AddColumnOperation { Name = "Value", Table = "Anonymous", ClrType = typeof(int), IsNullable = false }
                     }
                 });
 
         [ConditionalFact]
         public virtual void DropColumnOperation()
             => Generate(
-                new DropColumnOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "LuckyNumber"
-                });
+                new DropColumnOperation { Table = "People", Schema = "dbo", Name = "LuckyNumber" });
 
         [ConditionalFact]
         public virtual void DropForeignKeyOperation()
             => Generate(
-                new DropForeignKeyOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "FK_People_Companies"
-                });
+                new DropForeignKeyOperation { Table = "People", Schema = "dbo", Name = "FK_People_Companies" });
 
         [ConditionalFact]
         public virtual void DropIndexOperation()
             => Generate(
-                new DropIndexOperation
-                {
-                    Name = "IX_People_Name",
-                    Table = "People",
-                    Schema = "dbo"
-                });
+                new DropIndexOperation { Name = "IX_People_Name", Table = "People", Schema = "dbo" });
 
         [ConditionalFact]
         public virtual void DropPrimaryKeyOperation()
             => Generate(
-                new DropPrimaryKeyOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "PK_People"
-                });
+                new DropPrimaryKeyOperation { Table = "People", Schema = "dbo", Name = "PK_People" });
 
         [ConditionalFact]
         public virtual void DropSequenceOperation()
             => Generate(
-                new DropSequenceOperation
-                {
-                    Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo"
-                });
+                new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo" });
 
         [ConditionalFact]
         public virtual void DropTableOperation()
             => Generate(
-                new DropTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo"
-                });
+                new DropTableOperation { Name = "People", Schema = "dbo" });
 
         [ConditionalFact]
         public virtual void DropUniqueConstraintOperation()
             => Generate(
-                new DropUniqueConstraintOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "AK_People_SSN"
-                });
+                new DropUniqueConstraintOperation { Table = "People", Schema = "dbo", Name = "AK_People_SSN" });
 
         [ConditionalFact]
         public virtual void DropCheckConstraintOperation()
             => Generate(
-                new DropCheckConstraintOperation
-                {
-                    Table = "People",
-                    Schema = "dbo",
-                    Name = "CK_People_SSN"
-                });
+                new DropCheckConstraintOperation { Table = "People", Schema = "dbo", Name = "CK_People_SSN" });
 
         [ConditionalFact]
         public virtual void SqlOperation()
             => Generate(
-                new SqlOperation
-                {
-                    Sql = "-- I <3 DDL"
-                });
+                new SqlOperation { Sql = "-- I <3 DDL" });
 
         [ConditionalFact]
         public virtual void InsertDataOperation()
@@ -652,27 +513,14 @@ namespace Microsoft.EntityFrameworkCore
                     Columns = new[] { "Id", "Full Name" },
                     Values = new object[,]
                     {
-                        { 0, null },
-                        { 1, "Daenerys Targaryen" },
-                        { 2, "John Snow" },
-                        { 3, "Arya Stark" },
-                        { 4, "Harry Strickland" }
+                        { 0, null }, { 1, "Daenerys Targaryen" }, { 2, "John Snow" }, { 3, "Arya Stark" }, { 4, "Harry Strickland" }
                     }
                 });
 
         [ConditionalFact]
         public virtual void DeleteDataOperation_simple_key()
             => Generate(
-                new DeleteDataOperation
-                {
-                    Table = "People",
-                    KeyColumns = new[] { "Id" },
-                    KeyValues = new object[,]
-                    {
-                        { 2 },
-                        { 4 }
-                    }
-                });
+                new DeleteDataOperation { Table = "People", KeyColumns = new[] { "Id" }, KeyValues = new object[,] { { 2 }, { 4 } } });
 
         [ConditionalFact]
         public virtual void DeleteDataOperation_composite_key()
@@ -681,11 +529,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "First Name", "Last Name" },
-                    KeyValues = new object[,]
-                    {
-                        { "Hodor", null },
-                        { "Daenerys", "Targaryen" }
-                    }
+                    KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } }
                 });
 
         [ConditionalFact]
@@ -695,17 +539,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    KeyValues = new object[,]
-                    {
-                        { 1 },
-                        { 4 }
-                    },
+                    KeyValues = new object[,] { { 1 }, { 4 } },
                     Columns = new[] { "Full Name" },
-                    Values = new object[,]
-                    {
-                        { "Daenerys Stormborn" },
-                        { "Homeless Harry Strickland" }
-                    }
+                    Values = new object[,] { { "Daenerys Stormborn" }, { "Homeless Harry Strickland" } }
                 });
 
         [ConditionalFact]
@@ -715,17 +551,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id", "Last Name" },
-                    KeyValues = new object[,]
-                    {
-                        { 0, null },
-                        { 4, "Strickland" }
-                    },
+                    KeyValues = new object[,] { { 0, null }, { 4, "Strickland" } },
                     Columns = new[] { "First Name" },
-                    Values = new object[,]
-                    {
-                        { "Hodor" },
-                        { "Harry" }
-                    }
+                    Values = new object[,] { { "Hodor" }, { "Harry" } }
                 });
 
         [ConditionalFact]
@@ -735,17 +563,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    KeyValues = new object[,]
-                    {
-                        { 1 },
-                        { 4 }
-                    },
+                    KeyValues = new object[,] { { 1 }, { 4 } },
                     Columns = new[] { "First Name", "Nickname" },
-                    Values = new object[,]
-                    {
-                        { "Daenerys", "Dany" },
-                        { "Harry", "Homeless" }
-                    }
+                    Values = new object[,] { { "Daenerys", "Dany" }, { "Harry", "Homeless" } }
                 });
 
         protected TestHelpers TestHelpers { get; }

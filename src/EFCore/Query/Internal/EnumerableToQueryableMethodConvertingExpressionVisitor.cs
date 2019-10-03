@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class EnumerableToQueryableMethodConvertingExpressionVisitor : ExpressionVisitor
     {
+        private readonly MethodInfo _enumerableToListMethodInfo = typeof(Enumerable).GetTypeInfo()
+            .GetDeclaredMethods(nameof(Enumerable.ToList)).Single(mi => mi.GetParameters().Length == 1);
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
@@ -99,12 +102,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (CanConvertEnumerableToQueryable(enumerableParameterType, queryableParameterType))
                         {
-                            if (arguments[i].Type.TryGetElementType(typeof(IQueryable<>)) == null)
+                            var innerArgument = arguments[i];
+                            var genericType = innerArgument.Type.TryGetSequenceType();
+
+                            // If innerArgument has ToList applied to it then unwrap it.
+                            // Also preserve generic argument of ToList is applied to different type
+                            if (arguments[i].Type.TryGetElementType(typeof(List<>)) != null
+                                && arguments[i] is MethodCallExpression toListMethodCallExpression
+                                && toListMethodCallExpression.Method.IsGenericMethod
+                                && toListMethodCallExpression.Method.GetGenericMethodDefinition() == _enumerableToListMethodInfo)
+                            {
+                                genericType = toListMethodCallExpression.Method.GetGenericArguments()[0];
+                                innerArgument = toListMethodCallExpression.Arguments[0];
+                            }
+
+                            var innerQueryableElementType = innerArgument.Type.TryGetElementType(typeof(IQueryable<>));
+                            if (innerQueryableElementType == null
+                                || innerQueryableElementType != genericType)
                             {
                                 arguments[i] = Expression.Call(
-                                    QueryableMethods.AsQueryable.MakeGenericMethod(
-                                        arguments[i].Type.TryGetSequenceType()),
-                                    arguments[i]);
+                                    QueryableMethods.AsQueryable.MakeGenericMethod(genericType),
+                                    innerArgument);
                             }
 
                             continue;
@@ -132,7 +150,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
             }
-            else if (methodCallExpression.Method.DeclaringType.IsGenericType
+
+            if (methodCallExpression.Method.DeclaringType.IsGenericType
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
                 && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
             {
@@ -157,9 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static bool ClientSource(Expression expression)
             => expression is ConstantExpression
-                || expression is MemberInitExpression
-                || expression is NewExpression
-                || expression is ParameterExpression;
+               || expression is MemberInitExpression
+               || expression is NewExpression
+               || expression is ParameterExpression;
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {

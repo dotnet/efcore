@@ -130,7 +130,7 @@
     <value>The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator value configured.</value>
   </data>
   <data name="NoPartitionKey" xml:space="preserve">
-    <value>The entity type '{entityType}' does not have a partition key set, but it is mapped to the collection '{collection}' shared by entity types with partition keys.</value>
+    <value>The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>

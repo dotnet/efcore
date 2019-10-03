@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -27,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerLineStringMemberTranslator(IRelationalTypeMappingSource typeMappingSource,
+        public SqlServerLineStringMemberTranslator(
+            IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
@@ -48,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 }
 
                 var resultTypeMapping = typeof(Geometry).IsAssignableFrom(returnType)
-                        ? _typeMappingSource.FindMapping(returnType, storeType)
-                        : _typeMappingSource.FindMapping(returnType);
+                    ? _typeMappingSource.FindMapping(returnType, storeType)
+                    : _typeMappingSource.FindMapping(returnType);
 
                 return _sqlExpressionFactory.Function(
                     instance,
