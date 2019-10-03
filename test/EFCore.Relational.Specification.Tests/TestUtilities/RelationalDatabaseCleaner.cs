@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -123,20 +122,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 RegexOptions.IgnoreCase | RegexOptions.Multiline,
                 TimeSpan.FromMilliseconds(1000.0));
             for (var i = 0; i < batches.Length; i++)
-            {
-                if (batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase)
-                    || string.IsNullOrWhiteSpace(batches[i]))
-                {
-                    continue;
-                }
-
-                sqlBuilder.Build(batches[i])
-                    .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null));
-            }
-        }
-
-        protected virtual MigrationOperation Drop(DatabaseSequence sequence)
-            => new DropSequenceOperation
             {
                 if (batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                     || string.IsNullOrWhiteSpace(batches[i]))
