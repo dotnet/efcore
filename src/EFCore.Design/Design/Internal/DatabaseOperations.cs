@@ -95,6 +95,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var modelNamespace = GetNamespaceFromOutputPath(outputDir);
             var contextNamespace = GetNamespaceFromOutputPath(outputContextDir);
 
+            //default the config class suffix if it's not set and we are using configuration classes
+            if(configurationClasses && string.IsNullOrWhiteSpace(configurationClassSuffix))
+            {
+                configurationClassSuffix = "EntityConfiguration";
+            }
+
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 new DatabaseModelFactoryOptions(tables, schemas),
