@@ -224,16 +224,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual void Model_annotations_are_stored_in_snapshot()
         {
             Test(
-                builder => builder.HasAnnotation("AnnotationName", "AnnotationValue"),
+                builder => builder.HasAnnotation("AnnotationName", "AnnotationValue")
+                    .HasDatabaseMaxSize("100 MB")
+                    .HasServiceTier("'basic'")
+                    .HasPerformanceLevel("'S0'"),
                 AddBoilerPlate(
                     @"
             modelBuilder
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
+                .HasAnnotation(""SqlServer:DatabaseMaxSize"", ""100 MB"")
+                .HasAnnotation(""SqlServer:PerformanceLevel"", ""'S0'"")
+                .HasAnnotation(""SqlServer:ServiceTier"", ""'basic'"")
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
-                    Assert.Equal(3, o.GetAnnotations().Count());
+                    Assert.Equal(6, o.GetAnnotations().Count());
                     Assert.Equal("AnnotationValue", o["AnnotationName"]);
                 });
         }

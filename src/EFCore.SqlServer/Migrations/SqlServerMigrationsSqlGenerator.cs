@@ -904,8 +904,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            if (operation[SqlServerAnnotationNames.EditionOptions] is string editionOptions)
+            {
+                builder
+                    .AppendLine("BEGIN")
+                    .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
+                    .AppendLine("EXEC(N'ALTER DATABASE ' + @db_name + ' MODIFY ( ")
+                    .Append(editionOptions.Replace("'", "''"))
+                    .AppendLine(" );');")
+                    .AppendLine("END")
+                    .AppendLine();
+            }
+
             if (!IsMemoryOptimized(operation))
             {
+                builder.EndCommand();
                 return;
             }
 

@@ -66,9 +66,9 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
                 Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative')");
             }
         }
 
@@ -93,8 +93,8 @@ WHERE FREETEXT([c].[Title], N'Representative')");
 
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative Sales')");
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative Sales')");
             }
         }
 
@@ -109,9 +109,9 @@ WHERE FREETEXT([c].[Title], N'Representative Sales')");
                 Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)");
             }
         }
 
@@ -128,9 +128,9 @@ WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
                 Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)");
             }
         }
 
@@ -149,9 +149,9 @@ WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
                 Assert.Equal(5u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(1) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', LANGUAGE 1033))");
+                    @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[City], N'London')) AND (FREETEXT([e].[Title], N'Manager', LANGUAGE 1033)");
             }
         }
 
@@ -166,7 +166,7 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation()
         {
@@ -182,14 +182,14 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
                 Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([e].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation_with_language_terms()
         {
@@ -205,10 +205,10 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
                 Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([c].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([e].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
             }
         }
 
@@ -313,9 +313,9 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                 Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'Representative')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'Representative')");
             }
         }
 
@@ -330,9 +330,9 @@ WHERE CONTAINS([c].[Title], N'Representative')");
                 Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)");
             }
         }
 
@@ -350,9 +350,9 @@ WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
                 Assert.Equal(2u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'Vice OR Inside')");
             }
         }
 
@@ -368,9 +368,9 @@ WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
                 Assert.Equal(5u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'""Mana*""', LANGUAGE 1033)");
             }
         }
 
@@ -386,13 +386,13 @@ WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
                 Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_through_navigation()
         {
@@ -408,10 +408,10 @@ WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
                 Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([c].[Title], N'""Ins*""'))");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([e].[Title], N'""Ins*""'))");
             }
         }
 

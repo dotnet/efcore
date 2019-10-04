@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             bool fromDataAnnotation = false)
         {
-            if (!propertyBuilder.CanSetHiLoSequence(name, schema))
+            if (!propertyBuilder.CanSetHiLoSequence(name, schema, fromDataAnnotation))
             {
                 return null;
             }

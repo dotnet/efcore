@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TestStore CreateTestStore()
         {
-            TestStore = SqlServerTestStore.GetOrCreate(nameof(MemoryOptimizedTablesTest));
+            TestStore = SqlServerTestStore.Create(nameof(MemoryOptimizedTablesTest));
             TestStore.Initialize(null, CreateContext, c => { });
             return TestStore;
         }

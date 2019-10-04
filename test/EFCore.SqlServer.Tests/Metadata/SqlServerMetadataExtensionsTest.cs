@@ -13,6 +13,87 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class SqlServerMetadataExtensionsTest
     {
         [ConditionalFact]
+        public void Can_get_and_set_MaxSize()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var model = modelBuilder
+                .Model;
+
+            Assert.Null(model.GetDatabaseMaxSize());
+            Assert.Null(((IConventionModel)model).GetMaxSizeConfigurationSource());
+
+            ((IConventionModel)model).SetDatabaseMaxSize("1 GB", fromDataAnnotation: true);
+
+            Assert.Equal("1 GB", model.GetDatabaseMaxSize());
+            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetMaxSizeConfigurationSource());
+
+            model.SetDatabaseMaxSize("10 GB");
+
+            Assert.Equal("10 GB", model.GetDatabaseMaxSize());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetMaxSizeConfigurationSource());
+
+            model.SetDatabaseMaxSize(null);
+
+            Assert.Null(model.GetDatabaseMaxSize());
+            Assert.Null(((IConventionModel)model).GetMaxSizeConfigurationSource());
+        }
+
+        [ConditionalFact]
+        public void Can_get_and_set_ServiceTier()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var model = modelBuilder
+                .Model;
+
+            Assert.Null(model.GetServiceTier());
+            Assert.Null(((IConventionModel)model).GetMaxSizeConfigurationSource());
+
+            ((IConventionModel)model).SetServiceTier("basic", fromDataAnnotation: true);
+
+            Assert.Equal("basic", model.GetServiceTier());
+            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetServiceTierConfigurationSource());
+
+            model.SetServiceTier("standard");
+
+            Assert.Equal("standard", model.GetServiceTier());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetServiceTierConfigurationSource());
+
+            model.SetServiceTier(null);
+
+            Assert.Null(model.GetServiceTier());
+            Assert.Null(((IConventionModel)model).GetServiceTierConfigurationSource());
+        }
+
+        [ConditionalFact]
+        public void Can_get_and_set_PerformanceLevel()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var model = modelBuilder
+                .Model;
+
+            Assert.Null(model.GetPerformanceLevel());
+            Assert.Null(((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+
+            ((IConventionModel)model).SetPerformanceLevel("S0", fromDataAnnotation: true);
+
+            Assert.Equal("S0", model.GetPerformanceLevel());
+            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+
+            model.SetPerformanceLevel("ELASTIC_POOL (name = elastic_pool)");
+
+            Assert.Equal("ELASTIC_POOL (name = elastic_pool)", model.GetPerformanceLevel());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+
+            model.SetPerformanceLevel(null);
+
+            Assert.Null(model.GetPerformanceLevel());
+            Assert.Null(((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+        }
+
+        [ConditionalFact]
         public void Can_get_and_set_column_name()
         {
             var modelBuilder = GetModelBuilder();
@@ -23,25 +104,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Metadata;
 
             Assert.Equal("Name", property.GetColumnName());
+            Assert.Null(((IConventionProperty)property).GetColumnNameConfigurationSource());
 
-            property.SetColumnName("Eman");
+            ((IConventionProperty)property).SetColumnName("Eman", fromDataAnnotation: true);
 
-            Assert.Equal("Name", property.Name);
             Assert.Equal("Eman", property.GetColumnName());
+            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionProperty)property).GetColumnNameConfigurationSource());
 
             property.SetColumnName("MyNameIs");
 
             Assert.Equal("Name", property.Name);
             Assert.Equal("MyNameIs", property.GetColumnName());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionProperty)property).GetColumnNameConfigurationSource());
 
             property.SetColumnName(null);
 
-            Assert.Equal("Name", property.Name);
             Assert.Equal("Name", property.GetColumnName());
+            Assert.Null(((IConventionProperty)property).GetColumnNameConfigurationSource());
         }
 
         [ConditionalFact]
-        public void Can_get_and_set_column_key_name()
+        public void Can_get_and_set_key_name()
         {
             var modelBuilder = GetModelBuilder();
 

@@ -1835,5 +1835,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 o => (long?)o.OrderID);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Count_on_projection_with_client_eval(bool isAsync)
+        {
+            await AssertCount(
+                isAsync,
+                ss => ss.Set<Order>().Select(o => o.OrderID.ToString("000000")));
+
+            await AssertCount(
+                isAsync,
+                ss => ss.Set<Order>().Select(o => new { Id = o.OrderID.ToString("000000") }));
+
+            await AssertCount(
+                isAsync,
+                ss => ss.Set<Order>().Select(o => new { Id = CodeFormat(o.OrderID) }));
+        }
+
+        private static string CodeFormat(int str)
+        {
+            return str.ToString();
+        }
     }
 }
