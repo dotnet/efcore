@@ -607,15 +607,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_subquery_correlated_client_eval(bool isAsync)
         {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().OrderBy(c1 => c1.CustomerID).Take(5)
+                        .Where(c1 => ss.Set<Customer>().Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
+                    entryCount: 1))).Message;
+
             Assert.Equal(
-                CoreStrings.TranslationFailed("Any<Customer>(    source: DbSet<Customer>,     predicate: (c0) => EntityShaperExpression:         EntityType: Customer        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    .CustomerID == c0.CustomerID && c0.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().OrderBy(c1 => c1.CustomerID).Take(5)
-                                .Where(c1 => ss.Set<Customer>().Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
-                            entryCount: 1))).Message));
+                CoreStrings.TranslationFailed("DbSet<Customer>    .Any(c0 => EntityShaperExpression:         EntityType: Customer        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    .CustomerID == c0.CustomerID && c0.IsLondon)"),
+                RemoveNewLines(message));
         }
 
         [ConditionalTheory]

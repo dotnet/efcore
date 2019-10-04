@@ -55,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool GenerateUniqueParameterIds { get; set; }
 
+        public bool StreamlineOutput { get; private set; }
+
         public virtual void VisitList<T>(
             IReadOnlyList<T> items,
             Action<ExpressionPrinter> joinAction = null)
@@ -109,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual string Print(
             Expression expression,
             int? characterLimit = null)
-            => PrintCore(expression, characterLimit, generateUniqueParameterIds: false);
+            => PrintCore(expression, characterLimit, generateUniqueParameterIds: false, streamlineOutput: true);
 
         public virtual string PrintDebug(
             Expression expression,
@@ -121,6 +123,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression expression,
             int? characterLimit,
             bool generateUniqueParameterIds)
+            => PrintCore(expression, characterLimit, generateUniqueParameterIds, streamlineOutput: false);
+
+        internal string PrintCore(
+            Expression expression,
+            int? characterLimit,
+            bool generateUniqueParameterIds,
+            bool streamlineOutput)
         {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
@@ -129,6 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             CharacterLimit = characterLimit;
             GenerateUniqueParameterIds = generateUniqueParameterIds;
+            StreamlineOutput = streamlineOutput;
 
             Visit(expression);
 
@@ -428,7 +438,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
         {
-            _stringBuilder.Append("(");
+            if (lambdaExpression.Parameters.Count > 1)
+            {
+                _stringBuilder.Append("(");
+            }
 
             foreach (var parameter in lambdaExpression.Parameters)
             {
@@ -447,7 +460,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            _stringBuilder.Append(") => ");
+            if (lambdaExpression.Parameters.Count > 1)
+            {
+                _stringBuilder.Append(")");
+            }
+
+            _stringBuilder.Append(" => ");
 
             Visit(lambdaExpression.Body);
 
@@ -464,7 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             if (memberExpression.Expression != null)
             {
-                if (memberExpression.Expression.NodeType == ExpressionType.Convert)
+                if (memberExpression.Expression.NodeType == ExpressionType.Convert
+                    || memberExpression.Expression is BinaryExpression)
                 {
                     _stringBuilder.Append("(");
                     Visit(memberExpression.Expression);
@@ -534,34 +553,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _stringBuilder.Append(".");
             }
 
-            _stringBuilder.Append(methodCallExpression.Method.Name);
-            if (methodCallExpression.Method.IsGenericMethod)
+            var methodArguments = methodCallExpression.Arguments.ToList();
+
+            var simplifiedMethod = StreamlineOutput
+                && (methodCallExpression.Method.DeclaringType == typeof(Enumerable)
+                    || methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                    || methodCallExpression.Method.DeclaringType == typeof(QueryableExtensions))
+                && methodCallExpression.Arguments.Count > 0;
+
+            if (simplifiedMethod)
             {
-                _stringBuilder.Append("<");
-                var first = true;
-                foreach (var genericArgument in methodCallExpression.Method.GetGenericArguments())
+                Visit(methodArguments[0]);
+                _stringBuilder.IncrementIndent();
+                _stringBuilder.AppendLine();
+                _stringBuilder.Append($".{methodCallExpression.Method.Name}");
+                methodArguments = methodArguments.Skip(1).ToList();
+            }
+            else
+            {
+                _stringBuilder.Append(methodCallExpression.Method.Name);
+                if (methodCallExpression.Method.IsGenericMethod)
                 {
-                    if (!first)
+                    _stringBuilder.Append("<");
+                    var first = true;
+                    foreach (var genericArgument in methodCallExpression.Method.GetGenericArguments())
                     {
-                        _stringBuilder.Append(", ");
+                        if (!first)
+                        {
+                            _stringBuilder.Append(", ");
+                        }
+
+                        _stringBuilder.Append(genericArgument.ShortDisplayName());
+                        first = false;
                     }
 
-                    _stringBuilder.Append(genericArgument.ShortDisplayName());
-                    first = false;
+                    _stringBuilder.Append(">");
                 }
-
-                _stringBuilder.Append(">");
             }
 
             _stringBuilder.Append("(");
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
-                                           || methodCallExpression.Arguments.Count < 2
+                                           || methodArguments.Count < 2
                                            || methodCallExpression.Method.IsEFPropertyMethod();
 
             var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 
-            if (methodCallExpression.Arguments.Count > 0)
+            if (methodArguments.Count > 0)
             {
                 appendAction("");
 
@@ -577,9 +615,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     indent = _stringBuilder.Indent();
                 }
 
-                for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
+                for (var i = 0; i < methodArguments.Count; i++)
                 {
-                    var argument = methodCallExpression.Arguments[i];
+                    var argument = methodArguments[i];
 
                     if (!isSimpleMethodOrProperty)
                     {
@@ -588,7 +626,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     Visit(argument);
 
-                    if (i < methodCallExpression.Arguments.Count - 1)
+                    if (i < methodArguments.Count - 1)
                     {
                         appendAction(", ");
                     }
@@ -601,6 +639,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             Append(")");
+
+            if (simplifiedMethod)
+            {
+                _stringBuilder.DecrementIndent();
+            }
 
             return methodCallExpression;
         }

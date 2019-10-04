@@ -1325,7 +1325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: OrderBy<Gear, string>(        source: DbSet<Gear>,         keySelector: (g) => g.Nickname),     predicate: (g) => g.LeaderNickname != null ? new { HasSoulPatch = g.HasSoulPatch } : null == null)"),
+                CoreStrings.TranslationFailed("DbSet<Gear>    .OrderBy(g => g.Nickname)    .Where(g => g.LeaderNickname != null ? new { HasSoulPatch = g.HasSoulPatch } : null == null)"),
                 RemoveNewLines(message));
         }
 
@@ -1365,7 +1365,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => new { Name = g.LeaderNickname } ?? new { Name = g.FullName } != null)"),
+                CoreStrings.TranslationFailed("DbSet<Gear>    .Where(g => new { Name = g.LeaderNickname } ?? new { Name = g.FullName } != null)"),
                 RemoveNewLines(message));
         }
 
@@ -1723,7 +1723,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed("Concat<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
+                CoreStrings.QueryFailed("MaterializeCollectionNavigation(    navigation: Navigation: Gear.Weapons,    subquery: NavigationExpansionExpression        Source: DbSet<Weapon>            .Where(w => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))        PendingSelector: w => NavigationTreeExpression            Value: EntityReference: Weapon            Expression: w        .Where(i => Property<string>(NavigationTreeExpression            Value: EntityReference: Gear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReference: Gear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))    .AsQueryable()    .Concat(MaterializeCollectionNavigation(        navigation: Navigation: Gear.Weapons,        subquery: NavigationExpansionExpression            Source: DbSet<Weapon>                .Where(w0 => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: w0 => NavigationTreeExpression                Value: EntityReference: Weapon                Expression: w0            .Where(i => Property<string>(NavigationTreeExpression                Value: EntityReference: Gear                Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression                Value: EntityReference: Gear                Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(message));
         }
 
@@ -1748,7 +1748,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed("Union<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
+                CoreStrings.QueryFailed("MaterializeCollectionNavigation(    navigation: Navigation: Gear.Weapons,    subquery: NavigationExpansionExpression        Source: DbSet<Weapon>            .Where(w => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))        PendingSelector: w => NavigationTreeExpression            Value: EntityReference: Weapon            Expression: w        .Where(i => Property<string>(NavigationTreeExpression            Value: EntityReference: Gear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReference: Gear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))    .AsQueryable()    .Union(MaterializeCollectionNavigation(        navigation: Navigation: Gear.Weapons,        subquery: NavigationExpansionExpression            Source: DbSet<Weapon>                .Where(w0 => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: w0 => NavigationTreeExpression                Value: EntityReference: Weapon                Expression: w0            .Where(i => Property<string>(NavigationTreeExpression                Value: EntityReference: Gear                Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression                Value: EntityReference: Gear                Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(message));
         }
 
@@ -1783,7 +1783,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select t))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<TransparentIdentifier<CogTag, Gear>>(    source: LeftJoin<CogTag, Gear, AnonymousObject, TransparentIdentifier<CogTag, Gear>>(        outer: DbSet<CogTag>,         inner: DbSet<Gear>,         outerKeySelector: (c) => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         innerKeySelector: (g) => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         resultSelector: (o, i) => new TransparentIdentifier<CogTag, Gear>(            Outer = o,             Inner = i        )),     predicate: (c) => Property<string>(c.Inner, \"Nickname\") != null && c.Inner.IsMarcus)"),
+                CoreStrings.TranslationFailed("DbSet<CogTag>    .LeftJoin(        outer: DbSet<Gear>,         inner: c => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         outerKeySelector: g => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         innerKeySelector: (o, i) => new TransparentIdentifier<CogTag, Gear>(            Outer = o,             Inner = i        ))    .Where(c => Property<string>(c.Inner, \"Nickname\") != null && c.Inner.IsMarcus)"),
                 RemoveNewLines(message));
         }
 
@@ -3055,7 +3055,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => ClientEquals(g.Tag.Note, prm))))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<TransparentIdentifier<Gear, CogTag>>(    source: LeftJoin<Gear, CogTag, AnonymousObject, TransparentIdentifier<Gear, CogTag>>(        outer: DbSet<Gear>,         inner: DbSet<CogTag>,         outerKeySelector: (g) => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         innerKeySelector: (c) => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         resultSelector: (o, i) => new TransparentIdentifier<Gear, CogTag>(            Outer = o,             Inner = i        )),     predicate: (g) => ClientEquals(        first: g.Inner.Note,         second: (Unhandled parameter: __prm_0)))"),
+                CoreStrings.TranslationFailed("DbSet<Gear>    .LeftJoin(        outer: DbSet<CogTag>,         inner: g => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         outerKeySelector: c => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         innerKeySelector: (o, i) => new TransparentIdentifier<Gear, CogTag>(            Outer = o,             Inner = i        ))    .Where(g => ClientEquals(        first: g.Inner.Note,         second: (Unhandled parameter: __prm_0)))"),
                 RemoveNewLines(message));
         }
 
@@ -3360,7 +3360,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\")"),
+                CoreStrings.TranslationFailed("DbSet<Gear>    .Where(g => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(        navigation: Navigation: Gear.Weapons,        subquery: DbSet<Weapon>            .Where(w => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\"))).Name == \"Marcus' Lancer\")"),
                 RemoveNewLines(message));
         }
 
@@ -3379,7 +3379,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\")"),
+                CoreStrings.TranslationFailed("DbSet<Gear>    .Where(g => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(        navigation: Navigation: Gear.Weapons,        subquery: DbSet<Weapon>            .Where(w => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\"))).Name == \"Cole's Gnasher\")"),
                 RemoveNewLines(message));
         }
 
@@ -3397,7 +3397,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("OrderByDescending<Gear, string>(    source: Where<Gear>(        source: DbSet<Gear>,         predicate: (g) => !(g.HasSoulPatch)),     keySelector: (g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name)"),
+                CoreStrings.TranslationFailed("DbSet<Gear>    .Where(g => !(g.HasSoulPatch))    .OrderByDescending(g => FavoriteWeapon(MaterializeCollectionNavigation(        navigation: Navigation: Gear.Weapons,        subquery: DbSet<Weapon>            .Where(w => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\"))).Name)"),
                 RemoveNewLines(message));
         }
 
@@ -3418,7 +3418,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     elementSorter: e => e.g + e.v))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
+                CoreStrings.QueryFailed("g => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
                 RemoveNewLines(message));
         }
 
@@ -6280,7 +6280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("OrderByDescending<Gear, MyDTO>(    source: DbSet<Gear>,     keySelector: (g) => null)"),
+                CoreStrings.TranslationFailed("DbSet<Gear>    .OrderByDescending(g => null)"),
                 RemoveNewLines(message));
         }
 
@@ -7012,7 +7012,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Mission>().Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue)))).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => (Nullable<DateTimeOffset>)m.Timeline.GetValueOrDefault() == (Unhandled parameter: __defaultValue_0))"),
+                CoreStrings.TranslationFailed("DbSet<Mission>    .Where(m => (Nullable<DateTimeOffset>)m.Timeline.GetValueOrDefault() == (Unhandled parameter: __defaultValue_0))"),
                 RemoveNewLines(message));
         }
 

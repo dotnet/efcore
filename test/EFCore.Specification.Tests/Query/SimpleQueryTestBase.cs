@@ -2064,36 +2064,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_query_composition5(bool isAsync)
         {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from c1 in ss.Set<Customer>()
+                          where c1.IsLondon == ss.Set<Customer>().OrderBy(c => c.CustomerID).First().IsLondon
+                          select c1,
+                    entryCount: 85))).Message;
+
             Assert.Equal(
                 CoreStrings.TranslationFailed(
-                    "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon == First<bool>(Select<Customer, bool>(        source: OrderBy<Customer, string>(            source: DbSet<Customer>,             keySelector: (c0) => c0.CustomerID),         selector: (c0) => c0.IsLondon)))"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from c1 in ss.Set<Customer>()
-                                  where c1.IsLondon == ss.Set<Customer>().OrderBy(c => c.CustomerID).First().IsLondon
-                                  select c1,
-                            entryCount: 85))).Message));
+                    "DbSet<Customer>    .Where(c => c.IsLondon == DbSet<Customer>        .OrderBy(c0 => c0.CustomerID)        .Select(c0 => c0.IsLondon)        .First())"),
+                RemoveNewLines(message));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Where_query_composition6(bool isAsync)
         {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from c1 in ss.Set<Customer>()
+                            where c1.IsLondon
+                                == ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                                    .Select(c => new { Foo = c })
+                                    .First().Foo.IsLondon
+                            select c1,
+                    entryCount: 85))).Message;
+
             Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon == First<bool>(Select<Customer, bool>(        source: OrderBy<Customer, string>(            source: DbSet<Customer>,             keySelector: (c0) => c0.CustomerID),         selector: (c0) => c0.IsLondon)))"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from c1 in ss.Set<Customer>()
-                                  where c1.IsLondon
-                                      == ss.Set<Customer>().OrderBy(c => c.CustomerID)
-                                          .Select(c => new { Foo = c })
-                                          .First().Foo.IsLondon
-                                  select c1,
-                            entryCount: 85))).Message));
+                CoreStrings.TranslationFailed("DbSet<Customer>    .Where(c => c.IsLondon == DbSet<Customer>        .OrderBy(c0 => c0.CustomerID)        .Select(c0 => c0.IsLondon)        .First())"),
+                RemoveNewLines(message));
         }
 
         [ConditionalTheory]
