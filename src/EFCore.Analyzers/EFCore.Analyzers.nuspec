@@ -13,6 +13,5 @@
     <file src="$OutputBinary$" target="analyzers\dotnet\cs\" />
     <file src="$OutputSymbol$" target="analyzers\dotnet\cs\" />
     <file src="$PackageIcon$" target="" />
-    <file src="$NetStandard13PlaceholderFile$" target="lib\netstandard1.3" />
   </files>
 </package>

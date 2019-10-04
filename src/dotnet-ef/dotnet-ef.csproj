@@ -27,7 +27,6 @@ dotnet ef database update
       which maximizes the machines on which this tool will be compatible.
     -->
     <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
-    <NetCoreApp21PlaceholderFile>$(MSBuildThisFileDirectory)lib\netcoreapp2.1\_._</NetCoreApp21PlaceholderFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -98,7 +97,6 @@ dotnet ef database update
       <NuspecProperty Include="OutputX86Exe=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.exe" />
       <NuspecProperty Include="OutputX86ExeSymbol=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.pdb" />
       <NuspecProperty Include="PackageIcon=$(PackageIconFullPath)" />
-      <NuspecProperty Include="NetCoreApp21PlaceholderFile=$(NetCoreApp21PlaceholderFile)" />
     </ItemGroup>
   </Target>
 </Project>

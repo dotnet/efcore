@@ -8,7 +8,6 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
-    <NetStandard13PlaceholderFile>$(MSBuildThisFileDirectory)lib\netstandard1.3\_._</NetStandard13PlaceholderFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,7 +30,6 @@
       <NuspecProperty Include="OutputBinary=$(OutputPath)$(AssemblyName).dll" />
       <NuspecProperty Include="OutputSymbol=$(OutputPath)$(AssemblyName).pdb" />
       <NuspecProperty Include="PackageIcon=$(PackageIconFullPath)" />
-      <NuspecProperty Include="NetStandard13PlaceholderFile=$(NetStandard13PlaceholderFile)" />
     </ItemGroup>
   </Target>
 

@@ -23,6 +23,5 @@
     <file src="$OutputX86Exe$" target="tools\$targetFramework$\any\tools\net461\win-x86" />
     <file src="$OutputX86ExeSymbol$" target="tools\$targetFramework$\any\tools\net461\win-x86" />
     <file src="$PackageIcon$" target="" />
-    <file src="$NetCoreApp21PlaceholderFile$" target="lib\netcoreapp2.1" />
   </files>
 </package>
