@@ -83,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 throw new InvalidOperationException();
             }
+
             var index = conventionsList.IndexOf(oldConvention);
             conventionsList.RemoveAt(index);
             conventionsList.Insert(index, newConvention);

@@ -198,7 +198,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             // to Add it again since doing so would change its state to Added, which is probably not what
             // was wanted in this case.
 
-
             var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item);
             if (entry.EntityState == EntityState.Deleted
                 || entry.EntityState == EntityState.Detached)

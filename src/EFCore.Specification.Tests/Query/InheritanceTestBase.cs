@@ -154,7 +154,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var animals
                     = context.Set<Animal>()
                         .OfType<Bird>()
-                        .Select(b => new { b.EagleId })
+                        .Select(
+                            b => new
+                            {
+                                b.EagleId
+                            })
                         .ToList();
 
                 Assert.Equal(2, animals.Count);
@@ -377,7 +381,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var birds
                     = context.Set<Bird>()
-                        .Select(b => new { b.IsFlightless, Discriminator = EF.Property<string>(b, "Discriminator") })
+                        .Select(
+                            b => new
+                            {
+                                b.IsFlightless,
+                                Discriminator = EF.Property<string>(b, "Discriminator")
+                            })
                         .ToArray();
 
                 Assert.Equal(2, birds.Length);
@@ -392,7 +401,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var preditors
                     = context.Set<Animal>()
                         .Where(b => "Kiwi" == EF.Property<string>(b, "Discriminator"))
-                        .Select(k => new { Preditor = EF.Property<string>((Bird)k, "EagleId") })
+                        .Select(
+                            k => new
+                            {
+                                Preditor = EF.Property<string>((Bird)k, "EagleId")
+                            })
                         .ToArray();
 
                 Assert.Equal(1, preditors.Length);
@@ -421,45 +434,45 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CreateContext,
                 UseTransaction,
                 context =>
+                {
+                    var kiwi = new Kiwi
                     {
-                        var kiwi = new Kiwi
-                        {
-                            Species = "Apteryx owenii",
-                            Name = "Little spotted kiwi",
-                            IsFlightless = true,
-                            FoundOn = Island.North
-                        };
+                        Species = "Apteryx owenii",
+                        Name = "Little spotted kiwi",
+                        IsFlightless = true,
+                        FoundOn = Island.North
+                    };
 
-                        var nz = context.Set<Country>().Single(c => c.Id == 1);
+                    var nz = context.Set<Country>().Single(c => c.Id == 1);
 
-                        nz.Animals.Add(kiwi);
+                    nz.Animals.Add(kiwi);
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context =>
-                    {
-                        var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+                {
+                    var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
 
-                        kiwi.EagleId = "Aquila chrysaetos canadensis";
+                    kiwi.EagleId = "Aquila chrysaetos canadensis";
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context =>
-                    {
-                        var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
+                {
+                    var kiwi = context.Set<Kiwi>().Single(k => k.Species.EndsWith("owenii"));
 
-                        Assert.Equal("Aquila chrysaetos canadensis", kiwi.EagleId);
+                    Assert.Equal("Aquila chrysaetos canadensis", kiwi.EagleId);
 
-                        context.Set<Bird>().Remove(kiwi);
+                    context.Set<Bird>().Remove(kiwi);
 
-                        context.SaveChanges();
-                    },
+                    context.SaveChanges();
+                },
                 context =>
-                    {
-                        var count = context.Set<Kiwi>().Count(k => k.Species.EndsWith("owenii"));
+                {
+                    var count = context.Set<Kiwi>().Count(k => k.Species.EndsWith("owenii"));
 
-                        Assert.Equal(0, count);
-                    });
+                    Assert.Equal(0, count);
+                });
         }
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -541,12 +554,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     EagleId = kiwi.Species
                 };
 
-                Assert.Equal(CoreStrings.IncompatiblePrincipalEntrySensitive(
-                    "{EagleId: Apteryx haastii}",
-                    nameof(Eagle),
-                    "{Species: Haliaeetus leucocephalus}",
-                    nameof(Kiwi),
-                    nameof(Eagle)),
+                Assert.Equal(
+                    CoreStrings.IncompatiblePrincipalEntrySensitive(
+                        "{EagleId: Apteryx haastii}",
+                        nameof(Eagle),
+                        "{Species: Haliaeetus leucocephalus}",
+                        nameof(Kiwi),
+                        nameof(Eagle)),
                     Assert.Throws<InvalidOperationException>(() => context.Add(eagle)).Message);
             }
         }

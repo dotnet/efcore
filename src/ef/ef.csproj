@@ -6,6 +6,12 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
+    <!--
+      This keeps ef.exe targeting the default version of .NET Core for netcoreapp2.0,
+      which maximizes the machines on which this tool will be compatible.
+    -->
+    <TargetLatestDotNetRuntime>false</TargetLatestDotNetRuntime>
   </PropertyGroup>
 
   <ItemGroup>

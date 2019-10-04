@@ -28,7 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Query.ResultOperators.Internal
         }
 
         ICloneableQueryAnnotation ICloneableQueryAnnotation.Clone(IQuerySource querySource, QueryModel queryModel)
-            => new FromSqlResultOperator(Sql, Arguments) { QuerySource = querySource, QueryModel = queryModel };
+            => new FromSqlResultOperator(Sql, Arguments)
+            {
+                QuerySource = querySource,
+                QueryModel = queryModel
+            };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -115,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     tableName, columnName, dataTypeName, notNull, defaultValue);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -132,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 definition.Log(diagnostics, warningBehavior);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -153,6 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     foreignKeyName);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -174,6 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     tableName);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -195,6 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     tableName);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -219,6 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     foreignKeyName, tableName, principalColumnName, principalTableName);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -242,6 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     indexName, tableName, unique);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -266,6 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     tableName, id, principalTableName, deleteAction);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -288,6 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     primaryKeyName, tableName);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
 
@@ -310,6 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     warningBehavior,
                     uniqueConstraintName, tableName);
             }
+
             // No DiagnosticsSource events because these are purely design-time messages
         }
     }

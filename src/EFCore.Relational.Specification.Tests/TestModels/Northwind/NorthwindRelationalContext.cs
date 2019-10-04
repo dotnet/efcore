@@ -29,13 +29,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
             modelBuilder
                 .Query<OrderQuery>()
-                .ToQuery(() => Orders
-                    .FromSql("select * from \"Orders\"")
-                    .Select(
-                        o => new OrderQuery
-                        {
-                            CustomerID = o.CustomerID
-                        }));
+                .ToQuery(
+                    () => Orders
+                        .FromSql(@"select * from ""Orders""")
+                        .Select(
+                            o => new OrderQuery
+                            {
+                                CustomerID = o.CustomerID
+                            }));
 
             modelBuilder.Query<ProductQuery>().ToView("Alphabetical list of products");
         }

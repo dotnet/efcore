@@ -14,7 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-#if Test20
         public override void No_ignored_include_warning_when_implicit_load()
         {
         }
@@ -38,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Query_when_subquery()
         {
         }
-#endif
 
         public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
         {

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -105,6 +106,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </returns>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             => DatabaseCreator.EnsureDeletedAsync(cancellationToken);
+
+        /// <summary>
+        ///     <para>
+        ///         Determines whether or not the database is available and can be connected to.
+        ///     </para>
+        ///     <para>
+        ///         Note that being able to connect to the database does not mean that it is
+        ///         up-to-date with regard to schema creation, etc.
+        ///     </para>
+        /// </summary>
+        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        public virtual bool CanConnect()
+            => DatabaseCreator is IDatabaseCreatorWithCanConnect withCanConnect
+                ? withCanConnect.CanConnect()
+                : throw new NotImplementedException(CoreStrings.CanConnectNotImplemented);
+
+        /// <summary>
+        ///     <para>
+        ///         Determines whether or not the database is available and can be connected to.
+        ///     </para>
+        ///     <para>
+        ///         Note that being able to connect to the database does not mean that it is
+        ///         up-to-date with regard to schema creation, etc.
+        ///     </para>
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> <c>True</c> if the database is available; <c>false</c> otherwise. </returns>
+        public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
+            => DatabaseCreator is IDatabaseCreatorWithCanConnect withCanConnect
+                ? withCanConnect.CanConnectAsync(cancellationToken)
+                : throw new NotImplementedException(CoreStrings.CanConnectNotImplemented);
 
         /// <summary>
         ///     Starts a new transaction.

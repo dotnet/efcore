@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerTypeMapperTest : RelationalTypeMapperTestBase
@@ -113,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
             var typeMapping = GetTypeMapping(typeof(decimal));
 
             Assert.Null(typeMapping.DbType);
-            Assert.Equal("decimal(18, 2)", typeMapping.StoreType);
+            Assert.Equal("decimal(18,2)", typeMapping.StoreType);
         }
 
         [Fact]
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             var typeMapping = GetTypeMapping(typeof(decimal?));
 
             Assert.Null(typeMapping.DbType);
-            Assert.Equal("decimal(18, 2)", typeMapping.StoreType);
+            Assert.Equal("decimal(18,2)", typeMapping.StoreType);
         }
 
         [Theory]
@@ -666,8 +667,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("datetime", typeof(DateTime), null, false)]
         [InlineData("datetime2", typeof(DateTime), null, false)]
         [InlineData("datetimeoffset", typeof(DateTimeOffset), null, false)]
-        [InlineData("dec", typeof(decimal), null, false)]
-        [InlineData("decimal", typeof(decimal), null, false)]
+        [InlineData("dec", typeof(decimal), null, false, "dec(18,2)")]
+        [InlineData("decimal", typeof(decimal), null, false, "decimal(18,2)")]
         [InlineData("float", typeof(double), null, false)] // This is correct. SQL Server 'float' type maps to C# double
         [InlineData("float(10,8)", typeof(double), null, false)]
         [InlineData("image", typeof(byte[]), null, false)]
@@ -680,7 +681,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("national character(333)", typeof(string), 333, true)]
         [InlineData("nchar(333)", typeof(string), 333, true)]
         [InlineData("ntext", typeof(string), null, true)]
-        [InlineData("numeric", typeof(decimal), null, false)]
+        [InlineData("numeric", typeof(decimal), null, false, "numeric(18,2)")]
         [InlineData("nvarchar(333)", typeof(string), 333, true)]
         [InlineData("nvarchar(max)", typeof(string), null, true)]
         [InlineData("real", typeof(float), null, false)]
@@ -698,15 +699,15 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("VarCHaR(333)", typeof(string), 333, false)] // case-insensitive
         [InlineData("varchar(333)", typeof(string), 333, false)]
         [InlineData("varchar(max)", typeof(string), null, false)]
-        [InlineData("VARCHAR(max)", typeof(string), null, false)]
-        public void Can_map_by_type_name(string typeName, Type clrType, int? size, bool unicode)
+        [InlineData("VARCHAR(max)", typeof(string), null, false, "varchar(max)")]
+        public void Can_map_by_type_name(string typeName, Type clrType, int? size, bool unicode, string expectedType = null)
         {
             var mapping = CreateTypeMapper().FindMapping(typeName);
 
             Assert.Equal(clrType, mapping.ClrType);
             Assert.Equal(size, mapping.Size);
             Assert.Equal(unicode, mapping.IsUnicode);
-            Assert.Equal(typeName, mapping.StoreType);
+            Assert.Equal(expectedType ?? typeName, mapping.StoreType);
         }
 
         [Theory]
@@ -731,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 SqlServerStrings.UnqualifiedDataType(typeName),
-                Assert.Throws<ArgumentException>(() => mapper.FindMapping(typeName)).Message);
+                Assert.Throws<ArgumentException>(() => mapper.FindMapping(typeName)).Message, ignoreCase: true);
         }
 
         [Theory]
@@ -763,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 SqlServerStrings.UnqualifiedDataTypeOnProperty(typeName, nameof(StringCheese.StringWithSize)),
-                Assert.Throws<ArgumentException>(() => mapper.FindMapping(property)).Message);
+                Assert.Throws<ArgumentException>(() => mapper.FindMapping(property)).Message, ignoreCase: true);
         }
 
         [Theory]
@@ -833,11 +834,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "money",
-                mapper.GetMapping( model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "money",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -848,11 +849,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "nvarchar(200)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "nvarchar(200)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -863,11 +864,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varbinary(100)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "varbinary(100)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -878,11 +879,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varchar(900)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "varchar(900)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship1Id")).StoreType);
         }
 
         [Fact]
@@ -893,11 +894,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "money",
-                mapper.GetMapping( model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyType)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
-                "dec",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
+                "dec(6,1)",
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Relationship2Id")).StoreType);
         }
 
         [Fact]
@@ -908,11 +909,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "nvarchar(200)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType1)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "nvarchar(787)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Relationship2Id")).StoreType);
         }
 
         [Fact]
@@ -923,11 +924,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varbinary(100)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType2)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "varbinary(767)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Relationship2Id")).StoreType);
         }
 
         [Fact]
@@ -938,11 +939,11 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(
                 "varchar(900)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType3)).FindProperty("Id")).StoreType);
 
             Assert.Equal(
                 "nvarchar(450)",
-                mapper.GetMapping( model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
+                mapper.GetMapping(model.FindEntityType(typeof(MyRelatedType4)).FindProperty("Relationship2Id")).StoreType);
         }
 
         private enum LongEnum : long

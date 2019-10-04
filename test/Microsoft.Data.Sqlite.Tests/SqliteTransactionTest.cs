@@ -178,6 +178,24 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void Commit_throws_when_completed_externally()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    connection.ExecuteNonQuery("ROLLBACK;");
+
+                    var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+
+                    Assert.Equal(Resources.TransactionCompleted, ex.Message);
+                }
+            }
+        }
+
+        [Fact]
         public void Commit_throws_when_connection_closed()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -214,6 +232,25 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+            }
+        }
+
+        [Fact]
+        public void Rollback_noops_once_when_completed_externally()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    connection.ExecuteNonQuery("ROLLBACK;");
+
+                    transaction.Rollback();
+                    var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
+
+                    Assert.Equal(Resources.TransactionCompleted, ex.Message);
+                }
             }
         }
 

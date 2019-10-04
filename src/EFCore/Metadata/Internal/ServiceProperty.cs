@@ -74,7 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalServicePropertyBuilder Builder
         {
-            [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set;
+            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
         }
 
         /// <summary>
@@ -112,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 PropertyMetadataChanged();
             }
+
             UpdateParameterBindingConfigurationSource(configurationSource);
         }
 

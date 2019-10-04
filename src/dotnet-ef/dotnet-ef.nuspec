@@ -23,7 +23,6 @@
   <files>
     <file src="$SettingsFile$" target="tools\$targetFramework$\any" />
     <file src="$Output$" target="tools\$targetFramework$\any" />
-    <file src="$OutputShims$" target="tools\$targetFramework$\any\shims" />
     <file src="$OutputBinary$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />
     <file src="$OutputRuntimeConfig$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />
     <file src="$OutputSymbol$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />

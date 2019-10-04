@@ -1,5 +1,5 @@
 {
-  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Sqlite, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore.Sqlite, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
   "Types": [
     {
       "Name": "Microsoft.Extensions.DependencyInjection.SqliteServiceCollectionExtensions",
@@ -24,6 +24,104 @@
           "Extension": true,
           "Visibility": "Public",
           "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.SqliteMetadataExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "Sqlite",
+          "Parameters": [
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.SqlitePropertyAnnotations",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Sqlite",
+          "Parameters": [
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.ISqlitePropertyAnnotations",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.SqlitePropertyBuilderExtensions",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ForSqliteHasSrid",
+          "Parameters": [
+            {
+              "Name": "propertyBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder"
+            },
+            {
+              "Name": "srid",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ForSqliteHasSrid<T0>",
+          "Parameters": [
+            {
+              "Name": "propertyBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0>"
+            },
+            {
+              "Name": "srid",
+              "Type": "System.Int32"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TProperty",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
         }
       ],
       "GenericParameters": []
@@ -213,6 +311,56 @@
           "Parameters": [
             {
               "Name": "operation",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.AlterDatabaseOperation"
+            },
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Generate",
+          "Parameters": [
+            {
+              "Name": "operation",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation"
+            },
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
+            },
+            {
+              "Name": "terminate",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Generate",
+          "Parameters": [
+            {
+              "Name": "operation",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.DropIndexOperation"
             },
             {
@@ -308,6 +456,29 @@
           "Parameters": [
             {
               "Name": "operation",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.RenameColumnOperation"
+            },
+            {
+              "Name": "model",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Generate",
+          "Parameters": [
+            {
+              "Name": "operation",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.CreateTableOperation"
             },
             {
@@ -332,77 +503,6 @@
             {
               "Name": "operation",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.AddColumnOperation"
-            },
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            },
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "ColumnDefinition",
-          "Parameters": [
-            {
-              "Name": "schema",
-              "Type": "System.String"
-            },
-            {
-              "Name": "table",
-              "Type": "System.String"
-            },
-            {
-              "Name": "name",
-              "Type": "System.String"
-            },
-            {
-              "Name": "clrType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "type",
-              "Type": "System.String"
-            },
-            {
-              "Name": "unicode",
-              "Type": "System.Nullable<System.Boolean>"
-            },
-            {
-              "Name": "maxLength",
-              "Type": "System.Nullable<System.Int32>"
-            },
-            {
-              "Name": "rowVersion",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "nullable",
-              "Type": "System.Boolean"
-            },
-            {
-              "Name": "defaultValue",
-              "Type": "System.Object"
-            },
-            {
-              "Name": "defaultValueSql",
-              "Type": "System.String"
-            },
-            {
-              "Name": "computedColumnSql",
-              "Type": "System.String"
-            },
-            {
-              "Name": "annotatable",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IAnnotatable"
             },
             {
               "Name": "model",
@@ -661,29 +761,6 @@
           "Parameters": [
             {
               "Name": "operation",
-              "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.RenameColumnOperation"
-            },
-            {
-              "Name": "model",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.IModel"
-            },
-            {
-              "Name": "builder",
-              "Type": "Microsoft.EntityFrameworkCore.Migrations.MigrationCommandListBuilder"
-            }
-          ],
-          "ReturnType": "System.Void",
-          "Virtual": true,
-          "Override": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Generate",
-          "Parameters": [
-            {
-              "Name": "operation",
               "Type": "Microsoft.EntityFrameworkCore.Migrations.Operations.AlterColumnOperation"
             },
             {
@@ -882,6 +959,144 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Metadata.ISqlitePropertyAnnotations",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Metadata.IRelationalPropertyAnnotations"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Srid",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Dimension",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Metadata.SqlitePropertyAnnotations",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.RelationalPropertyAnnotations",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Metadata.ISqlitePropertyAnnotations"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_Srid",
+          "Parameters": [],
+          "ReturnType": "System.Nullable<System.Int32>",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Metadata.ISqlitePropertyAnnotations",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Srid",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "SetSrid",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Nullable<System.Int32>"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Dimension",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Metadata.ISqlitePropertyAnnotations",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Dimension",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "SetDimension",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "annotations",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.RelationalAnnotations"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Metadata.Conventions.SqliteConventionSetBuilder",
       "Visibility": "Public",
       "Kind": "Class",
@@ -906,6 +1121,46 @@
               "Type": "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.RelationalConventionSetBuilderDependencies"
             }
           ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.SpatialiteLoader",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "Abstract": true,
+      "Static": true,
+      "Sealed": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "TryLoad",
+          "Parameters": [
+            {
+              "Name": "connection",
+              "Type": "System.Data.Common.DbConnection"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Load",
+          "Parameters": [
+            {
+              "Name": "connection",
+              "Type": "System.Data.Common.DbConnection"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
           "Visibility": "Public",
           "GenericParameter": []
         }

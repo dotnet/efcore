@@ -1131,7 +1131,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     warningBehavior,
                     migrationType.Name);
             }
@@ -1168,7 +1169,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     warningBehavior,
                     queryModelElement);
             }
@@ -1205,7 +1207,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     warningBehavior,
                     methodCallExpression);
             }
@@ -1253,7 +1256,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             }
         }
 
-        
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -1264,16 +1266,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ValueConverter valueConverter)
         {
             var definition = RelationalStrings.LogValueConversionSqlLiteralWarning;
- 
+
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     warningBehavior,
                     mappingClrType.ShortDisplayName(),
                     valueConverter.GetType().ShortDisplayName());
             }
- 
+
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
                 diagnostics.DiagnosticSource.Write(
@@ -1285,7 +1288,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                         valueConverter));
             }
         }
- 
+
         private static string ValueConversionSqlLiteral(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<object, object>)definition;
@@ -1385,7 +1388,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     warningBehavior,
                     commandCount);
             }
@@ -1424,7 +1428,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var warningBehavior = definition.GetLogBehavior(diagnostics);
             if (warningBehavior != WarningBehavior.Ignore)
             {
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     warningBehavior,
                     commandCount, minBatchSize);
             }

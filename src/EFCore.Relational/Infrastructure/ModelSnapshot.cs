@@ -22,12 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             _model = new LazyRef<IModel>(
                 () =>
-                    {
-                        var modelBuilder = new ModelBuilder(new ConventionSet());
-                        BuildModel(modelBuilder);
+                {
+                    var modelBuilder = new ModelBuilder(new ConventionSet());
+                    BuildModel(modelBuilder);
 
-                        return modelBuilder.Model;
-                    });
+                    return modelBuilder.Model;
+                });
         }
 
         /// <summary>

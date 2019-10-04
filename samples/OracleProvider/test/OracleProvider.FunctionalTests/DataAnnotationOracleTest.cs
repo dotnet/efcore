@@ -9,8 +9,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Oracle.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -284,11 +282,11 @@ END;",
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             Assert.Contains(
-                @":p0='' (DbType = Int32)" + EOL,
+                ":p0='' (DbType = Int32)" + _eol,
                 Sql);
 
             Assert.Contains(
-                @":p1='' (Nullable = false) (DbType = Int32)" + EOL,
+                ":p1='' (Nullable = false) (DbType = Int32)" + _eol,
                 Sql);
         }
 
@@ -402,14 +400,14 @@ END;",
                 ignoreLineEndingDifferences: true);
         }
 
-        private static readonly string EOL = Environment.NewLine;
+        private static readonly string _eol = Environment.NewLine;
 
         private string Sql => Fixture.TestSqlLoggerFactory.Sql;
 
         public class DataAnnotationOracleFixture : DataAnnotationFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => OracleTestStoreFactory.Instance;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
         }
     }
 }

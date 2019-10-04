@@ -1,8 +1,8 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <MajorVersion>2</MajorVersion>
-    <MinorVersion>1</MinorVersion>
-    <PatchVersion>14</PatchVersion>
+    <MinorVersion>2</MinorVersion>
+    <PatchVersion>6</PatchVersion>
     <PreReleaseLabel>servicing</PreReleaseLabel>
     <OfficialBuildId Condition="'$(OfficialBuildId)' == ''">$(BUILD_BUILDNUMBER)</OfficialBuildId>
   </PropertyGroup>
@@ -34,7 +34,7 @@
    <PropertyGroup>
     <_BuildNumberSuffix Condition=" '$(_BuildNumberSuffix)' == '' ">0</_BuildNumberSuffix>
     <VersionPrefix>$(MajorVersion).$(MinorVersion).$(PatchVersion)</VersionPrefix>
-    <VersionSuffix Condition=" '$(VersionSuffix)' == '' ">$(PreReleaseLabel)-$(_BuildNumberSuffix)</VersionSuffix>
+    <VersionSuffix Condition=" '$(VersionSuffix)' == '' ">$(PreReleaseLabel).$(_BuildNumberSuffix)</VersionSuffix>
 
     <!-- Run the build with /p:IsFinalBuild=true to produce the product with 'final' branding and versioning -->
     <IsFinalBuild Condition=" '$(IsFinalBuild)' == '' ">false</IsFinalBuild>
@@ -44,10 +44,6 @@
     <!-- The version in files -->
     <PackageVersion>$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition=" '$(IncludePreReleaseLabelInPackageVersion)' == 'true' ">$(VersionPrefix)-$(VersionSuffix)</PackageVersion>
-
-    <ExperimentalVersionPrefix>0.1.$(PatchVersion)</ExperimentalVersionPrefix>
-    <ExperimentalPackageVersion>$(ExperimentalVersionPrefix)</ExperimentalPackageVersion>
-    <ExperimentalPackageVersion Condition=" '$(IncludePreReleaseLabelInPackageVersion)' == 'true' ">$(ExperimentalVersionPrefix)-$(VersionSuffix)</ExperimentalPackageVersion>
   </PropertyGroup>
 
   <!-- Run 'dotnet msbuild version.props' to test changes to this file. -->

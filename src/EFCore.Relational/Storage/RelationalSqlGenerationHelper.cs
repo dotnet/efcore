@@ -57,6 +57,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => builder.Append("@").Append(name);
 
         /// <summary>
+        ///     Generates a valid parameter placeholder name for the given candidate name.
+        /// </summary>
+        /// <param name="name">The candidate name for the parameter placeholder.</param>
+        /// <returns>
+        ///     A valid name based on the candidate name.
+        /// </returns>
+        public virtual string GenerateParameterNamePlaceholder(string name)
+            => GenerateParameterName(name);
+
+        /// <summary>
+        ///     Writes a valid parameter placeholder name for the given candidate name.
+        /// </summary>
+        /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
+        /// <param name="name">The candidate name for the parameter placeholder.</param>
+        public virtual void GenerateParameterNamePlaceholder(StringBuilder builder, string name)
+            => GenerateParameterName(builder,name);
+
+        /// <summary>
         ///     Generates the escaped SQL representation of a literal value.
         /// </summary>
         /// <param name="literal">The value to be escaped.</param>

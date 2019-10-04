@@ -20,16 +20,12 @@ namespace Microsoft.EntityFrameworkCore
     public class DatabaseErrorLogStateTest
     {
         [Fact]
-        public async Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
-        {
-            await SaveChanges_logs_DatabaseErrorLogState_test(async: false);
-        }
+        public Task SaveChanges_logs_DatabaseErrorLogState_nonasync()
+            => SaveChanges_logs_DatabaseErrorLogState_test(async: false);
 
         [Fact]
-        public async Task SaveChanges_logs_DatabaseErrorLogState_async()
-        {
-            await SaveChanges_logs_DatabaseErrorLogState_test(async: true);
-        }
+        public Task SaveChanges_logs_DatabaseErrorLogState_async()
+            => SaveChanges_logs_DatabaseErrorLogState_test(async: true);
 
         private async Task SaveChanges_logs_DatabaseErrorLogState_test(bool async)
         {
@@ -41,7 +37,11 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BloggingContext(serviceProvider))
             {
-                context.Blogs.Add(new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
+                context.Blogs.Add(
+                    new BloggingContext.Blog(jimSaysThrow: false)
+                    {
+                        Url = "http://sample.com"
+                    });
                 context.SaveChanges();
                 context.ChangeTracker.Entries().Single().State = EntityState.Added;
 
@@ -62,53 +62,45 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_DbSet_enumeration()
-        {
-            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToList());
-        }
+        public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration()
+            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToList());
 
         [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_DbSet_enumeration_async()
-        {
-            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToListAsync().Wait());
-        }
+        public Task Query_logs_DatabaseErrorLogState_during_DbSet_enumeration_async()
+            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.ToListAsync());
 
         [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
-        {
-            Query_logs_DatabaseErrorLogState_test(
-                c =>
-                    c.Blogs
-                        .OrderBy(b => b.Name)
-                        .Where(b => b.Url.StartsWith("http://"))
-                        .ToList());
-        }
+        public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration()
+            => Query_logs_DatabaseErrorLogState_test(
+                c => c.Blogs
+                    .OrderBy(b => b.Name)
+                    .Where(b => b.Url.StartsWith("http://"))
+                    .ToList());
 
         [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
-        {
-            Query_logs_DatabaseErrorLogState_test(
-                c =>
-                    c.Blogs
-                        .OrderBy(b => b.Name)
-                        .Where(b => b.Url.StartsWith("http://"))
-                        .ToListAsync()
-                        .Wait());
-        }
+        public Task Query_logs_DatabaseErrorLogState_during_LINQ_enumeration_async()
+            => Query_logs_DatabaseErrorLogState_test(
+                c => c.Blogs
+                    .OrderBy(b => b.Name)
+                    .Where(b => b.Url.StartsWith("http://"))
+                    .ToListAsync());
 
         [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_single()
-        {
-            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefault());
-        }
+        public Task Query_logs_DatabaseErrorLogState_during_single()
+            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefault());
 
         [Fact]
-        public void Query_logs_DatabaseErrorLogState_during_single_async()
-        {
-            Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync().Wait());
-        }
+        public Task Query_logs_DatabaseErrorLogState_during_single_async()
+            => Query_logs_DatabaseErrorLogState_test(c => c.Blogs.FirstOrDefaultAsync());
 
-        private void Query_logs_DatabaseErrorLogState_test(Action<BloggingContext> test)
+        private Task Query_logs_DatabaseErrorLogState_test(Action<BloggingContext> test)
+            => Query_logs_DatabaseErrorLogState_test(c =>
+            {
+                test(c);
+                return Task.CompletedTask;
+            });
+
+        private async Task Query_logs_DatabaseErrorLogState_test(Func<BloggingContext, Task> test)
         {
             var loggerFactory = new TestLoggerFactory();
             var serviceProvider = new ServiceCollection()
@@ -118,12 +110,16 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new BloggingContext(serviceProvider))
             {
-                context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
+                context.Blogs.Add(
+                    new BloggingContext.Blog(false)
+                    {
+                        Url = "http://sample.com"
+                    });
                 context.SaveChanges();
                 var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
                 context.ChangeTracker.GetInfrastructure().StopTracking(entry);
 
-                var ex = Assert.ThrowsAny<Exception>(() => test(context));
+                var ex = await Assert.ThrowsAnyAsync<Exception>(() => test(context));
                 while (ex.InnerException != null)
                 {
                     ex = ex.InnerException;

@@ -58,6 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool _requiresClientOrderBy;
         private bool _requiresClientResultOperator;
 
+        private QueryModel _queryModel;
+
+        private readonly bool _storeMaterializerExpression;
         private readonly List<GroupJoinClause> _unflattenedGroupJoinClauses = new List<GroupJoinClause>();
         private readonly List<AdditionalFromClause> _flattenedAdditionalFromClauses = new List<AdditionalFromClause>();
 
@@ -81,6 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ContextOptions = relationalDependencies.ContextOptions;
             ParentQueryModelVisitor = parentQueryModelVisitor;
+
+            _storeMaterializerExpression
+                = CoreStrings.LogQueryExecutionPlanned.GetLogBehavior(QueryCompilationContext.Logger) != WarningBehavior.Ignore;
         }
 
         /// <summary>
@@ -163,7 +169,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var index = (int)((ConstantExpression)node.Arguments[1]).Value;
 
-                    return _valueBufferAssignmentExpressions[index];
+                    var newExpression = _valueBufferAssignmentExpressions[index];
+
+                    if (newExpression.Type != node.Type)
+                    {
+                        newExpression = Expression.Convert(newExpression, node.Type);
+                    }
+
+                    return newExpression;
                 }
 
                 return base.VisitMethodCall(node);
@@ -186,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns>true if the target type should have a defining query applied.</returns>
         public override bool ShouldApplyDefiningQuery(IEntityType entityType, IQuerySource querySource)
         {
-            return !(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionalAnnotation tableNameAnnotation)
-                    || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention
+            return (!(entityType.FindAnnotation(RelationalAnnotationNames.TableName) is ConventionalAnnotation tableNameAnnotation)
+                   || tableNameAnnotation?.GetConfigurationSource() == ConfigurationSource.Convention)
                    && QueryCompilationContext.QueryAnnotations
                        .OfType<FromSqlResultOperator>()
                        .All(a => a.QuerySource != querySource);
@@ -269,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual bool RequiresClientResultOperator
         {
-            get => _unflattenedGroupJoinClauses.Any() || _requiresClientResultOperator || RequiresClientEval;
+            get => _unflattenedGroupJoinClauses.Count > 0 || _requiresClientResultOperator || RequiresClientEval;
             set => _requiresClientResultOperator = value;
         }
 
@@ -376,6 +389,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void VisitQueryModel(QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
+
+            _queryModel = queryModel;
 
             base.VisitQueryModel(queryModel);
 
@@ -587,9 +602,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return base.Visit(nullableExpression);
 
                     case UnaryExpression unaryExpression
-                    when unaryExpression.NodeType == ExpressionType.Convert:
+                        when unaryExpression.NodeType == ExpressionType.Convert:
                         return base.Visit(unaryExpression);
-
                 }
 
                 _canEliminate = false;
@@ -871,7 +885,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 if (_matchingCandidate == null)
                                 {
                                     _matchingCandidate = matchingForeignKey;
-                                    _matchingCandidateProperties = new List<IProperty> { leftProperty };
+                                    _matchingCandidateProperties = new List<IProperty>
+                                    {
+                                        leftProperty
+                                    };
                                 }
                                 else if (_matchingCandidate == matchingForeignKey)
                                 {
@@ -971,7 +988,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var subSelectExpression = subQueryModelVisitor.Queries.First();
 
-                if ((!subSelectExpression.OrderBy.Any()
+                if ((subSelectExpression.OrderBy.Count == 0
                      || subSelectExpression.Limit != null
                      || subSelectExpression.Offset != null)
                     && (QueryCompilationContext.IsLateralJoinSupported
@@ -979,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || !(querySource is AdditionalFromClause)))
                 {
                     var groupByNotRequiringPushdown = subSelectExpression.GroupBy.Count > 0
-                        && subQueryModel.ResultOperators.LastOrDefault() is GroupResultOperator;
+                                                      && subQueryModel.ResultOperators.LastOrDefault() is GroupResultOperator;
 
                     if (!subSelectExpression.IsIdentityQuery()
                         && !groupByNotRequiringPushdown)
@@ -989,15 +1006,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     AddQuery(querySource, subSelectExpression);
 
-                    var newExpression
-                        = new QuerySourceUpdater(
+                    return new QuerySourceUpdater(
                                 querySource,
                                 QueryCompilationContext,
                                 LinqOperatorProvider,
                                 subSelectExpression)
                             .Visit(subQueryModelVisitor.Expression);
-
-                    return newExpression;
                 }
             }
 
@@ -1148,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        /// Removes orderings for a given query model.
+        ///     Removes orderings for a given query model.
         /// </summary>
         /// <param name="queryModel">Query model to remove orderings on.</param>
         protected override void RemoveOrderings(QueryModel queryModel)
@@ -1290,7 +1304,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (Expression is MethodCallExpression methodCallExpression
                 && (methodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Select)
-                || methodCallExpression.Method.MethodIsClosedFormOf(SelectAsyncMethod)
+                    || methodCallExpression.Method.MethodIsClosedFormOf(AsyncLinqOperatorProvider.SelectAsyncMethod)
                     && selectClause.Selector.Type == typeof(AnonymousObject)))
             {
                 var shapedQuery = methodCallExpression.Arguments[0] as MethodCallExpression;
@@ -1334,7 +1348,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 newShaper = oldShaper.Unwrap(querySourceReferenceExpression.ReferencedQuerySource);
                             }
 
-                            newShaper = newShaper ?? ProjectionShaper.Create(oldShaper, materializer);
+                            newShaper = newShaper ?? ProjectionShaper.Create(oldShaper, materializer, _storeMaterializerExpression);
 
                             Expression =
                                 Expression.Call(
@@ -1408,7 +1422,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override void VisitResultOperators(ObservableCollection<ResultOperatorBase> resultOperators, QueryModel queryModel)
             {
                 var groupResultOperators = queryModel.ResultOperators.OfType<GroupResultOperator>().ToList();
-                if (groupResultOperators.Any())
+                if (groupResultOperators.Count > 0)
                 {
                     var orderByClause = queryModel.BodyClauses.OfType<OrderByClause>().FirstOrDefault();
                     if (orderByClause == null)
@@ -1549,24 +1563,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var queryMethods = QueryCompilationContext.QueryMethodProvider;
 
-            if (methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.ShapedQueryMethod)
-                || methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.DefaultIfEmptyShapedQueryMethod))
-            {
-                return true;
-            }
-
-            return false;
+            return methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.ShapedQueryMethod)
+                || methodCallExpression.Method.MethodIsClosedFormOf(queryMethods.DefaultIfEmptyShapedQueryMethod)
+                ? true
+                : false;
         }
 
         private MethodCallExpression UnwrapShapedQueryExpression(MethodCallExpression expression)
         {
-            if (expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
-                || expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg))
-            {
-                return (MethodCallExpression)expression.Arguments[0];
-            }
-
-            return expression;
+            return expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmpty)
+                || expression.Method.MethodIsClosedFormOf(LinqOperatorProvider.DefaultIfEmptyArg)
+                ? (MethodCallExpression)expression.Arguments[0]
+                : expression;
         }
 
         private Shaper ExtractShaper(MethodCallExpression shapedQueryExpression, int offset)
@@ -1619,8 +1627,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 = (selectManyMethodCallExpression?.Arguments.Skip(1).FirstOrDefault() as LambdaExpression)
                 ?.Body as MethodCallExpression;
 
-            if (selectManyMethodCallExpression == null
-                || !selectManyMethodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.SelectMany)
+            if (selectManyMethodCallExpression?.Method.MethodIsClosedFormOf(LinqOperatorProvider.SelectMany) != true
                 || !IsShapedQueryExpression(outerShapedQuery)
                 || !IsShapedQueryExpression(innerShapedQuery))
             {
@@ -1651,7 +1658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var materializerLambda = (LambdaExpression)selectManyMethodCallExpression.Arguments.Last();
 
             var compositeShaper
-                = CompositeShaper.Create(fromClause, outerShaper, innerShaper, materializerLambda);
+                = CompositeShaper.Create(fromClause, outerShaper, innerShaper, materializerLambda, _storeMaterializerExpression);
 
             compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
@@ -1693,8 +1700,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var innerShapedQuery
                 = joinMethodCallExpression?.Arguments.Skip(1).FirstOrDefault() as MethodCallExpression;
 
-            if (joinMethodCallExpression == null
-                || !joinMethodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.Join)
+            if (joinMethodCallExpression?.Method.MethodIsClosedFormOf(LinqOperatorProvider.Join) != true
                 || !IsShapedQueryExpression(outerShapedQuery)
                 || !IsShapedQueryExpression(innerShapedQuery))
             {
@@ -1759,7 +1765,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var materializerLambda = (LambdaExpression)joinMethodCallExpression.Arguments.Last();
 
                 var compositeShaper
-                    = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda);
+                    = CompositeShaper.Create(joinClause, outerShaper, innerShaper, materializerLambda, _storeMaterializerExpression);
 
                 compositeShaper.SaveAccessorExpression(QueryCompilationContext.QuerySourceMapping);
 
@@ -1817,8 +1823,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var innerShapedQuery
                 = groupJoinMethodCallExpression?.Arguments.Skip(1).FirstOrDefault() as MethodCallExpression;
 
-            if (groupJoinMethodCallExpression == null
-                || !groupJoinMethodCallExpression.Method.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin)
+            if (groupJoinMethodCallExpression?.Method.MethodIsClosedFormOf(LinqOperatorProvider.GroupJoin) != true
                 || !IsShapedQueryExpression(outerShapedQuery)
                 || !IsShapedQueryExpression(innerShapedQuery))
             {
@@ -1967,16 +1972,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             var referencedQuerySource
                 = subQueryModel?.MainFromClause.FromExpression.TryGetReferencedQuerySource();
 
-            if (referencedQuerySource != groupJoinClause
+            return referencedQuerySource != groupJoinClause
                 || queryModel.CountQuerySourceReferences(groupJoinClause) != 1
                 || subQueryModel.BodyClauses.Count != 0
                 || subQueryModel.ResultOperators.Count != 1
-                || !(subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator))
-            {
-                return false;
-            }
-
-            return true;
+                || !(subQueryModel.ResultOperators[0] is DefaultIfEmptyResultOperator)
+                ? false
+                : true;
         }
 
         private bool TryFlattenGroupJoinDefaultIfEmpty(
@@ -2047,7 +2049,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 innerItemParameter);
 
             var compositeShaper
-                = CompositeShaper.Create(additionalFromClause, outerShaper, innerShaper, materializerLambda);
+                = CompositeShaper.Create(additionalFromClause, outerShaper, innerShaper, materializerLambda, _storeMaterializerExpression);
 
             IntroduceTransparentScope(additionalFromClause, queryModel, index, transparentIdentifierType);
 
@@ -2069,9 +2071,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private Expression UnwraptInjectParameterSourceExpression(Expression expression)
             => expression is MethodCallExpression methodCall
-                && methodCall.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod)
-            ? methodCall.Arguments[1]
-            : expression;
+               && methodCall.Method.MethodIsClosedFormOf(QueryCompilationContext.QueryMethodProvider.InjectParametersMethod)
+                ? methodCall.Arguments[1]
+                : expression;
 
         #endregion
 
@@ -2093,13 +2095,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindMemberExpression(
                 memberExpression,
                 (property, querySource, selectExpression) =>
-                    {
-                        var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
+                {
+                    var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-                        Debug.Assert(projectionIndex > -1);
+                    Debug.Assert(projectionIndex > -1);
 
-                        return BindReadValueMethod(memberExpression.Type, expression, projectionIndex, property);
-                    },
+                    return BindReadValueMethod(memberExpression.Type, expression, projectionIndex, property);
+                },
                 bindSubQueries: true);
         }
 
@@ -2121,13 +2123,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             return BindMethodCallExpression(
                        methodCallExpression,
                        (property, querySource, selectExpression) =>
-                           {
-                               var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
+                       {
+                           var projectionIndex = selectExpression.GetProjectionIndex(property, querySource);
 
-                               Debug.Assert(projectionIndex > -1);
+                           Debug.Assert(projectionIndex > -1);
 
-                               return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex, property);
-                           },
+                           return BindReadValueMethod(methodCallExpression.Type, expression, projectionIndex, property);
+                       },
                        bindSubQueries: true)
                    ?? ParentQueryModelVisitor?
                        .BindMethodCallToValueBuffer(methodCallExpression, expression);
@@ -2226,21 +2228,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.BindMethodCallExpression<Expression>(
                 methodCallExpression, null,
                 (property, qs) =>
+                {
+                    if (methodCallExpression.Arguments[0] is ParameterExpression parameterExpression)
                     {
-                        if (methodCallExpression.Arguments[0] is ParameterExpression parameterExpression)
-                        {
-                            return new PropertyParameterExpression(parameterExpression.Name, property);
-                        }
+                        return new PropertyParameterExpression(parameterExpression.Name, property);
+                    }
 
-                        if (methodCallExpression.Arguments[0] is ConstantExpression constantExpression)
-                        {
-                            return Expression.Constant(
-                                property.GetGetter().GetClrValue(constantExpression.Value),
-                                methodCallExpression.Method.GetGenericArguments()[0]);
-                        }
-
-                        return null;
-                    });
+                    return methodCallExpression.Arguments[0] is ConstantExpression constantExpression
+                        ? Expression.Constant(
+                            property.GetGetter().GetClrValue(constantExpression.Value),
+                            methodCallExpression.Method.GetGenericArguments()[0])
+                        : null;
+                });
         }
 
         /// <summary>
@@ -2276,7 +2275,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         if (!subQueryModelVisitor.RequiresClientProjection)
                         {
-                            selectExpression = subQueryModelVisitor.Queries.SingleOrDefault();
+                            selectExpression
+                                = subQueryModelVisitor.Queries.Count == 1
+                                    ? subQueryModelVisitor.Queries.First()
+                                    : subQueryModelVisitor.TryGetQuery(
+                                        subQueryModelVisitor._queryModel.SelectClause.Selector
+                                            .TryGetReferencedQuerySource());
 
                             selectExpression?
                                 .AddToProjection(
@@ -2306,11 +2310,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private bool _canBindPropertyToOuterParameter = true;
 
-        private const string OuterQueryParameterNamePrefix = @"_outer_";
+        private const string OuterQueryParameterNamePrefix = "_outer_";
 
         private readonly Dictionary<string, Expression> _injectedParameters = new Dictionary<string, Expression>();
 
-        private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IProperty property, bool isMemberExpression)
+        private ParameterExpression BindPropertyToOuterParameter(IQuerySource querySource, IPropertyBase property, bool isMemberExpression)
         {
             if (querySource != null
                 && _canBindPropertyToOuterParameter
@@ -2356,7 +2360,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression
                         = CreateInjectParametersExpression(
                             Expression,
-                            new Dictionary<string, Expression> { [parameterName] = propertyExpression });
+                            new Dictionary<string, Expression>
+                            {
+                                [parameterName] = propertyExpression
+                            });
 
                     return Expression.Parameter(
                         property.ClrType,
@@ -2421,7 +2428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(subQueryModelVisitor, nameof(subQueryModelVisitor));
 
-            if (!subQueryModelVisitor._injectedParameters.Any())
+            if (subQueryModelVisitor._injectedParameters.Count == 0)
             {
                 return;
             }

@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly QueryModel _parentQueryModel;
             private readonly IncludeCompiler _includeCompiler;
 
+            private static readonly MethodInfo _emptyMethodInfo
+                = typeof(Enumerable).GetTypeInfo().GetDeclaredMethod(nameof(Enumerable.Empty));
+
             public CollectionQueryModelRewritingExpressionVisitor(
                 QueryCompilationContext queryCompilationContext,
                 QueryModel parentQueryModel,
@@ -90,7 +93,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var whereClause = collectionQueryModel.BodyClauses
                     .OfType<WhereClause>()
-                    .Single();
+                    .SingleOrDefault();
+
+                if (whereClause == null)
+                {
+                    // Assuming this is a client query
+
+                    collectionQueryModel.MainFromClause.FromExpression =
+                        Expression.Coalesce(
+                            collectionQueryModel.MainFromClause.FromExpression,
+                            Expression.Call(null, _emptyMethodInfo.MakeGenericMethod(navigation.GetTargetType().ClrType)));
+
+                    return;
+                }
 
                 whereClause.TransformExpressions(querySourceReferenceFindingExpressionTreeVisitor.Visit);
 
@@ -136,13 +151,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var parentItemName
                     = parentQuerySource.HasGeneratedItemName()
-                        ? navigation.DeclaringEntityType.DisplayName()[0].ToString().ToLowerInvariant()
+                        ? navigation.DeclaringEntityType.ShortName()[0].ToString().ToLowerInvariant()
                         : parentQuerySource.ItemName;
 
                 collectionQueryModel.MainFromClause.ItemName = $"{parentItemName}.{navigation.Name}";
 
                 var collectionQuerySourceReferenceExpression
                     = new QuerySourceReferenceExpression(collectionQueryModel.MainFromClause);
+
+                _queryCompilationContext.AddOrUpdateMapping(collectionQueryModel.MainFromClause, navigation.GetTargetType());
 
                 var joinQuerySourceReferenceExpression
                     = CreateJoinToParentQuery(
@@ -340,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         case QuerySourceReferenceExpression querySourceReferenceExpression:
                             return querySourceReferenceExpression.ReferencedQuerySource;
                         case MethodCallExpression methodCallExpression
-                        when IsIncludeMethod(methodCallExpression):
+                            when IsIncludeMethod(methodCallExpression):
                             var querySource = ((QuerySourceReferenceExpression)methodCallExpression.Arguments[1])
                                 .ReferencedQuerySource;
                             _querySourcesWithInclude.Add(querySource);
@@ -363,11 +380,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     lastResultOperator = choiceResultOperator is LastResultOperator;
                 }
 
-                foreach (var groupResultOperator
-                    in queryModel.ResultOperators.OfType<GroupResultOperator>()
-                        .ToArray())
+                foreach (var typeChangingResultOperator
+                    in queryModel.ResultOperators.Where(ro => ro is GroupResultOperator || ro is CastResultOperator || ro is OfTypeResultOperator).ToList())
                 {
-                    queryModel.ResultOperators.Remove(groupResultOperator);
+                    queryModel.ResultOperators.Remove(typeChangingResultOperator);
                 }
 
                 if (queryModel.BodyClauses
@@ -502,15 +518,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     foreach (var ordering in orderByClause.Orderings)
                     {
                         int projectionIndex;
-                        var orderingExpression = ordering.Expression;
-                        if (ordering.Expression.RemoveConvert() is NullConditionalExpression nullConditionalExpression)
-                        {
-                            orderingExpression = nullConditionalExpression.AccessOperation;
-                        }
+                        var orderingExpression = ordering.Expression.RemoveConvert().RemoveNullConditional().RemoveConvert();
 
                         QuerySourceReferenceExpression orderingExpressionQsre = null;
                         string orderingExpressionName = null;
-                        if (orderingExpression.RemoveConvert() is MemberExpression memberExpression
+                        if (orderingExpression is MemberExpression memberExpression
                             && memberExpression.Expression.RemoveConvert() is QuerySourceReferenceExpression memberQsre
                             && memberQsre.ReferencedQuerySource == querySource)
                         {
@@ -518,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             orderingExpressionName = memberExpression.Member.Name;
                         }
 
-                        if (orderingExpression.RemoveConvert() is MethodCallExpression methodCallExpression
+                        if (orderingExpression is MethodCallExpression methodCallExpression
                             && methodCallExpression.IsEFProperty()
                             && methodCallExpression.Arguments[0].RemoveConvert() is QuerySourceReferenceExpression methodCallQsre
                             && methodCallQsre.ReferencedQuerySource == querySource)
@@ -527,37 +539,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             orderingExpressionName = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
                         }
 
-                        if (orderingExpressionQsre != null && orderingExpressionName != null)
+                        if (orderingExpressionQsre != null
+                            && orderingExpressionName != null)
                         {
                             projectionIndex
                                 = subQueryProjection
                                     .FindIndex(
                                         e =>
+                                        {
+                                            var expressionWithoutConvert = e.RemoveConvert();
+                                            var projectionExpression = (expressionWithoutConvert as NullConditionalExpression)?.AccessOperation
+                                                                       ?? expressionWithoutConvert;
+
+                                            if (projectionExpression is MethodCallExpression methodCall
+                                                && methodCall.Method.IsEFPropertyMethod())
                                             {
-                                                var expressionWithoutConvert = e.RemoveConvert();
-                                                var projectionExpression = (expressionWithoutConvert as NullConditionalExpression)?.AccessOperation
-                                                                           ?? expressionWithoutConvert;
+                                                var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
+                                                var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
 
-                                                if (projectionExpression is MethodCallExpression methodCall
-                                                    && methodCall.Method.IsEFPropertyMethod())
-                                                {
-                                                    var properyQsre = (QuerySourceReferenceExpression)methodCall.Arguments[0].RemoveConvert();
-                                                    var propertyName = (string)((ConstantExpression)methodCall.Arguments[1]).Value;
+                                                return properyQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
+                                                       && propertyName == orderingExpressionName;
+                                            }
 
-                                                    return properyQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
-                                                           && propertyName == orderingExpressionName;
-                                                }
+                                            if (projectionExpression is MemberExpression projectionMemberExpression)
+                                            {
+                                                var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression.RemoveConvert();
 
-                                                if (projectionExpression is MemberExpression projectionMemberExpression)
-                                                {
-                                                    var projectionMemberQsre = (QuerySourceReferenceExpression)projectionMemberExpression.Expression.RemoveConvert();
+                                                return projectionMemberQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
+                                                       && projectionMemberExpression.Member.Name == orderingExpressionName;
+                                            }
 
-                                                    return projectionMemberQsre.ReferencedQuerySource == orderingExpressionQsre.ReferencedQuerySource
-                                                           && projectionMemberExpression.Member.Name == orderingExpressionName;
-                                                }
-
-                                                return false;
-                                            });
+                                            return false;
+                                        });
                         }
                         else
                         {

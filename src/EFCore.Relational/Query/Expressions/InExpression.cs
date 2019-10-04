@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.Sql;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -163,22 +164,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions
                 return false;
             }
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            return obj.GetType() == GetType() && Equals((InExpression)obj);
+            return ReferenceEquals(this, obj) ? true : obj.GetType() == GetType() && Equals((InExpression)obj);
         }
 
         private bool Equals(InExpression other)
             => Operand.Equals(other.Operand)
-                && (Values == null
-                    ? other.Values == null
-                    : Values.SequenceEqual(other.Values))
-                && (SubQuery == null
-                    ? other.SubQuery == null
-                    : SubQuery.Equals(other.SubQuery));
+               && (Values == null
+                   ? other.Values == null
+                    : ExpressionEqualityComparer.Instance.SequenceEquals(Values, other.Values))
+               && (SubQuery == null
+                   ? other.SubQuery == null
+                   : SubQuery.Equals(other.SubQuery));
 
         /// <summary>
         ///     Returns a hash code for this object.

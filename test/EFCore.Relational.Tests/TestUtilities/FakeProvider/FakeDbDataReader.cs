@@ -82,30 +82,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             return (int)_currentRow[ordinal];
         }
 
-        public override object this[string name]
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override object this[string name] => throw new NotImplementedException();
 
-        public override object this[int ordinal]
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override object this[int ordinal] => throw new NotImplementedException();
 
-        public override int Depth
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override int Depth => throw new NotImplementedException();
 
-        public override bool HasRows
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override bool HasRows => throw new NotImplementedException();
 
-        public override bool IsClosed
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override bool IsClosed => throw new NotImplementedException();
 
         public override int RecordsAffected => 0;
 

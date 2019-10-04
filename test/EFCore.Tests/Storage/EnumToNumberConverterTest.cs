@@ -271,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((Beatles)77, converter(77));
             Assert.Equal(default, converter(0));
         }
-        
+
         [Fact]
         public void Enum_to_integer_converter_throws_for_bad_types()
         {

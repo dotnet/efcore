@@ -1,5 +1,5 @@
 {
-  "AssemblyIdentity": "Microsoft.EntityFrameworkCore, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
+  "AssemblyIdentity": "Microsoft.EntityFrameworkCore, Version=2.2.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60",
   "Types": [
     {
       "Name": "System.Transactions.TransactionsDatabaseFacadeExtensions",
@@ -1398,6 +1398,21 @@
         },
         {
           "Kind": "Method",
+          "Name": "EnableDetailedErrors",
+          "Parameters": [
+            {
+              "Name": "detailedErrorsEnabled",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "UseMemoryCache",
           "Parameters": [
             {
@@ -1595,6 +1610,21 @@
             {
               "Name": "loggerFactory",
               "Type": "Microsoft.Extensions.Logging.ILoggerFactory"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "EnableDetailedErrors",
+          "Parameters": [
+            {
+              "Name": "detailedErrorsEnabled",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<T0>",
@@ -4066,6 +4096,421 @@
       "Members": [
         {
           "Kind": "Method",
+          "Name": "AverageAsync<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "selector",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Double>>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Double>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TSource",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "AverageAsync<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "selector",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Nullable<System.Double>>>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Nullable<System.Double>>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TSource",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "AverageAsync",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<System.Single>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Single>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "AverageAsync",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<System.Nullable<System.Single>>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Nullable<System.Single>>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "AverageAsync<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "selector",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Single>>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Single>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TSource",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "AverageAsync<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "selector",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Nullable<System.Single>>>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Nullable<System.Single>>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TSource",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ContainsAsync<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "item",
+              "Type": "T0"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Boolean>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TSource",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToListAsync<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Collections.Generic.List<T0>>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TSource",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToArrayAsync<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<T0[]>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TSource",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "Include<T0, T1>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "navigationPropertyPath",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, T1>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T1>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TProperty",
+              "ParameterPosition": 1,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ThenInclude<T0, T1, T2>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, System.Collections.Generic.IEnumerable<T1>>"
+            },
+            {
+              "Name": "navigationPropertyPath",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T2>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T2>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TPreviousProperty",
+              "ParameterPosition": 1,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TProperty",
+              "ParameterPosition": 2,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "ThenInclude<T0, T1, T2>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T1>"
+            },
+            {
+              "Name": "navigationPropertyPath",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T2>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T2>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TPreviousProperty",
+              "ParameterPosition": 1,
+              "BaseTypeOrInterfaces": []
+            },
+            {
+              "ParameterName": "TProperty",
+              "ParameterPosition": 2,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "Include<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "navigationPropertyPath",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Linq.IQueryable<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "IgnoreQueryFilters<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            }
+          ],
+          "ReturnType": "System.Linq.IQueryable<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "AsNoTracking<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            }
+          ],
+          "ReturnType": "System.Linq.IQueryable<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
           "Name": "AsTracking<T0>",
           "Parameters": [
             {
@@ -4082,6 +4527,31 @@
               "ParameterName": "TEntity",
               "ParameterPosition": 0,
               "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "TagWith<T0>",
+          "Parameters": [
+            {
+              "Name": "source",
+              "Type": "System.Linq.IQueryable<T0>"
+            },
+            {
+              "Name": "tag",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "System.Linq.IQueryable<T0>",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "T",
+              "ParameterPosition": 0,
               "BaseTypeOrInterfaces": []
             }
           ]
@@ -5824,421 +6294,6 @@
           "Extension": true,
           "Visibility": "Public",
           "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "AverageAsync<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "selector",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Double>>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Double>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TSource",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "AverageAsync<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "selector",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Nullable<System.Double>>>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Nullable<System.Double>>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TSource",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "AverageAsync",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<System.Single>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Single>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "AverageAsync",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<System.Nullable<System.Single>>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Nullable<System.Single>>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "AverageAsync<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "selector",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Single>>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Single>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TSource",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "AverageAsync<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "selector",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Nullable<System.Single>>>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Nullable<System.Single>>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TSource",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "ContainsAsync<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "item",
-              "Type": "T0"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Boolean>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TSource",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "ToListAsync<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<System.Collections.Generic.List<T0>>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TSource",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "ToArrayAsync<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "cancellationToken",
-              "Type": "System.Threading.CancellationToken",
-              "DefaultValue": "default(System.Threading.CancellationToken)"
-            }
-          ],
-          "ReturnType": "System.Threading.Tasks.Task<T0[]>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TSource",
-              "ParameterPosition": 0,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "Include<T0, T1>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "navigationPropertyPath",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T0, T1>>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T1>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            },
-            {
-              "ParameterName": "TProperty",
-              "ParameterPosition": 1,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "ThenInclude<T0, T1, T2>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, System.Collections.Generic.IEnumerable<T1>>"
-            },
-            {
-              "Name": "navigationPropertyPath",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T2>>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T2>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            },
-            {
-              "ParameterName": "TPreviousProperty",
-              "ParameterPosition": 1,
-              "BaseTypeOrInterfaces": []
-            },
-            {
-              "ParameterName": "TProperty",
-              "ParameterPosition": 2,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "ThenInclude<T0, T1, T2>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T1>"
-            },
-            {
-              "Name": "navigationPropertyPath",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T2>>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Query.IIncludableQueryable<T0, T2>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            },
-            {
-              "ParameterName": "TPreviousProperty",
-              "ParameterPosition": 1,
-              "BaseTypeOrInterfaces": []
-            },
-            {
-              "ParameterName": "TProperty",
-              "ParameterPosition": 2,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "Include<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            },
-            {
-              "Name": "navigationPropertyPath",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "System.Linq.IQueryable<T0>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "IgnoreQueryFilters<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            }
-          ],
-          "ReturnType": "System.Linq.IQueryable<T0>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "AsNoTracking<T0>",
-          "Parameters": [
-            {
-              "Name": "source",
-              "Type": "System.Linq.IQueryable<T0>"
-            }
-          ],
-          "ReturnType": "System.Linq.IQueryable<T0>",
-          "Static": true,
-          "Extension": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
         }
       ],
       "GenericParameters": []
@@ -8779,6 +8834,25 @@
           "Extension": true,
           "Visibility": "Public",
           "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "SetStructuralValueComparer",
+          "Parameters": [
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IMutableProperty"
+            },
+            {
+              "Name": "comparer",
+              "Type": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
         }
       ],
       "GenericParameters": []
@@ -9153,6 +9227,21 @@
         {
           "Kind": "Method",
           "Name": "GetKeyValueComparer",
+          "Parameters": [
+            {
+              "Name": "property",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer",
+          "Static": true,
+          "Extension": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetStructuralValueComparer",
           "Parameters": [
             {
               "Name": "property",
@@ -9547,6 +9636,25 @@
         },
         {
           "Kind": "Method",
+          "Name": "ApplyConfigurationsFromAssembly",
+          "Parameters": [
+            {
+              "Name": "assembly",
+              "Type": "System.Reflection.Assembly"
+            },
+            {
+              "Name": "predicate",
+              "Type": "System.Func<System.Type, System.Boolean>",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Owned<T0>",
           "Parameters": [],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.OwnedEntityTypeBuilder<T0>",
@@ -9599,6 +9707,15 @@
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.ModelBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FinalizeModel",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IModel",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -10767,6 +10884,15 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_StructuralComparer",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Clone",
           "Parameters": [
             {
@@ -10777,6 +10903,20 @@
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
           "Virtual": true,
           "Abstract": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GenerateCodeLiteral",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -11600,6 +11740,38 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.IDatabaseCreatorWithCanConnect",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "CanConnect",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CanConnectAsync",
+          "Parameters": [
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Boolean>",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Storage.IDatabaseProvider",
       "Visibility": "Public",
       "Kind": "Interface",
@@ -11913,6 +12085,29 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ITypeMappingSourcePlugin",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "FindMapping",
+          "Parameters": [
+            {
+              "Name": "mappingInfo",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.TypeMappingInfo",
+              "Direction": "Ref"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Storage.MaterializationContext",
       "Visibility": "Public",
       "Kind": "Struct",
@@ -11961,6 +12156,16 @@
               "Type": "Microsoft.EntityFrameworkCore.DbContext"
             }
           ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "GetValueBufferMethod",
+          "Parameters": [],
+          "ReturnType": "System.Reflection.MethodInfo",
+          "Static": true,
+          "ReadOnly": true,
           "Visibility": "Public",
           "GenericParameter": []
         }
@@ -12402,7 +12607,6 @@
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.CoreTypeMapping",
           "Virtual": true,
-          "Abstract": true,
           "Visibility": "Protected",
           "GenericParameter": []
         },
@@ -12456,11 +12660,32 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_Plugins",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.ITypeMappingSourcePlugin>",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "With",
           "Parameters": [
             {
               "Name": "valueConverterSelector",
               "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.IValueConverterSelector"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.ITypeMappingSourcePlugin>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Storage.TypeMappingSourceDependencies",
@@ -12474,6 +12699,10 @@
             {
               "Name": "valueConverterSelector",
               "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.IValueConverterSelector"
+            },
+            {
+              "Name": "plugins",
+              "Type": "System.Collections.Generic.IEnumerable<Microsoft.EntityFrameworkCore.Storage.ITypeMappingSourcePlugin>"
             }
           ],
           "Visibility": "Public",
@@ -12813,7 +13042,7 @@
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.CharToStringConverter",
       "Visibility": "Public",
       "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.Char, System.String>",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringCharConverter<System.Char, System.String>",
       "ImplementedInterfaces": [],
       "Members": [
         {
@@ -13010,7 +13239,7 @@
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeOffsetToStringConverter",
       "Visibility": "Public",
       "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.DateTimeOffset, System.String>",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringDateTimeOffsetConverter<System.DateTimeOffset, System.String>",
       "ImplementedInterfaces": [],
       "Members": [
         {
@@ -13074,7 +13303,7 @@
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.DateTimeToStringConverter",
       "Visibility": "Public",
       "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.DateTime, System.String>",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringDateTimeConverter<System.DateTime, System.String>",
       "ImplementedInterfaces": [],
       "Members": [
         {
@@ -13193,7 +13422,7 @@
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.EnumToStringConverter<T0>",
       "Visibility": "Public",
       "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<T0, System.String>",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringEnumConverter<T0, System.String, T0>",
       "ImplementedInterfaces": [],
       "Members": [
         {
@@ -13265,7 +13494,7 @@
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.GuidToStringConverter",
       "Visibility": "Public",
       "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.Guid, System.String>",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringGuidConverter<System.Guid, System.String>",
       "ImplementedInterfaces": [],
       "Members": [
         {
@@ -13362,7 +13591,7 @@
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.NumberToStringConverter<T0>",
       "Visibility": "Public",
       "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<T0, System.String>",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringNumberConverter<T0, System.String, T0>",
       "ImplementedInterfaces": [],
       "Members": [
         {
@@ -13395,6 +13624,38 @@
           "BaseTypeOrInterfaces": []
         }
       ]
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToBoolConverter",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.String, System.Boolean>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
     },
     {
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToBytesConverter",
@@ -13433,10 +13694,248 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToCharConverter",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringCharConverter<System.String, System.Char>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToDateTimeConverter",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringDateTimeConverter<System.String, System.DateTime>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToDateTimeOffsetConverter",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringDateTimeOffsetConverter<System.String, System.DateTimeOffset>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToEnumConverter<T0>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringEnumConverter<System.String, T0, T0>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "TEnum",
+          "ParameterPosition": 0,
+          "New": true,
+          "Struct": true,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToGuidConverter",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringGuidConverter<System.String, System.Guid>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToNumberConverter<T0>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringNumberConverter<System.String, T0, T0>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "TNumber",
+          "ParameterPosition": 0,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.StringToTimeSpanConverter",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringTimeSpanConverter<System.String, System.TimeSpan>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_DefaultInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverterInfo",
+          "Static": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "mappingHints",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ConverterMappingHints",
+              "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.TimeSpanToStringConverter",
       "Visibility": "Public",
       "Kind": "Class",
-      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<System.TimeSpan, System.String>",
+      "BaseType": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal.StringTimeSpanConverter<System.TimeSpan, System.String>",
       "ImplementedInterfaces": [],
       "Members": [
         {
@@ -14834,15 +15333,6 @@
         },
         {
           "Kind": "Method",
-          "Name": "get_SelectAsyncMethod",
-          "Parameters": [],
-          "ReturnType": "System.Reflection.MethodInfo",
-          "Static": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "CreateTransparentIdentifierType",
           "Parameters": [
             {
@@ -14987,6 +15477,24 @@
               "Name": "property",
               "Type": "Microsoft.EntityFrameworkCore.Metadata.IProperty",
               "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "BindMethodCallToEntity",
+          "Parameters": [
+            {
+              "Name": "methodCallExpression",
+              "Type": "System.Linq.Expressions.MethodCallExpression"
+            },
+            {
+              "Name": "targetMethodCallExpression",
+              "Type": "System.Linq.Expressions.MethodCallExpression"
             }
           ],
           "ReturnType": "System.Linq.Expressions.Expression",
@@ -15204,6 +15712,14 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_EagerLoadingExpressionVisitorFactory",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEagerLoadingExpressionVisitorFactory",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_TaskBlockingExpressionVisitor",
           "Parameters": [],
           "ReturnType": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor",
@@ -15344,6 +15860,19 @@
           "Name": "With",
           "Parameters": [
             {
+              "Name": "eagerLoadingExpressionVisitorFactory",
+              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEagerLoadingExpressionVisitorFactory"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Query.EntityQueryModelVisitorDependencies",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "With",
+          "Parameters": [
+            {
               "Name": "taskBlockingExpressionVisitor",
               "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.ITaskBlockingExpressionVisitor"
             }
@@ -15462,6 +15991,10 @@
             {
               "Name": "entityResultFindingExpressionVisitorFactory",
               "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEntityResultFindingExpressionVisitorFactory"
+            },
+            {
+              "Name": "eagerLoadingExpressionVisitorFactory",
+              "Type": "Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal.IEagerLoadingExpressionVisitorFactory"
             },
             {
               "Name": "taskBlockingExpressionVisitor",
@@ -16918,6 +17451,21 @@
             {
               "Name": "expression",
               "Type": "Remotion.Linq.Clauses.Expressions.SubQueryExpression"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "VisitUnary",
+          "Parameters": [
+            {
+              "Name": "unaryExpression",
+              "Type": "System.Linq.Expressions.UnaryExpression"
             }
           ],
           "ReturnType": "System.Linq.Expressions.Expression",
@@ -18976,6 +19524,15 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_ForeignKeyRequirednessChangedConventions",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyRequirednessChangedConvention>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_ForeignKeyOwnershipChangedConventions",
           "Parameters": [],
           "ReturnType": "System.Collections.Generic.IList<Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.IForeignKeyOwnershipChangedConvention>",
@@ -19228,8 +19785,9 @@
           "Name": "WithOne",
           "Parameters": [
             {
-              "Name": "navigationExpression",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
+              "Name": "navigationName",
+              "Type": "System.String",
+              "DefaultValue": "null"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
@@ -19242,9 +19800,8 @@
           "Name": "WithOne",
           "Parameters": [
             {
-              "Name": "navigationName",
-              "Type": "System.String",
-              "DefaultValue": "null"
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
@@ -19317,11 +19874,1114 @@
       ]
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilderBase",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalEntityTypeBuilder>"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_OwnedEntityType",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasForeignKeyAnnotation",
+          "Parameters": [
+            {
+              "Name": "annotation",
+              "Type": "System.String"
+            },
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasForeignKey",
+          "Parameters": [
+            {
+              "Name": "foreignKeyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasPrincipalKey",
+          "Parameters": [
+            {
+              "Name": "keyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OnDelete",
+          "Parameters": [
+            {
+              "Name": "deleteBehavior",
+              "Type": "Microsoft.EntityFrameworkCore.DeleteBehavior"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasEntityTypeAnnotation",
+          "Parameters": [
+            {
+              "Name": "annotation",
+              "Type": "System.String"
+            },
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasKey",
+          "Parameters": [
+            {
+              "Name": "propertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Property",
+          "Parameters": [
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Property<T0>",
+          "Parameters": [
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TProperty",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "Property",
+          "Parameters": [
+            {
+              "Name": "propertyType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Ignore",
+          "Parameters": [
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasIndex",
+          "Parameters": [
+            {
+              "Name": "propertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasOne",
+          "Parameters": [
+            {
+              "Name": "relatedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasOne",
+          "Parameters": [
+            {
+              "Name": "relatedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FindRelatedEntityType",
+          "Parameters": [
+            {
+              "Name": "relatedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FindRelatedEntityType",
+          "Parameters": [
+            {
+              "Name": "relatedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasChangeTrackingStrategy",
+          "Parameters": [
+            {
+              "Name": "changeTrackingStrategy",
+              "Type": "Microsoft.EntityFrameworkCore.ChangeTrackingStrategy"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "UsePropertyAccessMode",
+          "Parameters": [
+            {
+              "Name": "propertyAccessMode",
+              "Type": "Microsoft.EntityFrameworkCore.PropertyAccessMode"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "System.Object[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "declaringEntityType",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType"
+            },
+            {
+              "Name": "relatedEntityType",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder"
+            },
+            {
+              "Name": "oldBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder"
+            },
+            {
+              "Name": "foreignKeySet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            },
+            {
+              "Name": "principalKeySet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            },
+            {
+              "Name": "requiredSet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "HasForeignKeyAnnotation",
+          "Parameters": [
+            {
+              "Name": "annotation",
+              "Type": "System.String"
+            },
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasForeignKey",
+          "Parameters": [
+            {
+              "Name": "foreignKeyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasForeignKey",
+          "Parameters": [
+            {
+              "Name": "foreignKeyExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasPrincipalKey",
+          "Parameters": [
+            {
+              "Name": "keyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasPrincipalKey",
+          "Parameters": [
+            {
+              "Name": "keyExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OnDelete",
+          "Parameters": [
+            {
+              "Name": "deleteBehavior",
+              "Type": "Microsoft.EntityFrameworkCore.DeleteBehavior"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasEntityTypeAnnotation",
+          "Parameters": [
+            {
+              "Name": "annotation",
+              "Type": "System.String"
+            },
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasKey",
+          "Parameters": [
+            {
+              "Name": "keyExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Property<T0>",
+          "Parameters": [
+            {
+              "Name": "propertyExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TProperty",
+              "ParameterPosition": 0,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "Ignore",
+          "Parameters": [
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Ignore",
+          "Parameters": [
+            {
+              "Name": "propertyExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasIndex",
+          "Parameters": [
+            {
+              "Name": "indexExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Collections.Generic.IEnumerable<T0>>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Collections.Generic.IEnumerable<T0>>>"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasChangeTrackingStrategy",
+          "Parameters": [
+            {
+              "Name": "changeTrackingStrategy",
+              "Type": "Microsoft.EntityFrameworkCore.ChangeTrackingStrategy"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "UsePropertyAccessMode",
+          "Parameters": [
+            {
+              "Name": "propertyAccessMode",
+              "Type": "Microsoft.EntityFrameworkCore.PropertyAccessMode"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "T1[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "System.Object[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "declaringEntityType",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType"
+            },
+            {
+              "Name": "relatedEntityType",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder"
+            },
+            {
+              "Name": "oldBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T1>"
+            },
+            {
+              "Name": "foreignKeySet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            },
+            {
+              "Name": "principalKeySet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            },
+            {
+              "Name": "requiredSet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "TEntity",
+          "ParameterPosition": 0,
+          "Class": true,
+          "BaseTypeOrInterfaces": []
+        },
+        {
+          "ParameterName": "TDependentEntity",
+          "ParameterPosition": 1,
+          "Class": true,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder",
       "Visibility": "Public",
       "Kind": "Class",
       "ImplementedInterfaces": [],
       "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ToString",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Equals",
+          "Parameters": [
+            {
+              "Name": "obj",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetHashCode",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
         {
           "Kind": "Constructor",
           "Name": ".ctor",
@@ -19451,6 +21111,20 @@
         },
         {
           "Kind": "Method",
+          "Name": "Property",
+          "Parameters": [
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Property<T0>",
           "Parameters": [
             {
@@ -19477,20 +21151,6 @@
               "Name": "propertyType",
               "Type": "System.Type"
             },
-            {
-              "Name": "propertyName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Property",
-          "Parameters": [
             {
               "Name": "propertyName",
               "Type": "System.String"
@@ -19531,86 +21191,6 @@
         },
         {
           "Kind": "Method",
-          "Name": "OwnsOne",
-          "Parameters": [
-            {
-              "Name": "ownedType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "navigationName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "OwnsOne",
-          "Parameters": [
-            {
-              "Name": "ownedTypeName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "navigationName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "OwnsOne",
-          "Parameters": [
-            {
-              "Name": "ownedType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "navigationName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "buildAction",
-              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "OwnsOne",
-          "Parameters": [
-            {
-              "Name": "ownedTypeName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "navigationName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "buildAction",
-              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "HasIndex",
           "Parameters": [
             {
@@ -19626,19 +21206,160 @@
         },
         {
           "Kind": "Method",
-          "Name": "HasOne",
+          "Name": "OwnsOne",
           "Parameters": [
             {
-              "Name": "relatedType",
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne",
+          "Parameters": [
+            {
+              "Name": "ownedType",
               "Type": "System.Type"
             },
             {
               "Name": "navigationName",
-              "Type": "System.String",
-              "DefaultValue": "null"
+              "Type": "System.String"
             }
           ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -19664,7 +21385,7 @@
         },
         {
           "Kind": "Method",
-          "Name": "HasMany",
+          "Name": "HasOne",
           "Parameters": [
             {
               "Name": "relatedType",
@@ -19676,7 +21397,7 @@
               "DefaultValue": "null"
             }
           ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -19698,6 +21419,61 @@
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder",
           "Virtual": true,
           "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasMany",
+          "Parameters": [
+            {
+              "Name": "relatedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FindRelatedEntityType",
+          "Parameters": [
+            {
+              "Name": "relatedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FindRelatedEntityType",
+          "Parameters": [
+            {
+              "Name": "relatedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -19736,6 +21512,20 @@
               "Name": "data",
               "Type": "System.Object[]",
               "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "System.Collections.Generic.IEnumerable<System.Object>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder",
@@ -19970,11 +21760,57 @@
           "Name": "OwnsOne<T0>",
           "Parameters": [
             {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
               "Name": "navigationExpression",
               "Type": "System.Linq.Expressions.Expression<System.Func<T0, T0>>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0>",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": [
@@ -20013,6 +21849,119 @@
         },
         {
           "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Collections.Generic.IEnumerable<T0>>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Collections.Generic.IEnumerable<T0>>>"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T0, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder<T0, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
           "Name": "HasOne<T0>",
           "Parameters": [
             {
@@ -20035,33 +21984,11 @@
         },
         {
           "Kind": "Method",
-          "Name": "HasOne<T0>",
+          "Name": "HasMany<T0>",
           "Parameters": [
             {
               "Name": "navigationName",
               "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder<T0, T0>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TRelatedEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "HasMany<T0>",
-          "Parameters": [
-            {
-              "Name": "navigationExpression",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Collections.Generic.IEnumerable<T0>>>",
-              "DefaultValue": "null"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder<T0, T0>",
@@ -20081,8 +22008,9 @@
           "Name": "HasMany<T0>",
           "Parameters": [
             {
-              "Name": "navigationName",
-              "Type": "System.String"
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Collections.Generic.IEnumerable<T0>>>",
+              "DefaultValue": "null"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder<T0, T0>",
@@ -20133,6 +22061,49 @@
               "Name": "data",
               "Type": "T0[]",
               "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "System.Collections.Generic.IEnumerable<T0>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "System.Object[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "System.Collections.Generic.IEnumerable<System.Object>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<T0>",
@@ -20262,6 +22233,67 @@
         }
       ],
       "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "HasAnnotation",
+          "Parameters": [
+            {
+              "Name": "annotation",
+              "Type": "System.String"
+            },
+            {
+              "Name": "value",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "IsUnique",
+          "Parameters": [
+            {
+              "Name": "unique",
+              "Type": "System.Boolean",
+              "DefaultValue": "True"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.IndexBuilder<T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalIndexBuilder"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "T",
+          "ParameterPosition": 0,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
     },
     {
       "Name": "Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder",
@@ -21105,6 +23137,20 @@
         },
         {
           "Kind": "Method",
+          "Name": "Property",
+          "Parameters": [
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Property<T0>",
           "Parameters": [
             {
@@ -21131,20 +23177,6 @@
               "Name": "propertyType",
               "Type": "System.Type"
             },
-            {
-              "Name": "propertyName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Property",
-          "Parameters": [
             {
               "Name": "propertyName",
               "Type": "System.String"
@@ -21188,8 +23220,8 @@
           "Name": "HasOne",
           "Parameters": [
             {
-              "Name": "relatedType",
-              "Type": "System.Type"
+              "Name": "relatedTypeName",
+              "Type": "System.String"
             },
             {
               "Name": "navigationName",
@@ -21207,8 +23239,8 @@
           "Name": "HasOne",
           "Parameters": [
             {
-              "Name": "relatedTypeName",
-              "Type": "System.String"
+              "Name": "relatedType",
+              "Type": "System.Type"
             },
             {
               "Name": "navigationName",
@@ -21232,6 +23264,41 @@
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.QueryTypeBuilder",
           "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "ToString",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Equals",
+          "Parameters": [
+            {
+              "Name": "obj",
+              "Type": "System.Object"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Override": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetHashCode",
+          "Parameters": [],
+          "ReturnType": "System.Int32",
+          "Virtual": true,
+          "Override": true,
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -21456,29 +23523,9 @@
       "Name": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder",
       "Visibility": "Public",
       "Kind": "Class",
-      "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>",
-        "Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>"
-      ],
+      "BaseType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilderBase",
+      "ImplementedInterfaces": [],
       "Members": [
-        {
-          "Kind": "Method",
-          "Name": "get_Builder",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder",
-          "Virtual": true,
-          "Visibility": "Protected",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_Metadata",
-          "Parameters": [],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
         {
           "Kind": "Method",
           "Name": "HasAnnotation",
@@ -21613,6 +23660,119 @@
           "GenericParameter": []
         },
         {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "principalEntityType",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType"
+            },
+            {
+              "Name": "dependentEntityType",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType"
+            },
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "builder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder"
+            },
+            {
+              "Name": "oldBuilder",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder"
+            },
+            {
+              "Name": "foreignKeySet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            },
+            {
+              "Name": "principalKeySet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            },
+            {
+              "Name": "requiredSet",
+              "Type": "System.Boolean",
+              "DefaultValue": "False"
+            }
+          ],
+          "Visibility": "Protected",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilderBase",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.IMutableModel>",
+        "Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder>"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_PrincipalEntityType",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DependentEntityType",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Builder",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "set_Builder",
+          "Parameters": [
+            {
+              "Name": "value",
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Internal.InternalRelationshipBuilder"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_Metadata",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.IMutableForeignKey",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
           "Kind": "Method",
           "Name": "ToString",
           "Parameters": [],
@@ -21677,7 +23837,7 @@
             },
             {
               "Name": "oldBuilder",
-              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder"
+              "Type": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilderBase"
             },
             {
               "Name": "foreignKeySet",
@@ -21713,8 +23873,38 @@
           "Name": "HasForeignKey",
           "Parameters": [
             {
+              "Name": "foreignKeyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasForeignKey",
+          "Parameters": [
+            {
               "Name": "foreignKeyExpression",
               "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasPrincipalKey",
+          "Parameters": [
+            {
+              "Name": "keyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
@@ -21747,36 +23937,6 @@
             {
               "Name": "value",
               "Type": "System.Object"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "HasForeignKey",
-          "Parameters": [
-            {
-              "Name": "foreignKeyPropertyNames",
-              "Type": "System.String[]",
-              "IsParams": true
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "HasPrincipalKey",
-          "Parameters": [
-            {
-              "Name": "keyPropertyNames",
-              "Type": "System.String[]",
-              "IsParams": true
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T0, T1>",
@@ -22108,6 +24268,21 @@
           "Name": "WithMany",
           "Parameters": [
             {
+              "Name": "navigationName",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "WithMany",
+          "Parameters": [
+            {
               "Name": "navigationExpression",
               "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Collections.Generic.IEnumerable<T0>>>"
             }
@@ -22122,8 +24297,9 @@
           "Name": "WithOne",
           "Parameters": [
             {
-              "Name": "navigationExpression",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
+              "Name": "navigationName",
+              "Type": "System.String",
+              "DefaultValue": "null"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
@@ -22133,27 +24309,11 @@
         },
         {
           "Kind": "Method",
-          "Name": "WithMany",
-          "Parameters": [
-            {
-              "Name": "navigationName",
-              "Type": "System.String",
-              "DefaultValue": "null"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceCollectionBuilder<T1, T0>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
           "Name": "WithOne",
           "Parameters": [
             {
-              "Name": "navigationName",
-              "Type": "System.String",
-              "DefaultValue": "null"
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
@@ -22325,6 +24485,35 @@
         },
         {
           "Kind": "Method",
+          "Name": "HasKey",
+          "Parameters": [
+            {
+              "Name": "propertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Property",
+          "Parameters": [
+            {
+              "Name": "propertyName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Property<T0>",
           "Parameters": [
             {
@@ -22351,20 +24540,6 @@
               "Name": "propertyType",
               "Type": "System.Type"
             },
-            {
-              "Name": "propertyName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.PropertyBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Property",
-          "Parameters": [
             {
               "Name": "propertyName",
               "Type": "System.String"
@@ -22409,24 +24584,6 @@
           "Name": "OwnsOne",
           "Parameters": [
             {
-              "Name": "ownedType",
-              "Type": "System.Type"
-            },
-            {
-              "Name": "navigationName",
-              "Type": "System.String"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "OwnsOne",
-          "Parameters": [
-            {
               "Name": "ownedTypeName",
               "Type": "System.String"
             },
@@ -22451,10 +24608,6 @@
             {
               "Name": "navigationName",
               "Type": "System.String"
-            },
-            {
-              "Name": "buildAction",
-              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
@@ -22486,19 +24639,102 @@
         },
         {
           "Kind": "Method",
-          "Name": "HasOne",
+          "Name": "OwnsOne",
           "Parameters": [
             {
-              "Name": "relatedType",
+              "Name": "ownedType",
               "Type": "System.Type"
             },
             {
               "Name": "navigationName",
-              "Type": "System.String",
-              "DefaultValue": "null"
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder>"
             }
           ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany",
+          "Parameters": [
+            {
+              "Name": "ownedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -22524,7 +24760,7 @@
         },
         {
           "Kind": "Method",
-          "Name": "HasMany",
+          "Name": "HasOne",
           "Parameters": [
             {
               "Name": "relatedType",
@@ -22536,7 +24772,7 @@
               "DefaultValue": "null"
             }
           ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder",
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": []
@@ -22558,6 +24794,61 @@
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder",
           "Virtual": true,
           "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasMany",
+          "Parameters": [
+            {
+              "Name": "relatedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String",
+              "DefaultValue": "null"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionNavigationBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FindRelatedEntityType",
+          "Parameters": [
+            {
+              "Name": "relatedTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "FindRelatedEntityType",
+          "Parameters": [
+            {
+              "Name": "relatedType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType",
+          "Virtual": true,
+          "Visibility": "Protected",
           "GenericParameter": []
         },
         {
@@ -22779,6 +25070,20 @@
         },
         {
           "Kind": "Method",
+          "Name": "HasKey",
+          "Parameters": [
+            {
+              "Name": "keyExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.KeyBuilder",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Property<T0>",
           "Parameters": [
             {
@@ -22844,11 +25149,57 @@
           "Name": "OwnsOne<T0>",
           "Parameters": [
             {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
               "Name": "navigationExpression",
               "Type": "System.Linq.Expressions.Expression<System.Func<T1, T0>>"
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T1>",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": [
@@ -22874,6 +25225,119 @@
             }
           ],
           "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TNewRelatedEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Collections.Generic.IEnumerable<T0>>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "OwnsMany<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T1, System.Collections.Generic.IEnumerable<T0>>>"
+            },
+            {
+              "Name": "buildAction",
+              "Type": "System.Action<Microsoft.EntityFrameworkCore.Metadata.Builders.CollectionOwnershipBuilder<T1, T0>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceOwnershipBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasOne<T0>",
+          "Parameters": [
+            {
+              "Name": "navigationName",
+              "Type": "System.String"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceNavigationBuilder<T1, T0>",
           "Virtual": true,
           "Visibility": "Public",
           "GenericParameter": [
@@ -22964,6 +25428,21 @@
             {
               "Name": "data",
               "Type": "T1[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.DataBuilder<T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasData",
+          "Parameters": [
+            {
+              "Name": "data",
+              "Type": "System.Object[]",
               "IsParams": true
             }
           ],
@@ -23074,8 +25553,8 @@
           "Name": "HasForeignKey",
           "Parameters": [
             {
-              "Name": "dependentEntityType",
-              "Type": "System.Type"
+              "Name": "dependentEntityTypeName",
+              "Type": "System.String"
             },
             {
               "Name": "foreignKeyPropertyNames",
@@ -23093,8 +25572,8 @@
           "Name": "HasForeignKey",
           "Parameters": [
             {
-              "Name": "dependentEntityTypeName",
-              "Type": "System.String"
+              "Name": "dependentEntityType",
+              "Type": "System.Type"
             },
             {
               "Name": "foreignKeyPropertyNames",
@@ -23156,8 +25635,8 @@
           "Name": "HasPrincipalKey",
           "Parameters": [
             {
-              "Name": "principalEntityType",
-              "Type": "System.Type"
+              "Name": "principalEntityTypeName",
+              "Type": "System.String"
             },
             {
               "Name": "keyPropertyNames",
@@ -23175,8 +25654,8 @@
           "Name": "HasPrincipalKey",
           "Parameters": [
             {
-              "Name": "principalEntityTypeName",
-              "Type": "System.String"
+              "Name": "principalEntityType",
+              "Type": "System.Type"
             },
             {
               "Name": "keyPropertyNames",
@@ -23532,6 +26011,25 @@
           "Name": "HasForeignKey",
           "Parameters": [
             {
+              "Name": "dependentEntityTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "foreignKeyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasForeignKey",
+          "Parameters": [
+            {
               "Name": "dependentEntityType",
               "Type": "System.Type"
             },
@@ -23570,6 +26068,46 @@
         },
         {
           "Kind": "Method",
+          "Name": "HasForeignKey<T0>",
+          "Parameters": [
+            {
+              "Name": "foreignKeyExpression",
+              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Object>>"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": [
+            {
+              "ParameterName": "TDependentEntity",
+              "ParameterPosition": 0,
+              "Class": true,
+              "BaseTypeOrInterfaces": []
+            }
+          ]
+        },
+        {
+          "Kind": "Method",
+          "Name": "HasPrincipalKey",
+          "Parameters": [
+            {
+              "Name": "principalEntityTypeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "keyPropertyNames",
+              "Type": "System.String[]",
+              "IsParams": true
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "HasPrincipalKey",
           "Parameters": [
             {
@@ -23603,65 +26141,6 @@
           "GenericParameter": [
             {
               "ParameterName": "TPrincipalEntity",
-              "ParameterPosition": 0,
-              "Class": true,
-              "BaseTypeOrInterfaces": []
-            }
-          ]
-        },
-        {
-          "Kind": "Method",
-          "Name": "HasForeignKey",
-          "Parameters": [
-            {
-              "Name": "dependentEntityTypeName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "foreignKeyPropertyNames",
-              "Type": "System.String[]",
-              "IsParams": true
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "HasPrincipalKey",
-          "Parameters": [
-            {
-              "Name": "principalEntityTypeName",
-              "Type": "System.String"
-            },
-            {
-              "Name": "keyPropertyNames",
-              "Type": "System.String[]",
-              "IsParams": true
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "HasForeignKey<T0>",
-          "Parameters": [
-            {
-              "Name": "foreignKeyExpression",
-              "Type": "System.Linq.Expressions.Expression<System.Func<T0, System.Object>>"
-            }
-          ],
-          "ReturnType": "Microsoft.EntityFrameworkCore.Metadata.Builders.ReferenceReferenceBuilder<T0, T1>",
-          "Virtual": true,
-          "Visibility": "Public",
-          "GenericParameter": [
-            {
-              "ParameterName": "TDependentEntity",
               "ParameterPosition": 0,
               "Class": true,
               "BaseTypeOrInterfaces": []
@@ -24151,9 +26630,59 @@
       "Visibility": "Public",
       "Kind": "Class",
       "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension"
+        "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtensionWithDebugInfo"
       ],
       "Members": [
+        {
+          "Kind": "Method",
+          "Name": "ApplyServices",
+          "Parameters": [
+            {
+              "Name": "services",
+              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
+            }
+          ],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "GetServiceProviderHashCode",
+          "Parameters": [],
+          "ReturnType": "System.Int64",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "Validate",
+          "Parameters": [
+            {
+              "Name": "options",
+              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions"
+            }
+          ],
+          "ReturnType": "System.Void",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_LogFragment",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Virtual": true,
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
         {
           "Kind": "Method",
           "Name": "Clone",
@@ -24249,6 +26778,20 @@
         },
         {
           "Kind": "Method",
+          "Name": "WithDetailedErrorsEnabled",
+          "Parameters": [
+            {
+              "Name": "detailedErrorsEnabled",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "Microsoft.EntityFrameworkCore.Infrastructure.CoreOptionsExtension",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "WithQueryTrackingBehavior",
           "Parameters": [
             {
@@ -24310,6 +26853,15 @@
         {
           "Kind": "Method",
           "Name": "get_IsSensitiveDataLoggingEnabled",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_DetailedErrorsEnabled",
           "Parameters": [],
           "ReturnType": "System.Boolean",
           "Virtual": true,
@@ -24399,51 +26951,16 @@
         },
         {
           "Kind": "Method",
-          "Name": "ApplyServices",
+          "Name": "PopulateDebugInfo",
           "Parameters": [
             {
-              "Name": "services",
-              "Type": "Microsoft.Extensions.DependencyInjection.IServiceCollection"
-            }
-          ],
-          "ReturnType": "System.Boolean",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "GetServiceProviderHashCode",
-          "Parameters": [],
-          "ReturnType": "System.Int64",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "Validate",
-          "Parameters": [
-            {
-              "Name": "options",
-              "Type": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptions"
+              "Name": "debugInfo",
+              "Type": "System.Collections.Generic.IDictionary<System.String, System.String>"
             }
           ],
           "ReturnType": "System.Void",
           "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
-          "Visibility": "Public",
-          "GenericParameter": []
-        },
-        {
-          "Kind": "Method",
-          "Name": "get_LogFragment",
-          "Parameters": [],
-          "ReturnType": "System.String",
-          "Virtual": true,
-          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension",
+          "ImplementedInterface": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtensionWithDebugInfo",
           "Visibility": "Public",
           "GenericParameter": []
         },
@@ -24513,6 +27030,30 @@
         {
           "Kind": "Method",
           "Name": "EnsureDeletedAsync",
+          "Parameters": [
+            {
+              "Name": "cancellationToken",
+              "Type": "System.Threading.CancellationToken",
+              "DefaultValue": "default(System.Threading.CancellationToken)"
+            }
+          ],
+          "ReturnType": "System.Threading.Tasks.Task<System.Boolean>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CanConnect",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CanConnectAsync",
           "Parameters": [
             {
               "Name": "cancellationToken",
@@ -25106,6 +27647,25 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.ICoreSingletonOptions",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Infrastructure.ISingletonOptions"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_AreDetailedErrorsEnabled",
+          "Parameters": [],
+          "ReturnType": "System.Boolean",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextFactory<T0>",
       "Visibility": "Public",
       "Kind": "Interface",
@@ -25242,6 +27802,30 @@
           "Name": "get_LogFragment",
           "Parameters": [],
           "ReturnType": "System.String",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtensionWithDebugInfo",
+      "Visibility": "Public",
+      "Kind": "Interface",
+      "Abstract": true,
+      "ImplementedInterfaces": [
+        "Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsExtension"
+      ],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "PopulateDebugInfo",
+          "Parameters": [
+            {
+              "Name": "debugInfo",
+              "Type": "System.Collections.Generic.IDictionary<System.String, System.String>"
+            }
+          ],
+          "ReturnType": "System.Void",
           "GenericParameter": []
         }
       ],
@@ -27380,6 +29964,16 @@
         },
         {
           "Kind": "Field",
+          "Name": "ServiceProviderDebugInfo",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.EventId",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
           "Name": "ExecutionStrategyRetrying",
           "Parameters": [],
           "ReturnType": "Microsoft.Extensions.Logging.EventId",
@@ -27560,6 +30154,16 @@
         },
         {
           "Kind": "Field",
+          "Name": "RedundantForeignKeyWarning",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.EventId",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
           "Name": "DetectChangesStarting",
           "Parameters": [],
           "ReturnType": "Microsoft.Extensions.Logging.EventId",
@@ -27681,6 +30285,16 @@
         {
           "Kind": "Field",
           "Name": "SaveChangesCompleted",
+          "Parameters": [],
+          "ReturnType": "Microsoft.Extensions.Logging.EventId",
+          "Static": true,
+          "ReadOnly": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Field",
+          "Name": "OptimisticConcurrencyException",
           "Parameters": [],
           "ReturnType": "Microsoft.Extensions.Logging.EventId",
           "Static": true,
@@ -30478,6 +33092,58 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.Diagnostics.ServiceProviderDebugInfoEventData",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.Diagnostics.EventData",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Method",
+          "Name": "get_NewDebugInfo",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IDictionary<System.String, System.String>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "get_CachedDebugInfos",
+          "Parameters": [],
+          "ReturnType": "System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>",
+          "Virtual": true,
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "eventDefinition",
+              "Type": "Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase"
+            },
+            {
+              "Name": "messageGenerator",
+              "Type": "System.Func<Microsoft.EntityFrameworkCore.Diagnostics.EventDefinitionBase, Microsoft.EntityFrameworkCore.Diagnostics.EventData, System.String>"
+            },
+            {
+              "Name": "newDebugInfo",
+              "Type": "System.Collections.Generic.IDictionary<System.String, System.String>"
+            },
+            {
+              "Name": "cachedDebugInfos",
+              "Type": "System.Collections.Generic.IList<System.Collections.Generic.IDictionary<System.String, System.String>>"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": []
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.Diagnostics.ServiceProviderEventData",
       "Visibility": "Public",
       "Kind": "Class",
@@ -31066,11 +33732,35 @@
           "GenericParameter": []
         },
         {
+          "Kind": "Method",
+          "Name": "get_ForProvider",
+          "Parameters": [],
+          "ReturnType": "System.String",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
           "Kind": "Constructor",
           "Name": ".ctor",
           "Parameters": [
             {
               "Name": "typeName",
+              "Type": "System.String"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "typeName",
+              "Type": "System.String"
+            },
+            {
+              "Name": "forProvider",
               "Type": "System.String"
             }
           ],
@@ -31133,11 +33823,35 @@
       "GenericParameters": []
     },
     {
+      "Name": "Microsoft.EntityFrameworkCore.ChangeTracking.ArrayStructuralComparer<T0>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<T0[]>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "TElement",
+          "ParameterPosition": 0,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
+    },
+    {
       "Name": "Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker",
       "Visibility": "Public",
       "Kind": "Class",
       "ImplementedInterfaces": [
-        "Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>"
+        "Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>",
+        "Microsoft.EntityFrameworkCore.Infrastructure.IResettableService"
       ],
       "Members": [
         {
@@ -32325,6 +35039,29 @@
         }
       ],
       "GenericParameters": []
+    },
+    {
+      "Name": "Microsoft.EntityFrameworkCore.ChangeTracking.GeometryValueComparer<T0>",
+      "Visibility": "Public",
+      "Kind": "Class",
+      "BaseType": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer<T0>",
+      "ImplementedInterfaces": [],
+      "Members": [
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [],
+          "Visibility": "Public",
+          "GenericParameter": []
+        }
+      ],
+      "GenericParameters": [
+        {
+          "ParameterName": "TGeometry",
+          "ParameterPosition": 0,
+          "BaseTypeOrInterfaces": []
+        }
+      ]
     },
     {
       "Name": "Microsoft.EntityFrameworkCore.ChangeTracking.IEntityEntryGraphIterator",
@@ -34395,6 +37132,29 @@
         },
         {
           "Kind": "Method",
+          "Name": "CreateDefaultEqualsExpression",
+          "Parameters": [],
+          "ReturnType": "System.Linq.Expressions.Expression<System.Func<T0, T0, System.Boolean>>",
+          "Static": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
+          "Name": "CreateDefaultHashCodeExpression",
+          "Parameters": [
+            {
+              "Name": "favorStructuralComparisons",
+              "Type": "System.Boolean"
+            }
+          ],
+          "ReturnType": "System.Linq.Expressions.Expression<System.Func<T0, System.Int32>>",
+          "Static": true,
+          "Visibility": "Protected",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "Equals",
           "Parameters": [
             {
@@ -34727,6 +37487,14 @@
         },
         {
           "Kind": "Method",
+          "Name": "get_StructuralComparer",
+          "Parameters": [],
+          "ReturnType": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer",
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Method",
           "Name": "get_ValueGeneratorFactory",
           "Parameters": [],
           "ReturnType": "System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>",
@@ -34773,6 +37541,38 @@
               "Name": "valueGeneratorFactory",
               "Type": "System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>",
               "DefaultValue": "null"
+            }
+          ],
+          "Visibility": "Public",
+          "GenericParameter": []
+        },
+        {
+          "Kind": "Constructor",
+          "Name": ".ctor",
+          "Parameters": [
+            {
+              "Name": "clrType",
+              "Type": "System.Type"
+            },
+            {
+              "Name": "converter",
+              "Type": "Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter"
+            },
+            {
+              "Name": "comparer",
+              "Type": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer"
+            },
+            {
+              "Name": "keyComparer",
+              "Type": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer"
+            },
+            {
+              "Name": "structuralComparer",
+              "Type": "Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer"
+            },
+            {
+              "Name": "valueGeneratorFactory",
+              "Type": "System.Func<Microsoft.EntityFrameworkCore.Metadata.IProperty, Microsoft.EntityFrameworkCore.Metadata.IEntityType, Microsoft.EntityFrameworkCore.ValueGeneration.ValueGenerator>"
             }
           ],
           "Visibility": "Public",

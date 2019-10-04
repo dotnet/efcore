@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using System.Diagnostics;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Hosting.WebHostBuilderFactory;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting.WebHostBuilderFactory;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal
 {

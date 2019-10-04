@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -21,14 +22,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public RelationalExpressionPrinter()
-            : base(
+        {
+            ConstantPrinters.InsertRange(
+                0,
                 new List<ConstantPrinterBase>
                 {
                     new CommandBuilderPrinter(),
                     new EntityTrackingInfoListPrinter(),
-                    new MetadataPropertyCollectionPrinter()
-                })
-        {
+                    new MetadataPropertyCollectionPrinter(),
+                    new ShaperPrinter(this)
+                });
         }
 
         private class CommandBuilderPrinter : ConstantPrinterBase
@@ -123,6 +126,32 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     stringBuilder.DecrementIndent();
                     stringBuilder.Append("}");
+
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        private class ShaperPrinter : ConstantPrinterBase
+        {
+            private readonly RelationalExpressionPrinter _expressionPrinter;
+
+            public ShaperPrinter(RelationalExpressionPrinter expressionPrinter)
+            {
+                _expressionPrinter = expressionPrinter;
+            }
+
+            public override bool TryPrintConstant(
+                ConstantExpression constantExpression,
+                IndentedStringBuilder stringBuilder,
+                bool removeFormatting)
+            {
+                if (constantExpression.Value is Shaper shaper
+                    && shaper.MaterializerExpression != null)
+                {
+                    _expressionPrinter.Visit(shaper.MaterializerExpression);
 
                     return true;
                 }

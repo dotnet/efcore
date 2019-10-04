@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -349,8 +350,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             Rename(
                 Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
-                    "." +
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                "." +
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
                 operation.NewName,
                 "INDEX",
                 builder);
@@ -538,8 +539,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         var property = FindProperty(model, operation.Schema, operation.Table, c);
 
-                        return property == null // Couldn't bind column to property
-                               || property.IsColumnNullable();
+                        return property?.IsColumnNullable() != false;
                     })
                 .ToList();
 
@@ -569,7 +569,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 base.Generate(operation, model, builder, terminate: false);
 
-                if (operation.Filter == null && UseLegacyIndexFilters(model))
+                if (operation.Filter == null
+                    && UseLegacyIndexFilters(model))
                 {
                     var clustered = operation[SqlServerAnnotationNames.Clustered] as bool?;
                     if (operation.IsUnique
@@ -645,8 +646,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
                         "CREATE SCHEMA " +
-                            Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name) +
-                            Dependencies.SqlGenerationHelper.StatementTerminator))
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name) +
+                        Dependencies.SqlGenerationHelper.StatementTerminator))
                 .Append(")")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
@@ -893,6 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     builder.AppendLine("END");
                 }
+
                 builder.AppendLine("END");
             }
 
@@ -1057,8 +1059,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             Rename(
                 Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
-                    "." +
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                "." +
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
                 operation.NewName,
                 "COLUMN",
                 builder);
@@ -1162,8 +1164,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" [name] IN (")
                 .Append(string.Join(", ", operation.Columns.Select(stringTypeMapping.GenerateSqlLiteral)))
                 .Append(") AND [object_id] = OBJECT_ID(")
-                .Append(stringTypeMapping.GenerateSqlLiteral(
-                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
+                .Append(
+                    stringTypeMapping.GenerateSqlLiteral(
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)))
                 .AppendLine("))");
 
             using (builder.Indent())
@@ -1343,53 +1346,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="defaultValue"> The default value for the column. </param>
         /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
         /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
-        /// <param name="annotatable"> The <see cref="MigrationOperation" /> to use to find any custom annotations. </param>
-        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
-        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
-        protected override void ColumnDefinition(
-            string schema,
-            string table,
-            string name,
-            Type clrType,
-            string type,
-            bool? unicode,
-            int? maxLength,
-            bool rowVersion,
-            bool nullable,
-            object defaultValue,
-            string defaultValueSql,
-            string computedColumnSql,
-            IAnnotatable annotatable,
-            IModel model,
-            MigrationCommandListBuilder builder)
-            => ColumnDefinition(schema, table, name, clrType, type, unicode, maxLength, null,
-                rowVersion, nullable, defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
-
-        /// <summary>
-        ///     Generates a SQL fragment for a column definition for the given column metadata.
-        /// </summary>
-        /// <param name="schema"> The schema that contains the table, or <c>null</c> to use the default schema. </param>
-        /// <param name="table"> The table that contains the column. </param>
-        /// <param name="name"> The column name. </param>
-        /// <param name="clrType"> The CLR <see cref="Type" /> that the column is mapped to. </param>
-        /// <param name="type"> The database/store type for the column, or <c>null</c> if none has been specified. </param>
-        /// <param name="unicode">
-        ///     Indicates whether or not the column can contain Unicode data, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="maxLength">
-        ///     The maximum amount of data that the column can contain, or <c>null</c> if this is not applicable or not specified.
-        /// </param>
-        /// <param name="rowVersion">
-        ///     Indicates whether or not this column is an automatic concurrency token, such as a SQL Server timestamp/rowversion.
-        /// </param>
-        /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
-        /// <param name="defaultValue"> The default value for the column. </param>
-        /// <param name="defaultValueSql"> The SQL expression to use for the column's default constraint. </param>
-        /// <param name="computedColumnSql"> The SQL expression to use to compute the column value. </param>
         /// <param name="identity"> Indicates whether or not the column is an Identity column. </param>
         /// <param name="annotatable"> The <see cref="MigrationOperation" /> to use to find any custom annotations. </param>
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        [Obsolete("Use the overload with most parameters")]
         protected virtual void ColumnDefinition(
             [CanBeNull] string schema,
             [NotNull] string table,
@@ -1407,7 +1368,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [NotNull] IAnnotatable annotatable,
             [CanBeNull] IModel model,
             [NotNull] MigrationCommandListBuilder builder)
-            => ColumnDefinition(schema, table, name, clrType, type, unicode, maxLength, null,
+            => ColumnDefinition(
+                schema, table, name, clrType, type, unicode, maxLength, null,
                 rowVersion, nullable, defaultValue, defaultValueSql, computedColumnSql, identity, annotatable, model, builder);
 
         /// <summary>
@@ -1565,10 +1527,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder
                     .AppendLine("DECLARE @defaultSchema sysname = SCHEMA_NAME();")
                     .Append("EXEC(")
-                    .Append("N'ALTER SCHEMA ' + @defaultSchema + ")
+                    .Append("N'ALTER SCHEMA [' + @defaultSchema + ")
                     .Append(
                         stringTypeMapping.GenerateSqlLiteral(
-                            " TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
+                            "] TRANSFER " + Dependencies.SqlGenerationHelper.DelimitIdentifier(name, schema) + ";"))
                     .AppendLine(");");
             }
             else
@@ -1599,6 +1561,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 builder.Append(clustered.Value ? "CLUSTERED " : "NONCLUSTERED ");
             }
+        }
+
+        /// <summary>
+        ///     Generates a SQL fragment for extras (filter, included columns, options) of an index from a <see cref="CreateIndexOperation" />.
+        /// </summary>
+        /// <param name="operation"> The operation. </param>
+        /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
+        /// <param name="builder"> The command builder to use to add the SQL fragment. </param>
+        protected override void IndexOptions(CreateIndexOperation operation, IModel model, MigrationCommandListBuilder builder)
+        {
+            if (operation[SqlServerAnnotationNames.Include] is IReadOnlyList<string> includeProperties && includeProperties.Count > 0)
+            {
+                builder.Append(" INCLUDE (");
+                for (var i = 0; i < includeProperties.Count; i++)
+                {
+                    builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(includeProperties[i]));
+
+                    if (i != includeProperties.Count - 1)
+                    {
+                        builder.Append(", ");
+                    }
+                }
+                builder.Append(")");
+            }
+
+            base.IndexOptions(operation, model, builder);
         }
 
         /// <summary>
@@ -1663,8 +1651,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
                         "ALTER TABLE " +
-                            Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
-                            " DROP CONSTRAINT ["))
+                        Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
+                        " DROP CONSTRAINT ["))
                 .Append(" + ")
                 .Append(variable)
                 .Append(" + ']")
@@ -1692,7 +1680,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var createIndexOperations = _operations.SkipWhile(o => o != currentOperation).Skip(1)
                 .OfType<CreateIndexOperation>().ToList();
-            foreach (var index in property.GetContainingIndexes())
+            foreach (var index in property.DeclaringEntityType.GetIndexes().Concat(property.DeclaringEntityType.GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes())))
             {
                 var indexName = index.Relational().Name;
                 if (createIndexOperations.Any(o => o.Name == indexName))
@@ -1700,7 +1688,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     continue;
                 }
 
-                yield return index;
+                if (index.Properties.Any(p => p == property))
+                {
+                    yield return index;
+                }
+                else if (index.SqlServer().IncludeProperties is IReadOnlyList<string> includeProperties)
+                {
+                    if (includeProperties.Contains(property.Name))
+                    {
+                        yield return index;
+                    }
+                }
             }
         }
 
@@ -1762,7 +1760,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         /// <summary>
-        ///     Checks whether or not <see cref="CreateIndexOperation"/> should have a filter generated for it by
+        ///     Checks whether or not <see cref="CreateIndexOperation" /> should have a filter generated for it by
         ///     Migrations.
         /// </summary>
         /// <param name="model"> The target model. </param>

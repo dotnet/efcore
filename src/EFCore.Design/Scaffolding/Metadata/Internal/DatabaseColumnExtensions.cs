@@ -41,12 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
                 return true;
             }
 
-            if (table.Indexes.Any(uc => uc.Columns.Contains(column)))
-            {
-                return true;
-            }
-
-            return false;
+            return table.Indexes.Any(uc => uc.Columns.Contains(column));
         }
 
         /// <summary>

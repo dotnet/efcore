@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public override Expression Visit(Expression node)
         {
-            if (node is SelectExpression selectExpression && selectExpression.Projection.Count == 1)
+            if (node is SelectExpression selectExpression
+                && selectExpression.Projection.Count == 1)
             {
                 var conditionalExpression = selectExpression.Projection.First() as ConditionalExpression;
 
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return Visit(conditionalExpression.Test);
                 }
             }
+
             return base.Visit(node);
         }
     }

@@ -54,6 +54,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.True(expressionComparer.Equals(e1, e1));
         }
 
+        [Fact]
+        public void Default_expressions_are_compared_correctly()
+        {
+            var expressionComparer = ExpressionEqualityComparer.Instance;
+            
+            Expression e1 = Expression.Default(typeof(int));
+            Expression e2 = Expression.Default(typeof(int));
+            Expression e3 = Expression.Default(typeof(string));            
+
+            Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e2));
+            Assert.NotEqual(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e3));
+            Assert.True(expressionComparer.Equals(e1, e2));
+            Assert.False(expressionComparer.Equals(e1, e3));
+            Assert.Equal(expressionComparer.GetHashCode(e1), expressionComparer.GetHashCode(e1));
+            Assert.True(expressionComparer.Equals(e1, e1));
+        }
+
         private class Node
         {
             [UsedImplicitly]

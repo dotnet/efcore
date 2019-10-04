@@ -33,13 +33,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TValue), "value");
+            var memberType = memberInfo.GetMemberType();
+            var convertedParameter = memberType == typeof(TValue)
+                ? (Expression)valueParameter
+                : Expression.Convert(valueParameter, memberType);
 
             Expression writeExpression;
             if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
             {
                 writeExpression = Expression.Assign(
                     Expression.MakeMemberAccess(entityParameter, memberInfo),
-                    valueParameter);
+                    convertedParameter);
             }
             else
             {
@@ -47,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
                 writeExpression = Expression.Block(
-                    new[] { converted }, 
+                    new[] { converted },
                     new List<Expression>
                     {
                         Expression.Assign(
@@ -57,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Expression.ReferenceNotEqual(converted, Expression.Constant(null)),
                             Expression.Assign(
                                 Expression.MakeMemberAccess(converted, memberInfo),
-                                valueParameter))
+                                convertedParameter))
                     });
             }
 

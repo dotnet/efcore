@@ -105,16 +105,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder.Entity<Product>(
                 e =>
-                    {
-                        e.Ignore(p => p.Category);
-                        e.Ignore(p => p.FeaturedProductCategory);
-                    });
+                {
+                    e.Ignore(p => p.Category);
+                    e.Ignore(p => p.FeaturedProductCategory);
+                });
             builder.Entity<Category>(
                 e =>
-                    {
-                        e.Ignore(c => c.Products);
-                        e.Ignore(c => c.FeaturedProduct);
-                    });
+                {
+                    e.Ignore(c => c.Products);
+                    e.Ignore(c => c.FeaturedProduct);
+                });
 
             var categoryType = model.FindEntityType(typeof(Category));
             var productType = model.FindEntityType(typeof(Product));
@@ -127,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 categoryFk.HasPrincipalToDependent(Category.ProductsProperty);
             }
+
             if (createCategory)
             {
                 categoryFk.HasDependentToPrincipal(Product.CategoryProperty);
@@ -136,6 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 featuredProductFk.HasPrincipalToDependent(Product.FeaturedProductCategoryProperty);
             }
+
             if (createFeaturedProduct)
             {
                 featuredProductFk.HasDependentToPrincipal(Category.FeaturedProductProperty);

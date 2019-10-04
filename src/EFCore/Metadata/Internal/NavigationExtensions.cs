@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (navigation.FindInverse() != null)
             {
-                builder.Append(" Inverse: " + navigation.FindInverse().Name);
+                builder.Append(" Inverse: ").Append(navigation.FindInverse().Name);
             }
 
             if (navigation.GetPropertyAccessMode() != null)

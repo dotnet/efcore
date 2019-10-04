@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
             => _typeMapper.IsTypeMapped(mappingInfo.ClrType)
                 ? new ConcreteTypeMapping(mappingInfo.ClrType)
-                : null;
+                : base.FindMapping(mappingInfo);
 
         private class ConcreteTypeMapping : CoreTypeMapping
         {

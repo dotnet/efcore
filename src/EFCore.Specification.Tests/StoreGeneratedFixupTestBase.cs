@@ -4230,7 +4230,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "StoreGeneratedFixup";
 
@@ -4247,7 +4247,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey<Child>(e => new { e.ParentId1, e.ParentId2 });
                         });
 
-                modelBuilder.Entity<Child>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<Child>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
                 modelBuilder.Entity<ParentPN>(
                     b =>
@@ -4258,7 +4258,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey<ChildPN>(e => new { e.ParentId1, e.ParentId2 });
                         });
 
-                modelBuilder.Entity<ChildPN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<ChildPN>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
                 modelBuilder.Entity<ParentDN>(
                     b =>
@@ -4269,7 +4269,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey<ChildDN>(e => new { e.ParentId1, e.ParentId2 });
                         });
 
-                modelBuilder.Entity<ChildDN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<ChildDN>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
                 modelBuilder.Entity<ParentNN>(
                     b =>
@@ -4280,7 +4280,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey<ChildNN>(e => new { e.ParentId1, e.ParentId2 });
                         });
 
-                modelBuilder.Entity<ChildNN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<ChildNN>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
                 modelBuilder.Entity<CategoryDN>(
                     b =>
@@ -4291,7 +4291,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
                         });
 
-                modelBuilder.Entity<ProductDN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<ProductDN>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
                 modelBuilder.Entity<CategoryPN>(
                     b =>
@@ -4302,7 +4302,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
                         });
 
-                modelBuilder.Entity<ProductPN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<ProductPN>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
                 modelBuilder.Entity<CategoryNN>(
                     b =>
@@ -4313,7 +4313,7 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
                         });
 
-                modelBuilder.Entity<ProductNN>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<ProductNN>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
                 modelBuilder.Entity<Category>(
                     b =>
@@ -4324,9 +4324,9 @@ namespace Microsoft.EntityFrameworkCore
                                 .HasForeignKey(e => new { e.CategoryId1, e.CategoryId2 });
                         });
 
-                modelBuilder.Entity<Product>(b => { b.HasKey(e => new { e.Id1, e.Id2 }); });
+                modelBuilder.Entity<Product>(b => b.HasKey(e => new { e.Id1, e.Id2 }));
 
-                modelBuilder.Entity<Level>(eb => { eb.HasKey(l => new { l.GameId, l.Id }); });
+                modelBuilder.Entity<Level>(eb => eb.HasKey(l => new { l.GameId, l.Id }));
 
                 modelBuilder.Entity<GameEntity>();
 

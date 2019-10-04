@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
 
             commandStringBuilder
                 .Append("SELECT changes()")
-                .Append(SqlGenerationHelper.StatementTerminator).AppendLine()
+                .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
 
             return ResultSetMapping.LastInResultSet;
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
 
-            commandStringBuilder.Append("changes() = " + expectedRowsAffected);
+            commandStringBuilder.Append("changes() = ").Append(expectedRowsAffected);
         }
 
         /// <summary>

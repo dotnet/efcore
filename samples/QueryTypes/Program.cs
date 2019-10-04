@@ -111,7 +111,7 @@ namespace Samples
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Query<BlogPostsCount>().ToTable("View_BlogPostCounts")
+                .Query<BlogPostsCount>().ToView("View_BlogPostCounts")
                 .Property(v => v.BlogName).HasColumnName("Name");
         }
         #endregion

@@ -219,6 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration(nameof(DefaultValueSql), Property.Name, nameof(DefaultValue)));
                 }
+
                 if (GetComputedColumnSql(false) != null)
                 {
                     throw new InvalidOperationException(
@@ -323,6 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration(nameof(ComputedColumnSql), Property.Name, nameof(DefaultValue)));
                 }
+
                 if (GetDefaultValueSql(false) != null)
                 {
                     throw new InvalidOperationException(
@@ -446,6 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingColumnServerGeneration(nameof(DefaultValue), Property.Name, nameof(DefaultValueSql)));
                 }
+
                 if (GetComputedColumnSql(false) != null)
                 {
                     throw new InvalidOperationException(
@@ -496,6 +499,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => Annotations.SetAnnotation(
                 RelationalAnnotationNames.IsFixedLength,
                 fixedLength);
-
     }
 }

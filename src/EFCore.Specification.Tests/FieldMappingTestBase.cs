@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,21 +22,103 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        [Fact]
-        public virtual void Include_collection_auto_props()
+        protected interface IUser2
         {
-            using (var context = CreateContext())
+        }
+
+        protected class User2 : IUser2
+        {
+            public int Id { get; set; }
+        }
+
+        protected class LoginSession
+        {
+            private object _id = 0;
+            private IUser2 _user;
+            private object _users;
+
+            public int Id
             {
-                AssertGraph(context.Set<BlogAuto>().Include(e => e.Posts).ToList());
+                get => (int)_id;
+                set => _id = value;
+            }
+
+            public virtual User2 User
+            {
+                get => (User2)_user;
+                set => _user = value;
+            }
+
+            public virtual ICollection<User2> Users
+            {
+                get => (ICollection<User2>)_users;
+                set => _users = value;
             }
         }
 
         [Fact]
-        public virtual void Include_reference_auto_props()
+        public virtual void Field_mapping_with_conversion_does_not_throw()
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostAuto>().Include(e => e.Blog).ToList());
+                var session = context.Set<LoginSession>().Include(e => e.User).Include(e => e.Users).Single();
+
+                var entry = context.Entry(session);
+
+                Assert.Same(session.User, entry.Reference(e => e.User).CurrentValue);
+                Assert.Same(session.Users.Single(), entry.Collection(e => e.Users).CurrentValue.Single());
+                Assert.Equal(session.Id, entry.Property(e => e.Id).CurrentValue);
+                Assert.Equal(session.Id, entry.Property(e => e.Id).OriginalValue);
+
+                var newUser = new User2();
+                var newUsers = new List<User2> { new User2() };
+
+                entry.Reference(e => e.User).CurrentValue = newUser;
+                entry.Collection(e => e.Users).CurrentValue = newUsers;
+
+                Assert.Same(newUser, session.User);
+                Assert.Same(newUsers, session.Users);
+
+                var newSession = new LoginSession { Id = 77 };
+                var newEntry = context.Entry(newSession);
+                newEntry.State = EntityState.Added;
+
+                Assert.Equal(77, newEntry.Property(e => e.Id).CurrentValue);
+                newEntry.Property(e => e.Id).CurrentValue = 78;
+                Assert.Equal(78, newSession.Id);
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_auto_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertBlogs(context.Set<BlogAuto>().AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_auto_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<BlogAuto>().Include(e => e.Posts).AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_auto_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostAuto>().Include(e => e.Blog).AsTracking(tracking).ToList());
             }
         }
 
@@ -47,37 +130,121 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_auto_props()
             => Load_reference<PostAuto>("Blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_auto_props()
-            => Query_with_conditional_constant<PostAuto>("BlogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_auto_props(bool tracking)
+            => Query_with_conditional_constant<PostAuto>("BlogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_auto_props()
-            => Query_with_conditional_param<PostAuto>("Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_auto_props(bool tracking)
+            => Query_with_conditional_param<PostAuto>("Title", tracking);
 
-        [Fact]
-        public virtual void Projection_auto_props()
-            => Projection<PostAuto>("Id", "Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_auto_props(bool tracking)
+            => Projection<PostAuto>("Id", "Title", tracking);
 
         [Fact]
         public virtual void Update_auto_props()
             => Update<BlogAuto>("Posts");
 
-        [Fact]
-        public virtual void Include_collection_full_props()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_hiding_props(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogFull>().Include(e => e.Posts).ToList());
+                AssertBlogs(context.Set<BlogHiding>().AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_hiding_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<BlogHiding>().Include(e => e.Posts).AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_hiding_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostHiding>().Include(e => e.Blog).AsTracking(tracking).ToList());
             }
         }
 
         [Fact]
-        public virtual void Include_reference_full_props()
+        public virtual void Load_collection_hiding_props()
+            => Load_collection<BlogHiding>("Posts");
+
+        [Fact]
+        public virtual void Load_reference_hiding_props()
+            => Load_reference<PostHiding>("Blog");
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_hiding_props(bool tracking)
+            => Query_with_conditional_constant<PostHiding>("BlogId", tracking);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_hiding_props(bool tracking)
+            => Query_with_conditional_param<PostHiding>("Title", tracking);
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_hiding_props(bool tracking)
+            => Projection<PostHiding>("Id", "Title", tracking);
+
+        [Fact]
+        public virtual void Update_hiding_props()
+            => Update<BlogHiding>("Posts");
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_full_props(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostFull>().Include(e => e.Blog).ToList());
+                AssertBlogs(context.Set<BlogFull>().AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_full_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<BlogFull>().Include(e => e.Posts).AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_full_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostFull>().Include(e => e.Blog).AsTracking(tracking).ToList());
             }
         }
 
@@ -89,37 +256,58 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_full_props()
             => Load_reference<PostFull>("Blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_full_props()
-            => Query_with_conditional_constant<PostFull>("BlogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_full_props(bool tracking)
+            => Query_with_conditional_constant<PostFull>("BlogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_full_props()
-            => Query_with_conditional_param<PostFull>("Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_full_props(bool tracking)
+            => Query_with_conditional_param<PostFull>("Title", tracking);
 
-        [Fact]
-        public virtual void Projection_full_props()
-            => Projection<PostFull>("Id", "Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_full_props(bool tracking)
+            => Projection<PostFull>("Id", "Title", tracking);
 
         [Fact]
         public virtual void Update_full_props()
             => Update<BlogFull>("Posts");
 
-        [Fact]
-        public virtual void Include_collection_full_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_full_props_with_named_fields(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogFullExplicit>().Include(e => e.Posts).ToList());
+                AssertBlogs(context.Set<BlogFullExplicit>().AsTracking(tracking).ToList());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_full_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_full_props_with_named_fields(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostFullExplicit>().Include(e => e.Blog).ToList());
+                AssertGraph(context.Set<BlogFullExplicit>().Include(e => e.Posts).AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_full_props_with_named_fields(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostFullExplicit>().Include(e => e.Blog).AsTracking(tracking).ToList());
             }
         }
 
@@ -131,37 +319,58 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_full_props_with_named_fields()
             => Load_reference<PostFullExplicit>("Blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_full_props_with_named_fields()
-            => Query_with_conditional_constant<PostFullExplicit>("BlogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_full_props_with_named_fields(bool tracking)
+            => Query_with_conditional_constant<PostFullExplicit>("BlogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_full_props_with_named_fields()
-            => Query_with_conditional_param<PostFullExplicit>("Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_full_props_with_named_fields(bool tracking)
+            => Query_with_conditional_param<PostFullExplicit>("Title", tracking);
 
-        [Fact]
-        public virtual void Projection_full_props_with_named_fields()
-            => Projection<PostFullExplicit>("Id", "Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_full_props_with_named_fields(bool tracking)
+            => Projection<PostFullExplicit>("Id", "Title", tracking);
 
         [Fact]
         public virtual void Update_full_props_with_named_fields()
             => Update<BlogFullExplicit>("Posts");
 
-        [Fact]
-        public virtual void Include_collection_read_only_props()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_read_only_props(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogReadOnly>().Include(e => e.Posts).ToList());
+                AssertBlogs(context.Set<BlogReadOnly>().AsTracking(tracking).ToList());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_read_only_props()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_read_only_props(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostReadOnly>().Include(e => e.Blog).ToList());
+                AssertGraph(context.Set<BlogReadOnly>().Include(e => e.Posts).AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_read_only_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostReadOnly>().Include(e => e.Blog).AsTracking(tracking).ToList());
             }
         }
 
@@ -173,37 +382,58 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_read_only_props()
             => Load_reference<PostReadOnly>("Blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_read_only_props()
-            => Query_with_conditional_constant<PostReadOnly>("BlogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_read_only_props(bool tracking)
+            => Query_with_conditional_constant<PostReadOnly>("BlogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_read_only_props()
-            => Query_with_conditional_param<PostReadOnly>("Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_read_only_props(bool tracking)
+            => Query_with_conditional_param<PostReadOnly>("Title", tracking);
 
-        [Fact]
-        public virtual void Projection_read_only_props()
-            => Projection<PostReadOnly>("Id", "Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_read_only_props(bool tracking)
+            => Projection<PostReadOnly>("Id", "Title", tracking);
 
         [Fact]
         public virtual void Update_read_only_props()
             => Update<BlogReadOnly>("Posts");
 
-        [Fact]
-        public virtual void Include_collection_read_only_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_read_only_props_with_named_fields(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogReadOnlyExplicit>().Include(e => e.Posts).ToList());
+                AssertBlogs(context.Set<BlogReadOnlyExplicit>().AsTracking(tracking).ToList());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_read_only_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_read_only_props_with_named_fields(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostReadOnlyExplicit>().Include(e => e.Blog).ToList());
+                AssertGraph(context.Set<BlogReadOnlyExplicit>().Include(e => e.Posts).AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_read_only_props_with_named_fields(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostReadOnlyExplicit>().Include(e => e.Blog).AsTracking(tracking).ToList());
             }
         }
 
@@ -219,22 +449,28 @@ namespace Microsoft.EntityFrameworkCore
             Load_reference<PostReadOnlyExplicit>("Blog");
         }
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_read_only_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_read_only_props_with_named_fields(bool tracking)
         {
-            Query_with_conditional_constant<PostReadOnlyExplicit>("BlogId");
+            Query_with_conditional_constant<PostReadOnlyExplicit>("BlogId", tracking);
         }
 
-        [Fact]
-        public virtual void Query_with_conditional_param_read_only_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_read_only_props_with_named_fields(bool tracking)
         {
-            Query_with_conditional_param<PostReadOnlyExplicit>("Title");
+            Query_with_conditional_param<PostReadOnlyExplicit>("Title", tracking);
         }
 
-        [Fact]
-        public virtual void Projection_read_only_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_read_only_props_with_named_fields(bool tracking)
         {
-            Projection<PostReadOnlyExplicit>("Id", "Title");
+            Projection<PostReadOnlyExplicit>("Id", "Title", tracking);
         }
 
         [Fact]
@@ -243,21 +479,36 @@ namespace Microsoft.EntityFrameworkCore
             Update<BlogReadOnlyExplicit>("Posts");
         }
 
-        [Fact]
-        public virtual void Include_collection_write_only_props()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_write_only_props(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogWriteOnly>().Include("Posts").ToList());
+                AssertBlogs(context.Set<BlogWriteOnly>().AsTracking(tracking).ToList());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_write_only_props()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_write_only_props(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostWriteOnly>().Include("Blog").ToList());
+                AssertGraph(context.Set<BlogWriteOnly>().Include("Posts").AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_write_only_props(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostWriteOnly>().Include("Blog").AsTracking(tracking).ToList());
             }
         }
 
@@ -269,37 +520,58 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_write_only_props()
             => Load_reference<PostWriteOnly>("Blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_write_only_props()
-            => Query_with_conditional_constant<PostWriteOnly>("BlogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_write_only_props(bool tracking)
+            => Query_with_conditional_constant<PostWriteOnly>("BlogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_write_only_props()
-            => Query_with_conditional_param<PostWriteOnly>("Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_write_only_props(bool tracking)
+            => Query_with_conditional_param<PostWriteOnly>("Title", tracking);
 
-        [Fact]
-        public virtual void Projection_write_only_props()
-            => Projection<PostWriteOnly>("Id", "Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_write_only_props(bool tracking)
+            => Projection<PostWriteOnly>("Id", "Title", tracking);
 
         [Fact]
         public virtual void Update_write_only_props()
             => Update<BlogWriteOnly>("Posts");
 
-        [Fact]
-        public virtual void Include_collection_write_only_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_write_only_props_with_named_fields(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogWriteOnlyExplicit>().Include("Posts").ToList());
+                AssertBlogs(context.Set<BlogWriteOnlyExplicit>().AsTracking(tracking).ToList());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_write_only_props_with_named_fields()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_write_only_props_with_named_fields(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostWriteOnlyExplicit>().Include("Blog").ToList());
+                AssertGraph(context.Set<BlogWriteOnlyExplicit>().Include("Posts").AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_write_only_props_with_named_fields(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostWriteOnlyExplicit>().Include("Blog").AsTracking(tracking).ToList());
             }
         }
 
@@ -311,37 +583,58 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_write_only_props_with_named_fields()
             => Load_reference<PostWriteOnlyExplicit>("Blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_write_only_props_with_named_fields()
-            => Query_with_conditional_constant<PostWriteOnlyExplicit>("BlogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_write_only_props_with_named_fields(bool tracking)
+            => Query_with_conditional_constant<PostWriteOnlyExplicit>("BlogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_write_only_props_with_named_fields()
-            => Query_with_conditional_param<PostWriteOnlyExplicit>("Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_write_only_props_with_named_fields(bool tracking)
+            => Query_with_conditional_param<PostWriteOnlyExplicit>("Title", tracking);
 
-        [Fact]
-        public virtual void Projection_write_only_props_with_named_fields()
-            => Projection<PostWriteOnlyExplicit>("Id", "Title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_write_only_props_with_named_fields(bool tracking)
+            => Projection<PostWriteOnlyExplicit>("Id", "Title", tracking);
 
         [Fact]
         public virtual void Update_write_only_props_with_named_fields()
             => Update<BlogWriteOnlyExplicit>("Posts");
 
-        [Fact]
-        public virtual void Include_collection_fields_only()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_fields_only(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogFields>().Include(e => e.Posts).ToList());
+                AssertBlogs(context.Set<BlogFields>().AsTracking(tracking).ToList());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_fields_only()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_fields_only(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostFields>().Include(e => e.Blog).ToList());
+                AssertGraph(context.Set<BlogFields>().Include(e => e.Posts).AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_fields_only(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostFields>().Include(e => e.Blog).AsTracking(tracking).ToList());
             }
         }
 
@@ -353,37 +646,58 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_fields_only()
             => Load_reference<PostFields>("Blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_fields_only()
-            => Query_with_conditional_constant<PostFields>("_blogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_fields_only(bool tracking)
+            => Query_with_conditional_constant<PostFields>("_blogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_fields_only()
-            => Query_with_conditional_param<PostFields>("_title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_fields_only(bool tracking)
+            => Query_with_conditional_param<PostFields>("_title", tracking);
 
-        [Fact]
-        public virtual void Projection_fields_only()
-            => Projection<PostFields>("_id", "_title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_fields_only(bool tracking)
+            => Projection<PostFields>("_id", "_title", tracking);
 
         [Fact]
         public virtual void Update_fields_only()
             => Update<BlogFields>("Posts");
 
-        [Fact]
-        public virtual void Include_collection_fields_only_for_navs_too()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Simple_query_fields_only_for_navs_too(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<BlogNavFields>().Include("_posts").ToList());
+                AssertBlogs(context.Set<BlogNavFields>().AsTracking(tracking).ToList());
             }
         }
 
-        [Fact]
-        public virtual void Include_reference_fields_only_only_for_navs_too()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_fields_only_for_navs_too(bool tracking)
         {
             using (var context = CreateContext())
             {
-                AssertGraph(context.Set<PostNavFields>().Include("_blog").ToList());
+                AssertGraph(context.Set<BlogNavFields>().Include("_posts").AsTracking(tracking).ToList());
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_fields_only_only_for_navs_too(bool tracking)
+        {
+            using (var context = CreateContext())
+            {
+                AssertGraph(context.Set<PostNavFields>().Include("_blog").AsTracking(tracking).ToList());
             }
         }
 
@@ -395,17 +709,23 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Load_reference_fields_only_only_for_navs_too()
             => Load_reference<PostNavFields>("_blog");
 
-        [Fact]
-        public virtual void Query_with_conditional_constant_fields_only_only_for_navs_too()
-            => Query_with_conditional_constant<PostNavFields>("_blogId");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_fields_only_only_for_navs_too(bool tracking)
+            => Query_with_conditional_constant<PostNavFields>("_blogId", tracking);
 
-        [Fact]
-        public virtual void Query_with_conditional_param_fields_only_only_for_navs_too()
-            => Query_with_conditional_param<PostNavFields>("_title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_fields_only_only_for_navs_too(bool tracking)
+            => Query_with_conditional_param<PostNavFields>("_title", tracking);
 
-        [Fact]
-        public virtual void Projection_fields_only_only_for_navs_too()
-            => Projection<PostNavFields>("_id", "_title");
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_fields_only_only_for_navs_too(bool tracking)
+            => Projection<PostNavFields>("_id", "_title", tracking);
 
         [Fact]
         public virtual void Update_fields_only_only_for_navs_too()
@@ -443,12 +763,12 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected virtual void Query_with_conditional_constant<TPost>(string property)
+        protected virtual void Query_with_conditional_constant<TPost>(string property, bool tracking)
             where TPost : class, IPostAccesor, new()
         {
             using (var context = CreateContext())
             {
-                var posts = context.Set<TPost>().Where(p => EF.Property<int>(p, property) == 10).ToList();
+                var posts = context.Set<TPost>().Where(p => EF.Property<int>(p, property) == 10).AsTracking(tracking).ToList();
 
                 Assert.Equal(2, posts.Count);
 
@@ -462,13 +782,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected virtual void Query_with_conditional_param<TPost>(string property)
+        protected virtual void Query_with_conditional_param<TPost>(string property, bool tracking)
             where TPost : class, IPostAccesor, new()
         {
             var postTitle = "Post11";
             using (var context = CreateContext())
             {
-                var posts = context.Set<TPost>().Where(p => EF.Property<string>(p, property) == postTitle).ToList();
+                var posts = context.Set<TPost>().Where(p => EF.Property<string>(p, property) == postTitle).AsTracking(tracking).ToList();
 
                 Assert.Equal(1, posts.Count);
 
@@ -478,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected virtual void Projection<TPost>(string property1, string property2)
+        protected virtual void Projection<TPost>(string property1, string property2, bool tracking)
             where TPost : class, IPostAccesor, new()
         {
             using (var context = CreateContext())
@@ -488,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         Prop1 = EF.Property<int>(p, property1),
                         Prop2 = EF.Property<string>(p, property2)
-                    }).ToList();
+                    }).AsTracking(tracking).ToList();
 
                 Assert.Equal(4, posts.Count);
 
@@ -505,42 +825,49 @@ namespace Microsoft.EntityFrameworkCore
             TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext, UseTransaction,
                 context =>
+                {
+                    var blogs = context.Set<TBlog>().ToList();
+
+                    foreach (var blog in blogs)
                     {
-                        var blogs = context.Set<TBlog>().ToList();
+                        context.Entry(blog).Collection(navigation).Load();
 
-                        foreach (var blog in blogs)
+                        blog.AccessTitle += "Updated";
+
+                        foreach (var post in blog.AccessPosts)
                         {
-                            context.Entry(blog).Collection(navigation).Load();
-
-                            blog.AccessTitle += "Updated";
-
-                            foreach (var post in blog.AccessPosts)
-                            {
-                                post.AccessTitle += "Updated";
-                            }
+                            post.AccessTitle += "Updated";
                         }
+                    }
 
-                        AssertGraph(blogs, "Updated");
+                    AssertGraph(blogs, "Updated");
 
-                        context.SaveChanges();
+                    context.SaveChanges();
 
-                        AssertGraph(blogs, "Updated");
-                    },
+                    AssertGraph(blogs, "Updated");
+                },
                 context =>
+                {
+                    var blogs = context.Set<TBlog>().ToList();
+
+                    foreach (var blog in blogs)
                     {
-                        var blogs = context.Set<TBlog>().ToList();
+                        context.Entry(blog).Collection(navigation).Load();
+                    }
 
-                        foreach (var blog in blogs)
-                        {
-                            context.Entry(blog).Collection(navigation).Load();
-                        }
-
-                        AssertGraph(blogs, "Updated");
-                    });
+                    AssertGraph(blogs, "Updated");
+                });
         }
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {
+        }
+
+        protected void AssertBlogs(IEnumerable<IBlogAccesor> blogs)
+        {
+            Assert.Equal(2, blogs.Count());
+            Assert.Equal("Blog10", blogs.Single(e => e.AccessId == 10).AccessTitle);
+            Assert.Equal("Blog20", blogs.Single(e => e.AccessId == 20).AccessTitle);
         }
 
         protected void AssertGraph(IEnumerable<IBlogAccesor> blogs, string updated = "")
@@ -764,13 +1091,13 @@ namespace Microsoft.EntityFrameworkCore
             private string _title;
             private ICollection<PostNavFields> _posts;
 
-
             int IBlogAccesor.AccessId
             {
                 get => _id;
                 set => _id = value;
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             string IBlogAccesor.AccessTitle
             {
                 get => _title;
@@ -790,6 +1117,7 @@ namespace Microsoft.EntityFrameworkCore
             private int _id;
             private string _title;
             private int _blogId;
+
             private BlogNavFields _blog;
 
             int IPostAccesor.AccessId
@@ -798,12 +1126,14 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             string IPostAccesor.AccessTitle
             {
                 get => _title;
                 set => _title = value;
             }
 
+            // ReSharper disable once ConvertToAutoProperty
             int IPostAccesor.AccessBlogId
             {
                 get => _blogId;
@@ -1363,8 +1693,16 @@ namespace Microsoft.EntityFrameworkCore
                 AccessTitle = "Blog10",
                 AccessPosts = (IEnumerable<IPostAccesor>)new List<TPost>
                 {
-                    new TPost { AccessId = 10, AccessTitle = "Post10" },
-                    new TPost { AccessId = 11, AccessTitle = "Post11" }
+                    new TPost
+                    {
+                        AccessId = 10,
+                        AccessTitle = "Post10"
+                    },
+                    new TPost
+                    {
+                        AccessId = 11,
+                        AccessTitle = "Post11"
+                    }
                 }
             };
 
@@ -1380,19 +1718,142 @@ namespace Microsoft.EntityFrameworkCore
 
             return new List<TPost>
             {
-                new TPost { AccessId = 20, AccessTitle = "Post20", AccessBlog = blog },
-                new TPost { AccessId = 21, AccessTitle = "Post21", AccessBlog = blog }
+                new TPost
+                {
+                    AccessId = 20,
+                    AccessTitle = "Post20",
+                    AccessBlog = blog
+                },
+                new TPost
+                {
+                    AccessId = 21,
+                    AccessTitle = "Post21",
+                    AccessBlog = blog
+                }
             };
+        }
+
+        protected class BlogHidingBase
+        {
+            public object Id { get; set; } = 0;
+
+            public object Title { get; set; }
+            public object Posts { get; set; }
+        }
+
+        protected class BlogHiding : BlogHidingBase, IBlogAccesor
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public new int Id
+            {
+                get => base.Id is int value ? value : default;
+                set => base.Id = value;
+            }
+
+            public new string Title
+            {
+                get => base.Title is string value ? value : default;
+                set => base.Title = value;
+            }
+
+            public new IEnumerable<PostHiding> Posts
+            {
+                get => base.Posts is IEnumerable<PostHiding> value ? value : default;
+                set => base.Posts = value;
+            }
+
+            int IBlogAccesor.AccessId
+            {
+                get => Id;
+                set => Id = value;
+            }
+
+            string IBlogAccesor.AccessTitle
+            {
+                get => Title;
+                set => Title = value;
+            }
+
+            IEnumerable<IPostAccesor> IBlogAccesor.AccessPosts
+            {
+                get => Posts;
+                set => Posts = (IEnumerable<PostHiding>)value;
+            }
+        }
+
+        protected class PostHidingBase
+        {
+            public object Id { get; set; } = 0;
+
+            public object Title { get; set; }
+
+            public object BlogId { get; set; } = 0;
+            public object Blog { get; set; }
+        }
+
+        protected class PostHiding : PostHidingBase, IPostAccesor
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public new int Id
+            {
+                get => base.Id is int value ? value : default;
+                set => base.Id = value;
+            }
+
+            public new string Title
+            {
+                get => base.Title is string value ? value : default;
+                set => base.Title = value;
+            }
+
+            public new int BlogId
+            {
+                get => base.BlogId is int value ? value : default;
+                set => base.BlogId = value;
+            }
+
+            public new BlogHiding Blog
+            {
+                get => base.Blog is BlogHiding value ? value : default;
+                set => base.Blog = value;
+            }
+
+            int IPostAccesor.AccessId
+            {
+                get => Id;
+                set => Id = value;
+            }
+
+            string IPostAccesor.AccessTitle
+            {
+                get => Title;
+                set => Title = value;
+            }
+
+            int IPostAccesor.AccessBlogId
+            {
+                get => BlogId;
+                set => BlogId = value;
+            }
+
+            IBlogAccesor IPostAccesor.AccessBlog
+            {
+                get => Blog;
+                set => Blog = (BlogHiding)value;
+            }
         }
 
         protected DbContext CreateContext() => Fixture.CreateContext();
 
-        public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<DbContext>
+        public abstract class FieldMappingFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "FieldMapping";
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
+                modelBuilder.Entity<PostHiding>();
+                modelBuilder.Entity<BlogHiding>();
+
                 modelBuilder.Entity<PostAuto>();
                 modelBuilder.Entity<BlogAuto>();
 
@@ -1401,116 +1862,118 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<PostFullExplicit>(
                     b =>
-                        {
-                            b.Property(e => e.Id).HasField("_myid");
-                            b.Property(e => e.Title).HasField("_mytitle");
-                            b.Property(e => e.BlogId).HasField("_myblogId");
-                        });
+                    {
+                        b.Property(e => e.Id).HasField("_myid");
+                        b.Property(e => e.Title).HasField("_mytitle");
+                        b.Property(e => e.BlogId).HasField("_myblogId");
+                    });
 
                 modelBuilder.Entity<BlogFullExplicit>(
                     b =>
-                        {
-                            b.Property(e => e.Id).HasField("_myid");
-                            b.Property(e => e.Title).HasField("_mytitle");
-                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                        });
+                    {
+                        b.Property(e => e.Id).HasField("_myid");
+                        b.Property(e => e.Title).HasField("_mytitle");
+                        b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                    });
 
                 modelBuilder.Entity<PostFullExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                 modelBuilder.Entity<BlogFullExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
+
+                modelBuilder.Entity<LoginSession>().UsePropertyAccessMode(PropertyAccessMode.Field);
 
                 if (modelBuilder.Model.GetPropertyAccessMode() != PropertyAccessMode.Property)
                 {
                     modelBuilder.Entity<PostReadOnly>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Title);
-                                b.Property(e => e.BlogId);
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Title);
+                            b.Property(e => e.BlogId);
+                        });
 
                     modelBuilder.Entity<BlogReadOnly>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Title);
-                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Title);
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                        });
 
                     modelBuilder.Entity<PostReadOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Id).HasField("_myid");
-                                b.Property(e => e.Title).HasField("_mytitle");
-                                b.Property(e => e.BlogId).HasField("_myblogId");
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Id).HasField("_myid");
+                            b.Property(e => e.Title).HasField("_mytitle");
+                            b.Property(e => e.BlogId).HasField("_myblogId");
+                        });
 
                     modelBuilder.Entity<BlogReadOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey(e => e.Id);
-                                b.Property(e => e.Id).HasField("_myid");
-                                b.Property(e => e.Title).HasField("_mytitle");
-                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
-                            });
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Id).HasField("_myid");
+                            b.Property(e => e.Title).HasField("_mytitle");
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                        });
 
                     modelBuilder.Entity<PostReadOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                     modelBuilder.Entity<BlogReadOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
                     modelBuilder.Entity<PostWriteOnly>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Title");
-                                b.Property("BlogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Title");
+                            b.Property("BlogId");
+                        });
 
                     modelBuilder.Entity<BlogWriteOnly>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Title");
-                                b.HasMany(typeof(PostWriteOnly).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Title");
+                            b.HasMany(typeof(PostWriteOnly).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
+                        });
 
                     modelBuilder.Entity<PostWriteOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Id").HasField("_myid");
-                                b.Property("Title").HasField("_mytitle");
-                                b.Property("BlogId").HasField("_myblogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Id").HasField("_myid");
+                            b.Property("Title").HasField("_mytitle");
+                            b.Property("BlogId").HasField("_myblogId");
+                        });
 
                     modelBuilder.Entity<BlogWriteOnlyExplicit>(
                         b =>
-                            {
-                                b.HasKey("Id");
-                                b.Property("Id").HasField("_myid");
-                                b.Property("Title").HasField("_mytitle");
-                                b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
-                            });
+                        {
+                            b.HasKey("Id");
+                            b.Property("Id").HasField("_myid");
+                            b.Property("Title").HasField("_mytitle");
+                            b.HasMany(typeof(PostWriteOnlyExplicit).DisplayName(), "Posts").WithOne("Blog").HasForeignKey("BlogId");
+                        });
 
                     modelBuilder.Entity<PostWriteOnlyExplicit>().Metadata.FindNavigation("Blog").SetField("_myblog");
                     modelBuilder.Entity<BlogWriteOnlyExplicit>().Metadata.FindNavigation("Posts").SetField("_myposts");
 
                     modelBuilder.Entity<PostFields>(
                         b =>
-                            {
-                                b.Property("_id");
-                                b.HasKey("_id");
-                                b.Property("_title");
-                                b.Property("_blogId");
-                            });
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.Property("_blogId");
+                        });
 
                     modelBuilder.Entity<BlogFields>(
                         b =>
-                            {
-                                b.Property("_id");
-                                b.HasKey("_id");
-                                b.Property("_title");
-                                b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
-                            });
+                        {
+                            b.Property("_id");
+                            b.HasKey("_id");
+                            b.Property("_title");
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey("_blogId");
+                        });
 
                     modelBuilder.Entity<PostNavFields>(
                         b =>
@@ -1532,10 +1995,13 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            protected override void Seed(DbContext context)
+            protected override void Seed(PoolableDbContext context)
             {
                 context.Add(CreateBlogAndPosts<BlogAuto, PostAuto>());
                 context.AddRange(CreatePostsAndBlog<BlogAuto, PostAuto>());
+
+                context.Add(CreateBlogAndPosts<BlogHiding, PostHiding>());
+                context.AddRange(CreatePostsAndBlog<BlogHiding, PostHiding>());
 
                 context.Add(CreateBlogAndPosts<BlogFull, PostFull>());
                 context.AddRange(CreatePostsAndBlog<BlogFull, PostFull>());
@@ -1563,6 +2029,12 @@ namespace Microsoft.EntityFrameworkCore
                     context.Add(CreateBlogAndPosts<BlogNavFields, PostNavFields>());
                     context.AddRange(CreatePostsAndBlog<BlogNavFields, PostNavFields>());
                 }
+
+                context.Add(new LoginSession
+                {
+                    User = new User2(),
+                    Users = new List<User2> { new User2() }
+                });
 
                 context.SaveChanges();
             }

@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     /// </summary>
     public abstract partial class InternalEntityEntry : IUpdateEntry
     {
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local
         private StateData _stateData;
         private OriginalValues _originalValues;
         private RelationshipsSnapshot _relationshipsSnapshot;
@@ -148,7 +149,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (EntityState == EntityState.Modified)
             {
-                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified,
+                _stateData.FlagAllProperties(
+                    EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified,
                     flagged: false);
             }
 
@@ -175,8 +177,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (HasTemporaryValue(property))
                     {
-                        throw new InvalidOperationException(CoreStrings.TempValuePersists(property.Name,
-                            EntityType.DisplayName(), newState));
+                        throw new InvalidOperationException(
+                            CoreStrings.TempValuePersists(
+                                property.Name,
+                                EntityType.DisplayName(), newState));
                     }
                 }
             }
@@ -206,7 +210,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (newState == EntityState.Unchanged)
             {
-                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified,
+                _stateData.FlagAllProperties(
+                    EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified,
                     flagged: false);
             }
 
@@ -426,6 +431,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     SetProperty(property, GetOriginalValue(property), setModified: false);
                 }
+
                 _stateData.FlagProperty(propertyIndex, PropertyFlag.TemporaryOrModified, isModified);
             }
 
@@ -697,7 +703,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void SetOriginalValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value,
+        public virtual void SetOriginalValue(
+            [NotNull] IPropertyBase propertyBase, [CanBeNull] object value,
             int index = -1)
         {
             EnsureOriginalValues();
@@ -772,7 +779,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void RemoveFromCollectionSnapshot([NotNull] IPropertyBase propertyBase,
+        public virtual void RemoveFromCollectionSnapshot(
+            [NotNull] IPropertyBase propertyBase,
             [NotNull] object removedEntity)
         {
             EnsureRelationshipSnapshot();
@@ -793,7 +801,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void AddRangeToCollectionSnapshot([NotNull] IPropertyBase propertyBase,
+        public virtual void AddRangeToCollectionSnapshot(
+            [NotNull] IPropertyBase propertyBase,
             [NotNull] IEnumerable<object> addedEntities)
         {
             EnsureRelationshipSnapshot();
@@ -860,10 +869,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                                 if (setModified)
                                 {
-                                    SetPropertyModified(asProperty, changeState: true, isModified: true,
+                                    SetPropertyModified(
+                                        asProperty, changeState: true, isModified: true,
                                         isConceptualNull: true);
                                 }
                             }
+
                             writeValue = false;
                         }
                         else
@@ -900,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static bool ValuesEqual(Property property, object value, object currentValue)
             => (property.GetValueComparer()
                 ?? property.FindMapping()?.Comparer)
-                ?.Equals(currentValue, value)
+               ?.Equals(currentValue, value)
                ?? Equals(currentValue, value);
 
         /// <summary>
@@ -960,8 +971,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         && !HasTemporaryValue(property)
                         && !HasDefaultValue(property))
                     {
-                        throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(property.Name,
-                            EntityType.DisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.PropertyReadOnlyBeforeSave(
+                                property.Name,
+                                EntityType.DisplayName()));
                     }
                 }
             }
@@ -972,8 +985,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (property.AfterSaveBehavior == PropertySaveBehavior.Throw
                         && IsModified(property))
                     {
-                        throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(property.Name,
-                            EntityType.DisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.PropertyReadOnlyAfterSave(
+                                property.Name,
+                                EntityType.DisplayName()));
                     }
                 }
             }
@@ -1022,6 +1037,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             fks.Add(foreignKey);
                         }
+
                         break;
                     }
                 }
@@ -1036,7 +1052,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (StateManager.SensitiveLoggingEnabled)
                 {
-                    StateManager.UpdateLogger.CascadeDeleteOrphanSensitive(this, cascadeFk.PrincipalEntityType,
+                    StateManager.UpdateLogger.CascadeDeleteOrphanSensitive(
+                        this, cascadeFk.PrincipalEntityType,
                         cascadeState);
                 }
                 else
@@ -1046,7 +1063,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 SetEntityState(cascadeState);
             }
-            else if (fks.Any())
+            else if (fks.Count > 0)
             {
                 if (sensitiveLoggingEnabled)
                 {
@@ -1121,8 +1138,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool IsStoreGenerated(IProperty property)
-            => (property.ValueGenerated.ForAdd() &&
-                EntityState == EntityState.Added
+            => (property.ValueGenerated.ForAdd()
+                && EntityState == EntityState.Added
                 && (property.BeforeSaveBehavior == PropertySaveBehavior.Ignore
                     || HasTemporaryValue(property)
                     || HasDefaultValue(property)))
@@ -1139,7 +1156,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public bool HasDefaultValue(IProperty property)
             => _storeGeneratedValues.TryGetValue(property, out var value)
                 ? property.ClrType.IsDefaultValue(value)
-                : PropertyHasDefaultValue((IPropertyBase)property);
+                : PropertyHasDefaultValue(property);
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -1161,6 +1178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         return false;
                     }
                 }
+
                 return true;
             }
         }
@@ -1184,6 +1202,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         return true;
                     }
                 }
+
                 return false;
             }
         }
@@ -1198,7 +1217,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void HandleINotifyPropertyChanging([NotNull] object sender,
+        public virtual void HandleINotifyPropertyChanging(
+            [NotNull] object sender,
             [NotNull] PropertyChangingEventArgs eventArgs)
         {
             foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
@@ -1211,7 +1231,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void HandleINotifyPropertyChanged([NotNull] object sender,
+        public virtual void HandleINotifyPropertyChanged(
+            [NotNull] object sender,
             [NotNull] PropertyChangedEventArgs eventArgs)
         {
             foreach (var propertyBase in EntityType.GetNotificationProperties(eventArgs.PropertyName))
@@ -1224,7 +1245,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual void HandleINotifyCollectionChanged([NotNull] object sender,
+        public virtual void HandleINotifyCollectionChanged(
+            [NotNull] object sender,
             [NotNull] NotifyCollectionChangedEventArgs eventArgs)
         {
             var navigation = EntityType.GetNavigations().FirstOrDefault(n => n.IsCollection() && this[n] == sender);

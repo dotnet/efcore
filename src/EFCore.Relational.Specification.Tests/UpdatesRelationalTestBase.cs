@@ -17,10 +17,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-#if !Test20
         [Fact]
         public abstract void Identifiers_are_generated_correctly();
-#endif
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
@@ -28,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         protected override string UpdateConcurrencyMessage
             => RelationalStrings.UpdateConcurrencyException(1, 0);
 
-#if !Test20
         protected override string UpdateConcurrencyTokenMessage
             => RelationalStrings.UpdateConcurrencyException(1, 0);
-#endif
     }
 }

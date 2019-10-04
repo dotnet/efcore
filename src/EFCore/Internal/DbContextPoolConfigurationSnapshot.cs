@@ -16,11 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public DbContextPoolConfigurationSnapshot(
             bool? autoDetectChangesEnabled,
             QueryTrackingBehavior? queryTrackingBehavior,
-            bool? autoTransactionsEnabled)
+            bool? autoTransactionsEnabled,
+            bool? lazyLoadingEnabled)
         {
             AutoDetectChangesEnabled = autoDetectChangesEnabled;
             QueryTrackingBehavior = queryTrackingBehavior;
             AutoTransactionsEnabled = autoTransactionsEnabled;
+            LazyLoadingEnabled = lazyLoadingEnabled;
         }
 
         /// <summary>
@@ -28,6 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual bool? AutoDetectChangesEnabled { get; }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual bool? LazyLoadingEnabled { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             _coreTypeMappingInfo = new TypeMappingInfo(principals);
 
-            string storeTypeName  = null;
+            string storeTypeName = null;
             var fixedLength = false;
             for (var i = 0; i < principals.Count; i++)
             {
@@ -56,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         storeTypeName = columnType;
                     }
                 }
+
                 if (!fixedLength)
                 {
                     var isFixedLength = principal.Relational().IsFixedLength;
@@ -93,12 +94,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeTypeName"> The provider-specific relational type name for which mapping is needed. </param>
         public RelationalTypeMappingInfo([NotNull] string storeTypeName)
         {
-            Check.NotEmpty(storeTypeName, nameof(storeTypeName));
+            // Note: Empty string is allowed for store type name because SQLite
+            Check.NotNull(storeTypeName, nameof(storeTypeName));
 
             _coreTypeMappingInfo = new TypeMappingInfo();
-            IsFixedLength = false;
             StoreTypeName = storeTypeName;
             StoreTypeNameBase = ParseStoreTypeName(storeTypeName, out _parsedSize, out _parsedPrecision, out _parsedScale, out _isMax);
+            IsFixedLength = _parsedSize != null;
         }
 
         /// <summary>
@@ -128,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _isMax = false;
             }
 
-            IsFixedLength = false;
+            IsFixedLength = _parsedSize != null;
         }
 
         /// <summary>

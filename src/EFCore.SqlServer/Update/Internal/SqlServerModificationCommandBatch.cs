@@ -186,6 +186,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
                     _bulkInsertCommands.Clear();
                 }
+
                 _bulkInsertCommands.Add(newModificationCommand);
 
                 LastCachedCommandIndex = commandPosition;

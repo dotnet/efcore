@@ -10,16 +10,20 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
 {
     public class OracleDecimalTypeMapping : DecimalTypeMapping
     {
-        public OracleDecimalTypeMapping([NotNull] string storeType, DbType? dbType = null)
-            : this(
+        public OracleDecimalTypeMapping(
+            [NotNull] string storeType,
+            DbType? dbType = null,
+            int? precision = null,
+            int? scale = null,
+            StoreTypePostfix storeTypePostfix = StoreTypePostfix.None)
+            : base(
                 new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(
-                        typeof(decimal)),
+                    new CoreTypeMappingParameters(typeof(decimal)),
                     storeType,
-                    StoreTypePostfix.PrecisionAndScale,
+                    storeTypePostfix,
                     dbType,
-                    precision: 29,
-                    scale: 4))
+                    precision: precision,
+                    scale: scale))
         {
         }
 
@@ -28,10 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.Storage.Internal
         {
         }
 
-        public override RelationalTypeMapping Clone(string storeType, int? size)
-            => new OracleDecimalTypeMapping(Parameters.WithStoreTypeAndSize(storeType, size));
-
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new OracleDecimalTypeMapping(Parameters.WithComposedConverter(converter));
+        protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
+            => new OracleDecimalTypeMapping(parameters);
     }
 }

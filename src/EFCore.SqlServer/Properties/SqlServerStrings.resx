@@ -142,7 +142,7 @@
     <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure()' to the 'UseSqlServer' call.</value>
   </data>
   <data name="LogDefaultDecimalTypeColumn" xml:space="preserve">
-    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'ForHasColumnType()'.</value>
+    <value>No type was specified for the decimal column '{property}' on entity type '{entityType}'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values using 'HasColumnType()'.</value>
     <comment>Warning SqlServerEventId.DecimalTypeDefaultWarning string string</comment>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
@@ -224,5 +224,24 @@
   </data>
   <data name="InvalidColumnNameForFreeText" xml:space="preserve">
     <value>The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'</value>
+  </data>
+  <data name="IncludePropertyDuplicated" xml:space="preserve">
+    <value>Include property '{entityType}.{property}' cannot be defined multiple times</value>
+  </data>
+  <data name="IncludePropertyInIndex" xml:space="preserve">
+    <value>Include property '{entityType}.{property}' is already included in the index</value>
+  </data>
+  <data name="IncludePropertyNotFound" xml:space="preserve">
+    <value>Include property '{entityType}.{property}' not found</value>
+  </data>
+  <data name="ContainsFunctionOnClient" xml:space="preserve">
+    <value>The 'Contains' method is not supported because the query has switched to client-evaluation. Inspect the log to determine which query expressions are triggering client-evaluation.</value>
+  </data>
+  <data name="LogReflexiveConstraintIgnored" xml:space="preserve">
+    <value>Skipping foreign key '{foreignKeyName}' on table '{tableName}' since all of its columns reference themselves.</value>
+    <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
+  </data>
+  <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
+    <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}' but with different clustering.</value>
   </data>
 </root>

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="falseValue"> The string to use for <c>false</c>. </param>
         /// <param name="trueValue"> The string to use for <c>true</c>. </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public BoolToStringConverter(

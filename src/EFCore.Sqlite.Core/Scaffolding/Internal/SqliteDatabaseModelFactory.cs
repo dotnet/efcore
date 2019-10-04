@@ -12,6 +12,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -82,7 +83,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             if (!connectionStartedOpen)
             {
                 connection.Open();
+
+                ((SqliteConnection)connection).EnableExtensions();
+                SpatialiteLoader.TryLoad(connection);
             }
+
             try
             {
                 databaseModel.DatabaseName = GetDatabaseName(connection);
@@ -145,9 +150,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 command.CommandText = new StringBuilder()
                     .AppendLine("SELECT \"name\"")
                     .AppendLine("FROM \"sqlite_master\"")
-                    .Append("WHERE \"type\" = 'table' AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" <> '")
+                    .Append("WHERE \"type\" = 'table' AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
                     .Append(HistoryRepository.DefaultTableName)
-                    .AppendLine("';")
+                    .Append("', 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth', ")
+                    .Append("'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time', ")
+                    .Append("'spatial_ref_sys', 'spatial_ref_sys_aux', 'SpatialIndex', 'spatialite_history', ")
+                    .Append("'sql_statements_log', 'views_geometry_columns', 'views_geometry_columns_auth', ")
+                    .Append("'views_geometry_columns_field_infos', 'views_geometry_columns_statistics', ")
+                    .Append("'virts_geometry_columns', 'virts_geometry_columns_auth', ")
+                    .AppendLine("'virts_geometry_columns_field_infos', 'virts_geometry_columns_statistics');")
                     .ToString();
 
                 using (var reader = command.ExecuteReader())
@@ -162,7 +173,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                         _logger.TableFound(name);
 
-                        var table = new DatabaseTable { Name = name };
+                        var table = new DatabaseTable
+                        {
+                            Name = name
+                        };
 
                         foreach (var column in GetColumns(connection, name))
                         {
@@ -262,6 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 return null;
             }
+
             if (notNull && defaultValue == "0")
             {
                 var normalizedType = _typeMappingSource.FindMapping(dataType).StoreType;
@@ -298,6 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 {
                     return GetRowidPrimaryKey(connection, table, columns);
                 }
+
                 if (!name.StartsWith("sqlite_", StringComparison.Ordinal))
                 {
                     primaryKey.Name = name;
@@ -363,7 +379,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                     Debug.Assert(!reader.Read(), "Unexpected composite primary key.");
 
-                    return new DatabasePrimaryKey { Columns = { column } };
+                    return new DatabasePrimaryKey
+                    {
+                        Columns =
+                        {
+                            column
+                        }
+                    };
                 }
             }
         }

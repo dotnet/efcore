@@ -3,18 +3,22 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class GearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
     {
-        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
+        public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
+
+        public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
-                c => c.Log(RelationalEventId.QueryClientEvaluationWarning)
+                c => c
+                    .Log(RelationalEventId.QueryClientEvaluationWarning)
                     .Log(RelationalEventId.ValueConversionSqlLiteralWarning));
+
+        protected override bool ShouldLogCategory(string logCategory)
+            => logCategory == DbLoggerCategory.Query.Name;
     }
 }

@@ -18,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         // Stored for perf
         private static readonly object[] _boxedEntityStates =
-        {
-            EntityState.Detached, EntityState.Unchanged, EntityState.Deleted, EntityState.Modified, EntityState.Added
-        };
+            { EntityState.Detached, EntityState.Unchanged, EntityState.Deleted, EntityState.Modified, EntityState.Added };
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used

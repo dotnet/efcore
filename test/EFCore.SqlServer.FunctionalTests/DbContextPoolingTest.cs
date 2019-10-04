@@ -23,10 +23,9 @@ namespace Microsoft.EntityFrameworkCore
     public class DbContextPoolingTest
     {
         private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize = 32)
-            where TContext : DbContext, TContextService
             where TContextService : class
+            where TContext : DbContext, TContextService
             => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
                 .AddDbContextPool<TContextService, TContext>(
                     ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
                     poolSize)
@@ -38,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore
         private static IServiceProvider BuildServiceProvider<TContext>(int poolSize = 32)
             where TContext : DbContext
             => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
                 .AddDbContextPool<TContext>(
                     ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString),
                     poolSize)
@@ -49,6 +47,15 @@ namespace Microsoft.EntityFrameworkCore
 
         private interface IPooledContext
         {
+        }
+
+        private class DefaultOptionsPooledContext : DbContext
+        {
+            public DefaultOptionsPooledContext(DbContextOptions options)
+                : base(options)
+            {
+                //ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            }
         }
 
         private class PooledContext : DbContext, IPooledContext
@@ -64,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore
                 Interlocked.Increment(ref InstanceCount);
 
                 ChangeTracker.AutoDetectChangesEnabled = false;
+                ChangeTracker.LazyLoadingEnabled = false;
                 Database.AutoTransactionsEnabled = false;
             }
 
@@ -278,6 +286,7 @@ namespace Microsoft.EntityFrameworkCore
                 : scopedProvider.GetService<PooledContext>();
 
             context1.ChangeTracker.AutoDetectChangesEnabled = true;
+            context1.ChangeTracker.LazyLoadingEnabled = true;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.Database.AutoTransactionsEnabled = true;
 
@@ -293,8 +302,39 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context1, context2);
 
             Assert.False(context2.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
             Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
             Assert.False(context2.Database.AutoTransactionsEnabled);
+        }
+
+        [Fact]
+        public void Default_Context_configuration__is_reset()
+        {
+            var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
+
+            var serviceScope = serviceProvider.CreateScope();
+            var scopedProvider = serviceScope.ServiceProvider;
+
+            var context1 = scopedProvider.GetService<DefaultOptionsPooledContext>();
+
+            context1.ChangeTracker.AutoDetectChangesEnabled = false;
+            context1.ChangeTracker.LazyLoadingEnabled = false;
+            context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            context1.Database.AutoTransactionsEnabled = false;
+
+            serviceScope.Dispose();
+
+            serviceScope = serviceProvider.CreateScope();
+            scopedProvider = serviceScope.ServiceProvider;
+
+            var context2 = scopedProvider.GetService<DefaultOptionsPooledContext>();
+
+            Assert.Same(context1, context2);
+
+            Assert.True(context2.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.True(context2.ChangeTracker.LazyLoadingEnabled);
+            Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+            Assert.True(context2.Database.AutoTransactionsEnabled);
         }
 
         [Theory]
@@ -304,36 +344,36 @@ namespace Microsoft.EntityFrameworkCore
         {
             var weakRef = Scoper(
                 () =>
-                    {
-                        var serviceProvider = useInterface
-                            ? BuildServiceProvider<IPooledContext, PooledContext>()
-                            : BuildServiceProvider<PooledContext>();
+                {
+                    var serviceProvider = useInterface
+                        ? BuildServiceProvider<IPooledContext, PooledContext>()
+                        : BuildServiceProvider<PooledContext>();
 
-                        var serviceScope = serviceProvider.CreateScope();
-                        var scopedProvider = serviceScope.ServiceProvider;
+                    var serviceScope = serviceProvider.CreateScope();
+                    var scopedProvider = serviceScope.ServiceProvider;
 
-                        var context1 = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context1 = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+                    var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                        Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
+                    Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
 
-                        serviceScope.Dispose();
+                    serviceScope.Dispose();
 
-                        serviceScope = serviceProvider.CreateScope();
-                        scopedProvider = serviceScope.ServiceProvider;
+                    serviceScope = serviceProvider.CreateScope();
+                    scopedProvider = serviceScope.ServiceProvider;
 
-                        var context2 = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context2 = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        Assert.Same(context1, context2);
-                        Assert.Empty(context2.ChangeTracker.Entries());
+                    Assert.Same(context1, context2);
+                    Assert.Empty(context2.ChangeTracker.Entries());
 
-                        return new WeakReference(entity);
-                    });
+                    return new WeakReference(entity);
+                });
 
             GC.Collect();
 
@@ -503,20 +543,20 @@ namespace Microsoft.EntityFrameworkCore
 
             Parallel.For(
                 fromInclusive: 0, toExclusive: 100, body: s =>
+                {
+                    using (var scope = serviceProvider.CreateScope())
                     {
-                        using (var scope = serviceProvider.CreateScope())
-                        {
-                            var scopedProvider = scope.ServiceProvider;
+                        var scopedProvider = scope.ServiceProvider;
 
-                            var context = useInterface
-                                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                                : scopedProvider.GetService<PooledContext>();
+                        var context = useInterface
+                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                            : scopedProvider.GetService<PooledContext>();
 
-                            var _ = context.Customers.ToList();
+                        var _ = context.Customers.ToList();
 
-                            context.Dispose();
-                        }
-                    });
+                        context.Dispose();
+                    }
+                });
         }
 
         [ConditionalTheory]

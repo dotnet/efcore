@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.ExpressionTranslators;
 using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors;
 using Microsoft.EntityFrameworkCore.Query.Sql;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionTranslators.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.ExpressionVisitors.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.Sql.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
@@ -45,17 +47,17 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <example>
         ///     <code>
-        ///          public void ConfigureServices(IServiceCollection services)
-        ///          {
-        ///              var connectionString = "connection string to database";
-        ///
-        ///              services
-        ///                  .AddEntityFrameworkSqlite()
-        ///                  .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
-        ///                      options.UseSqlite(connectionString)
-        ///                             .UseInternalServiceProvider(serviceProvider));
-        ///          }
-        ///      </code>
+        ///           public void ConfigureServices(IServiceCollection services)
+        ///           {
+        ///               var connectionString = "connection string to database";
+        /// 
+        ///               services
+        ///                   .AddEntityFrameworkSqlite()
+        ///                   .AddDbContext&lt;MyContext&gt;((serviceProvider, options) =>
+        ///                       options.UseSqlite(connectionString)
+        ///                              .UseInternalServiceProvider(serviceProvider));
+        ///           }
+        ///       </code>
         /// </example>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
@@ -83,6 +85,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<ICompositeMethodCallTranslator, SqliteCompositeMethodCallTranslator>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
                 .TryAdd<ISqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
+                .TryAdd<IRelationalResultOperatorHandler, SqliteResultOperatorHandler>()
                 .TryAddProviderSpecificServices(
                     b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
 

@@ -64,8 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (!foreignKey.PrincipalKey.Properties
                 .Select(p => p.Relational().ColumnName)
-                .SequenceEqual(duplicateForeignKey.PrincipalKey.Properties
-                    .Select(p => p.Relational().ColumnName)))
+                .SequenceEqual(
+                    duplicateForeignKey.PrincipalKey.Properties
+                        .Select(p => p.Relational().ColumnName)))
             {
                 if (shouldThrow)
                 {

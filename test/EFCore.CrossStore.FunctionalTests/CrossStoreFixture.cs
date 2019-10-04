@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             modelBuilder.Entity<SimpleEntity>(
                 eb =>
-                    {
-                        eb.ToTable("RelationalSimpleEntity");
-                        eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
-                        eb.HasKey(e => e.Id);
-                        eb.Property(e => e.Id).UseSqlServerIdentityColumn();
-                    });
+                {
+                    eb.ToTable("RelationalSimpleEntity");
+                    eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
+                    eb.HasKey(e => e.Id);
+                    eb.Property(e => e.Id).UseSqlServerIdentityColumn();
+                });
         }
     }
 }

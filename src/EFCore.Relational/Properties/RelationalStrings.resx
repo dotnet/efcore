@@ -211,7 +211,7 @@
     <comment>Debug RelationalEventId.DataReaderDisposing</comment>
   </data>
   <data name="BadSequenceType" xml:space="preserve">
-    <value>Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', and 'Byte'.</value>
+    <value>Invalid type for sequence. Valid types are 'Int64' (the default), 'Int32', 'Int16', 'Byte' and 'Decimal'.</value>
   </data>
   <data name="BadSequenceString" xml:space="preserve">
     <value>Unable to deserialize sequence from model metadata. See inner exception for details.</value>
@@ -478,6 +478,27 @@
     <comment>Warning RelationalEventId.ValueConversionSqlLiteralWarning object object</comment>
   </data>
   <data name="DerivedQueryTypeView" xml:space="preserve">
-    <value>The query type '{queryType}' cannot be mapped to a view bacause it is derived from '{baseType}'. Only base query types can be mapped to a view.</value>
+    <value>The query type '{queryType}' cannot be mapped to a view because it is derived from '{baseType}'. Only base query types can be mapped to a view.</value>
+  </data>
+  <data name="RelationalCloneNotImplemented" xml:space="preserve">
+    <value>The '{mapping}' does not support 2.2 style type mapping. The database provider needs to be updated to support the full set of mapping customization.</value>
+  </data>
+  <data name="CaseElseResultTypeUnexpected" xml:space="preserve">
+    <value>The result type of '{elseResultType}' in the else clause is invalid. The expected type is '{resultType}'.</value>
+  </data>
+  <data name="CaseWhenClauseResultTypeUnexpected" xml:space="preserve">
+    <value>The result type of '{whenResultType}' in a when clause is invalid. The expected type is '{resultType}'.</value>
+  </data>
+  <data name="CaseWhenClauseTestTypeUnexpected" xml:space="preserve">
+    <value>The operand type of '{whenOperandType}' in a when clause is invalid. The expected type is '{expectedWhenOperandType}'.</value>
+  </data>
+  <data name="SqlFunctionArgumentsAndMappingsMismatch" xml:space="preserve">
+    <value>The number of argument type mappings does not match the number of arguments.</value>
+  </data>
+  <data name="SqlFunctionNullArgumentMapping" xml:space="preserve">
+    <value>One of the specified argument type mappings was null.</value>
+  </data>
+  <data name="SqlFunctionUnexpectedInstanceMapping" xml:space="preserve">
+    <value>An instance type mapping was specified without an instance expression.</value>
   </data>
 </root>

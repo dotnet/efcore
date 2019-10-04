@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.Tools
 {
-    internal class AnsiConsole
+    internal static class AnsiConsole
     {
         public static readonly AnsiTextWriter _out = new AnsiTextWriter(Console.Out);
 

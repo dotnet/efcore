@@ -75,12 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetAnnotation([NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
-            if (existingAnnotation != null)
-            {
-                return CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource: true);
-            }
-
-            return true;
+            return existingAnnotation != null
+                ? CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource: true)
+                : true;
         }
 
         private static bool CanSetAnnotationValue(
@@ -92,13 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var existingConfigurationSource = annotation.GetConfigurationSource();
-            if (!configurationSource.Overrides(existingConfigurationSource)
-                || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource))
-            {
-                return false;
-            }
-
-            return true;
+            return !configurationSource.Overrides(existingConfigurationSource)
+                || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource)
+                ? false
+                : true;
         }
 
         /// <summary>

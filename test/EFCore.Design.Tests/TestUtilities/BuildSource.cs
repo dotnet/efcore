@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             BuildReference.ByName("System.Threading", true),
             BuildReference.ByName("System.Threading.Tasks", true),
             BuildReference.ByName("System.ValueTuple", true)
-#elif NETCOREAPP2_0 || NETCOREAPP2_1
+#elif NETCOREAPP2_0 || NETCOREAPP2_2
             BuildReference.ByName("netstandard"),
             BuildReference.ByName("System.Collections"),
             BuildReference.ByName("System.ComponentModel.Annotations"),
@@ -65,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     {
                         throw new InvalidOperationException("Could not find path for reference " + reference);
                     }
+
                     File.Copy(reference.Path, Path.Combine(TargetDir, Path.GetFileName(reference.Path)), overwrite: true);
                 }
 

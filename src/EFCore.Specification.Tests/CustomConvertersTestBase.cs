@@ -20,6 +20,168 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [Fact]
+        public virtual void Can_query_and_update_with_nullable_converter_on_unique_index()
+        {
+            using (var context = CreateContext())
+            {
+                context.AddRange(
+                    new Person
+                    {
+                        Name = "Lewis"
+                    },
+                    new Person
+                    {
+                        Name = "Seb",
+                        SSN = new SocialSecurityNumber
+                        {
+                            Number = 111111111
+                        }
+                    },
+                    new Person
+                    {
+                        Name = "Kimi",
+                        SSN = new SocialSecurityNumber
+                        {
+                            Number = 222222222
+                        }
+                    },
+                    new Person
+                    {
+                        Name = "Valtteri"
+                    });
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var drivers = context.Set<Person>().OrderBy(p => p.Name).ToList();
+
+                Assert.Equal(4, drivers.Count);
+
+                Assert.Equal("Kimi", drivers[0].Name);
+                Assert.Equal(222222222, drivers[0].SSN.Value.Number);
+
+                Assert.Equal("Lewis", drivers[1].Name);
+                Assert.False(drivers[1].SSN.HasValue);
+
+                Assert.Equal("Seb", drivers[2].Name);
+                Assert.Equal(111111111, drivers[2].SSN.Value.Number);
+
+                Assert.Equal("Valtteri", drivers[3].Name);
+                Assert.False(drivers[3].SSN.HasValue);
+
+                context.Remove(drivers[0]);
+
+                context.Add(
+                    new Person
+                    {
+                        Name = "Charles",
+                        SSN = new SocialSecurityNumber
+                        {
+                            Number = 222222222
+                        }
+                    });
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var drivers = context.Set<Person>().OrderBy(p => p.Name).ToList();
+
+                Assert.Equal(4, drivers.Count);
+
+                Assert.Equal("Charles", drivers[0].Name);
+                Assert.Equal(222222222, drivers[0].SSN.Value.Number);
+
+                Assert.Equal("Lewis", drivers[1].Name);
+                Assert.False(drivers[1].SSN.HasValue);
+
+                Assert.Equal("Seb", drivers[2].Name);
+                Assert.Equal(111111111, drivers[2].SSN.Value.Number);
+
+                Assert.Equal("Valtteri", drivers[3].Name);
+                Assert.False(drivers[3].SSN.HasValue);
+
+                context.Remove(drivers[0]);
+            }
+        }
+
+        protected struct SocialSecurityNumber : IEquatable<SocialSecurityNumber>
+        {
+            public int Number { get; set; }
+
+            public bool Equals(SocialSecurityNumber other)
+                => Number == other.Number;
+        }
+
+        protected class Person
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public SocialSecurityNumber? SSN { get; set; }
+        }
+
+        [Fact]
+        public virtual void Can_query_and_update_with_nullable_converter_on_primary_key()
+        {
+            using (var context = CreateContext())
+            {
+                var principal = context.Add(
+                    new NullablePrincipal
+                    {
+                        Id = 1,
+                        Dependents = new List<NonNullableDependent>
+                        {
+                            new NonNullableDependent()
+                        }
+                    }).Entity;
+
+                var pkEntry = context.Entry(principal).Property(e => e.Id);
+                var fkEntry = context.Entry(principal.Dependents.Single()).Property(e => e.PrincipalId);
+
+                Assert.Equal(1, fkEntry.CurrentValue);
+                Assert.Equal(1, fkEntry.OriginalValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var dependent = context.Set<NonNullableDependent>().Include(e => e.Principal).Single();
+
+                Assert.Equal(1, dependent.PrincipalId);
+                Assert.Equal(1, dependent.Principal.Id);
+
+                var fkEntry = context.Entry(dependent).Property(e => e.PrincipalId);
+                var pkEntry = context.Entry(dependent.Principal).Property(e => e.Id);
+
+                Assert.Equal(1, fkEntry.CurrentValue);
+                Assert.Equal(1, fkEntry.OriginalValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+                Assert.Equal(1, pkEntry.CurrentValue);
+            }
+        }
+
+        protected class NullablePrincipal
+        {
+            public int? Id { get; set; }
+
+            public ICollection<NonNullableDependent> Dependents { get; set; }
+        }
+
+        protected class NonNullableDependent
+        {
+            public int Id { get; set; }
+
+            public int PrincipalId { get; set; }
+            public NullablePrincipal Principal { get; set; }
+        }
+
+        [Fact]
         public virtual void Can_query_and_update_with_conversion_for_custom_type()
         {
             Guid id;
@@ -192,20 +354,40 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder
-                    .Entity<User>(
-                        b =>
-                        {
-                            b.Property(x => x.Email).HasConversion(email => (string)email, value => Email.Create(value));
-                            b.Property(e => e.Id).ValueGeneratedNever();
-                        });
+                modelBuilder.Entity<Person>()
+                    .Property(p => p.SSN)
+                    .HasConversion(
+                        ssn => ssn.HasValue
+                            ? ssn.Value.Number
+                            : new int?(),
+                        i => i.HasValue
+                            ? new SocialSecurityNumber
+                            {
+                                Number = i.Value
+                            }
+                            : new SocialSecurityNumber?());
 
-                modelBuilder
-                    .Entity<Load>(
-                        b =>
-                        {
-                            b.Property(x => x.Fuel).HasConversion(f => f.Volume, v => new Fuel(v));
-                        });
+                modelBuilder.Entity<Person>()
+                    .HasIndex(p => p.SSN)
+                    .IsUnique();
+
+                modelBuilder.Entity<NullablePrincipal>(
+                    b =>
+                    {
+                        b.HasMany(e => e.Dependents).WithOne(e => e.Principal).HasForeignKey(e => e.PrincipalId);
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Id).HasConversion(v => v, v => (int)v);
+                    });
+
+                modelBuilder.Entity<User>(
+                    b =>
+                    {
+                        b.Property(x => x.Email).HasConversion(email => (string)email, value => Email.Create(value));
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                    });
+
+                modelBuilder.Entity<Load>(
+                    b => b.Property(x => x.Fuel).HasConversion(f => f.Volume, v => new Fuel(v)));
 
                 modelBuilder.Entity<BuiltInDataTypes>(
                     b =>
@@ -413,25 +595,27 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 var caseInsensitiveComparer = new ValueComparer<string>(
-                    (l, r) =>(l == null || r == null) ? (l == r) : l.Equals(r, StringComparison.InvariantCultureIgnoreCase),
+                    (l, r) => (l == null || r == null) ? (l == r) : l.Equals(r, StringComparison.InvariantCultureIgnoreCase),
                     v => StringComparer.InvariantCultureIgnoreCase.GetHashCode(v),
                     v => v);
 
-                modelBuilder.Entity<StringKeyDataType>(b =>
-                {
-                    var property = b.Property(e => e.Id)
-                        .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
+                modelBuilder.Entity<StringKeyDataType>(
+                    b =>
+                    {
+                        var property = b.Property(e => e.Id)
+                            .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
-                    property.SetKeyValueComparer(caseInsensitiveComparer);
-                });
+                        property.SetKeyValueComparer(caseInsensitiveComparer);
+                    });
 
-                modelBuilder.Entity<StringForeignKeyDataType>(b =>
-                {
-                    var property = b.Property(e => e.StringKeyDataTypeId)
-                        .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
+                modelBuilder.Entity<StringForeignKeyDataType>(
+                    b =>
+                    {
+                        var property = b.Property(e => e.StringKeyDataTypeId)
+                            .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
-                    property.SetKeyValueComparer(caseInsensitiveComparer);
-                });
+                        property.SetKeyValueComparer(caseInsensitiveComparer);
+                    });
 
                 modelBuilder.Entity<MaxLengthDataTypes>(
                     b =>
@@ -458,10 +642,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasMaxLength(LongStringLength * 2);
                     });
 
-                modelBuilder.Entity<StringListDataType>(b =>
-                {
-                    b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new []{','}).ToList());
-                });
+                modelBuilder.Entity<StringListDataType>(b => b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList()));
             }
         }
     }

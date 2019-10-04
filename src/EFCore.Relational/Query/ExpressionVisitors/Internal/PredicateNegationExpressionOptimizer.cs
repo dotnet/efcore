@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
             if (currentExpression.NodeType == ExpressionType.Equal
                 || currentExpression.NodeType == ExpressionType.NotEqual)
             {
-                if (currentExpression.Left is UnaryExpression leftUnary && leftUnary.NodeType == ExpressionType.Not)
+                if (currentExpression.Left is UnaryExpression leftUnary
+                    && leftUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(leftUnary.Operand) != null;
                     var rightNullable = BuildIsNullExpression(currentExpression.Right) != null;
@@ -50,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                if (currentExpression.Right is UnaryExpression rightUnary && rightUnary.NodeType == ExpressionType.Not)
+                if (currentExpression.Right is UnaryExpression rightUnary
+                    && rightUnary.NodeType == ExpressionType.Not)
                 {
                     var leftNullable = BuildIsNullExpression(currentExpression.Left) != null;
                     var rightNullable = BuildIsNullExpression(rightUnary) != null;
@@ -95,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     return Expression.Constant((bool)constantExpression.Value ? false : true);
                 }
 
-                if (unaryExpression.Operand is UnaryExpression innerUnary && innerUnary.NodeType == ExpressionType.Not)
+                if (unaryExpression.Operand is UnaryExpression innerUnary
+                    && innerUnary.NodeType == ExpressionType.Not)
                 {
                     // !(!(a)) -> a
                     return Visit(innerUnary.Operand);

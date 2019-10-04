@@ -244,8 +244,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 new FakeDbConnection(
                     ConnectionString,
                     new FakeCommandExecutor(
-                        executeNonQuery: c => { throw new InvalidOperationException(); },
-                        executeNonQueryAsync: (c, ct) => { throw new InvalidOperationException(); }));
+                        executeNonQuery: c => throw new InvalidOperationException(),
+                        executeNonQueryAsync: (c, ct) => throw new InvalidOperationException()));
 
             var fakeConnection =
                 CreateConnection(

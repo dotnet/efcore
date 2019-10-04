@@ -24,7 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             {
                 var connection = SetupConnection(context);
 
-                context.Add(new Foo { Id = "1" });
+                context.Add(
+                    new Foo
+                    {
+                        Id = "1"
+                    });
 
                 if (async)
                 {
@@ -50,7 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                 var transaction = new FakeDbTransaction(connection);
                 context.Database.UseTransaction(transaction);
 
-                context.Add(new Foo { Id = "1" });
+                context.Add(
+                    new Foo
+                    {
+                        Id = "1"
+                    });
 
                 if (async)
                 {
@@ -68,7 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static FakeDbConnection SetupConnection(TestContext context)
         {
-            var dataReader = new FakeDbDataReader(new[] { "RowsAffected" }, new List<object[]> { new object[] { 1 } });
+            var dataReader = new FakeDbDataReader(
+                new[] { "RowsAffected" }, new List<object[]>
+                {
+                    new object[] { 1 }
+                });
 
             var connection = new FakeDbConnection(
                 "A=B", new FakeCommandExecutor(

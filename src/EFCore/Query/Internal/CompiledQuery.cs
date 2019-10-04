@@ -41,11 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [CanBeNull] TParam1 param1)
             => ExecuteCore(context, param1);
 
+#pragma warning disable CA1068 // CancellationToken parameters must come last
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual TResult ExecuteAsync<TParam1>(
+#pragma warning restore CA1068 // CancellationToken parameters must come last
             [NotNull] TContext context,
             CancellationToken cancellationToken,
             [CanBeNull] TParam1 param1)

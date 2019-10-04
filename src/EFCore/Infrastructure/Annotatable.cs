@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
         ///     annotation with the specified name already exists.
         /// </summary>
-        /// <param name="name"> The ket of the annotation to be added. </param>
+        /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         public virtual void SetAnnotation(string name, object value)
             => SetAnnotation(name, CreateAnnotation(name, value));
@@ -129,12 +129,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotEmpty(name, nameof(name));
 
-            if (!_annotations.HasValue)
-            {
-                return null;
-            }
-
-            return _annotations.Value.TryGetValue(name, out var annotation)
+            return !_annotations.HasValue
+                ? null
+                : _annotations.Value.TryGetValue(name, out var annotation)
                 ? annotation
                 : null;
         }

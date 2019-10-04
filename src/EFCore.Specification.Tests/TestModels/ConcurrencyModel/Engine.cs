@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
         public Location StorageLocation { get; set; }
 
         public int EngineSupplierId { get; set; }
+
         public virtual EngineSupplier EngineSupplier
         {
             get => _loader.Load(this, ref _engineSupplier);

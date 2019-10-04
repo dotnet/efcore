@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     {
         private DeleteBehavior? _deleteBehavior;
         private bool? _isUnique;
+        private bool? _isRequired;
         private bool? _isOwnership;
 
         private ConfigurationSource _configurationSource;
@@ -102,7 +103,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        public virtual InternalRelationshipBuilder Builder { [DebuggerStepThrough] get; [DebuggerStepThrough] [param: CanBeNull] set; }
+        public virtual InternalRelationshipBuilder Builder
+        {
+            [DebuggerStepThrough] get;
+            [DebuggerStepThrough]
+            [param: CanBeNull]
+            set;
+        }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -264,13 +271,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             bool pointsToPrincipal)
         {
-            if (PrincipalEntityType.IsQueryType)
+            var name = propertyIdentity?.Name;
+            if (pointsToPrincipal
+                && PrincipalEntityType.IsQueryType)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.ErrorNavCannotTargetQueryType(PrincipalEntityType.DisplayName()));
+                    CoreStrings.NavigationToQueryType(name, PrincipalEntityType.DisplayName()));
             }
 
-            var name = propertyIdentity?.Name;
+            if (!pointsToPrincipal
+                && DeclaringEntityType.IsQueryType)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NavigationToQueryType(name, DeclaringEntityType.DisplayName()));
+            }
+
             var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
             if (name == oldNavigation?.Name)
             {
@@ -282,6 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     UpdatePrincipalToDependentConfigurationSource(configurationSource);
                 }
+
                 return oldNavigation;
             }
 
@@ -401,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsRequired
         {
-            get => !Properties.Any(p => p.IsNullable);
+            get => _isRequired ?? !Properties.Any(p => p.IsNullable);
             set => SetIsRequired(value, ConfigurationSource.Explicit);
         }
 
@@ -413,18 +429,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (required == IsRequired)
             {
+                _isRequired = required;
                 UpdateIsRequiredConfigurationSource(configurationSource);
                 return;
             }
+
+            _isRequired = required;
 
             var properties = Properties;
             if (!required)
             {
                 var nullableTypeProperties = Properties.Where(p => p.ClrType.IsNullableType()).ToList();
-                if (nullableTypeProperties.Any())
+                if (nullableTypeProperties.Count > 0)
                 {
                     properties = nullableTypeProperties;
                 }
+
                 // If no properties can be made nullable, let it fail
             }
 
@@ -433,6 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 property.SetIsNullable(!required, configurationSource);
             }
 
+            DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder);
             UpdateIsRequiredConfigurationSource(configurationSource);
         }
 
@@ -511,12 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _isOwnership = ownership;
             UpdateIsOwnershipConfigurationSource(configurationSource);
 
-            if (isChanging)
-            {
-                return DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata;
-            }
-
-            return this;
+            return isChanging ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata : (this);
         }
 
         private static bool DefaultIsOwnership => false;
@@ -674,6 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(
                         CoreStrings.ForeignKeySelfReferencingDependentEntityType(dependentEntityType.DisplayName()));
                 }
+
                 return false;
             }
 
@@ -705,19 +722,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (principalProperties != null
+            return principalProperties != null
                 && dependentProperties != null
                 && !AreCompatible(
                     principalProperties,
                     dependentProperties,
                     principalEntityType,
                     dependentEntityType,
-                    shouldThrow))
-            {
-                return false;
-            }
-
-            return true;
+                    shouldThrow)
+                ? false
+                : true;
         }
 
         /// <summary>
@@ -740,7 +754,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var nullableProperties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
-            if (!nullableProperties.Any())
+            if (nullableProperties.Count == 0)
             {
                 if (shouldThrow)
                 {
@@ -748,6 +762,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         CoreStrings.ForeignKeyCannotBeOptional(
                             Property.Format(properties), entityType.DisplayName()));
                 }
+
                 return false;
             }
 
@@ -781,6 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Property.Format(principalProperties),
                             principalEntityType.DisplayName()));
                 }
+
                 return false;
             }
 
@@ -795,6 +811,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             Property.Format(principalProperties),
                             principalEntityType.DisplayName()));
                 }
+
                 return false;
             }
 

@@ -42,7 +42,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Debug.Assert(!IsEmpty);
                 Debug.Assert(!(propertyBase is INavigation) || !((INavigation)propertyBase).IsCollection());
 
-                _values[propertyBase.GetRelationshipIndex()] = value;
+                _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
+            }
+
+            private static object SnapshotValue(IPropertyBase propertyBase, object value)
+            {
+                if (propertyBase is IProperty property)
+                {
+                    var comparer = property.GetKeyValueComparer() ?? property.FindMapping()?.KeyComparer;
+
+                    if (comparer != null)
+                    {
+                        return comparer.Snapshot(value);
+                    }
+                }
+
+                return value;
             }
 
             public void RemoveFromCollection(IPropertyBase propertyBase, object removedEntity)

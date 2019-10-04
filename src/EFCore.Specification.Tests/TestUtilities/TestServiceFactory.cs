@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             = new ConcurrentDictionary<Type, IServiceProvider>();
 
         private readonly IReadOnlyList<(Type Type, object Implementation)> _wellKnownExceptions
-        = new List<(Type, object)>
+            = new List<(Type, object)>
             {
                 (typeof(IRegisteredServices), new RegisteredServices(Enumerable.Empty<Type>())),
                 (typeof(ServiceParameterBindingFactory), new ServiceParameterBindingFactory(typeof(IStateManager)))

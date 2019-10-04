@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -14,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
     /// </summary>
     public abstract class RelationalCompositeMemberTranslator : IMemberTranslator
     {
+        private readonly List<IMemberTranslator> _plugins = new List<IMemberTranslator>();
         private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
 
         /// <summary>
@@ -23,6 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         protected RelationalCompositeMemberTranslator([NotNull] RelationalCompositeMemberTranslatorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
         }
 
         /// <summary>
@@ -33,19 +37,9 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionTranslators
         ///     A SQL expression representing the translated MemberExpression.
         /// </returns>
         public virtual Expression Translate(MemberExpression memberExpression)
-        {
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var translator in _translators)
-            {
-                var translatedMember = translator.Translate(memberExpression);
-                if (translatedMember != null)
-                {
-                    return translatedMember;
-                }
-            }
-
-            return null;
-        }
+            => Enumerable.Concat(_plugins, _translators)
+                .Select(translator => translator.Translate(memberExpression))
+                .FirstOrDefault(translatedMember => translatedMember != null);
 
         /// <summary>
         ///     Adds additional translators to the dispatch list.

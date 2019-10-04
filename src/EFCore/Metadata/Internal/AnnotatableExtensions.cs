@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 return "";
             }
+
             var builder = new StringBuilder();
 
             builder.AppendLine().Append(indent).Append("Annotations: ");

@@ -1281,7 +1281,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder
                     .Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak)
-                    .HasForeignKey(e => new { e.BurgerId, e.Id });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId,
+                            e.Id
+                        });
                 modelBuilder.Ignore<Bun>();
 
                 var dependentType = model.FindEntityType(typeof(Pickle));
@@ -1332,7 +1337,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder
                     .Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak)
-                    .HasPrincipalKey(e => new { e.Id });
+                    .HasPrincipalKey(
+                        e => new
+                        {
+                            e.Id
+                        });
                 modelBuilder.Ignore<Bun>();
 
                 var principalType = model.FindEntityType(typeof(BigMak));
@@ -1383,10 +1392,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
+                modelBuilder.Entity<Whoopper>().HasKey(
+                    c => new
+                    {
+                        c.Id1,
+                        c.Id2
+                    });
                 modelBuilder
                     .Entity<Tomato>().HasOne(e => e.Whoopper).WithMany()
-                    .HasForeignKey(c => new { c.BurgerId1, c.BurgerId2 });
+                    .HasForeignKey(
+                        c => new
+                        {
+                            c.BurgerId1,
+                            c.BurgerId2
+                        });
                 modelBuilder.Ignore<ToastedBun>();
                 modelBuilder.Ignore<Moostard>();
 
@@ -1398,7 +1417,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1423,7 +1447,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
+                modelBuilder.Entity<Whoopper>(
+                    b => b.HasKey(
+                        c => new
+                        {
+                            c.Id1,
+                            c.Id2
+                        }));
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
                 modelBuilder.Ignore<Moostard>();
@@ -1439,7 +1469,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1469,7 +1504,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
+                modelBuilder.Entity<Whoopper>(
+                    b => b.HasKey(
+                        c => new
+                        {
+                            c.Id1,
+                            c.Id2
+                        }));
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
                 modelBuilder.Ignore<Moostard>();
@@ -1487,8 +1528,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 })
-                    .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        })
+                    .HasPrincipalKey(
+                        e => new
+                        {
+                            e.AlternateKey1,
+                            e.AlternateKey2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1525,7 +1576,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
+                modelBuilder.Entity<Whoopper>(
+                    b => b.HasKey(
+                        c => new
+                        {
+                            c.Id1,
+                            c.Id2
+                        }));
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
                 modelBuilder.Ignore<Moostard>();
@@ -1543,8 +1600,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                    .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 })
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasPrincipalKey(
+                        e => new
+                        {
+                            e.AlternateKey1,
+                            e.AlternateKey2
+                        })
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1581,13 +1648,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
+                modelBuilder.Entity<Whoopper>().HasKey(
+                    c => new
+                    {
+                        c.Id1,
+                        c.Id2
+                    });
                 modelBuilder.Entity<Tomato>(
                     b =>
-                        {
-                            b.Property(e => e.BurgerId1);
-                            b.Property(e => e.BurgerId2);
-                        });
+                    {
+                        b.Property(e => e.BurgerId1);
+                        b.Property(e => e.BurgerId2);
+                    });
                 modelBuilder.Ignore<ToastedBun>();
                 modelBuilder.Ignore<Moostard>();
 
@@ -1602,7 +1674,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne()
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1627,7 +1704,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
+                modelBuilder.Entity<Whoopper>().HasKey(
+                    c => new
+                    {
+                        c.Id1,
+                        c.Id2
+                    });
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
                 modelBuilder.Ignore<Moostard>();
@@ -1640,7 +1722,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany<Tomato>().WithOne(e => e.Whoopper)
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1666,7 +1753,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
+                modelBuilder.Entity<Whoopper>().HasKey(
+                    c => new
+                    {
+                        c.Id1,
+                        c.Id2
+                    });
                 modelBuilder.Entity<Whoopper>().HasMany(w => w.Tomatoes).WithOne(t => t.Whoopper);
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<Moostard>();
@@ -1684,7 +1776,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany<Tomato>().WithOne()
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1713,9 +1810,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
+                modelBuilder.Entity<Whoopper>().HasKey(
+                    c => new
+                    {
+                        c.Id1,
+                        c.Id2
+                    });
                 modelBuilder.Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne(e => e.Whoopper)
-                    .HasForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasForeignKey<ToastedBun>(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
                 modelBuilder.Ignore<Tomato>();
                 modelBuilder.Ignore<Moostard>();
 
@@ -1727,8 +1834,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany<ToastedBun>().WithOne()
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 })
-                    .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        })
+                    .HasPrincipalKey(
+                        e => new
+                        {
+                            e.AlternateKey1,
+                            e.AlternateKey2
+                        });
 
                 var navigation = dependentType.GetNavigations().Single();
                 var existingFk = navigation.ForeignKey;
@@ -1761,9 +1878,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-                modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
+                modelBuilder.Entity<Whoopper>().HasKey(
+                    c => new
+                    {
+                        c.Id1,
+                        c.Id2
+                    });
                 modelBuilder.Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne(e => e.Whoopper)
-                    .HasForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasForeignKey<ToastedBun>(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
                 modelBuilder.Ignore<Tomato>();
                 modelBuilder.Ignore<Moostard>();
 
@@ -1775,8 +1902,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Whoopper>().HasMany<ToastedBun>().WithOne()
-                    .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 })
-                    .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
+                    .HasPrincipalKey(
+                        e => new
+                        {
+                            e.AlternateKey1,
+                            e.AlternateKey2
+                        })
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.BurgerId1,
+                            e.BurgerId2
+                        });
 
                 var existingFk = dependentType.GetNavigations().Single().ForeignKey;
                 Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);
@@ -1794,6 +1931,43 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(principalType.GetIndexes());
                 Assert.Equal(1, dependentType.GetIndexes().Count());
                 Assert.True(fk.DeclaringEntityType.FindIndex(fk.Properties).IsUnique);
+            }
+
+            [Fact]
+            public virtual void Creates_overlapping_foreign_keys_with_different_nullability()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+                modelBuilder.Entity<Order>(eb =>
+                {
+                    eb.HasKey(
+                    c => new
+                    {
+                        c.OrderId,
+                        c.CustomerId
+                    });
+                });
+
+                modelBuilder.Entity<ProductCategory>(eb =>
+                {
+                    eb.HasKey(c => new { c.Id, c.Name });
+                });
+
+                modelBuilder.Entity<Product>(eb =>
+                {
+                    eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
+                    eb.HasOne<ProductCategory>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
+                });
+
+                var dependentType = model.FindEntityType(typeof(Product));
+
+                var optionalFk = dependentType.GetNavigations().Single().ForeignKey;
+                Assert.False(optionalFk.IsRequired);
+                Assert.True(optionalFk.Properties.Last().IsNullable);
+
+                var requiredFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != optionalFk);
+                Assert.True(requiredFk.IsRequired);
+                Assert.False(requiredFk.Properties.Last().IsNullable);
             }
 
             [Fact]
@@ -1896,7 +2070,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob)
-                    .HasForeignKey(e => new { e.HobId1, e.HobId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.HobId1,
+                            e.HobId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1918,7 +2097,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
-                    .HasForeignKey(e => new { e.NobId1, e.NobId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.NobId1,
+                            e.NobId2
+                        });
 
                 modelBuilder.Validate();
 
@@ -1940,7 +2124,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Hob>().HasMany(e => e.Nobs).WithOne(e => e.Hob)
-                    .HasForeignKey(e => new { e.HobId1, e.HobId2 })
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.HobId1,
+                            e.HobId2
+                        })
                     .IsRequired();
 
                 modelBuilder.Validate();
@@ -1966,7 +2155,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder
                             .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
-                            .HasForeignKey(e => new { e.NobId1, e.NobId2 })
+                            .HasForeignKey(
+                                e => new
+                                {
+                                    e.NobId1,
+                                    e.NobId2
+                                })
                             .IsRequired(false)).Message);
             }
 
@@ -1977,7 +2171,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder
                     .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
-                    .HasForeignKey(e => new { e.NobId1, e.NobId2 });
+                    .HasForeignKey(
+                        e => new
+                        {
+                            e.NobId1,
+                            e.NobId2
+                        });
 
                 modelBuilder
                     .Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)
@@ -2064,11 +2263,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Alpha>();
                 modelBuilder.Entity<Beta>(
                     b =>
-                        {
-                            b.HasOne(e => e.FirstNav)
-                                .WithMany()
-                                .HasForeignKey("ShadowId");
-                        });
+                    {
+                        b.HasOne(e => e.FirstNav)
+                            .WithMany()
+                            .HasForeignKey("ShadowId");
+                    });
 
                 modelBuilder.Validate();
 
@@ -2207,16 +2406,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(
                     b =>
-                        {
-                            b.Ignore(e => e.NavOneToOneDependentEntityId);
-                            b.Ignore(e => e.OneToOneDependentEntityId);
-                        });
+                    {
+                        b.Ignore(e => e.NavOneToOneDependentEntityId);
+                        b.Ignore(e => e.OneToOneDependentEntityId);
+                    });
                 modelBuilder.Entity<OneToOneDependentEntity>(
                     b =>
-                        {
-                            b.Ignore(e => e.NavOneToOnePrincipalEntityId);
-                            b.Ignore(e => e.OneToOnePrincipalEntityId);
-                        });
+                    {
+                        b.Ignore(e => e.NavOneToOnePrincipalEntityId);
+                        b.Ignore(e => e.OneToOnePrincipalEntityId);
+                    });
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2237,11 +2436,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(
                     b =>
-                        {
-                            b.Ignore(e => e.NavOneToOneDependentEntityId);
-                            b.Ignore(e => e.OneToOneDependentEntityId);
-                        });
-                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.OneToOnePrincipalEntityId); });
+                    {
+                        b.Ignore(e => e.NavOneToOneDependentEntityId);
+                        b.Ignore(e => e.OneToOneDependentEntityId);
+                    });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.OneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2263,11 +2462,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(
                     b =>
-                        {
-                            b.Ignore(e => e.NavOneToOneDependentEntityId);
-                            b.Ignore(e => e.OneToOneDependentEntityId);
-                        });
-                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.NavOneToOnePrincipalEntityId); });
+                    {
+                        b.Ignore(e => e.NavOneToOneDependentEntityId);
+                        b.Ignore(e => e.OneToOneDependentEntityId);
+                    });
+                modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.NavOneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2287,8 +2486,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_properties_are_on_both_sides()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<OneToOnePrincipalEntity>(b => { b.Ignore(e => e.NavOneToOneDependentEntityId); });
-                modelBuilder.Entity<OneToOneDependentEntity>(b => { b.Ignore(e => e.NavOneToOnePrincipalEntityId); });
+                modelBuilder.Entity<OneToOnePrincipalEntity>(b => b.Ignore(e => e.NavOneToOneDependentEntityId));
+                modelBuilder.Entity<OneToOneDependentEntity>(b => b.Ignore(e => e.NavOneToOnePrincipalEntityId));
 
                 modelBuilder.Entity<OneToOneDependentEntity>().HasOne(e => e.NavOneToOnePrincipalEntity);
 
@@ -2363,18 +2562,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Alpha.AnotherId), entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
             }
 
+            [Fact]
+            public virtual void Creates_shadow_fk_configuring_using_ForeignKeyAttribute()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependends).WithOne(e => e.Principal);
+
+                modelBuilder.Validate();
+
+                Assert.Equal("PrincipalShadowFkId",
+                    modelBuilder.Model.FindEntityType(typeof(DependentShadowFk)).GetForeignKeys().Single().Properties[0].Name);
+            }
+
             [Fact] // Issue #3376
             public virtual void Can_use_self_referencing_overlapping_FK_PK()
             {
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<ModifierGroupHeader>()
-                    .HasKey(x => new { x.GroupHeaderId, x.AccountId });
+                    .HasKey(
+                        x => new
+                        {
+                            x.GroupHeaderId,
+                            x.AccountId
+                        });
 
                 modelBuilder.Entity<ModifierGroupHeader>()
                     .HasOne(x => x.ModifierGroupHeader2)
                     .WithMany(x => x.ModifierGroupHeader1)
-                    .HasForeignKey(x => new { x.LinkedGroupHeaderId, x.AccountId });
+                    .HasForeignKey(
+                        x => new
+                        {
+                            x.LinkedGroupHeaderId,
+                            x.AccountId
+                        });
 
                 var contextOptions = new DbContextOptionsBuilder()
                     .UseModel(modelBuilder.Model)
@@ -2383,9 +2604,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 using (var context = new DbContext(contextOptions))
                 {
-                    var parent = context.Add(new ModifierGroupHeader { GroupHeaderId = 77, AccountId = 90 }).Entity;
-                    var child1 = context.Add(new ModifierGroupHeader { GroupHeaderId = 78, AccountId = 90 }).Entity;
-                    var child2 = context.Add(new ModifierGroupHeader { GroupHeaderId = 79, AccountId = 90 }).Entity;
+                    var parent = context.Add(
+                        new ModifierGroupHeader
+                        {
+                            GroupHeaderId = 77,
+                            AccountId = 90
+                        }).Entity;
+                    var child1 = context.Add(
+                        new ModifierGroupHeader
+                        {
+                            GroupHeaderId = 78,
+                            AccountId = 90
+                        }).Entity;
+                    var child2 = context.Add(
+                        new ModifierGroupHeader
+                        {
+                            GroupHeaderId = 79,
+                            AccountId = 90
+                        }).Entity;
 
                     child1.ModifierGroupHeader2 = parent;
                     child2.ModifierGroupHeader2 = parent;
@@ -2403,6 +2639,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                     AssertGraph(parent, child1, child2);
                 }
+            }
+
+            [Fact]
+            public virtual void Do_not_match_non_unique_FK_when_overlap_with_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CompositeChild>().HasKey(e => new { e.Id, e.Value });
+
+                var fk = modelBuilder.Model.FindEntityType(typeof(CompositeChild)).GetForeignKeys().Single();
+                Assert.Equal("ParentId", fk.Properties[0].Name);
             }
 
             private static void AssertGraph(

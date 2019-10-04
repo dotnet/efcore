@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
                 ProductInfo.GetVersion(),
                 nameof(LoggingContext),
                 ProviderName,
-                optionsFragment ?? "None");
+                optionsFragment ?? "None").Trim();
 
         protected abstract DbContextOptionsBuilder CreateOptionsBuilder();
 
@@ -51,13 +51,13 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual string ActualMessage(DbContextOptionsBuilder optionsBuilder)
         {
-            var log = new List<(LogLevel Level, EventId Id, string Message)>();
-            using (var context = new LoggingContext(optionsBuilder.UseLoggerFactory(new ListLoggerFactory(log))))
+            var loggerFactory = new ListLoggerFactory();
+            using (var context = new LoggingContext(optionsBuilder.UseLoggerFactory(loggerFactory)))
             {
                 var _ = context.Model;
             }
 
-            return log.Single(t => t.Id.Id == CoreEventId.ContextInitialized.Id).Message;
+            return loggerFactory.Log.Single(t => t.Id.Id == CoreEventId.ContextInitialized.Id).Message;
         }
 
         protected class LoggingContext : DbContext

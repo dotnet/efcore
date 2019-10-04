@@ -127,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore
                     var someService = serviceScope.ServiceProvider.GetRequiredService<SomeService>();
                     Assert.Same(context1, someService.Context);
                 }
+
                 using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
                 {
                     using (context2 = serviceScope.ServiceProvider.GetRequiredService<MultipleProvidersContext>())
@@ -188,10 +189,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 modelBuilder.Entity<Customer>(
                     b =>
-                        {
-                            b.HasKey(c => c.CustomerID);
-                            b.ToTable("Customers");
-                        });
+                    {
+                        b.HasKey(c => c.CustomerID);
+                        b.ToTable("Customers");
+                    });
             }
         }
 
@@ -270,7 +271,12 @@ namespace Microsoft.EntityFrameworkCore
                 using (var context0 = createBlogContext())
                 {
                     Assert.Equal(0, context0.ChangeTracker.Entries().Count());
-                    var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
+                    var blog0 = context0.Add(
+                        new Blog
+                        {
+                            Id = 1,
+                            Name = "Giddyup"
+                        }).Entity;
                     Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
                     await context0.SaveChangesAsync();
 

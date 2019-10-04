@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public MigrationsSqlServerFixture()
         {
-            ((SqlServerTestStore)TestStore).ExecuteNonQuery(@"USE master
+            ((SqlServerTestStore)TestStore).ExecuteNonQuery(
+                @"USE master
 IF EXISTS(select * from sys.databases where name='TransactionSuppressed')
 DROP DATABASE TransactionSuppressed");
         }

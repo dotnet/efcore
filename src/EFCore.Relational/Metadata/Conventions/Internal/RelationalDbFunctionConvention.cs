@@ -28,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             Check.NotNull(name, nameof(name));
 
             if (name.StartsWith(RelationalAnnotationNames.DbFunction, StringComparison.Ordinal)
-                && annotation != null
-                && annotation.Value != null
+                && annotation?.Value != null
                 && oldAnnotation == null)
             {
                 ApplyCustomizations(modelBuilder, name, annotation);

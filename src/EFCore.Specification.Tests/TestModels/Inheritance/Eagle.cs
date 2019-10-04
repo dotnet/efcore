@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
         Snake,
         Harpy
     }
-    
+
     public class EagleQuery : BirdQuery
     {
         public EagleGroup Group { get; set; }

@@ -4,15 +4,10 @@
 using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-#if Test20
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-#else
-using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
-#endif
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -331,7 +326,22 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);
         }
 
-#if !Test20
+        [Fact]
+        public virtual void RenameColumnOperation()
+        {
+            Generate(
+                new RenameColumnOperation
+                {
+                    Table = "People",
+                    Name = "Name",
+                    NewName = "FullName"
+                });
+
+            Assert.Equal(
+                @"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";" + EOL,
+                Sql);
+        }
+
         [Fact]
         public virtual void RenameIndexOperation()
         {
@@ -355,7 +365,6 @@ namespace Microsoft.EntityFrameworkCore
                 @"CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""Id"" > 2;" + EOL,
                 Sql);
         }
-#endif
 
         [Fact]
         public virtual void RenameIndexOperations_throws_when_no_model()
@@ -382,7 +391,6 @@ namespace Microsoft.EntityFrameworkCore
                 Sql);
         }
 
-#if !Test20
         public override void RenameTableOperation()
         {
             base.RenameTableOperation();
@@ -391,7 +399,6 @@ namespace Microsoft.EntityFrameworkCore
                 "ALTER TABLE \"People\" RENAME TO \"Person\";" + EOL,
                 Sql);
         }
-#endif
 
         public override void CreateSequenceOperation_with_minValue_and_maxValue()
         {

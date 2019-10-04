@@ -78,6 +78,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     connection.DbConnection.Close();
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
+
                 return result;
             }
 
@@ -92,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     connection.DbConnection.Close();
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
+
                 return result;
             }
 
@@ -106,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     connection.DbConnection.Close();
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
+
                 return result;
             }
 
@@ -120,6 +123,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     connection.DbConnection.Close();
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
+
                 return result;
             }
 
@@ -135,6 +139,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     result.Dispose(); // Normally, in non-test case, reader is disposed by using in caller code
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
+
                 return result;
             }
 
@@ -150,6 +155,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     result.Dispose(); // Normally, in non-test case, reader is disposed by using in caller code
                     throw SqlExceptionFactory.CreateSqlException(errorNumber.Value);
                 }
+
                 return result;
             }
 
@@ -169,9 +175,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                             testConnection.DbConnection.Close();
                             throw SqlExceptionFactory.CreateSqlException(testConnection.ErrorNumber);
                         }
+
                         errorNumber = testConnection.ErrorNumber;
                     }
                 }
+
                 return errorNumber;
             }
         }

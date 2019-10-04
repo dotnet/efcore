@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     if (sanitizedContextName.EndsWith("Context", StringComparison.Ordinal))
                     {
-                        builder.Append(sanitizedContextName.Substring(0, sanitizedContextName.Length - 7));
+                        builder.Append(sanitizedContextName, 0, sanitizedContextName.Length - 7);
                     }
                     else
                     {
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelSnapshot = Dependencies.MigrationsAssembly.ModelSnapshot;
             var lastModel = Dependencies.SnapshotModelProcessor.Process(modelSnapshot?.Model);
             var upOperations = Dependencies.MigrationsModelDiffer.GetDifferences(lastModel, Dependencies.Model);
-            var downOperations = upOperations.Any()
+            var downOperations = upOperations.Count > 0
                 ? Dependencies.MigrationsModelDiffer.GetDifferences(Dependencies.Model, lastModel)
                 : new List<MigrationOperation>();
             var migrationId = Dependencies.MigrationsIdGenerator.GenerateId(migrationName);
@@ -259,6 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Dependencies.OperationReporter.WriteWarning(
                             DesignStrings.ForceRemoveMigration(migration.GetId(), ex.Message));
                     }
+
                     if (applied)
                     {
                         if (force)

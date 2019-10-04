@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Oracle.ValueGeneration.Internal
 
             return _sequenceGeneratorCache.GetOrAdd(
                 GetSequenceName(sequence),
-                sequenceName => new OracleSequenceValueGeneratorState(sequence));
+                _ => new OracleSequenceValueGeneratorState(sequence));
         }
 
         private static string GetSequenceName(ISequence sequence)

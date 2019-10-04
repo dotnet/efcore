@@ -32,7 +32,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var nonKeyProperty = entityType.FindProperty("Name");
             var configuration = InMemoryTestHelpers.Instance.CreateContextServices(model);
 
-            var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
+            var entity = new SomeEntity
+            {
+                Id = 77,
+                Name = "Magic Tree House"
+            };
             var entry = CreateInternalEntry(configuration, entityType, entity);
 
             Assert.Equal(77, entry[keyProperty]);
@@ -55,7 +59,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = CreateInternalEntry(
                 configuration,
                 entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             var entity = (SomeEntity)entry.Entity;
@@ -70,7 +78,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
 
-            AllOriginalValuesTest(model, entityType, new SomeEntity { Id = 1, Name = "Kool" });
+            AllOriginalValuesTest(
+                model, entityType, new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         [Fact]
@@ -79,20 +92,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(ChangedOnlyEntity).FullName);
 
-            AllOriginalValuesTest(model, entityType, new ChangedOnlyEntity { Id = 1, Name = "Kool" });
+            AllOriginalValuesTest(
+                model, entityType, new ChangedOnlyEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                });
         }
 
         [Fact]
         public void Setting_CLR_property_with_snapshot_change_tracking_requires_DetectChanges()
-            => SetPropertyClrTest(new SomeEntity { Id = 1, Name = "Kool" }, needsDetectChanges: true);
+            => SetPropertyClrTest(
+                new SomeEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                }, needsDetectChanges: true);
 
         [Fact]
         public void Setting_CLR_property_with_changed_only_notifications_does_not_require_DetectChanges()
-            => SetPropertyClrTest(new ChangedOnlyEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
+            => SetPropertyClrTest(
+                new ChangedOnlyEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                }, needsDetectChanges: false);
 
         [Fact]
         public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
-            => SetPropertyClrTest(new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
+            => SetPropertyClrTest(
+                new FullNotificationEntity
+                {
+                    Id = 1,
+                    Name = "Kool"
+                }, needsDetectChanges: false);
 
         [Fact]
         public void Setting_an_explicit_value_on_the_entity_marks_property_as_not_temporary()

@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 {
                     using (var context = createContext())
                     {
-                        context.Database.EnsureCreated();
+                        context.Database.EnsureCreatedResiliently();
                         seed(context);
                     }
                 }
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             using (var master = new SqlConnection(CreateConnectionString("master", fileName: null, multipleActiveResultSets: false)))
             {
-                if (ExecuteScalar<int>(master, $@"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
+                if (ExecuteScalar<int>(master, $"SELECT COUNT(*) FROM sys.databases WHERE name = N'{Name}'") > 0)
                 {
                     if (_scriptPath != null)
                     {
@@ -136,16 +136,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var script = File.ReadAllText(scriptPath);
             Execute(
                 Connection, command =>
+                {
+                    foreach (var batch in
+                        new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
+                            .Split(script).Where(b => !string.IsNullOrEmpty(b)))
                     {
-                        foreach (var batch in
-                            new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
-                                .Split(script).Where(b => !string.IsNullOrEmpty(b)))
-                        {
-                            command.CommandText = batch;
-                            command.ExecuteNonQuery();
-                        }
-                        return 0;
-                    }, "");
+                        command.CommandText = batch;
+                        command.ExecuteNonQuery();
+                    }
+
+                    return 0;
+                }, "");
         }
 
         private static void WaitForExists(SqlConnection connection)
@@ -213,6 +214,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                               $" LOG ON (NAME = '{name}_log', FILENAME = '{logFileName}')";
                 }
             }
+
             return result;
         }
 
@@ -279,17 +281,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static IEnumerable<T> Query<T>(DbConnection connection, string sql, object[] parameters = null)
             => Execute(
                 connection, command =>
+                {
+                    using (var dataReader = command.ExecuteReader())
                     {
-                        using (var dataReader = command.ExecuteReader())
+                        var results = Enumerable.Empty<T>();
+                        while (dataReader.Read())
                         {
-                            var results = Enumerable.Empty<T>();
-                            while (dataReader.Read())
-                            {
-                                results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
-                            }
-                            return results;
+                            results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
                         }
-                    }, sql, false, parameters);
+
+                        return results;
+                    }
+                }, sql, false, parameters);
 
         public Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
             => QueryAsync<T>(Connection, sql, parameters);
@@ -297,24 +300,32 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static Task<IEnumerable<T>> QueryAsync<T>(DbConnection connection, string sql, object[] parameters = null)
             => ExecuteAsync(
                 connection, async command =>
+                {
+                    using (var dataReader = await command.ExecuteReaderAsync())
                     {
-                        using (var dataReader = await command.ExecuteReaderAsync())
+                        var results = Enumerable.Empty<T>();
+                        while (await dataReader.ReadAsync())
                         {
-                            var results = Enumerable.Empty<T>();
-                            while (await dataReader.ReadAsync())
-                            {
-                                results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
-                            }
-                            return results;
+                            results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
                         }
-                    }, sql, false, parameters);
+
+                        return results;
+                    }
+                }, sql, false, parameters);
 
         private static T Execute<T>(
             DbConnection connection, Func<DbCommand, T> execute, string sql,
             bool useTransaction = false, object[] parameters = null)
             => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().Execute(
-                    new { connection, execute, sql, useTransaction, parameters },
+                    new
+                    {
+                        connection,
+                        execute,
+                        sql,
+                        useTransaction,
+                        parameters
+                    },
                     state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters))
                 : ExecuteCommand(connection, execute, sql, useTransaction, parameters);
 
@@ -325,6 +336,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 connection.Close();
             }
+
             connection.Open();
             try
             {
@@ -336,6 +348,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         command.Transaction = transaction;
                         result = execute(command);
                     }
+
                     transaction?.Commit();
 
                     return result;
@@ -355,7 +368,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool useTransaction = false, IReadOnlyList<object> parameters = null)
             => TestEnvironment.IsSqlAzure
                 ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
-                    new { connection, executeAsync, sql, useTransaction, parameters },
+                    new
+                    {
+                        connection,
+                        executeAsync,
+                        sql,
+                        useTransaction,
+                        parameters
+                    },
                     state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters))
                 : ExecuteCommandAsync(connection, executeAsync, sql, useTransaction, parameters);
 
@@ -366,6 +386,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 connection.Close();
             }
+
             await connection.OpenAsync();
             try
             {
@@ -376,6 +397,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     {
                         result = await executeAsync(command);
                     }
+
                     transaction?.Commit();
 
                     return result;

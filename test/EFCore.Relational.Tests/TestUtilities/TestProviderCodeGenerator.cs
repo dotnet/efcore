@@ -13,7 +13,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public override MethodCallCodeFragment GenerateUseProvider(string connectionString)
-            => new MethodCallCodeFragment("UseTestProvider", connectionString);
+        public override MethodCallCodeFragment GenerateUseProvider(
+            string connectionString,
+            MethodCallCodeFragment providerOptions)
+            => new MethodCallCodeFragment(
+                "UseTestProvider",
+                providerOptions == null
+                ? new object[] { connectionString }
+                : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
     }
 }

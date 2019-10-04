@@ -45,10 +45,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             [NotNull] Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             [CanBeNull] IComparer<IUpdateEntry> comparer)
-        : this(
-            Check.NotEmpty(name, nameof(name)),
-            schema,
-            null)
+            : this(
+                Check.NotEmpty(name, nameof(name)),
+                schema,
+                null)
         {
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
@@ -56,7 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             _comparer = comparer;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         }
-
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -382,6 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 conflictList = new List<ColumnModification>();
                 conflictingColumnValues.Add(columnModification.Entry, conflictList);
             }
+
             conflictList.Add(columnModification);
 
             if (!conflictingColumnValues.TryGetValue(existingColumn.Entry, out var otherConflictList))
@@ -389,6 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 otherConflictList = new List<ColumnModification>();
                 conflictingColumnValues.Add(existingColumn.Entry, otherConflictList);
             }
+
             otherConflictList.Add(existingColumn);
 
             return conflictingColumnValues;

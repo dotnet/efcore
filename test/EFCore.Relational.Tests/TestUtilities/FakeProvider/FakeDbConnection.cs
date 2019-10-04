@@ -41,10 +41,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override string DataSource { get; } = "Fake DataSource";
 
-        public override string ServerVersion
-        {
-            get { throw new NotImplementedException(); }
-        }
+        public override string ServerVersion => throw new NotImplementedException();
 
         public override void ChangeDatabase(string databaseName)
         {

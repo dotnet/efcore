@@ -87,14 +87,14 @@
     <Type Name="Microsoft.EntityFrameworkCore.ChangeTracking.Internal.NullableKeyIdentityMap{System.Nullable{System.Int32}}" Dynamic="Required Public" />
 
     <Type Name="Microsoft.EntityFrameworkCore.Metadata.Internal.EntityMaterializerSource" Dynamic="Required Public">
-      <MethodInstantiation Name="TryReadValue" Arguments="System.Object" Dynamic="Required"/>
-      <MethodInstantiation Name="TryReadValue" Arguments="System.Guid" Dynamic="Required"/>
-      <MethodInstantiation Name="TryReadValue" Arguments="System.Int32" Dynamic="Required"/>
-      <MethodInstantiation Name="TryReadValue" Arguments="System.Nullable{System.Int32}" Dynamic="Required"/>
+      <MethodInstantiation Name="TryReadValue" Arguments="System.Object" Dynamic="Required" />
+      <MethodInstantiation Name="TryReadValue" Arguments="System.Guid" Dynamic="Required" />
+      <MethodInstantiation Name="TryReadValue" Arguments="System.Int32" Dynamic="Required" />
+      <MethodInstantiation Name="TryReadValue" Arguments="System.Nullable{System.Int32}" Dynamic="Required" />
     </Type>
 
     <Type Name="Microsoft.EntityFrameworkCore.ChangeTracking.ChangeTracker" Dynamic="Required Public">
-      <MethodInstantiation Name="Entries" Arguments="System.Object" Dynamic="Required"/>
+      <MethodInstantiation Name="Entries" Arguments="System.Object" Dynamic="Required" />
     </Type>
 
     <Type Name="System.Collections.Generic.Dictionary{System.Object, System.Object}" Dynamic="Required Public" />

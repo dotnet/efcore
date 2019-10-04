@@ -72,8 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (entityType.BaseType == null)
                 {
                     var currentPrimaryKey = entityType.FindPrimaryKey();
-                    if (currentPrimaryKey != null
-                        && currentPrimaryKey.Properties.Count > 1
+                    if (currentPrimaryKey?.Properties.Count > 1
                         && entityType.GetPrimaryKeyConfigurationSource() == ConfigurationSource.DataAnnotation)
                     {
                         throw new InvalidOperationException(CoreStrings.CompositePKWithDataAnnotation(entityType.DisplayName()));

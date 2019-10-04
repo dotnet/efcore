@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -141,8 +139,6 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(2, context.Owners.Count()));
         }
 
-
-#if !Test20
         [Theory]
         [InlineData(3)]
         [InlineData(4)]
@@ -150,12 +146,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var expectedBlogs = new List<Blog>();
             TestHelpers.ExecuteWithStrategyInTransaction(
-                () =>
-                    {
-                        var optionsBuilder = new DbContextOptionsBuilder(Fixture.CreateOptions());
-                        new SqlServerDbContextOptionsBuilder(optionsBuilder).MinBatchSize(minBatchSize);
-                        return new BloggingContext(optionsBuilder.Options);
-                    },
+                () => (BloggingContext)Fixture.CreateContext(minBatchSize),
                 UseTransaction,
                 context =>
                     {
@@ -181,12 +172,11 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Contains(minBatchSize == 3
                             ? RelationalStrings.LogBatchReadyForExecution.GenerateMessage(3)
                             : RelationalStrings.LogBatchSmallerThanMinBatchSize.GenerateMessage(3, 4),
-                            Fixture.TestSqlLoggerFactory.Log);
+                            Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 
                         Assert.Equal(minBatchSize <= 3 ? 2 : 4, Fixture.TestSqlLoggerFactory.SqlStatements.Count);
                     }, context => AssertDatabaseState(context, false, expectedBlogs));
         }
-#endif
 
         private void AssertDatabaseState(DbContext context, bool clientOrder, List<Blog> expectedBlogs)
         {
@@ -220,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore
         protected void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
-        private class BloggingContext : DbContext
+        private class BloggingContext : PoolableDbContext
         {
             public BloggingContext(DbContextOptions options)
                 : base(options)
@@ -264,20 +254,30 @@ namespace Microsoft.EntityFrameworkCore
             public byte[] Version { get; set; }
         }
 
-        public class BatchingTestFixture : SharedStoreFixtureBase<DbContext>
+        public class BatchingTestFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();
             protected override string StoreName { get; } = "BatchingTest";
+            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(BloggingContext);
 
-            protected override void Seed(DbContext context)
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Update.Name;
+
+            protected override void Seed(PoolableDbContext context)
             {
-                context.Database.EnsureCreated();
+                context.Database.EnsureCreatedResiliently();
                 context.Database.ExecuteSqlCommand(
                     @"
 ALTER TABLE dbo.Owners
     ALTER COLUMN Name nvarchar(MAX);");
+            }
+
+            public DbContext CreateContext(int minBatchSize)
+            {
+                var optionsBuilder = new DbContextOptionsBuilder(CreateOptions());
+                new SqlServerDbContextOptionsBuilder(optionsBuilder).MinBatchSize(minBatchSize);
+                return new BloggingContext(optionsBuilder.Options);
             }
         }
     }

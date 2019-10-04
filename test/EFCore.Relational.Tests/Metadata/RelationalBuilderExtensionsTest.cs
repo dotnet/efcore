@@ -722,6 +722,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [Fact]
+        public void Can_set_discriminator_values_for_query_types()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Ignore<Order>();
+
+            modelBuilder.Query<Customer>()
+                .HasDiscriminator<string>("Type")
+                .HasValue<Customer>("Base")
+                .HasValue<SpecialCustomer>("Derived");
+
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(Customer)).IsQueryType);
+            Assert.True(modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).IsQueryType);
+        }
+
+        [Fact]
         public void Can_set_schema_on_model()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -890,12 +906,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .HasSequence<int>(
                     "Snook", b =>
-                        {
-                            b.IncrementsBy(11)
-                                .StartsAt(1729)
-                                .HasMin(111)
-                                .HasMax(2222);
-                        });
+                    {
+                        b.IncrementsBy(11)
+                            .StartsAt(1729)
+                            .HasMin(111)
+                            .HasMax(2222);
+                    });
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
@@ -910,12 +926,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder
                 .HasSequence(
                     typeof(int), "Snook", b =>
-                        {
-                            b.IncrementsBy(11)
-                                .StartsAt(1729)
-                                .HasMin(111)
-                                .HasMax(2222);
-                        });
+                    {
+                        b.IncrementsBy(11)
+                            .StartsAt(1729)
+                            .HasMin(111)
+                            .HasMax(2222);
+                    });
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
@@ -973,7 +989,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .HasSequence<int>("Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
+                .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222));
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
 
@@ -986,7 +1002,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .HasSequence(typeof(int), "Snook", "Tasty", b => { b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222); });
+                .HasSequence(typeof(int), "Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222));
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
 

@@ -32,6 +32,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Configures the name of the index in the database when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="name"> The name of the index. </param>
+        /// <returns> A builder to further configure the index. </returns>
+        public static IndexBuilder<TEntity> HasName<TEntity>([NotNull] this IndexBuilder<TEntity> indexBuilder, [CanBeNull] string name)
+            => (IndexBuilder<TEntity>)HasName((IndexBuilder)indexBuilder, name);
+
+        /// <summary>
         ///     Determines whether the specified index has filter expression.
         /// </summary>
         /// <param name="indexBuilder"> The builder for the index being configured. </param>
@@ -43,5 +53,15 @@ namespace Microsoft.EntityFrameworkCore
 
             return indexBuilder;
         }
+
+        /// <summary>
+        ///     Determines whether the specified index has filter expression.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="sql"> The filter expression for the index. </param>
+        /// <returns>A builder to further configure the index. </returns>
+        public static IndexBuilder<TEntity> HasFilter<TEntity>([NotNull] this IndexBuilder<TEntity> indexBuilder, [CanBeNull] string sql)
+            => (IndexBuilder<TEntity>)HasFilter((IndexBuilder)indexBuilder, sql);
     }
 }

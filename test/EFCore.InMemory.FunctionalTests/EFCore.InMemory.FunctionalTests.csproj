@@ -4,6 +4,7 @@
     <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
     <AssemblyName>Microsoft.EntityFrameworkCore.InMemory.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,8 +13,8 @@
     </None>
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.0.0'">
-   <DefineConstants>$(DefineConstants);Test20</DefineConstants>
+  <PropertyGroup Condition="'$(FunctionalTests_PackageVersion)' == '2.1.0'">
+   <DefineConstants>$(DefineConstants);Test21</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(FunctionalTests_PackageVersion)' == '0.0.0'">

@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 startupAssembly,
                 args);
 
-            _servicesBuilder = new DesignTimeServicesBuilder(startupAssembly, reporter, args);
+            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
         }
 
         /// <summary>
@@ -102,8 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         // => "namespace $(rootnamespace).A.B.C"
         private string SubnamespaceFromOutputPath(string outputDir)
         {
-            if (outputDir == null
-                || !outputDir.StartsWith(_projectDir, StringComparison.Ordinal))
+            if (outputDir?.StartsWith(_projectDir, StringComparison.Ordinal) != true)
             {
                 return null;
             }
@@ -135,7 +134,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
 
                 return from id in migrationsAssembly.Migrations.Keys
-                       select new MigrationInfo { Id = id, Name = idGenerator.GetName(id) };
+                       select new MigrationInfo
+                       {
+                           Id = id,
+                           Name = idGenerator.GetName(id)
+                       };
             }
         }
 

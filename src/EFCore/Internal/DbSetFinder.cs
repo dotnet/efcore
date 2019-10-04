@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                          && p.DeclaringType != typeof(DbContext)
                          && p.PropertyType.GetTypeInfo().IsGenericType
                          && (p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
-                            || p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
+                             || p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
                 .OrderBy(p => p.Name)
                 .Select(
                     p => new DbSetProperty(

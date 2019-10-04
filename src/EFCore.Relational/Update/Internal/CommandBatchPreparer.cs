@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _modificationCommandComparer = dependencies.ModificationCommandComparer;
             _keyValueIndexFactorySource = dependencies.KeyValueIndexFactorySource;
             _minBatchSize = dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()
-                ?.MinBatchSize ?? 4;
+                                ?.MinBatchSize ?? 4;
             Dependencies = dependencies;
 
             if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -168,10 +168,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         sharedTablesCommandsMap =
                             new Dictionary<(string Schema, string Name), SharedTableEntryMap<ModificationCommand>>();
                     }
+
                     if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
                     {
-                        sharedCommandsMap = commandIdentityMapFactory((t, s, c) => new ModificationCommand(
-                            t, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                        sharedCommandsMap = commandIdentityMapFactory(
+                            (t, s, c) => new ModificationCommand(
+                                t, s, generateParameterName, _sensitiveLoggingEnabled, c));
                         sharedTablesCommandsMap.Add((schema, table), sharedCommandsMap);
                     }
 
@@ -197,15 +199,16 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                      || c.ColumnModifications.Any(m => m.IsWrite));
         }
 
-        private void Validate(Dictionary<(string Schema, string Name),
-            SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap)
+        private void Validate(
+            Dictionary<(string Schema, string Name),
+                SharedTableEntryMap<ModificationCommand>> sharedTablesCommandsMap)
         {
             foreach (var modificationCommandIdentityMap in sharedTablesCommandsMap.Values)
             {
                 foreach (var command in modificationCommandIdentityMap.Values)
                 {
                     if (command.EntityState != EntityState.Added
-                         && command.EntityState != EntityState.Deleted)
+                        && command.EntityState != EntityState.Deleted)
                     {
                         continue;
                     }
@@ -224,8 +227,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             for (var otherEntryIndex = 0; otherEntryIndex < command.Entries.Count; otherEntryIndex++)
                             {
                                 var principalEntry = command.Entries[otherEntryIndex];
-                                if (principalEntry != entry &&
-                                    principalEntityType.IsAssignableFrom(principalEntry.EntityType))
+                                if (principalEntry != entry
+                                    && principalEntityType.IsAssignableFrom(principalEntry.EntityType))
                                 {
                                     principalFound = true;
                                     break;
@@ -268,8 +271,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             for (var otherEntryIndex = 0; otherEntryIndex < command.Entries.Count; otherEntryIndex++)
                             {
                                 var dependentEntry = command.Entries[otherEntryIndex];
-                                if (dependentEntry != entry &&
-                                    dependentEntityType.IsAssignableFrom(dependentEntry.EntityType))
+                                if (dependentEntry != entry
+                                    && dependentEntityType.IsAssignableFrom(dependentEntry.EntityType))
                                 {
                                     dependentFound = true;
                                     break;
@@ -384,6 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         builder.Append(", ");
                     }
                 }
+
                 builder.Append(" } ");
             }
             else
@@ -453,6 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     builder.Append(", ");
                 }
             }
+
             builder.Append(" } ");
 
             if (!reverseDependency)
@@ -491,6 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     builder.Append(", ");
                 }
             }
+
             builder.Append(" } ");
 
             if (!reverseDependency)
@@ -523,8 +529,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                             var candidateKeyValueColumnModifications = columnModifications.Where(
                                 cm =>
-                                    foreignKey.PrincipalKey.Properties.Contains(cm.Property) &&
-                                    (cm.IsWrite || cm.IsRead));
+                                    foreignKey.PrincipalKey.Properties.Contains(cm.Property)
+                                    && (cm.IsWrite || cm.IsRead));
 
                             if (command.EntityState == EntityState.Added
                                 || candidateKeyValueColumnModifications.Any())
@@ -539,6 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                         predecessorCommands = new List<ModificationCommand>();
                                         predecessorsMap.Add(principalKeyValue, predecessorCommands);
                                     }
+
                                     predecessorCommands.Add(command);
                                 }
                             }
@@ -572,6 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                         predecessorCommands = new List<ModificationCommand>();
                                         predecessorsMap.Add(dependentKeyValue, predecessorCommands);
                                     }
+
                                     predecessorCommands.Add(command);
                                 }
                             }
@@ -579,6 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     }
                 }
             }
+
             return predecessorsMap;
         }
 
@@ -607,10 +616,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     continue;
                                 }
 
-                                AddMatchingPredecessorEdge(predecessorsMap, dependentKeyValue, commandGraph, command,
+                                AddMatchingPredecessorEdge(
+                                    predecessorsMap, dependentKeyValue, commandGraph, command,
                                     foreignKey);
                             }
                         }
+
                         break;
                     case EntityState.Deleted:
                         // TODO: also examine modified entities here when principal key modification is supported
@@ -631,6 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 }
                             }
                         }
+
                         break;
                 }
             }
@@ -679,7 +691,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             for (var indexIndex = 0; indexIndex < command.ColumnModifications.Count; indexIndex++)
                             {
                                 var cm = command.ColumnModifications[indexIndex];
-                                if (index.Properties.Contains(cm.Property) && (cm.IsWrite || cm.IsRead))
+                                if (index.Properties.Contains(cm.Property)
+                                    && (cm.IsWrite || cm.IsRead))
                                 {
                                     indexColumnModifications = true;
                                     break;
@@ -704,6 +717,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     new Dictionary<object[], ModificationCommand>(valueFactory.EqualityComparer);
                                 predecessorsMap.Add(index, predecessorCommands);
                             }
+
                             if (!predecessorCommands.ContainsKey(indexValue))
                             {
                                 predecessorCommands.Add(indexValue, command);

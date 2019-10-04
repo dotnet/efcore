@@ -22,25 +22,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = entityTypeBuilder.Metadata;
             var clrType = entityType.ClrType;
             if (clrType == null
-                || entityType.HasDefiningNavigation()
-                || entityType.FindOwnership() != null)
+                || entityType.HasDefiningNavigation())
             {
                 return entityTypeBuilder;
             }
 
-            var directlyDerivedTypes = entityType.Model.GetEntityTypes().Where(
+            var model = entityType.Model;
+            var directlyDerivedTypes = model.GetEntityTypes().Where(
                 t => t != entityType
                      && t.HasClrType()
                      && !t.HasDefiningNavigation()
-                     && t.FindOwnership() == null
+                     && t.FindDeclaredOwnership() == null
+                     && !model.ShouldBeOwnedType(model.GetDisplayName(t.ClrType))
                      && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
                          || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
                 .ToList();
 
             foreach (var directlyDerivedType in directlyDerivedTypes)
             {
-                entityTypeBuilder.ModelBuilder.Entity(directlyDerivedType.ClrType, ConfigurationSource.Convention)
-                    .HasBaseType(entityType, ConfigurationSource.Convention);
+                directlyDerivedType.Builder.HasBaseType(entityType, ConfigurationSource.Convention);
             }
 
             return entityTypeBuilder;

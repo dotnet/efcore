@@ -4,8 +4,6 @@
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 
 // ReSharper disable once CheckNamespace
 namespace System.Reflection
@@ -25,12 +23,12 @@ namespace System.Reflection
 
         public static PropertyInfo FindGetterProperty([NotNull] this PropertyInfo propertyInfo)
             => propertyInfo.DeclaringType
-                .GetPropertiesInHierarchy(propertyInfo.Name)
+                .GetPropertiesInHierarchy(propertyInfo.GetSimpleMemberName())
                 .FirstOrDefault(p => p.GetMethod != null);
 
         public static PropertyInfo FindSetterProperty([NotNull] this PropertyInfo propertyInfo)
             => propertyInfo.DeclaringType
-                .GetPropertiesInHierarchy(propertyInfo.Name)
+                .GetPropertiesInHierarchy(propertyInfo.GetSimpleMemberName())
                 .FirstOrDefault(p => p.SetMethod != null);
     }
 }

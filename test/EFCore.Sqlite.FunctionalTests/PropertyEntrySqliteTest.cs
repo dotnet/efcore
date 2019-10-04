@@ -11,7 +11,6 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-#if !Test20
         public override void Property_entry_original_value_is_set()
         {
             base.Property_entry_original_value_is_set();
@@ -31,7 +30,6 @@ UPDATE ""Engines"" SET ""Name"" = @p0
 WHERE ""Id"" = @p1 AND ""EngineSupplierId"" = @p2 AND ""Name"" = @p3;
 SELECT changes();");
         }
-#endif
 
         private void AssertContainsSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);

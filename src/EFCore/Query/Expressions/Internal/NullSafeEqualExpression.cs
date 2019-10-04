@@ -93,10 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Expressions.Internal
             }
 
             return newNullCheck != OuterKeyNullCheck
-                || EqualExpression.Left != newLeft
-                || EqualExpression.Right != newRight
-                    ? new NullSafeEqualExpression(newNullCheck, Equal(newLeft, newRight))
-                    : this;
+                   || EqualExpression.Left != newLeft
+                   || EqualExpression.Right != newRight
+                ? new NullSafeEqualExpression(newNullCheck, Equal(newLeft, newRight))
+                : this;
         }
 
         /// <summary>

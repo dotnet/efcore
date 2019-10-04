@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="trueValue"> The value to convert to for <c>true</c>. </param>
         /// <param name="fromProvider"> Optional custom translator from store. </param>
         /// <param name="mappingHints">
-        ///     Hints that can be used by the <see cref="ITypeMappingSource"/> to create data types with appropriate
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
         public BoolToTwoValuesConverter(

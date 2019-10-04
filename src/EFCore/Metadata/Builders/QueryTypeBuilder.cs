@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -74,9 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual QueryTypeBuilder HasBaseType([CanBeNull] string name)
-        {
-            return new QueryTypeBuilder(Builder.HasBaseType(name, ConfigurationSource.Explicit));
-        }
+            => new QueryTypeBuilder(Builder.HasBaseType(name, ConfigurationSource.Explicit));
 
         /// <summary>
         ///     Sets the base type of this query type in an inheritance hierarchy.
@@ -84,9 +83,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="queryType"> The base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual QueryTypeBuilder HasBaseType([CanBeNull] Type queryType)
-        {
-            return new QueryTypeBuilder(Builder.HasBaseType(queryType, ConfigurationSource.Explicit));
-        }
+            => new QueryTypeBuilder(Builder.HasBaseType(queryType, ConfigurationSource.Explicit));
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a property of the query type.
+        ///         If no property with the given name exists, then a new property will be added.
+        ///     </para>
+        ///     <para>
+        ///         When adding a new property with this overload the property name must match the
+        ///         name of a CLR property or field on the query type. This overload cannot be used to
+        ///         add a new shadow state property.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <returns> An object that can be used to configure the property. </returns>
+        public virtual PropertyBuilder Property([NotNull] string propertyName)
+            => new PropertyBuilder(
+                Builder.Property(
+                    Check.NotEmpty(propertyName, nameof(propertyName)),
+                    ConfigurationSource.Explicit));
 
         /// <summary>
         ///     <para>
@@ -105,13 +121,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] string propertyName)
-        {
-            return new PropertyBuilder<TProperty>(
+            => new PropertyBuilder<TProperty>(
                 Builder.Property(
                     Check.NotEmpty(propertyName, nameof(propertyName)),
                     typeof(TProperty),
                     ConfigurationSource.Explicit));
-        }
 
         /// <summary>
         ///     <para>
@@ -130,34 +144,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string propertyName)
-        {
-            return new PropertyBuilder(
+            => new PropertyBuilder(
                 Builder.Property(
                     Check.NotEmpty(propertyName, nameof(propertyName)),
                     Check.NotNull(propertyType, nameof(propertyType)),
                     ConfigurationSource.Explicit));
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Returns an object that can be used to configure a property of the query type.
-        ///         If no property with the given name exists, then a new property will be added.
-        ///     </para>
-        ///     <para>
-        ///         When adding a new property with this overload the property name must match the
-        ///         name of a CLR property or field on the query type. This overload cannot be used to
-        ///         add a new shadow state property.
-        ///     </para>
-        /// </summary>
-        /// <param name="propertyName"> The name of the property to be configured. </param>
-        /// <returns> An object that can be used to configure the property. </returns>
-        public virtual PropertyBuilder Property([NotNull] string propertyName)
-        {
-            return new PropertyBuilder(
-                Builder.Property(
-                    Check.NotEmpty(propertyName, nameof(propertyName)),
-                    ConfigurationSource.Explicit));
-        }
 
         /// <summary>
         ///     Excludes the given property from the query type. This method is typically used to remove properties
@@ -184,44 +175,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Builder.HasQueryFilter(filter);
 
             return this;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Configures a relationship where this query type has a reference that points
-        ///         to a single instance of the other type in the relationship.
-        ///     </para>
-        ///     <para>
-        ///         After calling this method, you should chain a call to
-        ///         <see cref="ReferenceNavigationBuilder.WithMany" />
-        ///         or <see cref="ReferenceNavigationBuilder.WithOne" /> to fully configure
-        ///         the relationship. Calling just this method without the chained call will not
-        ///         produce a valid relationship.
-        ///     </para>
-        /// </summary>
-        /// <param name="relatedType"> The query type that this relationship targets. </param>
-        /// <param name="navigationName">
-        ///     The name of the reference navigation property on this query type that represents the relationship. If
-        ///     no property is specified, the relationship will be configured without a navigation property on this
-        ///     end.
-        /// </param>
-        /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder HasOne(
-            [NotNull] Type relatedType,
-            [CanBeNull] string navigationName = null)
-        {
-            Check.NotNull(relatedType, nameof(relatedType));
-            Check.NullButNotEmpty(navigationName, nameof(navigationName));
-
-            var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
-
-            return new ReferenceNavigationBuilder(
-                Builder.Metadata,
-                relatedEntityType,
-                navigationName,
-                Builder.Navigation(
-                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
-                    Builder.Metadata == relatedEntityType));
         }
 
         /// <summary>
@@ -269,6 +222,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     <para>
+        ///         Configures a relationship where this query type has a reference that points
+        ///         to a single instance of the other type in the relationship.
+        ///     </para>
+        ///     <para>
+        ///         After calling this method, you should chain a call to
+        ///         <see cref="ReferenceNavigationBuilder.WithMany" />
+        ///         or <see cref="ReferenceNavigationBuilder.WithOne" /> to fully configure
+        ///         the relationship. Calling just this method without the chained call will not
+        ///         produce a valid relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="relatedType"> The query type that this relationship targets. </param>
+        /// <param name="navigationName">
+        ///     The name of the reference navigation property on this query type that represents the relationship. If
+        ///     no property is specified, the relationship will be configured without a navigation property on this
+        ///     end.
+        /// </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        public virtual ReferenceNavigationBuilder HasOne(
+            [NotNull] Type relatedType,
+            [CanBeNull] string navigationName = null)
+        {
+            Check.NotNull(relatedType, nameof(relatedType));
+            Check.NullButNotEmpty(navigationName, nameof(navigationName));
+
+            var relatedEntityType = Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+
+            return new ReferenceNavigationBuilder(
+                Builder.Metadata,
+                relatedEntityType,
+                navigationName,
+                Builder.Navigation(
+                    relatedEntityType.Builder, navigationName, ConfigurationSource.Explicit,
+                    Builder.Metadata == relatedEntityType));
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Sets the <see cref="PropertyAccessMode" /> to use for all properties of this query type.
         ///     </para>
         ///     <para>
@@ -278,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         for all properties of this query type as described in the <see cref="PropertyAccessMode" /> enum.
         ///     </para>
         ///     <para>
-        ///         Calling this method overrrides for all properties of this query type any access mode that was
+        ///         Calling this method overrides for all properties of this query type any access mode that was
         ///         set on the model.
         ///     </para>
         /// </summary>
@@ -290,5 +281,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             return this;
         }
+
+        #region Hidden System.Object members
+
+        /// <summary>
+        ///     Returns a string that represents the current object.
+        /// </summary>
+        /// <returns> A string that represents the current object. </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override string ToString() => base.ToString();
+
+        /// <summary>
+        ///     Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override bool Equals(object obj) => base.Equals(obj);
+
+        /// <summary>
+        ///     Serves as the default hash function.
+        /// </summary>
+        /// <returns> A hash code for the current object. </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override int GetHashCode() => base.GetHashCode();
+
+        #endregion
     }
 }

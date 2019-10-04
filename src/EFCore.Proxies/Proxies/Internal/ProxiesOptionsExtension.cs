@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
     /// </summary>
-    public class ProxiesOptionsExtension : IDbContextOptionsExtension
+    public class ProxiesOptionsExtension : IDbContextOptionsExtensionWithDebugInfo
     {
         private bool _useLazyLoadingProxies;
         private string _logFragment;
@@ -73,6 +74,16 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        public virtual void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
+            debugInfo["Proxies:" + nameof(ProxiesExtensions.UseLazyLoadingProxies)]
+                = (_useLazyLoadingProxies ? 541 : 0).ToString(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
         public virtual void Validate(IDbContextOptions options)
         {
             if (_useLazyLoadingProxies)
@@ -109,18 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public virtual string LogFragment
-        {
-            get
-            {
-                if (_logFragment == null)
-                {
-                    _logFragment = _useLazyLoadingProxies
+            => _logFragment
+                ?? (_logFragment = _useLazyLoadingProxies
                         ? "using lazy-loading proxies "
-                        : "";
-                }
-
-                return _logFragment;
-            }
-        }
+                        : "");
     }
 }

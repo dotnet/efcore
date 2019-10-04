@@ -52,13 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual TEntity Find(object[] keyValues)
         {
-            if (keyValues == null
-                || keyValues.Any(v => v == null))
-            {
-                return null;
-            }
-
-            return FindTracked(keyValues, out var keyProperties)
+            return keyValues?.Any(v => v == null) != false
+                ? null
+                : FindTracked(keyValues, out var keyProperties)
                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
         }
 
@@ -75,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual Task<TEntity> FindAsync(object[] keyValues, CancellationToken cancellationToken = default)
         {
-            if (keyValues == null
-                || keyValues.Any(v => v == null))
+            if (keyValues?.Any(v => v == null) != false)
             {
                 return Task.FromResult<TEntity>(null);
             }
@@ -93,8 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         Task<object> IEntityFinder.FindAsync(object[] keyValues, CancellationToken cancellationToken)
         {
-            if (keyValues == null
-                || keyValues.Any(v => v == null))
+            if (keyValues?.Any(v => v == null) != false)
             {
                 return Task.FromResult<object>(null);
             }
@@ -185,9 +179,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+#pragma warning disable RCS1210 // Return Task.FromResult instead of returning null.
         public virtual Task<object[]> GetDatabaseValuesAsync(
             InternalEntityEntry entry, CancellationToken cancellationToken = default)
             => GetDatabaseValuesQuery(entry)?.FirstOrDefaultAsync(cancellationToken);
+#pragma warning restore RCS1210 // Return Task.FromResult instead of returning null.
 
         private IQueryable<object[]> GetDatabaseValuesQuery(InternalEntityEntry entry)
         {
@@ -210,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
-            => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
+            => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -256,6 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     throw new ArgumentException(
                         CoreStrings.FindNotCompositeKey(typeof(TEntity).ShortDisplayName(), keyValues.Length));
                 }
+
                 throw new ArgumentException(
                     CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), keyProperties.Count, keyValues.Length));
             }
@@ -294,12 +291,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private IQueryable BuildQueryRoot(IEntityType entityType)
         {
             var definingEntityType = entityType.DefiningEntityType;
-            if (definingEntityType == null)
-            {
-                return (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
-            }
-
-            return BuildQueryRoot(definingEntityType, entityType);
+            return definingEntityType == null
+                ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType)
+                : BuildQueryRoot(definingEntityType, entityType);
         }
 
         private IQueryable BuildQueryRoot(IEntityType definingEntityType, IEntityType entityType)
@@ -351,6 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 predicate = predicate == null ? equalsExpression : Expression.AndAlso(predicate, equalsExpression);
             }
+
             return predicate;
         }
 

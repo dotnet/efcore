@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public virtual List<Order> Orders { get; set; }
 
-        public NorthwindContext Context { get; set; } 
+        public NorthwindContext Context { get; set; }
 
         [NotMapped]
         public bool IsLondon => City == "London";
@@ -48,12 +48,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             {
                 return false;
             }
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
 
-            return obj.GetType() == GetType()
+            return ReferenceEquals(this, obj)
+                ? true
+                : obj.GetType() == GetType()
                    && Equals((Customer)obj);
         }
 

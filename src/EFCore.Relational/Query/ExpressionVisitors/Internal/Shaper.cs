@@ -22,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        protected Shaper([NotNull] IQuerySource querySource)
+        protected Shaper([NotNull] IQuerySource querySource, [CanBeNull] Expression materializerExpression)
         {
             _querySource = querySource;
+            MaterializerExpression = materializerExpression;
         }
 
         /// <summary>
@@ -42,6 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         {
             _querySource = querySource;
         }
+
+        /// <summary>
+        ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
+        ///     directly from your code. This API may change or be removed in future releases.
+        /// </summary>
+        public virtual Expression MaterializerExpression { get; }
 
         /// <summary>
         ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
@@ -76,9 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
         /// </summary>
         public virtual Expression GetAccessorExpression([NotNull] IQuerySource querySource)
         {
-            if (_querySource == querySource)
-            {
-                return _accessorExpression != null
+            return _querySource == querySource
+                ? _accessorExpression != null
                     ? (Expression)Expression
                         .Lambda(
                             _accessorExpression,
@@ -86,10 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal
                     : Expression
                         .Default(
                             typeof(Func<,>)
-                                .MakeGenericType(Type, typeof(object)));
-            }
-
-            return null;
+                                .MakeGenericType(Type, typeof(object)))
+                : null;
         }
 
         /// <summary>

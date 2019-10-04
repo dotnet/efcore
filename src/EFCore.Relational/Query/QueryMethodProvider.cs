@@ -256,7 +256,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var currentKey = keySelector(sourceEnumerator.Current);
                     var element = elementSelector(sourceEnumerator.Current);
-                    var grouping = new Grouping<TKey, TElement>(currentKey) { element };
+                    var grouping = new Grouping<TKey, TElement>(currentKey)
+                    {
+                        element
+                    };
 
                     while (true)
                     {
