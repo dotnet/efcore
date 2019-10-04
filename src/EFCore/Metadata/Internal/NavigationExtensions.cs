@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
@@ -23,11 +24,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete]
+        public static string ToDebugString(
+            [NotNull] this INavigation navigation,
+            bool singleLine,
+            bool includeIndexes,
+            [NotNull] string indent)
+            => ToDebugString(navigation, singleLine, includeIndexes, indent, detailed: true);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static string ToDebugString(
             [NotNull] this INavigation navigation,
             bool singleLine = true,
             bool includeIndexes = false,
-            [NotNull] string indent = "")
+            [NotNull] string indent = "",
+            bool detailed = true)
         {
             var builder = new StringBuilder();
 
@@ -35,10 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (singleLine)
             {
-                builder.Append("Navigation: ").Append(navigation.DeclaringEntityType.DisplayName()).Append(".");
+                builder.Append($"Navigation: {navigation.DeclaringEntityType.DisplayName()}.");
             }
 
             builder.Append(navigation.Name);
+
+            if (!detailed)
+            {
+                return builder.ToString();
+            }
 
             if (navigation.GetFieldName() == null)
             {

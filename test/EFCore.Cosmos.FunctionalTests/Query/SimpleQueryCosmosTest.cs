@@ -283,14 +283,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > 0))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
+        public override Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
         {
-            await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+            return base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
@@ -2197,70 +2192,40 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__p_0))");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_1()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_1(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_1();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_1(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_2()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_2(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_2();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_2(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_3()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_3(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_3();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_3(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_4()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_4(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_4();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_4(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_5()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_5(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_5();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_5(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_6()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_6(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_6();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_6(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -4108,13 +4073,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition3(bool isAsync) => base.Where_query_composition3(isAsync);
 
-        public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => new CustomerListItem(        c.CustomerID,         c.City    ).City)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync))).Message));
+            return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync));
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]

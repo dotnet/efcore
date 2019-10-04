@@ -581,16 +581,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_client(bool isAsync)
+        public virtual Task Where_client(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().Where(c => c.IsLondon),
-                            entryCount: 6))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().Where(c => c.IsLondon),
+                    entryCount: 6));
         }
 
         [ConditionalTheory]
@@ -605,74 +602,61 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_subquery_correlated_client_eval(bool isAsync)
+        public virtual Task Where_subquery_correlated_client_eval(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Any<Customer>(    source: DbSet<Customer>,     predicate: (c0) => EntityShaperExpression:         EntityType: Customer        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    .CustomerID == c0.CustomerID && c0.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().OrderBy(c1 => c1.CustomerID).Take(5)
-                                .Where(c1 => ss.Set<Customer>().Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
-                            entryCount: 1))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>()
+                        .OrderBy(c1 => c1.CustomerID)
+                        .Take(5)
+                        .Where(c1 => ss.Set<Customer>().Any(c2 => c1.CustomerID == c2.CustomerID && c2.IsLondon)),
+                    entryCount: 1));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_client_and_server_top_level(bool isAsync)
+        public virtual Task Where_client_and_server_top_level(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon && c.CustomerID != \"AROUT\")"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().Where(c => c.IsLondon && c.CustomerID != "AROUT"),
-                            entryCount: 5))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().Where(c => c.IsLondon && c.CustomerID != "AROUT"),
+                    entryCount: 5));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_client_or_server_top_level(bool isAsync)
+        public virtual Task Where_client_or_server_top_level(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon || c.CustomerID == \"ALFKI\")"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().Where(c => c.IsLondon || c.CustomerID == "ALFKI"),
-                            entryCount: 7))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().Where(c => c.IsLondon || c.CustomerID == "ALFKI"),
+                    entryCount: 7));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_client_and_server_non_top_level(bool isAsync)
+        public virtual Task Where_client_and_server_non_top_level(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"ALFKI\" == c.IsLondon && c.CustomerID != \"AROUT\")"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().Where(c => c.CustomerID != "ALFKI" == (c.IsLondon && c.CustomerID != "AROUT")),
-                            entryCount: 6))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().Where(c => c.CustomerID != "ALFKI" == (c.IsLondon && c.CustomerID != "AROUT")),
+                    entryCount: 6));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_client_deep_inside_predicate_and_server_top_level(bool isAsync)
+        public virtual Task Where_client_deep_inside_predicate_and_server_top_level(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"ALFKI\" && c.CustomerID == \"MAUMAR\" || c.CustomerID != \"AROUT\" && c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().Where(
-                                c => c.CustomerID != "ALFKI" && (c.CustomerID == "MAUMAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
-                            entryCount: 5))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>()
+                        .Where(c => c.CustomerID != "ALFKI" && (c.CustomerID == "MAUMAR" || (c.CustomerID != "AROUT" && c.IsLondon))),
+                    entryCount: 5));
         }
 
         [ConditionalTheory]
@@ -1240,15 +1224,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_bool_client_side_negated(bool isAsync)
+        public virtual Task Where_bool_client_side_negated(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Product>(    source: DbSet<Product>,     predicate: (p) => !(ClientFunc(p.ProductID)) && p.Discontinued)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Product>().Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Product>().Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8));
         }
 
         private static bool ClientFunc(int id)

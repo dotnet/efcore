@@ -605,16 +605,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Queryable_reprojection(bool isAsync)
+        public virtual Task Queryable_reprojection(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().Where(c => c.IsLondon)
-                                .Select(c => new Customer { CustomerID = "Foo", City = c.City })))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().Where(c => c.IsLondon)
+                        .Select(c => new Customer { CustomerID = "Foo", City = c.City })));
         }
 
         [ConditionalTheory]
@@ -1146,44 +1143,35 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task All_client(bool isAsync)
+        public virtual Task All_client(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("All<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertAll(
-                            isAsync,
-                            ss => ss.Set<Customer>(),
-                            predicate: c => c.IsLondon))).Message));
+            return AssertTranslationFailed(
+                () => AssertAll(
+                    isAsync,
+                    ss => ss.Set<Customer>(),
+                    predicate: c => c.IsLondon));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task All_client_and_server_top_level(bool isAsync)
+        public virtual Task All_client_and_server_top_level(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("All<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"Foo\" && c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertAll(
-                            isAsync,
-                            ss => ss.Set<Customer>(),
-                            predicate: c => c.CustomerID != "Foo" && c.IsLondon))).Message));
+            return AssertTranslationFailed(
+                () => AssertAll(
+                    isAsync,
+                    ss => ss.Set<Customer>(),
+                    predicate: c => c.CustomerID != "Foo" && c.IsLondon));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task All_client_or_server_top_level(bool isAsync)
+        public virtual Task All_client_or_server_top_level(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("All<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.CustomerID != \"Foo\" || c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertAll(
-                            isAsync,
-                            ss => ss.Set<Customer>(),
-                            predicate: c => c.CustomerID != "Foo" || c.IsLondon))).Message));
+            return AssertTranslationFailed(
+                () => AssertAll(
+                    isAsync,
+                    ss => ss.Set<Customer>(),
+                    predicate: c => c.CustomerID != "Foo" || c.IsLondon));
         }
 
         [ConditionalTheory]
@@ -1235,26 +1223,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 "Unsupported Binary operator type specified.",
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss =>
-                                from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(3).Select(
-                                    o2 => new { o2, Mod = o2.OrderID % 2 })
-                                from e in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2).Select(
-                                    e2 => new { e2, Square = e2.EmployeeID ^ 2 })
-                                select new
-                                {
-                                    Add = e.e2.EmployeeID + o.o2.OrderID,
-                                    e.Square,
-                                    e.e2,
-                                    Literal = 42,
-                                    o.o2,
-                                    o.Mod
-                                },
-                            elementSorter: e => (e.e2.EmployeeID, e.o2.OrderID),
-                            entryCount: 3))).Message));
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        isAsync,
+                        ss =>
+                            from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(3).Select(
+                                o2 => new { o2, Mod = o2.OrderID % 2 })
+                            from e in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2).Select(
+                                e2 => new { e2, Square = e2.EmployeeID ^ 2 })
+                            select new
+                            {
+                                Add = e.e2.EmployeeID + o.o2.OrderID,
+                                e.Square,
+                                e.e2,
+                                Literal = 42,
+                                o.o2,
+                                o.Mod
+                            },
+                        elementSorter: e => (e.e2.EmployeeID, e.o2.OrderID),
+                        entryCount: 3))).Message);
         }
 
         [ConditionalTheory]
@@ -1293,17 +1280,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task First_client_predicate(bool isAsync)
+        public virtual Task First_client_predicate(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: OrderBy<Customer, string>(        source: DbSet<Customer>,         keySelector: (c) => c.CustomerID),     predicate: (c) => c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertFirst(
-                            isAsync,
-                            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID),
-                            predicate: c => c.IsLondon,
-                            entryCount: 1))).Message));
+            return AssertTranslationFailed(
+                () => AssertFirst(
+                    isAsync,
+                    ss => ss.Set<Customer>().OrderBy(c => c.CustomerID),
+                    predicate: c => c.IsLondon,
+                    entryCount: 1));
         }
 
         [ConditionalTheory]
@@ -2028,72 +2012,59 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_query_composition3(bool isAsync)
+        public virtual Task Where_query_composition3(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: OrderBy<Customer, string>(        source: DbSet<Customer>,         keySelector: (c0) => c0.CustomerID),     predicate: (c0) => c0.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from c1 in ss.Set<Customer>()
-                                  where c1.City == ss.Set<Customer>().OrderBy(c => c.CustomerID).First(c => c.IsLondon).City
-                                  select c1,
-                            entryCount: 6))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from c1 in ss.Set<Customer>()
+                          where c1.City == ss.Set<Customer>().OrderBy(c => c.CustomerID).First(c => c.IsLondon).City
+                          select c1,
+                    entryCount: 6));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_query_composition4(bool isAsync)
+        public virtual Task Where_query_composition4(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderBy<Customer, bool>(    source: DbSet<Customer>,     keySelector: (c1) => c1.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
-                                  where c1.City == (from c2 in ss.Set<Customer>().OrderBy(c => c.CustomerID)
-                                                    from c3 in ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CustomerID)
-                                                    select new { c3 }).First().c3.City
-                                  select c1,
-                            entryCount: 1))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
+                          where c1.City == (from c2 in ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                                            from c3 in ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CustomerID)
+                                            select new { c3 }).First().c3.City
+                          select c1,
+                    entryCount: 1));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_query_composition5(bool isAsync)
+        public virtual Task Where_query_composition5(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed(
-                    "Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon == First<bool>(Select<Customer, bool>(        source: OrderBy<Customer, string>(            source: DbSet<Customer>,             keySelector: (c0) => c0.CustomerID),         selector: (c0) => c0.IsLondon)))"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from c1 in ss.Set<Customer>()
-                                  where c1.IsLondon == ss.Set<Customer>().OrderBy(c => c.CustomerID).First().IsLondon
-                                  select c1,
-                            entryCount: 85))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from c1 in ss.Set<Customer>()
+                          where c1.IsLondon == ss.Set<Customer>().OrderBy(c => c.CustomerID).First().IsLondon
+                          select c1,
+                    entryCount: 85));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_query_composition6(bool isAsync)
+        public virtual Task Where_query_composition6(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon == First<bool>(Select<Customer, bool>(        source: OrderBy<Customer, string>(            source: DbSet<Customer>,             keySelector: (c0) => c0.CustomerID),         selector: (c0) => c0.IsLondon)))"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from c1 in ss.Set<Customer>()
-                                  where c1.IsLondon
-                                      == ss.Set<Customer>().OrderBy(c => c.CustomerID)
-                                          .Select(c => new { Foo = c })
-                                          .First().Foo.IsLondon
-                                  select c1,
-                            entryCount: 85))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from c1 in ss.Set<Customer>()
+                          where c1.IsLondon
+                                == ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                                    .Select(c => new { Foo = c })
+                                    .First().Foo.IsLondon
+                          select c1,
+                    entryCount: 85));
         }
 
         [ConditionalTheory]
@@ -2129,18 +2100,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task SelectMany_mixed(bool isAsync)
         {
             Assert.Equal(
-                CoreStrings.QueryFailed("(e1) => string[] { \"a\", \"b\", }", "NavigationExpandingExpressionVisitor"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss =>
-                                from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
-                                from s in new[] { "a", "b" }
-                                from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
-                                select new { e1, s, c },
-                            e => (e.e1.EmployeeID, e.c.CustomerID),
-                            entryCount: 4))).Message));
+                CoreStrings.QueryFailed("e1 => string[] { \"a\", \"b\", }", "NavigationExpandingExpressionVisitor"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => AssertQuery(
+                        isAsync,
+                        ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
+                              from s in new[] { "a", "b" }
+                              from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
+                              select new { e1, s, c },
+                        e => (e.e1.EmployeeID, e.c.CustomerID),
+                        entryCount: 4))).Message);
         }
 
         [ConditionalTheory]
@@ -2532,33 +2501,39 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Default_if_empty_top_level_arg(bool isAsync)
         {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
+                          select e,
+                    entryCount: 1))).Message;
+
             Assert.Equal(
                 CoreStrings.QueryFailed(
-                    "DefaultIfEmpty<Employee>(    source: Where<Employee>(        source: DbSet<Employee>,         predicate: (c) => c.EmployeeID == 4294967295),     defaultValue: (Unhandled parameter: __p_0))",
+                    @"DbSet<Employee>
+    .Where(c => c.EmployeeID == 4294967295)
+    .DefaultIfEmpty(__p_0)",
                     "NavigationExpandingExpressionVisitor"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
-                                  select e,
-                            entryCount: 1))).Message));
+                    message);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
         {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQueryScalar(
+                    isAsync,
+                    ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
+                          select 42))).Message;
+
             Assert.Equal(
                 CoreStrings.QueryFailed(
-                    "DefaultIfEmpty<Employee>(    source: Where<Employee>(        source: DbSet<Employee>,         predicate: (c) => c.EmployeeID == 4294967295),     defaultValue: (Unhandled parameter: __p_0))",
+                    @"DbSet<Employee>
+    .Where(c => c.EmployeeID == 4294967295)
+    .DefaultIfEmpty(__p_0)",
                     "NavigationExpandingExpressionVisitor"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQueryScalar(
-                            isAsync,
-                            ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
-                                  select 42))).Message));
+                    message);
         }
 
         [ConditionalTheory]
@@ -2702,34 +2677,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task OrderBy_client_mixed(bool isAsync)
+        public virtual Task OrderBy_client_mixed(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderBy<Customer, bool>(    source: DbSet<Customer>,     keySelector: (c) => c.IsLondon)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
-                            assertOrder: true,
-                            entryCount: 91))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().OrderBy(c => c.IsLondon).ThenBy(c => c.CompanyName),
+                    assertOrder: true,
+                    entryCount: 91));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task OrderBy_multiple_queries(bool isAsync)
+        public virtual Task OrderBy_multiple_queries(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Join<Customer, Order, Foo, TransparentIdentifier<Customer, Order>>(    outer: DbSet<Customer>,     inner: DbSet<Order>,     outerKeySelector: (c) => new Foo{ Bar = c.CustomerID }    ,     innerKeySelector: (o) => new Foo{ Bar = o.CustomerID }    ,     resultSelector: (c, o) => new TransparentIdentifier<Customer, Order>(        Outer = c,         Inner = o    ))"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss =>
-                                from c in ss.Set<Customer>()
-                                join o in ss.Set<Order>() on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
-                                orderby c.IsLondon, o.OrderDate
-                                select new { c, o }))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from c in ss.Set<Customer>()
+                          join o in ss.Set<Order>() on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
+                          orderby c.IsLondon, o.OrderDate
+                          select new { c, o }));
         }
 
         [ConditionalTheory]
@@ -3547,94 +3515,64 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 267);
         }
 
-        [ConditionalFact]
-        public virtual void Random_next_is_not_funcletized_1()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Random_next_is_not_funcletized_1(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random().Next())"),
-                    RemoveNewLines(
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Orders
-                                .Where(o => o.OrderID > new Random().Next())
-                                .ToList()).Message));
-            }
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next())));
         }
 
-        [ConditionalFact]
-        public virtual void Random_next_is_not_funcletized_2()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Random_next_is_not_funcletized_2(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random().Next(5))"),
-                    RemoveNewLines(
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Orders
-                                .Where(o => o.OrderID > new Random().Next(5))
-                                .ToList()).Message));
-            }
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(5))));
         }
 
-        [ConditionalFact]
-        public virtual void Random_next_is_not_funcletized_3()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Random_next_is_not_funcletized_3(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random().Next(        minValue: 0,         maxValue: 10))"),
-                    RemoveNewLines(
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Orders
-                                .Where(o => o.OrderID > new Random().Next(0, 10))
-                                .ToList()).Message));
-            }
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(0, 10))));
         }
 
-        [ConditionalFact]
-        public virtual void Random_next_is_not_funcletized_4()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Random_next_is_not_funcletized_4(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random(15).Next())"),
-                    RemoveNewLines(
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Orders
-                                .Where(o => o.OrderID > new Random(15).Next())
-                                .ToList()).Message));
-            }
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next())));
         }
 
-        [ConditionalFact]
-        public virtual void Random_next_is_not_funcletized_5()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Random_next_is_not_funcletized_5(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random(15).Next(5))"),
-                    RemoveNewLines(
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Orders
-                                .Where(o => o.OrderID > new Random(15).Next(5))
-                                .ToList()).Message));
-            }
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next(5))));
         }
 
-        [ConditionalFact]
-        public virtual void Random_next_is_not_funcletized_6()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Random_next_is_not_funcletized_6(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Order>(    source: DbSet<Order>,     predicate: (o) => o.OrderID > new Random(15).Next(        minValue: 0,         maxValue: 10))"),
-                    RemoveNewLines(
-                        Assert.Throws<InvalidOperationException>(
-                            () => context.Orders
-                                .Where(o => o.OrderID > new Random(15).Next(0, 10))
-                                .ToList()).Message));
-            }
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Order>().Where(o => o.OrderID > new Random(15).Next(0, 10))));
         }
 
         [ConditionalTheory]
@@ -5361,18 +5299,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task SelectMany_after_client_method(bool isAsync)
+        public virtual Task SelectMany_after_client_method(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => ClientOrderBy(c))"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQueryScalar(
-                            isAsync,
-                            ss => ss.Set<Customer>().OrderBy(c => ClientOrderBy(c))
-                                .SelectMany(c => c.Orders)
-                                .Distinct()
-                                .Select(o => o.OrderDate)))).Message));
+            return AssertTranslationFailed(
+                () => AssertQueryScalar(
+                    isAsync,
+                    ss => ss.Set<Customer>().OrderBy(c => ClientOrderBy(c))
+                        .SelectMany(c => c.Orders)
+                        .Distinct()
+                        .Select(o => o.OrderDate)));
         }
 
         private static string ClientOrderBy(Customer c)
@@ -5420,23 +5355,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_OrderBy_GroupBy_Group_ordering_works(bool isAsync)
+        public virtual Task Client_OrderBy_GroupBy_Group_ordering_works(bool isAsync)
         {
-            Assert.StartsWith(
-                "The LINQ expression ",
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => from o in ss.Set<Order>()
-                                  orderby ClientEvalSelector(o)
-                                  group o by o.CustomerID
-                                  into g
-                                  orderby g.Key
-                                  select g.OrderByDescending(x => x.OrderID),
-                            assertOrder: true,
-                            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true))))
-                    .Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => from o in ss.Set<Order>()
+                          orderby ClientEvalSelector(o)
+                          group o by o.CustomerID into g
+                          orderby g.Key
+                          select g.OrderByDescending(x => x.OrderID),
+                    assertOrder: true,
+                    elementAsserter: (e, a) => AssertCollection(e, a, ordered: true)));
         }
 
         [ConditionalTheory]
@@ -5614,6 +5544,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(o => new { o.OrderDate }).ToList()),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+        }
+
+        protected async Task AssertTranslationFailed(Func<Task> testCode)
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
         }
 
         private static Expression<Func<Order, bool>> ValidYear => a => a.OrderDate.Value.Year == 1998;

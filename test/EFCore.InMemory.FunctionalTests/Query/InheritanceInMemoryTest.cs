@@ -19,10 +19,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public override void Can_query_all_animal_views()
         {
+            var message = Assert.Throws<InvalidOperationException>(() => base.Can_query_all_animal_views()).Message;
+
             Assert.Equal(
-                CoreStrings.TranslationFailed("OrderBy<AnimalQuery, int>(    source: Select<Bird, AnimalQuery>(        source: DbSet<Bird>,         selector: (b) => MaterializeView(b)),     keySelector: (a) => a.CountryId)"),
-                Assert.Throws<InvalidOperationException>(() => base.Can_query_all_animal_views())
-                    .Message.Replace("\r", "").Replace("\n", ""));
+                CoreStrings.TranslationFailed(@"DbSet<Bird>
+    .Select(b => MaterializeView(b))
+    .OrderBy(a => a.CountryId)"),
+                message);
         }
 
         protected override bool EnforcesFkConstraints => false;

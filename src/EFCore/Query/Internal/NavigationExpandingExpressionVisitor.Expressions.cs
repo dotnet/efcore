@@ -189,8 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
-                expressionPrinter.Append(nameof(EntityReference));
-                expressionPrinter.Append(EntityType.DisplayName());
+                expressionPrinter.Append($"{nameof(EntityReference)}: {EntityType.DisplayName()}");
                 if (IsOptional)
                 {
                     expressionPrinter.Append("[Optional]");

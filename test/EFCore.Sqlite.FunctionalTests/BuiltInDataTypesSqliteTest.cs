@@ -884,40 +884,25 @@ LIMIT 1");
                         .Select(g => g.Min(e => e.TestNullableDecimal))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDecimal)"),
-                    RemoveNewLines(ex.Message));
+                AssertTranslationFailed(
+                    () => query
+                        .Select(g => g.Min(e => e.TestNullableDecimal))
+                        .ToList());
 
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Min(e => e.TestNullableDateTimeOffset))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDateTimeOffset)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Min(e => e.TestNullableTimeSpan))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<TimeSpan>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableTimeSpan)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Min(e => e.TestNullableUnsignedInt64))
                         .ToList());
-
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<ulong>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableUnsignedInt64)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -954,45 +939,25 @@ LIMIT 1");
                     .Where(e => e.PartitionId == 201)
                     .GroupBy(_ => true);
 
-                var ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableDecimal))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDecimal)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableDateTimeOffset))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDateTimeOffset)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableTimeSpan))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<TimeSpan>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableTimeSpan)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableUnsignedInt64))
                         .ToList());
-
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<ulong>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableUnsignedInt64)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -1009,14 +974,10 @@ LIMIT 1");
 
                 context.SaveChanges();
 
-                var ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => context.Set<BuiltInNullableDataTypes>()
                         .Where(e => e.PartitionId == 202)
                         .Average(e => e.TestNullableDecimal));
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Average<BuiltInNullableDataTypes>(    source: Where<BuiltInNullableDataTypes>(        source: DbSet<BuiltInNullableDataTypes>,         predicate: (b) => b.PartitionId == 202),     selector: (b) => b.TestNullableDecimal)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -1033,19 +994,19 @@ LIMIT 1");
 
                 context.SaveChanges();
 
-                var ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => context.Set<BuiltInDataTypes>()
                         .Where(e => e.PartitionId == 203)
                         .Sum(e => e.TestDecimal));
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Sum<BuiltInDataTypes>(    source: Where<BuiltInDataTypes>(        source: DbSet<BuiltInDataTypes>,         predicate: (b) => b.PartitionId == 203),     selector: (b) => b.TestDecimal)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
-        private string RemoveNewLines(string message)
-            => message.Replace("\n", "").Replace("\r", "");
+        private void AssertTranslationFailed(Action testCode)
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                Assert.Throws<InvalidOperationException>(testCode).Message);
+        }
 
         [ConditionalFact]
         public virtual void Can_query_negation_of_converted_types()

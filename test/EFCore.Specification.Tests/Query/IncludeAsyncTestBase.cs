@@ -682,13 +682,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                Assert.Contains(
+                    CoreStrings.TranslationFailed("").Substring(21),
                     (await Assert.ThrowsAsync<InvalidOperationException>(
                         () => context.Set<Customer>()
                             .Include(c => c.Orders)
                             .Where(c => c.IsLondon)
-                            .ToListAsync())).Message.Replace("\r", "").Replace("\n",""));
+                            .ToListAsync())).Message);
             }
         }
 

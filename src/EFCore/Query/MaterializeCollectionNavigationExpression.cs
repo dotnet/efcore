@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -31,9 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
-            expressionPrinter.Append($"MaterializeCollectionNavigation({Navigation}, ");
-            expressionPrinter.Visit(Subquery);
-            expressionPrinter.Append(")");
+            expressionPrinter.AppendLine("MaterializeCollectionNavigation(");
+            using (expressionPrinter.Indent())
+            {
+                expressionPrinter.AppendLine($"navigation: {Navigation.ToDebugString(detailed: false)},");
+                expressionPrinter.Append("subquery: ");
+                expressionPrinter.Visit(Subquery);
+            }
         }
     }
 }

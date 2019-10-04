@@ -109,40 +109,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.OrderBy_multiple_queries(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_1()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_1(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_1();
+            return base.Random_next_is_not_funcletized_1(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_2()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_2(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_2();
+            return base.Random_next_is_not_funcletized_2(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_3()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_3(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_3();
+            return base.Random_next_is_not_funcletized_3(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_4()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_4(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_4();
+            return base.Random_next_is_not_funcletized_4(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_5()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_5(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_5();
+            return base.Random_next_is_not_funcletized_5(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_6()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_6(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_6();
+            return base.Random_next_is_not_funcletized_6(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -428,7 +429,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
         {
-            _stringBuilder.Append("(");
+            if (lambdaExpression.Parameters.Count != 1)
+            {
+                _stringBuilder.Append("(");
+            }
 
             foreach (var parameter in lambdaExpression.Parameters)
             {
@@ -447,7 +451,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            _stringBuilder.Append(") => ");
+            if (lambdaExpression.Parameters.Count != 1)
+            {
+                _stringBuilder.Append(")");
+            }
+
+            _stringBuilder.Append(" => ");
 
             Visit(lambdaExpression.Body);
 
@@ -464,7 +473,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             if (memberExpression.Expression != null)
             {
-                if (memberExpression.Expression.NodeType == ExpressionType.Convert)
+                if (memberExpression.Expression.NodeType == ExpressionType.Convert
+                    || memberExpression.Expression is BinaryExpression)
                 {
                     _stringBuilder.Append("(");
                     Visit(memberExpression.Expression);
@@ -534,34 +544,52 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _stringBuilder.Append(".");
             }
 
-            _stringBuilder.Append(methodCallExpression.Method.Name);
-            if (methodCallExpression.Method.IsGenericMethod)
+            var methodArguments = methodCallExpression.Arguments.ToList();
+
+            // TODO: issue #18413
+            var simplifiedMethod = !GenerateUniqueParameterIds
+                && methodCallExpression.Arguments.Count > 0
+                && methodCallExpression.Method.IsDefined(typeof(ExtensionAttribute), inherit: false);
+
+            if (simplifiedMethod)
             {
-                _stringBuilder.Append("<");
-                var first = true;
-                foreach (var genericArgument in methodCallExpression.Method.GetGenericArguments())
+                Visit(methodArguments[0]);
+                _stringBuilder.IncrementIndent();
+                _stringBuilder.AppendLine();
+                _stringBuilder.Append($".{methodCallExpression.Method.Name}");
+                methodArguments = methodArguments.Skip(1).ToList();
+            }
+            else
+            {
+                _stringBuilder.Append(methodCallExpression.Method.Name);
+                if (methodCallExpression.Method.IsGenericMethod)
                 {
-                    if (!first)
+                    _stringBuilder.Append("<");
+                    var first = true;
+                    foreach (var genericArgument in methodCallExpression.Method.GetGenericArguments())
                     {
-                        _stringBuilder.Append(", ");
+                        if (!first)
+                        {
+                            _stringBuilder.Append(", ");
+                        }
+
+                        _stringBuilder.Append(genericArgument.ShortDisplayName());
+                        first = false;
                     }
 
-                    _stringBuilder.Append(genericArgument.ShortDisplayName());
-                    first = false;
+                    _stringBuilder.Append(">");
                 }
-
-                _stringBuilder.Append(">");
             }
 
             _stringBuilder.Append("(");
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
-                                           || methodCallExpression.Arguments.Count < 2
-                                           || methodCallExpression.Method.IsEFPropertyMethod();
+                || methodArguments.Count < 2
+                || methodCallExpression.Method.IsEFPropertyMethod();
 
             var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 
-            if (methodCallExpression.Arguments.Count > 0)
+            if (methodArguments.Count > 0)
             {
                 appendAction("");
 
@@ -577,9 +605,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     indent = _stringBuilder.Indent();
                 }
 
-                for (var i = 0; i < methodCallExpression.Arguments.Count; i++)
+                for (var i = 0; i < methodArguments.Count; i++)
                 {
-                    var argument = methodCallExpression.Arguments[i];
+                    var argument = methodArguments[i];
 
                     if (!isSimpleMethodOrProperty)
                     {
@@ -588,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     Visit(argument);
 
-                    if (i < methodCallExpression.Arguments.Count - 1)
+                    if (i < methodArguments.Count - 1)
                     {
                         appendAction(", ");
                     }
@@ -601,6 +629,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             Append(")");
+
+            if (simplifiedMethod)
+            {
+                _stringBuilder.DecrementIndent();
+            }
 
             return methodCallExpression;
         }
@@ -712,9 +745,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                Append("(Unhandled parameter: ");
-                Append(parameterExpression.Name);
-                Append(")");
+                // TODO: issue #18413
+                if (GenerateUniqueParameterIds)
+                {
+                    Append("(Unhandled parameter: ");
+                    Append(parameterExpression.Name);
+                    Append(")");
+                }
+                else
+                {
+                    Append(parameterExpression.Name);
+                }
             }
 
             if (GenerateUniqueParameterIds)
@@ -829,7 +870,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             if (extensionExpression is IPrintableExpression printable)
             {
+                _stringBuilder.Append("(");
                 printable.Print(this);
+                _stringBuilder.Append(")");
             }
             else
             {
@@ -840,7 +883,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private void VisitArguments(
-            IReadOnlyList<Expression> arguments, Action<string> appendAction, string lastSeparator = "", bool areConnected = false)
+            IReadOnlyList<Expression> arguments,
+            Action<string> appendAction,
+            string lastSeparator = "",
+            bool areConnected = false)
         {
             for (var i = 0; i < arguments.Count; i++)
             {
