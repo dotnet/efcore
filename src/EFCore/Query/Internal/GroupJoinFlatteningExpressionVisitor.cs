@@ -1,12 +1,10 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -15,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static readonly EnumerableToQueryableMethodConvertingExpressionVisitor _enumerableToQueryableReMappingExpressionVisitor
             = new EnumerableToQueryableMethodConvertingExpressionVisitor();
+
         private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
             = new SelectManyVerifyingExpressionVisitor();
 
@@ -76,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 Expression.Quote(Expression.Lambda(correlationPredicate, innerParameter)));
 
                             inner = ReplacingExpressionVisitor.Replace(
-                                    groupJoinResultSelector.Parameters[1],
-                                    inner,
-                                    collectionSelectorBody);
+                                groupJoinResultSelector.Parameters[1],
+                                inner,
+                                collectionSelectorBody);
 
                             inner = Expression.Quote(Expression.Lambda(inner, outerParameter));
                         }
@@ -133,21 +132,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     innerKeySelector,
                                     resultSelector);
                             }
-                            else
-                            {
-                                // inner join
-                                return Expression.Call(
-                                    QueryableMethods.Join.MakeGenericMethod(
-                                        outer.Type.TryGetSequenceType(),
-                                        inner.Type.TryGetSequenceType(),
-                                        outerKeySelector.ReturnType,
-                                        resultSelector.ReturnType),
-                                    outer,
-                                    inner,
-                                    outerKeySelector,
-                                    innerKeySelector,
-                                    resultSelector);
-                            }
+
+                            // inner join
+                            return Expression.Call(
+                                QueryableMethods.Join.MakeGenericMethod(
+                                    outer.Type.TryGetSequenceType(),
+                                    inner.Type.TryGetSequenceType(),
+                                    outerKeySelector.ReturnType,
+                                    resultSelector.ReturnType),
+                                outer,
+                                inner,
+                                outerKeySelector,
+                                innerKeySelector,
+                                resultSelector);
                         }
                     }
                 }
@@ -218,21 +215,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     innerKeySelector,
                                     resultSelector);
                             }
-                            else
-                            {
-                                // inner join
-                                return Expression.Call(
-                                    QueryableMethods.Join.MakeGenericMethod(
-                                        outer.Type.TryGetSequenceType(),
-                                        inner.Type.TryGetSequenceType(),
-                                        outerKeySelector.ReturnType,
-                                        resultSelector.ReturnType),
-                                    outer,
-                                    inner,
-                                    outerKeySelector,
-                                    innerKeySelector,
-                                    resultSelector);
-                            }
+
+                            // inner join
+                            return Expression.Call(
+                                QueryableMethods.Join.MakeGenericMethod(
+                                    outer.Type.TryGetSequenceType(),
+                                    inner.Type.TryGetSequenceType(),
+                                    outerKeySelector.ReturnType,
+                                    resultSelector.ReturnType),
+                                outer,
+                                inner,
+                                outerKeySelector,
+                                innerKeySelector,
+                                resultSelector);
                         }
                     }
                 }
@@ -244,11 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
         {
             private readonly List<ParameterExpression> _allowedParameters = new List<ParameterExpression>();
-            private readonly ISet<string> _allowedMethods = new HashSet<string>
-            {
-                nameof(Queryable.Where),
-                nameof(Queryable.AsQueryable)
-            };
+            private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
 
             private ParameterExpression _rootParameter;
             private int _rootParameterCount;
@@ -272,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             expression = memberExpression.Expression;
                         }
                         else if (expression is MethodCallExpression methodCallExpression
-                            && methodCallExpression.Method.DeclaringType == typeof(Queryable))
+                                 && methodCallExpression.Method.DeclaringType == typeof(Queryable))
                         {
                             expression = methodCallExpression.Arguments[0];
                         }

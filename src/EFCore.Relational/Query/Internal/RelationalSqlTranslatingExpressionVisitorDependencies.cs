@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public sealed class RelationalSqlTranslatingExpressionVisitorDependencies
@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(sqlExpressionFactory, MemberTranslatorProvider, MethodCallTranslatorProvider);
+            => new RelationalSqlTranslatingExpressionVisitorDependencies(
+                sqlExpressionFactory, MemberTranslatorProvider, MethodCallTranslatorProvider);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -95,14 +96,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="memberTranslatorProvider"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IMemberTranslatorProvider memberTranslatorProvider)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(SqlExpressionFactory, memberTranslatorProvider, MethodCallTranslatorProvider);
+            => new RelationalSqlTranslatingExpressionVisitorDependencies(
+                SqlExpressionFactory, memberTranslatorProvider, MethodCallTranslatorProvider);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="methodCallTranslatorProvider"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(SqlExpressionFactory, MemberTranslatorProvider, methodCallTranslatorProvider);
+        public RelationalSqlTranslatingExpressionVisitorDependencies With(
+            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            => new RelationalSqlTranslatingExpressionVisitorDependencies(
+                SqlExpressionFactory, MemberTranslatorProvider, methodCallTranslatorProvider);
     }
 }

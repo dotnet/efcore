@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         private const string SmallDateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss}'";
         private const string DateTimeFormatConst = "'{0:yyyy-MM-ddTHH:mm:ss.fff}'";
 
-        private readonly string[] _dateTime2Formats = new[]
+        private readonly string[] _dateTime2Formats =
         {
             "'{0:yyyy-MM-ddTHH:mm:ss}'",
             "'{0:yyyy-MM-ddTHH:mm:ss.fK}'",
@@ -110,7 +110,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         if (Size.HasValue)
                         {
                             var size = Size.Value;
-                            if (size <= 7 && size >= 0)
+                            if (size <= 7
+                                && size >= 0)
                             {
                                 return _dateTime2Formats[size];
                             }

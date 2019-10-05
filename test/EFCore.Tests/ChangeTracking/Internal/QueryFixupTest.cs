@@ -534,10 +534,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new Product
-                {
-                    CategoryId = 77
-                };
+                var newDependent = new Product { CategoryId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var dependent = context.Set<Product>().Include(e => e.Category).Single();
@@ -568,10 +565,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new Product
-                {
-                    CategoryId = 77
-                };
+                var newDependent = new Product { CategoryId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var principal = context.Set<Category>().Include(e => e.Products).Single();
@@ -602,10 +596,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new ProductDN
-                {
-                    CategoryId = 77
-                };
+                var newDependent = new ProductDN { CategoryId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var dependent = context.Set<ProductDN>().Include(e => e.Category).Single();
@@ -634,10 +625,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new ProductPN
-                {
-                    CategoryId = 77
-                };
+                var newDependent = new ProductPN { CategoryId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var principal = context.Set<CategoryPN>().Include(e => e.Products).Single();
@@ -666,10 +654,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new Widget
-                {
-                    ParentWidgetId = 77
-                };
+                var newDependent = new Widget { ParentWidgetId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var widgets = context.Set<Widget>().ToList();
@@ -701,10 +686,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new Widget
-                {
-                    ParentWidgetId = 77
-                };
+                var newDependent = new Widget { ParentWidgetId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var widgets = context.Set<Widget>().Include(e => e.ParentWidget).ToList();
@@ -736,10 +718,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new Widget
-                {
-                    ParentWidgetId = 77
-                };
+                var newDependent = new Widget { ParentWidgetId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var widgets = context.Set<Widget>().Include(e => e.ChildWidgets).ToList();
@@ -771,10 +750,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new WidgetPN
-                {
-                    ParentWidgetId = 77
-                };
+                var newDependent = new WidgetPN { ParentWidgetId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var widgets = context.Set<WidgetPN>().ToList();
@@ -804,10 +780,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new WidgetDN
-                {
-                    ParentWidgetId = 77
-                };
+                var newDependent = new WidgetDN { ParentWidgetId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var widgets = context.Set<WidgetDN>().ToList();
@@ -837,10 +810,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new WidgetDN
-                {
-                    ParentWidgetId = 77
-                };
+                var newDependent = new WidgetDN { ParentWidgetId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var widgets = context.Set<WidgetDN>().Include(e => e.ParentWidget).ToList();
@@ -870,10 +840,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new QueryFixupContext())
             {
-                var newDependent = new WidgetPN
-                {
-                    ParentWidgetId = 77
-                };
+                var newDependent = new WidgetPN { ParentWidgetId = 77 };
                 context.Entry(newDependent).State = existingState;
 
                 var widgets = context.Set<WidgetPN>().Include(e => e.ChildWidgets).ToList();
@@ -1044,137 +1011,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.Database.EnsureCreated();
 
                 context.AddRange(
-                    new Blog
-                    {
-                        Id = 77,
-                        TopPostId = 78
-                    },
-                    new Post
-                    {
-                        Id = 78,
-                        BlogId = 77
-                    },
-                    new Widget
-                    {
-                        Id = 77
-                    },
-                    new Widget
-                    {
-                        Id = 78,
-                        ParentWidgetId = 77
-                    },
-                    new WidgetPN
-                    {
-                        Id = 77
-                    },
-                    new WidgetPN
-                    {
-                        Id = 78,
-                        ParentWidgetId = 77
-                    },
-                    new WidgetDN
-                    {
-                        Id = 77
-                    },
-                    new WidgetDN
-                    {
-                        Id = 78,
-                        ParentWidgetId = 77
-                    },
-                    new Smidget
-                    {
-                        Id = 77
-                    },
-                    new Smidget
-                    {
-                        Id = 78,
-                        ParentSmidgetId = 77
-                    },
-                    new SmidgetPN
-                    {
-                        Id = 77
-                    },
-                    new SmidgetPN
-                    {
-                        Id = 78,
-                        ParentSmidgetId = 77
-                    },
-                    new SmidgetDN
-                    {
-                        Id = 77
-                    },
-                    new SmidgetDN
-                    {
-                        Id = 78,
-                        ParentSmidgetId = 77
-                    },
-                    new Category
-                    {
-                        Id = 77
-                    },
-                    new Product
-                    {
-                        Id = 78,
-                        CategoryId = 77
-                    },
-                    new CategoryPN
-                    {
-                        Id = 77
-                    },
-                    new ProductPN
-                    {
-                        Id = 78,
-                        CategoryId = 77
-                    },
-                    new CategoryDN
-                    {
-                        Id = 77
-                    },
-                    new ProductDN
-                    {
-                        Id = 78,
-                        CategoryId = 77
-                    },
-                    new Parent
-                    {
-                        Id = 77
-                    },
-                    new Child
-                    {
-                        Id = 78,
-                        ParentId = 77
-                    },
-                    new ParentPN
-                    {
-                        Id = 77
-                    },
-                    new ChildPN
-                    {
-                        Id = 78,
-                        ParentId = 77
-                    },
-                    new ParentDN
-                    {
-                        Id = 77
-                    },
-                    new ChildDN
-                    {
-                        Id = 78,
-                        ParentId = 77
-                    },
+                    new Blog { Id = 77, TopPostId = 78 },
+                    new Post { Id = 78, BlogId = 77 },
+                    new Widget { Id = 77 },
+                    new Widget { Id = 78, ParentWidgetId = 77 },
+                    new WidgetPN { Id = 77 },
+                    new WidgetPN { Id = 78, ParentWidgetId = 77 },
+                    new WidgetDN { Id = 77 },
+                    new WidgetDN { Id = 78, ParentWidgetId = 77 },
+                    new Smidget { Id = 77 },
+                    new Smidget { Id = 78, ParentSmidgetId = 77 },
+                    new SmidgetPN { Id = 77 },
+                    new SmidgetPN { Id = 78, ParentSmidgetId = 77 },
+                    new SmidgetDN { Id = 77 },
+                    new SmidgetDN { Id = 78, ParentSmidgetId = 77 },
+                    new Category { Id = 77 },
+                    new Product { Id = 78, CategoryId = 77 },
+                    new CategoryPN { Id = 77 },
+                    new ProductPN { Id = 78, CategoryId = 77 },
+                    new CategoryDN { Id = 77 },
+                    new ProductDN { Id = 78, CategoryId = 77 },
+                    new Parent { Id = 77 },
+                    new Child { Id = 78, ParentId = 77 },
+                    new ParentPN { Id = 77 },
+                    new ChildPN { Id = 78, ParentId = 77 },
+                    new ParentDN { Id = 77 },
+                    new ChildDN { Id = 78, ParentId = 77 },
                     new Order
                     {
                         Id = 77,
                         OrderDetails = new OrderDetails
                         {
-                            BillingAddress = new Address
-                            {
-                                Street = "BillMe"
-                            },
-                            ShippingAddress = new Address
-                            {
-                                Street = "ShipMe"
-                            }
+                            BillingAddress = new Address { Street = "BillMe" }, ShippingAddress = new Address { Street = "ShipMe" }
                         }
                     });
 
@@ -1445,12 +1313,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                     .HasForeignKey("OrderId");
 
                                 cb.OwnsOne(c => c.BillingAddress)
-                                  .WithOwner(c => c.OrderDetails)
-                                  .HasForeignKey("OrderDetailsId");
+                                    .WithOwner(c => c.OrderDetails)
+                                    .HasForeignKey("OrderDetailsId");
 
                                 cb.OwnsOne(c => c.ShippingAddress)
-                                  .WithOwner(c => c.OrderDetails)
-                                  .HasForeignKey("OrderDetailsId");
+                                    .WithOwner(c => c.OrderDetails)
+                                    .HasForeignKey("OrderDetailsId");
                             });
                     });
             }

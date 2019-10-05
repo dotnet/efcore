@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
 {
@@ -28,18 +27,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
             // Get the matching cart and album instances
             var cartItem = await _dbContext.CartItems.SingleOrDefaultAsync(
                 c => c.CartId == _shoppingCartId
-                && c.AlbumId == album.AlbumId);
+                     && c.AlbumId == album.AlbumId);
 
             if (cartItem == null)
             {
                 // Create a new cart item if no cart item exists
-                cartItem = new CartItem
-                {
-                    AlbumId = album.AlbumId,
-                    CartId = _shoppingCartId,
-                    Count = 1,
-                    DateCreated = DateTime.Now
-                };
+                cartItem = new CartItem { AlbumId = album.AlbumId, CartId = _shoppingCartId, Count = 1, DateCreated = DateTime.Now };
 
                 _dbContext.CartItems.Add(cartItem);
             }
@@ -55,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
             // Get the cart
             var cartItem = _dbContext.CartItems.SingleOrDefault(
                 cart => cart.CartId == _shoppingCartId
-                && cart.CartItemId == id);
+                        && cart.CartItemId == id);
 
             int itemCount = 0;
 
@@ -122,10 +115,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
 
             // No way to do decimal sum on server with SQLite, but client eval is fine here
             return (await _dbContext
-                .CartItems
-                .Where(c => c.CartId == _shoppingCartId)
-                .Select(c => c.Album.Price * c.Count)
-                .ToListAsync())
+                    .CartItems
+                    .Where(c => c.CartId == _shoppingCartId)
+                    .Select(c => c.Album.Price * c.Count)
+                    .ToListAsync())
                 .Sum();
         }
 
@@ -141,13 +134,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
                 //var album = _db.Albums.Find(item.AlbumId);
                 var album = await _dbContext.Albums.SingleAsync(a => a.AlbumId == item.AlbumId);
 
-                var orderDetail = new OrderDetail
-                {
-                    AlbumId = item.AlbumId,
-                    Order = order,
-                    UnitPrice = album.Price,
-                    Quantity = item.Count,
-                };
+                var orderDetail = new OrderDetail { AlbumId = item.AlbumId, Order = order, UnitPrice = album.Price, Quantity = item.Count };
 
                 // Set the order total of the shopping cart
                 orderTotal += (item.Count * album.Price);

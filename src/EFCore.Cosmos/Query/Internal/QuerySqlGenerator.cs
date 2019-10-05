@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Cosmos.Storage;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -189,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 _sqlBuilder.Append("1");
             }
+
             _sqlBuilder.AppendLine();
 
             _sqlBuilder.Append("FROM root ");
@@ -305,7 +305,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return sqlUnaryExpression;
         }
-
 
         private void GenerateList<T>(
             IReadOnlyList<T> items,

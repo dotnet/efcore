@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (unaryExpression.NodeType == ExpressionType.Not
                 && unaryExpression.Operand is MethodCallExpression innerMethodCall
                 && (_startsWithMethodInfo.Equals(innerMethodCall.Method)
-                || _endsWithMethodInfo.Equals(innerMethodCall.Method)))
+                    || _endsWithMethodInfo.Equals(innerMethodCall.Method)))
             {
                 if (innerMethodCall.Arguments[0] is ConstantExpression constantArgument
                     && (string)constantArgument.Value == string.Empty)

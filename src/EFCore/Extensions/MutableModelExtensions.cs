@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
-        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating"/>; this method allows it to be run
+        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <param name="model"> The model to finalize. </param>

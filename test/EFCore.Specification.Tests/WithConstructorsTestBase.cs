@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var posts = blogs[0].Posts.OrderBy(e => e.Title).ToList();
 
-                    Assert.Equal(1, posts.Count);
+                    Assert.Single(posts);
 
                     Assert.StartsWith("Baxter", posts[0].Title);
                     Assert.StartsWith("With dog", posts[0].Content);
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                 var blogs = context.Query<BlogQuery>().ToList();
 #pragma warning restore CS0618 // Type or member is obsolete
 
-                Assert.Equal(1, blogs.Count);
+                Assert.Single(blogs);
                 Assert.Equal("Puppies", blogs[0].Title);
             }
         }
@@ -208,18 +207,9 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entityWithBase = new HasContextProperty<DbContext>
-                {
-                    Id = id1
-                };
-                var entityWithDerived = new HasContextProperty<WithConstructorsContext>
-                {
-                    Id = id2
-                };
-                var entityWithOther = new HasContextProperty<OtherContext>
-                {
-                    Id = id3
-                };
+                var entityWithBase = new HasContextProperty<DbContext> { Id = id1 };
+                var entityWithDerived = new HasContextProperty<WithConstructorsContext> { Id = id2 };
+                var entityWithOther = new HasContextProperty<OtherContext> { Id = id3 };
 
                 context.Attach(entityWithBase);
                 context.Attach(entityWithDerived);
@@ -290,10 +280,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entity = new HasEntityTypeProperty
-                {
-                    Id = id
-                };
+                var entity = new HasEntityTypeProperty { Id = id };
 
                 context.Attach(entity);
 
@@ -360,10 +347,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var entity = new HasStateManagerProperty
-                {
-                    Id = id
-                };
+                var entity = new HasStateManagerProperty { Id = id };
 
                 context.Attach(entity);
 
@@ -521,11 +505,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyPropertyPost
-                {
-                    Id = id,
-                    LazyPropertyBlogId = fk
-                };
+                var post = new LazyPropertyPost { Id = id, LazyPropertyBlogId = fk };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -603,11 +583,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyFieldPost
-                {
-                    Id = id,
-                    LazyFieldBlogId = fk
-                };
+                var post = new LazyFieldPost { Id = id, LazyFieldBlogId = fk };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -660,11 +636,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                var post = new LazyPcsPost
-                {
-                    Id = id,
-                    LazyPcsBlogId = fk
-                };
+                var post = new LazyPcsPost { Id = id, LazyPcsBlogId = fk };
                 Assert.Null(post.GetLoader());
 
                 context.Attach(post);
@@ -929,7 +901,6 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
         {
             private TContext _context;
-            // ReSharper disable once ConvertToAutoProperty
             private bool _setterCalled;
 
             public HasContextPc()
@@ -958,7 +929,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            // ReSharper disable once ConvertToAutoProperty
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public bool SetterCalled => _setterCalled;
 
             public TContext GetContext() => Context;
@@ -1059,8 +1030,8 @@ namespace Microsoft.EntityFrameworkCore
         protected class HasStateManagerPc
         {
             private IStateManager _stateManager;
-            // ReSharper disable once ConvertToAutoProperty
             private bool _setterCalled;
+            // ReSharper disable once ConvertToAutoProperty
 
             public HasStateManagerPc()
             {
@@ -1085,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
             }
 
-            // ReSharper disable once ConvertToAutoProperty
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public bool SetterCalled => _setterCalled;
 
             public IStateManager GetStateManager() => StateManager;
@@ -1627,11 +1598,12 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Title);
                     });
 
-                modelBuilder.Entity<BlogQuery>(b =>
-                {
-                    b.HasNoKey();
-                    b.Property(e => e.Title);
-                });
+                modelBuilder.Entity<BlogQuery>(
+                    b =>
+                    {
+                        b.HasNoKey();
+                        b.Property(e => e.Title);
+                    });
 
                 modelBuilder.Entity<Post>(
                     b =>

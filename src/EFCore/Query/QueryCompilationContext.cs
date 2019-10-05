@@ -97,9 +97,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
         {
-            if (valueExtractor.Parameters.Count != 1 || valueExtractor.Parameters[0] != QueryContextParameter)
+            if (valueExtractor.Parameters.Count != 1
+                || valueExtractor.Parameters[0] != QueryContextParameter)
             {
-                throw new ArgumentException("Runtime parameter extraction lambda must have one QueryContext parameter",
+                throw new ArgumentException(
+                    "Runtime parameter extraction lambda must have one QueryContext parameter",
                     nameof(valueExtractor));
             }
 
@@ -115,14 +117,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         private Expression InsertRuntimeParameters(Expression query)
             => _runtimeParameters == null
                 ? query
-                : Expression.Block(_runtimeParameters
-                    .Select(kv =>
-                        Expression.Call(
-                            QueryContextParameter,
-                            _queryContextAddParameterMethodInfo,
-                            Expression.Constant(kv.Key),
-                            Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
-                    .Append(query));
+                : Expression.Block(
+                    _runtimeParameters
+                        .Select(
+                            kv =>
+                                Expression.Call(
+                                    QueryContextParameter,
+                                    _queryContextAddParameterMethodInfo,
+                                    Expression.Constant(kv.Key),
+                                    Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
+                        .Append(query));
 
         private static readonly MethodInfo _queryContextAddParameterMethodInfo
             = typeof(QueryContext)

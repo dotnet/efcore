@@ -125,21 +125,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override void Seed(PoolableDbContext context)
             {
                 context.Add(
-                    new Blog
-                    {
-                        Id = 1,
-                        Posts = new List<Post>
-                        {
-                            new Post
-                            {
-                                Id = 1
-                            },
-                            new Post
-                            {
-                                Id = 2
-                            }
-                        }
-                    });
+                    new Blog { Id = 1, Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } } });
 
                 context.SaveChanges();
             }

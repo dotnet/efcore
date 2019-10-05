@@ -67,11 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => EntityTypes.SingleOrDefault(
                 t => t.BaseType == null
                      && (t.FindDeclaredPrimaryKey() == null || t.FindForeignKeys(t.FindDeclaredPrimaryKey().Properties)
-                         .All(
-                             fk => !fk.PrincipalKey.IsPrimaryKey()
-                                   || fk.PrincipalEntityType.GetRootType() == t
-                                   || t.GetTableName() != fk.PrincipalEntityType.GetTableName()
-                                   || t.GetSchema() != fk.PrincipalEntityType.GetSchema())));
+                             .All(
+                                 fk => !fk.PrincipalKey.IsPrimaryKey()
+                                       || fk.PrincipalEntityType.GetRootType() == t
+                                       || t.GetTableName() != fk.PrincipalEntityType.GetTableName()
+                                       || t.GetSchema() != fk.PrincipalEntityType.GetSchema())));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -93,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             foreach (var property in EntityTypes.SelectMany(EntityFrameworkCore.EntityTypeExtensions.GetDeclaredProperties))
             {
                 var columnName = property.GetColumnName();
-                if (!dictionary.ContainsKey(columnName))
+                if (!dictionary.TryGetValue(columnName, out var otherProperty)
+                    || (otherProperty.IsColumnNullable() && !property.IsColumnNullable()))
                 {
                     dictionary[columnName] = property;
                 }
@@ -203,6 +204,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual string GetComment()
             => EntityTypes.Select(e => e.GetComment()).FirstOrDefault(c => c != null);
-
     }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private readonly SelectExpression _selectExpression;
             private readonly ParameterExpression _dbDataReaderParameter;
+
             private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
                 = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
@@ -45,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _materializationContextBindings[parameterExpression]
                         = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
 
-                    var updatedExpression = Expression.New(newExpression.Constructor,
+                    var updatedExpression = Expression.New(
+                        newExpression.Constructor,
                         Expression.Constant(ValueBuffer.Empty),
                         newExpression.Arguments[1]);
 
@@ -60,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return memberExpression.Assign(Visit(binaryExpression.Right));
                 }
 
-
                 return base.VisitBinary(binaryExpression);
             }
 
@@ -72,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
                     var propertyProjectionMap = methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression
                         ? (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression)
-                        : _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
+                        : _materializationContextBindings[
+                            (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
                     var projectionIndex = propertyProjectionMap[property];
                     var projection = _selectExpression.Projection[projectionIndex];

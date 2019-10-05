@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd"/> on properties that are
+    ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd" /> on properties that are
     ///     part of the primary key and not part of any foreign keys.
     /// </summary>
     public class ValueGenerationConvention :
@@ -188,8 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var onOwnedType = key?.DeclaringEntityType.IsOwned();
             return key != null
-                && (onOwnedType.Value && key.Properties.Count(p => !p.IsForeignKey()) == 1
-                    || !onOwnedType.Value && key.Properties.Count == 1);
+                   && (onOwnedType.Value && key.Properties.Count(p => !p.IsForeignKey()) == 1
+                       || !onOwnedType.Value && key.Properties.Count == 1);
         }
 
         /// <summary>

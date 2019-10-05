@@ -318,7 +318,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     being modified such that a ValueBuffer with appropriate slots can be created.
         /// </param>
         /// <returns> The factory. </returns>
-        protected virtual IRelationalValueBufferFactory CreateValueBufferFactory([NotNull] IReadOnlyList<ColumnModification> columnModifications)
+        protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+            [NotNull] IReadOnlyList<ColumnModification> columnModifications)
             => Dependencies.ValueBufferFactoryFactory
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))

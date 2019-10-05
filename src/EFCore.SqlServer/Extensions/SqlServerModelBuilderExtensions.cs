@@ -255,6 +255,195 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     <para>
+        ///         Configures the maximum size for Azure SQL Database.
+        ///     </para>
+        ///     <para>
+        ///         Units must be included, e.g. "100 MB". See Azure SQL Database documentation for all supported values.
+        ///     </para>
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="maxSize"> The maximum size of the database. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static ModelBuilder HasDatabaseMaxSize([NotNull] this ModelBuilder modelBuilder, [NotNull] string maxSize)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(maxSize, nameof(maxSize));
+
+            modelBuilder.Model.SetDatabaseMaxSize(maxSize);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Attempts to configure the maximum size for Azure SQL Database.
+        ///     </para>
+        ///     <para>
+        ///         Units must be included, e.g. "100 MB". See Azure SQL Database documentation for all supported values.
+        ///     </para>
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="maxSize"> The maximum size of the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionModelBuilder HasDatabaseMaxSize(
+            [NotNull] this IConventionModelBuilder modelBuilder, [CanBeNull] string maxSize, bool fromDataAnnotation = false)
+        {
+            if (modelBuilder.CanSetDatabaseMaxSize(maxSize, fromDataAnnotation))
+            {
+                modelBuilder.Metadata.SetDatabaseMaxSize(maxSize, fromDataAnnotation);
+                return modelBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given value can be set as the maximum size of the database.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="maxSize"> The maximum size of the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given value can be set as the maximum size of the database. </returns>
+        public static bool CanSetDatabaseMaxSize(
+            [NotNull] this IConventionModelBuilder modelBuilder, [CanBeNull] string maxSize, bool fromDataAnnotation = false)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+
+            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.MaxDatabaseSize, maxSize, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the service tier (EDITION) for Azure SQL Database.
+        ///     </para>
+        ///     <para>
+        ///         Literals should be delimited with ''. See Azure SQL Database documentation for supported values.
+        ///     </para>
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="serviceTier"> The service tier of the database. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static ModelBuilder HasServiceTier([NotNull] this ModelBuilder modelBuilder, [NotNull] string serviceTier)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(serviceTier, nameof(serviceTier));
+
+            modelBuilder.Model.SetServiceTier(serviceTier);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Attempts to configure the service tier (EDITION) for Azure SQL Database.
+        ///     </para>
+        ///     <para>
+        ///         Literals should be delimited with ''. See Azure SQL Database documentation for supported values.
+        ///     </para>
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="serviceTier"> The service tier of the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionModelBuilder HasServiceTier(
+            [NotNull] this IConventionModelBuilder modelBuilder, [CanBeNull] string serviceTier, bool fromDataAnnotation = false)
+        {
+            if (modelBuilder.CanSetServiceTier(serviceTier, fromDataAnnotation))
+            {
+                modelBuilder.Metadata.SetServiceTier(serviceTier, fromDataAnnotation);
+                return modelBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given value can be set as the service tier of the database.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="serviceTier"> The service tier of the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given value can be set as the service tier of the database. </returns>
+        public static bool CanSetServiceTier(
+            [NotNull] this IConventionModelBuilder modelBuilder, [CanBeNull] string serviceTier, bool fromDataAnnotation = false)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+
+            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.ServiceTier, serviceTier, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the performance level (SERVICE_OBJECTIVE) for Azure SQL Database.
+        ///     </para>
+        ///     <para>
+        ///         Literals should be delimited with ''. See Azure SQL Database documentation for supported values.
+        ///     </para>
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="performanceLevel"> The performance level of the database. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static ModelBuilder HasPerformanceLevel([NotNull] this ModelBuilder modelBuilder, [NotNull] string performanceLevel)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(performanceLevel, nameof(performanceLevel));
+
+            modelBuilder.Model.SetPerformanceLevel(performanceLevel);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Attempts to configure the performance level (SERVICE_OBJECTIVE) for Azure SQL Database.
+        ///     </para>
+        ///     <para>
+        ///         Literals should be delimited with ''. See Azure SQL Database documentation for supported values.
+        ///     </para>
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="performanceLevel"> The performance level of the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <c>null</c> otherwise.
+        /// </returns>
+        public static IConventionModelBuilder HasPerformanceLevel(
+            [NotNull] this IConventionModelBuilder modelBuilder, [CanBeNull] string performanceLevel, bool fromDataAnnotation = false)
+        {
+            if (modelBuilder.CanSetPerformanceLevel(performanceLevel, fromDataAnnotation))
+            {
+                modelBuilder.Metadata.SetPerformanceLevel(performanceLevel, fromDataAnnotation);
+                return modelBuilder;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given value can be set as the performance level of the database.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="performanceLevel"> The performance level of the database. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <c>true</c> if the given value can be set as the performance level of the database. </returns>
+        public static bool CanSetPerformanceLevel(
+            [NotNull] this IConventionModelBuilder modelBuilder, [CanBeNull] string performanceLevel, bool fromDataAnnotation = false)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+
+            return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.PerformanceLevel, performanceLevel, fromDataAnnotation);
+        }
+
+        /// <summary>
         ///     Configures the model to use a sequence-based hi-lo pattern to generate values for key properties
         ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
         /// </summary>

@@ -32,10 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [CanBeNull] IPropertyBase serviceProperty = null)
             : base(
                 parameterType, serviceProperty != null
-                    ? new[]
-                    {
-                        serviceProperty
-                    }
+                    ? new[] { serviceProperty }
                     : Array.Empty<IPropertyBase>())
         {
             Check.NotNull(serviceType, nameof(serviceType));

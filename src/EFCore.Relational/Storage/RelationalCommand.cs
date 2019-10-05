@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -577,7 +577,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (logger != null)
             {
-                command = logger.CommandCreated(connection, command, commandMethod, context, commandId, connectionId, startTime, stopwatch.Elapsed);
+                command = logger.CommandCreated(
+                    connection, command, commandMethod, context, commandId, connectionId, startTime, stopwatch.Elapsed);
             }
 
             command.CommandText = CommandText;

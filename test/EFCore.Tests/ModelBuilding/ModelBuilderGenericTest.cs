@@ -71,9 +71,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 var property = modelBuilder.Model.FindEntityType(typeof(DoubleProperty)).GetProperty("Property");
-                Assert.True(
-                    property.GetIdentifyingMemberInfo().Name
-                        .EndsWith(typeof(IReplacable).Name + "." + nameof(IReplacable.Property)));
+                Assert.EndsWith(typeof(IReplacable).Name + "." + nameof(IReplacable.Property), property.GetIdentifyingMemberInfo().Name);
             }
 
             [ConditionalFact]
@@ -86,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<EntityBase>().Property(e => ((IEntityBase)e).Target);
 
-                Assert.Equal(1, modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties().Count());
+                Assert.Single(modelBuilder.Model.FindEntityType(typeof(EntityBase)).GetProperties());
             }
         }
 

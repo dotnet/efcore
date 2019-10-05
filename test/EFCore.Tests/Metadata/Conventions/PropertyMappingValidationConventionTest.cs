@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
-            entityTypeBuilder.Property(typeof(NavigationAsProperty), nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(
+                typeof(NavigationAsProperty), nameof(NonPrimitiveAsPropertyEntity.Property), ConfigurationSource.Convention);
 
             Assert.Equal(
                 CoreStrings.PropertyNotMapped(
@@ -208,10 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     ((Model)m).FinalizeModel();
                     validatePropertyMappingMethod.Invoke(
-                        validator, new object[]
-                        {
-                            m, logger
-                        });
+                        validator, new object[] { m, logger });
                 }
                 catch (TargetInvocationException exception)
                 {
