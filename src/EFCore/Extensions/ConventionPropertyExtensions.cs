@@ -92,6 +92,28 @@ namespace Microsoft.EntityFrameworkCore
                 maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
+        ///     Sets the precision of data that is allowed in this property. For example, if the property is a <see cref="decimal" /> '
+        ///     then this is the maximum number of digits.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="precision"> The maximum number of digits that is allowed in this property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetPrecision([NotNull] this IConventionProperty property, int? precision, bool fromDataAnnotation = false)
+            => property.AsProperty().SetPrecision(
+                precision, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
+        ///     Sets the scale of data that is allowed in this property. For example, if the property is a <see cref="decimal" /> '
+        ///     then this is the maximum number of decimal places.
+        /// </summary>
+        /// <param name="property"> The property to get the precision of. </param>
+        /// <param name="scale"> The maximum number of decimal places that is allowed in this property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetScale([NotNull] this IConventionProperty property, int? scale, bool fromDataAnnotation = false)
+            => property.AsProperty().SetScale(
+                scale, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+        /// <summary>
         ///     Returns the configuration source for <see cref="PropertyExtensions.GetMaxLength" />.
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
