@@ -99,6 +99,22 @@ namespace Microsoft.EntityFrameworkCore
         public static ConfigurationSource? GetMaxLengthConfigurationSource([NotNull] this IConventionProperty property)
             => property.FindAnnotation(CoreAnnotationNames.MaxLength)?.GetConfigurationSource();
 
+         /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetScale" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetScale" />. </returns>
+        public static ConfigurationSource? GetScaleConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.Scale)?.GetConfigurationSource();
+
+         /// <summary>
+        ///     Returns the configuration source for <see cref="PropertyExtensions.GetPrecision" />.
+        /// </summary>
+        /// <param name="property"> The property to find configuration source for. </param>
+        /// <returns> The configuration source for <see cref="PropertyExtensions.GetPrecision" />. </returns>
+        public static ConfigurationSource? GetPrecisionConfigurationSource([NotNull] this IConventionProperty property)
+            => property.FindAnnotation(CoreAnnotationNames.Precision)?.GetConfigurationSource();
+
         /// <summary>
         ///     Sets a value indicating whether this property can persist Unicode characters.
         /// </summary>

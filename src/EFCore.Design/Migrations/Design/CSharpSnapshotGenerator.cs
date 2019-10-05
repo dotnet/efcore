@@ -475,6 +475,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             GenerateFluentApiForAnnotation(
                 ref annotations,
+                CoreAnnotationNames.Precision,
+                nameof(PropertyBuilder.HasPrecision),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
+                CoreAnnotationNames.Scale,
+                nameof(PropertyBuilder.HasScale),
+                stringBuilder);
+
+            GenerateFluentApiForAnnotation(
+                ref annotations,
                 CoreAnnotationNames.Unicode,
                 nameof(PropertyBuilder.IsUnicode),
                 stringBuilder);
