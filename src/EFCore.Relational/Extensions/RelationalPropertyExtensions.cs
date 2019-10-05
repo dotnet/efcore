@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -334,7 +335,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 try
                 {
-                    return Convert.ChangeType(value, property.ClrType, CultureInfo.InvariantCulture);
+                    if (typeof(IEnumerable).IsAssignableFrom(property.ClrType) && property.ClrType.IsGenericType)
+                    {
+                        return value;
+                    }
+                    else
+                    {
+                        return Convert.ChangeType(value, property.ClrType, CultureInfo.InvariantCulture);
+                    }
                 }
                 catch (Exception)
                 {

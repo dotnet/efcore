@@ -1205,6 +1205,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasConstraintName("Simon");
         }
 
+        [ConditionalFact]
+        public void Can_use_empty_IEnumerable_as_default_value()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder
+                .Entity<Customer>()
+                .Property(c => c.Orders)
+                .HasDefaultValue(Enumerable.Empty<Order>());
+        }
+
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
         {
         }
