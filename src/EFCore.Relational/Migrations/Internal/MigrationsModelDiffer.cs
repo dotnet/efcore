@@ -732,6 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Where(
                     fk => fk.DeclaringEntityType.GetRootType() != entityType.GetRootType()
                           && fk.DeclaringEntityType.GetTableName() == entityType.GetTableName()
+                          && fk.DeclaringEntityType.GetSchema() == entityType.GetSchema()
                           && fk == fk.DeclaringEntityType
                               .FindForeignKey(
                                   fk.DeclaringEntityType.FindPrimaryKey().Properties,
