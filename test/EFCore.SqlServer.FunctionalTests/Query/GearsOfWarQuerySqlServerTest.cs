@@ -7265,6 +7265,100 @@ WHERE ([s0].[Id] = @__entity_equality_prm_Inner_Squad_0_Id) AND @__entity_equali
 ORDER BY [t].[FullName]");
         }
 
+        public override async Task Complex_GroupBy_after_set_operator(bool isAsync)
+        {
+            await base.Complex_GroupBy_after_set_operator(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[Name], [t].[Count], SUM([t].[Count]) AS [Sum]
+FROM (
+    SELECT [c].[Name], (
+        SELECT COUNT(*)
+        FROM [Weapons] AS [w]
+        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AS [Count]
+    FROM [Gears] AS [g]
+    LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+    UNION ALL
+    SELECT [c0].[Name], (
+        SELECT COUNT(*)
+        FROM [Weapons] AS [w0]
+        WHERE ([g0].[FullName] = [w0].[OwnerFullName]) AND [w0].[OwnerFullName] IS NOT NULL) AS [Count]
+    FROM [Gears] AS [g0]
+    INNER JOIN [Cities] AS [c0] ON [g0].[CityOrBirthName] = [c0].[Name]
+    WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t]
+GROUP BY [t].[Name], [t].[Count]");
+        }
+
+        public override async Task Complex_GroupBy_after_set_operator_using_result_selector(bool isAsync)
+        {
+            await base.Complex_GroupBy_after_set_operator_using_result_selector(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Left_join_with_GroupBy_with_composite_group_key(bool isAsync)
+        {
+            await base.Left_join_with_GroupBy_with_composite_group_key(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[CityOrBirthName], [g].[HasSoulPatch]
+FROM [Gears] AS [g]
+INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
+LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+GROUP BY [g].[CityOrBirthName], [g].[HasSoulPatch]");
+        }
+
+        public override async Task GroupBy_with_boolean_grouping_key(bool isAsync)
+        {
+            await base.GroupBy_with_boolean_grouping_key(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[CityOrBirthName], [g].[HasSoulPatch], CASE
+    WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsMarcus], COUNT(*) AS [Count]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+GROUP BY [g].[CityOrBirthName], [g].[HasSoulPatch], CASE
+    WHEN [g].[Nickname] = N'Marcus' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool isAsync)
+        {
+            await base.GroupBy_with_boolean_groupin_key_thru_navigation_access(isAsync);
+
+            AssertSql(
+                @"SELECT [t0].[HasSoulPatch], LOWER([s].[Name]) AS [Name]
+FROM [Tags] AS [t]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND [t].[GearNickName] IS NOT NULL) AND (([t].[GearSquadId] = [t0].[SquadId]) AND [t].[GearSquadId] IS NOT NULL)
+LEFT JOIN [Squads] AS [s] ON [t0].[SquadId] = [s].[Id]
+GROUP BY [t0].[HasSoulPatch], [s].[Name]");
+        }
+
+        public override async Task Group_by_over_projection_with_multiple_properties_accessed_thru_navigation(bool isAsync)
+        {
+            await base.Group_by_over_projection_with_multiple_properties_accessed_thru_navigation(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Name]
+FROM [Gears] AS [g]
+INNER JOIN [Cities] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
+LEFT JOIN [Cities] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
+INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+GROUP BY [c].[Name]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
