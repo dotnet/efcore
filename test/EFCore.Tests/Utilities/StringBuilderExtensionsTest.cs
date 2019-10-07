@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             Assert.Equal(
                 "11, 22, 33",
-                new StringBuilder().AppendJoin(new[] { 1, 2, 3 }, (sb, v) => sb.Append(v).Append(v), ", ").ToString());
+                new StringBuilder().AppendJoin(new[] { 1, 2, 3 }, (sb, v) => sb.Append(v).Append(v)).ToString());
         }
     }
 }

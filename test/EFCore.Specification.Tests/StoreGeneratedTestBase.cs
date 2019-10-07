@@ -1068,7 +1068,7 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip="Issue #15182")]
+        [ConditionalFact(Skip = "Issue #15182")]
         public virtual void Nullable_fields_get_defaults_when_not_set()
         {
             ExecuteWithStrategyInTransaction(
@@ -1090,17 +1090,13 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip="Issue #15182")]
+        [ConditionalFact(Skip = "Issue #15182")]
         public virtual void Nullable_fields_store_non_defaults_when_set()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var entity = context.Add(new WithNullableBackingFields
-                    {
-                        NullableBackedBool = false,
-                        NullableBackedInt = 0
-                    }).Entity;
+                    var entity = context.Add(new WithNullableBackingFields { NullableBackedBool = false, NullableBackedInt = 0 }).Entity;
 
                     context.SaveChanges();
 
@@ -1116,17 +1112,13 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact(Skip="Issue #15182")]
+        [ConditionalFact(Skip = "Issue #15182")]
         public virtual void Nullable_fields_store_any_value_when_set()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var entity = context.Add(new WithNullableBackingFields
-                    {
-                        NullableBackedBool = true,
-                        NullableBackedInt = 3
-                    }).Entity;
+                    var entity = context.Add(new WithNullableBackingFields { NullableBackedBool = true, NullableBackedInt = 3 }).Entity;
 
                     context.SaveChanges();
 
@@ -1220,14 +1212,16 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class WithBackingFields
         {
+#pragma warning disable RCS1085 // Use auto-implemented property.
+            // ReSharper disable ConvertToAutoProperty
             private int _id;
 
-#pragma warning disable RCS1085 // Use auto-implemented property.
             public int Id
             {
                 get => _id;
                 set => _id = value;
             }
+            // ReSharper restore ConvertToAutoProperty
 #pragma warning restore RCS1085 // Use auto-implemented property.
 
             private int? _nullableAsNonNullable = 0;
@@ -1258,6 +1252,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             private bool? _nullableBackedBool;
+
             public bool NullableBackedBool
             {
                 get => _nullableBackedBool ?? false;
@@ -1265,6 +1260,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             private int? _nullableBackedInt;
+
             public int NullableBackedInt
             {
                 get => _nullableBackedInt ?? 0;

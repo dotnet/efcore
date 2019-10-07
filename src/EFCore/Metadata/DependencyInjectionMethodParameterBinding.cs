@@ -64,10 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var delegateVariable = Expression.Variable(ParameterType, "delegate");
 
             return Expression.Block(
-                new[]
-                {
-                    serviceVariable, delegateVariable
-                },
+                new[] { serviceVariable, delegateVariable },
                 new List<Expression>
                 {
                     Expression.Assign(

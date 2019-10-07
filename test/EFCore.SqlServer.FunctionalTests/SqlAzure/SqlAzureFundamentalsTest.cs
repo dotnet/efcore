@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -39,10 +38,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
                             contextScoped.Add(
                                 new Product
                                 {
-                                    Name = "Blue Cloud",
-                                    ProductNumber = "xxxxxxxxxxx",
-                                    Weight = 0.01m,
-                                    SellStartDate = DateTime.Now
+                                    Name = "Blue Cloud", ProductNumber = "xxxxxxxxxxx", Weight = 0.01m, SellStartDate = DateTime.Now
                                 });
                             Assert.Equal(1, contextScoped.SaveChanges());
                         }
@@ -60,10 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
                     {
                         using (contextScoped.Database.BeginTransaction())
                         {
-                            var product = new Product
-                            {
-                                ProductID = 999
-                            };
+                            var product = new Product { ProductID = 999 };
                             contextScoped.Products.Attach(product);
                             Assert.Equal(0, contextScoped.SaveChanges());
 

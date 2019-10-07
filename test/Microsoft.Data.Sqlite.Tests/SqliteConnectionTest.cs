@@ -10,9 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
-using SQLitePCL;
 using Xunit;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -263,7 +261,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Open_works_when_password()
         {
-            switch (SQLitePCL.raw.GetNativeLibraryName())
+            switch (GetNativeLibraryName())
             {
                 case "e_sqlite3":
                     Open_works_when_password_e_sqlite3();

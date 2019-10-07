@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
             = new NullSafeAccessVerifyingExpressionVisitor();
+
         private readonly NullConditionalRemovingExpressionVisitor _nullConditionalRemovingExpressionVisitor
             = new NullConditionalRemovingExpressionVisitor();
 
@@ -114,6 +115,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool IsNullConstant(Expression expression)
             => expression is ConstantExpression constantExpression
-                && constantExpression.Value == null;
+               && constantExpression.Value == null;
     }
 }

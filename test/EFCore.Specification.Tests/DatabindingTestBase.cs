@@ -49,19 +49,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             drivers.Add(
-                new Driver
-                {
-                    Name = "Pedro de la Rosa",
-                    TeamId = AddedTeam,
-                    CarNumber = 13
-                });
+                new Driver { Name = "Pedro de la Rosa", TeamId = AddedTeam, CarNumber = 13 });
             drivers.Add(
-                new Driver
-                {
-                    Name = "Kamui Kobayashi",
-                    TeamId = AddedTeam,
-                    CarNumber = null
-                });
+                new Driver { Name = "Kamui Kobayashi", TeamId = AddedTeam, CarNumber = null });
         }
 
         [ConditionalTheory]
@@ -102,12 +92,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(0, local.Count);
 
-                var larry = new Driver
-                {
-                    Name = "Larry David",
-                    TeamId = Team.Ferrari,
-                    CarNumber = 13
-                };
+                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
                 context.Drivers.Add(larry);
 
                 Assert.Equal(1, local.Count);
@@ -130,12 +115,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(0, local.Count);
 
-                var larry = new Driver
-                {
-                    Name = "Larry David",
-                    TeamId = Team.Ferrari,
-                    CarNumber = 13
-                };
+                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
                 context.Drivers.Attach(larry);
 
                 Assert.Equal(1, local.Count);
@@ -341,20 +321,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(0, local.Count);
 
-                var larry = new Driver
-                {
-                    Id = -1,
-                    Name = "Larry David",
-                    TeamId = Team.Ferrari,
-                    CarNumber = 13
-                };
+                var larry = new Driver { Id = -1, Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
 
                 local.Add(larry);
 
                 Assert.Same(larry, context.Drivers.Find(-1));
                 Assert.Equal(EntityState.Added, context.Entry(larry).State);
                 Assert.Equal(1, local.Count);
-                Assert.Equal(1, localView.Count);
+                Assert.Single(localView);
                 Assert.Contains(larry, local);
                 Assert.Contains(larry, localView);
             }
@@ -466,11 +440,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(TotalCount, local.Count);
 
                 context.Teams.Add(
-                    new Team
-                    {
-                        Id = -1,
-                        Name = "Wubbsy Racing"
-                    });
+                    new Team { Id = -1, Name = "Wubbsy Racing" });
 
                 Assert.Equal(TotalCount, local.Count);
             }
@@ -581,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.All(context.ChangeTracker.Entries<Team>().Select(e => e.Entity), e => Assert.True(teamsLocal.Contains(e)));
 
                 Assert.All(
-                    context.ChangeTracker.Entries<Driver>().Select(e => e.Entity), e => Assert.False(teamsLocal.Contains((object)e)));
+                    context.ChangeTracker.Entries<Driver>().Select(e => e.Entity), e => Assert.DoesNotContain((object)e, teamsLocal));
             }
         }
 
@@ -608,18 +578,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var bindingList = context.Drivers.Local.ToBindingList();
 
-                Assert.Equal(0, bindingList.Count);
+                Assert.Empty(bindingList);
 
-                var larry = new Driver
-                {
-                    Name = "Larry David",
-                    TeamId = Team.Ferrari,
-                    CarNumber = 13
-                };
+                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
                 context.Drivers.Add(larry);
 
-                Assert.True(bindingList.Contains(larry));
-                Assert.Equal(1, bindingList.Count);
+                Assert.Contains(larry, bindingList);
+                Assert.Single(bindingList);
             }
         }
 
@@ -630,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var bindingList = context.Drivers.Local.ToBindingList();
 
-                Assert.Equal(0, bindingList.Count);
+                Assert.Empty(bindingList);
 
                 context.Drivers.Where(d => d.TeamId == UnchangedTeam).Load();
 
@@ -687,23 +652,17 @@ namespace Microsoft.EntityFrameworkCore
                 var observable = local.ToObservableCollection();
                 var bindingList = local.ToBindingList();
 
-                Assert.Equal(0, bindingList.Count);
+                Assert.Empty(bindingList);
 
-                var larry = new Driver
-                {
-                    Id = -1,
-                    Name = "Larry David",
-                    TeamId = Team.Ferrari,
-                    CarNumber = 13
-                };
+                var larry = new Driver { Id = -1, Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
 
                 bindingList.Add(larry);
 
                 Assert.Same(larry, context.Drivers.Find(-1));
                 Assert.Equal(EntityState.Added, context.Entry(larry).State);
-                Assert.Equal(1, bindingList.Count);
-                Assert.Equal(1, local.Count);
-                Assert.Equal(1, observable.Count);
+                Assert.Single(bindingList);
+                Assert.Single(local);
+                Assert.Single(observable);
                 Assert.Contains(larry, bindingList);
                 Assert.Contains(larry, local);
                 Assert.Contains(larry, observable);
@@ -781,11 +740,7 @@ namespace Microsoft.EntityFrameworkCore
                 var count = bindingList.Count;
 
                 context.Teams.Add(
-                    new Team
-                    {
-                        Id = -1,
-                        Name = "Wubbsy Racing"
-                    });
+                    new Team { Id = -1, Name = "Wubbsy Racing" });
 
                 Assert.Equal(count, bindingList.Count);
             }
@@ -802,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore
                 var testDriver = new TestDriver();
                 context.Drivers.Add(testDriver);
 
-                Assert.True(bindingList.Contains(testDriver));
+                Assert.Contains(testDriver, bindingList);
             }
         }
 
@@ -813,20 +768,11 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var testDrivers = context.Set<TestDriver>();
                 testDrivers.Attach(
-                    new TestDriver
-                    {
-                        Id = 3
-                    });
+                    new TestDriver { Id = 3 });
                 testDrivers.Attach(
-                    new TestDriver
-                    {
-                        Id = 1
-                    });
+                    new TestDriver { Id = 1 });
                 testDrivers.Attach(
-                    new TestDriver
-                    {
-                        Id = 4
-                    });
+                    new TestDriver { Id = 4 });
 
                 var bindingList = testDrivers.Local.ToBindingList();
 
@@ -846,20 +792,11 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateF1Context())
             {
                 context.Drivers.Attach(
-                    new TestDriver
-                    {
-                        Id = 3
-                    });
+                    new TestDriver { Id = 3 });
                 context.Drivers.Attach(
-                    new TestDriver
-                    {
-                        Id = 1
-                    });
+                    new TestDriver { Id = 1 });
                 context.Drivers.Attach(
-                    new TestDriver
-                    {
-                        Id = 4
-                    });
+                    new TestDriver { Id = 4 });
 
                 var bindingList = context.Drivers.Local.ToBindingList();
 
@@ -892,12 +829,7 @@ namespace Microsoft.EntityFrameworkCore
                 var ferrari = context.Teams.Single(t => t.Id == Team.Ferrari);
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
 
-                var larry = new Driver
-                {
-                    Name = "Larry David",
-                    TeamId = Team.Ferrari,
-                    CarNumber = 13
-                };
+                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
                 context.Drivers.Add(larry);
 
                 Assert.True(navBindingList.Contains(larry));
@@ -913,20 +845,14 @@ namespace Microsoft.EntityFrameworkCore
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
                 var localDrivers = context.Drivers.Local;
 
-                var larry = new Driver
-                {
-                    Id = -1,
-                    Name = "Larry David",
-                    TeamId = Team.Ferrari,
-                    CarNumber = 13
-                };
+                var larry = new Driver { Id = -1, Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
                 navBindingList.Add(larry);
 
-                Assert.False(localDrivers.Contains(larry));
+                Assert.DoesNotContain(larry, localDrivers);
 
                 context.ChangeTracker.DetectChanges();
 
-                Assert.True(localDrivers.Contains(larry));
+                Assert.Contains(larry, localDrivers);
                 Assert.Same(larry, context.Drivers.Find(-1));
             }
         }
@@ -950,17 +876,17 @@ namespace Microsoft.EntityFrameworkCore
                 var alonso = localDrivers.Single(d => d.Name == "Fernando Alonso");
                 navBindingList.Remove(alonso);
 
-                Assert.True(localDrivers.Contains(alonso));
+                Assert.Contains(alonso, localDrivers);
 
                 context.ChangeTracker.DetectChanges();
 
                 if (deleteOrphansTiming == CascadeTiming.Immediate)
                 {
-                    Assert.False(localDrivers.Contains(alonso));
+                    Assert.DoesNotContain(alonso, localDrivers);
                 }
                 else
                 {
-                    Assert.True(localDrivers.Contains(alonso)); // Because it is not marked as Deleted
+                    Assert.Contains(alonso, localDrivers); // Because it is not marked as Deleted
                 }
 
                 Assert.False(ferrari.Drivers.Contains(alonso)); // But has been removed from nav prop

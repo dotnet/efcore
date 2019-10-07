@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that configures the maximum length based on the <see cref="StringLengthAttribute"/> applied on the property.
+    ///     A convention that configures the maximum length based on the <see cref="StringLengthAttribute" /> applied on the property.
     /// </summary>
     public class StringLengthAttributeConvention : PropertyAttributeConventionBase<StringLengthAttribute>
     {

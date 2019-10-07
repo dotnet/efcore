@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public async Task Generates_sequential_sbyte_values(bool async) => await Generates_sequential_values<sbyte>(async);
 
-        public async Task Generates_sequential_values<TValue>(bool async)
+        private async Task Generates_sequential_values<TValue>(bool async)
         {
             const int blockSize = 4;
 

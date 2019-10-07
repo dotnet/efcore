@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionEntityType> context)
         {
             if ((newBaseType == null
-                || oldBaseType != null)
+                 || oldBaseType != null)
                 && entityTypeBuilder.Metadata.BaseType == newBaseType)
             {
                 Process(entityTypeBuilder);

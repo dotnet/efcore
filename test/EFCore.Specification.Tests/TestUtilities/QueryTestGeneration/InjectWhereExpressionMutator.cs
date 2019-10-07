@@ -33,10 +33,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             var typeArgument = expressionToInject.Type.GetGenericArguments()[0];
             var prm = Expression.Parameter(typeArgument, "prm");
 
-            var candidateExpressions = new List<Expression>
-            {
-                Expression.Constant(random.Choose(new List<bool> { true, false }))
-            };
+            var candidateExpressions = new List<Expression> { Expression.Constant(random.Choose(new List<bool> { true, false })) };
 
             if (typeArgument == typeof(bool))
             {

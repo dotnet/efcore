@@ -28,10 +28,7 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 50; i++)
                 {
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i });
                 }
 
                 await context.SaveChangesAsync();
@@ -65,12 +62,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     guids.Add(
                         context.Add(
-                            new Pegasus
-                            {
-                                Name = "Rainbow Dash " + i,
-                                Index = i,
-                                Id = Guid.NewGuid()
-                            }).Entity.Id);
+                            new Pegasus { Name = "Rainbow Dash " + i, Index = i, Id = Guid.NewGuid() }).Entity.Id);
                 }
 
                 await context.SaveChangesAsync();

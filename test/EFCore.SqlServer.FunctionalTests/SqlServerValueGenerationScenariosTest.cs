@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -31,13 +30,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -71,13 +64,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -109,10 +96,7 @@ namespace Microsoft.EntityFrameworkCore
                     eb =>
                     {
                         eb.HasAlternateKey(
-                            b => new
-                            {
-                                b.OtherId
-                            });
+                            b => new { b.OtherId });
                         eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
                     });
             }
@@ -129,13 +113,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -151,13 +129,7 @@ namespace Microsoft.EntityFrameworkCore
                 using (var context = new BlogContextDefaultValueNoMigrations(testStore.Name))
                 {
                     context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -221,13 +193,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new BlogWithStringKey
-                        {
-                            Name = "One Unicorn"
-                        }, new BlogWithStringKey
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new BlogWithStringKey { Name = "One Unicorn" }, new BlogWithStringKey { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -283,13 +249,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -335,15 +295,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Id = 66,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 67,
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Id = 66, Name = "One Unicorn" }, new Blog { Id = 67, Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -384,16 +336,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new NullableKeyBlog
-                        {
-                            Id = 0,
-                            Name = "One Unicorn"
-                        },
-                        new NullableKeyBlog
-                        {
-                            Id = 1,
-                            Name = "Two Unicorns"
-                        });
+                        new NullableKeyBlog { Id = 0, Name = "One Unicorn" },
+                        new NullableKeyBlog { Id = 1, Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -435,15 +379,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     var blogs = new List<Blog>
                     {
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        },
-                        new Blog
-                        {
-                            Name = "Two Unicorns",
-                            CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0)
-                        }
+                        new Blog { Name = "One Unicorn" },
+                        new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) }
                     };
 
                     context.AddRange(blogs);
@@ -495,7 +432,7 @@ namespace Microsoft.EntityFrameworkCore
                             .HasDefaultValueSql("getdate()");
 
                         b.Property(e => e.OtherId)
-                            .HasDefaultValue(value: null);
+                            .HasDefaultValue();
                     });
             }
         }
@@ -510,14 +447,8 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        },
-                        new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Name = "One Unicorn" },
+                        new Blog { Name = "Two Unicorns" });
 
                     context.SaveChanges();
 
@@ -577,11 +508,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn"
-                        }).Entity;
+                        new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
                     context.SaveChanges();
 
@@ -642,11 +569,7 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
                 using (var context = new BlogContextComputedColumnWithFunction(testStore.Name))
                 {
                     var blog = context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn"
-                        }).Entity;
+                        new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
                     context.SaveChanges();
 
@@ -713,11 +636,7 @@ END");
                     using (var context = new BlogContextComputedColumn(testStore.Name))
                     {
                         var blog = context.Add(
-                            new FullNameBlog
-                            {
-                                FirstName = "One",
-                                LastName = "Unicorn"
-                            }).Entity;
+                            new FullNameBlog { FirstName = "One", LastName = "Unicorn" }).Entity;
 
                         context.SaveChanges();
 
@@ -740,17 +659,9 @@ END");
                     using (var context = new BlogContextComputedColumn(testStore.Name))
                     {
                         var blog1 = context.Add(
-                            new FullNameBlog
-                            {
-                                FirstName = "Hank",
-                                LastName = "Unicorn"
-                            }).Entity;
+                            new FullNameBlog { FirstName = "Hank", LastName = "Unicorn" }).Entity;
                         var blog2 = context.Add(
-                            new FullNameBlog
-                            {
-                                FirstName = "Jeff",
-                                LastName = "Unicorn"
-                            }).Entity;
+                            new FullNameBlog { FirstName = "Jeff", LastName = "Unicorn" }).Entity;
 
                         context.SaveChanges();
 
@@ -780,10 +691,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
-                        new GuidBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+                        new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
                     var beforeSaveNotId = blog.NotId;
@@ -834,10 +742,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
-                        new GuidBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+                        new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     Assert.Equal(default, blog.NotId);
 
@@ -869,10 +774,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
-                        new GuidBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+                        new GuidBlog { Name = "One Unicorn" }).Entity;
 
                     var beforeSave = blog.Id;
                     var beforeSaveNotId = blog.NotId;
@@ -930,15 +832,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Id = 1,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 2,
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Id = 2, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
                     // inner exception for details.
@@ -961,15 +855,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Id = 0,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 1,
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     // DbUpdateException : An error occurred while updating the entries. See the
                     // inner exception for details.
@@ -998,15 +884,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Id = 0,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Id = 1,
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
                     context.SaveChanges();
                 }
@@ -1048,14 +926,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Id = 1,
-                            Name = "One Unicorn"
-                        }, new Blog
-                        {
-                            Name = "Two Unicorns"
-                        });
+                        new Blog { Id = 1, Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
 
                     // The property 'Id' on entity type 'Blog' is defined to be read-only before it is
                     // saved, but its value has been set to something other than a temporary or default value.
@@ -1095,15 +966,8 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.AddRange(
-                        new Blog
-                        {
-                            Name = "One Unicorn"
-                        },
-                        new Blog
-                        {
-                            Name = "Two Unicorns",
-                            CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0)
-                        });
+                        new Blog { Name = "One Unicorn" },
+                        new Blog { Name = "Two Unicorns", CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0) });
 
                     // The property 'CreatedOn' on entity type 'Blog' is defined to be read-only before it is
                     // saved, but its value has been set to something other than a temporary or default value.
@@ -1124,12 +988,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn",
-                            FullName = "Gerald"
-                        });
+                        new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
 
                     // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is
                     // saved, but its value has been set to something other than a temporary or default value.
@@ -1150,11 +1009,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.Add(
-                        new FullNameBlog
-                        {
-                            FirstName = "One",
-                            LastName = "Unicorn"
-                        });
+                        new FullNameBlog { FirstName = "One", LastName = "Unicorn" });
 
                     context.SaveChanges();
                 }
@@ -1185,10 +1040,7 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     var blog = context.Add(
-                        new ConcurrentBlog
-                        {
-                            Name = "One Unicorn"
-                        }).Entity;
+                        new ConcurrentBlog { Name = "One Unicorn" }).Entity;
 
                     context.SaveChanges();
 

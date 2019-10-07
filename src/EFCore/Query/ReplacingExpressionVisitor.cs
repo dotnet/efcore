@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -51,18 +52,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (innerExpression is NewExpression newExpression)
             {
-                var index = newExpression.Members.IndexOf(memberExpression.Member);
-
-                return newExpression.Arguments[index];
+                var index = newExpression.Members?.IndexOf(memberExpression.Member);
+                if (index >= 0)
+                {
+                    return newExpression.Arguments[index.Value];
+                }
             }
 
-            if (innerExpression is MemberInitExpression memberInitExpression)
+            if (innerExpression is MemberInitExpression memberInitExpression
+                && memberInitExpression.Bindings.SingleOrDefault(
+                    mb => mb.Member == memberExpression.Member) is MemberAssignment memberAssignment)
             {
-                var matchingBinding = memberInitExpression.Bindings.Where(mb => mb.Member == memberExpression.Member).SingleOrDefault();
-                if (matchingBinding != null)
-                {
-                    return ((MemberAssignment)matchingBinding).Expression;
-                }
+                return memberAssignment.Expression;
             }
 
             return memberExpression.Update(innerExpression);
@@ -76,19 +77,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (newEntityExpression is NewExpression newExpression)
                 {
                     var index = newExpression.Members?.Select(m => m.Name).IndexOf(propertyName);
-                    if (index > 0)
+                    if (index >= 0)
                     {
                         return newExpression.Arguments[index.Value];
                     }
                 }
 
-                if (newEntityExpression is MemberInitExpression memberInitExpression)
-                {
-                    if (memberInitExpression.Bindings.SingleOrDefault(
+                if (newEntityExpression is MemberInitExpression memberInitExpression
+                    && memberInitExpression.Bindings.SingleOrDefault(
                         mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment)
-                    {
-                        return memberAssignment.Expression;
-                    }
+                {
+                    return memberAssignment.Expression;
                 }
 
                 return methodCallExpression.Update(null, new[] { newEntityExpression, methodCallExpression.Arguments[1] });

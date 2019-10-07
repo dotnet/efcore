@@ -77,10 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new FakeOptions(
                     new ConfigurationBuilder()
                         .AddInMemoryCollection(
-                            new Dictionary<string, string>
-                            {
-                                { "Nope", "NoThanks" }
-                            })
+                            new Dictionary<string, string> { { "Nope", "NoThanks" } })
                         .Build()));
 
             Assert.Equal("name=Fox;DataSource=Jimony", resolver.ResolveConnectionString("name=Fox;DataSource=Jimony"));

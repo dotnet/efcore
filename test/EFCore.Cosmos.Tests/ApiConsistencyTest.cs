@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos
@@ -14,9 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
     {
         private static readonly Type[] _fluentApiTypes =
         {
-            typeof(CosmosServiceCollectionExtensions),
-            typeof(CosmosDbContextOptionsExtensions),
-            typeof(CosmosDbContextOptionsBuilder)
+            typeof(CosmosServiceCollectionExtensions), typeof(CosmosDbContextOptionsExtensions), typeof(CosmosDbContextOptionsBuilder)
         };
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;

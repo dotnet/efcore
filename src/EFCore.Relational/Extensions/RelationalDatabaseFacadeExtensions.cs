@@ -773,7 +773,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
-        /// <returns> A <see cref="Task"/> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
+        /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
         public static Task<IDbContextTransaction> UseTransactionAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             [CanBeNull] DbTransaction transaction,

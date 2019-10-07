@@ -108,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         cb.Property(c => c.Identity).UseIdentityColumn();
                     }
+
                     cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
                 });
             modelBuilder.Entity<Dog>(
@@ -172,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 modelBuilder.Entity<A>().ToTable("Table").IsMemoryOptimized();
             }
+
             modelBuilder.Entity<B>().ToTable("Table");
 
             VerifyError(
@@ -216,7 +218,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal>("Price");
 
-            VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [ConditionalFact]
@@ -225,7 +229,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property<decimal?>("Price");
 
-            VerifyWarning(SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogDefaultDecimalTypeColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
         [ConditionalTheory]
@@ -247,7 +253,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Entity<Dog>().Property<byte>("Bite").UseIdentityColumn();
             }
 
-            VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [ConditionalTheory]
@@ -269,7 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseIdentityColumn();
             }
 
-            VerifyWarning(SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
+            VerifyWarning(
+                SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>())
+                    .GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
         [ConditionalTheory]
@@ -380,6 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 modelBuilder.UseHiLo();
             }
+
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 
             Validate(modelBuilder.Model);
@@ -401,7 +412,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ConfigureProperty(propertyBuilder.Metadata, firstConfiguration, "1");
             ConfigureProperty(propertyBuilder.Metadata, secondConfiguration, "2");
 
-            VerifyError(RelationalStrings.ConflictingColumnServerGeneration(firstConfiguration, "NullableInt", secondConfiguration), modelBuilder.Model);
+            VerifyError(
+                RelationalStrings.ConflictingColumnServerGeneration(firstConfiguration, "NullableInt", secondConfiguration),
+                modelBuilder.Model);
         }
 
         protected virtual void ConfigureProperty(IMutableProperty property, string configuration, string value)

@@ -107,6 +107,42 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Can_insert_and_read_back_with_case_insensitive_string_key();
         }
 
+        [ConditionalFact(Skip = "Issue #16919")]
+        public override void Can_insert_and_query_struct_to_string_converter_for_pk()
+        {
+            base.Can_insert_and_query_struct_to_string_converter_for_pk();
+        }
+
+        [ConditionalFact(Skip = "Issue #17670")]
+        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+        {
+            base.Can_read_back_mapped_enum_from_collection_first_or_default();
+        }
+
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Can_read_back_bool_mapped_as_int_through_navigation()
+        {
+            base.Can_read_back_bool_mapped_as_int_through_navigation();
+        }
+
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Value_conversion_is_appropriately_used_for_join_condition()
+        {
+            base.Value_conversion_is_appropriately_used_for_join_condition();
+        }
+
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Value_conversion_is_appropriately_used_for_left_join_condition()
+        {
+            base.Value_conversion_is_appropriately_used_for_left_join_condition();
+        }
+
+        [ConditionalFact(Skip = "Issue #18147")]
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+        }
+
         public class CustomConvertersCosmosFixture : CustomConvertersFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;
@@ -135,6 +171,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 shadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
                 var nullableShadowJObject = (Property)modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property("__jObject").Metadata;
                 nullableShadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
+
+                modelBuilder.Entity<SimpleCounter>(b => b.ToContainer("SimpleCounters"));
             }
         }
     }

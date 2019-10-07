@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -30,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly bool _generateContextAccessors;
         private readonly EvaluatableExpressionFindingExpressionVisitor _evaluatableExpressionFindingExpressionVisitor;
         private readonly ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
+
         private readonly Dictionary<Expression, Expression> _evaluatedValues
             = new Dictionary<Expression, Expression>(ExpressionEqualityComparer.Instance);
 
@@ -310,6 +312,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        private static Expression RemoveConvert(Expression expression)
+        {
+            if (expression is UnaryExpression unaryExpression
+                && (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.ConvertChecked))
+            {
+                return RemoveConvert(unaryExpression.Operand);
+            }
+
+            return expression;
+        }
+
         private object GetValue(Expression expression, out string parameterName)
         {
             parameterName = null;
@@ -331,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     parameterName = QueryFilterPrefix
-                                    + (expression.RemoveConvert() is MemberExpression memberExpression
+                                    + (RemoveConvert(expression) is MemberExpression memberExpression
                                         ? ("__" + memberExpression.Member.Name)
                                         : "");
 
@@ -535,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
                 _containsClosure = memberExpression.Expression != null
-                    || !(memberExpression.Member is FieldInfo fieldInfo && fieldInfo.IsInitOnly);
+                                   || !(memberExpression.Member is FieldInfo fieldInfo && fieldInfo.IsInitOnly);
                 return base.VisitMember(memberExpression);
             }
 
@@ -550,9 +564,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _evaluatable = !(constantExpression.Value is IDetachableContext)
                                && !(constantExpression.Value is IQueryable);
+
 #pragma warning disable RCS1096 // Use bitwise operation instead of calling 'HasFlag'.
-                _containsClosure = constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate) // Closure
-                                   || constantExpression.Type == typeof(ValueBuffer); // Find method
+                _containsClosure
+                    = (constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate)
+                        && Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true)) // Closure
+                    || constantExpression.Type == typeof(ValueBuffer); // Find method
 #pragma warning restore RCS1096 // Use bitwise operation instead of calling 'HasFlag'.
 
                 return base.VisitConstant(constantExpression);

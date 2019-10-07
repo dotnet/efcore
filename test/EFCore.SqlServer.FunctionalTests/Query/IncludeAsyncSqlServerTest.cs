@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeAsyncSqlServerTest : IncludeAsyncTestBase<IncludeSqlServerFixture>
+    public class IncludeAsyncSqlServerTest : IncludeAsyncTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public IncludeAsyncSqlServerTest(IncludeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public IncludeAsyncSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -53,13 +53,6 @@ LEFT JOIN (
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID]");
-        }
-
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        // Test does not pass on SqlServer 2008. TODO: See issue#7160
-        public override Task Include_duplicate_reference()
-        {
-            return base.Include_duplicate_reference();
         }
 
         private void AssertSql(params string[] expected)

@@ -178,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryTranslationPostprocessorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryCompilationContextDependencies With([NotNull] IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory)
+        public QueryCompilationContextDependencies With(
+            [NotNull] IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory)
             => new QueryCompilationContextDependencies(
                 Model,
                 QueryTranslationPreprocessorFactory,

@@ -73,10 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     _assignBinaryExpressionType,
                     BindingFlags.NonPublic | BindingFlags.Instance,
                     null,
-                    new object[]
-                    {
-                        memberExpression, valueExpression
-                    },
+                    new object[] { memberExpression, valueExpression },
                     null);
             }
 
@@ -213,6 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="expression"> The expression. </param>
         /// <returns> A new expression with converts at the head removed. </returns>
+        [Obsolete("Unwrap each convert manually by evaluating how they are used.")]
         public static Expression RemoveConvert([CanBeNull] this Expression expression)
         {
             while (expression != null

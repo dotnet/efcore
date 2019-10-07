@@ -258,10 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
 
-            var commandList = new List<MigrationCommand>
-            {
-                new MigrationCommand(CreateRelationalCommand(), null, logger)
-            };
+            var commandList = new List<MigrationCommand> { new MigrationCommand(CreateRelationalCommand(), null, logger) };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
 
