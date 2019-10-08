@@ -1839,17 +1839,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from ct in ss.Set<CogTag>()
                       where ct.Gear.Nickname == "Marcus"
-                      where ct.Gear.CityOrBirthName != "Ephyra"
+                      where ct.Gear.CityOfBirthName != "Ephyra"
                       select new
                       {
-                          B = ct.Gear.CityOrBirthName
+                          B = ct.Gear.CityOfBirthName
                       },
                 ss => from ct in ss.Set<CogTag>()
                       where Maybe(ct.Gear, () => ct.Gear.Nickname) == "Marcus"
-                      where Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) != "Ephyra"
+                      where Maybe(ct.Gear, () => ct.Gear.CityOfBirthName) != "Ephyra"
                       select new
                       {
-                          B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName)
+                          B = Maybe(ct.Gear, () => ct.Gear.CityOfBirthName)
                       },
                 elementSorter: e => e.B);
         }
@@ -1862,19 +1862,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from ct in ss.Set<CogTag>()
                       where ct.Gear.Nickname == "Marcus"
-                      where ct.Gear.CityOrBirthName != "Ephyra"
+                      where ct.Gear.CityOfBirthName != "Ephyra"
                       select new
                       {
                           A = ct.Gear,
-                          B = ct.Gear.CityOrBirthName
+                          B = ct.Gear.CityOfBirthName
                       },
                 ss => from ct in ss.Set<CogTag>()
                       where Maybe(ct.Gear, () => ct.Gear.Nickname) == "Marcus"
-                      where Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) != "Ephyra"
+                      where Maybe(ct.Gear, () => ct.Gear.CityOfBirthName) != "Ephyra"
                       select new
                       {
                           A = ct.Gear,
-                          B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName)
+                          B = Maybe(ct.Gear, () => ct.Gear.CityOfBirthName)
                       },
                 elementSorter: e => e.A.Nickname,
                 elementAsserter: (e, a) =>
@@ -6570,7 +6570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.StationedGears.Select(
                         g => new Officer
                         {
-                            CityOrBirthName = g.CityOrBirthName,
+                            CityOfBirthName = g.CityOfBirthName,
                             FullName = g.FullName,
                             HasSoulPatch = g.HasSoulPatch,
                             LeaderNickname = g.LeaderNickname,
@@ -6593,7 +6593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.StationedGears.OrderByDescending(g => g.Nickname).Select(
                         g => new Officer
                         {
-                            CityOrBirthName = g.CityOrBirthName,
+                            CityOfBirthName = g.CityOfBirthName,
                             FullName = g.FullName,
                             HasSoulPatch = g.HasSoulPatch,
                             LeaderNickname = g.LeaderNickname,
@@ -7839,9 +7839,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                       join s in ss.Set<Squad>() on g.SquadId equals s.Id
                       join t in ss.Set<CogTag>() on g.Nickname equals t.GearNickName into grouping
                       from t in grouping.DefaultIfEmpty()
-                      group g by new { g.CityOrBirthName, g.HasSoulPatch } into groupby
-                      select new { groupby.Key.CityOrBirthName, groupby.Key.HasSoulPatch },
-                elementSorter: e => (e.CityOrBirthName, e.HasSoulPatch));
+                      group g by new { g.CityOfBirthName, g.HasSoulPatch } into groupby
+                      select new { groupby.Key.CityOfBirthName, groupby.Key.HasSoulPatch },
+                elementSorter: e => (e.CityOfBirthName, e.HasSoulPatch));
         }
 
         [ConditionalTheory]
@@ -7851,10 +7851,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Gear>()
-                    .Select(g => new { g.Nickname, g.CityOrBirthName, g.HasSoulPatch, IsMarcus = g.Nickname == "Marcus" })
-                    .GroupBy(g => new { g.CityOrBirthName, g.HasSoulPatch, g.IsMarcus })
-                    .Select(x => new { x.Key.CityOrBirthName, x.Key.HasSoulPatch, x.Key.IsMarcus, Count = x.Count() }),
-                elementSorter: e => (e.CityOrBirthName, e.HasSoulPatch, e.IsMarcus, e.Count));
+                    .Select(g => new { g.Nickname, g.CityOfBirthName, g.HasSoulPatch, IsMarcus = g.Nickname == "Marcus" })
+                    .GroupBy(g => new { g.CityOfBirthName, g.HasSoulPatch, g.IsMarcus })
+                    .Select(x => new { x.Key.CityOfBirthName, x.Key.HasSoulPatch, x.Key.IsMarcus, Count = x.Count() }),
+                elementSorter: e => (e.CityOfBirthName, e.HasSoulPatch, e.IsMarcus, e.Count));
         }
 
         [ConditionalTheory]
