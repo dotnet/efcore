@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -2039,6 +2040,50 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Property_without_column_type()
+        {
+            var model = new Model();
+            var modelBuilder = new ModelBuilder(model);
+
+            modelBuilder
+                .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("Building", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
+
+                b.HasKey("Id");
+
+                b.ToTable("Buildings");
+            });
+
+            Test(
+                model.FinalizeModel(),
+                AddBoilerPlate(@"
+            modelBuilder
+                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity(""Building"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Buildings"");
+                });"),
+                o =>
+                {
+                    var property = o.FindEntityType("Building").FindProperty("Id");
+                    Assert.Equal("int", property.GetColumnType());
+                });
+        }
+
         #endregion
 
         #region HasKey
@@ -3556,6 +3601,14 @@ namespace RootNamespace
 
             var model = modelBuilder.FinalizeModel();
 
+            Test(model, expectedCode, assert);
+        }
+
+        protected void Test(IModel model, string expectedCode, Action<IModel> assert)
+            => Test(model, expectedCode, (m, _) => assert(m));
+
+        protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert)
+        {
             var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 new RelationalTypeMappingSourceDependencies(
