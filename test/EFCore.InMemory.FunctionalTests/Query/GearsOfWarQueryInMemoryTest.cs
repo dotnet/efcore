@@ -62,5 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(isAsync);
         }
+
+        [ConditionalTheory(Skip = "issue #18284")]
+        public override Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool isAsync)
+        {
+            return GroupBy_with_boolean_groupin_key_thru_navigation_access(isAsync);
+        }
     }
 }

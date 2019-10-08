@@ -272,6 +272,95 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.Sum);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_group_key_access_thru_navigation(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OrderDetail>()
+                    .GroupBy(od => od.Order.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Aggregate = g.Sum(od => od.OrderID),
+                    }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_group_key_access_thru_nested_navigation(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OrderDetail>()
+                    .GroupBy(od => od.Order.Customer.Country)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Aggregate = g.Sum(od => od.OrderID),
+                    }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_grouping_key_using_Like(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => EF.Functions.Like(o.CustomerID, "A%"))
+                    .Select(g => new { g.Key, Count = g.Count() }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_grouping_key_DateTime_Day(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.OrderDate.Value.Day)
+                    .Select(g => new { g.Key, Count = g.Count() }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_cast_inside_grouping_aggregate(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => new { g.Key, Count = g.Count(), Sum = g.Sum(o => (long)o.OrderID) }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_with_arithmetic_operation_inside_aggregate(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Sum = g.Sum(o => o.OrderID + o.CustomerID.Length)
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    Assert.Equal(e.Sum, a.Sum);
+                });
+        }
+
         #endregion
 
         #region GroupByAnonymousAggregate
@@ -867,6 +956,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(g => g.Key.I0)
                     .Select(g => new { I0 = g.Count(), I1 = g.Key.I0 }),
                 elementSorter: a => a.I1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_based_on_renamed_property_simple(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .GroupBy(g => new { Renamed = g.City })
+                    .Select(x => new { x.Key, Count = x.Count() }),
+                elementSorter: e => e.Key.Renamed);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_based_on_renamed_property_complex(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .Select(x => new { Renamed = x.City, x.CustomerID })
+                    .Distinct()
+                    .GroupBy(g => g.Renamed)
+                    .Select(x => new { x.Key, Count = x.Count() }),
+                elementSorter: e => e.Key);
         }
 
         #endregion
@@ -1774,6 +1889,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                         g => new { g.Key, Avg = g.Average(e => e.OrderID), Max = g.Max(o => o.OrderDate) }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_order_by_skip_and_another_order_by(bool isAsync)
+        {
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Order>()
+                    .OrderBy(o => o.CustomerID)
+                    .Skip(80)
+                    .OrderBy(o => o.CustomerID)
+                    .GroupBy(o => o.CustomerID)
+                    .Select(g => g.Sum(o => o.OrderID))
+                );
+        }
+
         #endregion
 
         #region GroupByWithoutAggregate
@@ -2235,6 +2365,76 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select new { C = grp.Key, Os = grp.ToList() });
         }
 
+        [ConditionalTheory(Skip = "issue #15938")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_group_key_being_navigation(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OrderDetail>()
+                    .GroupBy(od => od.Order)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Aggregate = g.Sum(od => od.OrderID),
+                    }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory(Skip = "issue #15938")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_group_key_being_nested_navigation(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OrderDetail>()
+                    .GroupBy(od => od.Order.Customer)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Aggregate = g.Sum(od => od.OrderID),
+                    }),
+                elementSorter: e => e.Key);
+        }
+
+        [ConditionalTheory(Skip = "issue #15938")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OrderDetail>()
+                    .GroupBy(od => od.Order)
+                    .Select(g => g.Key));
+        }
+
+        [ConditionalTheory(Skip = "issue #15938")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OrderDetail>()
+                    .GroupBy(od => od.Order)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Id1 = g.Key.CustomerID,
+                        Id2 = g.Key.Customer.CustomerID,
+                        Id3 = g.Key.OrderID,
+                        Aggregate = g.Sum(od => od.OrderID),
+                    }),
+                elementSorter: e => e.Id3,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    Assert.Equal(e.Id1, a.Id1);
+                    Assert.Equal(e.Id2, a.Id2);
+                    Assert.Equal(e.Id3, a.Id3);
+                    Assert.Equal(e.Aggregate, a.Aggregate);
+                });
+        }
+
         #endregion
 
         #region DoubleGroupBy
@@ -2297,9 +2497,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task All_after_GroupBy_aggregate(bool isAsync)
+        public virtual Task All_after_GroupBy_aggregate(bool isAsync)
         {
-            await AssertAll(
+            return AssertAll(
                 isAsync,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)),
                 predicate: ee => true);
@@ -2307,9 +2507,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task All_after_GroupBy_aggregate2(bool isAsync)
+        public virtual Task All_after_GroupBy_aggregate2(bool isAsync)
         {
-            await AssertAll(
+            return AssertAll(
                 isAsync,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)),
                 predicate: ee => ee >= 0);
@@ -2317,29 +2517,126 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Any_after_GroupBy_aggregate(bool isAsync)
+        public virtual Task Any_after_GroupBy_aggregate(bool isAsync)
         {
-            await AssertAny(
+            return AssertAny(
                 isAsync,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
         }
 
         [ConditionalTheory(Skip = "Issue#15097")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Count_after_GroupBy_without_aggregate(bool isAsync)
+        public virtual Task Count_after_GroupBy_without_aggregate(bool isAsync)
         {
-            await AssertCount(
+            return AssertCount(
                 isAsync,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID));
         }
 
         [ConditionalTheory(Skip = "Issue#15097")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task LongCount_after_GroupBy_without_aggregate(bool isAsync)
+        public virtual Task LongCount_after_GroupBy_without_aggregate(bool isAsync)
         {
-            await AssertLongCount(
+            return AssertLongCount(
                 isAsync,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID));
+        }
+
+        #endregion
+
+        # region GroupByInSubquery
+
+        [ConditionalTheory(Skip = "issue #15279")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_groupBy_in_subquery(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Key = c.CustomerID,
+                        Subquery = c.Orders
+                            .Select(o => new
+                            {
+                                First = o.CustomerID,
+                                Second = o.OrderID
+                            })
+                            .GroupBy(x => x.First)
+                            .Select(g => new
+                            {
+                                Count = g.Count(x => x.First.StartsWith("A")),
+                                Sum = g.Sum(x => x.Second),
+                            }).ToList()
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(e.Subquery, a.Subquery);
+                });
+        }
+
+        [ConditionalTheory(Skip = "issue #15279")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_groupBy_in_subquery2(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Key = c.CustomerID,
+                        Subquery = ss.Set<Order>()
+                            .Select(o => new
+                            {
+                                First = o.CustomerID,
+                                Second = o.OrderID
+                            })
+                            .GroupBy(x => x.First)
+                            .Select(g => new
+                            {
+                                Count = g.Count(x => x.First.StartsWith("A")),
+                                Sum = g.Sum(x => x.Second),
+                            }).ToList()
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(e.Subquery, a.Subquery);
+                });
+        }
+
+        [ConditionalTheory(Skip = "issue #15279")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_groupBy_in_subquery3(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Key = c.CustomerID,
+                        Subquery = c.Orders
+                            .Select(o => new
+                            {
+                                First = o.OrderID,
+                                Second = o.Customer.City + o.CustomerID
+                            })
+                            .GroupBy(x => x.Second)
+                            .Select(g => new
+                            {
+                                Sum = g.Sum(x => x.First),
+                                Count = g.Count(x => x.Second.StartsWith("Lon"))
+                            }).ToList()
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(e.Subquery, a.Subquery);
+                });
         }
 
         #endregion
