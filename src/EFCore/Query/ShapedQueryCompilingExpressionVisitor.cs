@@ -281,13 +281,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = Visit(expression);
                 if (_trackQueryResults)
                 {
-                    bool containsOwner(IEntityType owner)
-                        => owner != null && (_visitedEntityTypes.Contains(owner) || containsOwner(owner.BaseType));
-
                     foreach (var entityType in _visitedEntityTypes)
                     {
                         if (entityType.FindOwnership() is IForeignKey ownership
-                            && !containsOwner(ownership.PrincipalEntityType))
+                            && !ContainsOwner(ownership.PrincipalEntityType))
                         {
                             throw new InvalidOperationException(
                                 "A tracking query projects owned entity without corresponding owner in result. " +
@@ -295,6 +292,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 "Either include the owner entity in the result or make query non-tracking using AsNoTracking().");
                         }
                     }
+
+                    bool ContainsOwner(IEntityType owner)
+                        => owner != null && (_visitedEntityTypes.Contains(owner) || ContainsOwner(owner.BaseType));
                 }
 
                 return result;
@@ -498,7 +498,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (_trackQueryResults
                     && entityType.FindPrimaryKey() != null)
                 {
-                    _visitedEntityTypes.Add(entityType);
+                    foreach (var et in entityType.GetTypesInHierarchy())
+                    {
+                        _visitedEntityTypes.Add(et);
+                    }
 
                     expressions.Add(
                         Expression.Assign(
