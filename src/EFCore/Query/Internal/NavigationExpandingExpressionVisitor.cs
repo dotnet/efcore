@@ -1238,10 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var arguments = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
-                        arguments[i] = newExpression.Arguments[i] is NewExpression
-                                       || newExpression.Arguments[i] is NavigationTreeExpression
-                            ? SnapshotExpression(newExpression.Arguments[i])
-                            : Expression.Default(newExpression.Arguments[i].Type);
+                        arguments[i] = SnapshotExpression(newExpression.Arguments[i]);
                     }
 
                     return newExpression.Update(arguments);
