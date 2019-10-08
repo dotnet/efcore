@@ -60,7 +60,6 @@ WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"")
             AssertSql(" ");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
         public override async Task Navigation_rewrite_on_owned_reference_projecting_entity(bool isAsync)
         {
             await base.Navigation_rewrite_on_owned_reference_projecting_entity(isAsync);
@@ -81,7 +80,6 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
         public override async Task Query_for_base_type_loads_all_owned_navs(bool isAsync)
         {
             await base.Query_for_base_type_loads_all_owned_navs(isAsync);
@@ -92,7 +90,6 @@ FROM root c
 WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
         public override async Task Query_for_branch_type_loads_all_owned_navs(bool isAsync)
         {
             await base.Query_for_branch_type_loads_all_owned_navs(isAsync);
@@ -103,7 +100,16 @@ FROM root c
 WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
+        public override async Task Query_for_branch_type_loads_all_owned_navs_tracking(bool isAsync)
+        {
+            await base.Query_for_branch_type_loads_all_owned_navs_tracking(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
+        }
+
         public override async Task Query_for_leaf_type_loads_all_owned_navs(bool isAsync)
         {
             await base.Query_for_leaf_type_loads_all_owned_navs(isAsync);
