@@ -2548,7 +2548,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15279")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Complex_query_with_groupBy_in_subquery(bool isAsync)
+        public virtual Task Complex_query_with_groupBy_in_subquery1(bool isAsync)
         {
             return AssertQuery(
                 isAsync,
@@ -2565,7 +2565,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .GroupBy(x => x.First)
                             .Select(g => new
                             {
-                                Count = g.Count(x => x.First.StartsWith("A")),
                                 Sum = g.Sum(x => x.Second),
                             }).ToList()
                     }),
@@ -2587,7 +2586,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => new
                     {
                         Key = c.CustomerID,
-                        Subquery = ss.Set<Order>()
+                        Subquery = c.Orders
                             .Select(o => new
                             {
                                 First = o.CustomerID,
@@ -2596,7 +2595,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .GroupBy(x => x.First)
                             .Select(g => new
                             {
-                                Count = g.Count(x => x.First.StartsWith("A")),
+                                Max = g.Max(x => x.First.Length),
                                 Sum = g.Sum(x => x.Second),
                             }).ToList()
                     }),
@@ -2611,6 +2610,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #15279")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Complex_query_with_groupBy_in_subquery3(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Key = c.CustomerID,
+                        Subquery = ss.Set<Order>()
+                            .Select(o => new
+                            {
+                                First = o.CustomerID,
+                                Second = o.OrderID
+                            })
+                            .GroupBy(x => x.First)
+                            .Select(g => new
+                            {
+                                Max = g.Max(x => x.First.Length),
+                                Sum = g.Sum(x => x.Second),
+                            }).ToList()
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Key, a.Key);
+                    AssertCollection(e.Subquery, a.Subquery);
+                });
+        }
+
+        // also 15279
+        [ConditionalTheory(Skip = "issue #11711")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_groupBy_in_subquery4(bool isAsync)
         {
             return AssertQuery(
                 isAsync,

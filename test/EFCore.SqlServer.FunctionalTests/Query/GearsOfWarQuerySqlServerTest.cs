@@ -7296,7 +7296,25 @@ GROUP BY [t].[Name], [t].[Count]");
             await base.Complex_GroupBy_after_set_operator_using_result_selector(isAsync);
 
             AssertSql(
-                @"");
+                @"SELECT [t].[Name], [t].[Count], SUM([t].[Count]) AS [Sum]
+FROM (
+    SELECT [c].[Name], (
+        SELECT COUNT(*)
+        FROM [Weapons] AS [w]
+        WHERE ([g].[FullName] = [w].[OwnerFullName]) AND [w].[OwnerFullName] IS NOT NULL) AS [Count]
+    FROM [Gears] AS [g]
+    LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+    UNION ALL
+    SELECT [c0].[Name], (
+        SELECT COUNT(*)
+        FROM [Weapons] AS [w0]
+        WHERE ([g0].[FullName] = [w0].[OwnerFullName]) AND [w0].[OwnerFullName] IS NOT NULL) AS [Count]
+    FROM [Gears] AS [g0]
+    INNER JOIN [Cities] AS [c0] ON [g0].[CityOfBirthName] = [c0].[Name]
+    WHERE [g0].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t]
+GROUP BY [t].[Name], [t].[Count]");
         }
 
         public override async Task Left_join_with_GroupBy_with_composite_group_key(bool isAsync)

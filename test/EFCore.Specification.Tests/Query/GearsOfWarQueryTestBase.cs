@@ -7904,6 +7904,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => g.Key));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_with_aggregate_max_on_entity_type(bool isAsync)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>()
+                    .GroupBy(g => g.CityOfBirthName)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Aggregate = g.Max()
+                    })));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

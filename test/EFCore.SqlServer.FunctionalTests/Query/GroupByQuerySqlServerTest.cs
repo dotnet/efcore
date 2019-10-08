@@ -2151,9 +2151,9 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
-        public override async Task Complex_query_with_groupBy_in_subquery(bool isAsync)
+        public override async Task Complex_query_with_groupBy_in_subquery1(bool isAsync)
         {
-            await base.Complex_query_with_groupBy_in_subquery(isAsync);
+            await base.Complex_query_with_groupBy_in_subquery1(isAsync);
 
             AssertSql(
                 @"");
@@ -2170,6 +2170,14 @@ GROUP BY [o].[CustomerID]");
         public override async Task Complex_query_with_groupBy_in_subquery3(bool isAsync)
         {
             await base.Complex_query_with_groupBy_in_subquery3(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Complex_query_with_groupBy_in_subquery4(bool isAsync)
+        {
+            await base.Complex_query_with_groupBy_in_subquery4(isAsync);
 
             AssertSql(
                 @"");

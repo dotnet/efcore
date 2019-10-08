@@ -119,7 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 sqlExpression = Translate(expression);
             }
 
-            return _sqlExpressionFactory.Function("MAX", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+            return sqlExpression != null
+                ? _sqlExpressionFactory.Function("MAX", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping)
+                : null;
         }
 
         public virtual SqlExpression TranslateMin(Expression expression)
@@ -129,7 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 sqlExpression = Translate(expression);
             }
 
-            return _sqlExpressionFactory.Function("MIN", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
+            return sqlExpression != null
+                ? _sqlExpressionFactory.Function("MIN", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping)
+                : null;
         }
 
         public virtual SqlExpression TranslateSum(Expression expression)

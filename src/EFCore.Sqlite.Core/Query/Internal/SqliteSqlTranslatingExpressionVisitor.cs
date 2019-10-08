@@ -177,10 +177,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         }
 
         private static Type GetProviderType(SqlExpression expression)
-        {
-            return (expression.TypeMapping?.Converter?.ProviderClrType
+            => expression == null
+                ? null
+                : (expression.TypeMapping?.Converter?.ProviderClrType
                     ?? expression.TypeMapping?.ClrType
                     ?? expression.Type).UnwrapNullableType();
-        }
+        
     }
 }

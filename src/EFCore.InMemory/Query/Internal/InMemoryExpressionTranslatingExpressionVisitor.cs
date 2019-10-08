@@ -283,6 +283,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     case nameof(Enumerable.Min):
                     case nameof(Enumerable.Sum):
                         var translation = Translate(GetSelector(methodCallExpression, groupByShaperExpression));
+                        if (translation == null)
+                        {
+                            return null;
+                        }
+
                         var selector = Expression.Lambda(translation, groupByShaperExpression.ValueBufferParameter);
                         MethodInfo getMethod()
                             => methodCallExpression.Method.Name switch
