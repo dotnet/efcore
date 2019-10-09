@@ -83,6 +83,29 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] = 1))");
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override async Task Projection_of_entity_type_into_object_array(bool isAsync)
+        {
+            await base.Projection_of_entity_type_into_object_array(isAsync);
+
+            AssertSql(
+                @"SELECT c[""CustomerID""], c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""], c[""Country""], c[""Fax""], c[""Phone""], c[""PostalCode""], c[""Region""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Employee"") AND c[""CustomerID""] LIKE N'A%'
+ORDER BY c[""CustomerID""]");
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override async Task Projection_of_multiple_entity_types_into_object_array(bool isAsync)
+        {
+            await base.Projection_of_multiple_entity_types_into_object_array(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
         public override async Task Project_to_int_array(bool isAsync)
         {
             await base.Project_to_int_array(isAsync);

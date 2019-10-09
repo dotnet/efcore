@@ -127,6 +127,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        // Note that we could bubble up entity type information from the expressions initializing the array. However, EF Core doesn't
+        // actually support doing much further with this array, so it's not worth the complexity (right now). So we simply unwrap.
+        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+            => newArrayExpression.Update(Visit(newArrayExpression.Expressions).Select(Unwrap));
+
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var visitedExpression = base.Visit(memberExpression.Expression);

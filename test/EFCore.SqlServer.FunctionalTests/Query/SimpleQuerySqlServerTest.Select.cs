@@ -79,6 +79,29 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1");
         }
 
+        public override async Task Projection_of_entity_type_into_object_array(bool isAsync)
+        {
+            await base.Projection_of_entity_type_into_object_array(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID]");
+        }
+
+        public override async Task Projection_of_multiple_entity_types_into_object_array(bool isAsync)
+        {
+            await base.Projection_of_multiple_entity_types_into_object_array(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [o].[OrderID] < 10300
+ORDER BY [o].[OrderID]");
+        }
+
         public override async Task Project_to_int_array(bool isAsync)
         {
             await base.Project_to_int_array(isAsync);
