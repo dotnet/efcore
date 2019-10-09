@@ -1787,17 +1787,32 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         {
             await base.Join_with_order_by_without_skip_or_take(isAsync);
 
-            // issue #16086
-            //            AssertSql(
-            //                @"SELECT [t].[Name], [g].[FullName]
-            //FROM [Gears] AS [g]
-            //INNER JOIN (
-            //    SELECT [ww].*
-            //    FROM [Weapons] AS [ww]
-            //    ORDER BY [ww].[Name]
-            //    OFFSET 0 ROWS
-            //) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
-            //WHERE [g].[Discriminator] IN (N'Officer', N'Gear')");
+            AssertSql(
+                @"SELECT [t].[Name], [g].[FullName]
+FROM [Gears] AS [g]
+INNER JOIN (
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+    FROM [Weapons] AS [w]
+) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task Join_with_order_by_without_skip_or_take_nested(bool isAsync)
+        {
+            await base.Join_with_order_by_without_skip_or_take_nested(isAsync);
+
+            AssertSql(
+                @"SELECT [t0].[Name], [t].[FullName]
+FROM [Squads] AS [s]
+INNER JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+    FROM [Gears] AS [g]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+) AS [t] ON [s].[Id] = [t].[SquadId]
+INNER JOIN (
+    SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+    FROM [Weapons] AS [w]
+) AS [t0] ON [t].[FullName] = [t0].[OwnerFullName]");
         }
 
         public override async Task Collection_with_inheritance_and_join_include_joined(bool isAsync)
