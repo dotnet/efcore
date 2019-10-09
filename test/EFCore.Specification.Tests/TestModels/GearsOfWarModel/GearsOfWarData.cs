@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     HasSoulPatch = false,
                     SquadId = 1,
                     Rank = MilitaryRank.Corporal,
-                    CityOrBirthName = "Ephyra",
+                    CityOfBirthName = "Ephyra",
                     LeaderNickname = "Marcus",
                     LeaderSquadId = 1
                 },
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     HasSoulPatch = false,
                     SquadId = 1,
                     Rank = MilitaryRank.Private,
-                    CityOrBirthName = "Hanover",
+                    CityOfBirthName = "Hanover",
                     LeaderNickname = "Marcus",
                     LeaderSquadId = 1
                 },
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     HasSoulPatch = false,
                     SquadId = 2,
                     Rank = MilitaryRank.Private,
-                    CityOrBirthName = "Unknown",
+                    CityOfBirthName = "Unknown",
                     LeaderNickname = "Baird",
                     LeaderSquadId = 1
                 },
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     HasSoulPatch = true,
                     SquadId = 1,
                     Rank = MilitaryRank.Corporal,
-                    CityOrBirthName = "Unknown",
+                    CityOfBirthName = "Unknown",
                     LeaderNickname = "Marcus",
                     LeaderSquadId = 1
                 },
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     HasSoulPatch = true,
                     SquadId = 1,
                     Rank = MilitaryRank.Sergeant,
-                    CityOrBirthName = "Jacinto"
+                    CityOfBirthName = "Jacinto"
                 }
             };
 
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             // dom
             gears[0].AssignedCity = cities[1];
             gears[0].CityOfBirth = cities[1];
-            gears[0].CityOrBirthName = cities[1].Name;
+            gears[0].CityOfBirthName = cities[1].Name;
             gears[0].Squad = squads[0];
             gears[0].Tag = tags[0];
             gears[0].Weapons = new List<Weapon> { weapons[2], weapons[3] };
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             // cole
             gears[1].AssignedCity = cities[0];
             gears[1].CityOfBirth = cities[2];
-            gears[1].CityOrBirthName = cities[2].Name;
+            gears[1].CityOfBirthName = cities[2].Name;
             gears[1].Squad = squads[0];
             gears[1].Tag = tags[1];
             gears[1].Weapons = new List<Weapon> { weapons[4], weapons[5] };
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             // paduk
             gears[2].AssignedCity = cities[3];
             gears[2].CityOfBirth = cities[3];
-            gears[2].CityOrBirthName = cities[3].Name;
+            gears[2].CityOfBirthName = cities[3].Name;
             gears[2].Squad = squads[1];
             gears[2].Tag = tags[2];
             gears[2].Weapons = new List<Weapon> { weapons[8] };
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             // baird
             gears[3].AssignedCity = cities[0];
             gears[3].CityOfBirth = cities[3];
-            gears[3].CityOrBirthName = cities[3].Name;
+            gears[3].CityOfBirthName = cities[3].Name;
             gears[3].Squad = squads[0];
             gears[3].Tag = tags[3];
             gears[3].Weapons = new List<Weapon> { weapons[6], weapons[7] };
@@ -327,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 
             // marcus
             gears[4].CityOfBirth = cities[0];
-            gears[4].CityOrBirthName = cities[0].Name;
+            gears[4].CityOfBirthName = cities[0].Name;
             gears[4].Squad = squads[0];
             gears[4].Tag = tags[4];
             gears[4].Weapons = new List<Weapon> { weapons[0], weapons[1] };

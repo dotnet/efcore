@@ -1839,17 +1839,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from ct in ss.Set<CogTag>()
                       where ct.Gear.Nickname == "Marcus"
-                      where ct.Gear.CityOrBirthName != "Ephyra"
+                      where ct.Gear.CityOfBirthName != "Ephyra"
                       select new
                       {
-                          B = ct.Gear.CityOrBirthName
+                          B = ct.Gear.CityOfBirthName
                       },
                 ss => from ct in ss.Set<CogTag>()
                       where Maybe(ct.Gear, () => ct.Gear.Nickname) == "Marcus"
-                      where Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) != "Ephyra"
+                      where Maybe(ct.Gear, () => ct.Gear.CityOfBirthName) != "Ephyra"
                       select new
                       {
-                          B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName)
+                          B = Maybe(ct.Gear, () => ct.Gear.CityOfBirthName)
                       },
                 elementSorter: e => e.B);
         }
@@ -1862,19 +1862,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from ct in ss.Set<CogTag>()
                       where ct.Gear.Nickname == "Marcus"
-                      where ct.Gear.CityOrBirthName != "Ephyra"
+                      where ct.Gear.CityOfBirthName != "Ephyra"
                       select new
                       {
                           A = ct.Gear,
-                          B = ct.Gear.CityOrBirthName
+                          B = ct.Gear.CityOfBirthName
                       },
                 ss => from ct in ss.Set<CogTag>()
                       where Maybe(ct.Gear, () => ct.Gear.Nickname) == "Marcus"
-                      where Maybe(ct.Gear, () => ct.Gear.CityOrBirthName) != "Ephyra"
+                      where Maybe(ct.Gear, () => ct.Gear.CityOfBirthName) != "Ephyra"
                       select new
                       {
                           A = ct.Gear,
-                          B = Maybe(ct.Gear, () => ct.Gear.CityOrBirthName)
+                          B = Maybe(ct.Gear, () => ct.Gear.CityOfBirthName)
                       },
                 elementSorter: e => e.A.Nickname,
                 elementAsserter: (e, a) =>
@@ -6570,7 +6570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.StationedGears.Select(
                         g => new Officer
                         {
-                            CityOrBirthName = g.CityOrBirthName,
+                            CityOfBirthName = g.CityOfBirthName,
                             FullName = g.FullName,
                             HasSoulPatch = g.HasSoulPatch,
                             LeaderNickname = g.LeaderNickname,
@@ -6593,7 +6593,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => c.StationedGears.OrderByDescending(g => g.Nickname).Select(
                         g => new Officer
                         {
-                            CityOrBirthName = g.CityOrBirthName,
+                            CityOfBirthName = g.CityOfBirthName,
                             FullName = g.FullName,
                             HasSoulPatch = g.HasSoulPatch,
                             LeaderNickname = g.LeaderNickname,
@@ -7751,6 +7751,157 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertCollection(e.gear.Weapons, a.gear.Weapons);
                     AssertEqual(e.weapon, a.weapon);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_GroupBy_after_set_operator(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => (from g in ss.Set<Gear>()
+                       select new
+                       {
+                           g.AssignedCity.Name,
+                           Count = g.Weapons.Count(),
+                       }).Concat(
+                        from g in ss.Set<Gear>()
+                        select new
+                        {
+                            g.CityOfBirth.Name,
+                            Count = g.Weapons.Count(),
+                        })
+                       .GroupBy(x => new { x.Name, x.Count })
+                       .Select(g => new { g.Key.Name, g.Key.Count, Sum = g.Sum(xx => xx.Count) }),
+                ss => (from g in ss.Set<Gear>()
+                       select new
+                       {
+                           Name = Maybe(g.AssignedCity, () => g.AssignedCity.Name),
+                           Count = g.Weapons.Count(),
+                       }).Concat(
+                        from g in ss.Set<Gear>()
+                        select new
+                        {
+                            g.CityOfBirth.Name,
+                            Count = g.Weapons.Count(),
+                        })
+                       .GroupBy(x => new { x.Name, x.Count })
+                       .Select(g => new { g.Key.Name, g.Key.Count, Sum = g.Sum(xx => xx.Count) }),
+                elementSorter: e => (e.Name, e.Count, e.Sum));
+        }
+
+        [ConditionalTheory(Skip = "issue #18267")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_GroupBy_after_set_operator_using_result_selector(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => (from g in ss.Set<Gear>()
+                       select new
+                       {
+                           g.AssignedCity.Name,
+                           Count = g.Weapons.Count(),
+                       }).Concat(
+                        from g in ss.Set<Gear>()
+                        select new
+                        {
+                            g.CityOfBirth.Name,
+                            Count = g.Weapons.Count(),
+                        })
+                       .GroupBy(
+                            x => new { x.Name, x.Count },
+                            (k, g) => new { k.Name, k.Count, Sum = g.Sum(xx => xx.Count) }),
+                ss => (from g in ss.Set<Gear>()
+                       select new
+                       {
+                           Name = Maybe(g.AssignedCity, () => g.AssignedCity.Name),
+                           Count = g.Weapons.Count(),
+                       }).Concat(
+                        from g in ss.Set<Gear>()
+                        select new
+                        {
+                            g.CityOfBirth.Name,
+                            Count = g.Weapons.Count(),
+                        })
+                       .GroupBy(
+                            x => new { x.Name, x.Count },
+                            (k, g) => new { k.Name, k.Count, Sum = g.Sum(xx => xx.Count) }),
+                elementSorter: e => (e.Name, e.Count, e.Sum));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_with_GroupBy_with_composite_group_key(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => from g in ss.Set<Gear>()
+                      join s in ss.Set<Squad>() on g.SquadId equals s.Id
+                      join t in ss.Set<CogTag>() on g.Nickname equals t.GearNickName into grouping
+                      from t in grouping.DefaultIfEmpty()
+                      group g by new { g.CityOfBirthName, g.HasSoulPatch } into groupby
+                      select new { groupby.Key.CityOfBirthName, groupby.Key.HasSoulPatch },
+                elementSorter: e => (e.CityOfBirthName, e.HasSoulPatch));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_boolean_grouping_key(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>()
+                    .Select(g => new { g.Nickname, g.CityOfBirthName, g.HasSoulPatch, IsMarcus = g.Nickname == "Marcus" })
+                    .GroupBy(g => new { g.CityOfBirthName, g.HasSoulPatch, g.IsMarcus })
+                    .Select(x => new { x.Key.CityOfBirthName, x.Key.HasSoulPatch, x.Key.IsMarcus, Count = x.Count() }),
+                elementSorter: e => (e.CityOfBirthName, e.HasSoulPatch, e.IsMarcus, e.Count));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<CogTag>()
+                    .GroupBy(t => new { t.Gear.HasSoulPatch, t.Gear.Squad.Name })
+                    .Select(g => new { g.Key.HasSoulPatch, Name = g.Key.Name.ToLower() }),
+                ss => ss.Set<CogTag>()
+                    .GroupBy(t => new
+                    {
+                        HasSoulPatch = MaybeScalar<bool>(t.Gear, () => t.Gear.HasSoulPatch) ?? false,
+                        Name = Maybe(t.Gear, () => t.Gear.Squad.Name)
+                    })
+                    .Select(g => new { g.Key.HasSoulPatch, Name = Maybe(g.Key.Name, () => g.Key.Name.ToLower()) }),
+                elementSorter: e => (e.HasSoulPatch, e.Name));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_over_projection_with_multiple_properties_accessed_thru_navigation(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>()
+                    .Select(g => new
+                    {
+                        g.Nickname,
+                        AssignedCityName = g.AssignedCity.Name,
+                        CityOfBirthName = g.CityOfBirth.Name,
+                        SquadName = g.Squad.Name
+                    })
+                    .GroupBy(x => x.CityOfBirthName)
+                    .Select(g => g.Key),
+                ss => ss.Set<Gear>()
+                    .Select(g => new
+                    {
+                        g.Nickname,
+                        AssignedCityName = Maybe(g.AssignedCity, () => g.AssignedCity.Name),
+                        CityOfBirthName = Maybe(g.CityOfBirth, () => g.CityOfBirth.Name),
+                        SquadName = g.Squad.Name
+                    })
+                    .GroupBy(x => x.CityOfBirthName)
+                    .Select(g => g.Key));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

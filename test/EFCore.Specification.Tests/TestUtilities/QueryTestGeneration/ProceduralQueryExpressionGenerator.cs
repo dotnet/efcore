@@ -245,11 +245,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure(
                 "Join_navigation_translated_to_subquery_non_key_join", "Index was outside the bounds of the array."); // 12804
 
-            AddExpectedFailure("OrderBy_Skip_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("OrderBy_Skip_Take_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("GroupJoin_complex_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("OrderBy_GroupBy_SelectMany", "Value does not fall within the expected range."); // 12805
-
             AddExpectedFailure(
                 "Select_expression_references_are_updated_correctly_with_subquery",
                 "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819

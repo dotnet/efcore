@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Assert.Equal(e.Nickname, a.Nickname);
                             Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
+                            Assert.Equal(e.CityOfBirthName, a.CityOfBirthName);
                             Assert.Equal(e.FullName, a.FullName);
                             Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
                             Assert.Equal(e.LeaderNickname, a.LeaderNickname);
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Assert.Equal(e.Nickname, a.Nickname);
                             Assert.Equal(e.SquadId, a.SquadId);
-                            Assert.Equal(e.CityOrBirthName, a.CityOrBirthName);
+                            Assert.Equal(e.CityOfBirthName, a.CityOfBirthName);
                             Assert.Equal(e.FullName, a.FullName);
                             Assert.Equal(e.HasSoulPatch, a.HasSoulPatch);
                             Assert.Equal(e.LeaderNickname, a.LeaderNickname);
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     b.HasKey(
                         g => new { g.Nickname, g.SquadId });
 
-                    b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOrBirthName).IsRequired();
+                    b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOfBirthName).IsRequired();
                     b.HasOne(g => g.Tag).WithOne(t => t.Gear).HasForeignKey<CogTag>(
                         t => new { t.GearNickName, t.GearSquadId });
                     b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
