@@ -780,11 +780,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
-        protected override MigrationsModelDiffer CreateModelDiffer(IModel model)
+        protected override MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {
-            var ctx = TestHelpers.CreateContext(
-                TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
-                    .UseModel(model).EnableSensitiveDataLogging().Options);
+            var ctx = TestHelpers.CreateContext(options);
             return new MigrationsModelDiffer(
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
