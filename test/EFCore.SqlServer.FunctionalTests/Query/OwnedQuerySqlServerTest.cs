@@ -1519,11 +1519,11 @@ ORDER BY [o].[Id], [o15].[ClientId], [o15].[Id]");
             await base.Preserve_includes_when_applying_skip_take_after_anonymous_type_select(isAsync);
 
             AssertSql(
-                            @"SELECT COUNT(*)
+                @"SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')",
-                            //
-                            @"@__Count_0='4'
+                //
+                 @"@__Count_0='4'
 @__p_1='0'
 @__p_2='100'
 
@@ -1639,6 +1639,111 @@ LEFT JOIN (
 LEFT JOIN [Order] AS [o22] ON [t].[Id] = [o22].[ClientId]
 ORDER BY [t].[Id], [o22].[ClientId], [o22].[Id]");
         }
+
+        public override async Task Unmapped_property_projection_loads_owned_navigations(bool isAsync)
+        {
+            await base.Unmapped_property_projection_loads_owned_navigations(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafBAddress_Country_Name], [t13].[LeafBAddress_Country_PlanetId], [t15].[Id], [t18].[Id], [t18].[LeafAAddress_Country_Name], [t18].[LeafAAddress_Country_PlanetId], [o20].[ClientId], [o20].[Id]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN (
+    SELECT [o0].[Id], [t].[Id] AS [Id0]
+    FROM [OwnedPerson] AS [o0]
+    INNER JOIN (
+        SELECT [o1].[Id], [o1].[Discriminator]
+        FROM [OwnedPerson] AS [o1]
+        WHERE [o1].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
+    ) AS [t] ON [o0].[Id] = [t].[Id]
+) AS [t0] ON [o].[Id] = [t0].[Id]
+LEFT JOIN (
+    SELECT [o2].[Id], [o2].[PersonAddress_Country_Name], [o2].[PersonAddress_Country_PlanetId], [t2].[Id] AS [Id0], [t2].[Id0] AS [Id00]
+    FROM [OwnedPerson] AS [o2]
+    INNER JOIN (
+        SELECT [o3].[Id], [t1].[Id] AS [Id0]
+        FROM [OwnedPerson] AS [o3]
+        INNER JOIN (
+            SELECT [o4].[Id], [o4].[Discriminator]
+            FROM [OwnedPerson] AS [o4]
+            WHERE [o4].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
+        ) AS [t1] ON [o3].[Id] = [t1].[Id]
+    ) AS [t2] ON [o2].[Id] = [t2].[Id]
+    WHERE [o2].[PersonAddress_Country_PlanetId] IS NOT NULL
+) AS [t3] ON [t0].[Id] = [t3].[Id]
+LEFT JOIN (
+    SELECT [o5].[Id], [t4].[Id] AS [Id0]
+    FROM [OwnedPerson] AS [o5]
+    INNER JOIN (
+        SELECT [o6].[Id], [o6].[Discriminator]
+        FROM [OwnedPerson] AS [o6]
+        WHERE [o6].[Discriminator] IN (N'Branch', N'LeafA')
+    ) AS [t4] ON [o5].[Id] = [t4].[Id]
+) AS [t5] ON [o].[Id] = [t5].[Id]
+LEFT JOIN (
+    SELECT [o7].[Id], [o7].[BranchAddress_Country_Name], [o7].[BranchAddress_Country_PlanetId], [t7].[Id] AS [Id0], [t7].[Id0] AS [Id00]
+    FROM [OwnedPerson] AS [o7]
+    INNER JOIN (
+        SELECT [o8].[Id], [t6].[Id] AS [Id0]
+        FROM [OwnedPerson] AS [o8]
+        INNER JOIN (
+            SELECT [o9].[Id], [o9].[Discriminator]
+            FROM [OwnedPerson] AS [o9]
+            WHERE [o9].[Discriminator] IN (N'Branch', N'LeafA')
+        ) AS [t6] ON [o8].[Id] = [t6].[Id]
+    ) AS [t7] ON [o7].[Id] = [t7].[Id]
+    WHERE [o7].[BranchAddress_Country_PlanetId] IS NOT NULL
+) AS [t8] ON [t5].[Id] = [t8].[Id]
+LEFT JOIN (
+    SELECT [o10].[Id], [t9].[Id] AS [Id0]
+    FROM [OwnedPerson] AS [o10]
+    INNER JOIN (
+        SELECT [o11].[Id], [o11].[Discriminator]
+        FROM [OwnedPerson] AS [o11]
+        WHERE [o11].[Discriminator] = N'LeafB'
+    ) AS [t9] ON [o10].[Id] = [t9].[Id]
+) AS [t10] ON [o].[Id] = [t10].[Id]
+LEFT JOIN (
+    SELECT [o12].[Id], [o12].[LeafBAddress_Country_Name], [o12].[LeafBAddress_Country_PlanetId], [t12].[Id] AS [Id0], [t12].[Id0] AS [Id00]
+    FROM [OwnedPerson] AS [o12]
+    INNER JOIN (
+        SELECT [o13].[Id], [t11].[Id] AS [Id0]
+        FROM [OwnedPerson] AS [o13]
+        INNER JOIN (
+            SELECT [o14].[Id], [o14].[Discriminator]
+            FROM [OwnedPerson] AS [o14]
+            WHERE [o14].[Discriminator] = N'LeafB'
+        ) AS [t11] ON [o13].[Id] = [t11].[Id]
+    ) AS [t12] ON [o12].[Id] = [t12].[Id]
+    WHERE [o12].[LeafBAddress_Country_PlanetId] IS NOT NULL
+) AS [t13] ON [t10].[Id] = [t13].[Id]
+LEFT JOIN (
+    SELECT [o15].[Id], [t14].[Id] AS [Id0]
+    FROM [OwnedPerson] AS [o15]
+    INNER JOIN (
+        SELECT [o16].[Id], [o16].[Discriminator]
+        FROM [OwnedPerson] AS [o16]
+        WHERE [o16].[Discriminator] = N'LeafA'
+    ) AS [t14] ON [o15].[Id] = [t14].[Id]
+) AS [t15] ON [o].[Id] = [t15].[Id]
+LEFT JOIN (
+    SELECT [o17].[Id], [o17].[LeafAAddress_Country_Name], [o17].[LeafAAddress_Country_PlanetId], [t17].[Id] AS [Id0], [t17].[Id0] AS [Id00]
+    FROM [OwnedPerson] AS [o17]
+    INNER JOIN (
+        SELECT [o18].[Id], [t16].[Id] AS [Id0]
+        FROM [OwnedPerson] AS [o18]
+        INNER JOIN (
+            SELECT [o19].[Id], [o19].[Discriminator]
+            FROM [OwnedPerson] AS [o19]
+            WHERE [o19].[Discriminator] = N'LeafA'
+        ) AS [t16] ON [o18].[Id] = [t16].[Id]
+    ) AS [t17] ON [o17].[Id] = [t17].[Id]
+    WHERE [o17].[LeafAAddress_Country_PlanetId] IS NOT NULL
+) AS [t18] ON [t15].[Id] = [t18].[Id]
+LEFT JOIN [Order] AS [o20] ON [o].[Id] = [o20].[ClientId]
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([o].[Id] = 1)
+ORDER BY [o].[Id], [o20].[ClientId], [o20].[Id]");
+        }
+
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

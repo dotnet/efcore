@@ -5115,7 +5115,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join g in ss.Set<Gear>() on t.GearNickName equals g.Nickname into grouping
                     from g in grouping.DefaultIfEmpty()
                     orderby t.Note, Maybe(g, () => g.Nickname) descending
-                    select 
+                    select
                         g != null
                         ? g.Squad.Members.Where(m => m.HasSoulPatch).OrderBy(m => m.Nickname)
                             .Select(m => new
