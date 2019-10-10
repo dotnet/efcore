@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -43,6 +43,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_with_tag(bool async)
+        {
+            using var context = CreateContext();
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .TagWith("Stored Procedure");
+
+            var actual = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            Assert.Equal(10, actual.Length);
+
+            Assert.Contains(actual, mep =>
+                mep.TenMostExpensiveProducts == "Côte de Blaye"
+                && mep.UnitPrice == 263.50m);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
         public virtual async Task From_sql_queryable_stored_procedure_projection(bool async)
         {
             using var context = CreateContext();
@@ -62,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_stored_procedure_re_projection(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_re_projection(bool async)
         {
             using var context = CreateContext();
             var query = context
@@ -71,20 +93,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(
                     mep =>
                         new MostExpensiveProduct { TenMostExpensiveProducts = "Foo", UnitPrice = mep.UnitPrice });
-            try
-            {
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
 
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -130,29 +144,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_stored_procedure_composed(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_composed(bool async)
         {
             using var context = CreateContext();
-            try
-            {
-                var query = context
-                    .Set<MostExpensiveProduct>()
-                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                    .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
-                    .OrderBy(mep => mep.UnitPrice);
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .Where(mep => mep.TenMostExpensiveProducts.Contains("C"))
+                .OrderBy(mep => mep.UnitPrice);
 
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -180,29 +185,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_stored_procedure_with_parameter_composed(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_with_parameter_composed(bool async)
         {
             using var context = CreateContext();
-            try
-            {
-                var query = context
-                    .Set<CustomerOrderHistory>()
-                    .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
-                    .Where(coh => coh.ProductName.Contains("C"))
-                    .OrderBy(coh => coh.Total);
 
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
+            var query = context
+                .Set<CustomerOrderHistory>()
+                .FromSqlRaw(CustomerOrderHistorySproc, GetCustomerOrderHistorySprocParameters())
+                .Where(coh => coh.ProductName.Contains("C"))
+                .OrderBy(coh => coh.Total);
 
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -230,29 +227,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_stored_procedure_take(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_take(bool async)
         {
             using var context = CreateContext();
-            try
-            {
-                var query = context
-                    .Set<MostExpensiveProduct>()
-                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                    .OrderByDescending(mep => mep.UnitPrice)
-                    .Take(2);
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .OrderByDescending(mep => mep.UnitPrice)
+                .Take(2);
 
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -280,26 +268,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_stored_procedure_min(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_min(bool async)
         {
             using var context = CreateContext();
-            try
-            {
-                var query = context.Set<MostExpensiveProduct>()
-                    .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
+            var query = context.Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
 
-                var _ = async
-                    ? await query.MinAsync(mep => mep.UnitPrice)
-                    : query.Min(mep => mep.UnitPrice);
-
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync(mep => mep.UnitPrice))
+                 : Assert.Throws<InvalidOperationException>(() => query.Min(mep => mep.UnitPrice))).Message);
         }
 
         [ConditionalTheory]
@@ -322,33 +301,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_stored_procedure_with_include_throws(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_with_include_throws(bool async)
         {
             using var context = CreateContext();
-            try
-            {
-                var query = context.Set<Product>()
-                    .FromSqlRaw("SelectStoredProcedure")
-                    .Include(p => p.OrderDetails);
+            var query = context.Set<Product>()
+                .FromSqlRaw("SelectStoredProcedure")
+                .Include(p => p.OrderDetails);
 
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_with_multiple_stored_procedures(bool async)
+        public virtual async Task From_sql_queryable_with_multiple_stored_procedures(bool async)
         {
             using var context = CreateContext();
             var query = from a in context.Set<MostExpensiveProduct>()
@@ -358,20 +328,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
                         select new { a, b };
 
-            try
-            {
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -400,7 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_stored_procedure_and_select(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_and_select(bool async)
         {
             using var context = CreateContext();
             var query = from mep in context.Set<MostExpensiveProduct>()
@@ -410,20 +371,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         where mep.TenMostExpensiveProducts == p.ProductName
                         select new { mep, p };
 
-            try
-            {
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -451,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task<DbException> From_sql_queryable_select_and_stored_procedure(bool async)
+        public virtual async Task From_sql_queryable_select_and_stored_procedure(bool async)
         {
             using var context = CreateContext();
             var query = from p in context.Set<Product>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
@@ -460,20 +412,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         where mep.TenMostExpensiveProducts == p.ProductName
                         select new { mep, p };
 
-            try
-            {
-                var _ = async
-                    ? await query.ToArrayAsync()
-                    : query.ToArray();
-
-                Assert.True(false);
-                return null;
-            }
-            catch (Exception e)
-            {
-                Assert.IsAssignableFrom<DbException>(e);
-                return (DbException)e;
-            }
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]

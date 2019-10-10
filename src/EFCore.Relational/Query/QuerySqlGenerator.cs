@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -13,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
+        private static readonly Regex _composibleSql
+            = new Regex(@"^\s*?SELECT\b", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(value: 1000.0));
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
@@ -50,14 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
+            GenerateTagsHeaderComment(selectExpression);
+
             if (selectExpression.IsNonComposedFromSql())
             {
                 GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
             }
             else
             {
-                GenerateTagsHeaderComment(selectExpression);
-
                 VisitSelect(selectExpression);
             }
 
@@ -311,6 +315,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
         {
             _relationalCommandBuilder.AppendLine("(");
+
+            if (!_composibleSql.IsMatch(fromSqlExpression.Sql))
+            {
+                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            }
 
             using (_relationalCommandBuilder.Indent())
             {
