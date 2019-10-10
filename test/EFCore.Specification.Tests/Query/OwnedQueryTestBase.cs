@@ -418,7 +418,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private static int Map(OwnedPerson p) => p.PersonAddress.Country.PlanetId;
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Unmapped_property_projection_loads_owned_navigations(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<OwnedPerson>().Where(e => e.Id == 1).AsTracking().Select(e => new { e.ReadOnlyProperty }),
+                entryCount: 5);
+        }
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 
@@ -997,6 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public int Id { get; set; }
             public OwnedAddress PersonAddress { get; set; }
+            public int ReadOnlyProperty => 10;
 
             public ICollection<Order> Orders { get; set; }
         }
