@@ -86,6 +86,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Query_for_branch_type_loads_all_owned_navs_tracking(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Branch>().AsTracking(),
+                entryCount: 14);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_for_leaf_type_loads_all_owned_navs(bool isAsync)
         {
             return AssertQuery(

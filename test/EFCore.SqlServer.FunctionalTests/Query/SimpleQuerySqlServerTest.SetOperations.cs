@@ -387,6 +387,41 @@ GROUP BY [c0].[CustomerID]");
             var leftSql = GenerateSql(leftType);
             var rightSql = GenerateSql(rightType);
 
+            switch (leftType)
+            {
+                case "Column":
+                    leftSql = leftSql.Replace("{Alias}", "");
+                    break;
+
+                case "Binary":
+                case "Constant":
+                case "Function":
+                case "ScalarSubquery":
+                case "Unary":
+                    leftSql = leftSql.Replace("{Alias}", " AS [c]");
+                    break;
+
+                default:
+                    throw new ArgumentException("Unexpected type: " + leftType);
+            }
+
+            switch (rightType)
+            {
+                case "Column":
+                    rightSql = rightSql.Replace("{Alias}", leftType == "Column" ? "" : " AS [c]");
+                    break;
+
+                case "Binary":
+                case "Constant":
+                case "Function":
+                case "ScalarSubquery":
+                case "Unary":
+                    rightSql = rightSql.Replace("{Alias}", leftType == "Column" ? " AS [OrderID]" : " AS [c]");
+                    break;
+                default:
+                    throw new ArgumentException("Unexpected type: " + rightType);
+            }
+
             // Fix up right-side SQL as table aliases shift
             rightSql = leftType == "ScalarSubquery"
                 ? rightSql.Replace("[o]", "[o1]").Replace("[o0]", "[o2]")
@@ -399,29 +434,29 @@ GROUP BY [c0].[CustomerID]");
                 switch (expressionType)
                 {
                     case "Column":
-                        return @"SELECT [o].[OrderID]
+                        return @"SELECT [o].[OrderID]{Alias}
 FROM [Orders] AS [o]";
                     case "Function":
-                        return @"SELECT COUNT(*)
+                        return @"SELECT COUNT(*){Alias}
 FROM [Orders] AS [o]
 GROUP BY [o].[OrderID]";
                     case "Constant":
-                        return @"SELECT 8
+                        return @"SELECT 8{Alias}
 FROM [Orders] AS [o]";
                     case "Unary":
-                        return @"SELECT -[o].[OrderID]
+                        return @"SELECT -[o].[OrderID]{Alias}
 FROM [Orders] AS [o]";
                     case "Binary":
-                        return @"SELECT [o].[OrderID] + 1
+                        return @"SELECT [o].[OrderID] + 1{Alias}
 FROM [Orders] AS [o]";
                     case "ScalarSubquery":
                         return @"SELECT (
     SELECT COUNT(*)
     FROM [Order Details] AS [o]
-    WHERE [o0].[OrderID] = [o].[OrderID])
+    WHERE [o0].[OrderID] = [o].[OrderID]){Alias}
 FROM [Orders] AS [o0]";
                     default:
-                        throw new InvalidOperationException();
+                        throw new ArgumentException("Unexpected type: " + expressionType);
                 }
             }
         }

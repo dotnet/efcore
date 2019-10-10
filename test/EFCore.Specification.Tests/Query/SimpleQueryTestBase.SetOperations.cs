@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => new { CustomerID = g.Key, Count = g.Count() })));
         }
 
-        [ConditionalTheory(Skip = "Issue#17339")]
+        [ConditionalTheory]
 #pragma warning disable xUnit1016 // MemberData must reference a public member
         [MemberData(nameof(GetSetOperandTestCases))]
 #pragma warning restore xUnit1016 // MemberData must reference a public member

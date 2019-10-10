@@ -1963,10 +1963,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss =>
-                    from g in ss.Set<Gear>()
-                    join w in ss.Set<Weapon>().OrderBy(ww => ww.Name) on g.FullName equals w.OwnerFullName
-                    select new { w.Name, g.FullName },
+                ss => from g in ss.Set<Gear>()
+                      join w in ss.Set<Weapon>().OrderBy(ww => ww.Name) on g.FullName equals w.OwnerFullName
+                      select new { w.Name, g.FullName },
+                elementSorter: w => w.Name);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_with_order_by_without_skip_or_take_nested(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => from s in ss.Set<Squad>()
+                      join g in ss.Set<Gear>().OrderByDescending(gg => gg.SquadId) on s.Id equals g.SquadId
+                      join w in ss.Set<Weapon>().OrderBy(ww => ww.Name) on g.FullName equals w.OwnerFullName
+                      select new { w.Name, g.FullName },
                 elementSorter: w => w.Name);
         }
 
@@ -7902,6 +7914,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     })
                     .GroupBy(x => x.CityOfBirthName)
                     .Select(g => g.Key));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_with_aggregate_max_on_entity_type(bool isAsync)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>()
+                    .GroupBy(g => g.CityOfBirthName)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Aggregate = g.Max()
+                    })));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
