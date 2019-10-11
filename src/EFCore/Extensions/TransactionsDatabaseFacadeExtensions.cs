@@ -26,7 +26,8 @@ namespace System.Transactions
         public static void EnlistTransaction([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] Transaction transaction)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
-            if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager transactionManager)
+            if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
+                transactionManager)
             {
                 transactionManager.EnlistTransaction(transaction);
             }
@@ -44,7 +45,8 @@ namespace System.Transactions
         public static Transaction GetEnlistedTransaction([NotNull] this DatabaseFacade databaseFacade)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
-            if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager transactionManager)
+            if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
+                transactionManager)
             {
                 return transactionManager.EnlistedTransaction;
             }

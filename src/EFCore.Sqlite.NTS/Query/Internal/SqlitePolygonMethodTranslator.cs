@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -27,10 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             {
                 return _sqlExpressionFactory.Function(
                     "InteriorRingN",
-                    new SqlExpression[] {
-                        instance,
-                        _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1))
-                    },
+                    new[] { instance, _sqlExpressionFactory.Add(arguments[0], _sqlExpressionFactory.Constant(1)) },
                     method.ReturnType);
             }
 

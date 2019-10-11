@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -50,10 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var converted = Expression.Variable(memberInfo.DeclaringType, "converted");
 
                 readExpression = Expression.Block(
-                    new[]
-                    {
-                        converted
-                    },
+                    new[] { converted },
                     new List<Expression>
                     {
                         Expression.Assign(
@@ -96,10 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                ?? property?.FindTypeMapping()?.Comparer
                                ?? (ValueComparer)Activator.CreateInstance(
                                    typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                                   new object[]
-                                   {
-                                       false
-                                   });
+                                   new object[] { false });
 
                 hasDefaultValueExpression = comparer.ExtractEqualsBody(
                     comparer.Type != typeof(TValue)

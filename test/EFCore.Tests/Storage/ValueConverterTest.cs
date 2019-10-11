@@ -144,12 +144,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var types = new[]
             {
-                typeof(sbyte), typeof(short), typeof(int), typeof(long),
-                typeof(byte), typeof(ushort), typeof(uint), typeof(ulong),
-                typeof(char), typeof(double), typeof(float), typeof(decimal),
-                typeof(sbyte?), typeof(short?), typeof(int?), typeof(long?),
-                typeof(byte?), typeof(ushort?), typeof(uint?), typeof(ulong?),
-                typeof(char?), typeof(double?), typeof(float?), typeof(decimal?)
+                typeof(sbyte),
+                typeof(short),
+                typeof(int),
+                typeof(long),
+                typeof(byte),
+                typeof(ushort),
+                typeof(uint),
+                typeof(ulong),
+                typeof(char),
+                typeof(double),
+                typeof(float),
+                typeof(decimal),
+                typeof(sbyte?),
+                typeof(short?),
+                typeof(int?),
+                typeof(long?),
+                typeof(byte?),
+                typeof(ushort?),
+                typeof(uint?),
+                typeof(ulong?),
+                typeof(char?),
+                typeof(double?),
+                typeof(float?),
+                typeof(decimal?)
             };
 
             foreach (var fromType in types)
@@ -271,7 +289,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     () => _enumToNumber.ComposeWith(_uIntToInt)).Message);
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void OrderingTest<TModel, TProvider>(
+#pragma warning restore xUnit1013 // Public method should be marked as test
             ValueConverter<TModel, TProvider> converter,
             params TModel[] values)
         {
@@ -286,7 +306,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     .ToArray());
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void OrderingTest<TModel>(
+#pragma warning restore xUnit1013 // Public method should be marked as test
             ValueConverter<TModel, byte[]> converter,
             params TModel[] values)
         {

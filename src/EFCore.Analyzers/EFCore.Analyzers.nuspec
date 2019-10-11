@@ -3,15 +3,15 @@
   <metadata>
     $CommonMetadataElements$
     <dependencies>
-      <group targetFramework=".NETStandard1.3" />
+      <group targetFramework=".NETStandard2.0" />
     </dependencies>
     <icon>packageIcon.png</icon>
   </metadata>
 
   <files>
+    <file src="_._" target="lib\$targetFramework$\" />
     <file src="$OutputBinary$" target="analyzers\dotnet\cs\" />
     <file src="$OutputSymbol$" target="analyzers\dotnet\cs\" />
     <file src="$PackageIcon$" target="" />
-    <file src="$NetStandard13PlaceholderFile$" target="lib\netstandard1.3" />
   </files>
 </package>

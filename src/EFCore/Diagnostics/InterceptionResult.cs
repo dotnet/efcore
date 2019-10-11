@@ -5,14 +5,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         Represents a result from an <see cref="IInterceptor"/> such as an 'IDbConnectionInterceptor' to allow
+    ///         Represents a result from an <see cref="IInterceptor" /> such as an 'IDbConnectionInterceptor' to allow
     ///         suppression of the normal operation being intercepted.
     ///     </para>
     ///     <para>
     ///         A value of this type is passed to all interceptor methods that are called before the operation
     ///         being intercepted is executed.
     ///         Typically the interceptor should return the value passed in.
-    ///         However, creating a result with <see cref="Suppress"/> causes the operation being
+    ///         However, creating a result with <see cref="Suppress" /> causes the operation being
     ///         intercepted to be suppressed; that is, the operation is not executed.
     ///     </para>
     /// </summary>

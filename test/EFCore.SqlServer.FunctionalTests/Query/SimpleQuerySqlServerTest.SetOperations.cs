@@ -62,7 +62,8 @@ WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL
 EXCEPT
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
 FROM [Customers] AS [c0]
-WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");        }
+WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");
+        }
 
         public override async Task Union_OrderBy_Skip_Take(bool isAsync)
         {
@@ -203,7 +204,8 @@ ORDER BY [t1].[CustomerID]");
         {
             await base.Select_Union(isAsync);
 
-            AssertSql(@"SELECT [c].[Address]
+            AssertSql(
+                @"SELECT [c].[Address]
 FROM [Customers] AS [c]
 WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
 UNION
@@ -216,7 +218,8 @@ WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL");
         {
             await base.Union_Select(isAsync);
 
-            AssertSql(@"SELECT [t].[Address]
+            AssertSql(
+                @"SELECT [t].[Address]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
@@ -384,6 +387,41 @@ GROUP BY [c0].[CustomerID]");
             var leftSql = GenerateSql(leftType);
             var rightSql = GenerateSql(rightType);
 
+            switch (leftType)
+            {
+                case "Column":
+                    leftSql = leftSql.Replace("{Alias}", "");
+                    break;
+
+                case "Binary":
+                case "Constant":
+                case "Function":
+                case "ScalarSubquery":
+                case "Unary":
+                    leftSql = leftSql.Replace("{Alias}", " AS [c]");
+                    break;
+
+                default:
+                    throw new ArgumentException("Unexpected type: " + leftType);
+            }
+
+            switch (rightType)
+            {
+                case "Column":
+                    rightSql = rightSql.Replace("{Alias}", leftType == "Column" ? "" : " AS [c]");
+                    break;
+
+                case "Binary":
+                case "Constant":
+                case "Function":
+                case "ScalarSubquery":
+                case "Unary":
+                    rightSql = rightSql.Replace("{Alias}", leftType == "Column" ? " AS [OrderID]" : " AS [c]");
+                    break;
+                default:
+                    throw new ArgumentException("Unexpected type: " + rightType);
+            }
+
             // Fix up right-side SQL as table aliases shift
             rightSql = leftType == "ScalarSubquery"
                 ? rightSql.Replace("[o]", "[o1]").Replace("[o0]", "[o2]")
@@ -396,29 +434,29 @@ GROUP BY [c0].[CustomerID]");
                 switch (expressionType)
                 {
                     case "Column":
-                        return @"SELECT [o].[OrderID]
+                        return @"SELECT [o].[OrderID]{Alias}
 FROM [Orders] AS [o]";
                     case "Function":
-                        return @"SELECT COUNT(*)
+                        return @"SELECT COUNT(*){Alias}
 FROM [Orders] AS [o]
 GROUP BY [o].[OrderID]";
                     case "Constant":
-                        return @"SELECT 8
+                        return @"SELECT 8{Alias}
 FROM [Orders] AS [o]";
                     case "Unary":
-                        return @"SELECT -[o].[OrderID]
+                        return @"SELECT -[o].[OrderID]{Alias}
 FROM [Orders] AS [o]";
                     case "Binary":
-                        return @"SELECT [o].[OrderID] + 1
+                        return @"SELECT [o].[OrderID] + 1{Alias}
 FROM [Orders] AS [o]";
                     case "ScalarSubquery":
                         return @"SELECT (
     SELECT COUNT(*)
     FROM [Order Details] AS [o]
-    WHERE [o0].[OrderID] = [o].[OrderID])
+    WHERE [o0].[OrderID] = [o].[OrderID]){Alias}
 FROM [Orders] AS [o0]";
                     default:
-                        throw new InvalidOperationException();
+                        throw new ArgumentException("Unexpected type: " + expressionType);
                 }
             }
         }

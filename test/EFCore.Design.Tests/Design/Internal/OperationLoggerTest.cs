@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     public class OperationLoggerTests
     {
         [ConditionalFact]
-        public void Log_dampens_logLevel_when_ExecutedCommand()
+        public void Log_dampens_logLevel_when_CommandExecuting()
         {
             var reporter = new TestOperationReporter();
             var loggerFactory = new LoggerFactory();
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var logger = loggerFactory.CreateLogger(DbLoggerCategory.Database.Command.Name);
             logger.Log<object>(
                 LogLevel.Information,
-                RelationalEventId.CommandExecuted,
+                RelationalEventId.CommandExecuting,
                 null,
                 null,
                 (_, __) => "-- Can't stop the SQL");

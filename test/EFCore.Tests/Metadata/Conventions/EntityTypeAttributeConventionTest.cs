@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityBuilder);
 
-            Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count());
+            Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
         }
 
         [ConditionalFact]
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityBuilder);
 
-            Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count());
+            Assert.Single(modelBuilder.Metadata.GetEntityTypes());
         }
 
         [ConditionalFact]
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             modelBuilder.Entity<B>();
 
-            Assert.Equal(1, modelBuilder.Model.GetEntityTypes().Count());
+            Assert.Single(modelBuilder.Model.GetEntityTypes());
         }
 
         #endregion

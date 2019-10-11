@@ -1065,7 +1065,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         {
                             builder
                                 .Append(", comment: ")
-                                .Append(Code.Literal(operation.Comment));
+                                .Append(Code.Literal(column.Comment));
                         }
 
                         builder.Append(")");

@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///      Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
+        ///     Gets the foreign keys declared on the given <see cref="IConventionEntityType" /> using the given properties.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
@@ -484,7 +484,8 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType,
             [NotNull] MemberInfo memberInfo,
             bool fromDataAnnotation = false)
-            => Check.NotNull(entityType, nameof(entityType)).AddProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
+            => Check.NotNull(entityType, nameof(entityType)).AddProperty(
+                memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
                 memberInfo, setTypeConfigurationSource: true, fromDataAnnotation);
 
         /// <summary>
@@ -497,7 +498,8 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionProperty AddProperty(
             [NotNull] this IConventionEntityType entityType, [NotNull] string name,
             bool fromDataAnnotation = false)
-            => ((EntityType)entityType).AddProperty(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => ((EntityType)entityType).AddProperty(
+                name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Adds a property to this entity type.
@@ -512,7 +514,6 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IConventionEntityType entityType, [NotNull] string name, [NotNull] Type propertyType,
             bool setTypeConfigurationSource = true, bool fromDataAnnotation = false)
             => entityType.AddProperty(name, propertyType, null, setTypeConfigurationSource, fromDataAnnotation);
-
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.

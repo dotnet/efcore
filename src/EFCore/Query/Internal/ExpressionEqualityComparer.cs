@@ -315,6 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete("Use Equals instead")]
         public virtual bool SequenceEquals(IEnumerable<Expression> x, IEnumerable<Expression> y)
         {
             if (x == null
@@ -328,12 +329,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return false;
             }
 
-            var comparer = new ExpressionComparer();
-
-            return x.Zip(y, (l, r) => comparer.Compare(l, r)).All(r => r);
+            return x.Zip(y, (l, r) => new ExpressionComparer().Compare(l, r)).All(r => r);
         }
 
-        private sealed class ExpressionComparer
+        private struct ExpressionComparer
         {
             private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;
 

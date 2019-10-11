@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -31,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
 
-        protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+        protected override ShapedQueryExpression TranslateOrderBy(
+            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = base.TranslateOrderBy(source, keySelector, ascending);
             if (translation == null)
@@ -76,10 +77,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         }
 
         private static Type GetProviderType(SqlExpression expression)
-            => SharedTypeExtensions.UnwrapNullableType(
-                expression.TypeMapping?.Converter?.ProviderClrType
-                    ?? expression.TypeMapping?.ClrType
-                    ?? expression.Type);
-
+            => (expression.TypeMapping?.Converter?.ProviderClrType
+                ?? expression.TypeMapping?.ClrType
+                ?? expression.Type).UnwrapNullableType();
     }
 }

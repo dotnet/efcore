@@ -1,8 +1,7 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -67,9 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 jObjectParameter);
 
             return Expression.New(
-                (IsAsync
-                    ? typeof(AsyncQueryingEnumerable<>)
-                    : typeof(QueryingEnumerable<>)).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(CosmosQueryContext)),
                 Expression.Constant(_sqlExpressionFactory),
                 Expression.Constant(_querySqlGeneratorFactory),

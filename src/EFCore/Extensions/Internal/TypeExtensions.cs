@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -206,7 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsQueryableType(this Type type)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
+            if (type.IsGenericType
+                && type.GetGenericTypeDefinition() == typeof(IQueryable<>))
             {
                 return true;
             }

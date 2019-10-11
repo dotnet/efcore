@@ -48,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(
-                        clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength, precision, scale))
+                        clrType, converter, comparer, keyComparer), storeType, storeTypePostfix, dbType, unicode, size, fixedLength,
+                    precision, scale))
 
         {
             LiteralGenerator = literalGenerator;

@@ -148,10 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     RemoveNewLines(Assert.Throws<InvalidOperationException>(
                         () =>
                             (from c1 in context.Customers
-                             from i in new[]
-                             {
-                                 1, 2, 3
-                             }
+                             from i in new[] { 1, 2, 3 }
                              select c1)
                             .ToList()).Message));
             }
@@ -164,15 +161,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.QueryFailed(
-                        @"Join<Employee, uint, uint, Employee>(    outer: DbSet<Employee>,     inner: (Unhandled parameter: __p_0),     outerKeySelector: (e1) => e1.EmployeeID,     innerKeySelector: (i) => i,     resultSelector: (e1, i) => e1)", "NavigationExpandingExpressionVisitor"),
+                        @"Join<Employee, uint, uint, Employee>(    outer: DbSet<Employee>,     inner: (Unhandled parameter: __p_0),     outerKeySelector: (e1) => e1.EmployeeID,     innerKeySelector: (i) => i,     resultSelector: (e1, i) => e1)",
+                        "NavigationExpandingExpressionVisitor"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () =>
                                 (from e1 in context.Employees
-                                 join i in new uint[]
-                                 {
-                                     1, 2, 3
-                                 } on e1.EmployeeID equals i
+                                 join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i
                                  select e1)
                                 .ToList()).Message));
             }
@@ -185,15 +180,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Assert.Equal(
                     CoreStrings.QueryFailed(
-                        "GroupJoin<Employee, uint, uint, Employee>(    outer: DbSet<Employee>,     inner: (Unhandled parameter: __p_0),     outerKeySelector: (e1) => e1.EmployeeID,     innerKeySelector: (i) => i,     resultSelector: (e1, g) => e1)", "NavigationExpandingExpressionVisitor"),
+                        "GroupJoin<Employee, uint, uint, Employee>(    outer: DbSet<Employee>,     inner: (Unhandled parameter: __p_0),     outerKeySelector: (e1) => e1.EmployeeID,     innerKeySelector: (i) => i,     resultSelector: (e1, g) => e1)",
+                        "NavigationExpandingExpressionVisitor"),
                     RemoveNewLines(
                         Assert.Throws<InvalidOperationException>(
                             () =>
                                 (from e1 in context.Employees
-                                 join i in new uint[]
-                                 {
-                                     1, 2, 3
-                                 } on e1.EmployeeID equals i into g
+                                 join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
                                  select e1)
                                 .ToList()).Message));
             }

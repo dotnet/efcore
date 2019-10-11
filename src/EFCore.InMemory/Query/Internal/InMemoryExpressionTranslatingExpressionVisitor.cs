@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
         {
             private bool _found;
+
             public bool Find(Expression expression)
             {
                 _found = false;
@@ -282,6 +283,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     case nameof(Enumerable.Min):
                     case nameof(Enumerable.Sum):
                         var translation = Translate(GetSelector(methodCallExpression, groupByShaperExpression));
+                        if (translation == null)
+                        {
+                            return null;
+                        }
+
                         var selector = Expression.Lambda(translation, groupByShaperExpression.ValueBufferParameter);
                         MethodInfo getMethod()
                             => methodCallExpression.Method.Name switch
@@ -356,35 +362,33 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         ? result
                         : Expression.Convert(result, methodCallExpression.Type);
                 }
-                else
+
+                var selector = (LambdaExpression)selectMethod.Arguments[1];
+                var readValueExpression = ((NewArrayExpression)((NewExpression)selector.Body).Arguments[0]).Expressions[0];
+                if (readValueExpression is UnaryExpression unaryExpression2
+                    && unaryExpression2.NodeType == ExpressionType.Convert
+                    && unaryExpression2.Type == typeof(object))
                 {
-                    var selector = (LambdaExpression)selectMethod.Arguments[1];
-                    var readValueExpression = ((NewArrayExpression)((NewExpression)selector.Body).Arguments[0]).Expressions[0];
-                    if (readValueExpression is UnaryExpression unaryExpression2
-                        && unaryExpression2.NodeType == ExpressionType.Convert
-                        && unaryExpression2.Type == typeof(object))
-                    {
-                        readValueExpression = unaryExpression2.Operand;
-                    }
-
-                    var valueBufferVariable = Expression.Variable(typeof(ValueBuffer));
-                    var replacedReadExpression = ReplacingExpressionVisitor.Replace(
-                        selector.Parameters[0],
-                        valueBufferVariable,
-                        readValueExpression);
-
-                    replacedReadExpression = replacedReadExpression.Type == methodCallExpression.Type
-                        ? replacedReadExpression
-                        : Expression.Convert(replacedReadExpression, methodCallExpression.Type);
-
-                    return Expression.Block(
-                        variables: new[] { valueBufferVariable },
-                        Expression.Assign(valueBufferVariable, resultFunc),
-                        Expression.Condition(
-                            Expression.MakeMemberAccess(valueBufferVariable, _valueBufferIsEmpty),
-                            Expression.Default(methodCallExpression.Type),
-                            replacedReadExpression));
+                    readValueExpression = unaryExpression2.Operand;
                 }
+
+                var valueBufferVariable = Expression.Variable(typeof(ValueBuffer));
+                var replacedReadExpression = ReplacingExpressionVisitor.Replace(
+                    selector.Parameters[0],
+                    valueBufferVariable,
+                    readValueExpression);
+
+                replacedReadExpression = replacedReadExpression.Type == methodCallExpression.Type
+                    ? replacedReadExpression
+                    : Expression.Convert(replacedReadExpression, methodCallExpression.Type);
+
+                return Expression.Block(
+                    variables: new[] { valueBufferVariable },
+                    Expression.Assign(valueBufferVariable, resultFunc),
+                    Expression.Condition(
+                        Expression.MakeMemberAccess(valueBufferVariable, _valueBufferIsEmpty),
+                        Expression.Default(methodCallExpression.Type),
+                        replacedReadExpression));
             }
 
             // MethodCall translators
@@ -483,6 +487,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var argument in newExpression.Arguments)
             {
                 var newArgument = Visit(argument);
+                if (newArgument == null)
+                {
+                    return null;
+                }
+
                 if (IsConvertedToNullable(newArgument, argument))
                 {
                     newArgument = ConvertToNonNullable(newArgument);
@@ -500,6 +509,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             foreach (var expression in newArrayExpression.Expressions)
             {
                 var newExpression = Visit(expression);
+                if (newExpression == null)
+                {
+                    return null;
+                }
                 if (IsConvertedToNullable(newExpression, expression))
                 {
                     newExpression = ConvertToNonNullable(newExpression);
@@ -514,6 +527,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
         {
             var expression = Visit(memberAssignment.Expression);
+            if (expression == null)
+            {
+                return null;
+            }
             if (IsConvertedToNullable(expression, memberAssignment.Expression))
             {
                 expression = ConvertToNonNullable(expression);
@@ -533,8 +550,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return Visit(entityShaperExpression.ValueBufferExpression);
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                        .GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                    return projectionBindingExpression.ProjectionMember != null
+                        ? ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : null;
 
                 case NullConditionalExpression nullConditionalExpression:
                 {
@@ -581,6 +600,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             var newOperand = Visit(unaryExpression.Operand);
+            if (newOperand == null)
+            {
+                return null;
+            }
 
             if (unaryExpression.NodeType == ExpressionType.Convert
                 && newOperand.Type == unaryExpression.Type)
@@ -610,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     result = innerUnary.Operand;
                 }
                 else if (outerMostType == typeof(object)
-                    && intermediateType == innerMostType.UnwrapNullableType())
+                         && intermediateType == innerMostType.UnwrapNullableType())
                 {
                     result = Expression.Convert(innerUnary.Operand, typeof(object));
                 }
@@ -623,5 +646,4 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private bool TranslationFailed(Expression original, Expression translation)
             => original != null && (translation == null || translation is EntityProjectionExpression);
     }
-
 }

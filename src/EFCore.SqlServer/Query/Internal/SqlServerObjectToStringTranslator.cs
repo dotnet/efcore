@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 { typeof(ulong), "VARCHAR(19)" },
                 { typeof(sbyte), "VARCHAR(4)" }
             };
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerObjectToStringTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -51,11 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                        out var storeType)
                 ? _sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[]
-                    {
-                        _sqlExpressionFactory.Fragment(storeType),
-                        instance
-                    },
+                    new[] { _sqlExpressionFactory.Fragment(storeType), instance },
                     typeof(string))
                 : null;
         }

@@ -7,7 +7,6 @@ using System.Data.Common;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -258,7 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void FromSqlRaw_queryable_composed_compiled()
         {
             var query = EF.CompileQuery(
-                (NorthwindContext context) => context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                (NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
                     .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = query(context).ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = query(context).ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = query(context).ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -354,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select c)
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -367,11 +367,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
                        from o in context.Set<Order>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToArray();
 
                 Assert.Equal(830, actual.Length);
@@ -393,11 +389,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToArray();
 
                 Assert.Equal(411, actual.Length);
@@ -421,11 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToArray();
 
                 Assert.Equal(25, actual.Length);
@@ -442,14 +430,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -496,7 +480,8 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city, contactTitle)
+                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city,
+                        contactTitle)
                     .ToArray();
 
                 Assert.Equal(3, actual.Length);
@@ -566,15 +551,13 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual
-                    = (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                    = (from c in context.Set<Customer>().FromSqlRaw(
+                           NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                        from o in context.Set<Order>().FromSqlInterpolated(
-                           NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
+                           NormalizeDelimetersInInterpolatedString(
+                               $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToArray();
 
                 Assert.Equal(25, actual.Length);
@@ -584,18 +567,16 @@ FROM [Customers]"))
                 endDate = new DateTime(1998, 5, 1);
 
                 actual
-                    = (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                    = (from c in context.Set<Customer>().FromSqlRaw(
+                           NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                        from o in context.Set<Order>().FromSqlInterpolated(
-                           NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
+                           NormalizeDelimetersInInterpolatedString(
+                               $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -612,7 +593,7 @@ FROM [Customers]"))
                             "SELECT * FROM [Employees] WHERE [ReportsTo] = {0} OR ([ReportsTo] IS NULL AND {0} IS NULL)"), reportsTo)
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
             }
         }
 
@@ -624,7 +605,8 @@ FROM [Customers]"))
 
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                var actual = context.Set<Customer>().FromSqlRaw(
+                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                     .Where(c => c.ContactTitle == contactTitle)
                     .ToArray();
 
@@ -639,16 +621,18 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
+                var actual = context.Set<Customer>()
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));
 
-                actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
+                actual = context.Set<Customer>()
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
                     .ToArray();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Seattle"));
             }
         }
@@ -691,7 +675,7 @@ FROM [Customers]"))
                     .ToArray();
 
                 Assert.Equal(91, actual.Length);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -746,7 +730,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         {
             using (var context = CreateContext())
             {
-                var actual = context.Customers.FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
+                var actual = context.Customers
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
@@ -767,7 +752,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArray();
 
-                Assert.Equal(0, actual.Length);
+                Assert.Empty(actual);
             }
         }
 
@@ -778,7 +763,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             {
                 var parameter = CreateDbParameter("@city", "London");
 
-                var actual = context.Customers.FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
+                var actual = context.Customers.FromSqlRaw(
+                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
@@ -793,7 +779,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             {
                 var parameter = CreateDbParameter("city", "London");
 
-                var actual = context.Customers.FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
+                var actual = context.Customers.FromSqlRaw(
+                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
@@ -870,17 +857,18 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             {
                 var parameter = CreateDbParameter("@id", "ALFKI");
 
-                var query = context.Customers.FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @id"), parameter);
+                var query = context.Customers.FromSqlRaw(
+                    NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @id"), parameter);
 
                 // ReSharper disable PossibleMultipleEnumeration
                 var result1 = query.ToList();
 
-                Assert.Equal(1, result1.Count);
+                Assert.Single(result1);
 
                 var result2 = query.ToList();
                 // ReSharper restore PossibleMultipleEnumeration
 
-                Assert.Equal(1, result2.Count);
+                Assert.Single(result2);
             }
         }
 
@@ -894,14 +882,10 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                             from c2 in context.Set<Customer>().FromSqlRaw(
                                     NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'AROUT'"))
                                 .Include(c => c.Orders)
-                            select new
-                            {
-                                c1,
-                                c2
-                            };
+                            select new { c1, c2 };
 
                 var result = query.ToList();
-                Assert.Equal(1, result.Count);
+                Assert.Single(result);
 
                 var customers1 = result.Select(r => r.c1);
                 var customers2 = result.Select(r => r.c2);
@@ -924,14 +908,11 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             {
                 var query = from c in context.Set<Customer>()
                                 .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
-                            join o in context.Set<Order>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderID] <> 1"))
+                            join o in context.Set<Order>().FromSqlRaw(
+                                        NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderID] <> 1"))
                                     .Include(o => o.OrderDetails)
                                 on c.CustomerID equals o.CustomerID
-                            select new
-                            {
-                                c,
-                                o
-                            };
+                            select new { c, o };
 
                 var result = query.ToList();
 
@@ -973,10 +954,11 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var parameter = CreateDbParameter("@somename", "ALFKI");
 
                 var actual = context.Customers
-                    .FromSqlInterpolated(NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
+                    .FromSqlInterpolated(
+                        NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
                     .ToList();
 
-                Assert.Equal(1, actual.Count);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Berlin"));
             }
         }
@@ -989,10 +971,11 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var parameter = CreateDbParameter("somename", "ALFKI");
 
                 var actual = context.Customers
-                    .FromSqlInterpolated(NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
+                    .FromSqlInterpolated(
+                        NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
                     .ToList();
 
-                Assert.Equal(1, actual.Count);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Berlin"));
             }
         }
@@ -1019,7 +1002,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     .Where(
                         o => o.OrderID <= max
                              && context.Orders
-                                 .FromSqlInterpolated(NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                                 .FromSqlInterpolated(
+                                     NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
                                  .Select(i => i.OrderID)
                                  .Contains(o.OrderID))
                     .Select(o => o.OrderID);
@@ -1049,10 +1033,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             {
                 var actual = context.Set<Order>()
                     .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
-                    .Where(o => o.Customer == new Customer
-                     {
-                         CustomerID = "VINET"
-                     })
+                    .Where(o => o.Customer == new Customer { CustomerID = "VINET" })
                     .ToArray();
 
                 Assert.Equal(5, actual.Length);

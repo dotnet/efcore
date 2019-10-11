@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             // Only show SQL when verbose
             if (_categoryName == DbLoggerCategory.Database.Command.Name
-                && eventId.Id == RelationalEventId.CommandExecuted.Id)
+                && eventId.Id == RelationalEventId.CommandExecuting.Id)
             {
                 logLevel = LogLevel.Debug;
             }
