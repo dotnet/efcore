@@ -955,8 +955,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(LogLevel.Debug, logFactory.Log[0].Level);
             Assert.Equal(LogLevel.Debug, logFactory.Log[1].Level);
-            Assert.Equal(LogLevel.Information, logFactory.Log[2].Level);
-            Assert.Equal(LogLevel.Debug, logFactory.Log[3].Level);
+            Assert.Equal(LogLevel.Debug, logFactory.Log[2].Level);
+            Assert.Equal(LogLevel.Information, logFactory.Log[3].Level);
 
             foreach (var (_, _, message, _, _) in logFactory.Log.Skip(2))
             {
@@ -1017,8 +1017,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(),
                 logFactory.Log[2].Message);
 
-            Assert.Equal(LogLevel.Information, logFactory.Log[3].Level);
-            Assert.Equal(LogLevel.Debug, logFactory.Log[4].Level);
+            Assert.Equal(LogLevel.Debug, logFactory.Log[3].Level);
+            Assert.Equal(LogLevel.Information, logFactory.Log[4].Level);
 
             foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
             {

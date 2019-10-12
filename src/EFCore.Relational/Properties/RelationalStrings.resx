@@ -310,11 +310,11 @@
   </data>
   <data name="LogExecutingCommand" xml:space="preserve">
     <value>Executing DbCommand [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
-    <comment>Information RelationalEventId.CommandExecuting string System.Data.CommandType int string string</comment>
+    <comment>Debug RelationalEventId.CommandExecuting string System.Data.CommandType int string string</comment>
   </data>
   <data name="LogExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
-    <comment>Debug RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
+    <comment>Information RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
   </data>
   <data name="LogCommandFailed" xml:space="preserve">
     <value>Failed executing DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
