@@ -243,11 +243,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     entityType = runtimeEntityType;
                 }
 
-                if (entityType.FindPrimaryKey() == null)
-                {
-                    throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
-                }
-
                 entry = _internalEntityEntryFactory.Create(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
