@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberInfo">
         ///     <para>
         ///         The corresponding CLR type member or <c>null</c> for a shadow property.
-        ///     </para> 
+        ///     </para>
         ///     <para>
         ///         An indexer with a <c>string</c> parameter and <c>object</c> return type can be used.
         ///     </para>

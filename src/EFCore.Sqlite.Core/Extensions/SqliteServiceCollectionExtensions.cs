@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Calling this method is no longer necessary when building most applications, including those that
         ///         use dependency injection in ASP.NET or elsewhere.
         ///         It is only needed when building the internal service provider for use with
-        ///         the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider"/> method.
+        ///         the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
         ///         This is not recommend other than for some advanced scenarios.
         ///     </para>
         /// </summary>
@@ -70,7 +70,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqliteQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
-
                 .TryAddProviderSpecificServices(
                     b => b.TryAddScoped<ISqliteRelationalConnection, SqliteRelationalConnection>());
 

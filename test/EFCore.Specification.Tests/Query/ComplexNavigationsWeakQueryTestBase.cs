@@ -14,24 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory(Skip = "issue #8248")]
-        public override Task Required_navigation_on_a_subquery_with_First_in_projection(bool isAsync)
-        {
-            return base.Required_navigation_on_a_subquery_with_First_in_projection(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #8526")]
-        public override Task Select_subquery_with_client_eval_and_navigation1(bool isAsync)
-        {
-            return base.Select_subquery_with_client_eval_and_navigation1(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #8526")]
-        public override Task Select_subquery_with_client_eval_and_navigation2(bool isAsync)
-        {
-            return base.Select_subquery_with_client_eval_and_navigation2(isAsync);
-        }
-
         // Naked instances not supported
         public override Task Entity_equality_empty(bool isAsync)
         {
@@ -99,31 +81,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(
-            bool isAsync)
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(bool isAsync)
         {
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(isAsync);
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(
-            bool isAsync)
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(bool isAsync)
         {
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(isAsync);
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
-        public override void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
+        public override Task SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(bool isAsync)
         {
-            base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany();
+            return base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(isAsync);
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
-        public override Task
-            Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
+        public override Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
         {
-            return base.Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(
-                isAsync);
+            return base.Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -168,6 +146,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Include_collection_with_multiple_orderbys_property(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#17803")]
+        public override Task Member_pushdown_with_multiple_collections(bool isAsync)
+        {
+            return base.Member_pushdown_with_multiple_collections(isAsync);
+        }
+
         // Cannot create DbSet for Level2
         public override void Join_with_navigations_in_the_result_selector2()
         {
@@ -177,8 +161,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void Member_pushdown_chain_3_levels_deep_entity()
+        {
+        }
+
         public override void Member_pushdown_with_collection_navigation_in_the_middle()
         {
+        }
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_inside_subquery(bool isAsync)
+        {
+            return base.Include_inside_subquery(isAsync);
         }
     }
 }

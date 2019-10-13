@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection on which the command will execute. </param>
         /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
-        /// <param name="context"> The current <see cref="DbContext"/> instance, or null if it is not known. </param>
+        /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
         /// <param name="logger"> A logger, or null if no logger is available. </param>
         public RelationalCommandParameterObject(
             [NotNull] IRelationalConnection connection,
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public IReadOnlyDictionary<string, object> ParameterValues { get; }
 
         /// <summary>
-        ///     The current <see cref="DbContext"/> instance, or null if it is not known.
+        ///     The current <see cref="DbContext" /> instance, or null if it is not known.
         /// </summary>
         public DbContext Context { get; }
 

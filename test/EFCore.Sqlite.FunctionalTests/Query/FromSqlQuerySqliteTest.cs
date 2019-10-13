@@ -37,10 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqliteParameter
-            {
-                ParameterName = name,
-                Value = value
-            };
+            => new SqliteParameter { ParameterName = name, Value = value };
     }
 }

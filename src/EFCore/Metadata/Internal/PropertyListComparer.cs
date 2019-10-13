@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -75,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 hash.Add(obj[i]);
             }
+
             return hash.ToHashCode();
         }
     }

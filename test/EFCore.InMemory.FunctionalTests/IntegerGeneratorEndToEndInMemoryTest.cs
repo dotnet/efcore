@@ -41,15 +41,9 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 50; i++)
                 {
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i });
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 context.SaveChanges();
@@ -86,22 +80,16 @@ namespace Microsoft.EntityFrameworkCore
                 for (var i = 0; i < 50; i++)
                 {
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Rainbow Dash " + i
-                        });
+                        new Pegasus { Name = "Rainbow Dash " + i });
                     context.Add(
-                        new Pegasus
-                        {
-                            Name = "Fluttershy " + i
-                        });
+                        new Pegasus { Name = "Fluttershy " + i });
                 }
 
                 await context.SaveChangesAsync();
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #17672")]
         public async Task Can_use_sequence_end_to_end_from_multiple_contexts_concurrently_async()
         {
             var serviceProvider = new ServiceCollection()

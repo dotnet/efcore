@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -169,16 +169,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         }
 
         private static SqlServerBytesReader CreateReader(NtsGeometryServices services, bool isGeography)
-            => new SqlServerBytesReader(services)
-            {
-                IsGeography = isGeography
-            };
+            => new SqlServerBytesReader(services) { IsGeography = isGeography };
 
         private static SqlServerBytesWriter CreateWriter(bool isGeography)
-            => new SqlServerBytesWriter
-            {
-                IsGeography = isGeography
-            };
+            => new SqlServerBytesWriter { IsGeography = isGeography };
 
         private static bool IsGeography(string storeType)
             => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);

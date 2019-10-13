@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var pk = property.FindContainingPrimaryKey();
                 if (pk != null
+                    && (property.ClrType == typeof(int) || ownership.Properties.Contains(property))
                     && pk.Properties.Count == ownership.Properties.Count + (ownership.IsUnique ? 0 : 1)
                     && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
                 {

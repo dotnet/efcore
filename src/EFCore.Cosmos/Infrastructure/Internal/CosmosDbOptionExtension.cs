@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -262,9 +262,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             {
                 Check.NotNull(debugInfo, nameof(debugInfo));
 
-                debugInfo["Cosmos:" + nameof(AccountEndpoint)] = Extension._accountEndpoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Cosmos:" + nameof(AccountEndpoint)] =
+                    Extension._accountEndpoint.GetHashCode().ToString(CultureInfo.InvariantCulture);
                 debugInfo["Cosmos:" + nameof(AccountKey)] = Extension._accountKey.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] = (Extension._region?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
+                debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] =
+                    (Extension._region?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
             }
 
             public override string LogFragment

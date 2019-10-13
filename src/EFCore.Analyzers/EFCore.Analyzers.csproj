@@ -2,13 +2,12 @@
   <PropertyGroup>
     <Description>CSharp Analyzers for Entity Framework Core.</Description>
     <MinClientVersion>3.6</MinClientVersion>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
-    <NetStandard13PlaceholderFile>$(MSBuildThisFileDirectory)lib\netstandard1.3\_._</NetStandard13PlaceholderFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,10 +26,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <NuspecProperty Include="targetFramework=$(TargetFramework)" />
       <NuspecProperty Include="OutputBinary=$(OutputPath)$(AssemblyName).dll" />
       <NuspecProperty Include="OutputSymbol=$(OutputPath)$(AssemblyName).pdb" />
       <NuspecProperty Include="PackageIcon=$(PackageIconFullPath)" />
-      <NuspecProperty Include="NetStandard13PlaceholderFile=$(NetStandard13PlaceholderFile)" />
     </ItemGroup>
   </Target>
 

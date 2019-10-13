@@ -28,7 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         If more than one matching field is found an exception is thrown.
     ///     </para>
     /// </summary>
-    public class BackingFieldConvention : IPropertyAddedConvention, INavigationAddedConvention
+    public class BackingFieldConvention :
+        IPropertyAddedConvention,
+        INavigationAddedConvention,
+        IModelFinalizedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="BackingFieldConvention" />.
@@ -89,8 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var type = propertyBase.DeclaringType.ClrType;
             while (type != null)
             {
-                var fieldInfo = TryMatchFieldName(
-                    propertyBase.DeclaringType.Model, type, propertyBase.ClrType, propertyBase.Name);
+                var fieldInfo = TryMatchFieldName(propertyBase, type);
                 if (fieldInfo != null
                     && (propertyBase.PropertyInfo != null || propertyBase.Name == fieldInfo.GetSimpleMemberName()))
                 {
@@ -103,8 +105,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return null;
         }
 
-        private static FieldInfo TryMatchFieldName(IConventionModel model, Type entityClrType, Type propertyType, string propertyName)
+        private static FieldInfo TryMatchFieldName(IConventionPropertyBase propertyBase, Type entityClrType)
         {
+            var model = propertyBase.DeclaringType.Model;
+            var propertyName = propertyBase.Name;
+
             IReadOnlyDictionary<string, FieldInfo> fields;
             var entityType = model.FindEntityType(entityClrType);
             if (entityType == null)
@@ -128,21 +133,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var sortedFields = fields.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray();
 
-            var typeInfo = propertyType.GetTypeInfo();
 
             var match = TryMatch(sortedFields, "<", propertyName, ">k__BackingField", null, null, entityClrType, propertyName);
             if (match == null)
             {
-                match = TryMatch(sortedFields, propertyName, "", "", typeInfo, null, entityClrType, propertyName);
+                match = TryMatch(sortedFields, propertyName, "", "", propertyBase, null, entityClrType, propertyName);
 
                 var camelPrefix = char.ToLowerInvariant(propertyName[0]).ToString();
                 var camelizedSuffix = propertyName.Substring(1);
 
-                match = TryMatch(sortedFields, camelPrefix, camelizedSuffix, "", typeInfo, match, entityClrType, propertyName);
-                match = TryMatch(sortedFields, "_", camelPrefix, camelizedSuffix, typeInfo, match, entityClrType, propertyName);
-                match = TryMatch(sortedFields, "_", "", propertyName, typeInfo, match, entityClrType, propertyName);
-                match = TryMatch(sortedFields, "m_", camelPrefix, camelizedSuffix, typeInfo, match, entityClrType, propertyName);
-                match = TryMatch(sortedFields, "m_", "", propertyName, typeInfo, match, entityClrType, propertyName);
+                match = TryMatch(sortedFields, camelPrefix, camelizedSuffix, "", propertyBase, match, entityClrType, propertyName);
+                match = TryMatch(sortedFields, "_", camelPrefix, camelizedSuffix, propertyBase, match, entityClrType, propertyName);
+                match = TryMatch(sortedFields, "_", "", propertyName, propertyBase, match, entityClrType, propertyName);
+                match = TryMatch(sortedFields, "m_", camelPrefix, camelizedSuffix, propertyBase, match, entityClrType, propertyName);
+                match = TryMatch(sortedFields, "m_", "", propertyName, propertyBase, match, entityClrType, propertyName);
             }
 
             return match;
@@ -153,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             string prefix,
             string middle,
             string suffix,
-            TypeInfo typeInfo,
+            IConventionPropertyBase propertyBase,
             FieldInfo existingMatch,
             Type entityClrType,
             string propertyName)
@@ -164,6 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return existingMatch;
             }
 
+            var typeInfo = propertyBase?.ClrType.GetTypeInfo();
             var length = prefix.Length + middle.Length + suffix.Length;
             var currentValue = array[index];
             while (true)
@@ -183,9 +188,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         if (existingMatch != null
                             && newMatch != existingMatch)
                         {
-                            throw new InvalidOperationException(
+                            propertyBase.SetOrRemoveAnnotation(
+                                CoreAnnotationNames.AmbiguousField,
                                 CoreStrings.ConflictingBackingFields(
                                     propertyName, entityClrType.ShortDisplayName(), existingMatch.Name, newMatch.Name));
+                            return null;
                         }
 
                         return newMatch;
@@ -240,6 +247,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             return typeInfo.IsAssignableFrom(fieldTypeInfo)
                    || fieldTypeInfo.IsAssignableFrom(typeInfo);
+        }
+
+        /// <summary>
+        ///     Called after a model is finalized.
+        /// </summary>
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelFinalized(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
+        {
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    var ambiguousField = property.FindAnnotation(CoreAnnotationNames.AmbiguousField);
+                    if (ambiguousField != null)
+                    {
+                        if (property.GetFieldName() == null)
+                        {
+                            throw new InvalidOperationException((string)ambiguousField.Value);
+                        }
+                        else
+                        {
+                            property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
+                        }
+                    }
+                }
+            }
         }
     }
 }

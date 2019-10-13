@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
 
                 AssertSql(
                     @"SELECT [m].[Int]
@@ -84,7 +84,7 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_0='02:01:00' (Nullable = true)
 
@@ -107,7 +107,7 @@ WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT N
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -130,7 +130,7 @@ WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOU
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -153,7 +153,7 @@ WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(M
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -176,7 +176,7 @@ WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(S
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -199,7 +199,7 @@ WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -222,7 +222,7 @@ WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
@@ -463,10 +463,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Int = 911
-                    });
+                    new MappedNullableDataTypes { Int = 911 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -1422,10 +1419,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
         private static MappedPrecisionAndScaledDataTypes CreateMappedPrecisionAndScaledDataTypes(int id)
             => new MappedPrecisionAndScaledDataTypes
             {
-                Id = id,
-                DecimalAsDecimal52 = 101.1m,
-                DecimalAsDec52 = 102.2m,
-                DecimalAsNumeric52 = 103.3m
+                Id = id, DecimalAsDecimal52 = 101.1m, DecimalAsDec52 = 102.2m, DecimalAsNumeric52 = 103.3m
             };
 
         [ConditionalFact]
@@ -2185,10 +2179,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
         private static MappedPrecisionAndScaledDataTypesWithIdentity CreateMappedPrecisionAndScaledDataTypesWithIdentity(int id)
             => new MappedPrecisionAndScaledDataTypesWithIdentity
             {
-                Int = id,
-                DecimalAsDecimal52 = 101.1m,
-                DecimalAsDec52 = 102.2m,
-                DecimalAsNumeric52 = 103.3m
+                Int = id, DecimalAsDecimal52 = 101.1m, DecimalAsDec52 = 102.2m, DecimalAsNumeric52 = 103.3m
             };
 
         [ConditionalFact]
@@ -2487,7 +2478,14 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 CreateContext(),
                 nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
+            const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
+AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.AnimalId ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Method ---> [int] [Precision = 10 Scale = 0]
+BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]

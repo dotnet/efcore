@@ -21,6 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IForeignKey FindSharedTableLink([NotNull] this IProperty property)
+            => property.FindSharedTableLink(property.DeclaringEntityType.GetTableName(), property.DeclaringEntityType.GetSchema());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static IForeignKey FindSharedTableLink([NotNull] this IProperty property, string table, string schema)
         {
             var pk = property.FindContainingPrimaryKey();
             if (pk == null)
@@ -40,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var principalEntityType = fk.PrincipalEntityType;
                 var declaringEntityType = fk.DeclaringEntityType;
-                if (declaringEntityType.GetTableName() == principalEntityType.GetTableName()
-                    && declaringEntityType.GetSchema() == principalEntityType.GetSchema())
+                if (table == principalEntityType.GetTableName()
+                    && schema == principalEntityType.GetSchema())
                 {
                     return fk;
                 }

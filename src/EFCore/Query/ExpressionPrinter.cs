@@ -335,8 +335,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Visit(blockExpression.Result);
                     AppendLine(";");
                 }
-
             }
+
             Append("}");
 
             return blockExpression;
@@ -411,9 +411,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             AppendLine("return (" + gotoExpression.Target.Type.ShortDisplayName() + ")" + gotoExpression.Target + " {");
             using (_stringBuilder.Indent())
             {
-
                 Visit(gotoExpression.Value);
             }
+
             _stringBuilder.Append("}");
 
             return gotoExpression;
@@ -508,17 +508,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
             }
+
             AppendLine("}");
 
             return memberInitExpression;
         }
 
-        private static readonly List<string> _simpleMethods = new List<string>
-        {
-            "get_Item",
-            "TryReadValue",
-            "ReferenceEquals"
-        };
+        private static readonly List<string> _simpleMethods = new List<string> { "get_Item", "TryReadValue", "ReferenceEquals" };
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -549,12 +545,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         _stringBuilder.Append(", ");
                     }
+
                     _stringBuilder.Append(genericArgument.ShortDisplayName());
                     first = false;
                 }
 
                 _stringBuilder.Append(">");
             }
+
             _stringBuilder.Append("(");
 
             var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
@@ -841,7 +839,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return extensionExpression;
         }
 
-        private void VisitArguments(IReadOnlyList<Expression> arguments, Action<string> appendAction, string lastSeparator = "", bool areConnected = false)
+        private void VisitArguments(
+            IReadOnlyList<Expression> arguments, Action<string> appendAction, string lastSeparator = "", bool areConnected = false)
         {
             for (var i = 0; i < arguments.Count; i++)
             {

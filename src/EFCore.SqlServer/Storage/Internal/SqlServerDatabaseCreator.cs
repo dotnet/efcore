@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -144,7 +144,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
         private IRelationalCommand CreateHasTablesCommand()
             => _rawSqlCommandBuilder
-                .Build(@"
+                .Build(
+                    @"
 IF EXISTS
     (SELECT *
      FROM [sys].[objects] o
@@ -164,14 +165,7 @@ SELECT 1 ELSE SELECT 0");
         {
             var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
             return Dependencies.MigrationsSqlGenerator.Generate(
-                new[]
-                {
-                    new SqlServerCreateDatabaseOperation
-                    {
-                        Name = builder.InitialCatalog,
-                        FileName = builder.AttachDBFilename
-                    }
-                });
+                new[] { new SqlServerCreateDatabaseOperation { Name = builder.InitialCatalog, FileName = builder.AttachDBFilename } });
         }
 
         /// <summary>
@@ -345,13 +339,7 @@ SELECT 1 ELSE SELECT 0");
                 throw new InvalidOperationException(SqlServerStrings.NoInitialCatalog);
             }
 
-            var operations = new MigrationOperation[]
-            {
-                new SqlServerDropDatabaseOperation
-                {
-                    Name = databaseName
-                }
-            };
+            var operations = new MigrationOperation[] { new SqlServerDropDatabaseOperation { Name = databaseName } };
 
             return Dependencies.MigrationsSqlGenerator.Generate(operations);
         }

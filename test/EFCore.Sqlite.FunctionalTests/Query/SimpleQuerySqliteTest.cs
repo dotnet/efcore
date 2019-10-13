@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -40,12 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => base.Sum_with_division_on_decimal_no_significant_digits(isAsync)))
                 .Message);
         }
-
-        [ConditionalTheory(Skip = "Issue = #17238")]
-        public override Task SelectMany_Joined_Take(bool isAsync) => null;
-
-        [ConditionalTheory(Skip = "Issue = #17239")]
-        public override Task Union_Take_Union_Take(bool isAsync) => null;
 
         // SQLite client-eval
         public override async Task Average_with_division_on_decimal(bool isAsync)
@@ -427,11 +422,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Message);
         }
 
-        public override void KeylessEntity_by_database_view()
-        {
-            // Not present on SQLite
-        }
-
         public override async Task Take_Skip(bool isAsync)
         {
             await base.Take_Skip(isAsync);
@@ -595,7 +585,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (((substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL))) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_StartsWith_Column(bool isAsync)
@@ -605,7 +595,7 @@ WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR ("
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (((substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL))) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_StartsWith_MethodCall(bool isAsync)
@@ -635,7 +625,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%b')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND ((((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL)) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_EndsWith_Column(bool isAsync)
@@ -645,7 +635,7 @@ WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR ("
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND ((((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL)) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = '')))");
         }
 
         public override async Task String_EndsWith_MethodCall(bool isAsync)
@@ -1003,9 +993,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_year_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).Year));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Year));
 
             AssertSql(
                 @"SELECT CAST(strftime('%Y', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS INTEGER)
@@ -1079,9 +1069,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_millisecond_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
 
             AssertSql(
                 @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS REAL) * 1000.0) % 1000.0
@@ -1119,9 +1109,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_TimeOfDay_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
 
             AssertSql(
                 @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years'), '0'), '.')
@@ -1322,11 +1312,45 @@ FROM (
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
 
+        public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync) => null;
+
+        public override Task SelectMany_correlated_subquery_hard(bool isAsync) => null;
+
+        public override Task SelectMany_whose_selector_references_outer_source(bool isAsync) => null;
+
+        public override Task AsQueryable_in_query_server_evals(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
         {
             return base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17223")]
+        public override Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            return base.Like_with_non_string_column_using_ToString(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17239")]
+        public override Task Union_Take_Union_Take(bool isAsync)
+        {
+            return base.Union_Take_Union_Take(isAsync);
+        }
+
+        public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            Assert.Equal(
+                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => new CustomerListItem(        c.CustomerID,         c.City    ).City)"),
+                RemoveNewLines(
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync))).Message));
+        }
+
+        [ConditionalTheory(Skip = "Issue#17230")]
+        public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(isAsync);
         }
 
         private void AssertSql(params string[] expected)

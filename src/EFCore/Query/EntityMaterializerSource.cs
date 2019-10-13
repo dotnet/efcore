@@ -143,10 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             blockExpressions.Add(instanceVariable);
 
             return Expression.Block(
-                new[]
-                {
-                    instanceVariable
-                }, blockExpressions);
+                new[] { instanceVariable }, blockExpressions);
         }
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,6 +13,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
+// ReSharper disable ConvertToAutoProperty
+// ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 // ReSharper disable PossibleMultipleEnumeration
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -795,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var posts = context.Set<TPost>().Where(p => EF.Property<string>(p, property) == postTitle).AsTracking(tracking).ToList();
 
-                Assert.Equal(1, posts.Count);
+                Assert.Single(posts);
 
                 var post = posts.Single(e => e.AccessId == 11);
                 Assert.Equal("Post11", post.AccessTitle);
@@ -809,11 +810,8 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var posts = context.Set<TPost>().Select(
-                    p => new
-                    {
-                        Prop1 = EF.Property<int>(p, property1),
-                        Prop2 = EF.Property<string>(p, property2)
-                    }).AsTracking(tracking).ToList();
+                        p => new { Prop1 = EF.Property<int>(p, property1), Prop2 = EF.Property<string>(p, property2) }).AsTracking(tracking)
+                    .ToList();
 
                 Assert.Equal(4, posts.Count);
 
@@ -926,8 +924,8 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.NotSame(blog1a, blog1b);
                 Assert.Equal(blogName, blog1a.AccessTitle);
                 Assert.Equal(blogName, blog1b.AccessTitle);
-                Assert.Equal(1, blog1a.AccessPosts.Count());
-                Assert.Equal(1, blog1b.AccessPosts.Count());
+                Assert.Single(blog1a.AccessPosts);
+                Assert.Single(blog1b.AccessPosts);
             }
 
             AssertPost(posts.Single(e => e.AccessId == post1Id), post1Id, blog1a);
@@ -1004,7 +1002,6 @@ namespace Microsoft.EntityFrameworkCore
             private List<PostFull> _posts;
 #pragma warning restore 649
 
-            // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
             {
@@ -1012,14 +1009,12 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public string Title
             {
                 get => _title;
                 set => _title = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public IEnumerable<PostFull> Posts
             {
                 get => _posts;
@@ -1062,7 +1057,6 @@ namespace Microsoft.EntityFrameworkCore
             private BlogFull _blog;
 #pragma warning restore 649
 
-            // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
             {
@@ -1070,21 +1064,18 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public string Title
             {
                 get => _title;
                 set => _title = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public int BlogId
             {
                 get => _blogId;
                 set => _blogId = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public BlogFull Blog
             {
                 get => _blog;
@@ -1138,7 +1129,6 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             string IBlogAccessor.AccessTitle
             {
                 get => _title;
@@ -1168,14 +1158,12 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             string IPostAccessor.AccessTitle
             {
                 get => _title;
                 set => _title = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             int IPostAccessor.AccessBlogId
             {
                 get => _blogId;
@@ -1195,7 +1183,6 @@ namespace Microsoft.EntityFrameworkCore
             private string _mytitle;
             private IList<PostFullExplicit> _myposts;
 
-            // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
             {
@@ -1203,14 +1190,12 @@ namespace Microsoft.EntityFrameworkCore
                 set => _myid = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public string Title
             {
                 get => _mytitle;
                 set => _mytitle = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public IEnumerable<PostFullExplicit> Posts
             {
                 get => _myposts;
@@ -1243,7 +1228,6 @@ namespace Microsoft.EntityFrameworkCore
             private int _myblogId;
             private BlogFullExplicit _myblog;
 
-            // ReSharper disable once ConvertToAutoProperty
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id
             {
@@ -1251,21 +1235,18 @@ namespace Microsoft.EntityFrameworkCore
                 set => _myid = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public string Title
             {
                 get => _mytitle;
                 set => _mytitle = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public int BlogId
             {
                 get => _myblogId;
                 set => _myblogId = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             public BlogFullExplicit Blog
             {
                 get => _myblog;
@@ -1303,14 +1284,11 @@ namespace Microsoft.EntityFrameworkCore
             private string _title;
             private ObservableCollection<PostReadOnly> _posts;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id => _id;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public string Title => _title;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public IEnumerable<PostReadOnly> Posts => _posts;
 
             int IBlogAccessor.AccessId
@@ -1339,17 +1317,13 @@ namespace Microsoft.EntityFrameworkCore
             private int _blogId;
             private BlogReadOnly _blog;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id => _id;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public string Title => _title;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public int BlogId => _blogId;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public BlogReadOnly Blog => _blog;
 
             int IPostAccessor.AccessId
@@ -1383,14 +1357,11 @@ namespace Microsoft.EntityFrameworkCore
             private string _mytitle;
             private Collection<PostReadOnlyExplicit> _myposts;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id => _myid;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public string Title => _mytitle;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public IEnumerable<PostReadOnlyExplicit> Posts => _myposts;
 
             int IBlogAccessor.AccessId
@@ -1419,17 +1390,13 @@ namespace Microsoft.EntityFrameworkCore
             private int _myblogId;
             private BlogReadOnlyExplicit _myblog;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id => _myid;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public string Title => _mytitle;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public int BlogId => _myblogId;
 
-            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public BlogReadOnlyExplicit Blog => _myblog;
 
             int IPostAccessor.AccessId
@@ -1660,7 +1627,6 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             string IBlogAccessor.AccessTitle
             {
                 get => _title;
@@ -1690,14 +1656,12 @@ namespace Microsoft.EntityFrameworkCore
                 set => _id = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             string IPostAccessor.AccessTitle
             {
                 get => _title;
                 set => _title = value;
             }
 
-            // ReSharper disable once ConvertToAutoProperty
             int IPostAccessor.AccessBlogId
             {
                 get => _blogId;
@@ -1732,49 +1696,24 @@ namespace Microsoft.EntityFrameworkCore
             where TPost : IPostAccessor, new()
         {
             posts.Add(
-                new TPost
-                {
-                    AccessId = 10, AccessTitle = "Post10"
-                });
+                new TPost { AccessId = 10, AccessTitle = "Post10" });
 
             posts.Add(
-                new TPost
-                {
-                    AccessId = 11, AccessTitle = "Post11"
-                });
+                new TPost { AccessId = 11, AccessTitle = "Post11" });
 
-            return new TBlog
-            {
-                AccessId = 10,
-                AccessTitle = "Blog10",
-                AccessPosts = (IEnumerable<IPostAccessor>)posts
-            };
+            return new TBlog { AccessId = 10, AccessTitle = "Blog10", AccessPosts = (IEnumerable<IPostAccessor>)posts };
         }
 
         protected static IList<TPost> CreatePostsAndBlog<TBlog, TPost>()
             where TBlog : IBlogAccessor, new()
             where TPost : IPostAccessor, new()
         {
-            var blog = new TBlog
-            {
-                AccessId = 20,
-                AccessTitle = "Blog20"
-            };
+            var blog = new TBlog { AccessId = 20, AccessTitle = "Blog20" };
 
             return new List<TPost>
             {
-                new TPost
-                {
-                    AccessId = 20,
-                    AccessTitle = "Post20",
-                    AccessBlog = blog
-                },
-                new TPost
-                {
-                    AccessId = 21,
-                    AccessTitle = "Post21",
-                    AccessBlog = blog
-                }
+                new TPost { AccessId = 20, AccessTitle = "Post20", AccessBlog = blog },
+                new TPost { AccessId = 21, AccessTitle = "Post21", AccessBlog = blog }
             };
         }
 
@@ -2079,14 +2018,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     context.Add(
-                        new LoginSession
-                        {
-                            User = new User2(),
-                            Users = new List<User2>
-                            {
-                                new User2()
-                            }
-                        });
+                        new LoginSession { User = new User2(), Users = new List<User2> { new User2() } });
 
                     context.SaveChanges();
                 }
