@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             private readonly ISnapshot _values;
 
-            public SidecarValues(InternalEntityEntry entry)
+            public SidecarValues(ISnapshot valuesFactory)
             {
-                _values = ((EntityType)entry.EntityType).SidecarValuesFactory(entry);
+                _values = valuesFactory;
             }
 
             public bool TryGetValue(int index, out object value)
