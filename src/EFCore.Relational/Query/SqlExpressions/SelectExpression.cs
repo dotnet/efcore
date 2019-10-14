@@ -477,6 +477,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             select1._identifier.AddRange(_identifier);
             _identifier.Clear();
 
+            if (select1.Orderings.Count != 0
+                || select1.Limit != null
+                || select1.Offset != null)
+            {
+                select1.PushdownIntoSubquery();
+                select1.ClearOrdering();
+            }
+
+            if (select2.Orderings.Count != 0
+                || select2.Limit != null
+                || select2.Offset != null)
+            {
+                select2.PushdownIntoSubquery();
+                select2.ClearOrdering();
+            }
+
             var setExpression = (SetOperationBase)(setOperationType switch
             {
                 SetOperationType.Except => new ExceptExpression("t", select1, select2, distinct),

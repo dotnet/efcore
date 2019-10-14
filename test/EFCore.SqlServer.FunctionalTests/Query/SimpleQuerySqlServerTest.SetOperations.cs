@@ -176,28 +176,31 @@ WHERE CHARINDEX(N'Thomas', [c1].[ContactName]) > 0");
             AssertSql(
                 @"@__p_0='1'
 
-SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+SELECT [t2].[CustomerID], [t2].[Address], [t2].[City], [t2].[CompanyName], [t2].[ContactName], [t2].[ContactTitle], [t2].[Country], [t2].[Fax], [t2].[Phone], [t2].[PostalCode], [t2].[Region]
 FROM (
-    SELECT TOP(@__p_0) [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+    SELECT TOP(@__p_0) [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
     FROM (
-        SELECT TOP(@__p_0) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+        SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
         FROM (
-            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-            FROM [Customers] AS [c]
-            WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
-            UNION
-            SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-            FROM [Customers] AS [c0]
-            WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
-        ) AS [t]
-        ORDER BY [t].[CustomerID]
+            SELECT TOP(@__p_0) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+            FROM (
+                SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                FROM [Customers] AS [c]
+                WHERE ([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL
+                UNION
+                SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+                FROM [Customers] AS [c0]
+                WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
+            ) AS [t]
+            ORDER BY [t].[CustomerID]
+        ) AS [t0]
         UNION
         SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
         FROM [Customers] AS [c1]
         WHERE ([c1].[City] = N'Mannheim') AND [c1].[City] IS NOT NULL
-    ) AS [t0]
-) AS [t1]
-ORDER BY [t1].[CustomerID]");
+    ) AS [t1]
+) AS [t2]
+ORDER BY [t2].[CustomerID]");
         }
 
         public override async Task Select_Union(bool isAsync)
@@ -459,6 +462,28 @@ FROM [Orders] AS [o0]";
                         throw new ArgumentException("Unexpected type: " + expressionType);
                 }
             }
+        }
+
+        public override async Task OrderBy_Take_Union(bool isAsync)
+        {
+            await base.OrderBy_Take_Union(isAsync);
+
+            AssertSql(
+                @"@__p_0='1'
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[ContactName]
+) AS [t]
+UNION
+SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM (
+    SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    ORDER BY [c0].[ContactName]
+) AS [t0]");
         }
     }
 }
