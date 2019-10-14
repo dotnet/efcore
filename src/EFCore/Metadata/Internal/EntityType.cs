@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Func<InternalEntityEntry, ISnapshot> _relationshipSnapshotFactory;
         private Func<InternalEntityEntry, ISnapshot> _originalValuesFactory;
-        private Func<InternalEntityEntry, ISnapshot> _sidecarValuesFactory;
+        private Func<InternalEntityEntry, ISnapshot> _temporaryValuesFactory;
+        private Func<InternalEntityEntry, ISnapshot> _storeGeneratedValuesFactory;
         private Func<ValueBuffer, ISnapshot> _shadowValuesFactory;
         private Func<ISnapshot> _emptyShadowValuesFactory;
 
@@ -2042,10 +2043,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<InternalEntityEntry, ISnapshot> SidecarValuesFactory
+        public virtual Func<InternalEntityEntry, ISnapshot> StoreGeneratedValuesFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _sidecarValuesFactory, this,
+                ref _storeGeneratedValuesFactory, this,
                 entityType => new SidecarValuesFactoryFactory().Create(entityType));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Func<InternalEntityEntry, ISnapshot> TemporaryValuesFactory
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _temporaryValuesFactory, this,
+                entityType => new TemporaryValuesFactoryFactory().Create(entityType));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

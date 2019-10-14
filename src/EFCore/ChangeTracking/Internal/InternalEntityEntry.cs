@@ -911,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_temporaryValues.IsEmpty)
             {
-                _temporaryValues = new SidecarValues(this);
+                _temporaryValues = new SidecarValues(((EntityType)EntityType).TemporaryValuesFactory(this));
             }
         }
 
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.IsEmpty)
             {
-                _storeGeneratedValues = new SidecarValues(this);
+                _storeGeneratedValues = new SidecarValues(((EntityType)EntityType).StoreGeneratedValuesFactory(this));
             }
         }
 
@@ -1141,6 +1141,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (valueType == CurrentValueType.Normal)
                     {
                         WritePropertyValue(propertyBase, value, isMaterialization);
+
+                        if (currentValueType != CurrentValueType.Normal
+                            && !_temporaryValues.IsEmpty
+                            && equals(value, asProperty.ClrType.GetDefaultValue()))
+                        {
+                            var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                            _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
+                        }
                     }
                     else
                     {

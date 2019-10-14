@@ -24,6 +24,58 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         [ConditionalTheory]
+        [InlineData((int)ChangeMechanism.Fk)]
+        [InlineData((int)ChangeMechanism.Dependent)]
+        [InlineData((int)(ChangeMechanism.Dependent | ChangeMechanism.Fk))]
+        public virtual void Changes_to_Added_relationships_are_picked_up(ChangeMechanism changeMechanism)
+        {
+            var id = 0;
+
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entity = new OptionalSingle1();
+
+                    if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                    {
+                        entity.RootId = 5545;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                    {
+                        entity.Root = new Root();
+                    }
+
+                    context.Add(entity);
+
+                    if ((changeMechanism & ChangeMechanism.Fk) != 0)
+                    {
+                        entity.RootId = null;
+                    }
+
+                    if ((changeMechanism & ChangeMechanism.Dependent) != 0)
+                    {
+                        entity.Root = null;
+                    }
+
+                    context.ChangeTracker.DetectChanges();
+
+                    Assert.Null(entity.RootId);
+                    Assert.Null(entity.Root);
+
+                    context.SaveChanges();
+
+                    id = entity.Id;
+                },
+                context =>
+                {
+                    var entity = context.Set<OptionalSingle1>().Include(e => e.Root).Single(e => e.Id == id);
+                    Assert.Null(entity.Root);
+                    Assert.Null(entity.RootId);
+                });
+        }
+
+        [ConditionalTheory]
         [InlineData(false, CascadeTiming.OnSaveChanges)]
         [InlineData(false, CascadeTiming.Immediate)]
         [InlineData(false, CascadeTiming.Never)]
