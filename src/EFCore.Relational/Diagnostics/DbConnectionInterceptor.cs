@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     Called just before EF intends to call <see cref="DbConnection.CloseAsync()" /> in an async context.
+        ///     Called just before EF intends to call <see cref="M:System.Data.Common.DbConnection.CloseAsync" /> in an async context.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Called just after EF has called <see cref="DbConnection.CloseAsync()" />.
+        ///     Called just after EF has called <see cref="M:System.Data.Common.DbConnection.CloseAsync" />.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about the connection. </param>

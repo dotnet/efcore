@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             static bool IsTransient(HttpStatusCode statusCode)
                 => statusCode == HttpStatusCode.ServiceUnavailable
-                       || statusCode == HttpStatusCode.TooManyRequests;
+                       || statusCode == (HttpStatusCode)429; // TooManyRequests
         }
 
         /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private const string StateAnnotationName = "NonNullableConventionState";
         private const string NullableAttributeFullName = "System.Runtime.CompilerServices.NullableAttribute";
         private const string NullableContextAttributeFullName = "System.Runtime.CompilerServices.NullableContextAttribute";
+        private const string MaybeNullAttributeFullName = "System.Diagnostics.CodeAnalysis.MaybeNullAttribute";
 
         /// <summary>
         ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
@@ -59,8 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             // First check for [MaybeNull] on the return value. If it exists, the member is nullable.
             var isMaybeNull = memberInfo switch
             {
-                FieldInfo f => f.GetCustomAttribute<MaybeNullAttribute>() != null,
-                PropertyInfo p => p.GetMethod?.ReturnParameter?.GetCustomAttribute<MaybeNullAttribute>() != null,
+                FieldInfo f => f.CustomAttributes.Any(a => a.AttributeType.FullName == MaybeNullAttributeFullName),
+                PropertyInfo p => p.GetMethod?.ReturnParameter?.CustomAttributes
+                    .FirstOrDefault(a => a.AttributeType.FullName == MaybeNullAttributeFullName) != null,
                 _ => false
             };
 

@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             else
             {
                 builder.Append("new { ");
-                builder.AppendJoin(", ", properties.Select(p => "x." + p));
+                builder.Append(string.Join(", ", properties.Select(p => "x." + p)));
                 builder.Append(" }");
             }
 

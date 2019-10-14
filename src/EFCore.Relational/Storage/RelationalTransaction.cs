@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (_transactionOwned)
                 {
-                    await _dbTransaction.DisposeAsync();
+                    await _dbTransaction.DisposeAsyncIfAvailable();
 
                     Logger.TransactionDisposed(
                         Connection,

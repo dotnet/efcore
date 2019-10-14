@@ -166,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     if (!interceptionResult.IsSuppressed)
                     {
-                        await _reader.DisposeAsync();
+                        await _reader.DisposeAsyncIfAvailable();
                         _command.Parameters.Clear();
-                        await _command.DisposeAsync();
+                        await _command.DisposeAsyncIfAvailable();
                         await _connection.CloseAsync();
                     }
                 }

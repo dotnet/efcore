@@ -778,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (_connectionOwned
                 && _connection != null)
             {
-                await DbConnection.DisposeAsync();
+                await DbConnection.DisposeAsyncIfAvailable();
                 _connection = null;
                 _openedCount = 0;
             }

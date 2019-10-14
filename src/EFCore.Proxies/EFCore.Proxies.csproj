@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Lazy-loading proxies for EF Core.</Description>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Proxies</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>

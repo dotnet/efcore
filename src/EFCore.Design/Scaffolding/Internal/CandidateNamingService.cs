@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             return commonPrefix.Length > 2
                    && commonPrefix.EndsWith("id", StringComparison.OrdinalIgnoreCase)
-                ? commonPrefix[..^2]
+                ? commonPrefix.Substring(0, commonPrefix.Length - 2)
                 : commonPrefix;
         }
     }

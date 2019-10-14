@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                     var schemaFilterBuilder = new StringBuilder();
                     schemaFilterBuilder.Append(s);
                     schemaFilterBuilder.Append(" IN (");
-                    schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
+                    schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
                     schemaFilterBuilder.Append(")");
                     return schemaFilterBuilder.ToString();
                 })
@@ -262,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                         {
                             tableFilterBuilder.Append(t);
                             tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
                             tableFilterBuilder.Append(")");
                         }
 
@@ -276,13 +276,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                             tableFilterBuilder.Append(t);
                             tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
                             tableFilterBuilder.Append(") AND (");
                             tableFilterBuilder.Append(s);
                             tableFilterBuilder.Append(" + N'.' + ");
                             tableFilterBuilder.Append(t);
                             tableFilterBuilder.Append(") IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
                             tableFilterBuilder.Append(")");
                         }
                     }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
@@ -47,14 +48,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             try
             {
 #if NET461
-                return new AppDomainOperationExecutor(
-                    _assembly.Value(),
-                    _startupAssembly.Value(),
-                    _projectDir.Value(),
-                    _dataDir.Value(),
-                    _rootNamespace.Value(),
-                    _language.Value());
-#elif NETCOREAPP2_0
+                try
+                {
+                    return new AppDomainOperationExecutor(
+                        _assembly.Value(),
+                        _startupAssembly.Value(),
+                        _projectDir.Value(),
+                        _dataDir.Value(),
+                        _rootNamespace.Value(),
+                        _language.Value());
+                }
+                catch (MissingMethodException) // NB: Thrown with EF Core 3.1
+                {
+                }
+#elif !NETCOREAPP2_0
+#error target frameworks need to be updated.
+#endif
                 return new ReflectionOperationExecutor(
                     _assembly.Value(),
                     _startupAssembly.Value(),
@@ -62,9 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _dataDir.Value(),
                     _rootNamespace.Value(),
                     _language.Value());
-#else
-#error target frameworks need to be updated.
-#endif
             }
             catch (FileNotFoundException ex)
                 when (new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)

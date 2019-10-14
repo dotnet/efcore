@@ -40,6 +40,8 @@
     <MicrosoftExtensionsLoggingPackageVersion>3.1.0-preview2.19501.2</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
+    <MicrosoftBclAsyncInterfacesVersion>1.1.0-preview1.19470.8</MicrosoftBclAsyncInterfacesVersion>
+    <MicrosoftBclHashCodeVersion>1.1.0-preview1.19470.8</MicrosoftBclHashCodeVersion>
     <MicrosoftCSharpPackageVersion>4.7.0-preview1.19470.8</MicrosoftCSharpPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.7.0-preview1.19470.8</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.7.0-preview1.19470.8</SystemComponentModelAnnotationsPackageVersion>
