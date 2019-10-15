@@ -488,5 +488,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             "Column", "Function", "Constant", "Unary", "Binary", "ScalarSubquery"
         };
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Take_Union(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync, ss => ss.Set<Customer>()
+                    .OrderBy(c => c.ContactName)
+                    .Take(1)
+                    .Union(ss.Set<Customer>()
+                        .OrderBy(c => c.ContactName)
+                        .Take(1)),
+                entryCount: 1,
+                assertOrder: true);
+        }
     }
 }

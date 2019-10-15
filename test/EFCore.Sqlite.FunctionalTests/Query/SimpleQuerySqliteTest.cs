@@ -1332,12 +1332,6 @@ FROM (
             return base.Like_with_non_string_column_using_ToString(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue#17239")]
-        public override Task Union_Take_Union_Take(bool isAsync)
-        {
-            return base.Union_Take_Union_Take(isAsync);
-        }
-
         public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
         {
             Assert.Equal(

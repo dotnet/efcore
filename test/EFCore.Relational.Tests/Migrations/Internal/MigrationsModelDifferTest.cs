@@ -7948,6 +7948,150 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 });
         }
 
+        [ConditionalFact]
+        public void Construction_of_shadow_values_buffer_account_for_shadow_navigations_1()
+        {
+            Execute(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("LevelId");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(new { Id = 1, UserId = 1, LevelId = 1 });
+                        })
+                    .Entity("BaseType")
+                        .HasOne("User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId"),
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("LevelId");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(new { Id = 1, UserId = 1, LevelId = 1 });
+                        })
+                    .Entity("BaseType")
+                        .HasOne("User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId"),
+                ops => { });
+        }
+
+        [ConditionalFact]
+        public void Construction_of_shadow_values_buffer_account_for_shadow_navigations_2()
+        {
+            Execute(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("Level1Id");
+                            b.Property<double>("Level2Id");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(new { Id = 1, UserId = 1, Level1Id = 1, Level2Id = 1.0 });
+                        })
+                    .Entity("BaseType")
+                        .HasOne("User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId"),
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("Level1Id");
+                            b.Property<double>("Level2Id");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(new { Id = 1, UserId = 1, Level1Id = 1, Level2Id = 1.0 });
+                        })
+                    .Entity("BaseType")
+                        .HasOne("User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId"),
+                ops => { });
+        }
+
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;
     }
 }
