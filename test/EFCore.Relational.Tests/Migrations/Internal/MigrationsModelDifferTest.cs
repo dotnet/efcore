@@ -8048,7 +8048,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             b.HasBaseType("BaseType");
                             b.Property<int>("Level1Id");
-                            b.Property<decimal>("Level2Id");
+                            b.Property<double>("Level2Id");
                             b.HasDiscriminator().HasValue("DerivedType");
                             b.HasData(new { Id = 1, UserId = 1, Level1Id = 1, Level2Id = 1.0 });
                         })
