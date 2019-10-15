@@ -149,9 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         }
 
         public override void Clean(DbContext context)
-        {
-            CleanAsync(context).GetAwaiter().GetResult();
-        }
+            => CleanAsync(context).GetAwaiter().GetResult();
 
         public override async Task CleanAsync(DbContext context)
         {

@@ -109,6 +109,7 @@ stages:
                   parallel: true
 
           - job: Linux
+            timeoutInMinutes: 120
             pool:
               vmImage: ubuntu-16.04
             variables:
