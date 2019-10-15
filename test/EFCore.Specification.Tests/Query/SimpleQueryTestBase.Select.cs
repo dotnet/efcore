@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -87,6 +88,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID).Where(o => o.OrderID < 10300)
                     .Select(o => new object[] { o, o.Customer }),
                 entryCount: 87,
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_of_entity_type_into_object_list(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Select(c => new List<object> { c }),
+                entryCount: 91,
                 assertOrder: true);
         }
 

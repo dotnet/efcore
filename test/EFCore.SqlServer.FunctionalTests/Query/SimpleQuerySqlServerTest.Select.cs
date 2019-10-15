@@ -102,6 +102,15 @@ WHERE [o].[OrderID] < 10300
 ORDER BY [o].[OrderID]");
         }
 
+        public override async Task Projection_of_entity_type_into_object_list(bool isAsync)
+        {
+            await base.Projection_of_entity_type_into_object_list(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]");
+        }
+
         public override async Task Project_to_int_array(bool isAsync)
         {
             await base.Project_to_int_array(isAsync);
