@@ -1515,9 +1515,20 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Fax""] = null))");
         }
 
-        public override async Task Where_expression_invoke(bool isAsync)
+        public override async Task Where_expression_invoke_1(bool isAsync)
         {
-            await base.Where_expression_invoke(isAsync);
+            await base.Where_expression_invoke_1(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_expression_invoke_2(bool isAsync)
+        {
+            await base.Where_expression_invoke_2(isAsync);
 
             AssertSql(
                 @"SELECT c
