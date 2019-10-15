@@ -162,36 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                if (!TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result))
-                {
-                    throw new InvalidOperationException($"Property {propertyName} not found on {source}");
-                }
-
-                return result;
+                return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result)
+                    ? result
+                    : null;
             }
-
-            //if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
-            //{
-            //    var translation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
-            //    var subquery = (SelectExpression)translation.QueryExpression;
-            //    subquery.ApplyProjection();
-
-            //    if (methodCallExpression.Method.Name == nameof(Queryable.Any)
-            //        || methodCallExpression.Method.Name == nameof(Queryable.All)
-            //        || methodCallExpression.Method.Name == nameof(Queryable.Contains))
-            //    {
-            //        if (subquery.Tables.Count == 0
-            //            && subquery.Projection.Count == 1)
-            //        {
-            //            return subquery.Projection[0].Expression;
-            //        }
-
-            //        throw new InvalidOperationException();
-            //    }
-
-            //    return new SubSelectExpression(subquery);
-            //}
 
             var @object = Visit(methodCallExpression.Object);
             if (TranslationFailed(methodCallExpression.Object, @object))
@@ -340,15 +314,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         return sqlOperand;
                     }
-
-                    //// Introduce explicit cast only if the target type is mapped else we need to client eval
-                    //if (unaryExpression.Type == typeof(object)
-                    //    || _sqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
-                    //{
-                    //    sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
-
-                    //    return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
-                    //}
 
                     break;
             }

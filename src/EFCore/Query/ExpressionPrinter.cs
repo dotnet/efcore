@@ -545,28 +545,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var methodArguments = methodCallExpression.Arguments.ToList();
+            var method = methodCallExpression.Method;
 
             // TODO: issue #18413
-            var simplifiedMethod = !GenerateUniqueParameterIds
+            var extensionMethod = !GenerateUniqueParameterIds
                 && methodCallExpression.Arguments.Count > 0
-                && methodCallExpression.Method.IsDefined(typeof(ExtensionAttribute), inherit: false);
+                && method.IsDefined(typeof(ExtensionAttribute), inherit: false);
 
-            if (simplifiedMethod)
+            if (extensionMethod)
             {
                 Visit(methodArguments[0]);
                 _stringBuilder.IncrementIndent();
                 _stringBuilder.AppendLine();
-                _stringBuilder.Append($".{methodCallExpression.Method.Name}");
+                _stringBuilder.Append($".{method.Name}");
                 methodArguments = methodArguments.Skip(1).ToList();
             }
             else
             {
-                _stringBuilder.Append(methodCallExpression.Method.Name);
-                if (methodCallExpression.Method.IsGenericMethod)
+                if (method.IsStatic)
+                {
+                    _stringBuilder.Append(method.DeclaringType.ShortDisplayName()).Append(".");
+                }
+
+                _stringBuilder.Append(method.Name);
+                if (method.IsGenericMethod)
                 {
                     _stringBuilder.Append("<");
                     var first = true;
-                    foreach (var genericArgument in methodCallExpression.Method.GetGenericArguments())
+                    foreach (var genericArgument in method.GetGenericArguments())
                     {
                         if (!first)
                         {
@@ -583,9 +589,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _stringBuilder.Append("(");
 
-            var isSimpleMethodOrProperty = _simpleMethods.Contains(methodCallExpression.Method.Name)
+            var isSimpleMethodOrProperty = _simpleMethods.Contains(method.Name)
                 || methodArguments.Count < 2
-                || methodCallExpression.Method.IsEFPropertyMethod();
+                || method.IsEFPropertyMethod();
 
             var appendAction = isSimpleMethodOrProperty ? (Action<string>)Append : AppendLine;
 
@@ -595,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var argumentNames
                     = !isSimpleMethodOrProperty
-                        ? methodCallExpression.Method.GetParameters().Select(p => p.Name).ToList()
+                        ? method.GetParameters().Select(p => p.Name).ToList()
                         : new List<string>();
 
                 IDisposable indent = null;
@@ -630,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Append(")");
 
-            if (simplifiedMethod)
+            if (extensionMethod)
             {
                 _stringBuilder.DecrementIndent();
             }

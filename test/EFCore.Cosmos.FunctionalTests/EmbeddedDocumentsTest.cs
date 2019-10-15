@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 {
     public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosFixture>
     {
-        private const string DatabaseName = "NestedDocumentsTest";
+        private const string DatabaseName = "EmbeddedDocumentsTest";
 
         protected CosmosFixture Fixture { get; }
 
@@ -120,7 +120,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             using (var context = new EmbeddedTransportationContext(options))
             {
                 context.Add(new Person { Id = 1 });
-                existingAddress1Person2 = new Address { Street = "Second", City = "Village" };
+                existingAddress1Person2 = new Address
+                {
+                    Street = "Second",
+                    City = "Village",
+                    Notes = new[] { new Note { Content = "First note" }, new Note { Content = "Second note" } }
+                };
                 context.Add(new Person { Id = 2, Addresses = new[] { existingAddress1Person2 } });
                 existingAddress1Person3 = new Address { Street = "First", City = "City" };
                 existingAddress2Person3 = new Address { Street = "Second", City = "City" };
@@ -158,16 +163,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new EmbeddedTransportationContext(options))
             {
-                var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
+                var peopleBase = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
+                var people = peopleBase.Cast<Person>().ToList();
                 var addresses = people[0].Addresses.ToList();
                 Assert.Equal(addedAddress1.Street, addresses.Single().Street);
                 Assert.Equal(addedAddress1.City, addresses.Single().City);
+                Assert.Equal(addedAddress1.Notes, addresses.Single().Notes);
 
                 addresses = people[1].Addresses.ToList();
                 Assert.Equal(2, addresses.Count);
 
                 Assert.Equal(existingAddress1Person2.Street, addresses[0].Street);
                 Assert.Equal(existingAddress1Person2.City, addresses[0].City);
+                Assert.Equal(
+                    existingAddress1Person2.Notes.OrderBy(n => n.Content).Select(n => n.Content),
+                    addresses[0].Notes.OrderBy(n => n.Content).Select(n => n.Content));
 
                 Assert.Equal(addedAddress2.Street, addresses[1].Street);
                 Assert.Equal(addedAddress2.City, addresses[1].City);
@@ -177,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
 
                 Assert.Equal("Second", addressJson[nameof(Address.Street)]);
-                Assert.Equal(3, addressJson.Count);
+                Assert.Equal(4, addressJson.Count);
                 Assert.Equal(2, addressJson["unmappedId"]);
 
                 addresses = people[2].Addresses.ToList();
@@ -264,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public virtual async Task Can_query_just_nested_reference()
+        public virtual async Task Can_query_just_embedded_reference()
         {
             var options = Fixture.CreateOptions();
             using (var context = new EmbeddedTransportationContext(options))
@@ -278,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public virtual async Task Can_query_just_nested_collection()
+        public virtual async Task Can_query_just_embedded_collection()
         {
             var options = Fixture.CreateOptions(seed: false);
 
@@ -477,18 +487,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 modelBuilder.Ignore<SolidFuelTank>();
                 modelBuilder.Ignore<SolidRocket>();
 
+                modelBuilder.Entity<PersonBase>();
                 modelBuilder.Entity<Person>(
                     eb => eb.OwnsMany(
                         v => v.Addresses, b =>
                         {
                             b.ToJsonProperty("Stored Addresses");
+                            b.OwnsMany(a => a.Notes);
                         }));
             }
         }
 
-        private class Person
+        private abstract class PersonBase
         {
             public int Id { get; set; }
+        }
+
+        private class Person : PersonBase
+        {
             public ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
         }
 
@@ -496,6 +512,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             public string Street { get; set; }
             public string City { get; set; }
+            public ICollection<Note> Notes { get; set; } = new HashSet<Note>();
+        }
+
+        public class Note
+        {
+            public string Content { get; set; }
         }
     }
 }
