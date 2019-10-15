@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
         {
-            var (i, j) = (0, 0);
+            var i = 0;
             var valuesArray = new object[entityType.PropertyCount()];
             var shadowPropertyValuesArray = new object[entityType.ShadowPropertyCount()];
             foreach (var property in entityType.GetProperties())
@@ -280,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (property.IsShadowProperty())
                 {
-                    shadowPropertyValuesArray[j++] = values.TryGetValue(property.Name, out var shadowValue)
+                    shadowPropertyValuesArray[property.GetShadowIndex()] = values.TryGetValue(property.Name, out var shadowValue)
                         ? shadowValue
                         : property.ClrType.GetDefaultValue();
                 }
