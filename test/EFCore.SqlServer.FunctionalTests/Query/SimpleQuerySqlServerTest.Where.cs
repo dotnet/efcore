@@ -1270,14 +1270,25 @@ FROM [Customers] AS [c]
 WHERE [c].[Fax] IS NULL");
         }
 
-        public override async Task Where_expression_invoke(bool isAsync)
+        public override async Task Where_expression_invoke_1(bool isAsync)
         {
-            await base.Where_expression_invoke(isAsync);
+            await base.Where_expression_invoke_1(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task Where_expression_invoke_2(bool isAsync)
+        {
+            await base.Where_expression_invoke_2(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IS NOT NULL");
         }
 
         public override async Task Where_concat_string_int_comparison1(bool isAsync)
