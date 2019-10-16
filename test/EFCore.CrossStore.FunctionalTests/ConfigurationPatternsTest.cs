@@ -14,7 +14,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerConfiguredCondition]
-    public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>
+    public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisposable
     {
         public ConfigurationPatternsTest(CrossStoreFixture fixture)
         {
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
         [SqlServerConfiguredCondition]
-        public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>
+        public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IDisposable
         {
             public NestedContextDifferentStores(CrossStoreFixture fixture)
             {
