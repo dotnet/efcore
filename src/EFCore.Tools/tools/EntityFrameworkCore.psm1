@@ -172,7 +172,7 @@ function Get-DbContext
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
 
-    if ($Context)
+    if ($PSBoundParameters.ContainsKey('Context'))
     {
        $params = 'dbcontext', 'info', '--json'
        $params += GetParams $Context
