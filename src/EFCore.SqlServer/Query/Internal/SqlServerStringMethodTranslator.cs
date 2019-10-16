@@ -284,23 +284,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.
-            // For StartsWith we also first run a LIKE to quickly filter out most non-matching results (sargable, but imprecise
-            // because of wildchars).
             if (startsWith)
             {
-                return _sqlExpressionFactory.AndAlso(
-                    _sqlExpressionFactory.Like(
-                        instance,
-                        _sqlExpressionFactory.Add(
-                            instance,
-                            _sqlExpressionFactory.Constant("%"))),
-                    _sqlExpressionFactory.Equal(
+                return _sqlExpressionFactory.Equal(
                         _sqlExpressionFactory.Function(
                             "LEFT",
                             new[] { instance, _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int)) },
                             typeof(string),
                             stringTypeMapping),
-                        pattern));
+                        pattern);
             }
 
             return _sqlExpressionFactory.Equal(

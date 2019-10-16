@@ -58,7 +58,7 @@ SELECT [c].[CompanyName], (
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AS [OrderCount], @__ef_filter___searchTerm_0 AS [SearchTerm]
 FROM [Customers] AS [c]
-WHERE (((@__ef_filter___searchTerm_1 = N'') AND @__ef_filter___searchTerm_1 IS NOT NULL) OR ([c].[CompanyName] IS NOT NULL AND (@__ef_filter___searchTerm_1 IS NOT NULL AND (([c].[CompanyName] LIKE [c].[CompanyName] + N'%') AND (((LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1) AND (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) IS NOT NULL AND @__ef_filter___searchTerm_1 IS NOT NULL)) OR (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) IS NULL AND @__ef_filter___searchTerm_1 IS NULL)))))) AND ((
+WHERE (((@__ef_filter___searchTerm_1 = N'') AND @__ef_filter___searchTerm_1 IS NOT NULL) OR ([c].[CompanyName] IS NOT NULL AND (@__ef_filter___searchTerm_1 IS NOT NULL AND (((LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1) AND (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) IS NOT NULL AND @__ef_filter___searchTerm_1 IS NOT NULL)) OR (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) IS NULL AND @__ef_filter___searchTerm_1 IS NULL))))) AND ((
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) > 0)");

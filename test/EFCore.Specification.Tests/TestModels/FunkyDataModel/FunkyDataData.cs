@@ -48,7 +48,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel
                 new FunkyCustomer { Id = 14, FirstName = null, LastName = "_B_a_r" },
                 new FunkyCustomer { Id = 15, FirstName = "_B_a_r", LastName = "" },
                 new FunkyCustomer { Id = 16, FirstName = "", LastName = "__r_" },
-            };
 
+                new FunkyCustomer { Id = 17, FirstName = "[]Bar", LastName = "[]", NullableBool = true},
+                new FunkyCustomer { Id = 18, FirstName = "B[a]r", LastName = "B[", NullableBool = true},
+                new FunkyCustomer { Id = 19, FirstName = "B[[a^r", LastName = "B[[", NullableBool = true},
+            };
     }
 }
