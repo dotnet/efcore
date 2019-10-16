@@ -366,6 +366,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitNew(NewExpression newExpression)
             {
+                // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
+                if (newExpression.Constructor == null)
+                {
+                    return newExpression;
+                }
+
                 var arguments = new Expression[newExpression.Arguments.Count];
                 for (var i = 0; i < newExpression.Arguments.Count; i++)
                 {
@@ -382,6 +388,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 replacement = null;
                 var changed = false;
+
+                // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
+                if (newExpression.Constructor == null)
+                {
+                    return false;
+                }
+
                 if (newExpression.Arguments.Count > 0
                     && newExpression.Members == null)
                 {
