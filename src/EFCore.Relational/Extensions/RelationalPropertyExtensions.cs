@@ -335,7 +335,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 try
                 {
-                    if (typeof(IEnumerable).IsAssignableFrom(property.ClrType) && property.ClrType.IsGenericType)
+                    if (typeof(IEnumerable).IsAssignableFrom(property.ClrType)
+                        && property.ClrType.IsGenericType
+                        && property.ClrType.IsAssignableFrom(valueType))
                     {
                         return value;
                     }
