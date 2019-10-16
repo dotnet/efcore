@@ -71,7 +71,7 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE ((@__prm2_0 = N'') AND @__prm2_0 IS NOT NULL) OR (CHARINDEX(@__prm2_0, [f].[FirstName]) > 0)",
                 //
-                @"@__prm3_0='' (Size = 4000)
+                @"@__prm3_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -101,7 +101,7 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE ((@__prm7_0 <> N'') OR @__prm7_0 IS NULL) AND (CHARINDEX(@__prm7_0, [f].[FirstName]) <= 0)",
                 //
-                @"@__prm8_0='' (Size = 4000)
+                @"@__prm8_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -184,7 +184,7 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE ((@__prm2_0 = N'') AND @__prm2_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm2_0 IS NOT NULL AND (([f].[FirstName] LIKE [f].[FirstName] + N'%') AND (((LEFT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND (LEFT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL AND @__prm2_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm2_0)) IS NULL AND @__prm2_0 IS NULL)))))",
                 //
-                @"@__prm3_0='' (Size = 4000)
+                @"@__prm3_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -214,7 +214,7 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE ((@__prm7_0 <> N'') OR @__prm7_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm7_0 IS NOT NULL AND (NOT ([f].[FirstName] LIKE [f].[FirstName] + N'%') OR (((LEFT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR (LEFT([f].[FirstName], LEN(@__prm7_0)) IS NULL OR @__prm7_0 IS NULL)) AND (LEFT([f].[FirstName], LEN(@__prm7_0)) IS NOT NULL OR @__prm7_0 IS NOT NULL)))))",
                 //
-                @"@__prm8_0='' (Size = 4000)
+                @"@__prm8_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -297,7 +297,7 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE ((@__prm2_0 = N'') AND @__prm2_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm2_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND (RIGHT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL AND @__prm2_0 IS NOT NULL)) OR (RIGHT([f].[FirstName], LEN(@__prm2_0)) IS NULL AND @__prm2_0 IS NULL))))",
                 //
-                @"@__prm3_0='' (Size = 4000)
+                @"@__prm3_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -327,7 +327,7 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE ((@__prm7_0 <> N'') OR @__prm7_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm7_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR (RIGHT([f].[FirstName], LEN(@__prm7_0)) IS NULL OR @__prm7_0 IS NULL)) AND (RIGHT([f].[FirstName], LEN(@__prm7_0)) IS NOT NULL OR @__prm7_0 IS NOT NULL))))",
                 //
-                @"@__prm8_0='' (Size = 4000)
+                @"@__prm8_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]

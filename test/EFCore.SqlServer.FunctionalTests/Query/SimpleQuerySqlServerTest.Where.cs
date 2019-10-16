@@ -335,7 +335,7 @@ SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Report
 FROM [Employees] AS [e]
 WHERE ((CAST([e].[ReportsTo] AS bigint) = @__p_0) AND (CAST([e].[ReportsTo] AS bigint) IS NOT NULL AND @__p_0 IS NOT NULL)) OR (CAST([e].[ReportsTo] AS bigint) IS NULL AND @__p_0 IS NULL)",
                 //
-                @"@__p_0='' (DbType = Int64)
+                @"@__p_0=NULL (DbType = Int64)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -347,7 +347,7 @@ WHERE ((CAST([e].[ReportsTo] AS bigint) = @__p_0) AND (CAST([e].[ReportsTo] AS b
             await base.Where_simple_closure_via_query_cache_nullable_type_reverse(isAsync);
 
             AssertSql(
-                @"@__p_0='' (DbType = Int64)
+                @"@__p_0=NULL (DbType = Int64)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -615,13 +615,13 @@ WHERE (([e].[ReportsTo] = @__nullableIntPrm_0) AND ([e].[ReportsTo] IS NOT NULL 
             await base.Where_equals_on_null_nullable_int_types(isAsync);
 
             AssertSql(
-                @"@__nullableIntPrm_0='' (DbType = Int32)
+                @"@__nullableIntPrm_0=NULL (DbType = Int32)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE ((@__nullableIntPrm_0 = [e].[ReportsTo]) AND (@__nullableIntPrm_0 IS NOT NULL AND [e].[ReportsTo] IS NOT NULL)) OR (@__nullableIntPrm_0 IS NULL AND [e].[ReportsTo] IS NULL)",
                 //
-                @"@__nullableIntPrm_0='' (DbType = Int64)
+                @"@__nullableIntPrm_0=NULL (DbType = Int64)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]

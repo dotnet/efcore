@@ -186,7 +186,7 @@ FROM [ShortCircuitFilter] AS [s]
 WHERE ([s].[IsDeleted] <> CAST(1 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR ((@__ef_filter__IsModerated_1 = [s].[IsModerated]) AND @__ef_filter__IsModerated_1 IS NOT NULL))",
                 //
                 @"@__ef_filter__p_0='True'
-@__ef_filter__IsModerated_1=''
+@__ef_filter__IsModerated_1=NULL
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]

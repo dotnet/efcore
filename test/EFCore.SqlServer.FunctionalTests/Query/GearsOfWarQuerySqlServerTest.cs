@@ -410,7 +410,7 @@ SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[Owner
 FROM [Weapons] AS [w]
 WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)",
                 //
-                @"@__ammunitionType_0='' (DbType = Int32)
+                @"@__ammunitionType_0=NULL (DbType = Int32)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
@@ -492,7 +492,7 @@ SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[Owner
 FROM [Weapons] AS [w]
 WHERE ([w].[AmmunitionType] & @__ammunitionType_0) > 0",
                 //
-                @"@__ammunitionType_0='' (DbType = Int32)
+                @"@__ammunitionType_0=NULL (DbType = Int32)
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
@@ -805,7 +805,7 @@ END AS [Cartridge]
 FROM [Weapons] AS [w]
 WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)",
                 //
-                @"@__ammunitionType_0='' (DbType = Int32)
+                @"@__ammunitionType_0=NULL (DbType = Int32)
 
 SELECT [w].[Id], CASE
     WHEN (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL) THEN CAST(1 AS bit)

@@ -1052,57 +1052,57 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='78'
-@p1=''
-@p2='' (DbType = Byte)
-@p3='' (Size = 8000) (DbType = Binary)
-@p4='' (Size = 8000) (DbType = Binary)
-@p5='' (Size = 8000) (DbType = Binary)
-@p6='' (Size = 1) (DbType = AnsiString)
-@p7='' (Size = 1) (DbType = AnsiString)
-@p8='' (DbType = Int32)
-@p9='' (Size = 1)
-@p10='' (Size = 1)
-@p11='' (Size = 1)
-@p12='' (Size = 1)
-@p13='' (Size = 1) (DbType = AnsiString)
-@p14='' (Size = 1) (DbType = AnsiString)
-@p15='' (DbType = Date)
-@p16='' (DbType = DateTime)
-@p17='' (DbType = DateTime2)
-@p18='' (DbType = DateTime)
-@p19='' (DbType = DateTimeOffset)
-@p20=''
-@p21=''
-@p22=''
-@p23=''
-@p24=''
-@p25=''
-@p26=''
-@p27='' (Size = 20)
-@p28='' (Size = 8000) (DbType = AnsiString)
-@p29=''
-@p30='' (DbType = Guid)
-@p31='' (DbType = Int64)
-@p32='' (DbType = Int16)
-@p33='' (DbType = Byte)
-@p34='' (DbType = Int16)
-@p35=''
-@p36=''
-@p37='' (Size = 8000) (DbType = AnsiString)
-@p38='' (Size = 8000) (DbType = AnsiString)
-@p39='' (Size = 4000)
-@p40='' (Size = 4000)
-@p41='' (Size = 4000)
-@p42='' (Size = 4000)
-@p43='' (Size = 8000) (DbType = AnsiString)
-@p44='' (Size = 8000) (DbType = AnsiString)
-@p45=''
-@p46='' (DbType = Int32)
-@p47='' (DbType = Int16)
-@p48='' (DbType = Int64)
-@p49='' (DbType = Int32)
-@p50='' (DbType = Int64)
-@p51=''",
+@p1=NULL
+@p2=NULL (DbType = Byte)
+@p3=NULL (Size = 8000) (DbType = Binary)
+@p4=NULL (Size = 8000) (DbType = Binary)
+@p5=NULL (Size = 8000) (DbType = Binary)
+@p6=NULL (Size = 1) (DbType = AnsiString)
+@p7=NULL (Size = 1) (DbType = AnsiString)
+@p8=NULL (DbType = Int32)
+@p9=NULL (Size = 1)
+@p10=NULL (Size = 1)
+@p11=NULL (Size = 1)
+@p12=NULL (Size = 1)
+@p13=NULL (Size = 1) (DbType = AnsiString)
+@p14=NULL (Size = 1) (DbType = AnsiString)
+@p15=NULL (DbType = Date)
+@p16=NULL (DbType = DateTime)
+@p17=NULL (DbType = DateTime2)
+@p18=NULL (DbType = DateTime)
+@p19=NULL (DbType = DateTimeOffset)
+@p20=NULL
+@p21=NULL
+@p22=NULL
+@p23=NULL
+@p24=NULL
+@p25=NULL
+@p26=NULL
+@p27=NULL (Size = 20)
+@p28=NULL (Size = 8000) (DbType = AnsiString)
+@p29=NULL
+@p30=NULL (DbType = Guid)
+@p31=NULL (DbType = Int64)
+@p32=NULL (DbType = Int16)
+@p33=NULL (DbType = Byte)
+@p34=NULL (DbType = Int16)
+@p35=NULL
+@p36=NULL
+@p37=NULL (Size = 8000) (DbType = AnsiString)
+@p38=NULL (Size = 8000) (DbType = AnsiString)
+@p39=NULL (Size = 4000)
+@p40=NULL (Size = 4000)
+@p41=NULL (Size = 4000)
+@p42=NULL (Size = 4000)
+@p43=NULL (Size = 8000) (DbType = AnsiString)
+@p44=NULL (Size = 8000) (DbType = AnsiString)
+@p45=NULL
+@p46=NULL (DbType = Int32)
+@p47=NULL (DbType = Int16)
+@p48=NULL (DbType = Int64)
+@p49=NULL (DbType = Int32)
+@p50=NULL (DbType = Int64)
+@p51=NULL",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1271,25 +1271,25 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='78'
-@p1='' (Size = 3) (DbType = Binary)
-@p2='' (Size = 3) (DbType = Binary)
-@p3='' (Size = 3) (DbType = Binary)
-@p4='' (Size = 3) (DbType = AnsiString)
-@p5='' (Size = 3) (DbType = AnsiString)
-@p6='' (Size = 3)
-@p7='' (Size = 3)
-@p8='' (Size = 3)
-@p9='' (Size = 3) (DbType = AnsiString)
-@p10='' (Size = 3) (DbType = AnsiString)
-@p11='' (Size = 3) (DbType = AnsiString)
-@p12='' (Size = 3) (DbType = AnsiString)
-@p13='' (Size = 3) (DbType = AnsiString)
-@p14='' (Size = 3)
-@p15='' (Size = 3)
-@p16='' (Size = 3)
-@p17='' (Size = 3)
-@p18='' (Size = 3)
-@p19='' (Size = 3) (DbType = AnsiString)",
+@p1=NULL (Size = 3) (DbType = Binary)
+@p2=NULL (Size = 3) (DbType = Binary)
+@p3=NULL (Size = 3) (DbType = Binary)
+@p4=NULL (Size = 3) (DbType = AnsiString)
+@p5=NULL (Size = 3) (DbType = AnsiString)
+@p6=NULL (Size = 3)
+@p7=NULL (Size = 3)
+@p8=NULL (Size = 3)
+@p9=NULL (Size = 3) (DbType = AnsiString)
+@p10=NULL (Size = 3) (DbType = AnsiString)
+@p11=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiString)
+@p13=NULL (Size = 3) (DbType = AnsiString)
+@p14=NULL (Size = 3)
+@p15=NULL (Size = 3)
+@p16=NULL (Size = 3)
+@p17=NULL (Size = 3)
+@p18=NULL (Size = 3)
+@p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1806,58 +1806,58 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0=''
-@p1='' (DbType = Byte)
-@p2='' (Size = 8000) (DbType = Binary)
-@p3='' (Size = 8000) (DbType = Binary)
-@p4='' (Size = 8000) (DbType = Binary)
-@p5='' (Size = 1) (DbType = AnsiString)
-@p6='' (Size = 1) (DbType = AnsiString)
-@p7='' (DbType = Int32)
-@p8='' (Size = 1)
-@p9='' (Size = 1)
-@p10='' (Size = 1)
-@p11='' (Size = 1)
-@p12='' (Size = 1) (DbType = AnsiString)
-@p13='' (Size = 1) (DbType = AnsiString)
-@p14='' (DbType = Date)
-@p15='' (DbType = DateTime)
-@p16='' (DbType = DateTime2)
-@p17='' (DbType = DateTime)
-@p18='' (DbType = DateTimeOffset)
-@p19=''
-@p20=''
-@p21=''
-@p22=''
-@p23=''
-@p24=''
-@p25=''
-@p26='' (Size = 20)
-@p27='' (Size = 8000) (DbType = AnsiString)
-@p28=''
-@p29='' (DbType = Guid)
+                @"@p0=NULL
+@p1=NULL (DbType = Byte)
+@p2=NULL (Size = 8000) (DbType = Binary)
+@p3=NULL (Size = 8000) (DbType = Binary)
+@p4=NULL (Size = 8000) (DbType = Binary)
+@p5=NULL (Size = 1) (DbType = AnsiString)
+@p6=NULL (Size = 1) (DbType = AnsiString)
+@p7=NULL (DbType = Int32)
+@p8=NULL (Size = 1)
+@p9=NULL (Size = 1)
+@p10=NULL (Size = 1)
+@p11=NULL (Size = 1)
+@p12=NULL (Size = 1) (DbType = AnsiString)
+@p13=NULL (Size = 1) (DbType = AnsiString)
+@p14=NULL (DbType = Date)
+@p15=NULL (DbType = DateTime)
+@p16=NULL (DbType = DateTime2)
+@p17=NULL (DbType = DateTime)
+@p18=NULL (DbType = DateTimeOffset)
+@p19=NULL
+@p20=NULL
+@p21=NULL
+@p22=NULL
+@p23=NULL
+@p24=NULL
+@p25=NULL
+@p26=NULL (Size = 20)
+@p27=NULL (Size = 8000) (DbType = AnsiString)
+@p28=NULL
+@p29=NULL (DbType = Guid)
 @p30='78' (Nullable = true)
-@p31='' (DbType = Int64)
-@p32='' (DbType = Int16)
-@p33='' (DbType = Byte)
-@p34='' (DbType = Int16)
-@p35=''
-@p36=''
-@p37='' (Size = 8000) (DbType = AnsiString)
-@p38='' (Size = 8000) (DbType = AnsiString)
-@p39='' (Size = 4000)
-@p40='' (Size = 4000)
-@p41='' (Size = 4000)
-@p42='' (Size = 4000)
-@p43='' (Size = 8000) (DbType = AnsiString)
-@p44='' (Size = 8000) (DbType = AnsiString)
-@p45=''
-@p46='' (DbType = Int32)
-@p47='' (DbType = Int64)
-@p48='' (DbType = Int32)
-@p49='' (DbType = Int64)
-@p50=''
-@p51='' (DbType = Int16)",
+@p31=NULL (DbType = Int64)
+@p32=NULL (DbType = Int16)
+@p33=NULL (DbType = Byte)
+@p34=NULL (DbType = Int16)
+@p35=NULL
+@p36=NULL
+@p37=NULL (Size = 8000) (DbType = AnsiString)
+@p38=NULL (Size = 8000) (DbType = AnsiString)
+@p39=NULL (Size = 4000)
+@p40=NULL (Size = 4000)
+@p41=NULL (Size = 4000)
+@p42=NULL (Size = 4000)
+@p43=NULL (Size = 8000) (DbType = AnsiString)
+@p44=NULL (Size = 8000) (DbType = AnsiString)
+@p45=NULL
+@p46=NULL (DbType = Int32)
+@p47=NULL (DbType = Int64)
+@p48=NULL (DbType = Int32)
+@p49=NULL (DbType = Int64)
+@p50=NULL
+@p51=NULL (DbType = Int16)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -2027,26 +2027,26 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='' (Size = 3) (DbType = Binary)
-@p1='' (Size = 3) (DbType = Binary)
-@p2='' (Size = 3) (DbType = Binary)
-@p3='' (Size = 3) (DbType = AnsiString)
-@p4='' (Size = 3) (DbType = AnsiString)
-@p5='' (Size = 3)
-@p6='' (Size = 3)
-@p7='' (Size = 3)
-@p8='' (Size = 3) (DbType = AnsiString)
+                @"@p0=NULL (Size = 3) (DbType = Binary)
+@p1=NULL (Size = 3) (DbType = Binary)
+@p2=NULL (Size = 3) (DbType = Binary)
+@p3=NULL (Size = 3) (DbType = AnsiString)
+@p4=NULL (Size = 3) (DbType = AnsiString)
+@p5=NULL (Size = 3)
+@p6=NULL (Size = 3)
+@p7=NULL (Size = 3)
+@p8=NULL (Size = 3) (DbType = AnsiString)
 @p9='78'
-@p10='' (Size = 3) (DbType = AnsiString)
-@p11='' (Size = 3) (DbType = AnsiString)
-@p12='' (Size = 3) (DbType = AnsiString)
-@p13='' (Size = 3) (DbType = AnsiString)
-@p14='' (Size = 3)
-@p15='' (Size = 3)
-@p16='' (Size = 3)
-@p17='' (Size = 3)
-@p18='' (Size = 3)
-@p19='' (Size = 3) (DbType = AnsiString)",
+@p10=NULL (Size = 3) (DbType = AnsiString)
+@p11=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiString)
+@p13=NULL (Size = 3) (DbType = AnsiString)
+@p14=NULL (Size = 3)
+@p15=NULL (Size = 3)
+@p16=NULL (Size = 3)
+@p17=NULL (Size = 3)
+@p18=NULL (Size = 3)
+@p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 

@@ -155,7 +155,7 @@ SELECT changes();");
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
             AssertSql(
-                @"@p0=''
+                @"@p0=NULL
 @p1='Third' (Nullable = false) (Size = 5)
 @p2='00000000-0000-0000-0000-000000000003' (DbType = String)
 @p3='Third Additional Name' (Size = 21)
@@ -182,7 +182,7 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             AssertSql(
-                @"@p0=''
+                @"@p0=NULL
 @p1='1' (DbType = String)
 
 INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
@@ -191,8 +191,8 @@ SELECT ""Id""
 FROM ""BookDetails""
 WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
                 //
-                @"@p0=''
-@p1='' (Nullable = false)
+                @"@p0=NULL
+@p1=NULL (Nullable = false)
 
 INSERT INTO ""BookDetails"" (""AdditionalBookDetailsId"", ""AnotherBookId"")
 VALUES (@p0, @p1);
@@ -206,7 +206,7 @@ WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
             AssertSql(
-                @"@p0=''
+                @"@p0=NULL
 @p1='ValidString' (Nullable = false) (Size = 11)
 @p2='00000000-0000-0000-0000-000000000001' (DbType = String)
 @p3='Two' (Size = 3)
@@ -218,8 +218,8 @@ SELECT ""UniqueNo""
 FROM ""Sample""
 WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();",
                 //
-                @"@p0=''
-@p1='' (Nullable = false)
+                @"@p0=NULL
+@p1=NULL (Nullable = false)
 @p2='00000000-0000-0000-0000-000000000002' (DbType = String)
 @p3='Two' (Size = 3)
 @p4='One' (Size = 3)
