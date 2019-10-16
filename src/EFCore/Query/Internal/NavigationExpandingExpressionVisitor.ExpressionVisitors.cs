@@ -339,10 +339,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
-                if (UnwrapEntityReference(memberExpression.Expression) is EntityReference)
+                if (UnwrapEntityReference(memberExpression.Expression) is EntityReference entityReferece)
                 {
-                    // If it matches then it is property access. All navigation accesses are already expanded.
-                    return memberExpression;
+                    // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
+                    var property = entityReferece.EntityType.FindProperty(memberExpression.Member);
+                    if (property != null)
+                    {
+                        return memberExpression;
+                    }
                 }
 
                 return base.VisitMember(memberExpression);
@@ -352,7 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (methodCallExpression.TryGetEFPropertyArguments(out var _, out var __))
                 {
-                    // If it matches then it is property access. All navigation accesses are already expanded.
+                    // If it is EF.Property then, it would get converted to a column or throw
+                    // so we don't need to expand includes.
                     return methodCallExpression;
                 }
 

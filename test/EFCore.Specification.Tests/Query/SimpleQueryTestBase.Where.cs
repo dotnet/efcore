@@ -1495,9 +1495,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 22);
         }
 
-        [ConditionalTheory(Skip = "Issue#14572")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_expression_invoke(bool isAsync)
+        public virtual Task Where_expression_invoke_1(bool isAsync)
         {
             Expression<Func<Customer, bool>> expression = c => c.CustomerID == "ALFKI";
             var parameter = Expression.Parameter(typeof(Customer), "c");
@@ -1507,6 +1507,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(
                     Expression.Lambda<Func<Customer, bool>>(Expression.Invoke(expression, parameter), parameter)),
                 entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_expression_invoke_2(bool isAsync)
+        {
+            Expression<Func<Order, Customer>> customer = o => o.Customer;
+            Expression<Func<Customer, bool>> predicate = c => c.CustomerID == "ALFKI";
+            var exp = Expression.Lambda<Func<Order, bool>>(
+                Expression.Invoke(predicate, customer.Body),
+                customer.Parameters);
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>().Where(exp),
+                entryCount: 6);
         }
 
         [ConditionalTheory]
