@@ -225,6 +225,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
+            // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
+            if (newExpression.Constructor == null)
+            {
+                return newExpression;
+            }
+
             if (newExpression.Arguments.Count == 0)
             {
                 return newExpression;
