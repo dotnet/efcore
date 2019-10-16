@@ -1965,10 +1965,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             {
                                 if (batchInsertOperation.Table == c.TableName
                                     && batchInsertOperation.Schema == c.Schema
-                                    && batchInsertOperation.Columns.SequenceEqual(c.ColumnModifications.Select(col => col.ColumnName)))
+                                    && batchInsertOperation.Columns.SequenceEqual(
+                                        c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.ColumnName)))
                                 {
                                     batchInsertOperation.Values =
-                                        AddToMultidimensionalArray(c.ColumnModifications.Select(GetValue).ToList(), batchInsertOperation.Values);
+                                        AddToMultidimensionalArray(
+                                            c.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(GetValue).ToList(), batchInsertOperation.Values);
                                     continue;
                                 }
 

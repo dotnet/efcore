@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -1372,6 +1373,92 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Firefly", operation.Table);
                         Assert.Equal("Name", operation.Name);
                     }));
+        }
+
+        [ConditionalFact]
+        public void Add_seed_data_with_non_writable_column_insert_operations_with_batching()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.Property<byte[]>("Version").IsRowVersion();
+                    }),
+                target => target.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.Property<byte[]>("Version").IsRowVersion();
+                        x.HasData(
+                            new { Id = 42, Name = "Firefly 1" },
+                            new { Id = 43, Name = "Firefly 2" },
+                            new { Id = 44, Name = "Firefly 3" },
+                            new { Id = 45, Name = "Firefly 4" });
+                    }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Collection(
+                            ToJaggedArray(m.Values),
+                            r => Assert.Collection(
+                                 r,
+                                 v => Assert.Equal(42, v),
+                                 v => Assert.Equal("Firefly 1", v)),
+                            r => Assert.Collection(
+                                r,
+                                v => Assert.Equal(43, v),
+                                v => Assert.Equal("Firefly 2", v)),
+                            r => Assert.Collection(
+                                r,
+                                v => Assert.Equal(44, v),
+                                v => Assert.Equal("Firefly 3", v)),
+                            r => Assert.Collection(
+                                r,
+                                v => Assert.Equal(45, v),
+                                v => Assert.Equal("Firefly 4", v))
+                        );
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(42, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(43, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(44, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(45, v));
+                    }),
+                builderOptions => builderOptions.UseFakeRelational(a => a.MaxBatchSize(4)));
         }
 
         private enum SomeEnum

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
@@ -37,25 +38,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Action<ModelBuilder> buildTargetAction,
             Action<IReadOnlyList<MigrationOperation>> assertActionUp,
             Action<IReadOnlyList<MigrationOperation>> assertActionDown)
+            => Execute(buildCommonAction, buildSourceAction, buildTargetAction, assertActionUp, assertActionDown, null);
+
+        protected void Execute(
+            Action<ModelBuilder> buildCommonAction,
+            Action<ModelBuilder> buildSourceAction,
+            Action<ModelBuilder> buildTargetAction,
+            Action<IReadOnlyList<MigrationOperation>> assertActionUp,
+            Action<IReadOnlyList<MigrationOperation>> assertActionDown,
+            Action<DbContextOptionsBuilder> builderOptionsAction)
         {
             var sourceModelBuilder = CreateModelBuilder();
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
             sourceModelBuilder.FinalizeModel();
+            var sourceOptionsBuilder = TestHelpers
+                .AddProviderOptions(new DbContextOptionsBuilder())
+                .UseModel(sourceModelBuilder.Model)
+                .EnableSensitiveDataLogging();
 
             var targetModelBuilder = CreateModelBuilder();
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
             targetModelBuilder.FinalizeModel();
+            var targetOptionsBuilder = TestHelpers
+                .AddProviderOptions(new DbContextOptionsBuilder())
+                .UseModel(targetModelBuilder.Model)
+                .EnableSensitiveDataLogging();
 
-            var modelDiffer = CreateModelDiffer(targetModelBuilder.Model);
+            if (builderOptionsAction != null)
+            {
+                builderOptionsAction(sourceOptionsBuilder);
+                builderOptionsAction(targetOptionsBuilder);
+            }
+
+            var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
 
             var operationsUp = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
             assertActionUp(operationsUp);
 
             if (assertActionDown != null)
             {
-                modelDiffer = CreateModelDiffer(sourceModelBuilder.Model);
+                modelDiffer = CreateModelDiffer(sourceOptionsBuilder.Options);
 
                 var operationsDown = modelDiffer.GetDifferences(targetModelBuilder.Model, sourceModelBuilder.Model);
                 assertActionDown(operationsDown);
@@ -109,11 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         protected abstract TestHelpers TestHelpers { get; }
         protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.CreateConventionBuilder(skipValidation: true);
 
-        protected virtual MigrationsModelDiffer CreateModelDiffer(IModel model)
+        protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {
-            var ctx = TestHelpers.CreateContext(
-                TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
-                    .UseModel(model).EnableSensitiveDataLogging().Options);
+            var ctx = TestHelpers.CreateContext(options);
             return new MigrationsModelDiffer(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
