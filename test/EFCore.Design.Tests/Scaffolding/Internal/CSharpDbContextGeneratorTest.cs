@@ -194,6 +194,41 @@ namespace TestNamespace
                     model.FindEntityType("TestNamespace.Vista").FindAnnotation(RelationalAnnotationNames.ViewDefinition)));
         }
 
+        [ConditionalFact]
+        public void ModelInDiferentNamespaceDbContext_works()
+        {
+            var modelGenerationOptions = new ModelCodeGenerationOptions()
+            {
+                ContextNamespace = "TestNamespace",
+                ModelNamespace = "AnotherNamespaceOfModel"
+            };
+
+            const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
+
+            Test(modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+                , modelGenerationOptions
+                , code => Assert.Contains(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
+                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))
+            );
+        }
+
+        [ConditionalFact]
+        public void ModelSameNamespaceDbContext_works()
+        {
+            var modelGenerationOptions = new ModelCodeGenerationOptions()
+            {
+                ContextNamespace = "TestNamespace",
+            };
+
+            const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
+
+            Test(modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+                , modelGenerationOptions
+                , code => Assert.DoesNotContain(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
+                , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))
+            );
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()
