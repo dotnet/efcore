@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task SubSelect_Union(bool isAsync) => Task.CompletedTask;
         public override Task Client_eval_Union_FirstOrDefault(bool isAsync) => Task.CompletedTask;
         public override Task GroupBy_Select_Union(bool isAsync) => Task.CompletedTask;
+        public override Task Union_over_columns_with_different_nullability(bool isAsync) => Task.CompletedTask;
         public override Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType) => Task.CompletedTask;
         public override Task OrderBy_Take_Union(bool isAsync) => Task.CompletedTask;
     }

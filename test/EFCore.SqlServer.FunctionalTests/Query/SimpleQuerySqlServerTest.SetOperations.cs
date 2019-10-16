@@ -383,6 +383,18 @@ WHERE ([c0].[City] = N'London') AND [c0].[City] IS NOT NULL
 GROUP BY [c0].[CustomerID]");
         }
 
+        public override async Task Union_over_columns_with_different_nullability(bool isAsync)
+        {
+            await base.Union_over_columns_with_different_nullability(isAsync);
+
+            AssertSql(
+                @"SELECT N'NonNullableConstant' AS [c]
+FROM [Customers] AS [c]
+UNION ALL
+SELECT NULL AS [c]
+FROM [Customers] AS [c0]");
+        }
+
         public override async Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
         {
             await base.Union_over_different_projection_types(isAsync, leftType, rightType);
