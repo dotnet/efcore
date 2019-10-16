@@ -21,11 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
         {
-            var extension = optionsBuilder.Options.FindExtension<FakeRelationalOptionsExtension>()
-                            ?? new FakeRelationalOptionsExtension();
-
-            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(
-                extension.WithConnection(new FakeDbConnection("Database=Fake")));
+            optionsBuilder.UseFakeRelational();
         }
 
         public override LoggingDefinitions LoggingDefinitions { get; } = new TestRelationalLoggingDefinitions();
