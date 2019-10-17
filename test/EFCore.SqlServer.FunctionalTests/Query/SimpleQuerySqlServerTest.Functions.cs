@@ -27,7 +27,7 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'M%')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (([c].[ContactName] = N'') AND [c].[ContactName] IS NOT NULL) OR ([c].[ContactName] IS NOT NULL AND (([c].[ContactName] LIKE [c].[ContactName] + N'%') AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])))");
+WHERE (([c].[ContactName] = N'') AND [c].[ContactName] IS NOT NULL) OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
         }
 
         public override async Task String_StartsWith_Column(bool isAsync)
@@ -37,7 +37,7 @@ WHERE (([c].[ContactName] = N'') AND [c].[ContactName] IS NOT NULL) OR ([c].[Con
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (([c].[ContactName] = N'') AND [c].[ContactName] IS NOT NULL) OR ([c].[ContactName] IS NOT NULL AND (([c].[ContactName] LIKE [c].[ContactName] + N'%') AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])))");
+WHERE (([c].[ContactName] = N'') AND [c].[ContactName] IS NOT NULL) OR ([c].[ContactName] IS NOT NULL AND (LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]))");
         }
 
         public override async Task String_StartsWith_MethodCall(bool isAsync)

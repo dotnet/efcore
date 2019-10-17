@@ -1522,7 +1522,7 @@ WHERE (([c].[City] = N'London') AND [c].[City] IS NOT NULL) AND EXISTS (
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ((([c].[ContactName] IS NULL AND ([c].[ContactName] IS NOT NULL AND (CAST(0 AS bit) = CAST(1 AS bit)))) OR ([c].[ContactName] IS NULL AND (CAST(1 AS bit) = CAST(1 AS bit)))) OR (([c].[ContactName] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR (NOT ([c].[ContactName] LIKE [c].[ContactName] + N'%') OR (LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName]))))) THEN CAST(1 AS bit)
+        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ((([c].[ContactName] IS NULL AND ([c].[ContactName] IS NOT NULL AND (CAST(0 AS bit) = CAST(1 AS bit)))) OR ([c].[ContactName] IS NULL AND (CAST(1 AS bit) = CAST(1 AS bit)))) OR (([c].[ContactName] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR (LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName])))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -4244,7 +4244,7 @@ FROM (
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ((@__prefix_0 = N'') AND @__prefix_0 IS NOT NULL) OR (@__prefix_0 IS NOT NULL AND (([c].[CustomerID] LIKE [c].[CustomerID] + N'%') AND (((LEFT([c].[CustomerID], LEN(@__prefix_0)) = @__prefix_0) AND (LEFT([c].[CustomerID], LEN(@__prefix_0)) IS NOT NULL AND @__prefix_0 IS NOT NULL)) OR (LEFT([c].[CustomerID], LEN(@__prefix_0)) IS NULL AND @__prefix_0 IS NULL))))");
+WHERE ((@__prefix_0 = N'') AND @__prefix_0 IS NOT NULL) OR (@__prefix_0 IS NOT NULL AND (((LEFT([c].[CustomerID], LEN(@__prefix_0)) = @__prefix_0) AND (LEFT([c].[CustomerID], LEN(@__prefix_0)) IS NOT NULL AND @__prefix_0 IS NOT NULL)) OR (LEFT([c].[CustomerID], LEN(@__prefix_0)) IS NULL AND @__prefix_0 IS NULL)))");
         }
 
         public override async Task Comparing_entities_using_Equals(bool isAsync)

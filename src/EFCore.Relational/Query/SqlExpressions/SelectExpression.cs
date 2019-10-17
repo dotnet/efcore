@@ -1520,7 +1520,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         Having = havingExpression,
                         Offset = offset,
                         Limit = limit,
-                        IsDistinct = IsDistinct
+                        IsDistinct = IsDistinct,
+                        Tags = Tags
                     };
 
                     newSelectExpression._identifier.AddRange(_identifier);
@@ -1562,6 +1563,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     return false;
                 }
+            }
+
+            if (!Tags.SequenceEqual(selectExpression.Tags))
+            {
+                return false;
             }
 
             if (!_tables.SequenceEqual(selectExpression._tables))
@@ -1637,7 +1643,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 Having = havingExpression,
                 Offset = offset,
                 Limit = limit,
-                IsDistinct = distinct
+                IsDistinct = distinct,
+                Tags = Tags
             };
         }
 
@@ -1650,6 +1657,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 hash.Add(projectionMapping.Key);
                 hash.Add(projectionMapping.Value);
+            }
+
+            foreach (var tag in Tags)
+            {
+                hash.Add(tag);
             }
 
             foreach (var table in _tables)
@@ -1692,6 +1704,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             expressionPrinter.AppendLine();
+
+            foreach (var tag in Tags)
+            {
+                expressionPrinter.Append($"-- {tag}");
+            }
+
             IDisposable indent = null;
 
             if (Alias != null)
