@@ -7802,7 +7802,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => (e.Name, e.Count, e.Sum));
         }
 
-        [ConditionalTheory(Skip = "issue #18267")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Complex_GroupBy_after_set_operator_using_result_selector(bool isAsync)
         {
