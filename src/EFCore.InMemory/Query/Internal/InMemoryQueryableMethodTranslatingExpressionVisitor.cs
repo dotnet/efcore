@@ -246,7 +246,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-                // Save valueBufferParameter if we need to replace it in translated key later.
                 source.ShaperExpression = inMemoryQueryExpression.ApplyGrouping(translatedKey, source.ShaperExpression);
 
                 if (resultSelector == null)
