@@ -62,9 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string WriteCode(
             IModel model,
-            string @namespace,
             string contextName,
             string connectionString,
+            string contextNamespace,
+            string modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning)
         {
@@ -75,9 +76,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine("using System;"); // Guid default values require new Guid() which requires this using
             _sb.AppendLine("using Microsoft.EntityFrameworkCore;");
             _sb.AppendLine("using Microsoft.EntityFrameworkCore.Metadata;");
+
+            var finalContextNamespace = contextNamespace ?? modelNamespace;
+
+            if (finalContextNamespace != modelNamespace)
+            {
+                _sb.AppendLine(String.Concat("using ", modelNamespace, ";"));
+            }
+
             _sb.AppendLine();
 
-            _sb.AppendLine($"namespace {@namespace}");
+            _sb.AppendLine($"namespace {finalContextNamespace}");
             _sb.AppendLine("{");
 
             using (_sb.Indent())
