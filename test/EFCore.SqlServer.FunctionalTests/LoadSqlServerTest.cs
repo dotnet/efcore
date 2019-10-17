@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal(EntityState state)
@@ -39,7 +39,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_principal(EntityState state)
@@ -51,7 +51,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_dependent(EntityState state)
@@ -63,7 +63,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override void Lazy_load_one_to_one_PK_to_PK_reference_to_principal(EntityState state)
@@ -75,7 +75,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state)
@@ -87,7 +87,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id]
 FROM [SinglePkToPk] AS [s]
-WHERE ([s].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [s].[Id] = @__p_0");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_null_FK(EntityState state)
@@ -113,7 +113,7 @@ WHERE ([s].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_not_found(EntityState state)
@@ -125,7 +125,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_principal_not_found(EntityState state)
@@ -137,7 +137,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_dependent_not_found(EntityState state)
@@ -149,7 +149,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
@@ -203,7 +203,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[AlternateId] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_principal_alternate_key(EntityState state)
@@ -215,7 +215,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[AlternateId] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_dependent_alternate_key(EntityState state)
@@ -227,7 +227,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [SingleAk] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
@@ -253,7 +253,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [ChildShadowFk] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_shadow_fk(EntityState state)
@@ -265,7 +265,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_principal_shadow_fk(EntityState state)
@@ -277,7 +277,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override void Lazy_load_one_to_one_reference_to_dependent_shadow_fk(EntityState state)
@@ -289,7 +289,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [SingleShadowFk] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
@@ -316,7 +316,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE ((([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentAlternateId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentAlternateId] IS NULL AND @__p_0 IS NULL)) AND ((([c].[ParentId] = @__p_1) AND ([c].[ParentId] IS NOT NULL AND @__p_1 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_1 IS NULL))");
+WHERE (([c].[ParentAlternateId] = @__p_0) AND [c].[ParentAlternateId] IS NOT NULL) AND (([c].[ParentId] = @__p_1) AND [c].[ParentId] IS NOT NULL)");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_composite_key(EntityState state)
@@ -329,7 +329,7 @@ WHERE ((([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentAlternateId] IS NOT N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__p_1) AND @__p_1 IS NOT NULL)");
+WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
         }
 
         public override void Lazy_load_one_to_one_reference_to_principal_composite_key(EntityState state)
@@ -342,7 +342,7 @@ WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__p_1) AND @__p_1 IS NOT NULL)");
+WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
         }
 
         public override void Lazy_load_one_to_one_reference_to_dependent_composite_key(EntityState state)
@@ -355,7 +355,7 @@ WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__
 
 SELECT [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE ((([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentAlternateId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentAlternateId] IS NULL AND @__p_0 IS NULL)) AND ((([s].[ParentId] = @__p_1) AND ([s].[ParentId] IS NOT NULL AND @__p_1 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_1 IS NULL))");
+WHERE (([s].[ParentAlternateId] = @__p_0) AND [s].[ParentAlternateId] IS NOT NULL) AND (([s].[ParentId] = @__p_1) AND [s].[ParentId] IS NOT NULL)");
         }
 
         public override void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
@@ -381,7 +381,7 @@ WHERE ((([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentAlternateId] IS NOT N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal(EntityState state, bool async)
@@ -393,7 +393,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal(EntityState state, bool async)
@@ -405,7 +405,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent(EntityState state, bool async)
@@ -417,7 +417,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_one_to_one_PK_to_PK_reference_to_principal(EntityState state, bool async)
@@ -429,7 +429,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state, bool async)
@@ -441,7 +441,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id]
 FROM [SinglePkToPk] AS [s]
-WHERE ([s].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [s].[Id] = @__p_0");
         }
 
         public override async Task Load_collection_using_Query(EntityState state, bool async)
@@ -453,7 +453,7 @@ WHERE ([s].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query(EntityState state, bool async)
@@ -465,7 +465,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query(EntityState state, bool async)
@@ -477,7 +477,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query(EntityState state, bool async)
@@ -489,7 +489,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query(EntityState state, bool async)
@@ -501,7 +501,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query(EntityState state, bool async)
@@ -513,7 +513,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [s].[Id]
 FROM [SinglePkToPk] AS [s]
-WHERE ([s].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [s].[Id] = @__p_0");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_null_FK(EntityState state, bool async)
@@ -555,11 +555,11 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             await base.Load_collection_not_found(state, async);
 
             AssertSql(
-                    @"@__p_0='767' (Nullable = true)
+                @"@__p_0='767' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_not_found(EntityState state, bool async)
@@ -571,7 +571,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_not_found(EntityState state, bool async)
@@ -583,7 +583,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_not_found(EntityState state, bool async)
@@ -595,7 +595,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_using_Query_not_found(EntityState state, bool async)
@@ -607,7 +607,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
@@ -619,7 +619,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_not_found(EntityState state, bool async)
@@ -631,7 +631,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_not_found(EntityState state, bool async)
@@ -643,7 +643,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
@@ -697,7 +697,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
@@ -709,7 +709,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
@@ -721,7 +721,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
@@ -733,7 +733,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_one_to_one_PK_to_PK_reference_to_principal_using_Query_already_loaded(EntityState state, bool async)
@@ -745,7 +745,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_PK_to_PK_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async)
@@ -757,7 +757,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [s].[Id]
 FROM [SinglePkToPk] AS [s]
-WHERE ([s].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [s].[Id] = @__p_0");
         }
 
         public override async Task Load_collection_untyped(EntityState state, bool async)
@@ -769,7 +769,7 @@ WHERE ([s].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_untyped(EntityState state, bool async)
@@ -781,7 +781,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_untyped(EntityState state, bool async)
@@ -793,7 +793,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_untyped(EntityState state, bool async)
@@ -805,7 +805,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_using_Query_untyped(EntityState state, bool async)
@@ -817,7 +817,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
@@ -829,7 +829,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_untyped(EntityState state, bool async)
@@ -841,7 +841,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_untyped(EntityState state, bool async)
@@ -853,7 +853,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_not_found_untyped(EntityState state, bool async)
@@ -865,7 +865,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
@@ -877,7 +877,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_not_found_untyped(EntityState state, bool async)
@@ -889,7 +889,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_not_found_untyped(EntityState state, bool async)
@@ -901,7 +901,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_using_Query_not_found_untyped(EntityState state, bool async)
@@ -913,7 +913,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
@@ -925,7 +925,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_not_found_untyped(EntityState state, bool async)
@@ -937,7 +937,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_not_found_untyped(EntityState state, bool async)
@@ -949,7 +949,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
@@ -989,7 +989,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
@@ -1001,7 +1001,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_already_loaded_untyped(EntityState state, bool async)
@@ -1013,7 +1013,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
@@ -1025,7 +1025,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_alternate_key(EntityState state, bool async)
@@ -1037,7 +1037,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [ChildAk] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
@@ -1049,7 +1049,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[AlternateId] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_alternate_key(EntityState state, bool async)
@@ -1061,7 +1061,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[AlternateId] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_alternate_key(EntityState state, bool async)
@@ -1073,7 +1073,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [SingleAk] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_using_Query_alternate_key(EntityState state, bool async)
@@ -1085,7 +1085,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [ChildAk] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
@@ -1097,7 +1097,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[AlternateId] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_alternate_key(EntityState state, bool async)
@@ -1109,7 +1109,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[AlternateId] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_alternate_key(EntityState state, bool async)
@@ -1121,7 +1121,7 @@ WHERE ([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [s].[Id], [s].[ParentId]
 FROM [SingleAk] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state, bool async)
@@ -1163,11 +1163,11 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             await base.Load_collection_shadow_fk(state, async);
 
             AssertSql(
-                    @"@__p_0='707' (Nullable = true)
+                @"@__p_0='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [ChildShadowFk] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
@@ -1179,7 +1179,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_shadow_fk(EntityState state, bool async)
@@ -1191,7 +1191,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_shadow_fk(EntityState state, bool async)
@@ -1203,7 +1203,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT [s].[Id], [s].[ParentId]
 FROM [SingleShadowFk] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_collection_using_Query_shadow_fk(EntityState state, bool async)
@@ -1215,7 +1215,7 @@ WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [ChildShadowFk] AS [c]
-WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
@@ -1227,7 +1227,7 @@ WHERE (([c].[ParentId] = @__p_0) AND ([c].[ParentId] IS NOT NULL AND @__p_0 IS N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_shadow_fk(EntityState state, bool async)
@@ -1239,7 +1239,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
+WHERE [p].[Id] = @__p_0");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_shadow_fk(EntityState state, bool async)
@@ -1251,7 +1251,7 @@ WHERE ([p].[Id] = @__p_0) AND @__p_0 IS NOT NULL");
 
 SELECT TOP(2) [s].[Id], [s].[ParentId]
 FROM [SingleShadowFk] AS [s]
-WHERE (([s].[ParentId] = @__p_0) AND ([s].[ParentId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_0 IS NULL)");
+WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state, bool async)
@@ -1298,7 +1298,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE ((([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentAlternateId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentAlternateId] IS NULL AND @__p_0 IS NULL)) AND ((([c].[ParentId] = @__p_1) AND ([c].[ParentId] IS NOT NULL AND @__p_1 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_1 IS NULL))");
+WHERE (([c].[ParentAlternateId] = @__p_0) AND [c].[ParentAlternateId] IS NOT NULL) AND (([c].[ParentId] = @__p_1) AND [c].[ParentId] IS NOT NULL)");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_composite_key(EntityState state, bool async)
@@ -1311,7 +1311,7 @@ WHERE ((([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentAlternateId] IS NOT N
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__p_1) AND @__p_1 IS NOT NULL)");
+WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_composite_key(EntityState state, bool async)
@@ -1324,7 +1324,7 @@ WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__p_1) AND @__p_1 IS NOT NULL)");
+WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_composite_key(EntityState state, bool async)
@@ -1337,7 +1337,7 @@ WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__
 
 SELECT [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE ((([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentAlternateId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentAlternateId] IS NULL AND @__p_0 IS NULL)) AND ((([s].[ParentId] = @__p_1) AND ([s].[ParentId] IS NOT NULL AND @__p_1 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_1 IS NULL))");
+WHERE (([s].[ParentAlternateId] = @__p_0) AND [s].[ParentAlternateId] IS NOT NULL) AND (([s].[ParentId] = @__p_1) AND [s].[ParentId] IS NOT NULL)");
         }
 
         public override async Task Load_collection_using_Query_composite_key(EntityState state, bool async)
@@ -1350,7 +1350,7 @@ WHERE ((([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentAlternateId] IS NOT N
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE ((([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentAlternateId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([c].[ParentAlternateId] IS NULL AND @__p_0 IS NULL)) AND ((([c].[ParentId] = @__p_1) AND ([c].[ParentId] IS NOT NULL AND @__p_1 IS NOT NULL)) OR ([c].[ParentId] IS NULL AND @__p_1 IS NULL))");
+WHERE (([c].[ParentAlternateId] = @__p_0) AND [c].[ParentAlternateId] IS NOT NULL) AND (([c].[ParentId] = @__p_1) AND [c].[ParentId] IS NOT NULL)");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
@@ -1363,7 +1363,7 @@ WHERE ((([c].[ParentAlternateId] = @__p_0) AND ([c].[ParentAlternateId] IS NOT N
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__p_1) AND @__p_1 IS NOT NULL)");
+WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
         }
 
         public override async Task Load_one_to_one_reference_to_principal_using_Query_composite_key(EntityState state, bool async)
@@ -1376,7 +1376,7 @@ WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__
 
 SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
-WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__p_1) AND @__p_1 IS NOT NULL)");
+WHERE ([p].[AlternateId] = @__p_0) AND ([p].[Id] = @__p_1)");
         }
 
         public override async Task Load_one_to_one_reference_to_dependent_using_Query_composite_key(EntityState state, bool async)
@@ -1389,7 +1389,7 @@ WHERE (([p].[AlternateId] = @__p_0) AND @__p_0 IS NOT NULL) AND (([p].[Id] = @__
 
 SELECT TOP(2) [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE ((([s].[ParentAlternateId] = @__p_0) AND ([s].[ParentAlternateId] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([s].[ParentAlternateId] IS NULL AND @__p_0 IS NULL)) AND ((([s].[ParentId] = @__p_1) AND ([s].[ParentId] IS NOT NULL AND @__p_1 IS NOT NULL)) OR ([s].[ParentId] IS NULL AND @__p_1 IS NULL))");
+WHERE (([s].[ParentAlternateId] = @__p_0) AND [s].[ParentAlternateId] IS NOT NULL) AND (([s].[ParentId] = @__p_1) AND [s].[ParentId] IS NOT NULL)");
         }
 
         public override async Task Load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state, bool async)

@@ -396,7 +396,7 @@ WHERE [w].[AmmunitionType] IS NULL");
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)");
+WHERE ([w].[AmmunitionType] = @__ammunitionType_0) AND [w].[AmmunitionType] IS NOT NULL");
         }
 
         public override async Task Where_nullable_enum_with_nullable_parameter(bool isAsync)
@@ -408,13 +408,11 @@ WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)",
+WHERE ([w].[AmmunitionType] = @__ammunitionType_0) AND [w].[AmmunitionType] IS NOT NULL",
                 //
-                @"@__ammunitionType_0=NULL (DbType = Int32)
-
-SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
-WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)");
+WHERE [w].[AmmunitionType] IS NULL");
         }
 
         public override async Task Where_bitwise_and_enum(bool isAsync)
@@ -718,7 +716,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (((([g].[Rank] & (
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (((([g].[Rank] & @__parameter_0) = @__parameter_0) AND ([g].[Rank] & @__parameter_0 IS NOT NULL AND @__parameter_0 IS NOT NULL)) OR ([g].[Rank] & @__parameter_0 IS NULL AND @__parameter_0 IS NULL))");
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ((([g].[Rank] & @__parameter_0) = @__parameter_0) AND [g].[Rank] & @__parameter_0 IS NOT NULL)");
         }
 
         public override async Task Where_has_flag_with_nullable_parameter(bool isAsync)
@@ -730,7 +728,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (((([g].[Rank] & @__param
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (((([g].[Rank] & @__parameter_0) = @__parameter_0) AND ([g].[Rank] & @__parameter_0 IS NOT NULL AND @__parameter_0 IS NOT NULL)) OR ([g].[Rank] & @__parameter_0 IS NULL AND @__parameter_0 IS NULL))");
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ((([g].[Rank] & @__parameter_0) = @__parameter_0) AND [g].[Rank] & @__parameter_0 IS NOT NULL)");
         }
 
         public override async Task Select_enum_has_flag(bool isAsync)
@@ -799,20 +797,44 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)");
                 @"@__ammunitionType_0='1' (Nullable = true)
 
 SELECT [w].[Id], CASE
-    WHEN (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL) THEN CAST(1 AS bit)
+    WHEN ([w].[AmmunitionType] = @__ammunitionType_0) AND [w].[AmmunitionType] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Cartridge]
 FROM [Weapons] AS [w]
-WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)",
+WHERE ([w].[AmmunitionType] = @__ammunitionType_0) AND [w].[AmmunitionType] IS NOT NULL",
+                //
+                @"SELECT [w].[Id], CASE
+    WHEN [w].[AmmunitionType] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Cartridge]
+FROM [Weapons] AS [w]
+WHERE [w].[AmmunitionType] IS NULL");
+        }
+
+        public override async Task Select_null_parameter(bool isAsync)
+        {
+            await base.Select_null_parameter(isAsync);
+
+            AssertSql(
+                @"@__ammunitionType_0='1' (Nullable = true)
+
+SELECT [w].[Id], @__ammunitionType_0 AS [AmmoType]
+FROM [Weapons] AS [w]",
                 //
                 @"@__ammunitionType_0=NULL (DbType = Int32)
 
-SELECT [w].[Id], CASE
-    WHEN (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL) THEN CAST(1 AS bit)
-    ELSE CAST(0 AS bit)
-END AS [Cartridge]
-FROM [Weapons] AS [w]
-WHERE (([w].[AmmunitionType] = @__ammunitionType_0) AND ([w].[AmmunitionType] IS NOT NULL AND @__ammunitionType_0 IS NOT NULL)) OR ([w].[AmmunitionType] IS NULL AND @__ammunitionType_0 IS NULL)");
+SELECT [w].[Id], @__ammunitionType_0 AS [AmmoType]
+FROM [Weapons] AS [w]",
+                //
+                @"@__ammunitionType_0='2' (Nullable = true)
+
+SELECT [w].[Id], @__ammunitionType_0 AS [AmmoType]
+FROM [Weapons] AS [w]",
+                //
+                @"@__ammunitionType_0=NULL (DbType = Int32)
+
+SELECT [w].[Id], @__ammunitionType_0 AS [AmmoType]
+FROM [Weapons] AS [w]");
         }
 
         public override async Task Select_ternary_operation_with_boolean(bool isAsync)
@@ -1871,7 +1893,7 @@ WHERE ('Unknown' = [c].[Location]) AND [c].[Location] IS NOT NULL");
 
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE (([c].[Location] = @__value_0) AND ([c].[Location] IS NOT NULL AND @__value_0 IS NOT NULL)) OR ([c].[Location] IS NULL AND @__value_0 IS NULL)");
+WHERE ([c].[Location] = @__value_0) AND [c].[Location] IS NOT NULL");
         }
 
         public override async Task Non_unicode_string_literals_in_contains_is_used_for_non_unicode_column(bool isAsync)
@@ -7027,7 +7049,7 @@ FROM [Gears] AS [g]
 LEFT JOIN (
     SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
     FROM [Weapons] AS [w]
-    WHERE ([w].[IsAutomatic] = @__isAutomatic_0) AND @__isAutomatic_0 IS NOT NULL
+    WHERE [w].[IsAutomatic] = @__isAutomatic_0
 ) AS [t] ON [g].[FullName] = [t].[OwnerFullName]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
@@ -7258,7 +7280,7 @@ SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthNa
 FROM (
     SELECT DISTINCT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE ([g].[Discriminator] IN (N'Gear', N'Officer') AND (([g].[Nickname] <> @__prm_Inner_Nickname_0) OR @__prm_Inner_Nickname_0 IS NULL)) AND (([g].[Nickname] <> @__prm_Inner_Nickname_0) OR @__prm_Inner_Nickname_0 IS NULL)
+    WHERE ([g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Nickname] <> @__prm_Inner_Nickname_0)) AND ([g].[Nickname] <> @__prm_Inner_Nickname_0)
 ) AS [t]
 ORDER BY [t].[FullName]");
         }
@@ -7275,10 +7297,10 @@ FROM (
     SELECT DISTINCT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
     INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
-    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (([s].[Id] = @__entity_equality_prm_Inner_Squad_0_Id) AND @__entity_equality_prm_Inner_Squad_0_Id IS NOT NULL)
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([s].[Id] = @__entity_equality_prm_Inner_Squad_0_Id)
 ) AS [t]
 INNER JOIN [Squads] AS [s0] ON [t].[SquadId] = [s0].[Id]
-WHERE ([s0].[Id] = @__entity_equality_prm_Inner_Squad_0_Id) AND @__entity_equality_prm_Inner_Squad_0_Id IS NOT NULL
+WHERE [s0].[Id] = @__entity_equality_prm_Inner_Squad_0_Id
 ORDER BY [t].[FullName]");
         }
 

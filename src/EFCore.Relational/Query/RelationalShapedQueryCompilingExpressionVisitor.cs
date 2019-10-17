@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -16,6 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
         private readonly ISet<string> _tags;
+        private readonly bool _useRelationalNulls;
 
         public RelationalShapedQueryCompilingExpressionVisitor(
             ShapedQueryCompilingExpressionVisitorDependencies dependencies,
@@ -28,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _contextType = queryCompilationContext.ContextType;
             _logger = queryCompilationContext.Logger;
             _tags = queryCompilationContext.Tags;
+            _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
         protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
@@ -68,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 RelationalDependencies.SqlExpressionFactory,
                 RelationalDependencies.ParameterNameGeneratorFactory,
                 RelationalDependencies.QuerySqlGeneratorFactory,
+                _useRelationalNulls,
                 selectExpression);
 
             var shaperLambda = (LambdaExpression)shaper;

@@ -912,6 +912,63 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Select_null_parameter(bool isAsync)
+        {
+            AmmunitionType? ammunitionType = AmmunitionType.Cartridge;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>()
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            AmmoType = ammunitionType
+                        }),
+                elementSorter: e => e.Id);
+
+            ammunitionType = null;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>()
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            AmmoType = ammunitionType
+                        }),
+                elementSorter: e => e.Id);
+
+            ammunitionType = AmmunitionType.Shell;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>()
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            AmmoType = ammunitionType
+                        }),
+                elementSorter: e => e.Id);
+
+            ammunitionType = null;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>()
+                    .Select(
+                        w => new
+                        {
+                            w.Id,
+                            AmmoType = ammunitionType
+                        }),
+                elementSorter: e => e.Id);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_ternary_operation_with_boolean(bool isAsync)
         {
             return AssertQuery(

@@ -1358,7 +1358,7 @@ WHERE [c].[CustomerID] = N'ANATR'");
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (([o].[OrderDate] = @__arg_0) AND ([o].[OrderDate] IS NOT NULL AND @__arg_0 IS NOT NULL)) OR ([o].[OrderDate] IS NULL AND @__arg_0 IS NULL)");
+WHERE ([o].[OrderDate] = @__arg_0) AND [o].[OrderDate] IS NOT NULL");
         }
 
         public override async Task Static_equals_int_compared_to_long(bool isAsync)

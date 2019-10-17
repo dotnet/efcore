@@ -2254,13 +2254,13 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL",
+WHERE [e].[Id] = @__id_0",
                         //
                         @"@__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
+WHERE [e].[Id] = @__id_0");
                 }
             }
         }
@@ -2291,13 +2291,13 @@ WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL",
+WHERE [e].[Id] = @__id_0",
                         //
                         @"@__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
+WHERE [e].[Id] = @__id_0");
                 }
             }
         }
@@ -2333,7 +2333,7 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] IN (
     SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE ([e0].[Id] = @__id_0) AND @__id_0 IS NOT NULL
+    WHERE [e0].[Id] = @__id_0
 )",
                         //
                         @"@__id_0='2'
@@ -2343,7 +2343,7 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] IN (
     SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE ([e0].[Id] = @__id_0) AND @__id_0 IS NOT NULL
+    WHERE [e0].[Id] = @__id_0
 )");
                 }
             }
@@ -2372,13 +2372,11 @@ WHERE [e].[Id] IN (
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE (([e].[Name] = @__name_0) AND ([e].[Name] IS NOT NULL AND @__name_0 IS NOT NULL)) OR ([e].[Name] IS NULL AND @__name_0 IS NULL)",
+WHERE ([e].[Name] = @__name_0) AND [e].[Name] IS NOT NULL",
                         //
-                        @"@__name_0=NULL (Size = 4000)
-
-SELECT [e].[Id], [e].[Name]
+                        @"SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE (([e].[Name] = @__name_0) AND ([e].[Name] IS NOT NULL AND @__name_0 IS NOT NULL)) OR ([e].[Name] IS NULL AND @__name_0 IS NULL)");
+WHERE [e].[Name] IS NULL");
                 }
             }
         }
@@ -5886,7 +5884,7 @@ WHERE [r].[IsRemoved] = CAST(1 AS bit)");
 
 SELECT [p].[Id], [p].[RemovableEntityId]
 FROM [Parents] AS [p]
-WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
+WHERE [p].[Id] = @__id_0");
                 }
             }
         }
@@ -5996,7 +5994,7 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE (([f].[String] = @__bar_Value_0) AND ([f].[String] IS NOT NULL AND @__bar_Value_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__bar_Value_0 IS NULL)");
+WHERE ([f].[String] = @__bar_Value_0) AND [f].[String] IS NOT NULL");
                 }
             }
         }
@@ -6017,7 +6015,7 @@ WHERE (([f].[String] = @__bar_Value_0) AND ([f].[String] IS NOT NULL AND @__bar_
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE (([f].[String] = @__ToString_0) AND ([f].[String] IS NOT NULL AND @__ToString_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__ToString_0 IS NULL)");
+WHERE ([f].[String] = @__ToString_0) AND [f].[String] IS NOT NULL");
                 }
             }
         }
@@ -6038,7 +6036,7 @@ WHERE (([f].[String] = @__ToString_0) AND ([f].[String] IS NOT NULL AND @__ToStr
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE (([f].[String] = @__p_0) AND ([f].[String] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__p_0 IS NULL)");
+WHERE ([f].[String] = @__p_0) AND [f].[String] IS NOT NULL");
                 }
             }
         }

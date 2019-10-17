@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ISqlExpressionFactory sqlExpressionFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+                bool useRelationalNulls,
                 SelectExpression selectExpression)
             {
                 _memoryCache = memoryCache;
@@ -36,9 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
                 _querySqlGeneratorFactory = querySqlGeneratorFactory;
                 _selectExpression = selectExpression;
+
                 _parameterValueBasedSelectExpressionOptimizer = new ParameterValueBasedSelectExpressionOptimizer(
                     _sqlExpressionFactory,
-                    _parameterNameGeneratorFactory);
+                    _parameterNameGeneratorFactory,
+                    useRelationalNulls);
             }
 
             public virtual IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object> parameters)
@@ -55,10 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     try
                     {
-                        var selectExpression = _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
-                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+                        var optimizeResult = _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
+                        var selectExpression = 
+                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(optimizeResult.selectExpression);
 
-                        if (ReferenceEquals(selectExpression, _selectExpression))
+                        if (optimizeResult.canCache)
                         {
                             _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
                         }

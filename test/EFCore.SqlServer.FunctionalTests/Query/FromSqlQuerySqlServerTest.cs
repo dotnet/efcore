@@ -339,7 +339,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
-WHERE (([c].[ContactTitle] = @__contactTitle_1) AND ([c].[ContactTitle] IS NOT NULL AND @__contactTitle_1 IS NOT NULL)) OR ([c].[ContactTitle] IS NULL AND @__contactTitle_1 IS NULL)");
+WHERE ([c].[ContactTitle] = @__contactTitle_1) AND [c].[ContactTitle] IS NOT NULL");
         }
 
         public override void FromSqlRaw_queryable_simple_cache_key_includes_query_string()

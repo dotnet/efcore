@@ -90,7 +90,7 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT NULL AND @__timeSpan_0 IS NOT NULL)) OR ([m].[TimeSpanAsTime] IS NULL AND @__timeSpan_0 IS NULL)");
+WHERE ([m].[TimeSpanAsTime] = @__timeSpan_0) AND [m].[TimeSpanAsTime] IS NOT NULL");
             }
         }
 
@@ -547,22 +547,15 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                     context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNationalCharacterVaryingMax == param29));
 
                 string param30 = null;
-                var message30 = Assert.Throws<SqlException>(
-                    () => context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30)).Message;
 
-                // Expect: "The data types text and text are incompatible in the equal to operator."
-                Assert.NotEqual(
-                    message30.IndexOf("text", StringComparison.Ordinal),
-                    message30.LastIndexOf("text", StringComparison.Ordinal));
+                Assert.Same(
+                    entity,
+                    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30));
 
                 string param31 = null;
-                var message31 = Assert.Throws<SqlException>(
-                    () => context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31)).Message;
-
-                // Expect: "The data types ntext and ntext are incompatible in the equal to operator."
-                Assert.NotEqual(
-                    message31.IndexOf("ntext", StringComparison.Ordinal),
-                    message31.LastIndexOf("ntext", StringComparison.Ordinal));
+                Assert.Same(
+                    entity,
+                    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31));
 
                 byte[] param35 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsVarbinaryMax == param35));
@@ -572,13 +565,9 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                     entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsBinaryVaryingMax == param36));
 
                 byte[] param37 = null;
-                var message37 = Assert.Throws<SqlException>(
-                    () => context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37)).Message;
-
-                // Expect: "The data types image and image are incompatible in the equal to operator."
-                Assert.NotEqual(
-                    message37.IndexOf("image", StringComparison.Ordinal),
-                    message37.LastIndexOf("image", StringComparison.Ordinal));
+                Assert.Same(
+                    entity,
+                    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37));
 
                 decimal? param38 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.Decimal == param38));
