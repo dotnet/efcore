@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual async Task Calling_Reload_on_an__Added_entity_that_is_not_in_database_is_no_op(bool async)
+        public virtual async Task Calling_Reload_on_an_Added_entity_that_is_not_in_database_is_no_op(bool async)
         {
             using (var c = CreateF1Context())
             {
@@ -593,6 +593,84 @@ namespace Microsoft.EntityFrameworkCore
                             Assert.Equal(EntityState.Unchanged, entry.State);
                             Assert.Equal("Jenson Button", larry.Name);
                             Assert.Equal("Jenson Button", entry.Property(e => e.Name).CurrentValue);
+                        }
+                    });
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_GetDatabaseValues_on_owned_entity_works(bool async)
+        {
+            using (var c = CreateF1Context())
+            {
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                    c, async context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
+                        {
+                            var titleSponsor = context.Set<TitleSponsor>().Single(t => t.Name == "Vodafone");
+
+                            var ownerEntry = context.Entry(titleSponsor);
+                            var ownedEntry = ownerEntry.Reference(e => e.Details).TargetEntry;
+
+                            using (var innerContext = CreateF1Context())
+                            {
+                                UseTransaction(innerContext.Database, transaction);
+
+                                var innerTitleSponsor = innerContext.Set<TitleSponsor>().Single(t => t.Name == "Vodafone");
+                                innerTitleSponsor.Details.Days = 5;
+
+                                await innerContext.SaveChangesAsync();
+
+                                var databaseValues = async
+                                    ? await ownedEntry.GetDatabaseValuesAsync()
+                                    : ownedEntry.GetDatabaseValues();
+                                Assert.Equal(5, databaseValues.GetValue<int>("Days"));
+                            }
+                        }
+                    });
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Calling_Reload_on_owned_entity_works(bool async)
+        {
+            using (var c = CreateF1Context())
+            {
+                await c.Database.CreateExecutionStrategy().ExecuteAsync(
+                    c, async context =>
+                    {
+                        using (var transaction = context.Database.BeginTransaction())
+                        {
+                            var titleSponsor = context.Set<TitleSponsor>().Single(t => t.Name == "Vodafone");
+
+                            var ownerEntry = context.Entry(titleSponsor);
+                            var ownedEntry = ownerEntry.Reference(e => e.Details).TargetEntry;
+
+                            using (var innerContext = CreateF1Context())
+                            {
+                                UseTransaction(innerContext.Database, transaction);
+
+                                var innerTitleSponsor = innerContext.Set<TitleSponsor>().Single(t => t.Name == "Vodafone");
+                                innerTitleSponsor.Details.Days = 5;
+
+                                await innerContext.SaveChangesAsync();
+
+                                if (async)
+                                {
+                                    await ownedEntry.ReloadAsync();
+                                }
+                                else
+                                {
+                                    ownedEntry.Reload();
+                                }
+
+                                Assert.Equal(5, ownedEntry.Property(e => e.Days).CurrentValue);
+                            }
                         }
                     });
             }
