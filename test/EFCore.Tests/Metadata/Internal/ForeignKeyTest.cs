@@ -114,11 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property2 = principalEntityType.AddProperty("Id1", typeof(int));
             var property3 = principalEntityType.AddProperty("Id2", typeof(int));
             principalEntityType.SetPrimaryKey(
-                new[]
-                {
-                    property2,
-                    property3
-                });
+                new[] { property2, property3 });
 
             Assert.Equal(
                 CoreStrings.ForeignKeyTypeMismatch("{'P1', 'P2'}", "D", "{'Id1', 'Id2'}", "P"),
@@ -186,11 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property1 = entityType.AddProperty("Id2", typeof(string));
             property1.IsNullable = false;
             entityType.SetPrimaryKey(
-                new[]
-                {
-                    property,
-                    property1
-                });
+                new[] { property, property1 });
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int));
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
@@ -212,11 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property3 = entityType.AddProperty("Id2", typeof(string));
             property3.IsNullable = false;
             entityType.SetPrimaryKey(
-                new[]
-                {
-                    property,
-                    property3
-                });
+                new[] { property, property3 });
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int));
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
@@ -237,11 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var property1 = entityType.AddProperty("Id2", typeof(string));
             property1.IsNullable = false;
             entityType.SetPrimaryKey(
-                new[]
-                {
-                    property,
-                    property1
-                });
+                new[] { property, property1 });
 
             var dependentProp1 = entityType.AddProperty("P1", typeof(int?));
             dependentProp1.IsNullable = false;

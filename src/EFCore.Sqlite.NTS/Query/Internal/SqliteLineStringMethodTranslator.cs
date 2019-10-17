@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     {
         private static readonly MethodInfo _getPointN
             = typeof(LineString).GetRuntimeMethod(nameof(LineString.GetPointN), new[] { typeof(int) });
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqliteLineStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -26,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             {
                 return _sqlExpressionFactory.Function(
                     "PointN",
-                    new SqlExpression[] {
+                    new[]
+                    {
                         instance,
                         _sqlExpressionFactory.Add(
                             arguments[0],

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using JetBrains.Annotations;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
@@ -98,21 +99,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         protected override bool ShouldRetryOn(Exception exception)
         {
+            if (exception is CosmosException cosmosException)
+            {
+                return IsTransient(cosmosException.StatusCode);
+            }
+
             if (exception is HttpException httpException)
             {
-                var statusCode = (int)httpException.Response.StatusCode;
-                return statusCode == 429
-                       || statusCode == 503;
+                return IsTransient(httpException.Response.StatusCode);
             }
 
             if (exception is WebException webException)
             {
-                var statusCode = (int)((HttpWebResponse)webException.Response).StatusCode;
-                return statusCode == 429
-                       || statusCode == 503;
+                return IsTransient(((HttpWebResponse)webException.Response).StatusCode);
             }
 
             return false;
+
+            static bool IsTransient(HttpStatusCode statusCode)
+                => statusCode == HttpStatusCode.ServiceUnavailable
+                       || statusCode == (HttpStatusCode)429; // TooManyRequests
         }
 
         /// <summary>
@@ -135,6 +141,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private static TimeSpan? GetDelayFromException(Exception exception)
         {
+            if (exception is CosmosException cosmosException)
+            {
+                return cosmosException.RetryAfter;
+            }
+
             if (exception is HttpException httpException)
             {
                 if (httpException.Response.Headers.TryGetValues("x-ms-retry-after-ms", out var values))

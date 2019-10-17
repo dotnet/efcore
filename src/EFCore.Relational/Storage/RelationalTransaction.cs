@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -175,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Commits all changes made to the database in the current transaction asynchronously.
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the asynchronous operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         public virtual async Task CommitAsync(CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -225,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Discards all changes made to the database in the current transaction asynchronously.
         /// </summary>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the asynchronous operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         public virtual async Task RollbackAsync(CancellationToken cancellationToken = default)
         {
             var startTime = DateTimeOffset.UtcNow;
@@ -306,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (_transactionOwned)
                 {
-                    await _dbTransaction.DisposeAsync();
+                    await _dbTransaction.DisposeAsyncIfAvailable();
 
                     Logger.TransactionDisposed(
                         Connection,

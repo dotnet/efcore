@@ -134,9 +134,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private static void FormatParameterValue(StringBuilder builder, object parameterValue)
         {
-            if (parameterValue == null)
+            if (parameterValue == null || parameterValue == DBNull.Value)
             {
-                builder.Append("''");
+                builder.Append("NULL");
             }
             else if (parameterValue.GetType() == typeof(DateTime))
             {

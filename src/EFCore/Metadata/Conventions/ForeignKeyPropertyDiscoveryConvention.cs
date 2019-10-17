@@ -28,7 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         the exact name as principal key properties if they are a proper subset of the dependent PK.
     ///     </para>
     ///     <para>
-    ///     
     ///     </para>
     ///     <para>
     ///         If a match was found, but the property types are not compatible with the principal key types no further matches are searched for.
@@ -223,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                         var invertedRelationshipBuilder = relationshipBuilder
                                             .HasEntityTypes(foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
                                         return batch.Run(
-                                            invertedRelationshipBuilder.HasForeignKey(candidatePropertiesOnPrincipal).Metadata)
+                                                invertedRelationshipBuilder.HasForeignKey(candidatePropertiesOnPrincipal).Metadata)
                                             ?.Builder;
                                     }
                                 }
@@ -241,8 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             && dependentPk.Properties.Count > foreignKey.PrincipalKey.Properties.Count
                             && TryFindMatchingProperties(foreignKey, "", onDependent: true, matchPk: false, out foreignKeyProperties)
                             && foreignKeyProperties != null
-                            && foreignKeyProperties.Any(p => !dependentPk.Properties.Contains(p)
-                                || p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
+                            && foreignKeyProperties.Any(
+                                p => !dependentPk.Properties.Contains(p)
+                                     || p.Name.Equals("Id", StringComparison.OrdinalIgnoreCase)))
                         {
                             foreignKeyProperties = null;
                         }
@@ -705,7 +705,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionKey previousPrimaryKey,
             IConventionContext<IConventionKey> context)
         {
-            if (newPrimaryKey != null && newPrimaryKey.Builder == null)
+            if (newPrimaryKey != null
+                && newPrimaryKey.Builder == null)
             {
                 return;
             }

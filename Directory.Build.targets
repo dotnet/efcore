@@ -2,11 +2,11 @@
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <ItemGroup>
-    <!-- HACK: Use the latest version instead of the one bundled with the SDK -->
+    <!-- Use the latest version instead of the one bundled with the SDK -->
     <KnownFrameworkReference Update="Microsoft.NETCore.App">
-      <LatestRuntimeFrameworkVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppRuntimeVersion)</LatestRuntimeFrameworkVersion>
-      <DefaultRuntimeFrameworkVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppRuntimeVersion)</DefaultRuntimeFrameworkVersion>
-      <TargetingPackVersion Condition="'%(TargetFramework)' == 'netcoreapp3.0'">$(MicrosoftNETCoreAppRefPackageVersion)</TargetingPackVersion>
+      <LatestRuntimeFrameworkVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRuntimeVersion)</LatestRuntimeFrameworkVersion>
+      <DefaultRuntimeFrameworkVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRuntimeVersion)</DefaultRuntimeFrameworkVersion>
+      <TargetingPackVersion Condition="'%(TargetFramework)' == '$(DefaultNetCoreTargetFramework)'">$(MicrosoftNETCoreAppRefPackageVersion)</TargetingPackVersion>
     </KnownFrameworkReference>
     <KnownFrameworkReference Update="NETStandard.Library">
       <TargetingPackVersion Condition="'%(TargetFramework)' == 'netstandard2.1'">$(NETStandardLibraryRefPackageVersion)</TargetingPackVersion>

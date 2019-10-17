@@ -137,10 +137,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var original2 = EqualsExpression.Parameters[1];
 
             return new ReplacingExpressionVisitor(
-                new Dictionary<Expression, Expression> {
-                    { original1, leftExpression },
-                    { original2, rightExpression }
-                }).Visit(EqualsExpression.Body);
+                    new Dictionary<Expression, Expression> { { original1, leftExpression }, { original2, rightExpression } })
+                .Visit(EqualsExpression.Body);
         }
 
         /// <summary>

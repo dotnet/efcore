@@ -11,9 +11,9 @@ using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual Guid ConnectionId { get; } = Guid.NewGuid();
 
         /// <summary>
-        ///     The <see cref="DbContext"/> currently in use, or null if not known.
+        ///     The <see cref="DbContext" /> currently in use, or null if not known.
         /// </summary>
         public virtual DbContext Context { get; }
 
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The newly created transaction. </returns>
         [NotNull]
         // ReSharper disable once RedundantNameQualifier
-        public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(System.Data.IsolationLevel.Unspecified);
+        public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
 
         /// <summary>
         ///     Asynchronously begins a new transaction.
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [NotNull]
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             // ReSharper disable once RedundantNameQualifier
-            => await BeginTransactionAsync(System.Data.IsolationLevel.Unspecified, cancellationToken);
+            => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
 
         /// <summary>
         ///     Begins a new transaction.
@@ -214,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <returns> The newly created transaction. </returns>
         // ReSharper disable once RedundantNameQualifier
-        public virtual IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel)
+        public virtual IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             Open();
 
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
             // ReSharper disable once RedundantNameQualifier
-            System.Data.IsolationLevel isolationLevel,
+            IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
         {
             await OpenAsync(cancellationToken);
@@ -676,6 +676,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     await CurrentTransaction.DisposeAsync();
                 }
+
                 ClearTransactions(clearAmbient: false);
 
                 if (DbConnection.State != ConnectionState.Closed)
@@ -771,12 +772,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 await CurrentTransaction.DisposeAsync();
             }
+
             ClearTransactions(clearAmbient: true);
 
             if (_connectionOwned
                 && _connection != null)
             {
-                await DbConnection.DisposeAsync();
+                await DbConnection.DisposeAsyncIfAvailable();
                 _connection = null;
                 _openedCount = 0;
             }

@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _database = dependencies.Database;
             _concurrencyDetector = dependencies.ConcurrencyDetector;
             Context = dependencies.CurrentContext.Context;
-            EntityFinderFactory = new EntityFinderFactory(dependencies.EntityFinderSource, this, dependencies.SetSource, dependencies.CurrentContext.Context);
+            EntityFinderFactory = new EntityFinderFactory(
+                dependencies.EntityFinderSource, this, dependencies.SetSource, dependencies.CurrentContext.Context);
             EntityMaterializerSource = dependencies.EntityMaterializerSource;
 
             if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -239,9 +240,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (!entityType.IsAssignableFrom(runtimeEntityType))
                     {
-                        throw new InvalidOperationException(CoreStrings.TrackingTypeMismatch(
-                            runtimeEntityType.DisplayName(), entityType.DisplayName()));
+                        throw new InvalidOperationException(
+                            CoreStrings.TrackingTypeMismatch(
+                                runtimeEntityType.DisplayName(), entityType.DisplayName()));
                     }
+
                     entityType = runtimeEntityType;
                 }
 
@@ -266,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry CreateEntry(IDictionary<string, object> values, IEntityType entityType)
         {
-            var (i, j) = (0, 0);
+            var i = 0;
             var valuesArray = new object[entityType.PropertyCount()];
             var shadowPropertyValuesArray = new object[entityType.ShadowPropertyCount()];
             foreach (var property in entityType.GetProperties())
@@ -277,7 +280,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (property.IsShadowProperty())
                 {
-                    shadowPropertyValuesArray[j++] = values.TryGetValue(property.Name, out var shadowValue)
+                    shadowPropertyValuesArray[property.GetShadowIndex()] = values.TryGetValue(property.Name, out var shadowValue)
                         ? shadowValue
                         : property.ClrType.GetDefaultValue();
                 }
@@ -403,13 +406,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (throwOnTypeMismatch)
                 {
-                    throw new InvalidOperationException(CoreStrings.TrackingTypeMismatch(
-                        entry.EntityType.DisplayName(), entityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.TrackingTypeMismatch(
+                            entry.EntityType.DisplayName(), entityType.DisplayName()));
                 }
-                else
-                {
-                    return null;
-                }
+
+                return null;
             }
 
             return found ? entry : null;
@@ -756,7 +758,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 FindIdentityMap(foreignKey.PrincipalKey)
                     ?.TryGetEntryUsingRelationshipSnapshot(foreignKey, dependentEntry));
 
-        private static InternalEntityEntry FilterIncompatiblePrincipal(IForeignKey foreignKey,
+        private static InternalEntityEntry FilterIncompatiblePrincipal(
+            IForeignKey foreignKey,
             InternalEntityEntry principalEntry)
             => principalEntry != null
                && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
@@ -840,7 +843,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(
+            InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
             var navigation = foreignKey.PrincipalToDependent;
             if (navigation == null
@@ -1033,7 +1037,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
-                                dependent.SetProperty(dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
+                                dependent.SetProperty(
+                                    dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
                             }
 
                             if (dependent.HasConceptualNull)

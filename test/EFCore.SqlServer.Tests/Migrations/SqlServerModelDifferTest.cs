@@ -23,67 +23,80 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     {
         [ConditionalFact]
-        public void Alter_table_to_MemoryOptimized()
+        public void Alter_database_edition_options()
         {
             Execute(
-                source => source.Entity(
-                    "Person",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").IsClustered(false);
-                    }),
-                target => target.Entity(
-                    "Person",
-                    x =>
-                    {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").IsClustered(false);
-                        x.IsMemoryOptimized();
-                    }),
-                operations =>
+                _ => { },
+                source => source.HasDatabaseMaxSize("100 MB")
+                    .HasPerformanceLevel("'S0'"),
+                target => target
+                    .HasServiceTier("'basic'"),
+                upOps =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(1, upOps.Count);
 
-                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
-                    Assert.True(IsMemoryOptimized(alterDatabaseOperation));
-                    Assert.Null(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(upOps[0]);
+                    Assert.Equal(
+                        "EDITION = 'basic'",
+                        alterDatabaseOperation[SqlServerAnnotationNames.EditionOptions]);
+                    Assert.Equal(
+                        "MAXSIZE = 100 MB, SERVICE_OBJECTIVE = 'S0'",
+                        alterDatabaseOperation.OldDatabase[SqlServerAnnotationNames.EditionOptions]);
+                },
+                downOps =>
+                {
+                    Assert.Equal(1, downOps.Count);
 
-                    var alterTableOperation = Assert.IsType<AlterTableOperation>(operations[1]);
-                    Assert.Equal("Person", alterTableOperation.Name);
-                    Assert.True(IsMemoryOptimized(alterTableOperation));
-                    Assert.Null(IsMemoryOptimized(alterTableOperation.OldTable));
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(downOps[0]);
+                    Assert.Equal(
+                        "MAXSIZE = 100 MB, SERVICE_OBJECTIVE = 'S0'",
+                        alterDatabaseOperation[SqlServerAnnotationNames.EditionOptions]);
+                    Assert.Equal(
+                        "EDITION = 'basic'",
+                        alterDatabaseOperation.OldDatabase[SqlServerAnnotationNames.EditionOptions]);
                 });
         }
 
         [ConditionalFact]
-        public void Alter_table_from_MemoryOptimized()
+        public void Alter_table_MemoryOptimized()
         {
             Execute(
-                source => source.Entity(
+                common => common.Entity(
                     "Person",
                     x =>
                     {
                         x.Property<int>("Id");
                         x.HasKey("Id").IsClustered(false);
-                        x.IsMemoryOptimized();
                     }),
+                _ => { },
                 target => target.Entity(
                     "Person",
                     x =>
                     {
-                        x.Property<int>("Id");
-                        x.HasKey("Id").IsClustered(false);
+                        x.IsMemoryOptimized();
                     }),
-                operations =>
+                upOps =>
                 {
-                    Assert.Equal(2, operations.Count);
+                    Assert.Equal(2, upOps.Count);
 
-                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(operations[0]);
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(upOps[0]);
+                    Assert.True(IsMemoryOptimized(alterDatabaseOperation));
+                    Assert.Null(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
+
+                    var alterTableOperation = Assert.IsType<AlterTableOperation>(upOps[1]);
+                    Assert.Equal("Person", alterTableOperation.Name);
+                    Assert.True(IsMemoryOptimized(alterTableOperation));
+                    Assert.Null(IsMemoryOptimized(alterTableOperation.OldTable));
+                },
+                downOps =>
+                {
+                    Assert.Equal(2, downOps.Count);
+
+                    var alterDatabaseOperation = Assert.IsType<AlterDatabaseOperation>(downOps[0]);
                     Assert.Null(IsMemoryOptimized(alterDatabaseOperation));
                     Assert.True(IsMemoryOptimized(alterDatabaseOperation.OldDatabase));
 
-                    var alterTableOperation = Assert.IsType<AlterTableOperation>(operations[1]);
+                    var alterTableOperation = Assert.IsType<AlterTableOperation>(downOps[1]);
                     Assert.Equal("Person", alterTableOperation.Name);
                     Assert.Null(IsMemoryOptimized(alterTableOperation));
                     Assert.True(IsMemoryOptimized(alterTableOperation.OldTable));
@@ -353,10 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Id");
                         x.Property<int>("SequenceId");
                         x.HasData(
-                            new
-                            {
-                                Id = 42
-                            });
+                            new { Id = 42 });
                     }),
                 _ => { },
                 target => target.Entity(
@@ -366,10 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable("Firefly", "dbo");
                         x.Property<int>("SequenceId").UseHiLo(schema: "dbo");
                         x.HasData(
-                            new
-                            {
-                                Id = 43
-                            });
+                            new { Id = 43 });
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -503,31 +510,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new
-                            {
-                                Id = 99999,
-                                Value1 = 0,
-                                Value2 = ""
-                            }, // deleted
-                            new
-                            {
-                                Id = 42,
-                                Value1 = 32,
-                                Value2 = "equal",
-                                InvalidProperty = "is ignored"
-                            }, // modified
-                            new
-                            {
-                                Id = 8,
-                                Value1 = 100,
-                                Value2 = "equal"
-                            }, // unchanged
-                            new
-                            {
-                                Id = 24,
-                                Value1 = 72,
-                                Value2 = "not equal1"
-                            }); // modified
+                            new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
+                            new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -537,37 +523,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new
-                            {
-                                Id = 11111,
-                                Value1 = 0,
-                                Value2 = ""
-                            }, // added
-                            new
-                            {
-                                Id = 11112,
-                                Value1 = 1,
-                                Value2 = "new"
-                            }, // added
-                            new
-                            {
-                                Id = 42,
-                                Value1 = 27,
-                                Value2 = "equal",
-                                InvalidProperty = "is ignored here too"
-                            }, // modified
-                            new
-                            {
-                                Id = 8,
-                                Value1 = 100,
-                                Value2 = "equal"
-                            }, // unchanged
-                            new
-                            {
-                                Id = 24,
-                                Value1 = 99,
-                                Value2 = "not equal2"
-                            }); // modified
+                            new { Id = 11111, Value1 = 0, Value2 = "" }, // added
+                            new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
+                            new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
+                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
+                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -737,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.NotNull(annotation);
 
                     var annotationValue = Assert.IsType<string[]>(annotation.Value);
-                    Assert.Equal(1, annotationValue.Length);
+                    Assert.Single(annotationValue);
                     Assert.Equal("Street", annotationValue[0]);
                 });
         }
@@ -820,11 +780,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected override TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
-        protected override MigrationsModelDiffer CreateModelDiffer(IModel model)
+        protected override MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         {
-            var ctx = TestHelpers.CreateContext(
-                TestHelpers.AddProviderOptions(new DbContextOptionsBuilder())
-                    .UseModel(model).EnableSensitiveDataLogging().Options);
+            var ctx = TestHelpers.CreateContext(options);
             return new MigrationsModelDiffer(
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),

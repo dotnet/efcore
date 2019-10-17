@@ -376,7 +376,7 @@ WHERE [c].[Id] = 1",
 @p1='1'
 @p2='Kiwi' (Nullable = false) (Size = 4000)
 @p3='Little spotted kiwi' (Size = 4000)
-@p4='' (Size = 100)
+@p4=NULL (Size = 100)
 @p5='True'
 @p6='0' (Size = 1)
 

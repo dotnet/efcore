@@ -35,19 +35,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry1[key] = 1;
             entry1.SetEntityState(EntityState.Added);
             var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
-            modificationCommandAdded.AddEntry(entry1);
+            modificationCommandAdded.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
             entry2[key] = 2;
             entry2.SetEntityState(EntityState.Modified);
             var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
-            modificationCommandModified.AddEntry(entry2);
+            modificationCommandModified.AddEntry(entry2, true);
 
             var entry3 = stateManager.GetOrCreateEntry(new object());
             entry3[key] = 3;
             entry3.SetEntityState(EntityState.Deleted);
             var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
-            modificationCommandDeleted.AddEntry(entry3);
+            modificationCommandDeleted.AddEntry(entry3, true);
 
             var mCC = new ModificationCommandComparer();
 
@@ -171,16 +171,16 @@ namespace Microsoft.EntityFrameworkCore.Update
             entry1[keyProperty] = value1;
             entry1.SetEntityState(EntityState.Modified);
             var modificationCommand1 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
-            modificationCommand1.AddEntry(entry1);
+            modificationCommand1.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
             entry2[keyProperty] = value2;
             entry2.SetEntityState(EntityState.Modified);
             var modificationCommand2 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
-            modificationCommand2.AddEntry(entry2);
+            modificationCommand2.AddEntry(entry2, true);
 
             var modificationCommand3 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
-            modificationCommand3.AddEntry(entry1);
+            modificationCommand3.AddEntry(entry1, true);
 
             var mCC = new ModificationCommandComparer();
 

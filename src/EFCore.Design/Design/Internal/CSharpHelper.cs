@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             else
             {
                 builder.Append("new { ");
-                builder.AppendJoin(", ", properties.Select(p => "x." + p));
+                builder.Append(string.Join(", ", properties.Select(p => "x." + p)));
                 builder.Append(" }");
             }
 
@@ -324,7 +324,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Check.NotNull(name, nameof(name));
 
             var @namespace = new StringBuilder();
-            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p)).SelectMany(p => p.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
+            foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p))
+                .SelectMany(p => p.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
             {
                 var identifier = Identifier(piece);
                 if (!string.IsNullOrEmpty(identifier))
@@ -380,16 +381,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Literal(DateTime value)
             => string.Format(
-                CultureInfo.InvariantCulture,
-                "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
-                value.Year,
-                value.Month,
-                value.Day,
-                value.Hour,
-                value.Minute,
-                value.Second,
-                value.Millisecond,
-                value.Kind)
+                   CultureInfo.InvariantCulture,
+                   "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
+                   value.Year,
+                   value.Month,
+                   value.Day,
+                   value.Hour,
+                   value.Minute,
+                   value.Second,
+                   value.Millisecond,
+                   value.Kind)
                + (value.Ticks % 10000 == 0
                    ? ""
                    : string.Format(
@@ -430,22 +431,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 return $"double.{nameof(double.NaN)}";
             }
-            else if (double.IsNegativeInfinity(number))
+
+            if (double.IsNegativeInfinity(number))
             {
                 return $"double.{nameof(double.NegativeInfinity)}";
             }
-            else if (double.IsPositiveInfinity(number))
+
+            if (double.IsPositiveInfinity(number))
             {
                 return $"double.{nameof(double.PositiveInfinity)}";
             }
-            else
-            {
-                return !literal.Contains("E")
-                    && !literal.Contains("e")
-                    && !literal.Contains(".")
-                    ? literal + ".0"
-                    : literal;
-            }
+
+            return !literal.Contains("E")
+                   && !literal.Contains("e")
+                   && !literal.Contains(".")
+                ? literal + ".0"
+                : literal;
         }
 
         /// <summary>
@@ -547,7 +548,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(BigInteger value) => $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
+        public virtual string Literal(BigInteger value) =>
+            $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -740,7 +742,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
             }
 
-            return allValues.Aggregate((string)null,
+            return allValues.Aggregate(
+                (string)null,
                 (previous, current) =>
                     previous == null
                         ? GetSimpleEnumValue(type, Enum.GetName(type, current))
@@ -982,7 +985,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return ch < 'A'
                     ? false
                     : ch <= 'Z'
-                       || ch == '_';
+                      || ch == '_';
             }
 
             if (ch <= 'z')
@@ -999,9 +1002,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 return ch < 'A'
                     ? ch >= '0'
-                           && ch <= '9'
+                      && ch <= '9'
                     : ch <= 'Z'
-                       || ch == '_';
+                      || ch == '_';
             }
 
             if (ch <= 'z')

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
+using ModelSnapshot22;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
@@ -305,7 +306,7 @@ sqlite_sequence
 
         public override void Can_diff_against_2_2_model()
         {
-            using (var context = new ModelSnapshot22.BloggingContext())
+            using (var context = new BloggingContext())
             {
                 DiffSnapshot(new BloggingContextModelSnapshot22(), context);
             }
@@ -372,7 +373,8 @@ sqlite_sequence
                 modelBuilder
                     .HasAnnotation("ProductVersion", "2.1.0");
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRole", b =>
                     {
                         b.Property<string>("Id")
                             .ValueGeneratedOnAdd();
@@ -395,7 +397,8 @@ sqlite_sequence
                         b.ToTable("AspNetRoles");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                     {
                         b.Property<int>("Id")
                             .ValueGeneratedOnAdd();
@@ -414,7 +417,8 @@ sqlite_sequence
                         b.ToTable("AspNetRoleClaims");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUser", b =>
                     {
                         b.Property<string>("Id")
                             .ValueGeneratedOnAdd();
@@ -464,7 +468,8 @@ sqlite_sequence
                         b.ToTable("AspNetUsers");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                     {
                         b.Property<int>("Id")
                             .ValueGeneratedOnAdd();
@@ -483,7 +488,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserClaims");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                     {
                         b.Property<string>("LoginProvider")
                             .HasMaxLength(128);
@@ -503,7 +509,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserLogins");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                     {
                         b.Property<string>("UserId");
 
@@ -516,7 +523,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserRoles");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                     {
                         b.Property<string>("UserId");
 
@@ -533,7 +541,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserTokens");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
                             .WithMany()
@@ -541,7 +550,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                             .WithMany()
@@ -549,7 +559,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                             .WithMany()
@@ -557,7 +568,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
                             .WithMany()
@@ -570,7 +582,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                             .WithMany()
@@ -597,7 +610,8 @@ sqlite_sequence
                 modelBuilder
                     .HasAnnotation("ProductVersion", "2.2.0-preview1");
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRole", b =>
                     {
                         b.Property<string>("Id")
                             .ValueGeneratedOnAdd();
@@ -620,7 +634,8 @@ sqlite_sequence
                         b.ToTable("AspNetRoles");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                     {
                         b.Property<int>("Id")
                             .ValueGeneratedOnAdd();
@@ -639,7 +654,8 @@ sqlite_sequence
                         b.ToTable("AspNetRoleClaims");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUser", b =>
                     {
                         b.Property<string>("Id")
                             .ValueGeneratedOnAdd();
@@ -689,7 +705,8 @@ sqlite_sequence
                         b.ToTable("AspNetUsers");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                     {
                         b.Property<int>("Id")
                             .ValueGeneratedOnAdd();
@@ -708,7 +725,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserClaims");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                     {
                         b.Property<string>("LoginProvider")
                             .HasMaxLength(128);
@@ -728,7 +746,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserLogins");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                     {
                         b.Property<string>("UserId");
 
@@ -741,7 +760,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserRoles");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                     {
                         b.Property<string>("UserId");
 
@@ -758,7 +778,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserTokens");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
                             .WithMany()
@@ -766,7 +787,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                             .WithMany()
@@ -774,7 +796,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                             .WithMany()
@@ -782,7 +805,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
                             .WithMany()
@@ -795,7 +819,8 @@ sqlite_sequence
                             .OnDelete(DeleteBehavior.Cascade);
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                             .WithMany()
@@ -822,7 +847,8 @@ sqlite_sequence
                 modelBuilder
                     .HasAnnotation("ProductVersion", "3.0.0");
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRole", b =>
                     {
                         b.Property<string>("Id")
                             .HasColumnType("TEXT");
@@ -848,7 +874,8 @@ sqlite_sequence
                         b.ToTable("AspNetRoles");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                     {
                         b.Property<int>("Id")
                             .ValueGeneratedOnAdd()
@@ -871,7 +898,8 @@ sqlite_sequence
                         b.ToTable("AspNetRoleClaims");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUser", b =>
                     {
                         b.Property<string>("Id")
                             .HasColumnType("TEXT");
@@ -935,7 +963,8 @@ sqlite_sequence
                         b.ToTable("AspNetUsers");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                     {
                         b.Property<int>("Id")
                             .ValueGeneratedOnAdd()
@@ -958,7 +987,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserClaims");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                     {
                         b.Property<string>("LoginProvider")
                             .HasColumnType("TEXT")
@@ -982,7 +1012,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserLogins");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                     {
                         b.Property<string>("UserId")
                             .HasColumnType("TEXT");
@@ -997,7 +1028,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserRoles");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                     {
                         b.Property<string>("UserId")
                             .HasColumnType("TEXT");
@@ -1018,7 +1050,8 @@ sqlite_sequence
                         b.ToTable("AspNetUserTokens");
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                             .WithMany()
@@ -1027,7 +1060,8 @@ sqlite_sequence
                             .IsRequired();
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                             .WithMany()
@@ -1036,7 +1070,8 @@ sqlite_sequence
                             .IsRequired();
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                             .WithMany()
@@ -1045,7 +1080,8 @@ sqlite_sequence
                             .IsRequired();
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
                             .WithMany()
@@ -1060,7 +1096,8 @@ sqlite_sequence
                             .IsRequired();
                     });
 
-                modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                modelBuilder.Entity(
+                    "Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                     {
                         b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                             .WithMany()

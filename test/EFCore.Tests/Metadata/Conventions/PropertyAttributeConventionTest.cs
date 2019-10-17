@@ -133,10 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             entityTypeBuilder.PrimaryKey(
-                new List<string>
-                {
-                    "Id"
-                }, ConfigurationSource.Convention);
+                new List<string> { "Id" }, ConfigurationSource.Convention);
 
             RunConvention(propertyBuilder);
 
@@ -151,10 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var propertyBuilder = entityTypeBuilder.Property(typeof(int), "MyPrimaryKey", ConfigurationSource.Explicit);
 
             entityTypeBuilder.PrimaryKey(
-                new List<string>
-                {
-                    "Id"
-                }, ConfigurationSource.Explicit);
+                new List<string> { "Id" }, ConfigurationSource.Explicit);
 
             RunConvention(propertyBuilder);
 
@@ -235,11 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             derivedEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
 
             baseEntityTypeBuilder.PrimaryKey(
-                new List<string>
-                {
-                    "Id",
-                    "Name"
-                }, ConfigurationSource.Explicit);
+                new List<string> { "Id", "Name" }, ConfigurationSource.Explicit);
 
             Validate(derivedEntityTypeBuilder);
 
@@ -318,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder);
 
-            Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
+            Assert.DoesNotContain(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
         }
 
         [ConditionalFact]
@@ -329,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder);
 
-            Assert.True(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
+            Assert.Contains(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
         }
 
         [ConditionalFact]
@@ -338,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var modelBuilder = CreateModelBuilder();
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
-            Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
+            Assert.DoesNotContain(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
         }
 
         [ConditionalFact]
@@ -349,7 +339,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             entityTypeBuilder.Property<string>(nameof(F.IgnoredProperty));
 
             // Because bringing the property in by the fluent API overrides the annotation it has no effect
-            Assert.True(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
+            Assert.Contains(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
         }
 
         [ConditionalFact]
@@ -360,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             RunConvention(entityTypeBuilder);
 
-            Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
+            Assert.DoesNotContain(entityTypeBuilder.Metadata.GetProperties(), p => p.Name == "IgnoredProperty");
         }
 
         #endregion
@@ -683,11 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<B>().HasKey(
-                    e => new
-                    {
-                        e.MyPrimaryKey,
-                        e.Id
-                    });
+                    e => new { e.MyPrimaryKey, e.Id });
         }
     }
 }

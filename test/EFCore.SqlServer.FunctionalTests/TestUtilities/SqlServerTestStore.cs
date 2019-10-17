@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 #pragma warning disable IDE0022 // Use block body for methods
 // ReSharper disable SuggestBaseTypeForParameter
@@ -20,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class SqlServerTestStore : RelationalTestStore
     {
-        public const int CommandTimeout = 600;
+        public const int CommandTimeout = 300;
         private static string CurrentDirectory => Environment.CurrentDirectory;
 
         public static SqlServerTestStore GetNorthwindStore()
             => (SqlServerTestStore)SqlServerNorthwindTestStoreFactory.Instance
-                .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null, null, null);
+                .GetOrCreate(SqlServerNorthwindTestStoreFactory.Name).Initialize(null, (Func<DbContext>)null);
 
         public static SqlServerTestStore GetOrCreate(string name)
             => new SqlServerTestStore(name);
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public SqlServerTestStore InitializeSqlServer(
             IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed, null);
+            => (SqlServerTestStore)Initialize(serviceProvider, createContext, seed);
 
         public SqlServerTestStore InitializeSqlServer(
             IServiceProvider serviceProvider, Func<SqlServerTestStore, DbContext> createContext, Action<DbContext> seed)
@@ -95,13 +94,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
         }
 
-        public virtual DbContextOptionsBuilder AddProviderOptions(
-            DbContextOptionsBuilder builder,
-            Action<SqlServerDbContextOptionsBuilder> configureSqlServer)
-            => builder.UseSqlServer(Connection, b => configureSqlServer?.Invoke(b));
-
         public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
-            => AddProviderOptions(builder, configureSqlServer: null);
+            => builder.UseSqlServer(Connection, b => b.ApplyConfiguration());
 
         private bool CreateDatabase(Action<DbContext> clean)
         {
@@ -163,16 +157,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private static void WaitForExists(SqlConnection connection)
-        {
-            if (TestEnvironment.IsSqlAzure)
-            {
-                new TestSqlServerRetryingExecutionStrategy().Execute(connection, WaitForExistsImplementation);
-            }
-            else
-            {
-                WaitForExistsImplementation(connection);
-            }
-        }
+            => new TestSqlServerRetryingExecutionStrategy().Execute(connection, WaitForExistsImplementation);
 
         private static void WaitForExistsImplementation(SqlConnection connection)
         {
@@ -248,21 +233,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override void OpenConnection()
-        {
-            if (TestEnvironment.IsSqlAzure)
-            {
-                new TestSqlServerRetryingExecutionStrategy().Execute(Connection, connection => connection.Open());
-            }
-            else
-            {
-                Connection.Open();
-            }
-        }
+            => new TestSqlServerRetryingExecutionStrategy().Execute(Connection, connection => connection.Open());
 
         public override Task OpenConnectionAsync()
-            => TestEnvironment.IsSqlAzure
-                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(Connection, connection => connection.OpenAsync())
-                : Connection.OpenAsync();
+            => new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(Connection, connection => connection.OpenAsync());
 
         public T ExecuteScalar<T>(string sql, params object[] parameters)
             => ExecuteScalar<T>(Connection, sql, parameters);
@@ -330,15 +304,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             DbConnection connection, Func<DbCommand, T> execute, string sql,
             bool useTransaction = false, object[] parameters = null)
             => new TestSqlServerRetryingExecutionStrategy().Execute(
-                    new
-                    {
-                        connection,
-                        execute,
-                        sql,
-                        useTransaction,
-                        parameters
-                    },
-                    state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters));
+                new
+                {
+                    connection,
+                    execute,
+                    sql,
+                    useTransaction,
+                    parameters
+                },
+                state => ExecuteCommand(state.connection, state.execute, state.sql, state.useTransaction, state.parameters));
 
         private static T ExecuteCommand<T>(
             DbConnection connection, Func<DbCommand, T> execute, string sql, bool useTransaction, object[] parameters)
@@ -377,8 +351,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static Task<T> ExecuteAsync<T>(
             DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql,
             bool useTransaction = false, IReadOnlyList<object> parameters = null)
-            => TestEnvironment.IsSqlAzure
-                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
+            => new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
                     new
                     {
                         connection,
@@ -387,8 +360,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         useTransaction,
                         parameters
                     },
-                    state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters))
-                : ExecuteCommandAsync(connection, executeAsync, sql, useTransaction, parameters);
+                    state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters));
 
         private static async Task<T> ExecuteCommandAsync<T>(
             DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction,
@@ -450,9 +422,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             base.Dispose();
 
-            if (_fileName != null)
+            if (_fileName != null // Clean up the database using a local file, as it might get deleted later
+                || (TestEnvironment.IsSqlAzure && !Shared))
             {
-                // Clean up the database using a local file, as it might get deleted later
                 DeleteDatabase();
             }
         }
@@ -461,8 +433,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             var builder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
-                MultipleActiveResultSets = multipleActiveResultSets ?? new Random().Next(0, 2) == 1,
-                InitialCatalog = name
+                MultipleActiveResultSets = multipleActiveResultSets ?? new Random().Next(0, 2) == 1, InitialCatalog = name
             };
             if (fileName != null)
             {

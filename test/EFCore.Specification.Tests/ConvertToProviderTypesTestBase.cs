@@ -153,6 +153,12 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.ByteArray5).HasConversion<string>().HasMaxLength(8);
                         b.Property(e => e.ByteArray9000).HasConversion<string>().HasMaxLength(LongStringLength * 2);
                     });
+
+                modelBuilder.Entity<AnimalIdentification>(
+                    b =>
+                    {
+                        b.Property(e => e.Method).HasConversion<string>().HasMaxLength(6);
+                    });
             }
         }
     }

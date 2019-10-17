@@ -558,5 +558,25 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID] DESC");
         }
+
+        public override async Task GroupJoin_Subquery_with_Take_Then_SelectMany_Where(bool isAsync)
+        {
+            await base.GroupJoin_Subquery_with_Take_Then_SelectMany_Where(isAsync);
+
+            AssertSql(
+                @"@__p_0='100'
+
+SELECT [c].[CustomerID], [t0].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+    FROM (
+        SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        ORDER BY [o].[OrderID]
+    ) AS [t]
+    WHERE [t].[CustomerID] IS NOT NULL AND ([t].[CustomerID] LIKE N'A%')
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]");
+        }
     }
 }

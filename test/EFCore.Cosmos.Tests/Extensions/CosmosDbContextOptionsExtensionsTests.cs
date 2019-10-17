@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Xunit;
@@ -59,13 +62,14 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Throws_if_wrong_connection_mode()
         {
-            var connectionMode = (ConnectionMode) 958410610;
-            var options = Assert.Throws<ArgumentOutOfRangeException>(() =>
-                new DbContextOptionsBuilder().UseCosmos(
-                    "serviceEndPoint",
-                    "authKeyOrResourceToken",
-                    "databaseName",
-                    o => { o.ConnectionMode(connectionMode); }));
+            var connectionMode = (ConnectionMode)958410610;
+            var options = Assert.Throws<ArgumentOutOfRangeException>(
+                () =>
+                    new DbContextOptionsBuilder().UseCosmos(
+                        "serviceEndPoint",
+                        "authKeyOrResourceToken",
+                        "databaseName",
+                        o => { o.ConnectionMode(connectionMode); }));
         }
     }
 }

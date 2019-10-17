@@ -5,7 +5,6 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -18,7 +17,6 @@ namespace Microsoft.Data.Sqlite
         private SqliteConnection _connection;
         private readonly IsolationLevel _isolationLevel;
         private bool _completed;
-        private bool _externalRollback;
 
         internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
         {
@@ -67,8 +65,7 @@ namespace Microsoft.Data.Sqlite
         protected override DbConnection DbConnection
             => Connection;
 
-        internal bool ExternalRollback
-            => _externalRollback;
+        internal bool ExternalRollback { get; private set; }
 
         /// <summary>
         ///     Gets the isolation level for the transaction. This cannot be changed if the transaction is completed or
@@ -152,7 +149,7 @@ namespace Microsoft.Data.Sqlite
         private void RollbackExternal(object userData)
         {
             sqlite3_rollback_hook(_connection.Handle, null, null);
-            _externalRollback = true;
+            ExternalRollback = true;
         }
     }
 }

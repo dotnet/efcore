@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
             public override void ChangeDatabase(string databaseName) => throw new NotImplementedException();
             public override void Close() => throw new NotImplementedException();
             public override void Open() => throw new NotImplementedException();
-            protected override DbTransaction BeginDbTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
+            protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
             protected override DbCommand CreateDbCommand() => throw new NotImplementedException();
         }
 
@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         public class ConnectionInterceptionWithDiagnosticsSqlServerTest
-            : ConnectionInterceptionSqlServerTestBase, IClassFixture<ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
+            : ConnectionInterceptionSqlServerTestBase,
+                IClassFixture<ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
         {
             public ConnectionInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
                 : base(fixture)

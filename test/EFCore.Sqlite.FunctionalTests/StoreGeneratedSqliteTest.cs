@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -18,6 +19,21 @@ namespace Microsoft.EntityFrameworkCore
         public override void Fields_used_correctly_for_store_generated_values()
         {
             // Computed columns not supported
+        }
+
+        [ConditionalFact]
+        public void Identity_key_works_when_not_aliasing_rowid()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var entry = context.Add(new Zach());
+
+                    context.SaveChanges();
+                    var id = entry.Entity.Id;
+
+                    Assert.Equal(16, id?.Length ?? 0);
+                });
         }
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
@@ -98,8 +114,17 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.NullableBackedInt).HasDefaultValue(-1);
                     });
 
+                modelBuilder.Entity<Zach>().Property(e => e.Id)
+                    .ValueGeneratedOnAdd()
+                    .HasDefaultValueSql("randomblob(16)");
+
                 base.OnModelCreating(modelBuilder, context);
             }
+        }
+
+        private class Zach
+        {
+            public byte[] Id { get; set; }
         }
     }
 }

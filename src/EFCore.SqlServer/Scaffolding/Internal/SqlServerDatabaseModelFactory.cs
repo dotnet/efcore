@@ -33,12 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
     {
         private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
 
-        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string>
-        {
-            "datetimeoffset",
-            "datetime2",
-            "time"
-        };
+        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
 
         private static readonly ISet<string> _maxLengthRequiredTypes
             = new HashSet<string>
@@ -66,13 +61,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         // decimal/numeric are excluded because default value varies based on the precision.
-        private static readonly Dictionary<string, long[]> _defaultSequenceMinMax = new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "tinyint", new[] { 0L, 255L } },
-            { "smallint", new[] { -32768L, 32767L } },
-            { "int", new[] { -2147483648L, 2147483647L } },
-            { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
-        };
+        private static readonly Dictionary<string, long[]> _defaultSequenceMinMax =
+            new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "tinyint", new[] { 0L, 255L } },
+                { "smallint", new[] { -32768L, 32767L } },
+                { "int", new[] { -2147483648L, 2147483647L } },
+                { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
+            };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -206,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                     var schemaFilterBuilder = new StringBuilder();
                     schemaFilterBuilder.Append(s);
                     schemaFilterBuilder.Append(" IN (");
-                    schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
+                    schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
                     schemaFilterBuilder.Append(")");
                     return schemaFilterBuilder.ToString();
                 })
@@ -266,7 +262,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                         {
                             tableFilterBuilder.Append(t);
                             tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
                             tableFilterBuilder.Append(")");
                         }
 
@@ -280,13 +276,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                             tableFilterBuilder.Append(t);
                             tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
                             tableFilterBuilder.Append(") AND (");
                             tableFilterBuilder.Append(s);
                             tableFilterBuilder.Append(" + N'.' + ");
                             tableFilterBuilder.Append(t);
                             tableFilterBuilder.Append(") IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
+                            tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
                             tableFilterBuilder.Append(")");
                         }
                     }
@@ -420,7 +416,9 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                             sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
                             sequence.StartValue = sequence.StartValue == defaultMin ? null : sequence.StartValue;
 
-                            sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1] ? null : sequence.MaxValue;
+                            sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1]
+                                ? null
+                                : sequence.MaxValue;
                         }
 
                         yield return sequence;
@@ -869,11 +867,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                             _logger.PrimaryKeyFound(primaryKeyGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                            var primaryKey = new DatabasePrimaryKey
-                            {
-                                Table = table,
-                                Name = primaryKeyGroup.Key.Name
-                            };
+                            var primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
 
                             if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
                             {
@@ -884,7 +878,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                             ?? table.Columns.FirstOrDefault(
+                                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 primaryKey.Columns.Add(column);
@@ -905,11 +900,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         {
                             _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                            var uniqueConstraint = new DatabaseUniqueConstraint
-                            {
-                                Table = table,
-                                Name = uniqueConstraintGroup.Key.Name
-                            };
+                            var uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
 
                             if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
                             {
@@ -920,7 +911,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                             ?? table.Columns.FirstOrDefault(
+                                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 uniqueConstraint.Columns.Add(column);
@@ -963,7 +955,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                             ?? table.Columns.FirstOrDefault(
+                                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 index.Columns.Add(column);
@@ -1061,12 +1054,14 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                             ?? table.Columns.FirstOrDefault(
+                                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 var principalColumnName = dataRecord.GetValueOrDefault<string>("referenced_column_name");
                                 var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
-                                                      ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                                                      ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
+                                                          c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                                 if (principalColumn == null)
                                 {
                                     invalid = true;

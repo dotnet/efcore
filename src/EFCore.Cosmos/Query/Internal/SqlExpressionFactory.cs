@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -152,11 +152,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ExpressionType.NotEqual:
                 {
                     inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
-                        ?? _typeMappingSource.FindMapping(left.Type);
+                                          ?? _typeMappingSource.FindMapping(left.Type);
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                 }
-                break;
+                    break;
 
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                 }
-                break;
+                    break;
 
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     resultType = left.Type;
                     resultTypeMapping = inferredTypeMapping;
                 }
-                break;
+                    break;
 
                 default:
                     throw new InvalidOperationException("Incorrect operatorType for SqlBinaryExpression");
@@ -528,7 +528,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty(), clientEval: false);
 
                 selectExpression.ApplyPredicate(
-                    In((SqlExpression)discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false));
+                    In(
+                        (SqlExpression)discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
+                        negated: false));
             }
         }
     }

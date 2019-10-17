@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Interceptors([NotNull] IServiceProvider serviceProvider,
+        public Interceptors(
+            [NotNull] IServiceProvider serviceProvider,
             [NotNull] IEnumerable<IInterceptor> injectedInterceptors,
             [NotNull] IEnumerable<IInterceptorAggregator> interceptorAggregators)
         {
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
         /// <summary>
         ///     We resolve this lazily because loggers are created very early in the initialization
-        ///     process where <see cref="IDbContextOptions"/> is not yet available from D.I.
+        ///     process where <see cref="IDbContextOptions" /> is not yet available from D.I.
         ///     This means those loggers can't do interception, but that's okay because nothing
         ///     else is ready for them to do interception anyway.
         /// </summary>
@@ -81,6 +82,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 .Extensions
                 .OfType<CoreOptionsExtension>()
                 .FirstOrDefault();
-
     }
 }

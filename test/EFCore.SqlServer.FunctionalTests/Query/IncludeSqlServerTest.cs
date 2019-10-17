@@ -1,17 +1,18 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeSqlServerTest : IncludeTestBase<IncludeSqlServerFixture>
+    public class IncludeSqlServerTest : IncludeTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
 
         // ReSharper disable once UnusedParameter.Local
-        public IncludeSqlServerTest(IncludeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public IncludeSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -42,7 +43,6 @@ ORDER BY [p].[ProductID], [t].[OrderID], [t].[ProductID], [t].[OrderID0]");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
-
 
         public override void Include_when_result_operator(bool useString)
         {
@@ -1011,6 +1011,36 @@ ORDER BY [t].[ContactName], [t].[CustomerID], [o].[OrderID]");
             }
         }
 
+        public override void Include_collection_with_multiple_conditional_order_by(bool useString)
+        {
+            base.Include_collection_with_multiple_conditional_order_by(useString);
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CASE
+        WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c], CASE
+        WHEN [c].[CustomerID] IS NOT NULL THEN [c].[City]
+        ELSE N''
+    END AS [c0]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    ORDER BY CASE
+        WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END, CASE
+        WHEN [c].[CustomerID] IS NOT NULL THEN [c].[City]
+        ELSE N''
+    END
+) AS [t]
+LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
+ORDER BY [t].[c], [t].[c0], [t].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
         public override void Then_include_collection_order_by_collection_column(bool useString)
         {
             base.Then_include_collection_order_by_collection_column(useString);
@@ -1196,6 +1226,20 @@ FROM (
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool useString, bool async)
+        {
+            await base.Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(useString, async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [e0].[EmployeeID] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+WHERE ([e].[EmployeeID] = 1) OR ([e].[EmployeeID] = 2)");
         }
 
         private void AssertSql(params string[] expected)

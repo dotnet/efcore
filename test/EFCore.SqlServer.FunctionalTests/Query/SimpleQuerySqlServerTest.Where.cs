@@ -335,7 +335,7 @@ SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[Report
 FROM [Employees] AS [e]
 WHERE ((CAST([e].[ReportsTo] AS bigint) = @__p_0) AND (CAST([e].[ReportsTo] AS bigint) IS NOT NULL AND @__p_0 IS NOT NULL)) OR (CAST([e].[ReportsTo] AS bigint) IS NULL AND @__p_0 IS NULL)",
                 //
-                @"@__p_0='' (DbType = Int64)
+                @"@__p_0=NULL (DbType = Int64)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -347,7 +347,7 @@ WHERE ((CAST([e].[ReportsTo] AS bigint) = @__p_0) AND (CAST([e].[ReportsTo] AS b
             await base.Where_simple_closure_via_query_cache_nullable_type_reverse(isAsync);
 
             AssertSql(
-                @"@__p_0='' (DbType = Int64)
+                @"@__p_0=NULL (DbType = Int64)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -508,6 +508,7 @@ WHERE [e].[EmployeeID] = 1");
 FROM [Employees] AS [e]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
+            // See issue#17498
             //Assert.Contains(
             //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
             //        "e.EmployeeID.Equals(Convert(__longPrm_0, Object))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
@@ -538,6 +539,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)",
 FROM [Employees] AS [e]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
+            // See issue#17498
             //Assert.Contains(
             //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
             //        "__longPrm_0.Equals(Convert(e.ReportsTo, Object))"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
@@ -560,6 +562,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)",
 FROM [Employees] AS [e]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
+            // See issue#17498
             //Assert.Contains(
             //    RelationalStrings.LogPossibleUnintendedUseOfEquals.GenerateMessage(
             //        "__nullableLongPrm_0.Equals(Convert(e.ReportsTo, Object))"),
@@ -612,13 +615,13 @@ WHERE (([e].[ReportsTo] = @__nullableIntPrm_0) AND ([e].[ReportsTo] IS NOT NULL 
             await base.Where_equals_on_null_nullable_int_types(isAsync);
 
             AssertSql(
-                @"@__nullableIntPrm_0='' (DbType = Int32)
+                @"@__nullableIntPrm_0=NULL (DbType = Int32)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE ((@__nullableIntPrm_0 = [e].[ReportsTo]) AND (@__nullableIntPrm_0 IS NOT NULL AND [e].[ReportsTo] IS NOT NULL)) OR (@__nullableIntPrm_0 IS NULL AND [e].[ReportsTo] IS NULL)",
                 //
-                @"@__nullableIntPrm_0='' (DbType = Int64)
+                @"@__nullableIntPrm_0=NULL (DbType = Int64)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -1267,14 +1270,25 @@ FROM [Customers] AS [c]
 WHERE [c].[Fax] IS NULL");
         }
 
-        public override async Task Where_expression_invoke(bool isAsync)
+        public override async Task Where_expression_invoke_1(bool isAsync)
         {
-            await base.Where_expression_invoke(isAsync);
+            await base.Where_expression_invoke_1(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task Where_expression_invoke_2(bool isAsync)
+        {
+            await base.Where_expression_invoke_2(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IS NOT NULL");
         }
 
         public override async Task Where_concat_string_int_comparison1(bool isAsync)
@@ -1739,6 +1753,16 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 1");
         }
 
+        public override async Task Generic_Ilist_contains_translates_to_server(bool isAsync)
+        {
+            await base.Generic_Ilist_contains_translates_to_server(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'Seattle')");
+        }
+
         public override async Task Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(bool isAsync)
         {
             await base.Project_non_nullable_value_after_FirstOrDefault_on_empty_collection(isAsync);
@@ -1765,6 +1789,26 @@ WHERE ((
     SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL) IS NOT NULL");
+        }
+
+        public override async Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            await base.Like_with_non_string_column_using_ToString(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CONVERT(VARCHAR(11), [o].[OrderID]) LIKE N'%20%'");
+        }
+
+        public override async Task Like_with_non_string_column_using_double_cast(bool isAsync)
+        {
+            await base.Like_with_non_string_column_using_double_cast(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) LIKE N'%20%'");
         }
     }
 }
