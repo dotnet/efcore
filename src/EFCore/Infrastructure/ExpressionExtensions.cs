@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.Versioning;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -69,6 +70,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (memberExpression.Member is FieldInfo fieldInfo
                 && fieldInfo.IsInitOnly)
             {
+                if (new FrameworkName(AppContext.TargetFrameworkName).Identifier != ".NETFramework")
+                {
+                    // On .NET Framework the compiler refuses to compile an expression tree with IsInitOnly access,
+                    // so use Reflection's SetValue instead.
+                    return Expression.Call(
+                        Expression.Constant(fieldInfo),
+                        _fieldInfoSetValueMethod,
+                        memberExpression.Expression,
+                        Expression.Convert(
+                            valueExpression,
+                            typeof(object)));
+                }
+
                 return (BinaryExpression)Activator.CreateInstance(
                     _assignBinaryExpressionType,
                     BindingFlags.NonPublic | BindingFlags.Instance,
@@ -82,6 +96,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static readonly Type _assignBinaryExpressionType
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
+
+        private static readonly MethodInfo _fieldInfoSetValueMethod
+            = typeof(FieldInfo)
+                .GetTypeInfo()
+                .GetDeclaredMethods(nameof(FieldInfo.SetValue))
+                .Single(m => m.GetParameters().Length == 2);
 
         /// <summary>
         ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
