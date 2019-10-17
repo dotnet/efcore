@@ -445,6 +445,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_columns_with_different_nullability(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync, ss => ss.Set<Customer>()
+                    .Select(c => "NonNullableConstant")
+                    .Concat(ss.Set<Customer>()
+                        .Select(c => (string)null)));
+        }
+
+        [ConditionalTheory]
 #pragma warning disable xUnit1016 // MemberData must reference a public member
         [MemberData(nameof(GetSetOperandTestCases))]
 #pragma warning restore xUnit1016 // MemberData must reference a public member

@@ -524,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (joinedMapping.Value1 is EntityProjectionExpression entityProjection1
                     && joinedMapping.Value2 is EntityProjectionExpression entityProjection2)
                 {
-                    handleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
+                    HandleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
                     continue;
                 }
 
@@ -538,15 +538,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         throw new InvalidOperationException("Set operations over different store types are currently unsupported");
                     }
 
-                    var alias = generateUniqueAlias(
+                    var alias = GenerateUniqueAlias(
                         joinedMapping.Key.Last?.Name
                         ?? (innerColumn1 as ColumnExpression)?.Name
                         ?? "c");
 
-                    var innerProjection = new ProjectionExpression(innerColumn1, alias);
-                    select1._projection.Add(innerProjection);
-                    select2._projection.Add(new ProjectionExpression(innerColumn2, alias));
-                    _projectionMapping[joinedMapping.Key] = new ColumnExpression(innerProjection, setExpression);
+                    var innerProjection1 = new ProjectionExpression(innerColumn1, alias);
+                    var innerProjection2 = new ProjectionExpression(innerColumn2, alias);
+                    select1._projection.Add(innerProjection1);
+                    select2._projection.Add(innerProjection2);
+                    var outerProjection = new ColumnExpression(innerProjection1, setExpression);
+
+                    if (IsNullableProjection(innerProjection1)
+                        || IsNullableProjection(innerProjection2))
+                    {
+                        outerProjection = outerProjection.MakeNullable();
+                    }
+
+                    _projectionMapping[joinedMapping.Key] = outerProjection;
                     continue;
                 }
 
@@ -564,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _tables.Clear();
             _tables.Add(setExpression);
 
-            void handleEntityMapping(
+            void HandleEntityMapping(
                 ProjectionMember projectionMember,
                 SelectExpression select1, EntityProjectionExpression projection1,
                 SelectExpression select2, EntityProjectionExpression projection2)
@@ -578,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
                 foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
                 {
-                    propertyExpressions[property] = addSetOperationColumnProjections(
+                    propertyExpressions[property] = AddSetOperationColumnProjections(
                         select1, projection1.BindProperty(property),
                         select2, projection2.BindProperty(property));
                 }
@@ -586,15 +595,22 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
             }
 
-            ColumnExpression addSetOperationColumnProjections(
+            ColumnExpression AddSetOperationColumnProjections(
                 SelectExpression select1, ColumnExpression column1,
                 SelectExpression select2, ColumnExpression column2)
             {
-                var alias = generateUniqueAlias(column1.Name);
-                var innerProjection = new ProjectionExpression(column1, alias);
-                select1._projection.Add(innerProjection);
-                select2._projection.Add(new ProjectionExpression(column2, alias));
-                var outerProjection = new ColumnExpression(innerProjection, setExpression);
+                var alias = GenerateUniqueAlias(column1.Name);
+                var innerProjection1 = new ProjectionExpression(column1, alias);
+                var innerProjection2 = new ProjectionExpression(column2, alias);
+                select1._projection.Add(innerProjection1);
+                select2._projection.Add(innerProjection2);
+                var outerProjection = new ColumnExpression(innerProjection1, setExpression);
+                if (IsNullableProjection(innerProjection1)
+                    || IsNullableProjection(innerProjection2))
+                {
+                    outerProjection = outerProjection.MakeNullable();
+                }
+
                 if (select1._identifier.Contains(column1))
                 {
                     _identifier.Add(outerProjection);
@@ -603,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return outerProjection;
             }
 
-            string generateUniqueAlias(string baseAlias)
+            string GenerateUniqueAlias(string baseAlias)
             {
                 var currentAlias = baseAlias ?? "";
                 var counter = 0;
@@ -614,6 +630,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 return currentAlias;
             }
+
+            static bool IsNullableProjection(ProjectionExpression projectionExpression)
+                => projectionExpression.Expression switch
+                {
+                    ColumnExpression columnExpression => columnExpression.IsNullable,
+                    SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
+                    _ => true,
+                };
         }
 
         private ColumnExpression GenerateOuterColumn(SqlExpression projection, string alias = null)
