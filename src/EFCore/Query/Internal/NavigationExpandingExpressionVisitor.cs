@@ -179,8 +179,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // We need to do entity equality, but that requires a full method call on a query root to properly flow the
                         // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
                         var filterWrapper = Expression.Call(
-                            QueryableMethods.Where.MakeGenericMethod(sequenceType),
-                            NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(sequenceType),
+                            QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
+                            NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(rootEntityType.ClrType),
                             filterPredicate);
                         var rewrittenFilterWrapper  = (MethodCallExpression)_entityEqualityRewritingExpressionVisitor.Rewrite(filterWrapper);
                         filterPredicate = rewrittenFilterWrapper.Arguments[1].UnwrapLambdaFromQuote();
