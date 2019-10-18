@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.StartsWith(
-                    "(queryContext) => new QueryingEnumerable<Customer>(",
+                    "queryContext => new QueryingEnumerable<Customer>(",
                     Fixture.TestSqlLoggerFactory.Log[0].Message);
             }
         }

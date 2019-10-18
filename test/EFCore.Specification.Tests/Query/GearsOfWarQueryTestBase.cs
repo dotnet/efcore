@@ -1308,9 +1308,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_conditional_with_anonymous_type(bool isAsync)
+        public virtual Task Where_conditional_with_anonymous_type(bool isAsync)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
                 ss => from g in ss.Set<Gear>()
@@ -1322,11 +1322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 }
                                 : null) == null
                       select g.Nickname,
-                assertOrder: true))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: OrderBy<Gear, string>(        source: DbSet<Gear>,         keySelector: (g) => g.Nickname),     predicate: (g) => g.LeaderNickname != null ? new { HasSoulPatch = g.HasSoulPatch } : null == null)"),
-                RemoveNewLines(message));
+                assertOrder: true));
         }
 
         [ConditionalTheory]
@@ -1349,9 +1345,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Where_coalesce_with_anonymous_types(bool isAsync)
+        public virtual Task Where_coalesce_with_anonymous_types(bool isAsync)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
                 ss => from g in ss.Set<Gear>()
@@ -1362,11 +1358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       {
                           Name = g.FullName
                       }) != null
-                      select g.Nickname))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => new { Name = g.LeaderNickname } ?? new { Name = g.FullName } != null)"),
-                RemoveNewLines(message));
+                      select g.Nickname));
         }
 
         [ConditionalTheory(Skip = "issue #8421")]
@@ -1723,8 +1715,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed("Concat<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
-                RemoveNewLines(message));
+                CoreStrings.QueryFailed(@"(MaterializeCollectionNavigation(
+    navigation: Navigation: Gear.Weapons,
+    subquery: (NavigationExpansionExpression
+        Source: DbSet<Weapon>
+            .Where(w => Property<string>(g, ""FullName"") != null && Property<string>(g, ""FullName"") == Property<string>(w, ""OwnerFullName""))
+        PendingSelector: w => (NavigationTreeExpression
+            Value: (EntityReference: Weapon)
+            Expression: w)
+    )
+        .Where(i => Property<string>((NavigationTreeExpression
+            Value: (EntityReference: Gear)
+            Expression: g), ""FullName"") != null && Property<string>((NavigationTreeExpression
+            Value: (EntityReference: Gear)
+            Expression: g), ""FullName"") == Property<string>(i, ""OwnerFullName"")))
+    .AsQueryable()
+    .Concat((MaterializeCollectionNavigation(
+        navigation: Navigation: Gear.Weapons,
+        subquery: (NavigationExpansionExpression
+            Source: DbSet<Weapon>
+                .Where(w0 => Property<string>(g, ""FullName"") != null && Property<string>(g, ""FullName"") == Property<string>(w0, ""OwnerFullName""))
+            PendingSelector: w0 => (NavigationTreeExpression
+                Value: (EntityReference: Weapon)
+                Expression: w0)
+        )
+            .Where(i => Property<string>((NavigationTreeExpression
+                Value: (EntityReference: Gear)
+                Expression: g), ""FullName"") != null && Property<string>((NavigationTreeExpression
+                Value: (EntityReference: Gear)
+                Expression: g), ""FullName"") == Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
+                message);
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -1748,8 +1768,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed("Union<Weapon>(    source1: AsQueryable<Weapon>(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w, \"OwnerFullName\"))            PendingSelector: (w) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\")))),     source2: MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: NavigationExpansionExpression            Source: Where<Weapon>(                source: DbSet<Weapon>,                 predicate: (w0) => Property<string>((Unhandled parameter: g), \"FullName\") != null && Property<string>((Unhandled parameter: g), \"FullName\") == Property<string>(w0, \"OwnerFullName\"))            PendingSelector: (w0) => NavigationTreeExpression                Value: EntityReferenceWeapon                Expression: w0        ,         predicate: (i) => Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") != null && Property<string>(NavigationTreeExpression            Value: EntityReferenceGear            Expression: (Unhandled parameter: g), \"FullName\") == Property<string>(i, \"OwnerFullName\"))))", "NavigationExpandingExpressionVisitor"),
-                RemoveNewLines(message));
+                CoreStrings.QueryFailed(@"(MaterializeCollectionNavigation(
+    navigation: Navigation: Gear.Weapons,
+    subquery: (NavigationExpansionExpression
+        Source: DbSet<Weapon>
+            .Where(w => Property<string>(g, ""FullName"") != null && Property<string>(g, ""FullName"") == Property<string>(w, ""OwnerFullName""))
+        PendingSelector: w => (NavigationTreeExpression
+            Value: (EntityReference: Weapon)
+            Expression: w)
+    )
+        .Where(i => Property<string>((NavigationTreeExpression
+            Value: (EntityReference: Gear)
+            Expression: g), ""FullName"") != null && Property<string>((NavigationTreeExpression
+            Value: (EntityReference: Gear)
+            Expression: g), ""FullName"") == Property<string>(i, ""OwnerFullName"")))
+    .AsQueryable()
+    .Union((MaterializeCollectionNavigation(
+        navigation: Navigation: Gear.Weapons,
+        subquery: (NavigationExpansionExpression
+            Source: DbSet<Weapon>
+                .Where(w0 => Property<string>(g, ""FullName"") != null && Property<string>(g, ""FullName"") == Property<string>(w0, ""OwnerFullName""))
+            PendingSelector: w0 => (NavigationTreeExpression
+                Value: (EntityReference: Weapon)
+                Expression: w0)
+        )
+            .Where(i => Property<string>((NavigationTreeExpression
+                Value: (EntityReference: Gear)
+                Expression: g), ""FullName"") != null && Property<string>((NavigationTreeExpression
+                Value: (EntityReference: Gear)
+                Expression: g), ""FullName"") == Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
+                message);
         }
 
         [ConditionalTheory]
@@ -1773,18 +1821,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Select_Where_Navigation_Client(bool isAsync)
+        public virtual Task Select_Where_Navigation_Client(bool isAsync)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
                 ss => from t in ss.Set<CogTag>()
                       where t.Gear != null && t.Gear.IsMarcus
-                      select t))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<TransparentIdentifier<CogTag, Gear>>(    source: LeftJoin<CogTag, Gear, AnonymousObject, TransparentIdentifier<CogTag, Gear>>(        outer: DbSet<CogTag>,         inner: DbSet<Gear>,         outerKeySelector: (c) => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         innerKeySelector: (g) => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         resultSelector: (o, i) => new TransparentIdentifier<CogTag, Gear>(            Outer = o,             Inner = i        )),     predicate: (c) => Property<string>(c.Inner, \"Nickname\") != null && c.Inner.IsMarcus)"),
-                RemoveNewLines(message));
+                      select t));
         }
 
         [ConditionalTheory]
@@ -3057,18 +3101,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_side_equality_with_parameter_works_with_optional_navigations(bool isAsync)
+        public virtual Task Client_side_equality_with_parameter_works_with_optional_navigations(bool isAsync)
         {
             var prm = "Marcus' Tag";
 
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
-                ss => ss.Set<Gear>().Where(g => ClientEquals(g.Tag.Note, prm))))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<TransparentIdentifier<Gear, CogTag>>(    source: LeftJoin<Gear, CogTag, AnonymousObject, TransparentIdentifier<Gear, CogTag>>(        outer: DbSet<Gear>,         inner: DbSet<CogTag>,         outerKeySelector: (g) => new AnonymousObject(new object[]        {             (object)Property<string>(g, \"Nickname\"),             (object)Property<Nullable<int>>(g, \"SquadId\")         }),         innerKeySelector: (c) => new AnonymousObject(new object[]        {             (object)Property<string>(c, \"GearNickName\"),             (object)Property<Nullable<int>>(c, \"GearSquadId\")         }),         resultSelector: (o, i) => new TransparentIdentifier<Gear, CogTag>(            Outer = o,             Inner = i        )),     predicate: (g) => ClientEquals(        first: g.Inner.Note,         second: (Unhandled parameter: __prm_0)))"),
-                RemoveNewLines(message));
+                ss => ss.Set<Gear>().Where(g => ClientEquals(g.Tag.Note, prm))));
         }
 
         private static bool ClientEquals(string first, string second)
@@ -3362,25 +3402,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_method_on_collection_navigation_in_predicate(bool isAsync)
+        public virtual Task Client_method_on_collection_navigation_in_predicate(bool isAsync)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
                 ss => from g in ss.Set<Gear>()
                       where g.HasSoulPatch && FavoriteWeapon(g.Weapons).Name == "Marcus' Lancer"
-                      select g.Nickname))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => g.HasSoulPatch && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Marcus' Lancer\")"),
-                RemoveNewLines(message));
+                      select g.Nickname));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_method_on_collection_navigation_in_predicate_accessed_by_ef_property(bool isAsync)
+        public virtual Task Client_method_on_collection_navigation_in_predicate_accessed_by_ef_property(bool isAsync)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
                 ss => from g in ss.Set<Gear>()
@@ -3388,29 +3424,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select g.Nickname,
                 ss => from g in ss.Set<Gear>()
                       where !g.HasSoulPatch && FavoriteWeapon(g.Weapons).Name == "Cole's Gnasher"
-                      select g.Nickname))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Gear>(    source: DbSet<Gear>,     predicate: (g) => !(g.HasSoulPatch) && FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name == \"Cole's Gnasher\")"),
-                RemoveNewLines(message));
+                      select g.Nickname));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_method_on_collection_navigation_in_order_by(bool isAsync)
+        public virtual Task Client_method_on_collection_navigation_in_order_by(bool isAsync)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
                 ss => from g in ss.Set<Gear>()
                       where !g.HasSoulPatch
                       orderby FavoriteWeapon(g.Weapons).Name descending
                       select g.Nickname,
-                assertOrder: true))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderByDescending<Gear, string>(    source: Where<Gear>(        source: DbSet<Gear>,         predicate: (g) => !(g.HasSoulPatch)),     keySelector: (g) => FavoriteWeapon(MaterializeCollectionNavigation(Navigation: Gear.Weapons (<Weapons>k__BackingField, ICollection<Weapon>) Collection ToDependent Weapon Inverse: Owner, Where<Weapon>(        source: DbSet<Weapon>,         predicate: (w) => Property<string>(g, \"FullName\") != null && Property<string>(g, \"FullName\") == Property<string>(w, \"OwnerFullName\")))).Name)"),
-                RemoveNewLines(message));
+                assertOrder: true));
         }
 
         [ConditionalTheory]
@@ -3430,12 +3458,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     elementSorter: e => e.g + e.v))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed("(g) => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
-                RemoveNewLines(message));
+                CoreStrings.QueryFailed("g => Veterans(g.Reports)", "NavigationExpandingExpressionVisitor"),
+                message);
         }
-
-        private string RemoveNewLines(string message)
-            => message.Replace("\n", "").Replace("\r", "");
 
         [ConditionalTheory(Skip = "Issue #17328")]
         [MemberData(nameof(IsAsyncData))]
@@ -5717,7 +5742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 "When performing a set operation, both operands must have the same Include operations.",
-                RemoveNewLines(message));
+                message);
         }
 
         [ConditionalTheory]
@@ -5967,7 +5992,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(
                 "This query would cause multiple evaluation of a subquery because entity 'Gear' has a composite key. Rewrite your query avoiding the subquery.",
-                RemoveNewLines(message));
+                message);
         }
 
         [ConditionalFact(Skip = "Issue #17068")]
@@ -6273,9 +6298,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool isAsync)
+        public virtual Task Correlated_collection_order_by_constant_null_of_non_mapped_type(bool isAsync)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
                 ss => ss.Set<Gear>().OrderByDescending(s => (MyDTO)null).Select(
@@ -6289,11 +6314,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.Nickname, a.Nickname);
                     AssertCollection(e.Weapons, a.Weapons);
-                }))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderByDescending<Gear, MyDTO>(    source: DbSet<Gear>,     keySelector: (g) => null)"),
-                RemoveNewLines(message));
+                }));
         }
 
         [ConditionalFact(Skip = "Issue #17068")]
@@ -7014,18 +7035,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task GetValueOrDefault_on_DateTimeOffset(bool isAsync)
+        public virtual Task GetValueOrDefault_on_DateTimeOffset(bool isAsync)
         {
             var defaultValue = default(DateTimeOffset);
 
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                 isAsync,
-                ss => ss.Set<Mission>().Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue)))).Message;
-
-            Assert.Equal(
-                CoreStrings.TranslationFailed("Where<Mission>(    source: DbSet<Mission>,     predicate: (m) => (Nullable<DateTimeOffset>)m.Timeline.GetValueOrDefault() == (Unhandled parameter: __defaultValue_0))"),
-                RemoveNewLines(message));
+                ss => ss.Set<Mission>().Where(m => ((DateTimeOffset?)m.Timeline).GetValueOrDefault() == defaultValue)));
         }
 
         [ConditionalTheory]
@@ -7930,6 +7947,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         g.Key,
                         Aggregate = g.Max()
                     })));
+        }
+
+        protected async Task AssertTranslationFailed(Func<Task> testCode)
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

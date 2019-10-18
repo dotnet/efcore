@@ -361,14 +361,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Last<Customer>(Select<Customer, Customer>(    source: DbSet<Customer>,     selector: (c) => IncludeExpression(        c,         MaterializeCollectionNavigation(Navigation: Customer.Orders (<Orders>k__BackingField, List<Order>) Collection ToDependent Order Inverse: Customer PropertyAccessMode.Field, Where<Order>(            source: DbSet<Order>,             predicate: (o) => Property<string>(c, \"CustomerID\") != null && Property<string>(c, \"CustomerID\") == Property<string>(o, \"CustomerID\"))), Orders)))"),
-                    RemoveNewLines(
-                        Assert.Throws<InvalidOperationException>(
-                            () => useString
-                                ? context.Set<Customer>().Include("Orders").Last()
-                                : context.Set<Customer>().Include(c => c.Orders).Last()).Message));
+                Assert.Contains(
+                    CoreStrings.TranslationFailed("").Substring(21),
+                    Assert.Throws<InvalidOperationException>(
+                        () => useString
+                            ? context.Set<Customer>().Include("Orders").Last()
+                            : context.Set<Customer>().Include(c => c.Orders).Last()).Message);
             }
         }
 
@@ -1910,8 +1908,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(
-                    CoreStrings.TranslationFailed("Where<Customer>(    source: DbSet<Customer>,     predicate: (c) => c.IsLondon)"),
+                Assert.Contains(
+                    CoreStrings.TranslationFailed("").Substring(21),
                     Assert.Throws<InvalidOperationException>(
                         () => useString
                             ? context.Set<Customer>()
@@ -4255,8 +4253,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.False(context.Entry(orderDetail.Product).Collection(e => e.OrderDetails).IsLoaded);
             }
         }
-
-        private string RemoveNewLines(string message) => message.Replace("\n", "").Replace("\r", "");
 
         protected virtual void ClearLog()
         {

@@ -134,18 +134,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
+        public virtual Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
         {
             var boolean = false;
 
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderBy<Customer, Nullable<bool>>(    source: DbSet<Customer>,     keySelector: (c) => (Nullable<bool>)(Unhandled parameter: __p_0).f)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => AssertQuery(
-                            isAsync,
-                            ss => ss.Set<Customer>().Select(c => new { f = boolean }).OrderBy(e => (bool?)e.f),
-                            assertOrder: true))).Message));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    isAsync,
+                    ss => ss.Set<Customer>().Select(c => new { f = boolean }).OrderBy(e => (bool?)e.f),
+                    assertOrder: true));
         }
 
         [ConditionalTheory]
