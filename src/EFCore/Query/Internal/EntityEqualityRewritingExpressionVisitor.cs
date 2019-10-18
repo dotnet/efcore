@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return methodCallExpression.Update(Unwrap(Visit(methodCallExpression.Object)), newArguments);
         }
 
-        protected virtual Expression VisitContainsMethodCall(MethodCallExpression methodCallExpression)
+        private Expression VisitContainsMethodCall(MethodCallExpression methodCallExpression)
         {
             // We handle both Contains the extension method and the instance method
             var (newSource, newItem) = methodCallExpression.Arguments.Count == 2
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : methodCallExpression.Update(Unwrap(newSource), new[] { Unwrap(newItem) });
         }
 
-        protected virtual Expression VisitOrderingMethodCall(MethodCallExpression methodCallExpression)
+        private Expression VisitOrderingMethodCall(MethodCallExpression methodCallExpression)
         {
             var arguments = methodCallExpression.Arguments;
             var newSource = Visit(arguments[0]);
@@ -540,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        protected virtual Expression VisitSelectMethodCall(MethodCallExpression methodCallExpression)
+        private Expression VisitSelectMethodCall(MethodCallExpression methodCallExpression)
         {
             var arguments = methodCallExpression.Arguments;
             var newSource = Visit(arguments[0]);
@@ -587,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
         }
 
-        protected virtual Expression VisitJoinMethodCall(MethodCallExpression methodCallExpression)
+        private Expression VisitJoinMethodCall(MethodCallExpression methodCallExpression)
         {
             var arguments = methodCallExpression.Arguments;
 
@@ -694,7 +694,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : (Expression)newMethodCall;
         }
 
-        protected virtual Expression VisitOfType(MethodCallExpression methodCallExpression)
+        private Expression VisitOfType(MethodCallExpression methodCallExpression)
         {
             var newSource = Visit(methodCallExpression.Arguments[0]);
             var updatedMethodCall = methodCallExpression.Update(null, new[] { Unwrap(newSource) });
@@ -719,7 +719,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     Replaces the lambda's single parameter with a type wrapper based on the given source, and then visits
         ///     the lambda's body.
         /// </summary>
-        protected virtual LambdaExpression RewriteAndVisitLambda(LambdaExpression lambda, EntityReferenceExpression source)
+        private LambdaExpression RewriteAndVisitLambda(LambdaExpression lambda, EntityReferenceExpression source)
             => Expression.Lambda(
                 lambda.Type,
                 Visit(
@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     Replaces the lambda's two parameters with type wrappers based on the given sources, and then visits
         ///     the lambda's body.
         /// </summary>
-        protected virtual LambdaExpression RewriteAndVisitLambda(
+        private LambdaExpression RewriteAndVisitLambda(
             LambdaExpression lambda,
             EntityReferenceExpression source1,
             EntityReferenceExpression source2)
@@ -758,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     if possible.
         /// </summary>
         /// <returns> The rewritten entity equality expression, or null if rewriting could not occur for some reason. </returns>
-        protected virtual Expression RewriteEquality(bool equality, Expression left, Expression right)
+        private Expression RewriteEquality(bool equality, Expression left, Expression right)
         {
             // TODO: Consider throwing if a child has no flowed entity type, but has a Type that corresponds to an entity type on the model.
             // TODO: This would indicate an issue in our flowing logic, and would help the user (and us) understand what's going on.
@@ -904,7 +904,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        protected virtual Expression VisitNullConditional(NullConditionalExpression expression)
+        private Expression VisitNullConditional(NullConditionalExpression expression)
         {
             var newCaller = Visit(expression.Caller);
             var newAccessOperation = Visit(expression.AccessOperation);

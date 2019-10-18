@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             // so we can capture TenantPrefix in filter exprs (simulates OnModelCreating).
 
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));
-            modelBuilder.Entity<Order>().HasQueryFilter(o => o.Customer.CompanyName != null);
+            modelBuilder.Entity<Order>().HasQueryFilter(o => o.Customer != null && o.Customer.CompanyName != null);
             modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => EF.Property<short>(od, "Quantity") > _quantity);
             modelBuilder.Entity<Employee>().HasQueryFilter(e => e.Address.StartsWith("A"));
             modelBuilder.Entity<Product>().HasQueryFilter(p => ClientMethod(p));
