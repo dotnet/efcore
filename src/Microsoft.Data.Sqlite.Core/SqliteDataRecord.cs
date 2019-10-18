@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using static SQLitePCL.raw;
@@ -17,6 +18,7 @@ namespace Microsoft.Data.Sqlite
         private readonly byte[][] _blobCache;
         private readonly int?[] _typeCache;
         private bool _stepped;
+        private int? _rowOrdinalCache;
 
         public SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnection connection)
         {
@@ -25,6 +27,7 @@ namespace Microsoft.Data.Sqlite
             _connection = connection;
             _blobCache = new byte[FieldCount][];
             _typeCache = new int?[FieldCount];
+            _rowOrdinalCache = null;
         }
 
         public virtual object this[string name]
@@ -196,13 +199,16 @@ namespace Microsoft.Data.Sqlite
 
         public virtual long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
         {
-            var blob = GetCachedBlob(ordinal);
+            var blob = GetStream(ordinal);
 
             long bytesToRead = blob.Length - dataOffset;
             if (buffer != null)
             {
                 bytesToRead = Math.Min(bytesToRead, length);
-                Array.Copy(blob, dataOffset, buffer, bufferOffset, bytesToRead);
+                using (var binaryReader = new BinaryReader(blob))
+                {
+                    Array.Copy(binaryReader.ReadBytes((int)blob.Length), dataOffset, buffer, bufferOffset, bytesToRead);
+                }
             }
 
             return bytesToRead;
@@ -210,11 +216,14 @@ namespace Microsoft.Data.Sqlite
 
         public virtual long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
         {
-            var text = GetString(ordinal);
+            var textStream = GetStream(ordinal);
+            long charsToRead = textStream.Length - dataOffset;
 
-            int charsToRead = text.Length - (int)dataOffset;
-            charsToRead = Math.Min(charsToRead, length);
-            text.CopyTo((int)dataOffset, buffer, bufferOffset, charsToRead);
+            using (var streamReader = new StreamReader(textStream, Encoding.UTF8))
+            {
+                Array.Copy(streamReader.ReadToEnd().ToCharArray(), dataOffset, buffer, bufferOffset, Math.Min(charsToRead, length));
+            }
+
             return charsToRead;
         }
 
@@ -229,49 +238,57 @@ namespace Microsoft.Data.Sqlite
             var blobDatabaseName = sqlite3_column_database_name(Handle, ordinal).utf8_to_string();
             var blobTableName = sqlite3_column_table_name(Handle, ordinal).utf8_to_string();
 
-            var rowidOrdinal = -1;
-            for (var i = 0; i < FieldCount; i++)
+            int rowidOrdinal = -1;
+
+            if (_rowOrdinalCache.HasValue)
             {
-                if (i == ordinal)
+                rowidOrdinal = _rowOrdinalCache.Value;
+            }
+            else
+            {
+                for (var i = 0; i < FieldCount; i++)
                 {
-                    continue;
-                }
+                    if (i == ordinal)
+                    {
+                        continue;
+                    }
 
-                var databaseName = sqlite3_column_database_name(Handle, i).utf8_to_string();
-                if (databaseName != blobDatabaseName)
-                {
-                    continue;
-                }
+                    var databaseName = sqlite3_column_database_name(Handle, i).utf8_to_string();
+                    if (databaseName != blobDatabaseName)
+                    {
+                        continue;
+                    }
 
-                var tableName = sqlite3_column_table_name(Handle, i).utf8_to_string();
-                if (tableName != blobTableName)
-                {
-                    continue;
-                }
+                    var tableName = sqlite3_column_table_name(Handle, i).utf8_to_string();
+                    if (tableName != blobTableName)
+                    {
+                        continue;
+                    }
 
-                var columnName = sqlite3_column_origin_name(Handle, i).utf8_to_string();
-                if (columnName == "rowid")
-                {
-                    rowidOrdinal = i;
-                    break;
-                }
+                    var columnName = sqlite3_column_origin_name(Handle, i).utf8_to_string();
+                    if (columnName == "rowid")
+                    {
+                        rowidOrdinal = i;
+                        break;
+                    }
 
-                var rc = sqlite3_table_column_metadata(
-                    _connection.Handle,
-                    databaseName,
-                    tableName,
-                    columnName,
-                    out var dataType,
-                    out var collSeq,
-                    out var notNull,
-                    out var primaryKey,
-                    out var autoInc);
-                SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
-                if (string.Equals(dataType, "INTEGER", StringComparison.OrdinalIgnoreCase)
-                    && primaryKey != 0)
-                {
-                    rowidOrdinal = i;
-                    break;
+                    var rc = sqlite3_table_column_metadata(
+                        _connection.Handle,
+                        databaseName,
+                        tableName,
+                        columnName,
+                        out var dataType,
+                        out var collSeq,
+                        out var notNull,
+                        out var primaryKey,
+                        out var autoInc);
+                    SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+                    if (string.Equals(dataType, "INTEGER", StringComparison.OrdinalIgnoreCase)
+                        && primaryKey != 0)
+                    {
+                        _rowOrdinalCache = rowidOrdinal = i;
+                        break;
+                    }
                 }
             }
 
