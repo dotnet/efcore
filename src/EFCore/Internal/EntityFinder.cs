@@ -321,18 +321,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private IQueryable BuildQueryRoot(IEntityType entityType)
         {
-            var definingEntityType = entityType.DefiningEntityType;
-            return definingEntityType == null
-                ? (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType)
-                : BuildQueryRoot(definingEntityType, entityType);
+            return entityType.DefiningEntityType is IEntityType definingEntityType
+                ? BuildQueryRoot(definingEntityType, entityType, entityType.DefiningNavigationName)
+                : entityType.FindOwnership() is IForeignKey ownership
+                    ? BuildQueryRoot(ownership.PrincipalEntityType, entityType, ownership.PrincipalToDependent.Name)
+                    : (IQueryable)_setCache.GetOrAddSet(_setSource, entityType.ClrType);
         }
 
-        private IQueryable BuildQueryRoot(IEntityType definingEntityType, IEntityType entityType)
+        private IQueryable BuildQueryRoot(IEntityType ownerOrDefiningEntityType, IEntityType entityType, string navigationName)
         {
-            var queryRoot = BuildQueryRoot(definingEntityType);
+            var queryRoot = BuildQueryRoot(ownerOrDefiningEntityType);
 
-            return (IQueryable)_selectMethod.MakeGenericMethod(definingEntityType.ClrType, entityType.ClrType)
-                .Invoke(null, new object[] { queryRoot, entityType.DefiningNavigationName });
+            return (IQueryable)_selectMethod.MakeGenericMethod(ownerOrDefiningEntityType.ClrType, entityType.ClrType)
+                .Invoke(null, new object[] { queryRoot, navigationName });
         }
 
         private static readonly MethodInfo _selectMethod

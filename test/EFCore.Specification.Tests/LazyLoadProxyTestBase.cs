@@ -27,6 +27,188 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Added, true)]
+        public virtual void Attached_references_to_principal_are_marked_as_loaded(EntityState state, bool lazy)
+        {
+            using (var context = CreateContext(lazy))
+            {
+                var parent = context.CreateProxy<Parent>();
+                parent.Id = 707;
+                parent.AlternateId = "Root";
+
+                var singlePkToPk = context.CreateProxy<SinglePkToPk>();
+                singlePkToPk.Id = 707;
+                parent.SinglePkToPk = singlePkToPk;
+
+                var single = context.CreateProxy<Single>();
+                single.Id = 21;
+                parent.Single = single;
+
+                var singleAk = context.CreateProxy<SingleAk>();
+                singleAk.Id = 42;
+                parent.SingleAk = singleAk;
+
+                var singleShadowFk = context.CreateProxy<SingleShadowFk>();
+                singleShadowFk.Id = 62;
+                parent.SingleShadowFk = singleShadowFk;
+
+                var singleCompositeKey = context.CreateProxy<SingleCompositeKey>();
+                singleCompositeKey.Id = 62;
+                parent.SingleCompositeKey = singleCompositeKey;
+
+                context.Attach(parent);
+
+                if (state != EntityState.Unchanged)
+                {
+                    context.ChangeTracker.LazyLoadingEnabled = false;
+
+                    context.Entry(parent.SinglePkToPk).State = state;
+                    context.Entry(parent.Single).State = state;
+                    context.Entry(parent.SingleAk).State = state;
+                    context.Entry(parent.SingleShadowFk).State = state;
+                    context.Entry(parent.SingleCompositeKey).State = state;
+                    context.Entry(parent).State = state;
+
+                    context.ChangeTracker.LazyLoadingEnabled = true;
+                }
+
+                Assert.True(context.Entry(parent).Reference(e => e.SinglePkToPk).IsLoaded);
+                Assert.True(context.Entry(parent).Reference(e => e.Single).IsLoaded);
+                Assert.True(context.Entry(parent).Reference(e => e.SingleAk).IsLoaded);
+                Assert.True(context.Entry(parent).Reference(e => e.SingleShadowFk).IsLoaded);
+                Assert.True(context.Entry(parent).Reference(e => e.SingleCompositeKey).IsLoaded);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Added, true)]
+        public virtual void Attached_references_to_dependents_are_marked_as_loaded(EntityState state, bool lazy)
+        {
+            using (var context = CreateContext(lazy))
+            {
+                var parent = context.CreateProxy<Parent>();
+                parent.Id = 707;
+                parent.AlternateId = "Root";
+
+                var singlePkToPk = context.CreateProxy<SinglePkToPk>();
+                singlePkToPk.Id = 707;
+                parent.SinglePkToPk = singlePkToPk;
+
+                var single = context.CreateProxy<Single>();
+                single.Id = 21;
+                parent.Single = single;
+
+                var singleAk = context.CreateProxy<SingleAk>();
+                singleAk.Id = 42;
+                parent.SingleAk = singleAk;
+
+                var singleShadowFk = context.CreateProxy<SingleShadowFk>();
+                singleShadowFk.Id = 62;
+                parent.SingleShadowFk = singleShadowFk;
+
+                var singleCompositeKey = context.CreateProxy<SingleCompositeKey>();
+                singleCompositeKey.Id = 62;
+                parent.SingleCompositeKey = singleCompositeKey;
+
+                context.Attach(parent);
+
+                if (state != EntityState.Unchanged)
+                {
+                    context.ChangeTracker.LazyLoadingEnabled = false;
+
+                    context.Entry(parent.SinglePkToPk).State = state;
+                    context.Entry(parent.Single).State = state;
+                    context.Entry(parent.SingleAk).State = state;
+                    context.Entry(parent.SingleShadowFk).State = state;
+                    context.Entry(parent.SingleCompositeKey).State = state;
+                    context.Entry(parent).State = state;
+
+                    context.ChangeTracker.LazyLoadingEnabled = true;
+                }
+
+                Assert.True(context.Entry(parent.SinglePkToPk).Reference(e => e.Parent).IsLoaded);
+                Assert.True(context.Entry(parent.Single).Reference(e => e.Parent).IsLoaded);
+                Assert.True(context.Entry(parent.SingleAk).Reference(e => e.Parent).IsLoaded);
+                Assert.True(context.Entry(parent.SingleShadowFk).Reference(e => e.Parent).IsLoaded);
+                Assert.True(context.Entry(parent.SingleCompositeKey).Reference(e => e.Parent).IsLoaded);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(EntityState.Unchanged, false)]
+        [InlineData(EntityState.Modified, false)]
+        [InlineData(EntityState.Added, false)]
+        [InlineData(EntityState.Unchanged, true)]
+        [InlineData(EntityState.Modified, true)]
+        [InlineData(EntityState.Added, true)]
+        public virtual void Attached_collections_are_not_marked_as_loaded(EntityState state, bool lazy)
+        {
+            using (var context = CreateContext(lazy))
+            {
+                var parent = context.CreateProxy<Parent>();
+                parent.Id = 707;
+                parent.AlternateId = "Root";
+
+                var child1 = context.CreateProxy<Child>();
+                child1.Id = 11;
+                var child2 = context.CreateProxy<Child>();
+                child2.Id = 12;
+                parent.Children = new List<Child> { child1, child2 };
+
+                var childAk1 = context.CreateProxy<ChildAk>();
+                childAk1.Id = 31;
+                var childAk2 = context.CreateProxy<ChildAk>();
+                childAk2.Id = 32;
+                parent.ChildrenAk = new List<ChildAk> { childAk1, childAk2 };
+
+                var childShadowFk1 = context.CreateProxy<ChildShadowFk>();
+                childShadowFk1.Id = 51;
+                var childShadowFk2 = context.CreateProxy<ChildShadowFk>();
+                childShadowFk2.Id = 52;
+                parent.ChildrenShadowFk = new List<ChildShadowFk> { childShadowFk1, childShadowFk2 };
+
+                var childCompositeKey1 = context.CreateProxy<ChildCompositeKey>();
+                childCompositeKey1.Id = 51;
+                var childCompositeKey2 = context.CreateProxy<ChildCompositeKey>();
+                childCompositeKey2.Id = 52;
+                parent.ChildrenCompositeKey = new List<ChildCompositeKey> { childCompositeKey1, childCompositeKey2 };
+
+                context.Attach(parent);
+
+                if (state != EntityState.Unchanged)
+                {
+                    context.ChangeTracker.LazyLoadingEnabled = false;
+
+                    foreach (var child in parent.Children.Cast<object>()
+                        .Concat(parent.ChildrenAk)
+                        .Concat(parent.ChildrenShadowFk)
+                        .Concat(parent.ChildrenCompositeKey))
+                    {
+                        context.Entry(child).State = state;
+                    }
+                    context.Entry(parent).State = state;
+
+                    context.ChangeTracker.LazyLoadingEnabled = true;
+                }
+
+                Assert.False(context.Entry(parent).Collection(e => e.Children).IsLoaded);
+                Assert.False(context.Entry(parent).Collection(e => e.ChildrenAk).IsLoaded);
+                Assert.False(context.Entry(parent).Collection(e => e.ChildrenShadowFk).IsLoaded);
+                Assert.False(context.Entry(parent).Collection(e => e.ChildrenCompositeKey).IsLoaded);
+            }
+        }
+
+        [ConditionalTheory]
         [InlineData(EntityState.Unchanged, false, false)]
         [InlineData(EntityState.Modified, false, false)]
         [InlineData(EntityState.Deleted, false, false)]

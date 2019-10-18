@@ -168,6 +168,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Entity_Equality()
+        {
+            var results = _context.Orders.ToList();
+
+            Assert.Equal(80, results.Count);
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         public void Dispose() => _context.Dispose();

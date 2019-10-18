@@ -79,6 +79,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static bool PaintAction(
             EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)
         {
+            SetReferenceLoaded(node);
+
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)
             {
@@ -103,6 +105,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node,
             CancellationToken cancellationToken)
         {
+            SetReferenceLoaded(node);
+
             var internalEntityEntry = node.GetInfrastructure();
             if (internalEntityEntry.EntityState != EntityState.Detached)
             {
@@ -122,6 +126,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 cancellationToken: cancellationToken);
 
             return true;
+        }
+
+        private static void SetReferenceLoaded(
+            EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)
+        {
+            var inboundNavigation = node.InboundNavigation;
+            if (inboundNavigation != null
+                && !inboundNavigation.IsCollection())
+            {
+                node.SourceEntry.GetInfrastructure().SetIsLoaded(inboundNavigation);
+            }
         }
     }
 }
