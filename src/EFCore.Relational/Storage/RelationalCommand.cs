@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IRelationalConnection connection)
         {
             command.Parameters.Clear();
-            await command.DisposeAsyncIfAvailable();
+            await command.DisposeAsync();
             await connection.CloseAsync();
         }
 
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         stopwatch.Elapsed);
                 }
 
-                var result = new RelationalDataReader(
+                var result = CreateRelationalDataReader(
                     connection,
                     command,
                     reader,
@@ -503,7 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         cancellationToken);
                 }
 
-                var result = new RelationalDataReader(
+                var result = CreateRelationalDataReader(
                     connection,
                     command,
                     reader,
@@ -612,5 +612,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return command;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a new <see cref="RelationalDataReader" /> to be used by <see cref="ExecuteReader" /> and <see cref="ExecuteReaderAsync" />.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="connection">The connection, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="command">The command that was executed, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="reader">The underlying reader for the result set, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="commandId">A correlation ID that identifies the <see cref="DbCommand" /> instance being used, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="logger">The diagnostic source, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <returns>The created <see cref="RelationalDataReader" />.</returns>
+        protected virtual RelationalDataReader CreateRelationalDataReader([NotNull] IRelationalConnection connection,
+            [NotNull] DbCommand command,
+            [NotNull] DbDataReader reader,
+            Guid commandId,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            => new RelationalDataReader(
+                connection,
+                command,
+                reader,
+                commandId,
+                logger);
     }
 }

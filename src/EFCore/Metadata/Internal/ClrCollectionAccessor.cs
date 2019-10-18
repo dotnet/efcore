@@ -197,16 +197,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     return false;
                 case SortedSet<TElement> sortedSet:
-                    foreach (var item in sortedSet)
-                    {
-                        if (ReferenceEquals(item, value))
-                        {
-                            sortedSet.Remove(item);
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return sortedSet.TryGetValue((TElement)value, out var found)
+                           && ReferenceEquals(found, value)
+                           && sortedSet.Remove(found);
                 default:
                     return collection?.Remove((TElement)value) ?? false;
             }
@@ -237,15 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                     return false;
                 case SortedSet<TElement> sortedSet:
-                    foreach (var element in sortedSet)
-                    {
-                        if (ReferenceEquals(element, value))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
+                    return sortedSet.TryGetValue((TElement)value, out var found)
+                           && ReferenceEquals(found, value);
                 default:
                     return collection?.Contains((TElement)value) == true;
             }
