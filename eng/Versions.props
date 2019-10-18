@@ -29,6 +29,8 @@
     <StyleCopAnalyzersPackageVersion>1.1.118</StyleCopAnalyzersPackageVersion>
     <BenchmarkDotNetPackageVersion>0.11.3</BenchmarkDotNetPackageVersion>
     <MicrosoftDataSqlClientPackageVersion>1.0.19269.1</MicrosoftDataSqlClientPackageVersion>
+    <MicrosoftBclAsyncInterfacesVersion>1.0.0</MicrosoftBclAsyncInterfacesVersion>
+    <MicrosoftBclHashCodeVersion>1.0.0</MicrosoftBclHashCodeVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
     <MicrosoftExtensionsCachingMemoryPackageVersion>3.1.0-preview2.19518.1</MicrosoftExtensionsCachingMemoryPackageVersion>
@@ -40,8 +42,6 @@
     <MicrosoftExtensionsLoggingPackageVersion>3.1.0-preview2.19518.1</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftBclAsyncInterfacesVersion>1.1.0-preview2.19516.15</MicrosoftBclAsyncInterfacesVersion>
-    <MicrosoftBclHashCodeVersion>1.1.0-preview2.19516.15</MicrosoftBclHashCodeVersion>
     <MicrosoftCSharpPackageVersion>4.7.0-preview2.19516.15</MicrosoftCSharpPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.7.0-preview2.19516.15</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.7.0-preview2.19516.15</SystemComponentModelAnnotationsPackageVersion>

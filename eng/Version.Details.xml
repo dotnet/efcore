@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.Bcl.AsyncInterfaces" Version="1.1.0-preview2.19516.15" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>c4d092f0430a104fa633f1503a1c207b4518f05d</Sha>
-    </Dependency>
-    <Dependency Name="Microsoft.Bcl.HashCode" Version="1.1.0-preview2.19516.15" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
-      <Uri>https://github.com/dotnet/corefx</Uri>
-      <Sha>c4d092f0430a104fa633f1503a1c207b4518f05d</Sha>
-    </Dependency>
     <Dependency Name="Microsoft.CSharp" Version="4.7.0-preview2.19516.15" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>c4d092f0430a104fa633f1503a1c207b4518f05d</Sha>
