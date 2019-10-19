@@ -2,32 +2,34 @@
 using System.IO;
 using Microsoft.Data.Sqlite;
 
+using static SQLitePCL.raw;
+
 namespace EncryptionSample
 {
     class Program
     {
         static void Main()
         {
-            const string connectionString = "Data Source=EncryptionSample.db";
+            const string baseConnectionString = "Data Source=EncryptionSample.db";
+
+            // Notice which packages are referenced by this project:
+            // - Microsoft.Data.Sqlite.Core
+            // - SQLitePCLRaw.bundle_sqlcipher
+
+            // The Password keyword in the connection string specifies the encryption key
+            var connectionString = new SqliteConnectionStringBuilder(baseConnectionString)
+            {
+                Mode = SqliteOpenMode.ReadWriteCreate,
+                Password = "password"
+            }.ToString();
 
             using (var connection = new SqliteConnection(connectionString))
             {
+                // When a new database is created, it will be encrypted using the key
                 connection.Open();
 
-                // Notice which packages are referenced by this project:
-                // - Microsoft.Data.Sqlite.Core
-                // - SQLitePCLRaw.bundle_sqlcipher
-
-                // Immediately after opening the connection, send PRAGMA key to use encryption
-                var keyCommand = connection.CreateCommand();
-                keyCommand.CommandText =
-                @"
-                    PRAGMA key = 'password';
-                ";
-                keyCommand.ExecuteNonQuery();
-
-                var createCommand = connection.CreateCommand();
-                createCommand.CommandText =
+                var command = connection.CreateCommand();
+                command.CommandText =
                 @"
                     CREATE TABLE data (
                         value TEXT
@@ -36,52 +38,42 @@ namespace EncryptionSample
                     INSERT INTO data
                     VALUES ('Hello, encryption!');
                 ";
-                createCommand.ExecuteNonQuery();
+                command.ExecuteNonQuery();
             }
+
+            Console.Write("Password (it's 'password'): ");
+            var password = Console.ReadLine();
+
+            connectionString = new SqliteConnectionStringBuilder(baseConnectionString)
+            {
+                Mode = SqliteOpenMode.ReadWrite,
+                Password = password
+            }.ToString();
 
             using (var connection = new SqliteConnection(connectionString))
             {
-                connection.Open();
-
-                Console.Write("Password (it's 'password'): ");
-                var password = Console.ReadLine();
-
-                // Sanitize the user input using the quote() function
-                var quoteCommand = connection.CreateCommand();
-                quoteCommand.CommandText =
-                @"
-                    SELECT quote($value)
-                ";
-                quoteCommand.Parameters.AddWithValue("$value", password);
-                var quotedPassword = (string)quoteCommand.ExecuteScalar();
-
-                // PRAGMA statements can't be parameterized. We're forced to concatenate the
-                // escaped user input
-                var keyCommand = connection.CreateCommand();
-                keyCommand.CommandText =
-                $@"
-                    PRAGMA key = {quotedPassword}
-                ";
-                keyCommand.ExecuteScalar();
-
                 try
                 {
-                    var queryCommand = connection.CreateCommand();
-                    queryCommand.CommandText =
-                    @"
-                        SELECT *
-                        FROM data
-                    ";
-                    var data = (string)queryCommand.ExecuteScalar();
-                    Console.WriteLine(data);
+                    // If the key is incorrect, this will throw
+                    connection.Open();
                 }
-                catch (SqliteException ex) when (ex.SqliteErrorCode == SQLitePCL.raw.SQLITE_NOTADB)
+                catch (SqliteException ex) when (ex.SqliteErrorCode == SQLITE_NOTADB)
                 {
                     Console.WriteLine("Access denied.");
+                    goto Cleanup;
                 }
+
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
+                    SELECT *
+                    FROM data
+                ";
+                var data = (string)command.ExecuteScalar();
+                Console.WriteLine(data);
             }
 
-            // Clean up
+            Cleanup:
             File.Delete("EncryptionSample.db");
         }
     }
