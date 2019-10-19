@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
@@ -878,6 +879,97 @@ namespace Microsoft.EntityFrameworkCore
             TimeSpan? endTimeSpan)
             => (startTimeSpan.HasValue && endTimeSpan.HasValue)
                 ? (int?)DateDiffNanosecond(_, startTimeSpan.Value, endTimeSpan.Value)
+                : null;
+
+        /// <summary>
+        ///     Counts the number of week boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(WEEK,startDate,endDate).
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="startDate">Starting date for the calculation.</param>
+        /// <param name="endDate">Ending date for the calculation.</param>
+        /// <returns>Number of week boundaries crossed between the dates.</returns>
+        public static int DateDiffWeek(
+            [CanBeNull] this DbFunctions _,
+            DateTime startDate,
+            DateTime endDate)
+        {
+            checked
+            {
+                var days = (endDate.Date - startDate.Date).Days;
+                var weeks = (int)days / 7;
+                var remainingDays = days % 7;
+
+                if (remainingDays > 0)
+                {
+                    var calendar = CultureInfo.InvariantCulture.Calendar;
+
+                    var first = calendar
+                        .GetWeekOfYear(
+                            startDate,
+                            CalendarWeekRule.FirstFullWeek,
+                            DayOfWeek.Sunday);
+
+                    var second = calendar
+                        .GetWeekOfYear(
+                            startDate.AddDays(remainingDays),
+                            CalendarWeekRule.FirstFullWeek,
+                            DayOfWeek.Sunday);
+
+                    if (first != second)
+                    {
+                        weeks++;
+                    }
+                }
+
+                return weeks;
+            }
+        }
+
+        /// <summary>
+        ///     Counts the number of week boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(WEEK,startDate,endDate).
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="startDate">Starting date for the calculation.</param>
+        /// <param name="endDate">Ending date for the calculation.</param>
+        /// <returns>Number of week boundaries crossed between the dates.</returns>
+        public static int? DateDiffWeek(
+            [CanBeNull] this DbFunctions _,
+            DateTime? startDate,
+            DateTime? endDate)
+            => (startDate.HasValue && endDate.HasValue)
+                ? (int?)DateDiffWeek(_, startDate.Value, endDate.Value)
+                : null;
+
+        /// <summary>
+        ///     Counts the number of week boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(WEEK,startDate,endDate).
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="startDate">Starting date for the calculation.</param>
+        /// <param name="endDate">Ending date for the calculation.</param>
+        /// <returns>Number of week boundaries crossed between the dates.</returns>
+        public static int DateDiffWeek(
+            [CanBeNull] this DbFunctions _,
+            DateTimeOffset startDate,
+            DateTimeOffset endDate)
+            => DateDiffWeek(_, startDate.UtcDateTime, endDate.UtcDateTime);
+
+        /// <summary>
+        ///     Counts the number of week boundaries crossed between the startDate and endDate.
+        ///     Corresponds to SQL Server's DATEDIFF(WEEK,startDate,endDate).
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="startDate">Starting date for the calculation.</param>
+        /// <param name="endDate">Ending date for the calculation.</param>
+        /// <returns>Number of week boundaries crossed between the dates.</returns>
+        public static int? DateDiffWeek(
+            [CanBeNull] this DbFunctions _,
+            DateTimeOffset? startDate,
+            DateTimeOffset? endDate)
+            => (startDate.HasValue && endDate.HasValue)
+                ? (int?)DateDiffWeek(_, startDate.Value, endDate.Value)
                 : null;
 
         /// <summary>

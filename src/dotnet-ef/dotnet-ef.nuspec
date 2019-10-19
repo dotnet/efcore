@@ -6,7 +6,7 @@
       <packageType name="$packageType$" />
     </packageTypes>
     <dependencies>
-      <group targetFramework=".NETCoreApp3.1" />
+      <group targetFramework=".NETCoreApp5.0" />
     </dependencies>
     <icon>packageIcon.png</icon>
   </metadata>

@@ -1247,12 +1247,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case NewExpression newExpression:
                 {
-                    // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-                    if (newExpression.Constructor == null)
-                    {
-                        return Expression.Default(newExpression.Type);
-                    }
-
                     var arguments = new Expression[newExpression.Arguments.Count];
                     for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
