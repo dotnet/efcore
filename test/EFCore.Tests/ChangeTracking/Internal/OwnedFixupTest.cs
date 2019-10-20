@@ -23,6 +23,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class OwnedFixupTest
     {
         [ConditionalFact]
+        public void Can_detach_Added_owner_referencing_detached_weak_owned_entity()
+        {
+            using (var context = new FixupContext())
+            {
+                var owner = new Parent { Child1 = new Child() };
+
+                context.Entry(owner).State = EntityState.Added;
+
+                Assert.Equal(EntityState.Added, context.Entry(owner).State);
+                Assert.Equal(EntityState.Detached, context.Entry(owner).Reference(e => e.Child1).TargetEntry.State);
+
+                context.Entry(owner).State = EntityState.Detached;
+
+                Assert.Equal(EntityState.Detached, context.Entry(owner).State);
+                Assert.Equal(EntityState.Detached, context.Entry(owner).Reference(e => e.Child1).TargetEntry.State);
+            }
+        }
+
+        [ConditionalFact]
         public void Can_get_owned_entity_entry()
         {
             using (var context = new FixupContext())
