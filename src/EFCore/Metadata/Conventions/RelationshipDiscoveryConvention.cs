@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var targetOwnership = candidateTargetEntityType.FindOwnership();
                     if (targetOwnership != null
                         && (targetOwnership.PrincipalEntityType != entityType
-                            || targetOwnership.PrincipalToDependent.Name != navigationPropertyInfo.GetSimpleMemberName())
+                            || targetOwnership.PrincipalToDependent?.Name != navigationPropertyInfo.GetSimpleMemberName())
                         && (ownership == null
                             || ownership.PrincipalEntityType != candidateTargetEntityType))
                     {
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 && (candidateTargetEntityType.IsOwned()
                                     || model.FindIsOwnedConfigurationSource(targetClrType) == null)
                                 && (ownership.PrincipalEntityType != candidateTargetEntityType
-                                    || ownership.PrincipalToDependent.Name != inversePropertyInfo.GetSimpleMemberName()))
+                                    || ownership.PrincipalToDependent?.Name != inversePropertyInfo.GetSimpleMemberName()))
                             || (entityType.HasDefiningNavigation()
                                 && !candidateTargetEntityType.IsInDefinitionPath(entityType.ClrType)
                                 && (entityType.DefiningEntityType != candidateTargetEntityType
