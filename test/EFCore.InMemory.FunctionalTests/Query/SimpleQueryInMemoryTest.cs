@@ -163,6 +163,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Projection_when_arithmetic_mixed_subqueries(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Where_equals_method_string_with_ignore_case(bool isAsync)
+        {
+            return base.Where_equals_method_string_with_ignore_case(isAsync);
+        }
+
         [ConditionalTheory(Skip = "Issue#17536")]
         public override Task SelectMany_correlated_with_outer_3(bool isAsync)
         {
