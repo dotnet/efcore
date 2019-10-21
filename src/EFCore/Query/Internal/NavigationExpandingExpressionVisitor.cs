@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public virtual Expression Expand(Expression query)
         {
-            var result = ExpandAndReduce(query, applyInclude: true);
+            var result = ExpandAndReduce(query, applyIncludes: true);
 
             var dbContextOnQueryContextPropertyAccess =
                 Expression.Convert(
@@ -96,15 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
-        private Expression ExpandAndReduce(Expression query, bool applyInclude)
+        private Expression ExpandAndReduce(Expression query, bool applyIncludes)
         {
             var result = Visit(query);
-            result = _pendingSelectorExpandingExpressionVisitor.Visit(result);
-            if (applyInclude)
-            {
-                result = new IncludeApplyingExpressionVisitor(this, _queryCompilationContext.IsTracking).Visit(result);
-            }
-
+            result = new PendingSelectorExpandingExpressionVisitor(this, applyIncludes: applyIncludes).Visit(result);
             result = Reduce(result);
 
             return result;
@@ -131,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     navigationExpansionExpression = (NavigationExpansionExpression)Visit(processedDefiningQueryBody);
 
-                    var expanded = ExpandAndReduce(navigationExpansionExpression, applyInclude: false);
+                    var expanded = ExpandAndReduce(navigationExpansionExpression, applyIncludes: false);
                     navigationExpansionExpression = CreateNavigationExpansionExpression(expanded, entityType);
                 }
                 else
@@ -949,9 +944,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 source = (NavigationExpansionExpression)ProcessSelect(source, elementSelector);
-                source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
-                source = (NavigationExpansionExpression)new IncludeApplyingExpressionVisitor(
-                    this, _queryCompilationContext.IsTracking).Visit(source);
+                source = (NavigationExpansionExpression)new PendingSelectorExpandingExpressionVisitor(this, applyIncludes: true)
+                    .Visit(source);
                 keySelector = GenerateLambda(keySelectorBody, source.CurrentParameter);
                 elementSelector = GenerateLambda(source.PendingSelector, source.CurrentParameter);
                 if (resultSelector == null)
@@ -1335,7 +1329,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     && selector.ReturnType.GetGenericTypeDefinition() == typeof(IGrouping<,>)))
             {
                 var selectorLambda = GenerateLambda(ExpandNavigationsInLambdaExpression(source, selector), source.CurrentParameter);
-
                 var newSource = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(source.SourceElementType, selectorLambda.ReturnType),
                     source.Source,
@@ -1419,15 +1412,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _reducingExpressionVisitor.Visit(source);
         }
 
-        private Expression ExpandNavigationsInExpression(NavigationExpansionExpression source, Expression expression)
-        {
-            expression = new ExpandingExpressionVisitor(this, source).Visit(expression);
-            expression = _subqueryMemberPushdownExpressionVisitor.Visit(expression);
-            expression = Visit(expression);
-
-            return expression;
-        }
-
         private Expression ExpandNavigationsInLambdaExpression(
             NavigationExpansionExpression source,
             LambdaExpression lambdaExpression)
@@ -1437,7 +1421,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 source.PendingSelector,
                 lambdaExpression.Body);
 
-            return ExpandNavigationsInExpression(source, lambdaBody);
+            lambdaBody = new ExpandingExpressionVisitor(this, source).Visit(lambdaBody);
+            lambdaBody = _subqueryMemberPushdownExpressionVisitor.Visit(lambdaBody);
+            lambdaBody = Visit(lambdaBody);
+            lambdaBody = _pendingSelectorExpandingExpressionVisitor.Visit(lambdaBody);
+
+            return lambdaBody;
         }
 
         private class Parameters : IParameterValues
