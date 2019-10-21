@@ -3330,7 +3330,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                          select new { Navigation = l2i.OneToOne_Required_FK_Inverse2, Constant = 7 }).First().Navigation.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue #17756")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Required_navigation_on_a_subquery_with_First_in_predicate(bool isAsync)
         {
@@ -5863,21 +5863,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                         == "L4 01"));
         }
 
-        [ConditionalFact]
-        public virtual void Union_over_entities_with_different_nullability()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_entities_with_different_nullability(bool isAsync)
         {
-            using var ctx = CreateContext();
-
-            var query = ctx.Set<Level1>()
-                .GroupJoin(ctx.Set<Level2>(), l1 => l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2s) => new { l1, l2s })
-                .SelectMany(g => g.l2s.DefaultIfEmpty(), (g, l2) => new { g.l1, l2 })
-                .Concat(
-                    ctx.Set<Level2>().GroupJoin(ctx.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .GroupJoin(ss.Set<Level2>(), l1 => l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2s) => new { l1, l2s })
+                    .SelectMany(g => g.l2s.DefaultIfEmpty(), (g, l2) => new { g.l1, l2 })
+                    .Concat(ss.Set<Level2>().GroupJoin(ss.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
                         .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })
                         .Where(e => e.l1.Equals(null)))
-                .Select(e => e.l1.Id);
-
-            var result = query.ToList();
+                    .Select(e => e.l1.Id),
+                ss => ss.Set<Level1>()
+                    .GroupJoin(ss.Set<Level2>(), l1 => l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2s) => new { l1, l2s })
+                    .SelectMany(g => g.l2s.DefaultIfEmpty(), (g, l2) => new { g.l1, l2 })
+                    .Concat(ss.Set<Level2>().GroupJoin(ss.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
+                        .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })
+                        .Where(e => e.l1 == null))
+                    .Select(e => MaybeScalar<int>(Maybe<Level1>(e, () => e.l1), () => e.l1.Id) ?? 0));
         }
 
         [ConditionalTheory]
@@ -5903,6 +5908,39 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.c1?.Id ?? 0, a.c1?.Id);
                     AssertCollection(e.c2, a.c2, elementSorter: i => i.Id, elementAsserter: (ie, ia) => Assert.Equal(ie.Id, ia.Id));
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Including_reference_navigation_and_projecting_collection_navigation(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .Include(e => e.OneToOne_Required_FK1)
+                        .ThenInclude(e => e.OneToOne_Optional_FK2)
+                    .Select(e => new Level1
+                    {
+                        Id = e.Id,
+                        OneToOne_Required_FK1 = e.OneToOne_Required_FK1,
+                        OneToMany_Required1 = e.OneToMany_Required1
+                    }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Including_reference_navigation_and_projecting_collection_navigation_2(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .Include(e => e.OneToOne_Required_FK1)
+                    .Include(e => e.OneToMany_Required1)
+                    .Select(e => new
+                    {
+                        e,
+                        First = e.OneToMany_Required1.OrderByDescending(e => e.Id).FirstOrDefault()
+                    }));
         }
     }
 }

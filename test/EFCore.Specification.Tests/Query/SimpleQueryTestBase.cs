@@ -5511,7 +5511,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue#17756")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool isAsync)
         {

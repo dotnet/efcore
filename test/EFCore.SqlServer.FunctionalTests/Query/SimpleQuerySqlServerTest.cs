@@ -4628,12 +4628,11 @@ WHERE (
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
-    SELECT TOP(1) [o.Customer].[CustomerID]
+    SELECT TOP(1) [c0].[CustomerID]
     FROM [Orders] AS [o]
-    LEFT JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-    WHERE [c].[CustomerID] = [o].[CustomerID]
-    ORDER BY [o].[OrderID]
-) IS NULL");
+    LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    ORDER BY [o].[OrderID]) IS NULL");
         }
 
         public override async Task Collection_navigation_equality_rewrite_for_subquery(bool isAsync)
