@@ -2788,7 +2788,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (existingOwnership != null
                     && entityType.Model.IsOwned(targetClrType)
                     && (existingOwnership.PrincipalEntityType != entityType
-                        || existingOwnership.PrincipalToDependent.Name != navigationInfo.GetSimpleMemberName()))
+                        || existingOwnership.PrincipalToDependent?.Name != navigationInfo.GetSimpleMemberName()))
                 {
                     return configurationSource.HasValue
                            && !targetClrType.Equals(Metadata.ClrType)
