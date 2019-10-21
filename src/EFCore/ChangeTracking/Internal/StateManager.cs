@@ -597,13 +597,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (_referencedUntrackedEntities != null)
             {
-                var navigations = entityType.GetNavigations().ToList();
-
                 foreach (var keyValuePair in _referencedUntrackedEntities.ToList())
                 {
-                    var untrackedEntityType = _model.FindRuntimeEntityType(keyValuePair.Key.GetType());
-                    if (navigations.Any(n => n.GetTargetType().IsAssignableFrom(untrackedEntityType))
-                        || untrackedEntityType.GetNavigations().Any(n => n.GetTargetType().IsAssignableFrom(entityType)))
+                    if (keyValuePair.Value.Any(t => t.Item2 == entry))
                     {
                         _referencedUntrackedEntities.Remove(keyValuePair.Key);
 
