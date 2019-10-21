@@ -186,12 +186,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var ownership = entityType.FindOwnership();
             if (ownership != null
                 && ownership.PrincipalEntityType == targetEntityTypeBuilder.Metadata
-                && ownership.PrincipalToDependent.GetIdentifyingMemberInfo() != inverseNavigationPropertyInfo)
+                && ownership.PrincipalToDependent?.GetIdentifyingMemberInfo() != inverseNavigationPropertyInfo)
             {
                 Dependencies.Logger.NonOwnershipInverseNavigationWarning(
                     entityType, navigationMemberInfo,
                     targetEntityTypeBuilder.Metadata, inverseNavigationPropertyInfo,
-                    ownership.PrincipalToDependent.GetIdentifyingMemberInfo());
+                    ownership.PrincipalToDependent?.GetIdentifyingMemberInfo());
                 return null;
             }
 
