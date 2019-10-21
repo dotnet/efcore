@@ -71,6 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [InlineData(typeof(B), nameof(B.NullableValueType), true)]
         [InlineData(typeof(B), nameof(B.NonNullableRefType), false)]
         [InlineData(typeof(B), nameof(B.NullableRefType), true)]
+        [InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false)]
+        [InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true)]
+        [InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
         public void Reference_nullability_sets_is_nullable_correctly(Type type, string propertyName, bool expectedNullable)
         {
             var modelBuilder = CreateModelBuilder();
@@ -153,6 +156,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public Guid? NullableValueType { get; set; }
             public string NonNullableRefType { get; set; } = "";
             public string? NullableRefType { get; set; }
+        }
+
+        public class DerivedClass : BaseClass
+        {
+            public string NonNullable { get; set; } = default!;
+        }
+
+        public class BaseClass
+        {
+            public string? Nullable { get; set; }
         }
 #nullable disable
 
