@@ -2384,10 +2384,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual T FindSource<T>([NotNull] T target)
-                => _targetToSource.TryGetValue(target, out var source)
-                    ? (T)source
-                    : default;
+            public virtual T FindSource<T>([CanBeNull] T target)
+                where T : class
+                => target == null
+                    ? null
+                    : _targetToSource.TryGetValue(target, out var source)
+                        ? (T)source
+                        : null;
 
             /// <summary>
             ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2425,10 +2428,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ///     any release. You should only use it directly in your code with extreme caution and knowing that
             ///     doing so can result in application failures when updating to a new Entity Framework Core release.
             /// </summary>
-            public virtual T FindTarget<T>([NotNull] T source)
-                => _sourceToTarget.TryGetValue(source, out var target)
-                    ? (T)target
-                    : default;
+            public virtual T FindTarget<T>([CanBeNull] T source)
+                where T : class
+                => source == null
+                    ? null
+                    : _sourceToTarget.TryGetValue(source, out var target)
+                        ? (T)target
+                        : null;
 
             /// <summary>
             ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
