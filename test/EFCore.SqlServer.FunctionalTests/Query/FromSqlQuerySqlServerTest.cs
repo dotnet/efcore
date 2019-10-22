@@ -746,6 +746,35 @@ WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
 SELECT * FROM ""Orders"" WHERE ""OrderID"" < @p0");
         }
 
+        public override void Entity_equality_through_fromsql()
+        {
+            base.Entity_equality_through_fromsql();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Orders""
+) AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE ([c].[CustomerID] = N'VINET') AND [c].[CustomerID] IS NOT NULL");
+        }
+
+        public override void FromSqlRaw_with_set_operation()
+        {
+            base.FromSqlRaw_with_set_operation();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'London'
+) AS [c]
+UNION ALL
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'Berlin'
+) AS [c0]");
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
             => new SqlParameter { ParameterName = name, Value = value };
 
