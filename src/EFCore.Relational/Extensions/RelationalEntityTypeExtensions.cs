@@ -289,10 +289,26 @@ namespace Microsoft.EntityFrameworkCore
                 return entityType.BaseType.IsIgnoredByMigrations();
             }
 
-            var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
+            if (entityType.GetDefiningQuery() != null)
+            {
+                return true;
+            }
 
-            return (viewDefinition != null && viewDefinition.Value == null)
-                   || entityType.GetDefiningQuery() != null;
+            var viewDefinition = entityType.FindAnnotation(RelationalAnnotationNames.ViewDefinition);
+            if (viewDefinition == null)
+            {
+                var ownership = entityType.FindOwnership();
+                if (ownership != null
+                    && ownership.IsUnique
+                    && entityType.FindAnnotation(RelationalAnnotationNames.TableName) == null)
+                {
+                    return ownership.PrincipalEntityType.IsIgnoredByMigrations();
+                }
+
+                return false;
+            }
+
+            return viewDefinition.Value == null;
         }
     }
 }

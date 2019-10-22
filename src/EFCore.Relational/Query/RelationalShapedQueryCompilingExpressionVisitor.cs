@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -55,20 +56,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                     dataReaderParameter, resultCoordinatorParameter, IsTracking)
                 .Visit(shaper);
 
+            IReadOnlyList<string> columnNames = null;
             if (selectExpression.IsNonComposedFromSql())
             {
                 shaper = new IndexMapInjectingExpressionVisitor(indexMapParameter).Visit(shaper);
+                columnNames = selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList();
             }
+
+            var relationalCommandCache = new RelationalCommandCache(
+                RelationalDependencies.SqlExpressionFactory,
+                RelationalDependencies.ParameterNameGeneratorFactory,
+                RelationalDependencies.QuerySqlGeneratorFactory,
+                selectExpression);
 
             var shaperLambda = (LambdaExpression)shaper;
 
             return Expression.New(
                 typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                Expression.Constant(RelationalDependencies.QuerySqlGeneratorFactory),
-                Expression.Constant(RelationalDependencies.SqlExpressionFactory),
-                Expression.Constant(RelationalDependencies.ParameterNameGeneratorFactory),
-                Expression.Constant(selectExpression),
+                Expression.Constant(relationalCommandCache),
+                Expression.Constant(columnNames, typeof(IReadOnlyList<string>)),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
                 Expression.Constant(_logger));

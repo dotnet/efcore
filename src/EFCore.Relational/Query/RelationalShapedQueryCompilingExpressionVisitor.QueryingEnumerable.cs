@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -19,29 +18,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>
         {
             private readonly RelationalQueryContext _relationalQueryContext;
-            private readonly SelectExpression _selectExpression;
+            private readonly RelationalCommandCache _relationalCommandCache;
+            private readonly IReadOnlyList<string> _columnNames;
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
-            private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-            private readonly ISqlExpressionFactory _sqlExpressionFactory;
-            private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
             public QueryingEnumerable(
                 RelationalQueryContext relationalQueryContext,
-                IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-                ISqlExpressionFactory sqlExpressionFactory,
-                IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-                SelectExpression selectExpression,
+                RelationalCommandCache relationalCommandCache,
+                IReadOnlyList<string> columnNames,
                 Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
                 Type contextType,
                 IDiagnosticsLogger<DbLoggerCategory.Query> logger)
             {
                 _relationalQueryContext = relationalQueryContext;
-                _querySqlGeneratorFactory = querySqlGeneratorFactory;
-                _sqlExpressionFactory = sqlExpressionFactory;
-                _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
-                _selectExpression = selectExpression;
+                _relationalCommandCache = relationalCommandCache;
+                _columnNames = columnNames;
                 _shaper = shaper;
                 _contextType = contextType;
                 _logger = logger;
@@ -53,28 +46,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private sealed class Enumerator : IEnumerator<T>
             {
+                private readonly RelationalQueryContext _relationalQueryContext;
+                private readonly RelationalCommandCache _relationalCommandCache;
+                private readonly IReadOnlyList<string> _columnNames;
+                private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
+                private readonly Type _contextType;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+
                 private RelationalDataReader _dataReader;
                 private int[] _indexMap;
                 private ResultCoordinator _resultCoordinator;
-                private readonly RelationalQueryContext _relationalQueryContext;
-                private readonly SelectExpression _selectExpression;
-                private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
-                private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
-                private readonly Type _contextType;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-                private readonly ISqlExpressionFactory _sqlExpressionFactory;
-                private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
                 public Enumerator(QueryingEnumerable<T> queryingEnumerable)
                 {
                     _relationalQueryContext = queryingEnumerable._relationalQueryContext;
+                    _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+                    _columnNames = queryingEnumerable._columnNames;
                     _shaper = queryingEnumerable._shaper;
-                    _selectExpression = queryingEnumerable._selectExpression;
-                    _querySqlGeneratorFactory = queryingEnumerable._querySqlGeneratorFactory;
                     _contextType = queryingEnumerable._contextType;
                     _logger = queryingEnumerable._logger;
-                    _sqlExpressionFactory = queryingEnumerable._sqlExpressionFactory;
-                    _parameterNameGeneratorFactory = queryingEnumerable._parameterNameGeneratorFactory;
                 }
 
                 public T Current { get; private set; }
@@ -89,12 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             if (_dataReader == null)
                             {
-                                var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
-                                        _sqlExpressionFactory,
-                                        _parameterNameGeneratorFactory)
-                                    .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
-
-                                var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+                                var relationalCommand = _relationalCommandCache.GetRelationalCommand(
+                                    _relationalQueryContext.ParameterValues);
 
                                 _dataReader
                                     = relationalCommand.ExecuteReader(
@@ -104,28 +90,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             _relationalQueryContext.Context,
                                             _relationalQueryContext.CommandLogger));
 
-                                if (selectExpression.IsNonComposedFromSql())
+                                // Non-Composed FromSql
+                                if (_columnNames != null)
                                 {
-                                    var projection = _selectExpression.Projection.ToList();
                                     var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
                                         .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
 
-                                    _indexMap = new int[projection.Count];
-                                    for (var i = 0; i < projection.Count; i++)
+                                    _indexMap = new int[_columnNames.Count];
+                                    for (var i = 0; i < _columnNames.Count; i++)
                                     {
-                                        if (projection[i].Expression is ColumnExpression columnExpression)
+                                        var columnName = _columnNames[i];
+                                        if (!readerColumns.TryGetValue(columnName, out var ordinal))
                                         {
-                                            var columnName = columnExpression.Name;
-                                            if (columnName != null)
-                                            {
-                                                if (!readerColumns.TryGetValue(columnName, out var ordinal))
-                                                {
-                                                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
-                                                }
-
-                                                _indexMap[i] = ordinal;
-                                            }
+                                            throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
                                         }
+
+                                        _indexMap[i] = ordinal;
                                     }
                                 }
                                 else
@@ -191,31 +171,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private sealed class AsyncEnumerator : IAsyncEnumerator<T>
             {
+                private readonly RelationalQueryContext _relationalQueryContext;
+                private readonly RelationalCommandCache _relationalCommandCache;
+                private readonly IReadOnlyList<string> _columnNames;
+                private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
+                private readonly Type _contextType;
+                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
+                private readonly CancellationToken _cancellationToken;
+
                 private RelationalDataReader _dataReader;
                 private int[] _indexMap;
                 private ResultCoordinator _resultCoordinator;
-                private readonly RelationalQueryContext _relationalQueryContext;
-                private readonly SelectExpression _selectExpression;
-                private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
-                private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
-                private readonly Type _contextType;
-                private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
-                private readonly ISqlExpressionFactory _sqlExpressionFactory;
-                private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
-                private readonly CancellationToken _cancellationToken;
 
                 public AsyncEnumerator(
                     QueryingEnumerable<T> queryingEnumerable,
                     CancellationToken cancellationToken)
                 {
                     _relationalQueryContext = queryingEnumerable._relationalQueryContext;
+                    _relationalCommandCache = queryingEnumerable._relationalCommandCache;
+                    _columnNames = queryingEnumerable._columnNames;
                     _shaper = queryingEnumerable._shaper;
-                    _selectExpression = queryingEnumerable._selectExpression;
-                    _querySqlGeneratorFactory = queryingEnumerable._querySqlGeneratorFactory;
                     _contextType = queryingEnumerable._contextType;
                     _logger = queryingEnumerable._logger;
-                    _sqlExpressionFactory = queryingEnumerable._sqlExpressionFactory;
-                    _parameterNameGeneratorFactory = queryingEnumerable._parameterNameGeneratorFactory;
                     _cancellationToken = cancellationToken;
                 }
 
@@ -229,12 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             if (_dataReader == null)
                             {
-                                var selectExpression = new ParameterValueBasedSelectExpressionOptimizer(
-                                        _sqlExpressionFactory,
-                                        _parameterNameGeneratorFactory)
-                                    .Optimize(_selectExpression, _relationalQueryContext.ParameterValues);
-
-                                var relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
+                                var relationalCommand = _relationalCommandCache.GetRelationalCommand(
+                                    _relationalQueryContext.ParameterValues);
 
                                 _dataReader
                                     = await relationalCommand.ExecuteReaderAsync(
@@ -245,28 +218,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             _relationalQueryContext.CommandLogger),
                                         _cancellationToken);
 
-                                if (selectExpression.IsNonComposedFromSql())
+                                // Non-Composed FromSql
+                                if (_columnNames != null)
                                 {
-                                    var projection = _selectExpression.Projection.ToList();
                                     var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
                                         .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
 
-                                    _indexMap = new int[projection.Count];
-                                    for (var i = 0; i < projection.Count; i++)
+                                    _indexMap = new int[_columnNames.Count];
+                                    for (var i = 0; i < _columnNames.Count; i++)
                                     {
-                                        if (projection[i].Expression is ColumnExpression columnExpression)
+                                        var columnName = _columnNames[i];
+                                        if (!readerColumns.TryGetValue(columnName, out var ordinal))
                                         {
-                                            var columnName = columnExpression.Name;
-                                            if (columnName != null)
-                                            {
-                                                if (!readerColumns.TryGetValue(columnName, out var ordinal))
-                                                {
-                                                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
-                                                }
-
-                                                _indexMap[i] = ordinal;
-                                            }
+                                            throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
                                         }
+
+                                        _indexMap[i] = ordinal;
                                     }
                                 }
                                 else

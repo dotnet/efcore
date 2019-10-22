@@ -37,6 +37,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Model_differ_does_not_detect_views_with_owned_types()
+        {
+            Execute(
+                _ => { },
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.ToView("Orders");
+                        x.OwnsOne(y => y.Billing);
+                        x.OwnsOne(y => y.Shipping);
+                    }),
+                upOperations => Assert.Equal(0, upOperations.Count));
+        }
+
+        [ConditionalFact]
         public void Model_differ_does_not_detect_queries()
         {
             DbContext context = null;
