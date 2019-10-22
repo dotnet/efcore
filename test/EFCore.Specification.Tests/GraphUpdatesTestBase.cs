@@ -836,7 +836,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Detaching_dependent_entity_will_remove_references_to_it()
+        public virtual void Detaching_dependent_entity_will_not_remove_references_to_it()
         {
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -944,26 +944,26 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(requiredChildrenAk.All(e => e.Parent == root));
                     Assert.True(requiredCompositeChildren.All(e => e.Parent == root));
 
-                    Assert.Null(root.OptionalSingle);
-                    Assert.Null(root.RequiredSingle);
-                    Assert.Null(root.OptionalSingleAk);
-                    Assert.Null(root.OptionalSingleDerived);
-                    Assert.Null(root.RequiredSingleAk);
-                    Assert.Null(root.OptionalSingleAkDerived);
-                    Assert.Null(root.OptionalSingleMoreDerived);
-                    Assert.Null(root.RequiredNonPkSingle);
-                    Assert.Null(root.OptionalSingleAkMoreDerived);
-                    Assert.Null(root.RequiredNonPkSingleAk);
-                    Assert.Null(root.RequiredNonPkSingleDerived);
-                    Assert.Null(root.RequiredNonPkSingleAkDerived);
-                    Assert.Null(root.RequiredNonPkSingleMoreDerived);
-                    Assert.Null(root.RequiredNonPkSingleAkMoreDerived);
+                    Assert.NotNull(root.OptionalSingle);
+                    Assert.NotNull(root.RequiredSingle);
+                    Assert.NotNull(root.OptionalSingleAk);
+                    Assert.NotNull(root.OptionalSingleDerived);
+                    Assert.NotNull(root.RequiredSingleAk);
+                    Assert.NotNull(root.OptionalSingleAkDerived);
+                    Assert.NotNull(root.OptionalSingleMoreDerived);
+                    Assert.NotNull(root.RequiredNonPkSingle);
+                    Assert.NotNull(root.OptionalSingleAkMoreDerived);
+                    Assert.NotNull(root.RequiredNonPkSingleAk);
+                    Assert.NotNull(root.RequiredNonPkSingleDerived);
+                    Assert.NotNull(root.RequiredNonPkSingleAkDerived);
+                    Assert.NotNull(root.RequiredNonPkSingleMoreDerived);
+                    Assert.NotNull(root.RequiredNonPkSingleAkMoreDerived);
 
-                    Assert.DoesNotContain(optionalChild, root.OptionalChildren);
-                    Assert.DoesNotContain(requiredChild, root.RequiredChildren);
-                    Assert.DoesNotContain(optionalChildAk, root.OptionalChildrenAk);
-                    Assert.DoesNotContain(requieredChildAk, root.RequiredChildrenAk);
-                    Assert.DoesNotContain(requiredCompositeChild, root.RequiredCompositeChildren);
+                    Assert.Contains(optionalChild, root.OptionalChildren);
+                    Assert.Contains(requiredChild, root.RequiredChildren);
+                    Assert.Contains(optionalChildAk, root.OptionalChildrenAk);
+                    Assert.Contains(requieredChildAk, root.RequiredChildrenAk);
+                    Assert.Contains(requiredCompositeChild, root.RequiredCompositeChildren);
                 });
         }
 

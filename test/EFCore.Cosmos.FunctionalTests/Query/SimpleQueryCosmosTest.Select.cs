@@ -106,6 +106,16 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        public override async Task Projection_of_entity_type_into_object_list(bool isAsync)
+        {
+            await base.Projection_of_entity_type_into_object_list(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")");
+        }
+
         public override async Task Project_to_int_array(bool isAsync)
         {
             await base.Project_to_int_array(isAsync);

@@ -1301,7 +1301,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(EntityState.Detached, entry.State);
                     Assert.Null(mailRoom.Building);
-                    Assert.Same(state == EntityState.Deleted ? building : null, office.Building);
+
+                    Assert.Equal(EntityState.Detached, context.Entry(office.Building).State);
+                    Assert.Same(building, office.Building);
                 }
 
                 Assert.Same(mailRoom, building.PrincipalMailRoom);
