@@ -1632,7 +1632,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return false;
             }
 
+#pragma warning disable IDE0046 // Convert to conditional expression
             if (!(Limit == null && selectExpression.Limit == null
+#pragma warning restore IDE0046 // Convert to conditional expression
                   || Limit != null && Limit.Equals(selectExpression.Limit)))
             {
                 return false;
