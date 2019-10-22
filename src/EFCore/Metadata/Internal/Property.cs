@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
             var oldConfigurationSource = _configurationSource;
-            _configurationSource = _configurationSource.Max(configurationSource);
+            _configurationSource = configurationSource.Max(_configurationSource);
             return _configurationSource != oldConfigurationSource;
         }
 
