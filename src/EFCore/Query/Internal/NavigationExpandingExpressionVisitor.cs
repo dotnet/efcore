@@ -731,8 +731,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return source;
             }
-
-            throw new InvalidOperationException("Include has been used on non entity queryable.");
+            var printedSourceExpression = new ExpressionPrinter().Print(source);
+            var printedExpression = new ExpressionPrinter().Print(expression);
+            throw new InvalidOperationException($@"Include has been used on non entity queryable.
+ * IsThenInclude: {thenInclude}
+ * NavigationExpansionExpression: {printedSourceExpression}
+ * Expression: {printedExpression}");
         }
 
         private IncludeTreeNode PopulateIncludeTree(IncludeTreeNode includeTreeNode, Expression expression)
