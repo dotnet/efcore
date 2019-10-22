@@ -2243,11 +2243,11 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
 
                     var id = 1;
                     context.Entities.Where(c => c.Id == id).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     id = 2;
                     context.Entities.Where(c => c.Id == id).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     AssertSql(
                         @"@__id_0='1'
@@ -2280,11 +2280,11 @@ WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
 
                     id = 1;
                     context.Entities.Where(whereExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     id = 2;
                     context.Entities.Where(whereExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     AssertSql(
                         @"@__id_0='1'
@@ -2319,11 +2319,11 @@ WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
 
                     id = 1;
                     context.Entities.Where(containsExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     id = 2;
                     context.Entities.Where(containsExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     AssertSql(
                         @"@__id_0='1'
@@ -2345,6 +2345,40 @@ WHERE [e].[Id] IN (
     FROM [Entities] AS [e0]
     WHERE ([e0].[Id] = @__id_0) AND @__id_0 IS NOT NULL
 )");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Relational_command_cache_creates_new_entry_when_parameter_nullability_changes()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var name = "A";
+
+                    context.Entities.Where(e => e.Name == name).ToList();
+                    Assert.Equal(2, context.Cache.Count);
+
+                    name = null;
+                    context.Entities.Where(e => e.Name == name).ToList();
+                    Assert.Equal(3, context.Cache.Count);
+
+                    AssertSql(
+                        @"@__name_0='A' (Size = 4000)
+
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE (([e].[Name] = @__name_0) AND ([e].[Name] IS NOT NULL AND @__name_0 IS NOT NULL)) OR ([e].[Name] IS NULL AND @__name_0 IS NULL)",
+                        //
+                        @"@__name_0=NULL (Size = 4000)
+
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE (([e].[Name] = @__name_0) AND ([e].[Name] IS NOT NULL AND @__name_0 IS NOT NULL)) OR ([e].[Name] IS NULL AND @__name_0 IS NULL)");
                 }
             }
         }

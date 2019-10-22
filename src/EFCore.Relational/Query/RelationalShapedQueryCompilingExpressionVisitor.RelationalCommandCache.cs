@@ -4,9 +4,9 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -14,8 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private class RelationalCommandCache
         {
-            private readonly ConcurrentDictionary<CommandCacheKey, IRelationalCommand> _commandCache
-                = new ConcurrentDictionary<CommandCacheKey, IRelationalCommand>(CommandCacheKeyComparer.Instance);
+            private static readonly ConcurrentDictionary<object, object> _syncObjects
+                = new ConcurrentDictionary<object, object>();
+            private readonly IMemoryCache _memoryCache;
+
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
@@ -23,11 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             private readonly ParameterValueBasedSelectExpressionOptimizer _parameterValueBasedSelectExpressionOptimizer;
 
             public RelationalCommandCache(
+                IMemoryCache memoryCache,
                 ISqlExpressionFactory sqlExpressionFactory,
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 IQuerySqlGeneratorFactory querySqlGeneratorFactory,
                 SelectExpression selectExpression)
             {
+                _memoryCache = memoryCache;
                 _sqlExpressionFactory = sqlExpressionFactory;
                 _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
                 _querySqlGeneratorFactory = querySqlGeneratorFactory;
@@ -39,43 +43,66 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public virtual IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object> parameters)
             {
-                var key = new CommandCacheKey(parameters);
+                var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
-                if (_commandCache.TryGetValue(key, out var relationalCommand))
+                retry:
+                if (!_memoryCache.TryGetValue(cacheKey, out IRelationalCommand relationalCommand))
                 {
-                    return relationalCommand;
-                }
+                    if (!_syncObjects.TryAdd(cacheKey, value: null))
+                    {
+                        goto retry;
+                    }
 
-                var selectExpression = _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
+                    try
+                    {
+                        var selectExpression = _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
+                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
 
-                relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
-
-                if (ReferenceEquals(selectExpression, _selectExpression))
-                {
-                    _commandCache.TryAdd(key, relationalCommand);
+                        if (ReferenceEquals(selectExpression, _selectExpression))
+                        {
+                            _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
+                        }
+                    }
+                    finally
+                    {
+                        _syncObjects.TryRemove(cacheKey, out _);
+                    }
                 }
 
                 return relationalCommand;
             }
 
-            private sealed class CommandCacheKeyComparer : IEqualityComparer<CommandCacheKey>
+            private readonly struct CommandCacheKey
             {
-                public static readonly CommandCacheKeyComparer Instance = new CommandCacheKeyComparer();
+                public readonly SelectExpression _selectExpression;
+                public readonly IReadOnlyDictionary<string, object> _parameterValues;
 
-                private CommandCacheKeyComparer()
+                public CommandCacheKey(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parameterValues)
                 {
+                    _selectExpression = selectExpression;
+                    _parameterValues = parameterValues;
                 }
 
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public bool Equals(CommandCacheKey x, CommandCacheKey y)
+                public override bool Equals(object obj)
+                    => obj != null
+                       && (ReferenceEquals(this, obj)
+                           || obj is CommandCacheKey commandCacheKey
+                           && Equals(commandCacheKey));
+
+                private bool Equals(CommandCacheKey commandCacheKey)
                 {
-                    if (x.ParameterValues.Count > 0)
+                    if (!ReferenceEquals(_selectExpression, commandCacheKey._selectExpression))
                     {
-                        foreach (var parameterValue in x.ParameterValues)
+                        return false;
+                    }
+
+                    if (_parameterValues.Count > 0)
+                    {
+                        foreach (var parameterValue in _parameterValues)
                         {
                             var value = parameterValue.Value;
 
-                            if (!y.ParameterValues.TryGetValue(parameterValue.Key, out var otherValue))
+                            if (!commandCacheKey._parameterValues.TryGetValue(parameterValue.Key, out var otherValue))
                             {
                                 return false;
                             }
@@ -98,16 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return true;
                 }
 
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                public int GetHashCode(CommandCacheKey obj) => 0;
-            }
-
-            private readonly struct CommandCacheKey
-            {
-                public readonly IReadOnlyDictionary<string, object> ParameterValues;
-
-                public CommandCacheKey(IReadOnlyDictionary<string, object> parameterValues)
-                    => ParameterValues = parameterValues;
+                public override int GetHashCode() => 0;
             }
         }
     }
