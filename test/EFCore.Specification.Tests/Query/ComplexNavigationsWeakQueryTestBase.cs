@@ -178,5 +178,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Include_inside_subquery(isAsync);
         }
+
+        [ConditionalTheory(Skip = "Issue#18519")]
+        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
+        {
+            return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
+        }
     }
 }

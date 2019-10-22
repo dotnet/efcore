@@ -4375,6 +4375,30 @@ FROM (
 ) AS [t]");
         }
 
+        public override async Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
+        {
+            await base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
+
+            AssertSql(
+                @"@__p_0='25'
+
+SELECT [t].[Id], [t1].[Id], [l1].[Id]
+FROM (
+    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+    FROM [LevelOne] AS [l]
+) AS [t]
+LEFT JOIN (
+    SELECT [t0].[Id], [t0].[OneToMany_Required_Inverse2Id]
+    FROM (
+        SELECT [l0].[Id], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
+        FROM [LevelTwo] AS [l0]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[Id] = [t1].[OneToMany_Required_Inverse2Id]
+LEFT JOIN [LevelTwo] AS [l1] ON [t].[Id] = [l1].[OneToMany_Required_Inverse2Id]
+ORDER BY [t].[Id], [l1].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
         {
             Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
