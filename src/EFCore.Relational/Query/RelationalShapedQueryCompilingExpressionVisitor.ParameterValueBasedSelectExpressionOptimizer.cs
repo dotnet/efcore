@@ -13,26 +13,44 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+            private readonly bool _useRelationalNulls;
 
             public ParameterValueBasedSelectExpressionOptimizer(
                 ISqlExpressionFactory sqlExpressionFactory,
-                IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+                IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+                bool useRelationalNulls)
             {
                 _sqlExpressionFactory = sqlExpressionFactory;
                 _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+                _useRelationalNulls = useRelationalNulls;
             }
 
-            public SelectExpression Optimize(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parametersValues)
+            public (SelectExpression selectExpression, bool canCache) Optimize(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parametersValues)
             {
-                var query = new InExpressionValuesExpandingExpressionVisitor(
+                var canCache = true;
+
+                var inExpressionOptimized = new InExpressionValuesExpandingExpressionVisitor(
                     _sqlExpressionFactory, parametersValues).Visit(selectExpression);
 
-                query = new FromSqlParameterApplyingExpressionVisitor(
+                if (!ReferenceEquals(selectExpression, inExpressionOptimized))
+                {
+                    canCache = false;
+                }
+
+                var nullParametersOptimized = new ParameterNullabilityBasedSqlExpressionOptimizingExpressionVisitor(
+                    _sqlExpressionFactory, _useRelationalNulls, parametersValues).Visit(inExpressionOptimized);
+
+                var fromSqlParameterOptimized = new FromSqlParameterApplyingExpressionVisitor(
                     _sqlExpressionFactory,
                     _parameterNameGeneratorFactory.Create(),
-                    parametersValues).Visit(query);
+                    parametersValues).Visit(nullParametersOptimized);
 
-                return (SelectExpression)query;
+                if (!ReferenceEquals(nullParametersOptimized, fromSqlParameterOptimized))
+                {
+                    canCache = false;
+                }
+
+                return (selectExpression: (SelectExpression)fromSqlParameterOptimized, canCache);
             }
         }
     }

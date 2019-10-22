@@ -678,11 +678,9 @@ END");
             base.Compare_nullable_with_null_parameter_equal();
 
             AssertSql(
-                @"@__prm_0=NULL (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE [e].[NullableStringA] IS NULL");
         }
 
         public override void Compare_nullable_with_non_null_parameter_not_equal()
@@ -694,7 +692,7 @@ WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE ([e].[NullableStringA] = @__prm_0) AND [e].[NullableStringA] IS NOT NULL");
         }
 
         public override void Join_uses_database_semantics()
@@ -770,11 +768,9 @@ WHERE ((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND 
             base.Where_multiple_ors_with_nullable_parameter();
 
             AssertSql(
-                @"@__prm_0=NULL (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL) OR ((([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL))");
+WHERE (([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL) OR [e].[NullableStringA] IS NULL");
         }
 
         public override void Where_multiple_ands_with_nullable_parameter_and_constant()
@@ -782,13 +778,11 @@ WHERE (([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL) O
             base.Where_multiple_ands_with_nullable_parameter_and_constant();
 
             AssertSql(
-                @"@__prm1_0=NULL (Size = 4000)
-@__prm2_1=NULL (Size = 4000)
-@__prm3_2='Blah' (Size = 4000)
+                @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND ((([e].[NullableStringA] <> @__prm1_0) OR ([e].[NullableStringA] IS NULL OR @__prm1_0 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm1_0 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm2_1) OR ([e].[NullableStringA] IS NULL OR @__prm2_1 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm2_1 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm3_2) OR ([e].[NullableStringA] IS NULL OR @__prm3_2 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm3_2 IS NOT NULL))");
+WHERE (((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND [e].[NullableStringA] IS NOT NULL) AND [e].[NullableStringA] IS NOT NULL) AND (([e].[NullableStringA] <> @__prm3_2) OR [e].[NullableStringA] IS NULL)");
         }
 
         public override void Where_multiple_ands_with_nullable_parameter_and_constant_not_optimized()
@@ -796,13 +790,11 @@ WHERE (((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND
             base.Where_multiple_ands_with_nullable_parameter_and_constant_not_optimized();
 
             AssertSql(
-                @"@__prm1_0=NULL (Size = 4000)
-@__prm2_1=NULL (Size = 4000)
-@__prm3_2='Blah' (Size = 4000)
+                @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL)) AND ((([e].[NullableStringA] <> @__prm1_0) OR ([e].[NullableStringA] IS NULL OR @__prm1_0 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm1_0 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm2_1) OR ([e].[NullableStringA] IS NULL OR @__prm2_1 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm2_1 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm3_2) OR ([e].[NullableStringA] IS NULL OR @__prm3_2 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm3_2 IS NOT NULL))");
+WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL)) AND [e].[NullableStringA] IS NOT NULL) AND [e].[NullableStringA] IS NOT NULL) AND (([e].[NullableStringA] <> @__prm3_2) OR [e].[NullableStringA] IS NULL)");
         }
 
         public override void Where_coalesce()
@@ -820,11 +812,9 @@ WHERE COALESCE([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)");
             base.Where_equal_nullable_with_null_value_parameter();
 
             AssertSql(
-                @"@__prm_0=NULL (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE [e].[NullableStringA] IS NULL");
         }
 
         public override void Where_not_equal_nullable_with_null_value_parameter()
@@ -832,11 +822,9 @@ WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL
             base.Where_not_equal_nullable_with_null_value_parameter();
 
             AssertSql(
-                @"@__prm_0=NULL (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] <> @__prm_0) OR ([e].[NullableStringA] IS NULL OR @__prm_0 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm_0 IS NOT NULL)");
+WHERE [e].[NullableStringA] IS NOT NULL");
         }
 
         public override void Where_equal_with_coalesce()
@@ -1199,11 +1187,9 @@ WHERE @__p_0 = CAST(1 AS bit)");
             base.Where_comparison_null_semantics_optimization_works_with_complex_predicates();
 
             AssertSql(
-                @"@__prm_0=NULL (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE [e].[NullableStringA] IS NULL");
         }
 
         public override void Switching_null_semantics_produces_different_cache_entry()

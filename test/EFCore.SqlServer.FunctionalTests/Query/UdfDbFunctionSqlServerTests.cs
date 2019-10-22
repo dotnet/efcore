@@ -40,7 +40,7 @@ WHERE (IsDate([c].[FirstName]) = CAST(0 AS bit)) AND IsDate([c].[FirstName]) IS 
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_0");
         }
 
         public override void Scalar_Function_Constant_Parameter_Static()
@@ -83,7 +83,7 @@ WHERE [c].[Id] = 1");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_0");
         }
 
         public override void Scalar_Function_Anonymous_Type_Select_Nested_Static()
@@ -96,7 +96,7 @@ WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_0");
         }
 
         public override void Scalar_Function_Where_Correlated_Static()
@@ -172,7 +172,7 @@ WHERE [c].[Id] = 2");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_0");
         }
 
         public override void Scalar_Function_Let_Nested_Static()
@@ -185,7 +185,7 @@ WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_0, [dbo].[CustomerOrderCount](@__customerId_1)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_1) AND @__customerId_1 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_1");
         }
 
         public override void Scalar_Nested_Function_Unwind_Client_Eval_Select_Static()
@@ -262,7 +262,7 @@ WHERE (IsDate([c].[FirstName]) = CAST(0 AS bit)) AND IsDate([c].[FirstName]) IS 
 
 SELECT TOP(2) len([c].[LastName])
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_0");
         }
 
         public override void Scalar_Function_Constant_Parameter_Instance()
@@ -305,7 +305,7 @@ WHERE [c].[Id] = 1");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_0) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_0");
         }
 
         public override void Scalar_Function_Anonymous_Type_Select_Nested_Instance()
@@ -318,7 +318,7 @@ WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_2, [dbo].[CustomerOrderCount](@__customerId_0)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_0) AND @__customerId_0 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_0");
         }
 
         public override void Scalar_Function_Where_Correlated_Instance()
@@ -394,7 +394,7 @@ WHERE [c].[Id] = 2");
 
 SELECT TOP(2) [c].[LastName], [dbo].[CustomerOrderCount](@__customerId_1) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_1) AND @__customerId_1 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_1");
         }
 
         public override void Scalar_Function_Let_Nested_Instance()
@@ -407,7 +407,7 @@ WHERE ([c].[Id] = @__customerId_1) AND @__customerId_1 IS NOT NULL");
 
 SELECT TOP(2) [c].[LastName], [dbo].[StarValue](@__starCount_1, [dbo].[CustomerOrderCount](@__customerId_2)) AS [OrderCount]
 FROM [Customers] AS [c]
-WHERE ([c].[Id] = @__customerId_2) AND @__customerId_2 IS NOT NULL");
+WHERE [c].[Id] = @__customerId_2");
         }
 
         public override void Scalar_Nested_Function_Unwind_Client_Eval_Select_Instance()

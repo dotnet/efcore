@@ -71,7 +71,13 @@ FROM [Customers] AS [c]");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
+WHERE [c].[CustomerID] = @__customerID",
+                //
+                @"@__customerID='ANATR' (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__customerID");
         }
 
         public override void First_query_with_single_parameter()
@@ -83,7 +89,13 @@ WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
+WHERE [c].[CustomerID] = @__customerID",
+                //
+                @"@__customerID='ANATR' (Size = 5)
+
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__customerID");
         }
 
         public override void Query_with_two_parameters()
@@ -95,7 +107,13 @@ WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
+WHERE [c].[CustomerID] = @__customerID",
+                //
+                @"@__customerID='ANATR' (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__customerID");
         }
 
         public override void Query_with_three_parameters()
@@ -107,7 +125,13 @@ WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
+WHERE [c].[CustomerID] = @__customerID",
+                //
+                @"@__customerID='ANATR' (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__customerID");
         }
 
         public override void Query_with_contains()
@@ -191,7 +215,7 @@ ORDER BY [c].[CompanyName]");
 
 SELECT COUNT(*)
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] = @__customerID) AND @__customerID IS NOT NULL");
+WHERE [c].[CustomerID] = @__customerID");
         }
 
         private void AssertSql(params string[] expected)

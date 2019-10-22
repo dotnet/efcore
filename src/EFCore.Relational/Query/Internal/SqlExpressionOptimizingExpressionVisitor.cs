@@ -8,7 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class SqlExpressionOptimizingExpressionVisitor : ExpressionVisitor
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly bool _useRelationalNulls;
 
         private static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
@@ -26,14 +25,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             };
 
             result = negated ?? default;
+
             return negated.HasValue;
         }
 
         public SqlExpressionOptimizingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
+            SqlExpressionFactory = sqlExpressionFactory;
             _useRelationalNulls = useRelationalNulls;
         }
+
+        protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
 
         protected override Expression VisitExtension(Expression extensionExpression)
             => extensionExpression switch
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _ => base.VisitExtension(extensionExpression),
                 };
 
-        private Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
+        protected virtual Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
         {
             if (sqlUnaryExpression.OperatorType == ExpressionType.Not)
             {
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (sqlUnaryExpression.OperatorType == ExpressionType.Equal
                 && sqlUnaryExpression.Operand is SqlConstantExpression innerConstantNull1)
             {
-                return _sqlExpressionFactory.Constant(innerConstantNull1.Value == null, sqlUnaryExpression.TypeMapping);
+                return SqlExpressionFactory.Constant(innerConstantNull1.Value == null, sqlUnaryExpression.TypeMapping);
             }
 
             // NULL IS NOT NULL -> false
@@ -63,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (sqlUnaryExpression.OperatorType == ExpressionType.NotEqual
                 && sqlUnaryExpression.Operand is SqlConstantExpression innerConstantNull2)
             {
-                return _sqlExpressionFactory.Constant(innerConstantNull2.Value != null, sqlUnaryExpression.TypeMapping);
+                return SqlExpressionFactory.Constant(innerConstantNull2.Value != null, sqlUnaryExpression.TypeMapping);
             }
 
             if (sqlUnaryExpression.Operand is SqlUnaryExpression innerUnary)
@@ -72,14 +74,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (sqlUnaryExpression.OperatorType == ExpressionType.Equal
                     && innerUnary.OperatorType == ExpressionType.Not)
                 {
-                    return Visit(_sqlExpressionFactory.IsNull(innerUnary.Operand));
+                    return Visit(SqlExpressionFactory.IsNull(innerUnary.Operand));
                 }
 
                 // (!a) IS NOT NULL <==> a IS NOT NULL
                 if (sqlUnaryExpression.OperatorType == ExpressionType.NotEqual
                     && innerUnary.OperatorType == ExpressionType.Not)
                 {
-                    return Visit(_sqlExpressionFactory.IsNotNull(innerUnary.Operand));
+                    return Visit(SqlExpressionFactory.IsNotNull(innerUnary.Operand));
                 }
             }
 
@@ -95,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (sqlUnaryExpression.Operand is SqlConstantExpression innerConstantBool
                 && innerConstantBool.Value is bool value)
             {
-                return _sqlExpressionFactory.Constant(!value, sqlUnaryExpression.TypeMapping);
+                return SqlExpressionFactory.Constant(!value, sqlUnaryExpression.TypeMapping);
             }
 
             if (sqlUnaryExpression.Operand is InExpression inExpression)
@@ -114,13 +116,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (innerUnary.OperatorType == ExpressionType.Equal)
                 {
                     //!(a IS NULL) -> a IS NOT NULL
-                    return Visit(_sqlExpressionFactory.IsNotNull(innerUnary.Operand));
+                    return Visit(SqlExpressionFactory.IsNotNull(innerUnary.Operand));
                 }
 
                 //!(a IS NOT NULL) -> a IS NULL
                 if (innerUnary.OperatorType == ExpressionType.NotEqual)
                 {
-                    return Visit(_sqlExpressionFactory.IsNull(innerUnary.Operand));
+                    return Visit(SqlExpressionFactory.IsNull(innerUnary.Operand));
                 }
             }
 
@@ -130,12 +132,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (innerBinary.OperatorType == ExpressionType.AndAlso
                     || innerBinary.OperatorType == ExpressionType.OrElse)
                 {
-                    var newLeft = (SqlExpression)Visit(_sqlExpressionFactory.Not(innerBinary.Left));
-                    var newRight = (SqlExpression)Visit(_sqlExpressionFactory.Not(innerBinary.Right));
+                    var newLeft = (SqlExpression)Visit(SqlExpressionFactory.Not(innerBinary.Left));
+                    var newRight = (SqlExpression)Visit(SqlExpressionFactory.Not(innerBinary.Right));
 
                     return innerBinary.OperatorType == ExpressionType.AndAlso
-                        ? _sqlExpressionFactory.OrElse(newLeft, newRight)
-                        : _sqlExpressionFactory.AndAlso(newLeft, newRight);
+                        ? SqlExpressionFactory.OrElse(newLeft, newRight)
+                        : SqlExpressionFactory.AndAlso(newLeft, newRight);
                 }
 
                 // those optimizations are only valid in 2-value logic
@@ -145,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (!_useRelationalNulls && TryNegate(innerBinary.OperatorType, out var negated))
                 {
                     return Visit(
-                        _sqlExpressionFactory.MakeBinary(
+                        SqlExpressionFactory.MakeBinary(
                             negated,
                             innerBinary.Left,
                             innerBinary.Right,
@@ -215,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     return (bool)constant.Value == (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
                         ? binary
-                        : _sqlExpressionFactory.MakeBinary(
+                        : SqlExpressionFactory.MakeBinary(
                             negated,
                             sqlBinaryExpression.Left,
                             sqlBinaryExpression.Right,

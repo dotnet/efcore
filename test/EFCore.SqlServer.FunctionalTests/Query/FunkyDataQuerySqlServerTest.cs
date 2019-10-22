@@ -62,49 +62,49 @@ WHERE CHARINDEX(NULL, [f].[FirstName]) <= 0");
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm1_0 = N'') AND @__prm1_0 IS NOT NULL) OR (CHARINDEX(@__prm1_0, [f].[FirstName]) > 0)",
+WHERE (@__prm1_0 = N'') OR (CHARINDEX(@__prm1_0, [f].[FirstName]) > 0)",
                 //
                 @"@__prm2_0='a_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm2_0 = N'') AND @__prm2_0 IS NOT NULL) OR (CHARINDEX(@__prm2_0, [f].[FirstName]) > 0)",
+WHERE (@__prm2_0 = N'') OR (CHARINDEX(@__prm2_0, [f].[FirstName]) > 0)",
                 //
                 @"@__prm3_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm3_0 = N'') AND @__prm3_0 IS NOT NULL) OR (CHARINDEX(@__prm3_0, [f].[FirstName]) > 0)",
+WHERE CHARINDEX(@__prm3_0, [f].[FirstName]) > 0",
                 //
                 @"@__prm4_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm4_0 = N'') AND @__prm4_0 IS NOT NULL) OR (CHARINDEX(@__prm4_0, [f].[FirstName]) > 0)",
+WHERE (@__prm4_0 = N'') OR (CHARINDEX(@__prm4_0, [f].[FirstName]) > 0)",
                 //
                 @"@__prm5_0='_Ba_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm5_0 = N'') AND @__prm5_0 IS NOT NULL) OR (CHARINDEX(@__prm5_0, [f].[FirstName]) > 0)",
+WHERE (@__prm5_0 = N'') OR (CHARINDEX(@__prm5_0, [f].[FirstName]) > 0)",
                 //
                 @"@__prm6_0='%B%a%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm6_0 <> N'') OR @__prm6_0 IS NULL) AND (CHARINDEX(@__prm6_0, [f].[FirstName]) <= 0)",
+WHERE (@__prm6_0 <> N'') AND (CHARINDEX(@__prm6_0, [f].[FirstName]) <= 0)",
                 //
                 @"@__prm7_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm7_0 <> N'') OR @__prm7_0 IS NULL) AND (CHARINDEX(@__prm7_0, [f].[FirstName]) <= 0)",
+WHERE (@__prm7_0 <> N'') AND (CHARINDEX(@__prm7_0, [f].[FirstName]) <= 0)",
                 //
                 @"@__prm8_0=NULL (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm8_0 <> N'') OR @__prm8_0 IS NULL) AND (CHARINDEX(@__prm8_0, [f].[FirstName]) <= 0)");
+WHERE CHARINDEX(@__prm8_0, [f].[FirstName]) <= 0");
         }
 
         public override async Task String_contains_on_argument_with_wildcard_column(bool isAsync)
@@ -175,49 +175,45 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm1_0 = N'') AND @__prm1_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm1_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0) AND (LEFT([f].[FirstName], LEN(@__prm1_0)) IS NOT NULL AND @__prm1_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm1_0)) IS NULL AND @__prm1_0 IS NULL))))",
+WHERE (@__prm1_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0) AND LEFT([f].[FirstName], LEN(@__prm1_0)) IS NOT NULL))",
                 //
                 @"@__prm2_0='a_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm2_0 = N'') AND @__prm2_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm2_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND (LEFT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL AND @__prm2_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm2_0)) IS NULL AND @__prm2_0 IS NULL))))",
+WHERE (@__prm2_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND LEFT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL))",
                 //
-                @"@__prm3_0=NULL (Size = 4000)
-
-SELECT [f].[FirstName]
+                @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm3_0 = N'') AND @__prm3_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm3_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm3_0)) = @__prm3_0) AND (LEFT([f].[FirstName], LEN(@__prm3_0)) IS NOT NULL AND @__prm3_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm3_0)) IS NULL AND @__prm3_0 IS NULL))))",
+WHERE CAST(0 AS bit) = CAST(1 AS bit)",
                 //
                 @"@__prm4_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm4_0 = N'') AND @__prm4_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm4_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm4_0)) = @__prm4_0) AND (LEFT([f].[FirstName], LEN(@__prm4_0)) IS NOT NULL AND @__prm4_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm4_0)) IS NULL AND @__prm4_0 IS NULL))))",
+WHERE (@__prm4_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm4_0)) = @__prm4_0) AND LEFT([f].[FirstName], LEN(@__prm4_0)) IS NOT NULL))",
                 //
                 @"@__prm5_0='_Ba_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm5_0 = N'') AND @__prm5_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm5_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm5_0)) = @__prm5_0) AND (LEFT([f].[FirstName], LEN(@__prm5_0)) IS NOT NULL AND @__prm5_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm5_0)) IS NULL AND @__prm5_0 IS NULL))))",
+WHERE (@__prm5_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm5_0)) = @__prm5_0) AND LEFT([f].[FirstName], LEN(@__prm5_0)) IS NOT NULL))",
                 //
                 @"@__prm6_0='%B%a%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm6_0 <> N'') OR @__prm6_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm6_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0) OR (LEFT([f].[FirstName], LEN(@__prm6_0)) IS NULL OR @__prm6_0 IS NULL)) AND (LEFT([f].[FirstName], LEN(@__prm6_0)) IS NOT NULL OR @__prm6_0 IS NOT NULL))))",
+WHERE (@__prm6_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0) OR LEFT([f].[FirstName], LEN(@__prm6_0)) IS NULL))",
                 //
                 @"@__prm7_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm7_0 <> N'') OR @__prm7_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm7_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR (LEFT([f].[FirstName], LEN(@__prm7_0)) IS NULL OR @__prm7_0 IS NULL)) AND (LEFT([f].[FirstName], LEN(@__prm7_0)) IS NOT NULL OR @__prm7_0 IS NOT NULL))))",
+WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR LEFT([f].[FirstName], LEN(@__prm7_0)) IS NULL))",
                 //
-                @"@__prm8_0=NULL (Size = 4000)
-
-SELECT [f].[FirstName]
+                @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm8_0 <> N'') OR @__prm8_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm8_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm8_0)) <> @__prm8_0) OR (LEFT([f].[FirstName], LEN(@__prm8_0)) IS NULL OR @__prm8_0 IS NULL)) AND (LEFT([f].[FirstName], LEN(@__prm8_0)) IS NOT NULL OR @__prm8_0 IS NOT NULL))))");
+WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
         public override async Task String_starts_with_on_argument_with_bracket(bool isAsync)
@@ -241,19 +237,19 @@ WHERE [f].[FirstName] IS NOT NULL AND ([f].[FirstName] LIKE N'B\[\[a^%' ESCAPE N
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm1_0 = N'') AND @__prm1_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm1_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0) AND (LEFT([f].[FirstName], LEN(@__prm1_0)) IS NOT NULL AND @__prm1_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm1_0)) IS NULL AND @__prm1_0 IS NULL))))",
+WHERE (@__prm1_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0) AND LEFT([f].[FirstName], LEN(@__prm1_0)) IS NOT NULL))",
                 //
                 @"@__prm2_0='B[' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm2_0 = N'') AND @__prm2_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm2_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND (LEFT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL AND @__prm2_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm2_0)) IS NULL AND @__prm2_0 IS NULL))))",
+WHERE (@__prm2_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND LEFT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL))",
                 //
                 @"@__prm3_0='B[[a^' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm3_0 = N'') AND @__prm3_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm3_0 IS NOT NULL AND (((LEFT([f].[FirstName], LEN(@__prm3_0)) = @__prm3_0) AND (LEFT([f].[FirstName], LEN(@__prm3_0)) IS NOT NULL AND @__prm3_0 IS NOT NULL)) OR (LEFT([f].[FirstName], LEN(@__prm3_0)) IS NULL AND @__prm3_0 IS NULL))))",
+WHERE (@__prm3_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm3_0)) = @__prm3_0) AND LEFT([f].[FirstName], LEN(@__prm3_0)) IS NOT NULL))",
                 //
                 @"SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
@@ -328,49 +324,45 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm1_0 = N'') AND @__prm1_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm1_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0) AND (RIGHT([f].[FirstName], LEN(@__prm1_0)) IS NOT NULL AND @__prm1_0 IS NOT NULL)) OR (RIGHT([f].[FirstName], LEN(@__prm1_0)) IS NULL AND @__prm1_0 IS NULL))))",
+WHERE (@__prm1_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm1_0)) = @__prm1_0) AND RIGHT([f].[FirstName], LEN(@__prm1_0)) IS NOT NULL))",
                 //
                 @"@__prm2_0='a_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm2_0 = N'') AND @__prm2_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm2_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND (RIGHT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL AND @__prm2_0 IS NOT NULL)) OR (RIGHT([f].[FirstName], LEN(@__prm2_0)) IS NULL AND @__prm2_0 IS NULL))))",
+WHERE (@__prm2_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm2_0)) = @__prm2_0) AND RIGHT([f].[FirstName], LEN(@__prm2_0)) IS NOT NULL))",
                 //
-                @"@__prm3_0=NULL (Size = 4000)
-
-SELECT [f].[FirstName]
+                @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm3_0 = N'') AND @__prm3_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm3_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm3_0)) = @__prm3_0) AND (RIGHT([f].[FirstName], LEN(@__prm3_0)) IS NOT NULL AND @__prm3_0 IS NOT NULL)) OR (RIGHT([f].[FirstName], LEN(@__prm3_0)) IS NULL AND @__prm3_0 IS NULL))))",
+WHERE CAST(0 AS bit) = CAST(1 AS bit)",
                 //
                 @"@__prm4_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm4_0 = N'') AND @__prm4_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm4_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm4_0)) = @__prm4_0) AND (RIGHT([f].[FirstName], LEN(@__prm4_0)) IS NOT NULL AND @__prm4_0 IS NOT NULL)) OR (RIGHT([f].[FirstName], LEN(@__prm4_0)) IS NULL AND @__prm4_0 IS NULL))))",
+WHERE (@__prm4_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm4_0)) = @__prm4_0) AND RIGHT([f].[FirstName], LEN(@__prm4_0)) IS NOT NULL))",
                 //
                 @"@__prm5_0='_Ba_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm5_0 = N'') AND @__prm5_0 IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND (@__prm5_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm5_0)) = @__prm5_0) AND (RIGHT([f].[FirstName], LEN(@__prm5_0)) IS NOT NULL AND @__prm5_0 IS NOT NULL)) OR (RIGHT([f].[FirstName], LEN(@__prm5_0)) IS NULL AND @__prm5_0 IS NULL))))",
+WHERE (@__prm5_0 = N'') OR ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm5_0)) = @__prm5_0) AND RIGHT([f].[FirstName], LEN(@__prm5_0)) IS NOT NULL))",
                 //
                 @"@__prm6_0='%B%a%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm6_0 <> N'') OR @__prm6_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm6_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0) OR (RIGHT([f].[FirstName], LEN(@__prm6_0)) IS NULL OR @__prm6_0 IS NULL)) AND (RIGHT([f].[FirstName], LEN(@__prm6_0)) IS NOT NULL OR @__prm6_0 IS NOT NULL))))",
+WHERE (@__prm6_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0) OR RIGHT([f].[FirstName], LEN(@__prm6_0)) IS NULL))",
                 //
                 @"@__prm7_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm7_0 <> N'') OR @__prm7_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm7_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR (RIGHT([f].[FirstName], LEN(@__prm7_0)) IS NULL OR @__prm7_0 IS NULL)) AND (RIGHT([f].[FirstName], LEN(@__prm7_0)) IS NOT NULL OR @__prm7_0 IS NOT NULL))))",
+WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR RIGHT([f].[FirstName], LEN(@__prm7_0)) IS NULL))",
                 //
-                @"@__prm8_0=NULL (Size = 4000)
-
-SELECT [f].[FirstName]
+                @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE ((@__prm8_0 <> N'') OR @__prm8_0 IS NULL) AND ([f].[FirstName] IS NOT NULL AND (@__prm8_0 IS NOT NULL AND (((RIGHT([f].[FirstName], LEN(@__prm8_0)) <> @__prm8_0) OR (RIGHT([f].[FirstName], LEN(@__prm8_0)) IS NULL OR @__prm8_0 IS NULL)) AND (RIGHT([f].[FirstName], LEN(@__prm8_0)) IS NOT NULL OR @__prm8_0 IS NOT NULL))))");
+WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
         public override async Task String_ends_with_on_argument_with_wildcard_column(bool isAsync)
