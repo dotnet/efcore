@@ -310,9 +310,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     builder = this;
                     Metadata.UpdateConfigurationSource(configurationSource);
+
                     if (shouldBeUnique.HasValue)
                     {
                         IsUnique(shouldBeUnique.Value, configurationSource);
+                    }
+                    else
+                    {
+                        IsUnique(null, ConfigurationSource.Convention);
                     }
 
                     if (navigationToPrincipal != null)

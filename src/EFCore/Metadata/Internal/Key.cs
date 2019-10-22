@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
-            _configurationSource = _configurationSource.Max(configurationSource);
+            _configurationSource = configurationSource.Max(_configurationSource);
             foreach (var property in Properties)
             {
                 property.UpdateConfigurationSource(configurationSource);
