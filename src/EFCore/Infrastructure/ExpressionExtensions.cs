@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (memberExpression.Member is FieldInfo fieldInfo
                 && fieldInfo.IsInitOnly)
             {
-                if (new FrameworkName(AppContext.TargetFrameworkName).Identifier != ".NETFramework")
+                if (new FrameworkName(AppContext.TargetFrameworkName).Identifier == ".NETFramework")
                 {
                     // On .NET Framework the compiler refuses to compile an expression tree with IsInitOnly access,
                     // so use Reflection's SetValue instead.
