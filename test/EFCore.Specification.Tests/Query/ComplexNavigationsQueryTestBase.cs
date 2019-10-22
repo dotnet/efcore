@@ -5710,20 +5710,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     : l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.OneToOne_Optional_FK3.Name) == "L4 01"));
         }
 
-        [ConditionalFact]
-        public virtual void Union_over_entities_with_different_nullability()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_entities_with_different_nullability(bool isAsync)
         {
-            using var ctx = CreateContext();
-
-            var query = ctx.Set<Level1>()
-                .GroupJoin(ctx.Set<Level2>(), l1 => l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2s) => new { l1, l2s })
-                .SelectMany(g => g.l2s.DefaultIfEmpty(), (g, l2) => new { g.l1, l2 })
-                .Concat(ctx.Set<Level2>().GroupJoin(ctx.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
-                    .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })
-                    .Where(e => e.l1.Equals(null)))
-                .Select(e => e.l1.Id);
-
-            var result = query.ToList();
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .GroupJoin(ss.Set<Level2>(), l1 => l1.Id, l2 => l2.Level1_Optional_Id, (l1, l2s) => new { l1, l2s })
+                    .SelectMany(g => g.l2s.DefaultIfEmpty(), (g, l2) => new { g.l1, l2 })
+                    .Concat(ss.Set<Level2>()
+                        .GroupJoin(ss.Set<Level1>(), l2 => l2.Level1_Optional_Id, l1 => l1.Id, (l2, l1s) => new { l2, l1s })
+                        .SelectMany(g => g.l1s.DefaultIfEmpty(), (g, l1) => new { l1, g.l2 })));
         }
     }
 }
