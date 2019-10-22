@@ -820,7 +820,7 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IS NULL");
+WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
         public override async Task Contains_with_local_list_inline(bool isAsync)

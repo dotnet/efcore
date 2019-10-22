@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
             : this(
                 property.GetColumnName(), table, property.ClrType, property.GetRelationalTypeMapping(),
-                nullable || property.IsNullable || property.DeclaringEntityType.BaseType != null)
+                nullable || property.IsColumnNullable())
         {
         }
 

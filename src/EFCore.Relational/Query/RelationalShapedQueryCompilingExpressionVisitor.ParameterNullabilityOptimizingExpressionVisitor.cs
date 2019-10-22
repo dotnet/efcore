@@ -30,16 +30,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var newSelectExpression = (SelectExpression)base.VisitExtension(extensionExpression);
 
-                    return newSelectExpression.Predicate is SqlConstantExpression newSelectPredicateConstant
+                    // if predicate is optimized to true, we can simply remove it
+                    var newPredicate = newSelectExpression.Predicate is SqlConstantExpression newSelectPredicateConstant
                         && !(selectExpression.Predicate is SqlConstantExpression)
+                        ? (bool)newSelectPredicateConstant.Value
+                            ? null
+                            : SqlExpressionFactory.Equal(
+                                newSelectPredicateConstant,
+                                SqlExpressionFactory.Constant(true, newSelectPredicateConstant.TypeMapping))
+                        : newSelectExpression.Predicate;
+
+                    var newHaving = newSelectExpression.Having is SqlConstantExpression newSelectHavingConstant
+                        && !(selectExpression.Having is SqlConstantExpression)
+                        ? (bool)newSelectHavingConstant.Value
+                            ? null
+                            : SqlExpressionFactory.Equal(
+                                newSelectHavingConstant,
+                                SqlExpressionFactory.Constant(true, newSelectHavingConstant.TypeMapping))
+                        : newSelectExpression.Having;
+
+                    return newPredicate != newSelectExpression.Predicate
+                        || newHaving != newSelectExpression.Having
                         ? newSelectExpression.Update(
                             newSelectExpression.Projection.ToList(),
                             newSelectExpression.Tables.ToList(),
-                            SqlExpressionFactory.Equal(
-                                newSelectPredicateConstant,
-                                SqlExpressionFactory.Constant(true, newSelectPredicateConstant.TypeMapping)),
+                            newPredicate,
                             newSelectExpression.GroupBy.ToList(),
-                            newSelectExpression.Having,
+                            newHaving,
                             newSelectExpression.Orderings.ToList(),
                             newSelectExpression.Limit,
                             newSelectExpression.Offset,
