@@ -2451,8 +2451,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             CheckDiscriminatorProperty(property);
 
-            if ((property == null
-                 || !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue())))
+            if (((property == null && BaseType == null)
+                 || (property != null && !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue()))))
             {
                 ((IMutableEntityType)this).RemoveDiscriminatorValue();
                 if (BaseType == null)

@@ -237,6 +237,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract DataBuilder<TEntity> HasData(IEnumerable<TEntity> data);
 
             public abstract DataBuilder<TEntity> HasData(IEnumerable<object> data);
+
+            public abstract TestDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
+                Expression<Func<TEntity, TDiscriminator>> propertyExpression);
+
+            public abstract TestDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string propertyName);
+
+            public abstract TestEntityTypeBuilder<TEntity> HasNoDiscriminator();
+        }
+
+        public abstract class TestDiscriminatorBuilder<TDiscriminator>
+        {
+            public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value);
+
+            public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue<TEntity>(TDiscriminator value);
+
+            public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue(Type entityType, TDiscriminator value);
+
+            public abstract TestDiscriminatorBuilder<TDiscriminator> HasValue(string entityTypeName, TDiscriminator value);
         }
 
         public abstract class TestOwnedEntityTypeBuilder<TEntity>
