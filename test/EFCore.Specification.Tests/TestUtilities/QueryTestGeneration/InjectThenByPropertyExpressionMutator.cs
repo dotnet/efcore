@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -37,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             var isDescending = random.Next(3) == 0;
             var thenBy = isDescending
-                ? ThenByDescendingMethodInfo.MakeGenericMethod(typeArgument, property.PropertyType)
-                : ThenByMethodInfo.MakeGenericMethod(typeArgument, property.PropertyType);
+                ? QueryableMethods.ThenByDescending.MakeGenericMethod(typeArgument, property.PropertyType)
+                : QueryableMethods.ThenBy.MakeGenericMethod(typeArgument, property.PropertyType);
 
             var prm = Expression.Parameter(typeArgument, "prm");
             var lambdaBody = (Expression)Expression.Property(prm, property);
@@ -49,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 var nullablePropertyType = typeof(Nullable<>).MakeGenericType(property.PropertyType);
 
                 thenBy = isDescending
-                    ? ThenByDescendingMethodInfo.MakeGenericMethod(typeArgument, nullablePropertyType)
-                    : ThenByMethodInfo.MakeGenericMethod(typeArgument, nullablePropertyType);
+                    ? QueryableMethods.ThenByDescending.MakeGenericMethod(typeArgument, nullablePropertyType)
+                    : QueryableMethods.ThenBy.MakeGenericMethod(typeArgument, nullablePropertyType);
 
                 lambdaBody = Expression.Convert(lambdaBody, nullablePropertyType);
             }
@@ -58,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             if (typeArgument == typeof(string))
             {
                 // string.Length - make it nullable in case we access optional argument
-                thenBy = OrderByMethodInfo.MakeGenericMethod(typeArgument, typeof(int?));
+                thenBy = QueryableMethods.OrderBy.MakeGenericMethod(typeArgument, typeof(int?));
                 lambdaBody = Expression.Convert(lambdaBody, typeof(int?));
             }
 

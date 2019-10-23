@@ -31,10 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private readonly Parameters _parameters = new Parameters();
 
-        private static readonly MethodInfo _enumerableToListMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.ToList))
-            .Single(mi => mi.GetParameters().Length == 1);
-
         public NavigationExpandingExpressionVisitor(
             QueryCompilationContext queryCompilationContext,
             IEvaluatableExpressionFilter evaluatableExpressionFilter)
@@ -595,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition() == _enumerableToListMethodInfo)
+                && method.GetGenericMethodDefinition() == EnumerableMethods.ToList)
             {
                 var argument = Visit(methodCallExpression.Arguments[0]);
                 if (argument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)

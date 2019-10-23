@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -34,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             var collectionElementType = navigation.ForeignKey.DeclaringEntityType.ClrType;
             var listType = typeof(List<>).MakeGenericType(collectionElementType);
 
-            var select = SelectMethodInfo.MakeGenericMethod(typeArgument, listType);
-            var where = EnumerableWhereMethodInfo.MakeGenericMethod(collectionElementType);
-            var toList = ToListMethodInfo.MakeGenericMethod(collectionElementType);
+            var select = QueryableMethods.Select.MakeGenericMethod(typeArgument, listType);
+            var where = EnumerableMethods.Where.MakeGenericMethod(collectionElementType);
+            var toList = EnumerableMethods.ToList.MakeGenericMethod(collectionElementType);
 
             var outerPrm = Expression.Parameter(typeArgument, "outerPrm");
             var innerPrm = Expression.Parameter(collectionElementType, "innerPrm");

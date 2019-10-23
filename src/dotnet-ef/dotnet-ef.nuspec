@@ -12,7 +12,6 @@
   </metadata>
 
   <files>
-    <file src="_._" target="lib\$targetFramework$\" />
     <file src="$SettingsFile$" target="tools\$targetFramework$\any" />
     <file src="$Output$" target="tools\$targetFramework$\any" />
     <file src="$OutputBinary$" target="tools\$targetFramework$\any\tools\netcoreapp2.0\any" />

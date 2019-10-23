@@ -12,9 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class EnumerableToQueryableMethodConvertingExpressionVisitor : ExpressionVisitor
     {
-        private readonly MethodInfo _enumerableToListMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.ToList)).Single(mi => mi.GetParameters().Length == 1);
-
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
@@ -110,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             if (arguments[i].Type.TryGetElementType(typeof(List<>)) != null
                                 && arguments[i] is MethodCallExpression toListMethodCallExpression
                                 && toListMethodCallExpression.Method.IsGenericMethod
-                                && toListMethodCallExpression.Method.GetGenericMethodDefinition() == _enumerableToListMethodInfo)
+                                && toListMethodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToList)
                             {
                                 genericType = toListMethodCallExpression.Method.GetGenericArguments()[0];
                                 innerArgument = toListMethodCallExpression.Arguments[0];

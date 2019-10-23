@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -20,14 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     {
-        private static readonly MethodInfo _singleMethodInfo
-            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(nameof(Enumerable.Single))
-                .Single(mi => mi.GetParameters().Length == 1);
-
-        private static readonly MethodInfo _singleOrDefaultMethodInfo
-            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(nameof(Enumerable.SingleOrDefault))
-                .Single(mi => mi.GetParameters().Length == 1);
-
         private static readonly PropertyInfo _cancellationTokenMemberInfo
             = typeof(QueryContext).GetProperty(nameof(QueryContext.CancellationToken));
 
@@ -82,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 serverEnumerable,
                                 _cancellationTokenParameter)
                             : Expression.Call(
-                                _singleMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
+                                EnumerableMethods.SingleWithoutPredicate.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                 serverEnumerable);
 
                     case ResultCardinality.SingleOrDefault:
@@ -92,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 serverEnumerable,
                                 _cancellationTokenParameter)
                             : Expression.Call(
-                                _singleOrDefaultMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
+                                EnumerableMethods.SingleOrDefaultWithoutPredicate.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                 serverEnumerable);
                 }
             }

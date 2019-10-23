@@ -16,11 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class ContainsTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _containsMethod = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.Contains))
-            .Single(mi => mi.GetParameters().Length == 2)
-            .GetGenericMethodDefinition();
-
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
@@ -43,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition().Equals(_containsMethod))
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
             {
                 return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
             }

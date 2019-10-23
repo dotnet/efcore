@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 {
@@ -23,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             var isDescending = random.Next(3) == 0;
             var thenBy = isDescending
-                ? ThenByDescendingMethodInfo.MakeGenericMethod(typeArgument, typeArgument)
-                : ThenByMethodInfo.MakeGenericMethod(typeArgument, typeArgument);
+                ? QueryableMethods.ThenByDescending.MakeGenericMethod(typeArgument, typeArgument)
+                : QueryableMethods.ThenBy.MakeGenericMethod(typeArgument, typeArgument);
 
             var prm = Expression.Parameter(typeArgument, "prm");
             var lambda = Expression.Lambda(prm, prm);
