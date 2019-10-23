@@ -9,18 +9,18 @@ using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
-// ReSharper disable ConvertClosureToMethodGroup	
-// ReSharper disable PossibleUnintendedReferenceComparison	
-// ReSharper disable ArgumentsStyleLiteral	
-// ReSharper disable PossibleMultipleEnumeration	
-// ReSharper disable UnusedVariable	
-// ReSharper disable EqualExpressionComparison	
-// ReSharper disable AccessToDisposedClosure	
-// ReSharper disable StringStartsWithIsCultureSpecific	
-// ReSharper disable InconsistentNaming	
-// ReSharper disable MergeConditionalExpression	
-// ReSharper disable ReplaceWithSingleCallToSingle	
-// ReSharper disable ReturnValueOfPureMethodIsNotUsed	
+// ReSharper disable ConvertClosureToMethodGroup
+// ReSharper disable PossibleUnintendedReferenceComparison
+// ReSharper disable ArgumentsStyleLiteral
+// ReSharper disable PossibleMultipleEnumeration
+// ReSharper disable UnusedVariable
+// ReSharper disable EqualExpressionComparison
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable InconsistentNaming
+// ReSharper disable MergeConditionalExpression
+// ReSharper disable ReplaceWithSingleCallToSingle
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable ConvertToExpressionBodyWhenPossible
 #pragma warning disable RCS1155 // Use StringComparison when comparing strings.
 namespace Microsoft.EntityFrameworkCore.Query
@@ -5724,6 +5724,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Select(e => e.l1.Id);
 
             var result = query.ToList();
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Level1>()
+                    .Take(25)
+                    .Select(l1 => new
+                    {
+                        l1.Id,
+                        c1 = l1.OneToMany_Required1.Select(l2 => new { l2.Id }).FirstOrDefault(),
+                        c2 = l1.OneToMany_Required1.Select(l2 => new { l2.Id })
+                    }),
+                elementSorter: t => t.Id,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Id, a.Id);
+                    // See issue#17287
+                    Assert.Equal(e.c1?.Id ?? 0, a.c1?.Id);
+                    AssertCollection(e.c2, a.c2, elementSorter: i => i.Id, elementAsserter: (ie, ia) => Assert.Equal(ie.Id, ia.Id));
+                });
         }
     }
 }

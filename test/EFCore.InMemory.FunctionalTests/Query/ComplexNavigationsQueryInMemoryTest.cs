@@ -26,5 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             base.Member_pushdown_chain_3_levels_deep_entity();
         }
+
+        [ConditionalTheory(Skip = "issue #17620")]
+        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
+        {
+            return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
+        }
     }
 }

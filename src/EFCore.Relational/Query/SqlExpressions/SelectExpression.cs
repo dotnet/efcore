@@ -13,19 +13,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class SelectExpression : TableExpressionBase
     {
-        private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-        private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
-
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
 
+        private readonly List<ProjectionExpression> _projection = new List<ProjectionExpression>();
         private readonly List<TableExpressionBase> _tables = new List<TableExpressionBase>();
         private readonly List<SqlExpression> _groupBy = new List<SqlExpression>();
         private readonly List<OrderingExpression> _orderings = new List<OrderingExpression>();
-
         private readonly List<SqlExpression> _identifier = new List<SqlExpression>();
         private readonly List<SqlExpression> _childIdentifiers = new List<SqlExpression>();
         private readonly List<SelectExpression> _pendingCollections = new List<SelectExpression>();
+
+        private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
 
         public IReadOnlyList<ProjectionExpression> Projection => _projection;
         public IReadOnlyList<TableExpressionBase> Tables => _tables;
@@ -137,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _projectionMapping = result;
         }
 
-        private IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
+        private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
             => entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties);
 
         public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
@@ -660,35 +659,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var projectionMap = new Dictionary<SqlExpression, ColumnExpression>();
 
-            EntityProjectionExpression liftEntityProjectionFromSubquery(EntityProjectionExpression entityProjection)
-            {
-                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
-                {
-                    var innerColumn = entityProjection.BindProperty(property);
-                    var outerColumn = subquery.GenerateOuterColumn(innerColumn);
-                    projectionMap[innerColumn] = outerColumn;
-                    propertyExpressions[property] = outerColumn;
-                }
-
-                var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
-                // Also lift nested entity projections
-                foreach (var navigation in entityProjection.EntityType.GetTypesInHierarchy()
-                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
-                {
-                    var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
-                    if (boundEntityShaperExpression != null)
-                    {
-                        var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
-                        var newInnerEntityProjection = liftEntityProjectionFromSubquery(innerEntityProjection);
-                        boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
-                        newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);
-                    }
-                }
-
-                return newEntityProjection;
-            }
-
+            // Projections may be present if added by lifting SingleResult/Enumerable in projection through join
             if (_projection.Any())
             {
                 var projections = _projection.Select(pe => pe.Expression).ToList();
@@ -700,21 +671,26 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     projectionMap[projection] = outerColumn;
                 }
             }
-            else
+
+            foreach (var mapping in _projectionMapping.ToList())
             {
-                foreach (var mapping in _projectionMapping.ToList())
+                // If projectionMapping's value is ConstantExpression then projection has already been applied
+                // And captured in _projections above so we don't need to process this.
+                if (mapping.Value is ConstantExpression)
                 {
-                    if (mapping.Value is EntityProjectionExpression entityProjection)
-                    {
-                        _projectionMapping[mapping.Key] = liftEntityProjectionFromSubquery(entityProjection);
-                    }
-                    else
-                    {
-                        var innerColumn = (SqlExpression)mapping.Value;
-                        var outerColumn = subquery.GenerateOuterColumn(innerColumn);
-                        projectionMap[innerColumn] = outerColumn;
-                        _projectionMapping[mapping.Key] = outerColumn;
-                    }
+                    break;
+                }
+
+                if (mapping.Value is EntityProjectionExpression entityProjection)
+                {
+                    _projectionMapping[mapping.Key] = LiftEntityProjectionFromSubquery(entityProjection);
+                }
+                else
+                {
+                    var innerColumn = (SqlExpression)mapping.Value;
+                    var outerColumn = subquery.GenerateOuterColumn(innerColumn);
+                    projectionMap[innerColumn] = outerColumn;
+                    _projectionMapping[mapping.Key] = outerColumn;
                 }
             }
 
@@ -788,6 +764,35 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _groupBy.Clear();
 
             return projectionMap;
+
+            EntityProjectionExpression LiftEntityProjectionFromSubquery(EntityProjectionExpression entityProjection)
+            {
+                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
+                {
+                    var innerColumn = entityProjection.BindProperty(property);
+                    var outerColumn = subquery.GenerateOuterColumn(innerColumn);
+                    projectionMap[innerColumn] = outerColumn;
+                    propertyExpressions[property] = outerColumn;
+                }
+
+                var newEntityProjection = new EntityProjectionExpression(entityProjection.EntityType, propertyExpressions);
+                // Also lift nested entity projections
+                foreach (var navigation in entityProjection.EntityType.GetTypesInHierarchy()
+                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                {
+                    var boundEntityShaperExpression = entityProjection.BindNavigation(navigation);
+                    if (boundEntityShaperExpression != null)
+                    {
+                        var innerEntityProjection = (EntityProjectionExpression)boundEntityShaperExpression.ValueBufferExpression;
+                        var newInnerEntityProjection = LiftEntityProjectionFromSubquery(innerEntityProjection);
+                        boundEntityShaperExpression = boundEntityShaperExpression.Update(newInnerEntityProjection);
+                        newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression);
+                    }
+                }
+
+                return newEntityProjection;
+            }
         }
 
         public Expression AddSingleProjection(ShapedQueryExpression shapedQueryExpression)
@@ -1632,7 +1637,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return false;
             }
 
+#pragma warning disable IDE0046 // Convert to conditional expression
             if (!(Limit == null && selectExpression.Limit == null
+#pragma warning restore IDE0046 // Convert to conditional expression
                   || Limit != null && Limit.Equals(selectExpression.Limit)))
             {
                 return false;
