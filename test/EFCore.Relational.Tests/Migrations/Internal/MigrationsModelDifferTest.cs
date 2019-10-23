@@ -7614,6 +7614,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 source =>
                 {
+                    source.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
                     source.Entity(
                         "Order", b =>
                         {
@@ -7627,10 +7628,40 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                                     b1.ToTable("Order");
 
-                                    b1.HasOne("Order")
+                                    b1.HasOne("Order", "Order")
                                         .WithOne("OrderInfo")
                                         .HasForeignKey("OrderInfo", "OrderId")
                                         .OnDelete(DeleteBehavior.Cascade);
+
+                                    b1.OwnsOne("Address", "ShippingAddress", b2 =>
+                                    {
+                                        b2.Property<int>("OrderId")
+                                            .ValueGeneratedOnAdd();
+
+                                        b2.HasKey("OrderId");
+
+                                        b2.ToTable("Order");
+
+                                        b2.HasOne("OrderInfo")
+                                            .WithOne("ShippingAddress")
+                                            .HasForeignKey("Address", "OrderId")
+                                            .OnDelete(DeleteBehavior.Cascade);
+                                    });
+
+                                    b1.OwnsOne("Address", "BillingAddress", b2 =>
+                                    {
+                                        b2.Property<int>("OrderId")
+                                            .ValueGeneratedOnAdd();
+
+                                        b2.HasKey("OrderId");
+
+                                        b2.ToTable("Order");
+
+                                        b2.HasOne("OrderInfo")
+                                            .WithOne("BillingAddress")
+                                            .HasForeignKey("Address", "OrderId")
+                                            .OnDelete(DeleteBehavior.Cascade);
+                                    });
                                 });
                         });
                 },
@@ -7649,8 +7680,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                                     b1.ToTable("Order");
 
-                                    b1.WithOwner()
+                                    b1.WithOwner("Order")
                                         .HasForeignKey("OrderId");
+
+                                    b1.OwnsOne("Address", "ShippingAddress", b2 =>
+                                    {
+                                        b2.Property<int>("OrderId")
+                                            .ValueGeneratedOnAdd();
+
+                                        b2.HasKey("OrderId");
+
+                                        b2.ToTable("Order");
+
+                                        b2.WithOwner()
+                                            .HasForeignKey("OrderId");
+                                    });
+
+                                    b1.OwnsOne("Address", "BillingAddress", b2 =>
+                                    {
+                                        b2.Property<int>("OrderId")
+                                            .ValueGeneratedOnAdd();
+
+                                        b2.HasKey("OrderId");
+
+                                        b2.ToTable("Order");
+
+                                        b2.WithOwner()
+                                            .HasForeignKey("OrderId");
+                                    });
                                 });
                         });
                 },
