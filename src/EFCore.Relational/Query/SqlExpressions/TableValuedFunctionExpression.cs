@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class TableExpression : TableExpressionBase
+    public class TableValuedFunctionExpression : TableExpressionBase
     {
-        internal TableExpression(string name, string schema, Expression[] parameters, [NotNull] string alias)
+        internal TableValuedFunctionExpression(string name, string schema, Expression[] parameters, [NotNull] string alias)
             : base(alias)
         {
             Name = name;
