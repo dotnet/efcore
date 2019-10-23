@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -48,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         public override IEnumerable<IAnnotation> For(IModel model)
         {
             var maxSize = model.GetDatabaseMaxSize();
-            var serviceTier = model.GetServiceTier();
-            var performanceLevel = model.GetPerformanceLevel();
+            var serviceTier = model.GetServiceTierSql();
+            var performanceLevel = model.GetPerformanceLevelSql();
             if (maxSize != null
                 || serviceTier != null
                 || performanceLevel != null)

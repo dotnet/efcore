@@ -227,16 +227,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.HasAnnotation("AnnotationName", "AnnotationValue")
                     .HasDatabaseMaxSize("100 MB")
-                    .HasServiceTier("'basic'")
-                    .HasPerformanceLevel("'S0'"),
+                    .HasServiceTier("basic")
+                    .HasPerformanceLevel("S0"),
                 AddBoilerPlate(
                     @"
             modelBuilder
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
                 .HasAnnotation(""SqlServer:DatabaseMaxSize"", ""100 MB"")
-                .HasAnnotation(""SqlServer:PerformanceLevel"", ""'S0'"")
-                .HasAnnotation(""SqlServer:ServiceTier"", ""'basic'"")
+                .HasAnnotation(""SqlServer:PerformanceLevelSql"", ""'S0'"")
+                .HasAnnotation(""SqlServer:ServiceTierSql"", ""'basic'"")
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
