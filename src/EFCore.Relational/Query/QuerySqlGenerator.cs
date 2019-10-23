@@ -258,6 +258,36 @@ namespace Microsoft.EntityFrameworkCore.Query
             return tableExpression;
         }
 
+        protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
+        {
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
+
+            _relationalCommandBuilder
+                .Append(tableValuedFunctionExpression.Function);
+
+            var parameters = tableValuedFunctionExpression.Parameters;
+            if (parameters.Any())
+            {
+                _relationalCommandBuilder.Append("(");
+
+                var i = 0;
+                for(; i < parameters.Length - 1; i++)
+                {
+                    Visit(parameters[i]);
+                    _relationalCommandBuilder.Append(",");
+                }
+                Visit(parameters[i]);
+
+                _relationalCommandBuilder.Append(")");
+            }
+
+            _relationalCommandBuilder
+                .Append(AliasSeparator)
+                .Append(SqlGenerator.DelimitIdentifier(tableValuedFunctionExpression.Alias));
+
+            return tableValuedFunctionExpression;
+        }
+
         private void GenerateFromSql(FromSqlExpression fromSqlExpression)
         {
             var sql = fromSqlExpression.Sql;
