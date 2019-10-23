@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
-            if (member.DeclaringType.IsNullableType())
+            if (member.DeclaringType.IsNullableValueType())
             {
                 switch (member.Name)
                 {

@@ -452,6 +452,13 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Value_conversion_with_property_named_value()
+        {
+            using var context = CreateContext();
+            Assert.Throws<InvalidOperationException>(() => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
+        }
+
         protected class Blog
         {
             public int BlogId { get; set; }
@@ -470,6 +477,17 @@ namespace Microsoft.EntityFrameworkCore
             public int PostId { get; set; }
             public int? BlogId { get; set; }
             public Blog Blog { get; set; }
+        }
+
+        protected class EntityWithValueWrapper
+        {
+            public int Id { get; set; }
+            public ValueWrapper Wrapper { get; set; }
+        }
+
+        protected class ValueWrapper
+        {
+            public string Value { get; set; }
         }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
@@ -877,6 +895,21 @@ namespace Microsoft.EntityFrameworkCore
                             PostId = 2,
                             BlogId = null
                         });
+
+                modelBuilder.Entity<EntityWithValueWrapper>(
+                    e =>
+                    {
+                        e.Property(e => e.Wrapper).HasConversion
+                        (
+                            w => w.Value,
+                            v => new ValueWrapper { Value = v }
+                        );
+                        e.HasData(new EntityWithValueWrapper
+                        {
+                            Id = 1,
+                            Wrapper = new ValueWrapper { Value = "foo" }
+                        });
+                    });
             }
 
             public static class StringToDictionarySerializer

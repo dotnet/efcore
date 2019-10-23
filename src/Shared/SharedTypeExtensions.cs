@@ -15,14 +15,11 @@ namespace System
     {
         public static Type UnwrapNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
-        public static bool IsNullableType(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
+        public static bool IsNullableValueType(this Type type)
+            => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
-            return !typeInfo.IsValueType
-                   || typeInfo.IsGenericType
-                   && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
+        public static bool IsNullableType(this Type type)
+            => !type.IsValueType || type.IsNullableValueType();
 
         public static bool IsValidEntityType(this Type type)
             => type.GetTypeInfo().IsClass;
