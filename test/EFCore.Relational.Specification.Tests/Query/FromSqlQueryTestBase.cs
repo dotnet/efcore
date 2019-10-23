@@ -1040,6 +1040,20 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             }
         }
 
+        [ConditionalFact]
+        public virtual void FromSqlRaw_with_set_operation()
+        {
+            using var context = CreateContext();
+
+            var actual = context.Set<Customer>()
+                .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
+                .Concat(context.Set<Customer>()
+                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Berlin'")))
+                .ToArray();
+
+            Assert.Equal(7, actual.Length);
+        }
+
         protected string NormalizeDelimetersInRawString(string sql)
             => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
 
