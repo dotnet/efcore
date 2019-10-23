@@ -67,6 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         Expression VisitTable([NotNull] TableExpression tableExpression);
 
         /// <summary>
+        /// Visits a TableValuedFunctionExpression.
+        /// </summary>
+        /// <param name="tableValuedFunctionExpression"> The TableValuedFunctionExpression expression. </param>
+        /// <returns> An expression. </returns>
+        Expression VisitTableValuedFunction([NotNull] TableValuedFunctionExpression tableValuedFunctionExpression);
+
+        /// <summary>
         ///     Visit a FromSqlExpression.
         /// </summary>
         /// <param name="fromSqlExpression"> from SQL expression. </param>

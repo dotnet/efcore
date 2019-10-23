@@ -941,6 +941,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Sql
         }
 
         /// <summary>
+        ///     Visit a TableValuedFunctionExpression.
+        /// </summary>
+        /// <param name="tableValuedFunctionExpression"> The TableValuedFunctionExpression expression. </param>
+        /// <returns>
+        ///     An Expression.
+        /// </returns>
+        public virtual Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
+        {
+            Check.NotNull(tableValuedFunctionExpression, nameof(tableValuedFunctionExpression));
+
+            _relationalCommandBuilder
+                .Append(tableValuedFunctionExpression.Function);
+            
+            var parameters = tableValuedFunctionExpression.Parameters;
+            if (parameters.Any())
+            {
+                _relationalCommandBuilder.Append("(");
+
+                var i = 0;
+                for(; i < parameters.Length - 1; i++)
+                {
+                    Visit(parameters[i]);
+                    _relationalCommandBuilder.Append(",");
+                }
+                Visit(parameters[i]);
+
+                _relationalCommandBuilder.Append(")");
+            }
+
+            _relationalCommandBuilder
+                .Append(AliasSeparator)
+                .Append(SqlGenerator.DelimitIdentifier(tableValuedFunctionExpression.Alias));
+
+            return tableValuedFunctionExpression;
+        }
+
+        /// <summary>
         ///     Visit a CrossJoin expression.
         /// </summary>
         /// <param name="crossJoinExpression"> The cross join expression. </param>
