@@ -251,6 +251,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
         }
 
+        private Expression GetPredicate(MethodCallExpression methodCallExpression, GroupByShaperExpression groupByShaperExpression)
+        {
+            if (methodCallExpression.Arguments.Count == 1)
+            {
+                return null;
+            }
+
+            if (methodCallExpression.Arguments.Count == 2)
+            {
+                var selectorLambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+                return ReplacingExpressionVisitor.Replace(
+                    selectorLambda.Parameters[0],
+                    groupByShaperExpression.ElementSelector,
+                    selectorLambda.Body);
+            }
+
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsGenericMethod
@@ -276,12 +295,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && methodCallExpression.Arguments.Count > 0
                 && methodCallExpression.Arguments[0] is InMemoryGroupByShaperExpression groupByShaperExpression)
             {
-                switch (methodCallExpression.Method.Name)
+                var methodName = methodCallExpression.Method.Name;
+                switch (methodName)
                 {
                     case nameof(Enumerable.Average):
                     case nameof(Enumerable.Max):
                     case nameof(Enumerable.Min):
                     case nameof(Enumerable.Sum):
+                    {
                         var translation = Translate(GetSelector(methodCallExpression, groupByShaperExpression));
                         if (translation == null)
                         {
@@ -289,16 +310,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         }
 
                         var selector = Expression.Lambda(translation, groupByShaperExpression.ValueBufferParameter);
-                        MethodInfo getMethod()
-                            => methodCallExpression.Method.Name switch
-                            {
-                                nameof(Enumerable.Average) => InMemoryLinqOperatorProvider.GetAverageWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Max) => InMemoryLinqOperatorProvider.GetMaxWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Min) => InMemoryLinqOperatorProvider.GetMinWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Sum) => InMemoryLinqOperatorProvider.GetSumWithSelector(selector.ReturnType),
-                                _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
-                            };
-                        var method = getMethod();
+                        var method = GetMethod();
                         method = method.GetGenericArguments().Length == 2
                             ? method.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
                             : method.MakeGenericMethod(typeof(ValueBuffer));
@@ -307,14 +319,48 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             groupByShaperExpression.GroupingParameter,
                             selector);
 
+                        MethodInfo GetMethod()
+                            => methodName switch
+                            {
+                                nameof(Enumerable.Average) => InMemoryLinqOperatorProvider.GetAverageWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Max) => InMemoryLinqOperatorProvider.GetMaxWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Min) => InMemoryLinqOperatorProvider.GetMinWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Sum) => InMemoryLinqOperatorProvider.GetSumWithSelector(selector.ReturnType),
+                                _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
+                            };
+                    }
+
                     case nameof(Enumerable.Count):
-                        return Expression.Call(
-                            InMemoryLinqOperatorProvider.CountWithoutPredicate.MakeGenericMethod(typeof(ValueBuffer)),
-                            groupByShaperExpression.GroupingParameter);
                     case nameof(Enumerable.LongCount):
+                    {
+                        var countMethod = string.Equals(methodName, nameof(Enumerable.Count));
+                        var predicate = GetPredicate(methodCallExpression, groupByShaperExpression);
+                        if (predicate == null)
+                        {
+                            return Expression.Call(
+                                (countMethod
+                                     ? InMemoryLinqOperatorProvider.CountWithoutPredicate
+                                     : InMemoryLinqOperatorProvider.LongCountWithoutPredicate)
+                                    .MakeGenericMethod(typeof(ValueBuffer)),
+                                groupByShaperExpression.GroupingParameter);
+                        }
+
+                        var translation = Translate(predicate);
+                        if (translation == null)
+                        {
+                            return null;
+                        }
+
+                        predicate = Expression.Lambda(translation, groupByShaperExpression.ValueBufferParameter);
+
                         return Expression.Call(
-                            InMemoryLinqOperatorProvider.LongCountWithoutPredicate.MakeGenericMethod(typeof(ValueBuffer)),
-                            groupByShaperExpression.GroupingParameter);
+                            (countMethod
+                                 ? InMemoryLinqOperatorProvider.CountWithPredicate
+                                 : InMemoryLinqOperatorProvider.LongCountWithPredicate)
+                                .MakeGenericMethod(typeof(ValueBuffer)),
+                            groupByShaperExpression.GroupingParameter,
+                            predicate);
+                    }
 
                     default:
                         throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));

@@ -1904,6 +1904,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 );
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Property_Select_Count_with_predicate(bool isAsync)
+        {
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Count(o => o.OrderID < 10300)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Property_Select_LongCount_with_predicate(bool isAsync)
+        {
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.LongCount(o => o.OrderID < 10300)));
+        }
+
         #endregion
 
         #region GroupByWithoutAggregate
