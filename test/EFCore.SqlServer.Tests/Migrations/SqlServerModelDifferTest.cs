@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Execute(
                 _ => { },
                 source => source.HasDatabaseMaxSize("100 MB")
-                    .HasPerformanceLevel("'S0'"),
+                    .HasPerformanceLevel("S0"),
                 target => target
-                    .HasServiceTier("'basic'"),
+                    .HasServiceTier("basic"),
                 upOps =>
                 {
                     Assert.Equal(1, upOps.Count);

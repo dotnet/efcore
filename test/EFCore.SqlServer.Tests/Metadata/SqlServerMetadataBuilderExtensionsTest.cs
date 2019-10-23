@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var builder = CreateBuilder();
 
             Assert.Null(builder.Metadata.GetDatabaseMaxSize());
-            Assert.Null(builder.Metadata.GetMaxSizeConfigurationSource());
+            Assert.Null(builder.Metadata.GetDatabaseMaxSizeConfigurationSource());
 
             Assert.NotNull(builder.HasDatabaseMaxSize("50 GB"));
             Assert.Equal("50 GB", builder.Metadata.GetDatabaseMaxSize());
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(
                 builder.HasDatabaseMaxSize("100 GB", fromDataAnnotation: true));
             Assert.Equal("100 GB", builder.Metadata.GetDatabaseMaxSize());
-            Assert.Equal(ConfigurationSource.DataAnnotation, builder.Metadata.GetMaxSizeConfigurationSource());
+            Assert.Equal(ConfigurationSource.DataAnnotation, builder.Metadata.GetDatabaseMaxSizeConfigurationSource());
             Assert.NotNull(builder.HasDatabaseMaxSize("100 GB"));
 
             Assert.Null(builder.HasDatabaseMaxSize("500 GB"));
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.NotNull(builder.HasDatabaseMaxSize(null, fromDataAnnotation: true));
             Assert.Null(builder.Metadata.GetDatabaseMaxSize());
-            Assert.Null(builder.Metadata.GetMaxSizeConfigurationSource());
+            Assert.Null(builder.Metadata.GetDatabaseMaxSizeConfigurationSource());
         }
 
         [ConditionalFact]
@@ -74,24 +74,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var builder = CreateBuilder();
 
-            Assert.Null(builder.Metadata.GetServiceTier());
-            Assert.Null(builder.Metadata.GetServiceTierConfigurationSource());
+            Assert.Null(builder.Metadata.GetServiceTierSql());
+            Assert.Null(builder.Metadata.GetServiceTierSqlConfigurationSource());
 
-            Assert.NotNull(builder.HasServiceTier("premium"));
-            Assert.Equal("premium", builder.Metadata.GetServiceTier());
+            Assert.NotNull(builder.HasServiceTierSql("premium"));
+            Assert.Equal("premium", builder.Metadata.GetServiceTierSql());
 
             Assert.NotNull(
-                builder.HasServiceTier("basic", fromDataAnnotation: true));
-            Assert.Equal("basic", builder.Metadata.GetServiceTier());
-            Assert.Equal(ConfigurationSource.DataAnnotation, builder.Metadata.GetServiceTierConfigurationSource());
-            Assert.NotNull(builder.HasServiceTier("basic"));
+                builder.HasServiceTierSql("basic", fromDataAnnotation: true));
+            Assert.Equal("basic", builder.Metadata.GetServiceTierSql());
+            Assert.Equal(ConfigurationSource.DataAnnotation, builder.Metadata.GetServiceTierSqlConfigurationSource());
+            Assert.NotNull(builder.HasServiceTierSql("basic"));
 
-            Assert.Null(builder.HasServiceTier("premium"));
-            Assert.Equal("basic", builder.Metadata.GetServiceTier());
+            Assert.Null(builder.HasServiceTierSql("premium"));
+            Assert.Equal("basic", builder.Metadata.GetServiceTierSql());
 
-            Assert.NotNull(builder.HasServiceTier(null, fromDataAnnotation: true));
-            Assert.Null(builder.Metadata.GetServiceTier());
-            Assert.Null(builder.Metadata.GetServiceTierConfigurationSource());
+            Assert.NotNull(builder.HasServiceTierSql(null, fromDataAnnotation: true));
+            Assert.Null(builder.Metadata.GetServiceTierSql());
+            Assert.Null(builder.Metadata.GetServiceTierSqlConfigurationSource());
         }
 
         [ConditionalFact]
@@ -99,24 +99,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var builder = CreateBuilder();
 
-            Assert.Null(builder.Metadata.GetPerformanceLevel());
-            Assert.Null(builder.Metadata.GetPerformanceLevelConfigurationSource());
+            Assert.Null(builder.Metadata.GetPerformanceLevelSql());
+            Assert.Null(builder.Metadata.GetPerformanceLevelSqlConfigurationSource());
 
-            Assert.NotNull(builder.HasPerformanceLevel("P1"));
-            Assert.Equal("P1", builder.Metadata.GetPerformanceLevel());
+            Assert.NotNull(builder.HasPerformanceLevelSql("P1"));
+            Assert.Equal("P1", builder.Metadata.GetPerformanceLevelSql());
 
             Assert.NotNull(
-                builder.HasPerformanceLevel("P4", fromDataAnnotation: true));
-            Assert.Equal("P4", builder.Metadata.GetPerformanceLevel());
-            Assert.Equal(ConfigurationSource.DataAnnotation, builder.Metadata.GetPerformanceLevelConfigurationSource());
-            Assert.NotNull(builder.HasPerformanceLevel("P4"));
+                builder.HasPerformanceLevelSql("P4", fromDataAnnotation: true));
+            Assert.Equal("P4", builder.Metadata.GetPerformanceLevelSql());
+            Assert.Equal(ConfigurationSource.DataAnnotation, builder.Metadata.GetPerformanceLevelSqlConfigurationSource());
+            Assert.NotNull(builder.HasPerformanceLevelSql("P4"));
 
-            Assert.Null(builder.HasPerformanceLevel("P1"));
-            Assert.Equal("P4", builder.Metadata.GetPerformanceLevel());
+            Assert.Null(builder.HasPerformanceLevelSql("P1"));
+            Assert.Equal("P4", builder.Metadata.GetPerformanceLevelSql());
 
-            Assert.NotNull(builder.HasPerformanceLevel(null, fromDataAnnotation: true));
-            Assert.Null(builder.Metadata.GetPerformanceLevel());
-            Assert.Null(builder.Metadata.GetPerformanceLevelConfigurationSource());
+            Assert.NotNull(builder.HasPerformanceLevelSql(null, fromDataAnnotation: true));
+            Assert.Null(builder.Metadata.GetPerformanceLevelSql());
+            Assert.Null(builder.Metadata.GetPerformanceLevelSqlConfigurationSource());
         }
 
         [ConditionalFact]
