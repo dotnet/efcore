@@ -81,6 +81,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case TableExpression tableExpression:
                     return VisitTable(tableExpression);
 
+                case TableValuedFunctionExpression tableValuedFunctionExpression:
+                    return VisitTableValuedFunctionExpression(tableValuedFunctionExpression);
+
                 case ExceptExpression exceptExpression:
                     return VisitExcept(exceptExpression);
 
@@ -117,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract Expression VisitColumn(ColumnExpression columnExpression);
         protected abstract Expression VisitSelect(SelectExpression selectExpression);
         protected abstract Expression VisitTable(TableExpression tableExpression);
+        protected abstract Expression VisitTableValuedFunctionExpression(TableValuedFunctionExpression tableValuedFunctionExpression);
         protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
         protected abstract Expression VisitLike(LikeExpression likeExpression);
         protected abstract Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression);
