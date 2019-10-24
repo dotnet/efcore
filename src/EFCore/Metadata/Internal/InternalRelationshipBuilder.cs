@@ -1045,6 +1045,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
+                    newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
+
+                    if (newRelationshipBuilder == null)
+                    {
+                        return null;
+                    }
 
                     foreach (var otherOwnership in otherOwnerships)
                     {
@@ -1074,6 +1080,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
+                    newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
+
+                    if (newRelationshipBuilder == null)
+                    {
+                        return null;
+                    }
 
                     using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
                     {
@@ -1113,6 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
+                newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
 
                 if (newRelationshipBuilder == null
                     && Metadata.PrincipalEntityType.Builder != null

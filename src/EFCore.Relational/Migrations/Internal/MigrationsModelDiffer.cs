@@ -1639,6 +1639,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var entry = _sourceUpdateAdapter
                         .CreateEntry(sourceSeed, sourceEntityType);
 
+                    // Mark as added first to generate missing values
+                    // Issue #15289
                     entry.EntityState = EntityState.Added;
                     entry.EntityState = EntityState.Unchanged;
                 }
@@ -1754,21 +1756,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             var (sourceProperty, sourceConverter, targetConverter) = keyPropertiesMap[i];
                             var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
-                            if (targetKey.Properties[i].ClrType != sourceProperty.ClrType)
-                            {
-                                if (sourceConverter != null)
-                                {
-                                    targetKeyValues[i] = sourceConverter.ConvertToProvider(sourceValue);
-                                }
-                                else
-                                {
-                                    targetKeyValues[i] = targetConverter.ConvertFromProvider(sourceValue);
-                                }
-                            }
-                            else
-                            {
-                                targetKeyValues[i] = sourceValue;
-                            }
+                            targetKeyValues[i] = targetKey.Properties[i].ClrType != sourceProperty.ClrType
+                                ? sourceConverter != null
+                                    ? sourceConverter.ConvertToProvider(sourceValue)
+                                    : targetConverter.ConvertFromProvider(sourceValue)
+                                : sourceValue;
                         }
 
                         var entry = _targetUpdateAdapter.TryGetEntry(targetKey, targetKeyValues);
