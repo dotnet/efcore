@@ -140,6 +140,34 @@ namespace Microsoft.EntityFrameworkCore
                 context => Assert.Equal(2, context.Owners.Count()));
         }
 
+        [ConditionalFact]
+        public void Inserts_when_database_collation_is_different()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    context.Database.ExecuteSqlRaw(@"
+DROP TABLE dbo.Blogs;
+
+ALTER TABLE dbo.Owners
+	DROP CONSTRAINT PK_Owners;
+ALTER TABLE dbo.Owners
+    ALTER COLUMN Id nvarchar(450) COLLATE SQL_Latin1_General_CP1_CS_AS NOT NULL;
+ALTER TABLE dbo.Owners
+    ALTER COLUMN Name nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CS_AS NOT NULL;
+ALTER TABLE dbo.Owners ADD CONSTRAINT
+	PK_Owners PRIMARY KEY CLUSTERED	(Id);");
+
+                    var owner1 = new Owner { Id = "0", Name = "Zero" };
+                    var owner2 = new Owner { Id = "A", Name = string.Join("", Enumerable.Repeat('A', 900)) };
+                    context.Owners.Add(owner1);
+                    context.Owners.Add(owner2);
+
+                    context.SaveChanges();
+                },
+                context => Assert.Equal(2, context.Owners.Count()));
+        }
+
         [ConditionalTheory]
         [InlineData(3)]
         [InlineData(4)]
