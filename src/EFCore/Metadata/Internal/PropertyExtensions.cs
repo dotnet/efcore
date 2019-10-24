@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (singleLine)
             {
-                builder.Append("Property: ").Append(property.DeclaringEntityType.DisplayName()).Append(".");
+                builder.Append($"Property: {property.DeclaringEntityType.DisplayName()}.");
             }
 
             builder.Append(property.Name).Append(" (");
