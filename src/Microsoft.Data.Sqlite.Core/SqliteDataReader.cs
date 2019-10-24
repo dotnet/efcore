@@ -227,7 +227,7 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         protected override void Dispose(bool disposing)
         {
-            if (!disposing)
+            if (!disposing || _closed)
             {
                 return;
             }
