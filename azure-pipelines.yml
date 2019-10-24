@@ -113,10 +113,10 @@ stages:
             pool:
               vmImage: ubuntu-16.04
             variables:
-              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
+              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion'), or(endsWith(variables['Build.BuildId'], '0'), endsWith(variables['Build.BuildId'], '2'), endsWith(variables['Build.BuildId'], '4'), endsWith(variables['Build.BuildId'], '6'), endsWith(variables['Build.BuildId'], '8'))) }}:
                 - _CosmosConnectionUrl: https://ef-nightly-test.documents.azure.com:443/
                 - _CosmosToken: $(ef-nightly-cosmos-key)
-              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), eq(variables['Build.Reason'], 'PullRequest')) }}:
+              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion'), or(endsWith(variables['Build.BuildId'], '1'), endsWith(variables['Build.BuildId'], '3'), endsWith(variables['Build.BuildId'], '5'), endsWith(variables['Build.BuildId'], '7'), endsWith(variables['Build.BuildId'], '9'))) }}:
                 - _CosmosConnectionUrl: https://ef-pr-test.documents.azure.com:443/
                 - _CosmosToken: $(ef-pr-cosmos-test)
             steps:

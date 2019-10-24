@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
@@ -128,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     .UseCosmos(
                         _connectionUri,
                         _authToken,
-                        _name);
+                        _name,
+                        b => b.ApplyConfiguration());
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
