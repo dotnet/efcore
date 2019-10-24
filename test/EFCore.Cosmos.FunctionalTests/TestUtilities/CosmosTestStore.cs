@@ -43,7 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
-            _configureCosmos = extensionConfiguration;
+            _configureCosmos = extensionConfiguration == null
+                ? (Action<CosmosDbContextOptionsBuilder>)(b => b.ApplyConfiguration())
+                : (b =>
+                {
+                    b.ApplyConfiguration();
+                    extensionConfiguration(b);
+                });
 
             _storeContext = new TestStoreContext(this);
 
@@ -61,7 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
-        public Action<CosmosDbContextOptionsBuilder> ConfigureCosmos => _configureCosmos ?? (_ => { });
 
         protected override DbContext CreateDefaultContext() => new TestStoreContext(this);
 
@@ -70,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 ConnectionUri,
                 AuthToken,
                 Name,
-                ConfigureCosmos);
+                _configureCosmos);
 
         protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
@@ -240,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore.ConfigureCosmos);
+                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
             }
         }
     }
