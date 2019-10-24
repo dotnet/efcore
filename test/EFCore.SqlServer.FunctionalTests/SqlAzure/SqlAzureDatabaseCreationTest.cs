@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.HasPerformanceLevel("ELASTIC_POOL ( name = unicornhack )");
+                modelBuilder.HasPerformanceLevelSql("ELASTIC_POOL ( name = unicornhack )");
             }
         }
 
@@ -126,8 +126,8 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.HasDatabaseMaxSize("2 GB");
-                modelBuilder.HasServiceTier("'BusinessCritical'");
-                modelBuilder.HasPerformanceLevel("'BC_Gen4_1'");
+                modelBuilder.HasServiceTier("BusinessCritical");
+                modelBuilder.HasPerformanceLevel("BC_Gen4_1");
             }
         }
 

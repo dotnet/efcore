@@ -1079,20 +1079,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var foreignKey = navigation.ForeignKey;
                 if (navigation.IsCollection())
                 {
-                    var innerSelectExpression = _sqlExpressionFactory.Select(targetEntityType);
-                    var innerShapedQuery = CreateShapedQueryExpression(targetEntityType, innerSelectExpression);
+                    var innerShapedQuery = CreateShapedQueryExpression(
+                        targetEntityType, _sqlExpressionFactory.Select(targetEntityType));
 
                     var makeNullable = foreignKey.PrincipalKey.Properties
                         .Concat(foreignKey.Properties)
                         .Select(p => p.ClrType)
                         .Any(t => t.IsNullableType());
 
+                    var innerSequenceType = innerShapedQuery.Type.TryGetSequenceType();
+                    var correlationPredicateParameter = Expression.Parameter(innerSequenceType);
+
                     var outerKey = entityShaperExpression.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
                             ? foreignKey.Properties
                             : foreignKey.PrincipalKey.Properties,
                         makeNullable);
-                    var innerKey = innerShapedQuery.ShaperExpression.CreateKeyAccessExpression(
+                    var innerKey = correlationPredicateParameter.CreateKeyAccessExpression(
                         navigation.IsDependentToPrincipal()
                             ? foreignKey.PrincipalKey.Properties
                             : foreignKey.Properties,
@@ -1108,10 +1111,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Expression.Equal(outerKey, innerKey))
                         : Expression.Equal(outerKey, innerKey);
 
-                    var correlationPredicate = _sqlTranslator.Translate(predicate);
-                    innerSelectExpression.ApplyPredicate(correlationPredicate);
+                    var correlationPredicate = Expression.Lambda(predicate, correlationPredicateParameter);
 
-                    return innerShapedQuery;
+                    return Expression.Call(
+                        QueryableMethods.Where.MakeGenericMethod(innerSequenceType),
+                        innerShapedQuery,
+                        Expression.Quote(correlationPredicate));
                 }
 
                 var entityProjectionExpression = (EntityProjectionExpression)

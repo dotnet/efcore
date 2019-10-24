@@ -21,22 +21,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Model;
 
             Assert.Null(model.GetDatabaseMaxSize());
-            Assert.Null(((IConventionModel)model).GetMaxSizeConfigurationSource());
+            Assert.Null(((IConventionModel)model).GetDatabaseMaxSizeConfigurationSource());
 
             ((IConventionModel)model).SetDatabaseMaxSize("1 GB", fromDataAnnotation: true);
 
             Assert.Equal("1 GB", model.GetDatabaseMaxSize());
-            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetMaxSizeConfigurationSource());
+            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetDatabaseMaxSizeConfigurationSource());
 
             model.SetDatabaseMaxSize("10 GB");
 
             Assert.Equal("10 GB", model.GetDatabaseMaxSize());
-            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetMaxSizeConfigurationSource());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetDatabaseMaxSizeConfigurationSource());
 
             model.SetDatabaseMaxSize(null);
 
             Assert.Null(model.GetDatabaseMaxSize());
-            Assert.Null(((IConventionModel)model).GetMaxSizeConfigurationSource());
+            Assert.Null(((IConventionModel)model).GetDatabaseMaxSizeConfigurationSource());
         }
 
         [ConditionalFact]
@@ -47,23 +47,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = modelBuilder
                 .Model;
 
-            Assert.Null(model.GetServiceTier());
-            Assert.Null(((IConventionModel)model).GetMaxSizeConfigurationSource());
+            Assert.Null(model.GetServiceTierSql());
+            Assert.Null(((IConventionModel)model).GetDatabaseMaxSizeConfigurationSource());
 
-            ((IConventionModel)model).SetServiceTier("basic", fromDataAnnotation: true);
+            ((IConventionModel)model).SetServiceTierSql("basic", fromDataAnnotation: true);
 
-            Assert.Equal("basic", model.GetServiceTier());
-            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetServiceTierConfigurationSource());
+            Assert.Equal("basic", model.GetServiceTierSql());
+            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetServiceTierSqlConfigurationSource());
 
-            model.SetServiceTier("standard");
+            model.SetServiceTierSql("standard");
 
-            Assert.Equal("standard", model.GetServiceTier());
-            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetServiceTierConfigurationSource());
+            Assert.Equal("standard", model.GetServiceTierSql());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetServiceTierSqlConfigurationSource());
 
-            model.SetServiceTier(null);
+            model.SetServiceTierSql(null);
 
-            Assert.Null(model.GetServiceTier());
-            Assert.Null(((IConventionModel)model).GetServiceTierConfigurationSource());
+            Assert.Null(model.GetServiceTierSql());
+            Assert.Null(((IConventionModel)model).GetServiceTierSqlConfigurationSource());
         }
 
         [ConditionalFact]
@@ -74,23 +74,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var model = modelBuilder
                 .Model;
 
-            Assert.Null(model.GetPerformanceLevel());
-            Assert.Null(((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+            Assert.Null(model.GetPerformanceLevelSql());
+            Assert.Null(((IConventionModel)model).GetPerformanceLevelSqlConfigurationSource());
 
-            ((IConventionModel)model).SetPerformanceLevel("S0", fromDataAnnotation: true);
+            ((IConventionModel)model).SetPerformanceLevelSql("S0", fromDataAnnotation: true);
 
-            Assert.Equal("S0", model.GetPerformanceLevel());
-            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+            Assert.Equal("S0", model.GetPerformanceLevelSql());
+            Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionModel)model).GetPerformanceLevelSqlConfigurationSource());
 
-            model.SetPerformanceLevel("ELASTIC_POOL (name = elastic_pool)");
+            model.SetPerformanceLevelSql("ELASTIC_POOL (name = elastic_pool)");
 
-            Assert.Equal("ELASTIC_POOL (name = elastic_pool)", model.GetPerformanceLevel());
-            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+            Assert.Equal("ELASTIC_POOL (name = elastic_pool)", model.GetPerformanceLevelSql());
+            Assert.Equal(ConfigurationSource.Explicit, ((IConventionModel)model).GetPerformanceLevelSqlConfigurationSource());
 
-            model.SetPerformanceLevel(null);
+            model.SetPerformanceLevelSql(null);
 
-            Assert.Null(model.GetPerformanceLevel());
-            Assert.Null(((IConventionModel)model).GetPerformanceLevelConfigurationSource());
+            Assert.Null(model.GetPerformanceLevelSql());
+            Assert.Null(((IConventionModel)model).GetPerformanceLevelSqlConfigurationSource());
         }
 
         [ConditionalFact]
