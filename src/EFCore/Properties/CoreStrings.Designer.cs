@@ -3295,6 +3295,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The property '{property}' on entity type '{entityType}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+        /// </summary>
+        public static EventDefinition<string, string> LogCollectionWithoutComparer([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogCollectionWithoutComparer;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogCollectionWithoutComparer,
+                    () => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.CollectionWithoutComparer,
+                        LogLevel.Warning,
+                        "CoreEventId.CollectionWithoutComparer",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.CollectionWithoutComparer,
+                            _resourceManager.GetString("LogCollectionWithoutComparer"))));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}
         /// </summary>
         public static EventDefinition<int, string, Exception> LogExecutionStrategyRetrying([NotNull] IDiagnosticsLogger logger)

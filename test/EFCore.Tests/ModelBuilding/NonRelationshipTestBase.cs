@@ -814,8 +814,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
 
                 modelBuilder.Entity<DynamicProperty>(
-                    b => b.Property(e => e.ExpandoObject).HasConversion(
-                        v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v)));
+                    b =>
+                    {
+                        b.Property(e => e.ExpandoObject).HasConversion(
+                            v => (string)((IDictionary<string, object>)v)["Value"], v => DeserializeExpandoObject(v));
+
+                        var comparer = new ValueComparer<ExpandoObject>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
+                        b.Property(e => e.ExpandoObject).Metadata.SetValueComparer(comparer);
+                    });
 
                 modelBuilder.FinalizeModel();
 

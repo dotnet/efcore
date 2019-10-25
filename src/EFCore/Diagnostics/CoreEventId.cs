@@ -101,6 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             NonNullableReferenceOnDependent,
             RequiredAttributeInverted,
             RequiredAttributeOnCollection,
+            CollectionWithoutComparer,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -884,5 +885,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ContextDisposed = MakeInfraId(Id.ContextDisposed);
+
+        /// <summary>
+        ///     <para>
+        ///         A property has a collection or enumeration type with a value converter but with no value comparer.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CollectionWithoutComparer = MakeModelValidationId(Id.CollectionWithoutComparer);
     }
 }
