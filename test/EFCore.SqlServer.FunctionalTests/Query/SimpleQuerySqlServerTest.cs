@@ -1522,7 +1522,7 @@ WHERE (([c].[City] = N'London') AND [c].[City] IS NOT NULL) AND EXISTS (
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ((([c].[ContactName] IS NULL AND ([c].[ContactName] IS NOT NULL AND (CAST(0 AS bit) = CAST(1 AS bit)))) OR ([c].[ContactName] IS NULL AND (CAST(1 AS bit) = CAST(1 AS bit)))) OR (([c].[ContactName] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR (LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName])))) THEN CAST(1 AS bit)
+        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ([c].[ContactName] IS NULL OR (LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName]))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -2078,7 +2078,7 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         ) AS [t]
-        WHERE ([t].[CustomerID] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR NOT ([t].[CustomerID] LIKE N'B%')) THEN CAST(1 AS bit)
+        WHERE NOT ([t].[CustomerID] LIKE N'B%')) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -2099,7 +2099,7 @@ SELECT CASE
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
-        WHERE ([t].[CustomerID] IS NULL AND (CAST(0 AS bit) = CAST(1 AS bit))) OR NOT ([t].[CustomerID] LIKE N'A%')) THEN CAST(1 AS bit)
+        WHERE NOT ([t].[CustomerID] LIKE N'A%')) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -2641,7 +2641,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (COALESCE([c].[CompanyName], [c].[ContactName]) = N'The Big Cheese') AND COALESCE([c].[CompanyName], [c].[ContactName]) IS NOT NULL");
+WHERE (COALESCE([c].[CompanyName], [c].[ContactName]) = N'The Big Cheese') AND ([c].[CompanyName] IS NOT NULL OR [c].[ContactName] IS NOT NULL)");
         }
 
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
@@ -3693,7 +3693,7 @@ WHERE [t].[CustomerID] LIKE N'A%'");
             AssertSql(
                 @"SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [A]
 FROM [Customers] AS [c]
-WHERE (([c].[CustomerID] + [c].[City]) = N'ALFKIBerlin') AND [c].[CustomerID] + [c].[City] IS NOT NULL");
+WHERE (([c].[CustomerID] + [c].[City]) = N'ALFKIBerlin') AND [c].[City] IS NOT NULL");
         }
 
         public override async Task Anonymous_complex_distinct_orderby(bool isAsync)
@@ -3797,7 +3797,7 @@ WHERE [t].[CustomerID] LIKE N'A%'");
             AssertSql(
                 @"SELECT DISTINCT [c].[CustomerID] + [c].[City] AS [Property]
 FROM [Customers] AS [c]
-WHERE (([c].[CustomerID] + [c].[City]) = N'ALFKIBerlin') AND [c].[CustomerID] + [c].[City] IS NOT NULL");
+WHERE (([c].[CustomerID] + [c].[City]) = N'ALFKIBerlin') AND [c].[City] IS NOT NULL");
         }
 
         public override async Task DTO_complex_distinct_orderby(bool isAsync)
@@ -4277,7 +4277,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'A%') AND ([c].[CustomerID] IS NOT NULL OR (CAST(1 AS bit) = CAST(1 AS bit)))
+WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID]");
         }
 

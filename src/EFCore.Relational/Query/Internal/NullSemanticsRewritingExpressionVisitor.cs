@@ -242,11 +242,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     newRight = rightUnary.Operand;
                 }
 
-                // TODO: optimize this by looking at subcomponents, e.g. f(a, b) == null <=> a == null || b == null
                 var leftIsNull = _sqlExpressionFactory.IsNull(newLeft);
                 var rightIsNull = _sqlExpressionFactory.IsNull(newRight);
 
                 // doing a full null semantics rewrite - removing all nulls from truth table
+                // this will NOT be correct once we introduce simplified null semantics
                 _isNullable = false;
 
                 if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)

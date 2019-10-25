@@ -1024,7 +1024,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (ownership.Value)
             {
                 InternalRelationshipBuilder newRelationshipBuilder;
-                var otherOwnerships = declaringType.GetDeclaredForeignKeys().Where(fk => fk.IsOwnership).ToList();
+                var otherOwnership = declaringType.GetDeclaredForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
                 var invertedOwnerships = declaringType.GetDeclaredReferencingForeignKeys()
                     .Where(fk => fk.IsOwnership && fk.DeclaringEntityType.ClrType == Metadata.PrincipalEntityType.ClrType).ToList();
 
@@ -1039,19 +1039,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Metadata.PrincipalToDependent == null
                         || declaringType.DefiningNavigationName == Metadata.PrincipalToDependent.Name);
 
-                    if (otherOwnerships.Any(fk => !configurationSource.Overrides(fk.GetConfigurationSource())))
+                    if (otherOwnership != null
+                        && !configurationSource.Overrides(otherOwnership.GetConfigurationSource()))
                     {
                         return null;
                     }
 
                     newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
+                    newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
 
-                    foreach (var otherOwnership in otherOwnerships)
+                    if (newRelationshipBuilder == null)
                     {
-                        if (otherOwnership.Builder != null)
-                        {
-                            otherOwnership.DeclaringEntityType.Builder.HasNoRelationship(otherOwnership, configurationSource);
-                        }
+                        return null;
+                    }
+
+                    if (otherOwnership?.Builder != null)
+                    {
+                        otherOwnership.DeclaringEntityType.Builder.HasNoRelationship(otherOwnership, configurationSource);
                     }
 
                     foreach (var invertedOwnership in invertedOwnerships)
@@ -1065,7 +1069,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return newRelationshipBuilder;
                 }
 
-                if (otherOwnerships.Count > 0)
+                if (otherOwnership != null)
                 {
                     if (!Metadata.GetConfigurationSource().Overrides(ConfigurationSource.Explicit)
                         && Metadata.PrincipalEntityType.IsInDefinitionPath(Metadata.DeclaringEntityType.ClrType))
@@ -1074,6 +1078,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
+                    newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
+
+                    if (newRelationshipBuilder == null)
+                    {
+                        return null;
+                    }
 
                     using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
                     {
@@ -1085,7 +1095,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var fk = newRelationshipBuilder.Metadata;
                         fk.DeclaringEntityType.Builder.HasNoRelationship(fk, fk.GetConfigurationSource());
 
-                        var otherOwnership = otherOwnerships.Single();
                         if (otherOwnership.Builder.IsWeakTypeDefinition(configurationSource) == null)
                         {
                             return null;
@@ -1113,6 +1122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 newRelationshipBuilder = Metadata.SetIsOwnership(ownership: true, configurationSource)?.Builder;
+                newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
 
                 if (newRelationshipBuilder == null
                     && Metadata.PrincipalEntityType.Builder != null

@@ -281,6 +281,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_Select_scalar(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync, ss => ss.Set<Customer>()
+                    .Except(ss.Set<Customer>())
+                    .Select(c => (object)1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_with_anonymous_type_projection(bool isAsync)
         {
             return AssertQuery(

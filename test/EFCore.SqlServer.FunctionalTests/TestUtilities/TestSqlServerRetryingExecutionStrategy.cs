@@ -76,11 +76,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             ExceptionsEncountered.Add(lastException);
             return base.GetNextDelay(lastException);
         }
-
-        public static new bool Suspended
-        {
-            get => ExecutionStrategy.Suspended;
-            set => ExecutionStrategy.Suspended = value;
-        }
     }
 }

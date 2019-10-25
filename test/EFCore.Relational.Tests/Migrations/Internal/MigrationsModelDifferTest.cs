@@ -45,6 +45,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x =>
                     {
                         x.ToView("Orders");
+                        x.OwnsOne(y => y.Shipping);
+                    }),
+                upOperations => Assert.Equal(0, upOperations.Count));
+        }
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_views_with_weak_types()
+        {
+            Execute(
+                _ => { },
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.ToView("Orders");
                         x.OwnsOne(y => y.Billing);
                         x.OwnsOne(y => y.Shipping);
                     }),
@@ -1678,10 +1692,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [ConditionalFact]
         public void Rename_property_and_column_when_snapshot()
         {
-            // NB: No conventions to simulate the snapshot.
-            var sourceModelBuilder = new ModelBuilder(new ConventionSet());
-            sourceModelBuilder.Entity(
-                // ReSharper disable once AssignNullToNotNullAttribute
+            Execute(
+                source => source.Entity(
                 typeof(Crab).FullName,
                 x =>
                 {
@@ -1690,23 +1702,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     x.Property<string>("CrabId");
 
                     x.HasKey("CrabId");
-                });
+                }),
+                target => target.Entity<Crab>(),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
 
-            var targetModelBuilder = CreateModelBuilder();
-            targetModelBuilder.Entity<Crab>();
-
-            targetModelBuilder.FinalizeModel();
-
-            var modelDiffer = RelationalTestHelpers.Instance.CreateContextServices()
-                .GetRequiredService<IMigrationsModelDiffer>();
-            var operations = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
-
-            Assert.Equal(1, operations.Count);
-
-            var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
-            Assert.Equal("Crab", operation.Table);
-            Assert.Equal("CrabId", operation.Name);
-            Assert.Equal("Id", operation.NewName);
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Crab", operation.Table);
+                    Assert.Equal("CrabId", operation.Name);
+                    Assert.Equal("Id", operation.NewName);
+                },
+                skipSourceConventions: true);
         }
 
         private class Crab
@@ -2561,7 +2568,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Puffin", operation.Table);
                     Assert.Equal("PK_Puffin", operation.Name);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -2630,7 +2638,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Raven", addOperation.Table);
                     Assert.Equal("PK_Raven", addOperation.Name);
                     Assert.Equal(new[] { "RavenId" }, addOperation.Columns);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -2667,7 +2676,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Raven", addOperation.Table);
                     Assert.Equal("PK_Raven", addOperation.Name);
                     Assert.Equal(new[] { "RavenId", "Id" }, addOperation.Columns);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3523,7 +3533,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operation.MinValue);
                     Assert.Equal(4, operation.MaxValue);
                     Assert.True(operation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3553,7 +3564,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operation.MinValue);
                     Assert.Equal(5, operation.MaxValue);
                     Assert.True(operation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3613,7 +3625,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operation.MinValue);
                     Assert.Equal(4, operation.MaxValue);
                     Assert.False(operation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3649,7 +3662,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, createOperation.MinValue);
                     Assert.Equal(4, createOperation.MaxValue);
                     Assert.True(createOperation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3677,7 +3691,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Golf", operation.Name);
                     Assert.Equal(5, operation.StartValue);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3699,7 +3714,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 operations => Assert.Collection(
                     operations,
                     o => Assert.IsType<AlterSequenceOperation>(o),
-                    o => Assert.IsType<RestartSequenceOperation>(o)));
+                    o => Assert.IsType<RestartSequenceOperation>(o)),
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -5856,7 +5872,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var alterSequenceOperation = Assert.IsType<AlterSequenceOperation>(operations[2]);
                     Assert.Equal("new", alterSequenceOperation.Schema);
                     Assert.Equal("Sequence", alterSequenceOperation.Name);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -7429,6 +7446,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int Id { get; set; }
 
             public Address Mailing { get; set; }
+            public ICollection<Order> Orders { get; set; }
         }
 
         private class Address
@@ -7507,7 +7525,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 source => source
-                    .Entity<Customer>().OwnsOne(y => y.Mailing),
+                    .Entity<Customer>()
+                    .Ignore(c => c.Orders)
+                    .OwnsOne(y => y.Mailing),
                 target => target
                     .Entity<Order>(
                         x =>
@@ -7515,7 +7535,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.OwnsOne(y => y.Billing);
                             x.OwnsOne(y => y.Shipping);
                         })
-                    .Entity<Customer>().OwnsOne(y => y.Mailing),
+                    .Entity<Customer>()
+                    .Ignore(c => c.Orders)
+                    .OwnsOne(y => y.Mailing),
                 operations =>
                 {
                     var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
@@ -7567,7 +7589,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<DropTableOperation>(o);
                         Assert.Equal("Order", m.Name);
-                    }));
+                    }),
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -7593,6 +7616,40 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 Assert.Empty,
                 Assert.Empty);
+        }
+
+        [ConditionalFact]
+        public void SeedData_type_with_owned_collection_no_changes()
+        {
+            Execute(
+                common =>
+                {
+                    common.Entity<Customer>(
+                        c =>
+                        {
+                            c.Ignore(x => x.Mailing);
+
+                            c.HasKey(x => x.Id);
+                            c.HasData(new Customer { Id = 1 });
+
+                            c.OwnsMany(y => y.Orders, x =>
+                            {
+                                x.Ignore(o => o.Billing);
+                                x.Ignore(o => o.Shipping);
+
+                                x.WithOwner()
+                                    .HasForeignKey("CustomerId");
+
+                                x.HasKey("CustomerId", "Id");
+                                x.HasData(new { Id = 2, CustomerId = 1 });
+                            });
+                        });
+                },
+                _ => { },
+                _ => { },
+                Assert.Empty,
+                Assert.Empty,
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]

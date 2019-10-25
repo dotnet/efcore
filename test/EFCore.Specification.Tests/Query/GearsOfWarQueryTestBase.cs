@@ -8006,6 +8006,107 @@ namespace Microsoft.EntityFrameworkCore.Query
                     })));
         }
 
+        [ConditionalTheory(Skip = "issue #18492")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool isAsync)
+        {
+            var prm = (string)null;
+
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Gear>().GroupBy(g => g.FullName.StartsWith(prm)).Select(g => g.Key));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_with_having_StartsWith_with_null_parameter_as_argument(bool isAsync)
+        {
+            var prm = (string)null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().GroupBy(g => g.FullName).Where(g => g.Key.StartsWith(prm)).Select(g => g.Key),
+                ss => ss.Set<Gear>().GroupBy(g => g.FullName).Where(g => false).Select(g => g.Key));
+        }
+
+        [ConditionalTheory(Skip = "issue #18492")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_StartsWith_with_null_parameter_as_argument(bool isAsync)
+        {
+            var prm = (string)null;
+
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Gear>().Select(g => g.FullName.StartsWith(prm)),
+                ss => ss.Set<Gear>().Select(g => false));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_null_parameter_is_not_null(bool isAsync)
+        {
+            var prm = (string)null;
+
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Gear>().Select(g => prm != null),
+                ss => ss.Set<Gear>().Select(g => false));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_null_parameter_is_not_null(bool isAsync)
+        {
+            var prm = (string)null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => prm != null),
+                ss => ss.Set<Gear>().Where(g => false));
+        }
+
+        [ConditionalTheory(Skip = "issue #18492")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_StartsWith_with_null_parameter_as_argument(bool isAsync)
+        {
+            var prm = (string)null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().OrderBy(g => g.FullName.StartsWith(prm)).ThenBy(g => g.Nickname),
+                ss => ss.Set<Gear>().OrderBy(g => false).ThenBy(g => g.Nickname),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Where_with_enum_flags_parameter(bool isAsync)
+        {
+            MilitaryRank? rank = MilitaryRank.Private;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => (g.Rank & rank) == rank));
+
+            rank = null;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => (g.Rank & rank) == rank));
+
+            rank = MilitaryRank.Corporal;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => (g.Rank | rank) != rank));
+
+            rank = null;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => (g.Rank | rank) != rank));
+        }
+
         protected async Task AssertTranslationFailed(Func<Task> testCode)
         {
             Assert.Contains(

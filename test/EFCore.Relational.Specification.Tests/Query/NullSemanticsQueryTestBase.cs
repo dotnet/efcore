@@ -982,6 +982,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void IsNull_on_complex_expression()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query1 = ctx.Entities1.Where(e => -e.NullableIntA != null).ToList();
+                Assert.Equal(18, query1.Count);
+
+                var query2 = ctx.Entities1.Where(e => (e.NullableIntA + e.NullableIntB) == null).ToList();
+                Assert.Equal(15, query2.Count);
+
+                var query3 = ctx.Entities1.Where(e => (e.NullableIntA ?? e.NullableIntB) == null).ToList();
+                Assert.Equal(3, query3.Count);
+
+                var query4 = ctx.Entities1.Where(e => (e.NullableIntA ?? e.NullableIntB) != null).ToList();
+                Assert.Equal(24, query4.Count);
+            }
+        }
+
         protected static TResult Maybe<TResult>(object caller, Func<TResult> expression)
             where TResult : class
         {
