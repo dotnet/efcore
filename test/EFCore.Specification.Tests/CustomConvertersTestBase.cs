@@ -828,6 +828,13 @@ namespace Microsoft.EntityFrameworkCore
                             .HasConversion(
                                 BytesToStringConverter.DefaultInfo.Create())
                             .HasMaxLength(LongStringLength * 2);
+
+                        var bytesComparer = new ValueComparer<byte[]>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
+                        b.Property(e => e.ByteArray5).Metadata.SetValueComparer(bytesComparer);
+                        b.Property(e => e.ByteArray9000).Metadata.SetValueComparer(bytesComparer);
                     });
 
                 modelBuilder.Entity<StringListDataType>(
@@ -835,6 +842,12 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList());
                         b.Property(e => e.Id).ValueGeneratedNever();
+
+                        var comparer = new ValueComparer<IList<string>>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
+                        b.Property(e => e.Strings).Metadata.SetValueComparer(comparer);
                     });
 
                 modelBuilder.Entity<Order>(
@@ -852,6 +865,12 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(c => c.Discriminator).HasConversion(
                             d => StringToDictionarySerializer.Serialize(d),
                             json => StringToDictionarySerializer.Deserialize(json));
+
+                        var comparer = new ValueComparer<IDictionary<string, string>>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
+                        b.Property(e => e.Discriminator).Metadata.SetValueComparer(comparer);
                     });
 
                 var urlConverter = new UrlSchemeRemover();
