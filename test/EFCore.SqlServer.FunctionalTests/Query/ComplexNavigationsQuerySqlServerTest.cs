@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE ([l0].[Id] = 0) AND [l0].[Id] IS NOT NULL");
+WHERE [l0].[Id] = 0");
         }
 
         public override async Task Key_equality_when_sentinel_ef_property(bool isAsync)
@@ -41,7 +41,7 @@ WHERE ([l0].[Id] = 0) AND [l0].[Id] IS NOT NULL");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE ([l0].[Id] = 0) AND [l0].[Id] IS NOT NULL");
+WHERE [l0].[Id] = 0");
         }
 
         public override async Task Key_equality_using_property_method_required(bool isAsync)
@@ -74,7 +74,7 @@ WHERE [l0].[Id] > 7");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE ([l0].[Id] = 7) AND [l0].[Id] IS NOT NULL");
+WHERE [l0].[Id] = 7");
         }
 
         public override async Task Key_equality_using_property_method_nested2(bool isAsync)
@@ -96,7 +96,7 @@ WHERE [l0].[Id] = 7");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE ([l0].[Id] = 7) AND [l0].[Id] IS NOT NULL");
+WHERE [l0].[Id] = 7");
         }
 
         public override async Task Key_equality_using_property_method_and_member_expression2(bool isAsync)
@@ -107,7 +107,7 @@ WHERE ([l0].[Id] = 7) AND [l0].[Id] IS NOT NULL");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE ([l0].[Id] = 7) AND [l0].[Id] IS NOT NULL");
+WHERE [l0].[Id] = 7");
         }
 
         public override async Task Key_equality_using_property_method_and_member_expression3(bool isAsync)
@@ -140,7 +140,7 @@ WHERE [l0].[Id] = 1");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE (([l0].[Id] = 1) AND [l0].[Id] IS NOT NULL) OR (([l0].[Id] = 2) AND [l0].[Id] IS NOT NULL)");
+WHERE ([l0].[Id] = 1) OR ([l0].[Id] = 2)");
         }
 
         public override async Task Key_equality_two_conditions_on_same_navigation2(bool isAsync)
@@ -304,7 +304,7 @@ WHERE [l0].[Name] IS NOT NULL AND ([l0].[Name] LIKE N'L%')");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE ([l0].[Name] = N'L2 01') AND [l0].[Name] IS NOT NULL");
+WHERE [l0].[Name] = N'L2 01'");
         }
 
         public override async Task Optional_navigation_inside_nested_method_call_translated_to_join(bool isAsync)
@@ -326,7 +326,7 @@ WHERE UPPER([l0].[Name]) IS NOT NULL AND (UPPER([l0].[Name]) LIKE N'L%')");
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE (([l0].[Name] = N'') AND [l0].[Name] IS NOT NULL) OR ([l0].[Name] IS NOT NULL AND (LEFT([l0].[Name], LEN([l0].[Name])) = [l0].[Name]))");
+WHERE ([l0].[Name] = N'') OR ([l0].[Name] IS NOT NULL AND ([l0].[Name] IS NOT NULL AND (LEFT([l0].[Name], LEN([l0].[Name])) = [l0].[Name])))");
         }
 
         public override async Task Optional_navigation_inside_method_call_translated_to_join_keeps_original_nullability(bool isAsync)
@@ -645,7 +645,7 @@ LEFT JOIN [LevelOne] AS [l0] ON [l].[Level1_Optional_Id] = [l0].[Id]");
                 @"SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE (([l0].[Name] = N'L2 05') AND [l0].[Name] IS NOT NULL) OR (([l0].[Name] = N'L2 07') AND [l0].[Name] IS NOT NULL)");
+WHERE ([l0].[Name] = N'L2 05') OR ([l0].[Name] = N'L2 07')");
         }
 
         public override async Task Where_nav_prop_reference_optional1_via_DefaultIfEmpty(bool isAsync)
@@ -657,7 +657,7 @@ WHERE (([l0].[Name] = N'L2 05') AND [l0].[Name] IS NOT NULL) OR (([l0].[Name] = 
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
-WHERE (([l0].[Name] = N'L2 05') AND [l0].[Name] IS NOT NULL) OR (([l1].[Name] = N'L2 07') AND [l1].[Name] IS NOT NULL)");
+WHERE ([l0].[Name] = N'L2 05') OR ([l1].[Name] = N'L2 07')");
         }
 
         public override async Task Where_nav_prop_reference_optional2(bool isAsync)
@@ -668,7 +668,7 @@ WHERE (([l0].[Name] = N'L2 05') AND [l0].[Name] IS NOT NULL) OR (([l1].[Name] = 
                 @"SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE (([l0].[Name] = N'L2 05') AND [l0].[Name] IS NOT NULL) OR (([l0].[Name] <> N'L2 42') OR [l0].[Name] IS NULL)");
+WHERE ([l0].[Name] = N'L2 05') OR (([l0].[Name] <> N'L2 42') OR [l0].[Name] IS NULL)");
         }
 
         public override async Task Where_nav_prop_reference_optional2_via_DefaultIfEmpty(bool isAsync)
@@ -680,7 +680,7 @@ WHERE (([l0].[Name] = N'L2 05') AND [l0].[Name] IS NOT NULL) OR (([l0].[Name] <>
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
-WHERE (([l0].[Name] = N'L2 05') AND [l0].[Name] IS NOT NULL) OR (([l1].[Name] <> N'L2 42') OR [l1].[Name] IS NULL)");
+WHERE ([l0].[Name] = N'L2 05') OR (([l1].[Name] <> N'L2 42') OR [l1].[Name] IS NULL)");
         }
 
         public override async Task Select_multiple_nav_prop_reference_optional(bool isAsync)
@@ -844,7 +844,7 @@ WHERE [l].[Id] = [l0].[Id]");
 FROM [LevelOne] AS [l]
 CROSS JOIN [LevelTwo] AS [l0]
 LEFT JOIN [LevelOne] AS [l1] ON [l0].[Level1_Optional_Id] = [l1].[Id]
-WHERE ([l].[Id] = [l1].[Id]) AND [l1].[Id] IS NOT NULL");
+WHERE [l].[Id] = [l1].[Id]");
         }
 
         public override async Task SelectMany_navigation_comparison3(bool isAsync)
@@ -856,7 +856,7 @@ WHERE ([l].[Id] = [l1].[Id]) AND [l1].[Id] IS NOT NULL");
 FROM [LevelOne] AS [l]
 CROSS JOIN [LevelTwo] AS [l0]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
-WHERE ([l1].[Id] = [l0].[Id]) AND [l1].[Id] IS NOT NULL");
+WHERE [l1].[Id] = [l0].[Id]");
         }
 
         public override async Task Where_complex_predicate_with_with_nav_prop_and_OrElse1(bool isAsync)
@@ -869,7 +869,7 @@ FROM [LevelOne] AS [l]
 CROSS JOIN [LevelTwo] AS [l0]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Optional_Id]
 INNER JOIN [LevelOne] AS [l2] ON [l0].[Level1_Required_Id] = [l2].[Id]
-WHERE (([l1].[Name] = N'L2 01') AND [l1].[Name] IS NOT NULL) OR (([l2].[Name] <> N'Bar') OR [l2].[Name] IS NULL)");
+WHERE ([l1].[Name] = N'L2 01') OR (([l2].[Name] <> N'Bar') OR [l2].[Name] IS NULL)");
         }
 
         public override async Task Where_complex_predicate_with_with_nav_prop_and_OrElse2(bool isAsync)
@@ -881,7 +881,7 @@ WHERE (([l1].[Name] = N'L2 01') AND [l1].[Name] IS NOT NULL) OR (([l2].[Name] <>
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
-WHERE (([l1].[Name] = N'L3 05') AND [l1].[Name] IS NOT NULL) OR (([l0].[Name] <> N'L2 05') OR [l0].[Name] IS NULL)");
+WHERE ([l1].[Name] = N'L3 05') OR (([l0].[Name] <> N'L2 05') OR [l0].[Name] IS NULL)");
         }
 
         public override async Task Where_complex_predicate_with_with_nav_prop_and_OrElse3(bool isAsync)
@@ -894,7 +894,7 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[Level1_Required_Id]
 LEFT JOIN [LevelThree] AS [l2] ON [l1].[Id] = [l2].[Level2_Optional_Id]
-WHERE (([l0].[Name] <> N'L2 05') OR [l0].[Name] IS NULL) OR (([l2].[Name] = N'L3 05') AND [l2].[Name] IS NOT NULL)");
+WHERE (([l0].[Name] <> N'L2 05') OR [l0].[Name] IS NULL) OR ([l2].[Name] = N'L3 05')");
         }
 
         public override async Task Where_complex_predicate_with_with_nav_prop_and_OrElse4(bool isAsync)
@@ -907,7 +907,7 @@ FROM [LevelThree] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Level2_Optional_Id] = [l0].[Id]
 INNER JOIN [LevelTwo] AS [l1] ON [l].[Level2_Required_Id] = [l1].[Id]
 LEFT JOIN [LevelOne] AS [l2] ON [l1].[Level1_Optional_Id] = [l2].[Id]
-WHERE (([l0].[Name] <> N'L2 05') OR [l0].[Name] IS NULL) OR (([l2].[Name] = N'L1 05') AND [l2].[Name] IS NOT NULL)");
+WHERE (([l0].[Name] <> N'L2 05') OR [l0].[Name] IS NULL) OR ([l2].[Name] = N'L1 05')");
         }
 
         public override async Task Complex_navigations_with_predicate_projected_into_anonymous_type(bool isAsync)
@@ -920,7 +920,7 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
 LEFT JOIN [LevelThree] AS [l2] ON [l0].[Id] = [l2].[Level2_Optional_Id]
-WHERE ((([l1].[Id] = [l2].[Id]) AND ([l1].[Id] IS NOT NULL AND [l2].[Id] IS NOT NULL)) OR ([l1].[Id] IS NULL AND [l2].[Id] IS NULL)) AND (([l2].[Id] <> 7) OR [l2].[Id] IS NULL)");
+WHERE (([l1].[Id] = [l2].[Id]) OR ([l1].[Id] IS NULL AND [l2].[Id] IS NULL)) AND (([l2].[Id] <> 7) OR [l2].[Id] IS NULL)");
         }
 
         public override async Task Complex_navigations_with_predicate_projected_into_anonymous_type2(bool isAsync)
@@ -933,7 +933,7 @@ FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Level2_Required_Id] = [l0].[Id]
 INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
 LEFT JOIN [LevelOne] AS [l2] ON [l0].[Level1_Optional_Id] = [l2].[Id]
-WHERE (([l1].[Id] = [l2].[Id]) AND [l2].[Id] IS NOT NULL) AND (([l2].[Id] <> 7) OR [l2].[Id] IS NULL)");
+WHERE ([l1].[Id] = [l2].[Id]) AND (([l2].[Id] <> 7) OR [l2].[Id] IS NULL)");
         }
 
         public override async Task Optional_navigation_projected_into_DTO(bool isAsync)
@@ -1269,7 +1269,7 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[Level2_Required_Id] = [l0].[Id]
 WHERE (
     SELECT COUNT(*)
     FROM [LevelThree] AS [l1]
-    WHERE ([l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]) AND [l1].[OneToMany_Optional_Inverse3Id] IS NOT NULL) > 0");
+    WHERE [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]) > 0");
         }
 
         public override async Task Where_navigation_property_to_collection_of_original_entity_type(bool isAsync)
@@ -1283,7 +1283,7 @@ INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]
 WHERE (
     SELECT COUNT(*)
     FROM [LevelTwo] AS [l1]
-    WHERE ([l0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND [l1].[OneToMany_Optional_Inverse2Id] IS NOT NULL) > 0");
+    WHERE [l0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) > 0");
         }
 
         public override async Task Complex_multi_include_with_order_by_and_paging(bool isAsync)
@@ -1630,7 +1630,7 @@ ORDER BY [t].[Id]");
 SELECT TOP(@__p_0) [l].[Name]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[Level1_Required_Id] = [l0].[Id]
-WHERE ([l0].[Name] = N'L1 03') AND [l0].[Name] IS NOT NULL
+WHERE [l0].[Name] = N'L1 03'
 ORDER BY [l].[Id]");
         }
 
@@ -1645,7 +1645,7 @@ SELECT TOP(@__p_0) [l].[Name]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[Level1_Required_Id] = [l0].[Id]
 INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
-WHERE (([l0].[Name] = N'L1 03') AND [l0].[Name] IS NOT NULL) AND (([l1].[Name] = N'L3 08') AND [l1].[Name] IS NOT NULL)
+WHERE ([l0].[Name] = N'L1 03') AND ([l1].[Name] = N'L3 08')
 ORDER BY [l0].[Id]");
         }
 
@@ -1661,7 +1661,7 @@ SELECT TOP(@__p_0) [l0].[Name]
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[Level1_Required_Id] = [l0].[Id]
 INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
-WHERE (([l0].[Name] = N'L1 03') AND [l0].[Name] IS NOT NULL) AND (([l1].[Name] = N'L3 08') AND [l1].[Name] IS NOT NULL)
+WHERE ([l0].[Name] = N'L1 03') AND ([l1].[Name] = N'L3 08')
 ORDER BY [l0].[Id]");
         }
 
@@ -1675,7 +1675,7 @@ ORDER BY [l0].[Id]");
 SELECT TOP(@__p_0) [l].[Name]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE ([l0].[Name] = N'L2 03') AND [l0].[Name] IS NOT NULL
+WHERE [l0].[Name] = N'L2 03'
 ORDER BY [l].[Id]");
         }
 
@@ -2002,7 +2002,6 @@ INNER JOIN (
     FROM [LevelTwo] AS [l0]
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 LEFT JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
-WHERE CAST(1 AS bit) = CAST(1 AS bit)
 ORDER BY [l].[Id], [t].[Id], [l1].[Id]");
         }
 
@@ -2346,15 +2345,11 @@ WHERE [l2].[Id] = 7");
             AssertSql(
                 @"SELECT [l].[Id], [l].[Date], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse2Id], [l].[OneToMany_Optional_Self_Inverse2Id], [l].[OneToMany_Required_Inverse2Id], [l].[OneToMany_Required_Self_Inverse2Id], [l].[OneToOne_Optional_PK_Inverse2Id], [l].[OneToOne_Optional_Self2Id]
 FROM [LevelTwo] AS [l]
-WHERE ([l].[Id] = 7) AND (((
+WHERE ([l].[Id] = 7) AND ((
     SELECT TOP(1) [l1].[Name]
     FROM [LevelTwo] AS [l0]
     INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
-    ORDER BY [l0].[Id]) = N'L1 02') AND (
-    SELECT TOP(1) [l1].[Name]
-    FROM [LevelTwo] AS [l0]
-    INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
-    ORDER BY [l0].[Id]) IS NOT NULL)");
+    ORDER BY [l0].[Id]) = N'L1 02')");
         }
 
         public override async Task Manually_created_left_join_propagates_nullability_to_navigations(bool isAsync)
@@ -2868,7 +2863,7 @@ SELECT [l].[Name]
 FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[OneToMany_Required_Inverse3Id] = [l0].[Id]
 INNER JOIN [LevelOne] AS [l1] ON [l0].[Level1_Required_Id] = [l1].[Id]
-WHERE ([l1].[Name] = N'L1 03') AND [l1].[Name] IS NOT NULL
+WHERE [l1].[Name] = N'L1 03'
 ORDER BY [l].[Level2_Required_Id]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY");
         }
@@ -2890,7 +2885,7 @@ INNER JOIN [LevelTwo] AS [l2] ON ([l1].[OneToMany_Optional_Self_Inverse1Id] = [l
             AssertSql(
                 @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
-INNER JOIN [LevelTwo] AS [l0] ON ((([l].[OneToMany_Optional_Self_Inverse1Id] = [l0].[Level1_Optional_Id]) AND ([l].[OneToMany_Optional_Self_Inverse1Id] IS NOT NULL AND [l0].[Level1_Optional_Id] IS NOT NULL)) OR ([l].[OneToMany_Optional_Self_Inverse1Id] IS NULL AND [l0].[Level1_Optional_Id] IS NULL)) AND ((([l].[OneToOne_Optional_Self1Id] = [l0].[OneToMany_Optional_Self_Inverse2Id]) AND ([l].[OneToOne_Optional_Self1Id] IS NOT NULL AND [l0].[OneToMany_Optional_Self_Inverse2Id] IS NOT NULL)) OR ([l].[OneToOne_Optional_Self1Id] IS NULL AND [l0].[OneToMany_Optional_Self_Inverse2Id] IS NULL))");
+INNER JOIN [LevelTwo] AS [l0] ON (([l].[OneToMany_Optional_Self_Inverse1Id] = [l0].[Level1_Optional_Id]) OR ([l].[OneToMany_Optional_Self_Inverse1Id] IS NULL AND [l0].[Level1_Optional_Id] IS NULL)) AND (([l].[OneToOne_Optional_Self1Id] = [l0].[OneToMany_Optional_Self_Inverse2Id]) OR ([l].[OneToOne_Optional_Self1Id] IS NULL AND [l0].[OneToMany_Optional_Self_Inverse2Id] IS NULL))");
         }
 
         public override async Task Navigation_filter_navigation_grouping_ordering_by_group_key(bool isAsync)
@@ -2967,8 +2962,7 @@ WHERE (([l1].[Name] <> N'L1 07') OR [l1].[Name] IS NULL) AND [l1].[Id] IS NOT NU
             AssertSql(
                 @"SELECT [l].[Name]
 FROM [LevelTwo] AS [l]
-INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]
-WHERE [l0].[Id] = [l0].[Id]");
+INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]");
         }
 
         public override async Task Navigations_compared_to_each_other2(bool isAsync)
@@ -2980,7 +2974,7 @@ WHERE [l0].[Id] = [l0].[Id]");
 FROM [LevelTwo] AS [l]
 INNER JOIN [LevelOne] AS [l0] ON [l].[OneToMany_Required_Inverse2Id] = [l0].[Id]
 LEFT JOIN [LevelOne] AS [l1] ON [l].[OneToOne_Optional_PK_Inverse2Id] = [l1].[Id]
-WHERE ([l0].[Id] = [l1].[Id]) AND [l1].[Id] IS NOT NULL");
+WHERE [l0].[Id] = [l1].[Id]");
         }
 
         public override async Task Navigations_compared_to_each_other3(bool isAsync)
@@ -2993,7 +2987,7 @@ FROM [LevelTwo] AS [l]
 WHERE EXISTS (
     SELECT 1
     FROM [LevelThree] AS [l0]
-    WHERE ([l].[Id] = [l0].[OneToMany_Optional_Inverse3Id]) AND [l0].[OneToMany_Optional_Inverse3Id] IS NOT NULL)");
+    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse3Id])");
         }
 
         public override async Task Navigations_compared_to_each_other4(bool isAsync)
@@ -4185,7 +4179,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [LevelTwo] AS [l3]
     LEFT JOIN [LevelThree] AS [l4] ON [l3].[Id] = [l4].[OneToOne_Optional_PK_Inverse3Id]
-    WHERE (([l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]) AND [l3].[OneToMany_Optional_Inverse2Id] IS NOT NULL) AND (([l4].[Name] <> N'Foo') OR [l4].[Name] IS NULL)) > 0
+    WHERE ([l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]) AND (([l4].[Name] <> N'Foo') OR [l4].[Name] IS NULL)) > 0
 ORDER BY [l].[Id], [t].[Id]");
         }
 
@@ -4253,7 +4247,7 @@ WHERE ((
         WHERE [l1].[Level2_Required_Id] = [l2].[Id]
         ORDER BY [l1].[Id])
     FROM [LevelTwo] AS [l2]
-    WHERE ([l2].[Level1_Optional_Id] = [l].[Id]) AND [l2].[Level1_Optional_Id] IS NOT NULL
+    WHERE [l2].[Level1_Optional_Id] = [l].[Id]
     ORDER BY [l2].[Id]) <> N'Foo') OR (
     SELECT TOP(1) (
         SELECT TOP(1) (
@@ -4265,7 +4259,7 @@ WHERE ((
         WHERE [l1].[Level2_Required_Id] = [l2].[Id]
         ORDER BY [l1].[Id])
     FROM [LevelTwo] AS [l2]
-    WHERE ([l2].[Level1_Optional_Id] = [l].[Id]) AND [l2].[Level1_Optional_Id] IS NOT NULL
+    WHERE [l2].[Level1_Optional_Id] = [l].[Id]
     ORDER BY [l2].[Id]) IS NULL
 ORDER BY [l].[Id]");
         }
@@ -4317,7 +4311,7 @@ ORDER BY [l].[Id]");
             WHERE [l].[Level3_Required_Id] = [l0].[Id]
             ORDER BY [l].[Id])
         FROM [LevelThree] AS [l0]
-        WHERE ([l1].[Id] = [l0].[OneToMany_Optional_Inverse3Id]) AND [l0].[OneToMany_Optional_Inverse3Id] IS NOT NULL)
+        WHERE [l1].[Id] = [l0].[OneToMany_Optional_Inverse3Id])
     FROM [LevelTwo] AS [l1]
     WHERE [l1].[Level1_Required_Id] = [l2].[Id]
     ORDER BY [l1].[Id])
@@ -4336,19 +4330,15 @@ ORDER BY [l2].[Id]");
     WHERE (
         SELECT TOP(1) [l0].[Id]
         FROM [LevelTwo] AS [l0]
-        WHERE ([l2].[Id] = [l0].[OneToMany_Optional_Inverse2Id]) AND [l0].[OneToMany_Optional_Inverse2Id] IS NOT NULL
-        ORDER BY [l0].[Id]) IS NOT NULL AND ((((
+        WHERE [l2].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+        ORDER BY [l0].[Id]) IS NOT NULL AND (((
         SELECT TOP(1) [l1].[Id]
         FROM [LevelTwo] AS [l1]
-        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND [l1].[OneToMany_Optional_Inverse2Id] IS NOT NULL
-        ORDER BY [l1].[Id]) = [l].[OneToMany_Optional_Inverse3Id]) AND ((
+        WHERE [l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
+        ORDER BY [l1].[Id]) = [l].[OneToMany_Optional_Inverse3Id]) OR ((
         SELECT TOP(1) [l1].[Id]
         FROM [LevelTwo] AS [l1]
-        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND [l1].[OneToMany_Optional_Inverse2Id] IS NOT NULL
-        ORDER BY [l1].[Id]) IS NOT NULL AND [l].[OneToMany_Optional_Inverse3Id] IS NOT NULL)) OR ((
-        SELECT TOP(1) [l1].[Id]
-        FROM [LevelTwo] AS [l1]
-        WHERE ([l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]) AND [l1].[OneToMany_Optional_Inverse2Id] IS NOT NULL
+        WHERE [l2].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
         ORDER BY [l1].[Id]) IS NULL AND [l].[OneToMany_Optional_Inverse3Id] IS NULL))
     ORDER BY [l].[Id])
 FROM [LevelOne] AS [l2]");
@@ -4371,19 +4361,13 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Optional_Id]
 LEFT JOIN [LevelFour] AS [l2] ON [l1].[Id] = [l2].[Level3_Optional_Id]
-WHERE (CASE
+WHERE CASE
     WHEN [l0].[Id] IS NULL THEN NULL
     ELSE CASE
         WHEN [l1].[Id] IS NULL THEN NULL
         ELSE [l2].[Name]
     END
-END = N'L4 01') AND CASE
-    WHEN [l0].[Id] IS NULL THEN NULL
-    ELSE CASE
-        WHEN [l1].[Id] IS NULL THEN NULL
-        ELSE [l2].[Name]
-    END
-END IS NOT NULL");
+END = N'L4 01'");
         }
 
         public override async Task Union_over_entities_with_different_nullability(bool isAsync)

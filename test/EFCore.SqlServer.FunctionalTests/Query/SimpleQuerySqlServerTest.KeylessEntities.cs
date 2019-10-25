@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM (
     SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
 ) AS [c]
-WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = N'London'");
         }
 
         public override void KeylessEntity_by_database_view()
@@ -56,12 +56,12 @@ WHERE [p].[Discontinued] <> CAST(1 AS bit)");
 SELECT [c].[CompanyName], (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AS [OrderCount], @__ef_filter___searchTerm_0 AS [SearchTerm]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [OrderCount], @__ef_filter___searchTerm_0 AS [SearchTerm]
 FROM [Customers] AS [c]
-WHERE ((@__ef_filter___searchTerm_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND ((LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1) AND LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) IS NOT NULL))) AND ((
+WHERE ((@__ef_filter___searchTerm_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter___searchTerm_1)) = @__ef_filter___searchTerm_1))) AND ((
     SELECT COUNT(*)
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) > 0)");
+    WHERE [c].[CustomerID] = [o].[CustomerID]) > 0)");
         }
 
         public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
@@ -85,7 +85,7 @@ INNER JOIN (
 FROM (
     select * from ""Orders""
 ) AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
@@ -99,7 +99,7 @@ FROM (
 ) AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL
+WHERE [o].[CustomerID] = N'ALFKI'
 ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
@@ -113,7 +113,7 @@ FROM (
     select * from ""Orders""
 ) AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = N'Seattle'");
         }
 
         public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
@@ -129,7 +129,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] IS NOT NULL AND (([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL))");
+    WHERE [c].[CustomerID] IS NOT NULL AND ([c].[CustomerID] = [o0].[CustomerID]))");
         }
 
         [ConditionalFact]

@@ -4151,6 +4151,12 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
             return base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool isAsync)
+        {
+            return base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(isAsync);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
