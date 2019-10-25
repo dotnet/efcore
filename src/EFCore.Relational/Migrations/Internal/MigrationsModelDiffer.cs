@@ -1798,7 +1798,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         {
                             var sourceProperty = diffContext.FindSource(targetProperty);
                             if (sourceProperty == null
-                                || !sourceEntityType.GetProperties().Contains(sourceProperty))
+                                || !sourceEntityType.GetProperties().Contains(sourceProperty)
+                                || targetProperty.ValueGenerated != ValueGenerated.Never)
                             {
                                 continue;
                             }
@@ -1830,7 +1831,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 var convertedType = sourceConverter?.ProviderClrType
                                                     ?? targetConverter?.ProviderClrType;
 
-                                var storeValuesChanged = convertedSourceValue?.GetType().UnwrapNullableType() != convertedTargetValue?.GetType().UnwrapNullableType();
+                                if (convertedType != null
+                                    && !convertedType.IsNullableType())
+                                {
+                                    var defaultValue = convertedType.GetDefaultValue();
+                                    convertedSourceValue ??= defaultValue;
+                                    convertedTargetValue ??= defaultValue;
+                                }
+
+                                var storeValuesChanged = convertedSourceValue?.GetType().UnwrapNullableType()
+                                    != convertedTargetValue?.GetType().UnwrapNullableType();
 
                                 if (!storeValuesChanged
                                     && convertedType != null)

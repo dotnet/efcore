@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
-        public void Model_differ_detects_changing_store_type_to_conversions()
+        public void Model_differ_detects_changing_store_type_with_conversions()
         {
             Execute(
                 _ => { },
@@ -6714,6 +6714,68 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             .HasConversion(e => e.ToString(), e => int.Parse(e));
                         x.HasData(
                             new { Id = 42, Value1 = 32 });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [ConditionalFact]
+        public void SeedData_nonkey_refactoring_value_conversion_to_value_type()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithOneProperty",
+                    x => x.Property<int>("Id")),
+                source => source.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<DateTime>("Value1");
+                        x.HasData(
+                            new { Id = 42 });
+                    }),
+                target => target.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<byte[]>("Value1")
+                            .IsRequired()
+                            .HasConversion(e => new DateTime(), e => new byte[0]);
+                        x.HasData(
+                            new { Id = 42 });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [ConditionalFact]
+        public void SeedData_nonkey_refactoring_value_conversion_to_value_type_store_generated()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithOneProperty",
+                    x => x.Property<int>("Id")),
+                source => source.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<DateTime>("Value1")
+                            .ValueGeneratedOnAddOrUpdate()
+                            .IsConcurrencyToken();
+                        x.HasData(
+                            new { Id = 42, Value1 = DateTime.Now });
+                    }),
+                target => target.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<byte[]>("Value1")
+                            .IsRequired()
+                            .ValueGeneratedOnAddOrUpdate()
+                            .IsConcurrencyToken()
+                            .HasConversion(e => new DateTime(), e => new byte[0]);
+                        x.HasData(
+                            new { Id = 42, Value1 = new byte[0] });
                     }),
                 Assert.Empty,
                 Assert.Empty);
