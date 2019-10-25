@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ValidateQueryFilters(model, logger);
             ValidateDefiningQuery(model, logger);
             ValidateData(model, logger);
+            ValidateTypeMappings(model, logger);
             LogShadowProperties(model, logger);
         }
 
@@ -803,6 +804,37 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         errorMessage: out errorMessage))
                     {
                         throw new InvalidOperationException(errorMessage);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Validates the type mapping of properties the model.
+        /// </summary>
+        /// <param name="model"> The model to validate. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateTypeMappings(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(logger, nameof(logger));
+
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    var converter = property.GetValueConverter();
+                    if (converter != null
+                        && property.GetValueComparer() == null)
+                    {
+                        var type = converter.ModelClrType;
+                        if (type != typeof(string)
+                            && !(type == typeof(byte[]) && property.IsKey()) // Already special-cased elsewhere
+                            && type.TryGetSequenceType() != null)
+                        {
+                            logger.CollectionWithoutComparer(property);
+                        }
                     }
                 }
             }
