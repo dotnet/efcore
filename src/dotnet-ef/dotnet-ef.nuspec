@@ -5,9 +5,6 @@
     <packageTypes>
       <packageType name="$packageType$" />
     </packageTypes>
-    <dependencies>
-      <group targetFramework=".NETCoreApp3.1" />
-    </dependencies>
     <icon>packageIcon.png</icon>
   </metadata>
 
