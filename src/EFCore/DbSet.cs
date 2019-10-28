@@ -44,6 +44,30 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
+        ///         Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
+        ///     </para>
+        ///     <para>
+        ///         This is a convenience method to help with disambiguation of extension methods in the same
+        ///         namespace that extend both interfaces.
+        ///     </para>
+        /// </summary>
+        /// <returns> This object. </returns>
+        public virtual IAsyncEnumerable<TEntity> AsAsyncEnumerable() => this;
+
+        /// <summary>
+        ///     <para>
+        ///         Returns this object typed as <see cref="IQueryable{T}" />.
+        ///     </para>
+        ///     <para>
+        ///         This is a convenience method to help with disambiguation of extension methods in the same
+        ///         namespace that extend both interfaces.
+        ///     </para>
+        /// </summary>
+        /// <returns> This object. </returns>
+        public virtual IQueryable<TEntity> AsQueryable() => this;
+
+        /// <summary>
+        ///     <para>
         ///         Gets an <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
         ///         and Modified entities in this set.
         ///     </para>
