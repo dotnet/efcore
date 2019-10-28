@@ -447,8 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool EntityTypeShouldHaveDefiningNavigation(in TypeIdentity type)
             => _entityTypesWithDefiningNavigation.ContainsKey(type.Name)
-               || (_detachedEntityTypesWithDefiningNavigation.TryGetValue(type.Name, out var detachedTypes)
-                   && detachedTypes.Count > 1);
+                || (_detachedEntityTypesWithDefiningNavigation.TryGetValue(type.Name, out var detachedTypes)
+                    && detachedTypes.Count > 1);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

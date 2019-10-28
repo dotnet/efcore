@@ -20,8 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 {
                     Assert.True(
                         group.Key == null || group.Count() == 1,
-                        "Duplicate short names on command '" + GetFullName(command) + "': " +
-                        string.Join("; ", group.Select(o => o.Template)));
+                        "Duplicate short names on command '"
+                        + GetFullName(command)
+                        + "': "
+                        + string.Join("; ", group.Select(o => o.Template)));
                 }
             }
         }

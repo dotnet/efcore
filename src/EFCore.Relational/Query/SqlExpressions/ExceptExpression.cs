@@ -48,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ExceptExpression exceptExpression
-                   && Equals(exceptExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ExceptExpression exceptExpression
+                    && Equals(exceptExpression));
 
         private bool Equals(ExceptExpression exceptExpression)
             => base.Equals(exceptExpression);

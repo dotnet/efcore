@@ -207,11 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = new CSharpHelper(TypeMappingSource).Literal(value);
 
             Assert.Equal(
-                "new object[,]" + EOL +
-                "{" + EOL +
-                "    { 'A', 1 }," + EOL +
-                "    { 'B', 2 }" + EOL +
-                "}",
+                "new object[,]" + EOL + "{" + EOL + "    { 'A', 1 }," + EOL + "    { 'B', 2 }" + EOL + "}",
                 result);
         }
 

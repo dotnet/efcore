@@ -16,10 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             private static readonly ConcurrentDictionary<object, object> _syncObjects
                 = new ConcurrentDictionary<object, object>();
-            private readonly IMemoryCache _memoryCache;
 
-            private readonly ISqlExpressionFactory _sqlExpressionFactory;
-            private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+            private readonly IMemoryCache _memoryCache;
             private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
             private readonly SelectExpression _selectExpression;
             private readonly ParameterValueBasedSelectExpressionOptimizer _parameterValueBasedSelectExpressionOptimizer;
@@ -33,18 +31,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SelectExpression selectExpression)
             {
                 _memoryCache = memoryCache;
-                _sqlExpressionFactory = sqlExpressionFactory;
-                _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
                 _querySqlGeneratorFactory = querySqlGeneratorFactory;
                 _selectExpression = selectExpression;
 
                 _parameterValueBasedSelectExpressionOptimizer = new ParameterValueBasedSelectExpressionOptimizer(
-                    _sqlExpressionFactory,
-                    _parameterNameGeneratorFactory,
+                    sqlExpressionFactory,
+                    parameterNameGeneratorFactory,
                     useRelationalNulls);
             }
 
-            public virtual IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object> parameters)
+            public IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object> parameters)
             {
                 var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
@@ -58,11 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     try
                     {
-                        var optimizeResult = _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
-                        var selectExpression = 
-                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(optimizeResult.selectExpression);
+                        var (selectExpression, canCache) =
+                            _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
+                        relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
 
-                        if (optimizeResult.canCache)
+                        if (canCache)
                         {
                             _memoryCache.Set(cacheKey, relationalCommand, new MemoryCacheEntryOptions { Size = 10 });
                         }
@@ -78,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private readonly struct CommandCacheKey
             {
-                public readonly SelectExpression _selectExpression;
-                public readonly IReadOnlyDictionary<string, object> _parameterValues;
+                private readonly SelectExpression _selectExpression;
+                private readonly IReadOnlyDictionary<string, object> _parameterValues;
 
                 public CommandCacheKey(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parameterValues)
                 {
@@ -89,9 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 public override bool Equals(object obj)
                     => obj != null
-                       && (ReferenceEquals(this, obj)
-                           || obj is CommandCacheKey commandCacheKey
-                           && Equals(commandCacheKey));
+                        && (obj is CommandCacheKey commandCacheKey
+                            && Equals(commandCacheKey));
 
                 private bool Equals(CommandCacheKey commandCacheKey)
                 {
@@ -105,14 +100,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         foreach (var parameterValue in _parameterValues)
                         {
                             var value = parameterValue.Value;
-
                             if (!commandCacheKey._parameterValues.TryGetValue(parameterValue.Key, out var otherValue))
                             {
                                 return false;
                             }
 
-                            if (value == null
-                                != (otherValue == null))
+                            // ReSharper disable once ArrangeRedundantParentheses
+                            if ((value == null) != (otherValue == null))
                             {
                                 return false;
                             }

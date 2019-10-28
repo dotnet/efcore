@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -158,9 +157,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             selectExpression.PrepareForAggregate();
 
             var newSelector = selector == null
-                              || selector.Body == selector.Parameters[0]
-                ? selectExpression.GetMappedProjection(new ProjectionMember())
-                : RemapLambdaBody(source, selector);
+                || selector.Body == selector.Parameters[0]
+                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateAverage(newSelector);
             return projection != null
@@ -257,7 +256,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return source;
         }
 
-        protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault)
+        protected override ShapedQueryExpression TranslateElementAtOrDefault(
+            ShapedQueryExpression source, Expression index, bool returnDefault)
             => null;
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
@@ -320,10 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var original2 = resultSelector.Parameters[1];
 
                 var newResultSelectorBody = new ReplacingExpressionVisitor(
-                        new Dictionary<Expression, Expression>
-                            {
-                                { original1, translatedKey }, { original2, source.ShaperExpression }
-                            })
+                        new Dictionary<Expression, Expression> { { original1, translatedKey }, { original2, source.ShaperExpression } })
                     .Visit(resultSelector.Body);
 
                 newResultSelectorBody = ExpandWeakEntities(selectExpression, newResultSelectorBody);
@@ -587,10 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>
-            {
-                { new ProjectionMember(), translation }
-            };
+            var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
@@ -605,9 +599,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             selectExpression.PrepareForAggregate();
 
             var newSelector = selector == null
-                              || selector.Body == selector.Parameters[0]
-                ? selectExpression.GetMappedProjection(new ProjectionMember())
-                : RemapLambdaBody(source, selector);
+                || selector.Body == selector.Parameters[0]
+                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateMax(newSelector);
 
@@ -620,9 +614,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             selectExpression.PrepareForAggregate();
 
             var newSelector = selector == null
-                              || selector.Body == selector.Parameters[0]
-                ? selectExpression.GetMappedProjection(new ProjectionMember())
-                : RemapLambdaBody(source, selector);
+                || selector.Body == selector.Parameters[0]
+                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateMin(newSelector);
 
@@ -891,9 +885,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.PrepareForAggregate();
             var newSelector = selector == null
-                              || selector.Body == selector.Parameters[0]
-                ? selectExpression.GetMappedProjection(new ProjectionMember())
-                : RemapLambdaBody(source, selector);
+                || selector.Body == selector.Parameters[0]
+                    ? selectExpression.GetMappedProjection(new ProjectionMember())
+                    : RemapLambdaBody(source, selector);
 
             var projection = _sqlTranslator.TranslateSum(newSelector);
             return projection != null

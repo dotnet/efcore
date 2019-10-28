@@ -71,11 +71,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
 
             var brob1 = new BaseReferenceOnBase
             {
-                Name = "BROB1", NestedReference = nrb1, NestedCollection = new List<NestedCollectionBase> { ncb11 }
+                Name = "BROB1",
+                NestedReference = nrb1,
+                NestedCollection = new List<NestedCollectionBase> { ncb11 }
             };
             var brob2 = new BaseReferenceOnBase
             {
-                Name = "BROB2", NestedReference = nrd1, NestedCollection = new List<NestedCollectionBase> { ncd11 }
+                Name = "BROB2",
+                NestedReference = nrd1,
+                NestedCollection = new List<NestedCollectionBase> { ncd11 }
             };
             var brob3 = new BaseReferenceOnBase { Name = "BROB3 (dangling)" };
 
@@ -83,11 +87,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
 
             var drob1 = new DerivedReferenceOnBase
             {
-                Name = "DROB1", NestedReference = nrb2, NestedCollection = new List<NestedCollectionBase> { ncb21, ncb22 }
+                Name = "DROB1",
+                NestedReference = nrb2,
+                NestedCollection = new List<NestedCollectionBase> { ncb21, ncb22 }
             };
             var drob2 = new DerivedReferenceOnBase
             {
-                Name = "DROB2", NestedReference = nrd2, NestedCollection = new List<NestedCollectionBase> { ncd21 }
+                Name = "DROB2",
+                NestedReference = nrd2,
+                NestedCollection = new List<NestedCollectionBase> { ncd21 }
             };
             var drob3 = new DerivedReferenceOnBase { Name = "DROB3" };
             var drob4 = new DerivedReferenceOnBase
@@ -109,16 +117,22 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationships
 
             var bcob11 = new BaseCollectionOnBase
             {
-                Name = "BCOB11", NestedReference = nrb1, NestedCollection = new List<NestedCollectionBase> { ncb11 }
+                Name = "BCOB11",
+                NestedReference = nrb1,
+                NestedCollection = new List<NestedCollectionBase> { ncb11 }
             };
             var bcob12 = new BaseCollectionOnBase
             {
-                Name = "BCOB12", NestedReference = nrd1, NestedCollection = new List<NestedCollectionBase> { ncd11 }
+                Name = "BCOB12",
+                NestedReference = nrd1,
+                NestedCollection = new List<NestedCollectionBase> { ncd11 }
             };
             var bcob21 = new BaseCollectionOnBase { Name = "BCOB21" };
             var bcob31 = new BaseCollectionOnBase
             {
-                Name = "BCOB31 (dangling)", NestedReference = nrb2, NestedCollection = new List<NestedCollectionBase> { ncb21, ncb22 }
+                Name = "BCOB31 (dangling)",
+                NestedReference = nrb2,
+                NestedCollection = new List<NestedCollectionBase> { ncb21, ncb22 }
             };
             var bcob32 = new BaseCollectionOnBase { Name = "BCOB32 (dangling)" };
 

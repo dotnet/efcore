@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public ListLoggerFactory ListLoggerFactory
             => _listLoggerFactory
-               ?? (_listLoggerFactory = (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>());
+                ?? (_listLoggerFactory = (ListLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>());
 
         protected ServiceProviderFixtureBase()
         {

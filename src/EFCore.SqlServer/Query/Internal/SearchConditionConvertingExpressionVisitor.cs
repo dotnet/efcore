@@ -203,13 +203,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             sqlBinaryExpression = sqlBinaryExpression.Update(newLeft, newRight);
             var condition = sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                            || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
-                            || sqlBinaryExpression.OperatorType == ExpressionType.Equal
-                            || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                            || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
-                            || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
-                            || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
-                            || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual;
+                || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
+                || sqlBinaryExpression.OperatorType == ExpressionType.Equal
+                || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
+                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
+                || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
+                || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual;
 
             return ApplyConversion(sqlBinaryExpression, condition);
         }
@@ -272,7 +272,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             var newFunction = sqlFunctionExpression.Update(instance, arguments);
 
             var condition = string.Equals(sqlFunctionExpression.Name, "FREETEXT")
-                            || string.Equals(sqlFunctionExpression.Name, "CONTAINS");
+                || string.Equals(sqlFunctionExpression.Name, "CONTAINS");
 
             return ApplyConversion(newFunction, condition);
         }

@@ -35,9 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(10, actual.Length);
 
-            Assert.Contains(actual, mep =>
-                mep.TenMostExpensiveProducts == "Côte de Blaye"
-                && mep.UnitPrice == 263.50m);
+            Assert.Contains(
+                actual, mep =>
+                    mep.TenMostExpensiveProducts == "Côte de Blaye"
+                    && mep.UnitPrice == 263.50m);
         }
 
         [ConditionalTheory]
@@ -57,9 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(10, actual.Length);
 
-            Assert.Contains(actual, mep =>
-                mep.TenMostExpensiveProducts == "Côte de Blaye"
-                && mep.UnitPrice == 263.50m);
+            Assert.Contains(
+                actual, mep =>
+                    mep.TenMostExpensiveProducts == "Côte de Blaye"
+                    && mep.UnitPrice == 263.50m);
         }
 
         [ConditionalTheory]
@@ -97,8 +99,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 RelationalStrings.FromSqlNonComposable,
                 (async
-                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
-                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -136,9 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(11, actual.Length);
 
-            Assert.Contains(actual, coh =>
-                coh.ProductName == "Aniseed Syrup"
-                && coh.Total == 6);
+            Assert.Contains(
+                actual, coh =>
+                    coh.ProductName == "Aniseed Syrup"
+                    && coh.Total == 6);
         }
 
         [ConditionalTheory]
@@ -156,8 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 RelationalStrings.FromSqlNonComposable,
                 (async
-                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
-                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -198,8 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 RelationalStrings.FromSqlNonComposable,
                 (async
-                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
-                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -239,8 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 RelationalStrings.FromSqlNonComposable,
                 (async
-                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
-                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -277,8 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 RelationalStrings.FromSqlNonComposable,
                 (async
-                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync(mep => mep.UnitPrice))
-                 : Assert.Throws<InvalidOperationException>(() => query.Min(mep => mep.UnitPrice))).Message);
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync(mep => mep.UnitPrice))
+                    : Assert.Throws<InvalidOperationException>(() => query.Min(mep => mep.UnitPrice))).Message);
         }
 
         [ConditionalTheory]
@@ -311,8 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 RelationalStrings.FromSqlNonComposable,
                 (async
-                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
-                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -331,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(
                 RelationalStrings.FromSqlNonComposable,
                 (async
-                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
-                 : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]

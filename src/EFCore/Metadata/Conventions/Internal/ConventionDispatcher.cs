@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {

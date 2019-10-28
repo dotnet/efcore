@@ -128,8 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     if (referencingForeignKey.PrincipalEntityType.IsAssignableFrom(entityType)
                         && entityTypes.Contains(referencingForeignKey.DeclaringEntityType)
                         && !referencingForeignKey.IsIntraHierarchical()
-                        && PropertyListComparer.Instance.Compare(
-                            referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties, referencingForeignKey.Properties) == 0)
+                        && (PropertyListComparer.Instance.Compare(
+                                referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties,
+                                referencingForeignKey.Properties)
+                            == 0))
                     {
                         dependentList.Add(referencingForeignKey.DeclaringEntityType);
                     }

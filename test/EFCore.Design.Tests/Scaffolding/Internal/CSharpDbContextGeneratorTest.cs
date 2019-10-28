@@ -43,7 +43,9 @@ namespace TestNamespace
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning " + DesignStrings.SensitiveInformationWarning + @"
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
                 optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
@@ -197,15 +199,15 @@ namespace TestNamespace
         [ConditionalFact]
         public void ModelInDiferentNamespaceDbContext_works()
         {
-            var modelGenerationOptions = new ModelCodeGenerationOptions()
+            var modelGenerationOptions = new ModelCodeGenerationOptions
             {
-                ContextNamespace = "TestNamespace",
-                ModelNamespace = "AnotherNamespaceOfModel"
+                ContextNamespace = "TestNamespace", ModelNamespace = "AnotherNamespaceOfModel"
             };
 
             const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
 
-            Test(modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+            Test(
+                modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
                 , modelGenerationOptions
                 , code => Assert.Contains(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
                 , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))
@@ -215,14 +217,12 @@ namespace TestNamespace
         [ConditionalFact]
         public void ModelSameNamespaceDbContext_works()
         {
-            var modelGenerationOptions = new ModelCodeGenerationOptions()
-            {
-                ContextNamespace = "TestNamespace",
-            };
+            var modelGenerationOptions = new ModelCodeGenerationOptions { ContextNamespace = "TestNamespace" };
 
             const string entityInAnoterNamespaceTypeName = "EntityInAnotherNamespace";
 
-            Test(modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
+            Test(
+                modelBuilder => modelBuilder.Entity(entityInAnoterNamespaceTypeName)
                 , modelGenerationOptions
                 , code => Assert.DoesNotContain(string.Concat("using ", modelGenerationOptions.ModelNamespace, ";"), code.ContextFile.Code)
                 , model => Assert.NotNull(model.FindEntityType(string.Concat(modelGenerationOptions.ModelNamespace, ".", entityInAnoterNamespaceTypeName)))

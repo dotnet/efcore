@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsNullConstantExpression([NotNull] this Expression expression)
             => RemoveConvert(expression) is ConstantExpression constantExpression
-               && constantExpression.Value == null;
+                && constantExpression.Value == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -132,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Check.NotNull(expression, nameof(expression));
 
             return expression.NodeType == ExpressionType.AndAlso
-                   || expression.NodeType == ExpressionType.OrElse;
+                || expression.NodeType == ExpressionType.OrElse;
         }
 
         /// <summary>
@@ -143,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
-               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

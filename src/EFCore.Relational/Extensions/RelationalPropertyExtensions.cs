@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name of the column to which the property is mapped. </returns>
         public static string GetColumnName([NotNull] this IProperty property)
             => (string)property[RelationalAnnotationNames.ColumnName]
-               ?? GetDefaultColumnName(property);
+                ?? GetDefaultColumnName(property);
 
         /// <summary>
         ///     Returns the default column name to which the property would be mapped.
@@ -428,9 +428,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>True</c> if the mapped column is nullable; <c>false</c> otherwise. </returns>
         public static bool IsColumnNullable([NotNull] this IProperty property)
             => !property.IsPrimaryKey()
-               && (property.DeclaringEntityType.BaseType != null
-                   || property.IsNullable
-                   || IsTableSplitting(property.DeclaringEntityType));
+                && (property.DeclaringEntityType.BaseType != null
+                    || property.IsNullable
+                    || IsTableSplitting(property.DeclaringEntityType));
 
         private static bool IsTableSplitting(IEntityType entityType)
             => entityType.FindPrimaryKey()?.Properties[0].FindSharedTableLink() != null;

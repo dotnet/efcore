@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
+// ReSharper disable RedundantBoolCompare
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>
@@ -574,7 +575,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from e in ss.Set<Employee>()
                       where EF.Property<string>(e, "Title")
-                          == EF.Property<string>(ss.Set<Employee>().OrderBy(e2 => EF.Property<string>(e2, "Title")).FirstOrDefault(), "Title")
+                          == EF.Property<string>(
+                              ss.Set<Employee>().OrderBy(e2 => EF.Property<string>(e2, "Title")).FirstOrDefault(), "Title")
                       select e,
                 entryCount: 1);
         }
@@ -1091,9 +1093,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
                     where c.City == "London"
-                          || c.City == "Berlin"
-                          || c.CustomerID == "ALFKI"
-                          || c.CustomerID == "ABCDE"
+                        || c.City == "Berlin"
+                        || c.CustomerID == "ALFKI"
+                        || c.CustomerID == "ABCDE"
                     select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 16);
@@ -1109,7 +1111,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
                     where c.City != "London"
-                          && e.City != "London"
+                        && e.City != "London"
                     select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 90);
@@ -1125,7 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
                     where c.City != "London"
-                          && c.City != "Berlin"
+                        && c.City != "Berlin"
                     select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 93);
@@ -1141,8 +1143,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
                     where c.City != "London"
-                          && c.City != "Berlin"
-                          && c.City != "Seattle"
+                        && c.City != "Berlin"
+                        && c.City != "Seattle"
                     select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 92);
@@ -1158,9 +1160,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
                     where c.City != "London"
-                          && c.City != "Berlin"
-                          && c.City != "Seattle"
-                          && c.City != "Lisboa"
+                        && c.City != "Berlin"
+                        && c.City != "Seattle"
+                        && c.City != "Lisboa"
                     select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
                 entryCount: 90);
@@ -1175,10 +1177,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss =>
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
-                        // ReSharper disable ArrangeRedundantParentheses
+                    // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                     where (c.City == "London" && c.Country == "UK")
-                          && (e.City == "London" && e.Country == "UK")
+                        && (e.City == "London" && e.Country == "UK")
 #pragma warning restore RCS1032 // Remove redundant parentheses.
                     select new { c, e },
                 e => e.c.CustomerID + " " + e.e.EmployeeID,
@@ -1652,7 +1654,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => new { x = c.City } == new { x = "London" }));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) == { x = London, y = UK })'")]
+        [ConditionalTheory(
+            Skip =
+                "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) == { x = London, y = UK })'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_multi_value_equal(bool isAsync)
         {
@@ -1662,7 +1666,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) != { x = London, y = UK })'")]
+        [ConditionalTheory(
+            Skip =
+                "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) != { x = London, y = UK })'")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_multi_value_not_equal(bool isAsync)
         {
@@ -1688,7 +1694,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => new Tuple<string, string>(c.City, c.Country) == new Tuple<string, string>("London", "UK")));
+                ss => ss.Set<Customer>().Where(
+                    c => new Tuple<string, string>(c.City, c.Country) == new Tuple<string, string>("London", "UK")));
         }
 
         [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new Tuple`2(Item1 = [c].City, Item2 = [c].Country) != (London, UK))'")]
@@ -1697,7 +1704,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => new Tuple<string, string>(c.City, c.Country) != new Tuple<string, string>("London", "UK")),
+                ss => ss.Set<Customer>().Where(
+                    c => new Tuple<string, string>(c.City, c.Country) != new Tuple<string, string>("London", "UK")),
                 entryCount: 91);
         }
 
@@ -1931,10 +1939,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Generic_Ilist_contains_translates_to_server(bool isAsync)
         {
-            var cities = new List<string>
-            {
-                "Seattle"
-            } as IList<string>;
+            var cities = new List<string> { "Seattle" } as IList<string>;
 
             return AssertQuery(
                 isAsync,
@@ -1952,7 +1957,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length == 0),
+                ss => ss.Set<Customer>().Where(
+                    c => ss.Set<Order>().Where(o => o.CustomerID == "John Doe").Select(o => o.CustomerID).FirstOrDefault().Length == 0),
                 ss => ss.Set<Customer>().Where(c => false));
         }
 

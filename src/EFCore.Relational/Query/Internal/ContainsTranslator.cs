@@ -28,11 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (method.Name == nameof(IList.Contains)
                 && arguments.Count == 1
-                && method.DeclaringType.GetInterfaces().Append(method.DeclaringType)
-                    .Any(
-                        t => t == typeof(IList)
-                             || t.IsGenericType
-                             && t.GetGenericTypeDefinition() == typeof(ICollection<>)))
+                && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
+                    t => t == typeof(IList)
+                        || (t.IsGenericType
+                            && t.GetGenericTypeDefinition() == typeof(ICollection<>))))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, negated: false);
             }

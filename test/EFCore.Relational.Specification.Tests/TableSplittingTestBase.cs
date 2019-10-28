@@ -183,22 +183,32 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder =>
                 {
                     OnModelCreating(modelBuilder);
-                    modelBuilder.Entity<Vehicle>(vb => {
-                        vb.Property(v => v.SeatingCapacity).HasColumnName("SeatingCapacity");
-                    });
-                    modelBuilder.Entity<Engine>(cb =>
-                    {
-                        cb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity");
-                    });
-                    modelBuilder.Entity<FuelTank>(fb =>
-                    {
-                        fb.Ignore(f => f.Engine);
-                    });
+                    modelBuilder.Entity<Vehicle>(
+                        vb =>
+                        {
+                            vb.Property(v => v.SeatingCapacity).HasColumnName("SeatingCapacity");
+                        });
+                    modelBuilder.Entity<Engine>(
+                        cb =>
+                        {
+                            cb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity");
+                        });
+                    modelBuilder.Entity<FuelTank>(
+                        fb =>
+                        {
+                            fb.Ignore(f => f.Engine);
+                        });
                 }, seed: false))
             {
                 using (var context = CreateContext())
                 {
-                    var scooterEntry = context.Add(new PoweredVehicle { Name = "Electric scooter", SeatingCapacity = 1, Engine = new Engine() });
+                    var scooterEntry = context.Add(
+                        new PoweredVehicle
+                        {
+                            Name = "Electric scooter",
+                            SeatingCapacity = 1,
+                            Engine = new Engine()
+                        });
 
                     scooterEntry.Reference(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue = 1;
 
@@ -320,7 +330,12 @@ namespace Microsoft.EntityFrameworkCore
                             Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
                         });
                     context.Add(
-                        new FuelTank { Capacity = "10000 l", FuelType = "Gas", VehicleName = "Fuel transport" });
+                        new FuelTank
+                        {
+                            Capacity = "10000 l",
+                            FuelType = "Gas",
+                            VehicleName = "Fuel transport"
+                        });
 
                     context.SaveChanges();
                 }
@@ -398,7 +413,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var bike = context.Vehicles.Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    var newBike = new Vehicle { Name = "Trek Pro Fit Madone 6 Series", Operator = bike.Operator, SeatingCapacity = 2 };
+                    var newBike = new Vehicle
+                    {
+                        Name = "Trek Pro Fit Madone 6 Series",
+                        Operator = bike.Operator,
+                        SeatingCapacity = 2
+                    };
 
                     context.Remove(bike);
                     context.Add(newBike);
@@ -504,13 +524,14 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c =>
-            {
-                if (seed)
+            TestStore.Initialize(
+                ServiceProvider, CreateContext, c =>
                 {
-                    ((TransportationContext)c).Seed();
-                }
-            });
+                    if (seed)
+                    {
+                        ((TransportationContext)c).Seed();
+                    }
+                });
 
             TestSqlLoggerFactory.Clear();
 

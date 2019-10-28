@@ -16,10 +16,9 @@ namespace Microsoft.EntityFrameworkCore
             typeof(FunkyDataQueryTestBase<>),
             typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>),
-            typeof(ConferencePlannerTestBase<>),
+            typeof(ConferencePlannerTestBase<>)
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;
     }
 }
-

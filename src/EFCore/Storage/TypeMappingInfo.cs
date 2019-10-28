@@ -235,12 +235,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public bool Equals(TypeMappingInfo other)
             => ClrType == other.ClrType
-               && IsKeyOrIndex == other.IsKeyOrIndex
-               && Size == other.Size
-               && IsUnicode == other.IsUnicode
-               && IsRowVersion == other.IsRowVersion
-               && Precision == other.Precision
-               && Scale == other.Scale;
+                && IsKeyOrIndex == other.IsKeyOrIndex
+                && Size == other.Size
+                && IsUnicode == other.IsUnicode
+                && IsRowVersion == other.IsRowVersion
+                && Precision == other.Precision
+                && Scale == other.Scale;
 
         /// <summary>
         ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -249,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public override bool Equals(object obj)
             => obj != null
-               && obj.GetType() == GetType()
-               && Equals((TypeMappingInfo)obj);
+                && obj.GetType() == GetType()
+                && Equals((TypeMappingInfo)obj);
 
         /// <summary>
         ///     Returns a hash code for this object.

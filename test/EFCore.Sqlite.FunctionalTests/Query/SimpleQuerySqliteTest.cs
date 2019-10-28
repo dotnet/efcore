@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1312,7 +1311,8 @@ FROM (
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
 
-        public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync) => null;
+        public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync)
+            => null;
 
         public override Task SelectMany_correlated_subquery_hard(bool isAsync) => null;
 

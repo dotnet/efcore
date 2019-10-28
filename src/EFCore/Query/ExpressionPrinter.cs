@@ -524,7 +524,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return memberInitExpression;
         }
 
-        private static readonly List<string> _simpleMethods = new List<string> { "get_Item", "TryReadValue", "ReferenceEquals" };
+        private static readonly List<string> _simpleMethods = new List<string>
+        {
+            "get_Item",
+            "TryReadValue",
+            "ReferenceEquals"
+        };
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

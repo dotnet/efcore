@@ -170,19 +170,66 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 context.Database.EnsureCreatedResiliently();
 
-                var order11 = new Order { Name = "Order11", ItemCount = 4, OrderDate = new DateTime(2000, 1, 20) };
-                var order12 = new Order { Name = "Order12", ItemCount = 8, OrderDate = new DateTime(2000, 2, 21) };
-                var order13 = new Order { Name = "Order13", ItemCount = 15, OrderDate = new DateTime(2000, 3, 20) };
-                var order21 = new Order { Name = "Order21", ItemCount = 16, OrderDate = new DateTime(2000, 4, 21) };
-                var order22 = new Order { Name = "Order22", ItemCount = 23, OrderDate = new DateTime(2000, 5, 20) };
-                var order31 = new Order { Name = "Order31", ItemCount = 42, OrderDate = new DateTime(2000, 6, 21) };
+                var order11 = new Order
+                {
+                    Name = "Order11",
+                    ItemCount = 4,
+                    OrderDate = new DateTime(2000, 1, 20)
+                };
+                var order12 = new Order
+                {
+                    Name = "Order12",
+                    ItemCount = 8,
+                    OrderDate = new DateTime(2000, 2, 21)
+                };
+                var order13 = new Order
+                {
+                    Name = "Order13",
+                    ItemCount = 15,
+                    OrderDate = new DateTime(2000, 3, 20)
+                };
+                var order21 = new Order
+                {
+                    Name = "Order21",
+                    ItemCount = 16,
+                    OrderDate = new DateTime(2000, 4, 21)
+                };
+                var order22 = new Order
+                {
+                    Name = "Order22",
+                    ItemCount = 23,
+                    OrderDate = new DateTime(2000, 5, 20)
+                };
+                var order31 = new Order
+                {
+                    Name = "Order31",
+                    ItemCount = 42,
+                    OrderDate = new DateTime(2000, 6, 21)
+                };
 
                 var customer1 = new Customer
                 {
-                    FirstName = "Customer", LastName = "One", Orders = new List<Order> { order11, order12, order13 }
+                    FirstName = "Customer",
+                    LastName = "One",
+                    Orders = new List<Order>
+                    {
+                        order11,
+                        order12,
+                        order13
+                    }
                 };
-                var customer2 = new Customer { FirstName = "Customer", LastName = "Two", Orders = new List<Order> { order21, order22 } };
-                var customer3 = new Customer { FirstName = "Customer", LastName = "Three", Orders = new List<Order> { order31 } };
+                var customer2 = new Customer
+                {
+                    FirstName = "Customer",
+                    LastName = "Two",
+                    Orders = new List<Order> { order21, order22 }
+                };
+                var customer3 = new Customer
+                {
+                    FirstName = "Customer",
+                    LastName = "Three",
+                    Orders = new List<Order> { order31 }
+                };
 
                 ((UDFSqlContext)context).Customers.AddRange(customer1, customer2, customer3);
                 ((UDFSqlContext)context).Orders.AddRange(order11, order12, order13, order21, order22, order31);
@@ -334,8 +381,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var period = UDFSqlContext.ReportingPeriod.Winter;
 
             var custId = (from c in context.Customers
-                          where c.Id == UDFSqlContext.GetCustomerWithMostOrdersAfterDateStatic(
-                                    UDFSqlContext.GetReportingPeriodStartDateStatic(period))
+                          where c.Id
+                              == UDFSqlContext.GetCustomerWithMostOrdersAfterDateStatic(
+                                  UDFSqlContext.GetReportingPeriodStartDateStatic(period))
                           select c.Id).SingleOrDefault();
 
             Assert.Equal(1, custId);
@@ -347,9 +395,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
 
             var custId = (from c in context.Customers
-                          where c.Id == UDFSqlContext.GetCustomerWithMostOrdersAfterDateStatic(
-                                    UDFSqlContext.GetReportingPeriodStartDateStatic(
-                                        UDFSqlContext.ReportingPeriod.Winter))
+                          where c.Id
+                              == UDFSqlContext.GetCustomerWithMostOrdersAfterDateStatic(
+                                  UDFSqlContext.GetReportingPeriodStartDateStatic(
+                                      UDFSqlContext.ReportingPeriod.Winter))
                           select c.Id).SingleOrDefault();
 
             Assert.Equal(1, custId);
@@ -617,10 +666,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var custName = (from c in context.Customers
                             where c.Id == 1
-                            select new
-                            {
-                                Id = context.StarValueInstance(4, c.Id), LastName = context.DollarValueInstance(2, c.LastName)
-                            }).Single();
+                            select new { Id = context.StarValueInstance(4, c.Id), LastName = context.DollarValueInstance(2, c.LastName) })
+                .Single();
 
             Assert.Equal("$$One", custName.LastName);
         }
@@ -761,8 +808,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var period = UDFSqlContext.ReportingPeriod.Winter;
 
             var custId = (from c in context.Customers
-                          where c.Id == context.GetCustomerWithMostOrdersAfterDateInstance(
-                                    context.GetReportingPeriodStartDateInstance(period))
+                          where c.Id
+                              == context.GetCustomerWithMostOrdersAfterDateInstance(
+                                  context.GetReportingPeriodStartDateInstance(period))
                           select c.Id).SingleOrDefault();
 
             Assert.Equal(1, custId);
@@ -774,9 +822,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
 
             var custId = (from c in context.Customers
-                          where c.Id == context.GetCustomerWithMostOrdersAfterDateInstance(
-                                    context.GetReportingPeriodStartDateInstance(
-                                        UDFSqlContext.ReportingPeriod.Winter))
+                          where c.Id
+                              == context.GetCustomerWithMostOrdersAfterDateInstance(
+                                  context.GetReportingPeriodStartDateInstance(
+                                      UDFSqlContext.ReportingPeriod.Winter))
                           select c.Id).SingleOrDefault();
 
             Assert.Equal(1, custId);

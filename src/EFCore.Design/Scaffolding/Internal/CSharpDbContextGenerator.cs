@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (finalContextNamespace != modelNamespace)
             {
-                _sb.AppendLine(String.Concat("using ", modelNamespace, ";"));
+                _sb.AppendLine(string.Concat("using ", modelNamespace, ";"));
             }
 
             _sb.AppendLine();

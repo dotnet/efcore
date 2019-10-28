@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return y == null
                 ? false
                 : x.Name == y.Name
-                  && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
-                      || x.Name == CoreAnnotationNames.TypeMapping
-                      || Equals(x.Value, y.Value));
+                && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
+                    || x.Name == CoreAnnotationNames.TypeMapping
+                    || Equals(x.Value, y.Value));
         }
 
         public int GetHashCode(IAnnotation obj) => obj.Name.GetHashCode() ^ obj.Value?.GetHashCode() ?? 0;

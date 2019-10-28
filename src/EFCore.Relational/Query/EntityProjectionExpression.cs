@@ -124,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. " +
-                    $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    "Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. "
+                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
             }
 
             _navigationExpressionsCache[navigation] = entityShaper;
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. " +
-                    $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    "Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. "
+                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
             }
 
             return _navigationExpressionsCache.TryGetValue(navigation, out var expression)

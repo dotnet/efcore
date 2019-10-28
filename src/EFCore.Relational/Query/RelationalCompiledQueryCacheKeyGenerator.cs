@@ -106,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </returns>
             public override bool Equals(object obj)
                 => !(obj is null)
-                   && obj is RelationalCompiledQueryCacheKey
-                   && Equals((RelationalCompiledQueryCacheKey)obj);
+                    && obj is RelationalCompiledQueryCacheKey
+                    && Equals((RelationalCompiledQueryCacheKey)obj);
 
             private bool Equals(RelationalCompiledQueryCacheKey other)
                 => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
-                   && _useRelationalNulls == other._useRelationalNulls;
+                    && _useRelationalNulls == other._useRelationalNulls;
 
             /// <summary>
             ///     Gets the hash code for the key.

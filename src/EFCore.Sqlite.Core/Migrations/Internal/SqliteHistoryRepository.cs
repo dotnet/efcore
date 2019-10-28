@@ -49,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
             {
                 var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
-                return "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = " +
-                       stringTypeMapping.GenerateSqlLiteral(TableName) +
-                       " AND \"type\" = 'table';";
+                return "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = "
+                    + stringTypeMapping.GenerateSqlLiteral(TableName)
+                    + " AND \"type\" = 'table';";
             }
         }
 

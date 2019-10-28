@@ -233,7 +233,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : InMemoryLinqOperatorProvider.FirstWithoutPredicate);
         }
 
-        protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateGroupBy(
+            ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
         {
             var remappedKeySelector = RemapLambdaBody(source, keySelector);
 
@@ -257,7 +258,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var original2 = resultSelector.Parameters[1];
 
                 var newResultSelectorBody = new ReplacingExpressionVisitor(
-                    new Dictionary<Expression, Expression> {
+                    new Dictionary<Expression, Expression>
+                    {
                         { original1, ((GroupByShaperExpression)source.ShaperExpression).KeySelector },
                         { original2, source.ShaperExpression }
                     }).Visit(resultSelector.Body);
@@ -332,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
 
                     return translation.Type == expression.Type
-                        ? (Expression)translation
+                        ? translation
                         : Expression.Convert(translation, expression.Type);
             }
         }
@@ -351,7 +353,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
-            if (outerKeySelector == null || innerKeySelector == null)
+            if (outerKeySelector == null
+                || innerKeySelector == null)
             {
                 return null;
             }
@@ -380,8 +383,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             static bool isConvertedToNullable(Expression outer, Expression inner)
                 => outer.Type.IsNullableType()
-                && !inner.Type.IsNullableType()
-                && outer.Type.UnwrapNullableType() == inner.Type;
+                    && !inner.Type.IsNullableType()
+                    && outer.Type.UnwrapNullableType() == inner.Type;
 
             if (outerKeySelector.Body.Type != innerKeySelector.Body.Type)
             {
@@ -400,7 +403,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return (outerKeySelector, innerKeySelector);
         }
 
-        protected override ShapedQueryExpression TranslateLastOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateLastOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             return TranslateSingleResultOperator(
                 source,
@@ -417,7 +421,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             outerKeySelector = TranslateLambdaExpression(outer, outerKeySelector);
             innerKeySelector = TranslateLambdaExpression(inner, innerKeySelector);
-            if (outerKeySelector == null || innerKeySelector == null)
+            if (outerKeySelector == null
+                || innerKeySelector == null)
             {
                 return null;
             }
@@ -449,7 +454,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.LongCountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                        InMemoryLinqOperatorProvider.LongCountWithoutPredicate.MakeGenericMethod(
+                            inMemoryQueryExpression.CurrentParameter.Type),
                         inMemoryQueryExpression.ServerQueryExpression);
             }
             else
@@ -462,7 +468,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.LongCountWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                        InMemoryLinqOperatorProvider.LongCountWithPredicate.MakeGenericMethod(
+                            inMemoryQueryExpression.CurrentParameter.Type),
                         inMemoryQueryExpression.ServerQueryExpression,
                         predicate);
             }
@@ -540,7 +547,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     inMemoryQueryExpression.ReplaceProjectionMapping(
                         new Dictionary<ProjectionMember, Expression>
                         {
-                            { projectionMember, entityProjection.UpdateEntityType(derivedType)}
+                            { projectionMember, entityProjection.UpdateEntityType(derivedType) }
                         });
 
                     source.ShaperExpression = entityShaperExpression.WithEntityType(derivedType);
@@ -563,10 +570,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return null;
             }
 
+            var orderBy = ascending ? InMemoryLinqOperatorProvider.OrderBy : InMemoryLinqOperatorProvider.OrderByDescending;
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
-                    (ascending ? InMemoryLinqOperatorProvider.OrderBy : InMemoryLinqOperatorProvider.OrderByDescending)
-                        .MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
+                    orderBy.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
                     inMemoryQueryExpression.ServerQueryExpression,
                     keySelector);
 
@@ -657,12 +664,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var innerParameter = Expression.Parameter(selector.ReturnType.TryGetSequenceType(), "i");
             var resultSelector = Expression.Lambda(
-                innerParameter,
-                new[]
-                {
-                    Expression.Parameter(source.Type.TryGetSequenceType()),
-                    innerParameter
-                });
+                innerParameter, Expression.Parameter(source.Type.TryGetSequenceType()), innerParameter);
 
             return TranslateSelectMany(source, selector, resultSelector);
         }
@@ -736,7 +738,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
                     (ascending ? InMemoryLinqOperatorProvider.ThenBy : InMemoryLinqOperatorProvider.ThenByDescending)
-                        .MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
+                    .MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
                     inMemoryQueryExpression.ServerQueryExpression,
                     keySelector);
 
@@ -767,8 +769,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var result = _expressionTranslator.Translate(expression);
 
-            if (expression != null && result != null
-                && preserveType && expression.Type != result.Type)
+            if (expression != null
+                && result != null
+                && preserveType
+                && expression.Type != result.Type)
             {
                 result = expression.Type == typeof(bool)
                     ? Expression.Equal(result, Expression.Constant(true, result.Type))
@@ -786,7 +790,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var lambdaBody = TranslateExpression(RemapLambdaBody(shapedQueryExpression, lambdaExpression), preserveType);
 
             return lambdaBody != null
-                ? Expression.Lambda(lambdaBody,
+                ? Expression.Lambda(
+                    lambdaBody,
                     ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression).CurrentParameter)
                 : null;
         }
@@ -845,8 +850,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     source = Visit(source);
                     if (source is EntityShaperExpression
                         || (source is UnaryExpression innerUnaryExpression
-                        && innerUnaryExpression.NodeType == ExpressionType.Convert
-                        && innerUnaryExpression.Operand is EntityShaperExpression))
+                            && innerUnaryExpression.NodeType == ExpressionType.Convert
+                            && innerUnaryExpression.Operand is EntityShaperExpression))
                     {
                         var collectionNavigation = Expand(source, MemberIdentity.Create(navigationName));
                         if (collectionNavigation != null)
@@ -983,7 +988,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         makeNullable);
 
                     var outerKeySelector = Expression.Lambda(_expressionTranslator.Translate(outerKey), _queryExpression.CurrentParameter);
-                    var innerKeySelector = Expression.Lambda(_expressionTranslator.Translate(innerKey), innerQueryExpression.CurrentParameter);
+                    var innerKeySelector = Expression.Lambda(
+                        _expressionTranslator.Translate(innerKey), innerQueryExpression.CurrentParameter);
                     (outerKeySelector, innerKeySelector) = AlignKeySelectorTypes(outerKeySelector, innerKeySelector);
                     innerShaper = _queryExpression.AddNavigationToWeakEntityType(
                         entityProjectionExpression, navigation, innerQueryExpression, outerKeySelector, innerKeySelector);
@@ -999,11 +1005,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
 
             selector = selector == null
-                       || selector.Body == selector.Parameters[0]
-                ? Expression.Lambda(
-                    inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
-                    inMemoryQueryExpression.CurrentParameter)
-                : TranslateLambdaExpression(source, selector, preserveType: true);
+                || selector.Body == selector.Parameters[0]
+                    ? Expression.Lambda(
+                        inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()),
+                        inMemoryQueryExpression.CurrentParameter)
+                    : TranslateLambdaExpression(source, selector, preserveType: true);
 
             if (selector == null)
             {
@@ -1019,13 +1025,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     nameof(Enumerable.Sum) => InMemoryLinqOperatorProvider.GetSumWithSelector(selector.ReturnType),
                     _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
                 };
+
             var method = getMethod();
             method = method.GetGenericArguments().Length == 2
                 ? method.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
                 : method.MakeGenericMethod(typeof(ValueBuffer));
 
             inMemoryQueryExpression.ServerQueryExpression
-                = Expression.Call(method,
+                = Expression.Call(
+                    method,
                     inMemoryQueryExpression.ServerQueryExpression,
                     selector);
 

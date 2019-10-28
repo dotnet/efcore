@@ -53,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Expression parentIdentifier, Expression outerIdentifier, Expression selfIdentifier, Expression innerShaper)
         {
             return parentIdentifier != ParentIdentifier
-                   || outerIdentifier != OuterIdentifier
-                   || selfIdentifier != SelfIdentifier
-                   || innerShaper != InnerShaper
-                ? new RelationalCollectionShaperExpression(
-                    CollectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, Navigation, ElementType)
-                : this;
+                || outerIdentifier != OuterIdentifier
+                || selfIdentifier != SelfIdentifier
+                || innerShaper != InnerShaper
+                    ? new RelationalCollectionShaperExpression(
+                        CollectionId, parentIdentifier, outerIdentifier, selfIdentifier, innerShaper, Navigation, ElementType)
+                    : this;
         }
 
         public virtual void Print(ExpressionPrinter expressionPrinter)

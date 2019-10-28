@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var other = (CompiledQueryCacheKey)obj;
 
                 return ReferenceEquals(_model, other._model)
-                       && _queryTrackingBehavior == other._queryTrackingBehavior
-                       && _async == other._async
-                       && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
+                    && _queryTrackingBehavior == other._queryTrackingBehavior
+                    && _async == other._async
+                    && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
             }
 
             /// <summary>

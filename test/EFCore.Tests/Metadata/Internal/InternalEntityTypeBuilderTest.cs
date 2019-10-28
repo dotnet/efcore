@@ -1723,18 +1723,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.False(findMember(addedEntityTypeBuilder));
 
             var exceptionExpected = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
-                                    && (ignoreConfigurationSource == ConfigurationSource.Explicit
-                                        || (!ignoredFirst && setBaseFirst));
+                && (ignoreConfigurationSource == ConfigurationSource.Explicit
+                    || (!ignoredFirst && setBaseFirst));
 
             var expectedAdded = ignoredOnType == typeof(ExtraSpecialOrderMinimal)
-                                || (addConfigurationSource.Overrides(ignoreConfigurationSource)
-                                    && (ignoreConfigurationSource != ConfigurationSource.Explicit
-                                        || ignoredOnType != typeof(SpecialOrderMinimal)
-                                        || ignoredFirst));
+                || (addConfigurationSource.Overrides(ignoreConfigurationSource)
+                    && (ignoreConfigurationSource != ConfigurationSource.Explicit
+                        || ignoredOnType != typeof(SpecialOrderMinimal)
+                        || ignoredFirst));
 
             var expectedIgnored = (ignoredOnType != typeof(SpecialOrderMinimal)
-                                   || !expectedAdded)
-                                  && !exceptionExpected;
+                    || !expectedAdded)
+                && !exceptionExpected;
 
             if (ignoredFirst)
             {
@@ -2213,15 +2213,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ignoredOnType, ignoreConfigurationSource, addConfigurationSource, ignoredFirst, setBaseFirst,
                 et => et.Metadata.FindNavigation(OrderMinimal.CustomerProperty.Name) != null,
                 et => et.HasRelationship(
-                          et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
-                          OrderMinimal.CustomerProperty.Name,
-                          CustomerMinimal.OrdersProperty.Name,
-                          addConfigurationSource) != null,
+                        et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
+                        OrderMinimal.CustomerProperty.Name,
+                        CustomerMinimal.OrdersProperty.Name,
+                        addConfigurationSource)
+                    != null,
                 et => et.HasRelationship(
-                          et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
-                          OrderMinimal.CustomerProperty.Name,
-                          CustomerMinimal.OrdersProperty.Name,
-                          ignoreConfigurationSource) != null,
+                        et.ModelBuilder.Entity(typeof(CustomerMinimal), ConfigurationSource.Explicit).Metadata,
+                        OrderMinimal.CustomerProperty.Name,
+                        CustomerMinimal.OrdersProperty.Name,
+                        ignoreConfigurationSource)
+                    != null,
                 OrderMinimal.CustomerProperty.Name);
 
         [ConditionalFact]

@@ -172,9 +172,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
             return (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                   .Overrides(indexBuilder.Metadata.GetIncludePropertiesConfigurationSource())
-                   || StructuralComparisons.StructuralEqualityComparer.Equals(
-                       propertyNames, indexBuilder.Metadata.GetIncludeProperties());
+                .Overrides(indexBuilder.Metadata.GetIncludePropertiesConfigurationSource())
+                || StructuralComparisons.StructuralEqualityComparer.Equals(
+                    propertyNames, indexBuilder.Metadata.GetIncludeProperties());
         }
 
         /// <summary>

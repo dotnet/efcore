@@ -128,9 +128,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     var (info, providerType, converter) = k;
                     var mapping = providerType == null
-                                  || providerType == info.ClrType
-                        ? FindMapping(info)
-                        : null;
+                        || providerType == info.ClrType
+                            ? FindMapping(info)
+                            : null;
 
                     if (mapping == null)
                     {

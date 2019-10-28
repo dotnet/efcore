@@ -14,13 +14,29 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
 
         public static void SeedData(InheritanceContext context)
         {
-            var kiwi = new Kiwi { Species = "Apteryx haastii", Name = "Great spotted kiwi", IsFlightless = true, FoundOn = Island.South };
+            var kiwi = new Kiwi
+            {
+                Species = "Apteryx haastii",
+                Name = "Great spotted kiwi",
+                IsFlightless = true,
+                FoundOn = Island.South
+            };
 
-            var eagle = new Eagle { Species = "Aquila chrysaetos canadensis", Name = "American golden eagle", Group = EagleGroup.Booted };
+            var eagle = new Eagle
+            {
+                Species = "Aquila chrysaetos canadensis",
+                Name = "American golden eagle",
+                Group = EagleGroup.Booted
+            };
 
             eagle.Prey.Add(kiwi);
 
-            var rose = new Rose { Species = "Rosa canina", Name = "Dog-rose", HasThorns = true };
+            var rose = new Rose
+            {
+                Species = "Rosa canina",
+                Name = "Dog-rose",
+                HasThorns = true
+            };
 
             var daisy = new Daisy { Species = "Bellis perennis", Name = "Common daisy" };
 
@@ -42,7 +58,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Inheritance
             context.AddRange(
                 new Tea { HasMilk = true, CaffeineGrams = 1 },
                 new Lilt { SugarGrams = 4, Carbonation = 7 },
-                new Coke { SugarGrams = 6, CaffeineGrams = 4, Carbonation = 5 });
+                new Coke
+                {
+                    SugarGrams = 6,
+                    CaffeineGrams = 4,
+                    Carbonation = 5
+                });
 
             context.SaveChanges();
         }

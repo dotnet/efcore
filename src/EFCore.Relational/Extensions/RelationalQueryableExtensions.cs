@@ -54,10 +54,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the raw SQL query. </returns>
         [StringFormatMethod("sql")]
         [Obsolete(
-            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. " +
-            "For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead. "
-            +
-            "Call either new method directly on the DbSet at the root of the query.",
+            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. "
+            + "For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead. "
+            + "Call either new method directly on the DbSet at the root of the query.",
             error: true)]
         public static IQueryable<TEntity> FromSql<TEntity>(
             [NotNull] this IQueryable<TEntity> source,
@@ -100,10 +99,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The interpolated string representing a SQL query. </param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the interpolated string SQL query. </returns>
         [Obsolete(
-            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. " +
-            "For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead. "
-            +
-            "Call either new method directly on the DbSet at the root of the query.",
+            "For returning objects from SQL queries using plain strings, use FromSqlRaw instead. "
+            + "For returning objects from SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated instead. "
+            + "Call either new method directly on the DbSet at the root of the query.",
             error: true)]
         public static IQueryable<TEntity> FromSql<TEntity>(
             [NotNull] this IQueryable<TEntity> source,

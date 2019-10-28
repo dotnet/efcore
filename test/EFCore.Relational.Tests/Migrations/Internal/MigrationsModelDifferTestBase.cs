@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Action<IReadOnlyList<MigrationOperation>> assertActionUp,
             Action<IReadOnlyList<MigrationOperation>> assertActionDown,
             bool skipSourceConventions = false)
-            => Execute(buildCommonAction, buildSourceAction, buildTargetAction, assertActionUp, assertActionDown, null, skipSourceConventions);
+            => Execute(
+                buildCommonAction, buildSourceAction, buildTargetAction, assertActionUp, assertActionDown, null, skipSourceConventions);
 
         protected void Execute(
             Action<ModelBuilder> buildCommonAction,

@@ -31,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     right = arguments[1];
                 }
                 else if (method.Name == nameof(string.CompareTo)
-                         && arguments.Count == 1
-                         && instance != null
-                         && instance.Type.UnwrapNullableType() == arguments[0].Type.UnwrapNullableType())
+                    && arguments.Count == 1
+                    && instance != null
+                    && instance.Type.UnwrapNullableType() == arguments[0].Type.UnwrapNullableType())
                 {
                     left = instance;
                     right = arguments[0];

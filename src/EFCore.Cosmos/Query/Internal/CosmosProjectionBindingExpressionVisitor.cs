@@ -310,7 +310,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                 }
 
-
                 Expression navigationProjection;
                 var navigation = _includedNavigations.FirstOrDefault(n => n.Name == memberName);
                 if (navigation == null)
@@ -367,16 +366,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
                     var visitedSource = Visit(methodCallExpression.Arguments[0]);
-                    
+
                     switch (method.Name)
                     {
                         case nameof(Queryable.AsQueryable)
-                        when genericMethod == QueryableMethods.AsQueryable:
+                            when genericMethod == QueryableMethods.AsQueryable:
                             // Unwrap AsQueryable
                             return visitedSource;
 
                         case nameof(Queryable.Select)
-                        when genericMethod == QueryableMethods.Select:
+                            when genericMethod == QueryableMethods.Select:
                             if (!(visitedSource is CollectionShaperExpression shaper))
                             {
                                 return null;

@@ -73,13 +73,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = new IdentityConflictContext())
             {
                 context.Attach(
-                    new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
+                    new CompositeKey
+                    {
+                        Id1 = 77,
+                        Id2 = 78,
+                        AlternateId1 = 66,
+                        AlternateId2 = 67
+                    });
 
                 Assert.Equal(
                     CoreStrings.IdentityConflict("CompositeKey", "{'Id1', 'Id2'}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
-                            new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 68 })).Message);
+                            new CompositeKey
+                            {
+                                Id1 = 77,
+                                Id2 = 78,
+                                AlternateId1 = 66,
+                                AlternateId2 = 68
+                            })).Message);
             }
         }
 
@@ -89,13 +101,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = new IdentityConflictContext())
             {
                 context.Attach(
-                    new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
+                    new CompositeKey
+                    {
+                        Id1 = 77,
+                        Id2 = 78,
+                        AlternateId1 = 66,
+                        AlternateId2 = 67
+                    });
 
                 Assert.Equal(
                     CoreStrings.IdentityConflict("CompositeKey", "{'AlternateId1', 'AlternateId2'}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
-                            new CompositeKey { Id1 = 77, Id2 = 79, AlternateId1 = 66, AlternateId2 = 67 })).Message);
+                            new CompositeKey
+                            {
+                                Id1 = 77,
+                                Id2 = 79,
+                                AlternateId1 = 66,
+                                AlternateId2 = 67
+                            })).Message);
             }
         }
 
@@ -137,13 +161,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = new SensitiveIdentityConflictContext())
             {
                 context.Attach(
-                    new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
+                    new CompositeKey
+                    {
+                        Id1 = 77,
+                        Id2 = 78,
+                        AlternateId1 = 66,
+                        AlternateId2 = 67
+                    });
 
                 Assert.Equal(
                     CoreStrings.IdentityConflictSensitive("CompositeKey", "{Id1: 77, Id2: 78}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
-                            new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 68 })).Message);
+                            new CompositeKey
+                            {
+                                Id1 = 77,
+                                Id2 = 78,
+                                AlternateId1 = 66,
+                                AlternateId2 = 68
+                            })).Message);
             }
         }
 
@@ -153,13 +189,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = new SensitiveIdentityConflictContext())
             {
                 context.Attach(
-                    new CompositeKey { Id1 = 77, Id2 = 78, AlternateId1 = 66, AlternateId2 = 67 });
+                    new CompositeKey
+                    {
+                        Id1 = 77,
+                        Id2 = 78,
+                        AlternateId1 = 66,
+                        AlternateId2 = 67
+                    });
 
                 Assert.Equal(
                     CoreStrings.IdentityConflictSensitive("CompositeKey", "{AlternateId1: 66, AlternateId2: 67}"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
-                            new CompositeKey { Id1 = 77, Id2 = 79, AlternateId1 = 66, AlternateId2 = 67 })).Message);
+                            new CompositeKey
+                            {
+                                Id1 = 77,
+                                Id2 = 79,
+                                AlternateId1 = 66,
+                                AlternateId2 = 67
+                            })).Message);
             }
         }
 
@@ -198,7 +246,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.InvalidKeyValue("CompositeKey", "Id2"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
-                            new CompositeKey { Id1 = 77, Id2 = null, AlternateId1 = 66, AlternateId2 = 68 })).Message);
+                            new CompositeKey
+                            {
+                                Id1 = 77,
+                                Id2 = null,
+                                AlternateId1 = 66,
+                                AlternateId2 = 68
+                            })).Message);
             }
         }
 
@@ -211,7 +265,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     CoreStrings.InvalidAlternateKeyValue("CompositeKey", "AlternateId2"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Attach(
-                            new CompositeKey { Id1 = 77, Id2 = 79, AlternateId1 = 66, AlternateId2 = null })).Message);
+                            new CompositeKey
+                            {
+                                Id1 = 77,
+                                Id2 = 79,
+                                AlternateId1 = 66,
+                                AlternateId2 = null
+                            })).Message);
             }
         }
 
@@ -512,11 +572,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(
-                new Category { Id = 77, Name = "Beverages", PrincipalId = 777 });
+                new Category
+                {
+                    Id = 77,
+                    Name = "Beverages",
+                    PrincipalId = 777
+                });
             var entry2 = stateManager.GetOrCreateEntry(
-                new Category { Id = 78, Name = "Foods", PrincipalId = 778 });
+                new Category
+                {
+                    Id = 78,
+                    Name = "Foods",
+                    PrincipalId = 778
+                });
             var entry3 = stateManager.GetOrCreateEntry(
-                new Category { Id = 79, Name = "Stuff", PrincipalId = 779 });
+                new Category
+                {
+                    Id = 79,
+                    Name = "Stuff",
+                    PrincipalId = 779
+                });
 
             entry1.SetEntityState(EntityState.Unchanged);
             entry2.SetEntityState(EntityState.Unchanged);

@@ -164,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType
-                                || property.IsPrimaryKey()
-                                || otherProperty.IsPrimaryKey();
+                    || property.IsPrimaryKey()
+                    || otherProperty.IsPrimaryKey();
                 if (!property.IsPrimaryKey())
                 {
                     var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);

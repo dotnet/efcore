@@ -225,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
                 Expression<Func<TEntity, TDiscriminator>> propertyExpression)
                 => new NonGenericTestDiscriminatorBuilder<TDiscriminator>(
-                    EntityTypeBuilder.HasDiscriminator(propertyExpression?.GetPropertyAccess().GetSimpleMemberName(), typeof(TDiscriminator)));
+                    EntityTypeBuilder.HasDiscriminator(
+                        propertyExpression?.GetPropertyAccess().GetSimpleMemberName(), typeof(TDiscriminator)));
 
             public override TestDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string propertyName)
                 => new NonGenericTestDiscriminatorBuilder<TDiscriminator>(

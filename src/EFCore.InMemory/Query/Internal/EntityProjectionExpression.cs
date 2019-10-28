@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     public class EntityProjectionExpression : Expression, IPrintableExpression
     {
         private readonly IDictionary<IProperty, Expression> _readExpressionMap;
+
         private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
             = new Dictionary<INavigation, EntityShaperExpression>();
 
@@ -60,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. " +
-                    $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    "Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. "
+                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
             }
 
             _navigationExpressionsCache[navigation] = entityShaper;
@@ -73,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. " +
-                    $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    "Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. "
+                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
             }
 
             return _navigationExpressionsCache.TryGetValue(navigation, out var expression)

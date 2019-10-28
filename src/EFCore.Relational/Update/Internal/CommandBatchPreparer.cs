@@ -55,8 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
             _modificationCommandComparer = dependencies.ModificationCommandComparer;
             _keyValueIndexFactorySource = dependencies.KeyValueIndexFactorySource;
-            _minBatchSize = dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()
-                                ?.MinBatchSize ?? 4;
+            _minBatchSize =
+                dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
+                ?? 4;
             Dependencies = dependencies;
 
             if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -221,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             return commands.Where(
                 c => c.EntityState != EntityState.Modified
-                     || c.ColumnModifications.Any(m => m.IsWrite));
+                    || c.ColumnModifications.Any(m => m.IsWrite));
         }
 
         private void AddUnchangedSharingEntries(
@@ -691,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             var indexColumnModifications =
                                 command.ColumnModifications.Where(
                                     cm => index.Properties.Contains(cm.Property)
-                                          && cm.IsWrite);
+                                        && cm.IsWrite);
 
                             if (command.EntityState == EntityState.Added
                                 || indexColumnModifications.Any())

@@ -212,10 +212,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private static bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
             => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
-               && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
-               && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
-                   secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
-               && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
-                   secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
+                && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
+                && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
+                    secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
+                && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
+                    secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
     }
 }

@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 inValues.Add(value);
                             }
-							
+
                             break;
                         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                                 inValues.Add(value);
                             }
-							
+
                             break;
                         }
                     }

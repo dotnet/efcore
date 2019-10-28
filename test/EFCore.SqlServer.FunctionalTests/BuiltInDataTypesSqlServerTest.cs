@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -706,9 +705,13 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
 @p39='help' (Nullable = false) (Size = 4000)
 @p40='anyone!' (Nullable = false) (Size = 4000)
 @p41='Gumball Rules OK!' (Nullable = false) (Size = 4000)
-@p42='" + entity.StringAsNvarcharMax + @"' (Nullable = false) (Size = -1)
+@p42='"
+                + entity.StringAsNvarcharMax
+                + @"' (Nullable = false) (Size = -1)
 @p43='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p44='" + entity.StringAsVarcharMax + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
+@p44='"
+                + entity.StringAsVarcharMax
+                + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
 @p45='11:15:12'
 @p46='65535'
 @p47='-1'
@@ -1408,7 +1411,10 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
         private static MappedPrecisionAndScaledDataTypes CreateMappedPrecisionAndScaledDataTypes(int id)
             => new MappedPrecisionAndScaledDataTypes
             {
-                Id = id, DecimalAsDecimal52 = 101.1m, DecimalAsDec52 = 102.2m, DecimalAsNumeric52 = 103.3m
+                Id = id,
+                DecimalAsDecimal52 = 101.1m,
+                DecimalAsDec52 = 102.2m,
+                DecimalAsNumeric52 = 103.3m
             };
 
         [ConditionalFact]
@@ -2168,7 +2174,10 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
         private static MappedPrecisionAndScaledDataTypesWithIdentity CreateMappedPrecisionAndScaledDataTypesWithIdentity(int id)
             => new MappedPrecisionAndScaledDataTypesWithIdentity
             {
-                Int = id, DecimalAsDecimal52 = 101.1m, DecimalAsDec52 = 102.2m, DecimalAsNumeric52 = 103.3m
+                Int = id,
+                DecimalAsDecimal52 = 101.1m,
+                DecimalAsDec52 = 102.2m,
+                DecimalAsNumeric52 = 103.3m
             };
 
         [ConditionalFact]

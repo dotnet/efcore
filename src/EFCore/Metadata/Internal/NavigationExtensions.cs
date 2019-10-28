@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                builder.Append($" (");
+                builder.Append(" (");
             }
 
             builder.Append(navigation.ClrType?.ShortDisplayName()).Append(")");

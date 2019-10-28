@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var propertyName = "P" + (startingPropertyIndex + i);
                 keyProperties[i] = entityType.FindProperty(propertyName)
-                                   ?? entityType.AddProperty(propertyName, typeof(int?));
+                    ?? entityType.AddProperty(propertyName, typeof(int?));
                 keyProperties[i].IsNullable = false;
             }
 

@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -85,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 serverEnumerable,
                                 _cancellationTokenParameter)
                             : Expression.Call(
-                                EnumerableMethods.SingleOrDefaultWithoutPredicate.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
+                                EnumerableMethods.SingleOrDefaultWithoutPredicate.MakeGenericMethod(
+                                    serverEnumerable.Type.TryGetSequenceType()),
                                 serverEnumerable);
                 }
             }
@@ -211,16 +211,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override Expression VisitExtension(Expression extensionExpression)
             {
                 return extensionExpression is EntityShaperExpression
-                       || extensionExpression is ProjectionBindingExpression
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+                    || extensionExpression is ProjectionBindingExpression
+                        ? extensionExpression
+                        : base.VisitExtension(extensionExpression);
             }
 
             private static Expression RemoveConvert(Expression expression)
             {
                 while (expression != null
-                       && (expression.NodeType == ExpressionType.Convert
-                           || expression.NodeType == ExpressionType.ConvertChecked))
+                    && (expression.NodeType == ExpressionType.Convert
+                        || expression.NodeType == ExpressionType.ConvertChecked))
                 {
                     expression = RemoveConvert(((UnaryExpression)expression).Operand);
                 }
@@ -280,9 +280,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                             && !ContainsOwner(ownership.PrincipalEntityType))
                         {
                             throw new InvalidOperationException(
-                                "A tracking query projects owned entity without corresponding owner in result. " +
-                                "Owned entities cannot be tracked without their owner. " +
-                                "Either include the owner entity in the result or make query non-tracking using AsNoTracking().");
+                                "A tracking query projects owned entity without corresponding owner in result. "
+                                + "Owned entities cannot be tracked without their owner. "
+                                + "Either include the owner entity in the result or make query non-tracking using AsNoTracking().");
                         }
                     }
 

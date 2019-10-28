@@ -64,10 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsEFIndexer(this MethodInfo methodInfo)
             => !methodInfo.IsStatic
-               && "get_Item".Equals(methodInfo.Name, StringComparison.Ordinal)
-               && typeof(object) == methodInfo.ReturnType
-               && methodInfo.GetParameters()?.Count() == 1
-               && typeof(string) == methodInfo.GetParameters().First().ParameterType;
+                && "get_Item".Equals(methodInfo.Name, StringComparison.Ordinal)
+                && typeof(object) == methodInfo.ReturnType
+                && methodInfo.GetParameters()?.Count() == 1
+                && typeof(string) == methodInfo.GetParameters().First().ParameterType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

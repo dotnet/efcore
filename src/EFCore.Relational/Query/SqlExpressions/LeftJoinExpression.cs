@@ -35,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is LeftJoinExpression leftJoinExpression
-                   && Equals(leftJoinExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is LeftJoinExpression leftJoinExpression
+                    && Equals(leftJoinExpression));
 
         private bool Equals(LeftJoinExpression leftJoinExpression)
             => base.Equals(leftJoinExpression);

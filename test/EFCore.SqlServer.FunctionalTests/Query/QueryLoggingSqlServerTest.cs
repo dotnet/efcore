@@ -79,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customers);
                 Assert.Contains(
 #pragma warning disable CS0612 // Type or member is obsolete
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"),
+                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 #pragma warning restore CS0612 // Type or member is obsolete
             }
         }
@@ -97,9 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customers);
 
                 Assert.Equal(
-                    "Compiling query model: " + _eol +
-                    "'(from Customer c in DbSet<Customer>" + _eol +
-                    @"select [c]).Include(""Orders"")'"
+                    "Compiling query model: " + _eol + "'(from Customer c in DbSet<Customer>" + _eol + @"select [c]).Include(""Orders"")'"
                     ,
                     Fixture.TestSqlLoggerFactory.Log[0].Message);
                 Assert.Equal(
@@ -107,10 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ,
                     Fixture.TestSqlLoggerFactory.Log[1].Message);
                 Assert.StartsWith(
-                    "Optimized query model: " + _eol +
-                    "'from Customer c in DbSet<Customer>" + _eol +
-                    @"order by EF.Property(?[c]?, ""CustomerID"") asc" + _eol +
-                    "select Customer _Include("
+                    "Optimized query model: "
+                    + _eol
+                    + "'from Customer c in DbSet<Customer>"
+                    + _eol
+                    + @"order by EF.Property(?[c]?, ""CustomerID"") asc"
+                    + _eol
+                    + "select Customer _Include("
                     ,
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
             }

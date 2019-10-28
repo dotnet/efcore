@@ -197,19 +197,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             if (TestEnvironment.IsSqlAzure)
             {
                 var elasticGroupName = TestEnvironment.ElasticPoolName;
-                result += Environment.NewLine +
-                          (string.IsNullOrEmpty(elasticGroupName)
-                              ? " ( Edition = 'basic' )"
-                              : $" ( SERVICE_OBJECTIVE = ELASTIC_POOL ( name = {elasticGroupName} ) )");
+                result += Environment.NewLine
+                    + (string.IsNullOrEmpty(elasticGroupName)
+                        ? " ( Edition = 'basic' )"
+                        : $" ( SERVICE_OBJECTIVE = ELASTIC_POOL ( name = {elasticGroupName} ) )");
             }
             else
             {
                 if (!string.IsNullOrEmpty(fileName))
                 {
                     var logFileName = Path.ChangeExtension(fileName, ".ldf");
-                    result += Environment.NewLine +
-                              $" ON (NAME = '{name}', FILENAME = '{fileName}')" +
-                              $" LOG ON (NAME = '{name}_log', FILENAME = '{logFileName}')";
+                    result += Environment.NewLine
+                        + $" ON (NAME = '{name}', FILENAME = '{fileName}')"
+                        + $" LOG ON (NAME = '{name}_log', FILENAME = '{logFileName}')";
                 }
             }
 
@@ -352,15 +352,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql,
             bool useTransaction = false, IReadOnlyList<object> parameters = null)
             => new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
-                    new
-                    {
-                        connection,
-                        executeAsync,
-                        sql,
-                        useTransaction,
-                        parameters
-                    },
-                    state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters));
+                new
+                {
+                    connection,
+                    executeAsync,
+                    sql,
+                    useTransaction,
+                    parameters
+                },
+                state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters));
 
         private static async Task<T> ExecuteCommandAsync<T>(
             DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction,

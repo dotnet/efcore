@@ -192,16 +192,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         private void ValidateState(IUpdateEntry mainEntry, IUpdateEntry entry)
         {
             var mainEntryState = mainEntry.SharedIdentityEntry == null
-                                ? mainEntry.EntityState
-                                : EntityState.Modified;
+                ? mainEntry.EntityState
+                : EntityState.Modified;
             if (mainEntryState == EntityState.Modified)
             {
                 return;
             }
 
             var entryState = entry.SharedIdentityEntry == null
-                                ? entry.EntityState
-                                : EntityState.Modified;
+                ? entry.EntityState
+                : EntityState.Modified;
             if (mainEntryState != entryState)
             {
                 if (_sensitiveLoggingEnabled)
@@ -277,10 +277,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                             writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
                         }
                         else if ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
-                                  || (!isKey && nonMainEntry))
+                            || (!isKey && nonMainEntry))
                         {
                             writeValue = columnPropagator?.TryPropagate(property, (InternalEntityEntry)entry)
-                                         ?? entry.IsModified(property);
+                                ?? entry.IsModified(property);
                         }
                     }
 
@@ -404,6 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _write = true;
                             _currentValue = null;
                         }
+
                         break;
                 }
             }

@@ -39,6 +39,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         private static FakeRelationalOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.Options.FindExtension<FakeRelationalOptionsExtension>()
-               ?? new FakeRelationalOptionsExtension();
+                ?? new FakeRelationalOptionsExtension();
     }
 }

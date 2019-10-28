@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var innerExpression = Visit(memberExpression.Expression);
                 return TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member))
-                       ?? memberExpression.Update(innerExpression);
+                    ?? memberExpression.Update(innerExpression);
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     source = Visit(source);
                     return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
-                           ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var entityType = entityReference.EntityType;
                     if (convertedType != null
                         && !(convertedType.IsInterface
-                             && convertedType.IsAssignableFrom(entityType.ClrType)))
+                            && convertedType.IsAssignableFrom(entityType.ClrType)))
                     {
                         entityType = entityType.GetTypesInHierarchy()
                             .FirstOrDefault(et => et.ClrType == convertedType);
@@ -265,8 +265,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     resultSelectorOuterParameter,
                     resultSelectorInnerParameter);
 
-                var innerJoin = !entityReference.IsOptional && !derivedTypeConversion
-                                                            && navigation.IsDependentToPrincipal() && navigation.ForeignKey.IsRequired;
+                var innerJoin = !entityReference.IsOptional
+                    && !derivedTypeConversion
+                    && navigation.IsDependentToPrincipal()
+                    && navigation.ForeignKey.IsRequired;
 
                 if (!innerJoin)
                 {
@@ -458,9 +460,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         && referenceIncludeTreeNode.ContainsKey(inverseNavigation))
                     {
                         throw new InvalidOperationException(
-                            $"The Include path '{navigation.Name}->{inverseNavigation.Name}' results in a cycle. " +
-                            "Cycles are not allowed in no-tracking queries. " +
-                            "Either use a tracking query or remove the cycle.");
+                            $"The Include path '{navigation.Name}->{inverseNavigation.Name}' results in a cycle. "
+                            + "Cycles are not allowed in no-tracking queries. "
+                            + "Either use a tracking query or remove the cycle.");
                     }
 
                     VerifyNoCycles(referenceIncludeTreeNode);
@@ -487,9 +489,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (!navigation.IsCollection())
                     {
                         var innerEntityReference = navigation.GetTargetType().HasDefiningNavigation()
-                                                   || navigation.GetTargetType().IsOwned()
-                            ? ((OwnedNavigationReference)included).EntityReference
-                            : (EntityReference)((NavigationTreeExpression)included).Value;
+                            || navigation.GetTargetType().IsOwned()
+                                ? ((OwnedNavigationReference)included).EntityReference
+                                : (EntityReference)((NavigationTreeExpression)included).Value;
 
                         included = ExpandIncludesHelper(included, innerEntityReference);
                     }

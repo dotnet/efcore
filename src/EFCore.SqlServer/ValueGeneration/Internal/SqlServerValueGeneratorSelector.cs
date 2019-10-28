@@ -74,14 +74,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             Check.NotNull(entityType, nameof(entityType));
 
             return property.GetValueGeneratorFactory() == null
-                   && property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
-                ? _sequenceFactory.Create(
-                    property,
-                    Cache.GetOrAddSequenceState(property, _connection),
-                    _connection,
-                    _rawSqlCommandBuilder,
-                    _commandLogger)
-                : base.Select(property, entityType);
+                && property.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
+                    ? _sequenceFactory.Create(
+                        property,
+                        Cache.GetOrAddSequenceState(property, _connection),
+                        _connection,
+                        _rawSqlCommandBuilder,
+                        _commandLogger)
+                    : base.Select(property, entityType);
         }
 
         /// <summary>
@@ -96,8 +96,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             Check.NotNull(entityType, nameof(entityType));
 
             return property.ClrType.UnwrapNullableType() == typeof(Guid)
-                ? property.ValueGenerated == ValueGenerated.Never
-                  || property.GetDefaultValueSql() != null
+                ? property.ValueGenerated == ValueGenerated.Never || property.GetDefaultValueSql() != null
                     ? (ValueGenerator)new TemporaryGuidValueGenerator()
                     : new SequentialGuidValueGenerator()
                 : base.Create(property, entityType);

@@ -1819,8 +1819,9 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] < 10260))");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Order>().Where(o => o.OrderID > 10354 && o.OrderID < 10360)
-                    .Where(o => ss.Set<Customer>().Where(c => c.City == "London")
-                        .Any(c => c.Orders.Contains(o))),
+                    .Where(
+                        o => ss.Set<Customer>().Where(c => c.City == "London")
+                            .Any(c => c.Orders.Contains(o))),
                 entryCount: 2);
 
             AssertSql(
@@ -1834,7 +1835,8 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 10354) AND (c["
         {
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "PARIS").Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "PARIS")
+                    .Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
                 entryCount: 1);
 
             AssertSql(

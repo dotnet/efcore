@@ -33,36 +33,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     // if predicate is optimized to true, we can simply remove it
                     var newPredicate = newSelectExpression.Predicate is SqlConstantExpression newSelectPredicateConstant
                         && !(selectExpression.Predicate is SqlConstantExpression)
-                        ? (bool)newSelectPredicateConstant.Value
-                            ? null
-                            : SqlExpressionFactory.Equal(
-                                newSelectPredicateConstant,
-                                SqlExpressionFactory.Constant(true, newSelectPredicateConstant.TypeMapping))
-                        : newSelectExpression.Predicate;
+                            ? (bool)newSelectPredicateConstant.Value
+                                ? null
+                                : SqlExpressionFactory.Equal(
+                                    newSelectPredicateConstant,
+                                    SqlExpressionFactory.Constant(true, newSelectPredicateConstant.TypeMapping))
+                            : newSelectExpression.Predicate;
 
                     var newHaving = newSelectExpression.Having is SqlConstantExpression newSelectHavingConstant
                         && !(selectExpression.Having is SqlConstantExpression)
-                        ? (bool)newSelectHavingConstant.Value
-                            ? null
-                            : SqlExpressionFactory.Equal(
-                                newSelectHavingConstant,
-                                SqlExpressionFactory.Constant(true, newSelectHavingConstant.TypeMapping))
-                        : newSelectExpression.Having;
+                            ? (bool)newSelectHavingConstant.Value
+                                ? null
+                                : SqlExpressionFactory.Equal(
+                                    newSelectHavingConstant,
+                                    SqlExpressionFactory.Constant(true, newSelectHavingConstant.TypeMapping))
+                            : newSelectExpression.Having;
 
                     return newPredicate != newSelectExpression.Predicate
                         || newHaving != newSelectExpression.Having
-                        ? newSelectExpression.Update(
-                            newSelectExpression.Projection.ToList(),
-                            newSelectExpression.Tables.ToList(),
-                            newPredicate,
-                            newSelectExpression.GroupBy.ToList(),
-                            newHaving,
-                            newSelectExpression.Orderings.ToList(),
-                            newSelectExpression.Limit,
-                            newSelectExpression.Offset,
-                            newSelectExpression.IsDistinct,
-                            newSelectExpression.Alias)
-                        : newSelectExpression;
+                            ? newSelectExpression.Update(
+                                newSelectExpression.Projection.ToList(),
+                                newSelectExpression.Tables.ToList(),
+                                newPredicate,
+                                newSelectExpression.GroupBy.ToList(),
+                                newHaving,
+                                newSelectExpression.Orderings.ToList(),
+                                newSelectExpression.Limit,
+                                newSelectExpression.Offset,
+                                newSelectExpression.IsDistinct,
+                                newSelectExpression.Alias)
+                            : newSelectExpression;
                 }
 
                 return base.VisitExtension(extensionExpression);

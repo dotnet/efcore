@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return entityType.GetProperties().Where(
                     p => p.ClrType == parameterType
-                         && candidateNames.Any(c => c.Equals(p.Name, StringComparison.Ordinal)))
+                        && candidateNames.Any(c => c.Equals(p.Name, StringComparison.Ordinal)))
                 .Select(p => new PropertyParameterBinding(p)).FirstOrDefault();
         }
 

@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
             return instance?.Type == typeof(string)
-                   && member.Name == nameof(string.Length)
-                ? _sqlExpressionFactory.Function("length", new[] { instance }, returnType)
-                : null;
+                && member.Name == nameof(string.Length)
+                    ? _sqlExpressionFactory.Function("length", new[] { instance }, returnType)
+                    : null;
         }
     }
 }

@@ -80,14 +80,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public static bool IsSumWithSelector(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
-               && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+                && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
 
         public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
             => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
 
         public static bool IsAverageWithSelector(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
-               && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+                && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
 
         public static MethodInfo GetSumWithoutSelector(Type type) => SumWithoutSelectorMethods[type];
         public static MethodInfo GetSumWithSelector(Type type) => SumWithSelectorMethods[type];
@@ -111,13 +111,15 @@ namespace Microsoft.EntityFrameworkCore
                 mi => mi.Name == nameof(Enumerable.OfType) && mi.GetParameters().Length == 1);
 
             All = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.All) && mi.GetParameters().Length == 2
-                                                       && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.All)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             AnyWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Any) && mi.GetParameters().Length == 1);
             AnyWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Any) && mi.GetParameters().Length == 2
-                                                       && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Any)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             Contains = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Contains) && mi.GetParameters().Length == 2);
 
@@ -136,27 +138,33 @@ namespace Microsoft.EntityFrameworkCore
             CountWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Count) && mi.GetParameters().Length == 1);
             CountWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Count) && mi.GetParameters().Length == 2
-                                                         && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Count)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             LongCountWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.LongCount) && mi.GetParameters().Length == 1);
             LongCountWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.LongCount) && mi.GetParameters().Length == 2
-                                                             && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.LongCount)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             MinWithSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Min) && mi.GetParameters().Length == 2
-                                                        && mi.GetGenericArguments().Length == 2
-                                                        && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Min)
+                    && mi.GetParameters().Length == 2
+                    && mi.GetGenericArguments().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             MinWithoutSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Min) && mi.GetParameters().Length == 1
-                                                        && mi.IsGenericMethodDefinition);
+                mi => mi.Name == nameof(Enumerable.Min)
+                    && mi.GetParameters().Length == 1
+                    && mi.IsGenericMethodDefinition);
             MaxWithSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Max) && mi.GetParameters().Length == 2
-                                                        && mi.GetGenericArguments().Length == 2
-                                                        && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Max)
+                    && mi.GetParameters().Length == 2
+                    && mi.GetGenericArguments().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             MaxWithoutSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Max) && mi.GetParameters().Length == 1
-                                                        && mi.IsGenericMethodDefinition);
+                mi => mi.Name == nameof(Enumerable.Max)
+                    && mi.GetParameters().Length == 1
+                    && mi.IsGenericMethodDefinition);
 
             ElementAt = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.ElementAt) && mi.GetParameters().Length == 2);
@@ -165,69 +173,84 @@ namespace Microsoft.EntityFrameworkCore
             FirstWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.First) && mi.GetParameters().Length == 1);
             FirstWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.First) && mi.GetParameters().Length == 2
-                                                         && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.First)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             FirstOrDefaultWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.FirstOrDefault) && mi.GetParameters().Length == 1);
             FirstOrDefaultWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.FirstOrDefault) && mi.GetParameters().Length == 2
-                                                                  && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.FirstOrDefault)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             SingleWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Single) && mi.GetParameters().Length == 1);
             SingleWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Single) && mi.GetParameters().Length == 2
-                                                          && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Single)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             SingleOrDefaultWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.SingleOrDefault) && mi.GetParameters().Length == 1);
             SingleOrDefaultWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.SingleOrDefault) && mi.GetParameters().Length == 2
-                                                                   && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.SingleOrDefault)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             LastWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Last) && mi.GetParameters().Length == 1);
             LastWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Last) && mi.GetParameters().Length == 2
-                                                        && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Last)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             LastOrDefaultWithoutPredicate = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.LastOrDefault) && mi.GetParameters().Length == 1);
             LastOrDefaultWithPredicate = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.LastOrDefault) && mi.GetParameters().Length == 2
-                                                                 && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.LastOrDefault)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
 
             Distinct = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Distinct) && mi.GetParameters().Length == 1);
             Reverse = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Reverse) && mi.GetParameters().Length == 1);
             Where = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Where) && mi.GetParameters().Length == 2
-                                                         && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Where)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             Select = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Select) && mi.GetParameters().Length == 2
-                                                          && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.Select)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             SelectWithOrdinal = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.Select) && mi.GetParameters().Length == 2
-                                                          && IsFunc(mi.GetParameters()[1].ParameterType, funcGenericArgs: 3));
+                mi => mi.Name == nameof(Enumerable.Select)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType, funcGenericArgs: 3));
             Skip = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Skip) && mi.GetParameters().Length == 2);
             Take = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Take) && mi.GetParameters().Length == 2);
             SkipWhile = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.SkipWhile) && mi.GetParameters().Length == 2
-                                                             && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.SkipWhile)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             TakeWhile = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.TakeWhile) && mi.GetParameters().Length == 2
-                                                             && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.TakeWhile)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             OrderBy = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.OrderBy) && mi.GetParameters().Length == 2
-                                                           && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.OrderBy)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             OrderByDescending = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.OrderByDescending) && mi.GetParameters().Length == 2
-                                                                     && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.OrderByDescending)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             ThenBy = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.ThenBy) && mi.GetParameters().Length == 2
-                                                          && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.ThenBy)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             ThenByDescending = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.ThenByDescending) && mi.GetParameters().Length == 2
-                                                                    && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.ThenByDescending)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             DefaultIfEmptyWithoutArgument = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.DefaultIfEmpty) && mi.GetParameters().Length == 1);
             DefaultIfEmptyWithArgument = enumerableMethods.Single(
@@ -238,28 +261,36 @@ namespace Microsoft.EntityFrameworkCore
             GroupJoin = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.GroupJoin) && mi.GetParameters().Length == 5);
             SelectManyWithCollectionSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.SelectMany) && mi.GetParameters().Length == 3
-                                                              && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.SelectMany)
+                    && mi.GetParameters().Length == 3
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             SelectManyWithoutCollectionSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.SelectMany) && mi.GetParameters().Length == 2
-                                                              && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.SelectMany)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
 
             GroupByWithKeySelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.GroupBy) && mi.GetParameters().Length == 2
-                                                           && IsFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Enumerable.GroupBy)
+                    && mi.GetParameters().Length == 2
+                    && IsFunc(mi.GetParameters()[1].ParameterType));
             GroupByWithKeyElementSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.GroupBy) && mi.GetParameters().Length == 3
-                                                           && IsFunc(mi.GetParameters()[1].ParameterType)
-                                                           && IsFunc(mi.GetParameters()[2].ParameterType));
+                mi => mi.Name == nameof(Enumerable.GroupBy)
+                    && mi.GetParameters().Length == 3
+                    && IsFunc(mi.GetParameters()[1].ParameterType)
+                    && IsFunc(mi.GetParameters()[2].ParameterType));
             GroupByWithKeyElementResultSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.GroupBy) && mi.GetParameters().Length == 4
-                                                           && IsFunc(mi.GetParameters()[1].ParameterType)
-                                                           && IsFunc(mi.GetParameters()[2].ParameterType) && IsFunc(
-                                                               mi.GetParameters()[3].ParameterType, 3));
+                mi => mi.Name == nameof(Enumerable.GroupBy)
+                    && mi.GetParameters().Length == 4
+                    && IsFunc(mi.GetParameters()[1].ParameterType)
+                    && IsFunc(mi.GetParameters()[2].ParameterType)
+                    && IsFunc(
+                        mi.GetParameters()[3].ParameterType, 3));
             GroupByWithKeyResultSelector = enumerableMethods.Single(
-                mi => mi.Name == nameof(Enumerable.GroupBy) && mi.GetParameters().Length == 3
-                                                           && IsFunc(mi.GetParameters()[1].ParameterType) && IsFunc(
-                                                               mi.GetParameters()[2].ParameterType, 3));
+                mi => mi.Name == nameof(Enumerable.GroupBy)
+                    && mi.GetParameters().Length == 3
+                    && IsFunc(mi.GetParameters()[1].ParameterType)
+                    && IsFunc(
+                        mi.GetParameters()[2].ParameterType, 3));
 
             SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
             {
@@ -320,25 +351,25 @@ namespace Microsoft.EntityFrameworkCore
             static MethodInfo GetSumOrAverageWithoutSelector<T>(List<MethodInfo> enumerableMethods, string methodName)
                 => enumerableMethods.Single(
                     mi => mi.Name == methodName
-                          && mi.GetParameters().Length == 1
-                          && mi.GetParameters()[0].ParameterType.GetGenericArguments()[0] == typeof(T));
+                        && mi.GetParameters().Length == 1
+                        && mi.GetParameters()[0].ParameterType.GetGenericArguments()[0] == typeof(T));
 
             static MethodInfo GetSumOrAverageWithSelector<T>(List<MethodInfo> enumerableMethods, string methodName)
                 => enumerableMethods.Single(
                     mi => mi.Name == methodName
-                          && mi.GetParameters().Length == 2
-                          && IsSelector<T>(mi.GetParameters()[1].ParameterType));
+                        && mi.GetParameters().Length == 2
+                        && IsSelector<T>(mi.GetParameters()[1].ParameterType));
 
             static bool IsFunc(Type type, int funcGenericArgs = 2)
                 => type.IsGenericType
-                   && (funcGenericArgs == 1 && type.GetGenericTypeDefinition() == typeof(Func<>)
-                    || funcGenericArgs == 2 && type.GetGenericTypeDefinition() == typeof(Func<,>)
-                    || funcGenericArgs == 3 && type.GetGenericTypeDefinition() == typeof(Func<,,>));
+                    && (funcGenericArgs == 1 && type.GetGenericTypeDefinition() == typeof(Func<>)
+                        || funcGenericArgs == 2 && type.GetGenericTypeDefinition() == typeof(Func<,>)
+                        || funcGenericArgs == 3 && type.GetGenericTypeDefinition() == typeof(Func<,,>));
 
             static bool IsSelector<T>(Type type)
                 => type.IsGenericType
-                   && type.GetGenericTypeDefinition() == typeof(Func<,>)
-                   && type.GetGenericArguments()[1] == typeof(T);
+                    && type.GetGenericTypeDefinition() == typeof(Func<,>)
+                    && type.GetGenericArguments()[1] == typeof(T);
         }
     }
 }

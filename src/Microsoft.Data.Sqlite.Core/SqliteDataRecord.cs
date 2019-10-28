@@ -342,16 +342,16 @@ namespace Microsoft.Data.Sqlite
             {
                 name => Contains(name, "INT") ? SQLITE_INTEGER : (int?)null,
                 name => Contains(name, "CHAR")
-                        || Contains(name, "CLOB")
-                        || Contains(name, "TEXT")
-                    ? SQLITE_TEXT
-                    : (int?)null,
+                    || Contains(name, "CLOB")
+                    || Contains(name, "TEXT")
+                        ? SQLITE_TEXT
+                        : (int?)null,
                 name => Contains(name, "BLOB") ? SQLITE_BLOB : (int?)null,
                 name => Contains(name, "REAL")
-                        || Contains(name, "FLOA")
-                        || Contains(name, "DOUB")
-                    ? SQLITE_FLOAT
-                    : (int?)null
+                    || Contains(name, "FLOA")
+                    || Contains(name, "DOUB")
+                        ? SQLITE_FLOAT
+                        : (int?)null
             };
 
             return typeRules.Select(r => r(dataTypeName)).FirstOrDefault(r => r != null) ?? SQLITE_TEXT; // code NUMERICAL affinity as TEXT
