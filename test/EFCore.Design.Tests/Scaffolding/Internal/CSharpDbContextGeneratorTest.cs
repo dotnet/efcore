@@ -229,6 +229,41 @@ namespace TestNamespace
             );
         }
 
+        [ConditionalFact]
+        public void ValueGenerated_works()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity(
+                    "Entity",
+                    x =>
+                    {
+                        x.Property<int>("ValueGeneratedOnAdd").ValueGeneratedOnAdd();
+                        x.Property<int>("ValueGeneratedOnAddOrUpdate").ValueGeneratedOnAddOrUpdate();
+                        x.Property<int>("ConcurrencyToken").IsConcurrencyToken();
+                        x.Property<int>("ValueGeneratedOnUpdate").ValueGeneratedOnUpdate();
+                        x.Property<int>("ValueGeneratedNever").ValueGeneratedNever();
+                    }),
+                new ModelCodeGenerationOptions(),
+                code =>
+                {
+                    Assert.Contains(@"Property(e => e.ValueGeneratedOnAdd)
+                    .ValueGeneratedOnAdd()", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.ValueGeneratedOnAddOrUpdate).ValueGeneratedOnAddOrUpdate()", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.ConcurrencyToken).IsConcurrencyToken()", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.ValueGeneratedOnUpdate).ValueGeneratedOnUpdate()", code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.ValueGeneratedNever).ValueGeneratedNever()", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Equal(ValueGenerated.OnAdd, entity.GetProperty("ValueGeneratedOnAdd").ValueGenerated);
+                    Assert.Equal(ValueGenerated.OnAddOrUpdate, entity.GetProperty("ValueGeneratedOnAddOrUpdate").ValueGenerated);
+                    Assert.True(entity.GetProperty("ConcurrencyToken").IsConcurrencyToken);
+                    Assert.Equal(ValueGenerated.OnUpdate, entity.GetProperty("ValueGeneratedOnUpdate").ValueGenerated);
+                    Assert.Equal(ValueGenerated.Never, entity.GetProperty("ValueGeneratedNever").ValueGenerated);
+                });
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
             public override MethodCallCodeFragment GenerateProviderOptions()
