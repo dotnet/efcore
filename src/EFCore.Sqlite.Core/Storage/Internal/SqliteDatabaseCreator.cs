@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
@@ -76,6 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public override bool Exists()
         {
+            var connectionOptions = new SqliteConnectionStringBuilder(_connection.ConnectionString);
+            if (connectionOptions.DataSource.Equals(":memory:", StringComparison.OrdinalIgnoreCase)
+                || connectionOptions.Mode == SqliteOpenMode.Memory)
+            {
+                return true;
+            }
+
             using (var readOnlyConnection = _connection.CreateReadOnlyConnection())
             {
                 try
