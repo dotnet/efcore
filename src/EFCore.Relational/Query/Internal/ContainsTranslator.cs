@@ -23,15 +23,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (method.IsGenericMethod
                 && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
             {
-                return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
+                return _sqlExpressionFactory.In(arguments[1], arguments[0], negated: false);
             }
 
-            if ((method.DeclaringType.GetInterfaces().Contains(typeof(IList))
-                || method.DeclaringType.IsGenericType
-                    && method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>))
-                && string.Equals(method.Name, nameof(IList.Contains)))
+            if (method.Name == nameof(IList.Contains)
+                && arguments.Count == 1
+                && method.DeclaringType.GetInterfaces().Append(method.DeclaringType)
+                    .Any(
+                        t => t == typeof(IList)
+                             || t.IsGenericType
+                             && t.GetGenericTypeDefinition() == typeof(ICollection<>)))
             {
-                return _sqlExpressionFactory.In(arguments[0], instance, false);
+                return _sqlExpressionFactory.In(arguments[0], instance, negated: false);
             }
 
             return null;
