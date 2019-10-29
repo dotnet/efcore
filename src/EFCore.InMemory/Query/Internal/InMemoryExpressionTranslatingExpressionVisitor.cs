@@ -651,6 +651,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+
+            // bypass the inner conversion if it is an interface
+            if (unaryExpression.Operand is UnaryExpression operandUnary
+                && operandUnary.NodeType == ExpressionType.Convert
+                && operandUnary.Type.IsInterface)
+            {
+                // update the unaryExpression to use the inner expression
+                return Visit(unaryExpression.Update(operandUnary.Operand));
+            }
+
             var newOperand = Visit(unaryExpression.Operand);
             if (newOperand == null)
             {

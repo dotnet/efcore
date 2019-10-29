@@ -10,7 +10,16 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
-    public class Customer : IComparable<Customer>
+    public interface ICustomerID
+    {
+        string CustomerID { get; }
+    }
+
+    public interface IOrders
+    {
+        List<Order> Orders { get; }
+    }
+    public class Customer : IComparable<Customer>, ICustomerID, IOrders
     {
         public Customer()
         {

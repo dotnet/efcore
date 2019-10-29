@@ -5165,6 +5165,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Id);
         }
 
+        static Expression<Func<T, bool>> HasOrderSince<T>(DateTime since)
+            where T : IOrders
+        {
+            Expression<Func<T, bool>> predicate = oa => oa.Orders.AsQueryable().Any(o=> o.OrderDate > since);
+            return predicate;
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Explicit_cast_to_Interface_bug_17794(bool isAsync)
+        {
+            var expr = HasOrderSince<Customer>(new DateTime(2019,10,30));
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Where(expr).Select(c => c.CustomerID));
+        }
+
         [ConditionalFact(Skip = "Issue #16314")]
         public virtual void Streaming_chained_sync_query()
         {
