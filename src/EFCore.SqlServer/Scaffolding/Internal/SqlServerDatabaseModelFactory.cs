@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -20,7 +20,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-// Note: Hard reference to SqlClient here.
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
@@ -233,8 +232,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         private static Func<string, string, string> GenerateTableFilter(
             IReadOnlyList<(string Schema, string Table)> tables,
             Func<string, string> schemaFilter)
-        {
-            return schemaFilter != null
+            => schemaFilter != null
                 || tables.Count > 0
                     ? ((s, t) =>
                     {
@@ -268,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                             {
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(" IN (");
-                                tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
+                                tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
                                 tableFilterBuilder.Append(")");
                             }
 
@@ -282,17 +280,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(" IN (");
-                                tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
+                                tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
                                 tableFilterBuilder.Append(") AND (");
                                 tableFilterBuilder.Append(s);
                                 tableFilterBuilder.Append(" + N'.' + ");
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(") IN (");
-                                tableFilterBuilder.Append(
-                                    string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+                                tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
                                 tableFilterBuilder.Append(")");
                             }
-                            tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
                         }
 
                         if (openBracket)
@@ -303,12 +299,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                         return tableFilterBuilder.ToString();
                     })
                     : (Func<string, string, string>)null;
-        }
 
-        private static string EscapeLiteral(string s)
-        {
-            return $"N'{s}'";
-        }
+        private static string EscapeLiteral(string s) => $"N'{s}'";
 
         private IReadOnlyDictionary<string, (string, string)> GetTypeAliases(DbConnection connection)
         {
