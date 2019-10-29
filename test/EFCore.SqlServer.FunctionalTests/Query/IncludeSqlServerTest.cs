@@ -1228,7 +1228,8 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool useString, bool async)
+        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(
+            bool useString, bool async)
         {
             await base.Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(useString, async);
 

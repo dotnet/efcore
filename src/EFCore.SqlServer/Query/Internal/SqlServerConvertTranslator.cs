@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
                         .Where(
                             m => m.GetParameters().Length == 1
-                                 && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
+                                && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

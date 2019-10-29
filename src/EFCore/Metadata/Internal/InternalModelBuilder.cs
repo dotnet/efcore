@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var clrType = type.Type
-                          ?? Metadata.FindClrType(type.Name);
+                ?? Metadata.FindClrType(type.Name);
 
             var weakEntityType = clrType == null
                 ? Metadata.FindEntityType(type.Name, definingNavigationName, definingEntityType)
@@ -240,8 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var ownershipCandidate = entityType.GetForeignKeys().FirstOrDefault(
                     fk => fk.PrincipalToDependent != null
-                          && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
-                          && !fk.PrincipalEntityType.IsInDefinitionPath(type));
+                        && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
+                        && !fk.PrincipalEntityType.IsInDefinitionPath(type));
                 if (ownershipCandidate != null)
                 {
                     if (ownershipCandidate.Builder.IsOwnership(true, configurationSource) == null)
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(type.Name);
             return ignoredConfigurationSource.HasValue
-                   && ignoredConfigurationSource.Value.Overrides(configurationSource);
+                && ignoredConfigurationSource.Value.Overrides(configurationSource);
         }
 
         /// <summary>
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetChangeTrackingStrategyConfigurationSource())
-               || Metadata.GetChangeTrackingStrategy() == changeTrackingStrategy;
+                || Metadata.GetChangeTrackingStrategy() == changeTrackingStrategy;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
-               || Metadata.GetPropertyAccessMode() == propertyAccessMode;
+                || Metadata.GetPropertyAccessMode() == propertyAccessMode;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

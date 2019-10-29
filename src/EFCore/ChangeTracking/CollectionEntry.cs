@@ -60,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var targetType = Metadata.GetTargetType();
                 var context = InternalEntry.StateManager.Context;
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
-                                     && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true"
-                    ? context.GetDependencies().ChangeDetector
-                    : null;
+                    && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true"
+                        ? context.GetDependencies().ChangeDetector
+                        : null;
                 foreach (var entity in collection.OfType<object>().ToList())
                 {
                     var entry = InternalEntry.StateManager.GetOrCreateEntry(entity, targetType);
@@ -165,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         protected virtual InternalEntityEntry GetInternalTargetEntry([NotNull] object entity)
             => CurrentValue == null
-               || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)
-                ? null
-                : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.GetTargetType());
+                || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)
+                    ? null
+                    : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.GetTargetType());
     }
 }

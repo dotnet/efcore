@@ -173,7 +173,8 @@ WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
             AssertSql("");
         }
 
-        public override void Lazy_load_one_to_one_reference_to_dependent_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
+        public override void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
+            EntityState state, CascadeTiming cascadeDeleteTiming)
         {
             base.Lazy_load_one_to_one_reference_to_dependent_already_loaded(state, cascadeDeleteTiming);
 
@@ -660,14 +661,16 @@ WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
             AssertSql("");
         }
 
-        public override async Task Load_one_to_one_reference_to_principal_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+        public override async Task Load_one_to_one_reference_to_principal_already_loaded(
+            EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
             await base.Load_one_to_one_reference_to_principal_already_loaded(state, async, cascadeDeleteTiming);
 
             AssertSql("");
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+        public override async Task Load_one_to_one_reference_to_dependent_already_loaded(
+            EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
             await base.Load_one_to_one_reference_to_dependent_already_loaded(state, async, cascadeDeleteTiming);
 
@@ -688,7 +691,8 @@ WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
             AssertSql("");
         }
 
-        public override async Task Load_collection_using_Query_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+        public override async Task Load_collection_using_Query_already_loaded(
+            EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
             await base.Load_collection_using_Query_already_loaded(state, async, cascadeDeleteTiming);
 
@@ -724,7 +728,8 @@ FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0");
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded(
+            EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
             await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded(state, async, cascadeDeleteTiming);
 
@@ -921,7 +926,7 @@ WHERE ([c].[ParentId] = @__p_0) AND [c].[ParentId] IS NOT NULL");
             await base.Load_many_to_one_reference_to_principal_using_Query_not_found_untyped(state, async);
 
             AssertSql(
-                    @"@__p_0='787'
+                @"@__p_0='787'
 
 SELECT [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
@@ -973,14 +978,16 @@ WHERE ([s].[ParentId] = @__p_0) AND [s].[ParentId] IS NOT NULL");
             AssertSql("");
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+        public override async Task Load_one_to_one_reference_to_dependent_already_loaded_untyped(
+            EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
             await base.Load_one_to_one_reference_to_dependent_already_loaded_untyped(state, async, cascadeDeleteTiming);
 
             AssertSql("");
         }
 
-        public override async Task Load_collection_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+        public override async Task Load_collection_using_Query_already_loaded_untyped(
+            EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
             await base.Load_collection_using_Query_already_loaded_untyped(state, async, cascadeDeleteTiming);
 
@@ -1016,7 +1023,8 @@ FROM [Parent] AS [p]
 WHERE [p].[Id] = @__p_0");
         }
 
-        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
+        public override async Task Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(
+            EntityState state, bool async, CascadeTiming cascadeDeleteTiming)
         {
             await base.Load_one_to_one_reference_to_dependent_using_Query_already_loaded_untyped(state, async, cascadeDeleteTiming);
 
@@ -1283,7 +1291,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             await base.Load_one_to_one_reference_to_principal_using_Query_null_FK_shadow_fk(state, async);
 
             AssertSql(
-                    @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
+                @"SELECT TOP(2) [p].[Id], [p].[AlternateId]
 FROM [Parent] AS [p]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
@@ -1454,9 +1462,9 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
-                                  0,
-                                  currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
-                              + "QueryBaseline.txt";
+                        0,
+                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                    + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
 

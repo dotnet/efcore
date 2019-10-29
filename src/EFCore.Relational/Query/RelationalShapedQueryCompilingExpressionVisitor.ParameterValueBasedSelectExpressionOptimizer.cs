@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _useRelationalNulls = useRelationalNulls;
             }
 
-            public (SelectExpression selectExpression, bool canCache) Optimize(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parametersValues)
+            public (SelectExpression selectExpression, bool canCache) Optimize(
+                SelectExpression selectExpression, IReadOnlyDictionary<string, object> parametersValues)
             {
                 var canCache = true;
 

@@ -988,7 +988,12 @@ END");
                     context.Database.EnsureCreatedResiliently();
 
                     context.Add(
-                        new FullNameBlog { FirstName = "One", LastName = "Unicorn", FullName = "Gerald" });
+                        new FullNameBlog
+                        {
+                            FirstName = "One",
+                            LastName = "Unicorn",
+                            FullName = "Gerald"
+                        });
 
                     // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is
                     // saved, but its value has been set to something other than a temporary or default value.

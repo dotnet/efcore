@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = EF.CompileQuery(
                 (NorthwindContext context)
                     => context.Customers.OrderBy(c => c.CustomerID).Select(c => c.CustomerID).FirstOrDefault()
-                       + context.Orders.OrderBy(o => o.CustomerID).Select(o => o.CustomerID).FirstOrDefault());
+                    + context.Orders.OrderBy(o => o.CustomerID).Select(o => o.CustomerID).FirstOrDefault());
 
             using (var context = CreateContext())
             {

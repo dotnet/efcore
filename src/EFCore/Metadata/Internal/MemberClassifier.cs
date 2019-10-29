@@ -67,13 +67,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             targetType = targetType.UnwrapNullableType();
 
             return targetType.GetTypeInfo().IsInterface
-                   || targetType.GetTypeInfo().IsValueType
-                   || targetType == typeof(object)
-                   || _parameterBindingFactories.FindFactory(targetType, memberInfo.GetSimpleMemberName()) != null
-                   || _typeMappingSource.FindMapping(targetType) != null
-                   || targetType.GetTypeInfo().IsArray
-                ? null
-                : targetType;
+                || targetType.GetTypeInfo().IsValueType
+                || targetType == typeof(object)
+                || _parameterBindingFactories.FindFactory(targetType, memberInfo.GetSimpleMemberName()) != null
+                || _typeMappingSource.FindMapping(targetType) != null
+                || targetType.GetTypeInfo().IsArray
+                    ? null
+                    : targetType;
         }
     }
 }

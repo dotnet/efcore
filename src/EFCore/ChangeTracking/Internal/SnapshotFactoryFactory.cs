@@ -164,19 +164,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(ISnapshot));
 
             return UseEntityVariable
-                   && entityVariable != null
-                ? (Expression)Expression.Block(
-                    new List<ParameterExpression> { entityVariable },
-                    new List<Expression>
-                    {
-                        Expression.Assign(
-                            entityVariable,
-                            Expression.Convert(
-                                Expression.Property(parameter, "Entity"),
-                                entityType)),
-                        constructorExpression
-                    })
-                : constructorExpression;
+                && entityVariable != null
+                    ? (Expression)Expression.Block(
+                        new List<ParameterExpression> { entityVariable },
+                        new List<Expression>
+                        {
+                            Expression.Assign(
+                                entityVariable,
+                                Expression.Convert(
+                                    Expression.Property(parameter, "Entity"),
+                                    entityType)),
+                            constructorExpression
+                        })
+                    : constructorExpression;
         }
 
         private Expression CreateSnapshotValueExpression(Expression expression, IPropertyBase propertyBase)

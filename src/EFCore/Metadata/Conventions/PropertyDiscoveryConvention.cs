@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionEntityType> context)
         {
             if ((newBaseType == null
-                 || oldBaseType != null)
+                    || oldBaseType != null)
                 && entityTypeBuilder.Metadata.BaseType == newBaseType)
             {
                 Process(entityTypeBuilder);
@@ -78,6 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private bool IsCandidatePrimitiveProperty([NotNull] PropertyInfo propertyInfo)
             => propertyInfo.IsCandidateProperty()
-               && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null;
+                && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null;
     }
 }

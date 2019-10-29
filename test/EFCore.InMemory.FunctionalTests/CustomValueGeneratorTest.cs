@@ -266,9 +266,9 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 return property.ClrType == typeof(string)
-                       && property.DeclaringEntityType.ClrType == typeof(SomeEntity)
-                    ? new SomeEntityStringValueGenerator()
-                    : null;
+                    && property.DeclaringEntityType.ClrType == typeof(SomeEntity)
+                        ? new SomeEntityStringValueGenerator()
+                        : null;
             }
         }
     }

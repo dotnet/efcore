@@ -121,7 +121,9 @@ namespace Microsoft.EntityFrameworkCore
                     var entry = context.Products.Attach(
                         new Product
                         {
-                            Id = productId, Name = "Apple Fritter", Price = 3.49M // Not the same as the value stored in the database
+                            Id = productId,
+                            Name = "Apple Fritter",
+                            Price = 3.49M // Not the same as the value stored in the database
                         });
 
                     entry.Property(c => c.Name).IsModified = true;
@@ -142,14 +144,24 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
+                        });
 
                     entry.Entity.Name = "GigaChips";
 
@@ -168,14 +180,24 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
 
                     entry.Entity.Name = "GigaChips";
 
@@ -193,14 +215,24 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
+                        });
 
                     entry.State = EntityState.Deleted;
 
@@ -219,14 +251,24 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.Add(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
 
                     context.SaveChanges();
                 },
                 context =>
                 {
                     var entry = context.ProductWithBytes.Attach(
-                        new ProductWithBytes { Id = productId, Name = "MegaChips", Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 } });
+                        new ProductWithBytes
+                        {
+                            Id = productId,
+                            Name = "MegaChips",
+                            Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        });
 
                     entry.State = EntityState.Deleted;
 
@@ -304,7 +346,12 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(2, products.Count);
 
-                    var newCategory = new Category { Id = category.Id, PrincipalId = category.PrincipalId, Name = "New Category" };
+                    var newCategory = new Category
+                    {
+                        Id = category.Id,
+                        PrincipalId = category.PrincipalId,
+                        Name = "New Category"
+                    };
                     context.Remove(category);
                     context.Add(newCategory);
 

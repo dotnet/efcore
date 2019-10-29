@@ -6,7 +6,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels
     public class CrossStoreContext : DbContext
     {
         public CrossStoreContext()
-            : base()
         {
         }
 

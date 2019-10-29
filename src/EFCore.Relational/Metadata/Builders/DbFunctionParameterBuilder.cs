@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         bool IConventionDbFunctionParameterBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
-         => Overrides(fromDataAnnotation, _parameter.GetStoreTypeConfigurationSource())
-            || _parameter.StoreType == storeType;
+            => Overrides(fromDataAnnotation, _parameter.GetStoreTypeConfigurationSource())
+                || _parameter.StoreType == storeType;
 
         /// <inheritdoc />
         IConventionDbFunctionParameterBuilder IConventionDbFunctionParameterBuilder.HasTypeMapping(
@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <inheritdoc />
         bool IConventionDbFunctionParameterBuilder.CanSetTypeMapping(RelationalTypeMapping typeMapping, bool fromDataAnnotation)
-         => Overrides(fromDataAnnotation, _parameter.GetTypeMappingConfigurationSource())
-            || _parameter.TypeMapping == typeMapping;
+            => Overrides(fromDataAnnotation, _parameter.GetTypeMappingConfigurationSource())
+                || _parameter.TypeMapping == typeMapping;
 
         private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
             => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)

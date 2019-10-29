@@ -62,7 +62,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     guids.Add(
                         context.Add(
-                            new Pegasus { Name = "Rainbow Dash " + i, Index = i, Id = Guid.NewGuid() }).Entity.Id);
+                            new Pegasus
+                            {
+                                Name = "Rainbow Dash " + i,
+                                Index = i,
+                                Id = Guid.NewGuid()
+                            }).Entity.Id);
                 }
 
                 await context.SaveChangesAsync();

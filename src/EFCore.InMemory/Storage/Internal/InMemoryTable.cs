@@ -244,11 +244,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                         entry.EntityType.DisplayName(),
                         entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey().Properties),
                         entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
-                        "{" + string.Join(
-                                ", ",
-                                concurrencyConflicts.Select(
-                                    c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
-                            + "}"),
+                        "{"
+                        + string.Join(
+                            ", ",
+                            concurrencyConflicts.Select(
+                                c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
+                        + "}"),
                     new[] { entry });
             }
 

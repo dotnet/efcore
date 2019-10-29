@@ -44,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (dbFunction != null)
             {
                 return dbFunction.Translation?.Invoke(
-                           arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList())
-                       ?? _sqlExpressionFactory.Function(
-                           dbFunction.Schema,
-                           dbFunction.Name,
-                           arguments,
-                           method.ReturnType);
+                        arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList())
+                    ?? _sqlExpressionFactory.Function(
+                        dbFunction.Schema,
+                        dbFunction.Name,
+                        arguments,
+                        method.ReturnType);
             }
 
             return _plugins.Concat(_translators)

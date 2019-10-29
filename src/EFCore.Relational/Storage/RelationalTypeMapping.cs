@@ -279,18 +279,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 storeType = storeTypeNameBase + "(" + size + ")";
             }
             else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                     || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+                || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
             {
                 var precision = parameters.Precision;
                 if (precision != null)
                 {
                     var scale = parameters.Scale;
                     storeType = storeTypeNameBase
-                                + "("
-                                + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
-                                    ? precision.ToString()
-                                    : precision + "," + scale)
-                                + ")";
+                        + "("
+                        + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
+                            ? precision.ToString()
+                            : precision + "," + scale)
+                        + ")";
                 }
             }
 

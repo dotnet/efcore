@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 expressionPrinter.Visit(Projection);
                 expressionPrinter.Append(", ");
                 expressionPrinter.Visit(InnerShaper);
-                expressionPrinter.AppendLine($")");
+                expressionPrinter.AppendLine(")");
             }
         }
     }

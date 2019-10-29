@@ -608,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
 
             return (ChangeTrackingStrategy?)entityType[CoreAnnotationNames.ChangeTrackingStrategy]
-                   ?? entityType.Model.GetChangeTrackingStrategy();
+                ?? entityType.Model.GetChangeTrackingStrategy();
         }
 
         /// <summary>

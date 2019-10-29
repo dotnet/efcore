@@ -45,16 +45,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             return method.Name == nameof(ToString)
-                   && arguments.Count == 0
-                   && instance != null
-                   && _typeMapping.TryGetValue(
-                       instance.Type.UnwrapNullableType(),
-                       out var storeType)
-                ? _sqlExpressionFactory.Function(
-                    "CONVERT",
-                    new[] { _sqlExpressionFactory.Fragment(storeType), instance },
-                    typeof(string))
-                : null;
+                && arguments.Count == 0
+                && instance != null
+                && _typeMapping.TryGetValue(
+                    instance.Type.UnwrapNullableType(),
+                    out var storeType)
+                    ? _sqlExpressionFactory.Function(
+                        "CONVERT",
+                        new[] { _sqlExpressionFactory.Fragment(storeType), instance },
+                        typeof(string))
+                    : null;
         }
     }
 }

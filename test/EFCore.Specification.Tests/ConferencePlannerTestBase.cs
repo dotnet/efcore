@@ -76,7 +76,13 @@ namespace Microsoft.EntityFrameworkCore
                     var controller = new AttendeesController(context);
 
                     var result = await controller.Post(
-                        new Attendee { EmailAddress = "discord@sample.com", FirstName = "", LastName = "Discord", UserName = "Discord!" });
+                        new Attendee
+                        {
+                            EmailAddress = "discord@sample.com",
+                            FirstName = "",
+                            LastName = "Discord",
+                            UserName = "Discord!"
+                        });
 
                     Assert.NotEqual(default, result.Id);
                     Assert.Equal("discord@sample.com", result.EmailAddress);
@@ -96,7 +102,13 @@ namespace Microsoft.EntityFrameworkCore
                     var controller = new AttendeesController(context);
 
                     var result = await controller.Post(
-                        new Attendee { EmailAddress = "pinkie@sample.com", FirstName = "Pinkie", LastName = "Pie", UserName = "Pinks" });
+                        new Attendee
+                        {
+                            EmailAddress = "pinkie@sample.com",
+                            FirstName = "Pinkie",
+                            LastName = "Pie",
+                            UserName = "Pinks"
+                        });
 
                     Assert.Null(result);
                 });
@@ -285,7 +297,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var attendee = new TestModels.ConferencePlanner.Attendee
                 {
-                    FirstName = input.FirstName, LastName = input.LastName, UserName = input.UserName, EmailAddress = input.EmailAddress
+                    FirstName = input.FirstName,
+                    LastName = input.LastName,
+                    UserName = input.UserName,
+                    EmailAddress = input.EmailAddress
                 };
 
                 _db.Attendees.Add(attendee);
@@ -398,8 +413,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ThenInclude(ss => ss.Speaker)
                     .Where(
                         s =>
-                            s.Title.Contains(query) ||
-                            s.Track.Name.Contains(query)
+                            s.Title.Contains(query) || s.Track.Name.Contains(query)
                     )
                     .ToListAsync();
 
@@ -408,9 +422,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ThenInclude(ss => ss.Session)
                     .Where(
                         s =>
-                            s.Name.Contains(query) ||
-                            s.Bio.Contains(query) ||
-                            s.WebSite.Contains(query)
+                            s.Name.Contains(query) || s.Bio.Contains(query) || s.WebSite.Contains(query)
                     )
                     .ToListAsync();
 
@@ -783,7 +795,10 @@ namespace Microsoft.EntityFrameworkCore
                     },
                     new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "solovely@sample.com", FirstName = "Flutter", LastName = "Shy", UserName = "Fluttershy"
+                        EmailAddress = "solovely@sample.com",
+                        FirstName = "Flutter",
+                        LastName = "Shy",
+                        UserName = "Fluttershy"
                     }
                 };
 
@@ -791,11 +806,17 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "applesforever@sample.com", FirstName = "Apple", LastName = "Jack", UserName = "Applejack"
+                        EmailAddress = "applesforever@sample.com",
+                        FirstName = "Apple",
+                        LastName = "Jack",
+                        UserName = "Applejack"
                     },
                     new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "precious@sample.com", FirstName = "Rarity", LastName = "", UserName = "Rarity"
+                        EmailAddress = "precious@sample.com",
+                        FirstName = "Rarity",
+                        LastName = "",
+                        UserName = "Rarity"
                     }
                 };
 
@@ -803,11 +824,17 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "princess@sample.com", FirstName = "Twilight", LastName = "Sparkle", UserName = "Princess"
+                        EmailAddress = "princess@sample.com",
+                        FirstName = "Twilight",
+                        LastName = "Sparkle",
+                        UserName = "Princess"
                     },
                     new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "pinkie@sample.com", FirstName = "Pinkie", LastName = "Pie", UserName = "Pinks"
+                        EmailAddress = "pinkie@sample.com",
+                        FirstName = "Pinkie",
+                        LastName = "Pie",
+                        UserName = "Pinks"
                     }
                 };
 

@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is CrossApplyExpression crossApplyExpression
-                   && Equals(crossApplyExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is CrossApplyExpression crossApplyExpression
+                    && Equals(crossApplyExpression));
 
         private bool Equals(CrossApplyExpression crossApplyExpression)
             => base.Equals(crossApplyExpression);

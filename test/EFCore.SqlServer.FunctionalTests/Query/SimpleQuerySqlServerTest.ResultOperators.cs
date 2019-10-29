@@ -1147,6 +1147,26 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] IN (10248, 10249)");
         }
 
+        public override async Task List_Contains_with_parameter_HashSet(bool isAsync)
+        {
+            await base.List_Contains_with_parameter_HashSet(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI')");
+        }
+
+        public override async Task List_Contains_with_parameter_ImmutableHashSet(bool isAsync)
+        {
+            await base.List_Contains_with_parameter_ImmutableHashSet(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ALFKI')");
+        }
+
         public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();

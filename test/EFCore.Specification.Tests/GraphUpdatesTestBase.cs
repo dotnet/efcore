@@ -1115,9 +1115,11 @@ namespace Microsoft.EntityFrameworkCore
                         var message = Assert.Throws<InvalidOperationException>(testCode).Message;
 
                         Assert.True(
-                            message == CoreStrings.RelationshipConceptualNullSensitive(
+                            message
+                            == CoreStrings.RelationshipConceptualNullSensitive(
                                 nameof(Root), nameof(Required1), "{ParentId: " + removed1.ParentId + "}")
-                            || message == CoreStrings.RelationshipConceptualNullSensitive(
+                            || message
+                            == CoreStrings.RelationshipConceptualNullSensitive(
                                 nameof(Required1), nameof(Required2), "{ParentId: " + removed2.ParentId + "}"));
                     }
                     else
@@ -1555,10 +1557,17 @@ namespace Microsoft.EntityFrameworkCore
             var new2dd = new RequiredNonPkSingle2MoreDerived();
             var new1 = new RequiredNonPkSingle1 { Single = new2 };
             var new1d = new RequiredNonPkSingle1Derived { Single = new2d, Root = new Root() };
-            var new1dd = new RequiredNonPkSingle1MoreDerived { Single = new2dd, Root = new Root(), DerivedRoot = new Root() };
+            var new1dd = new RequiredNonPkSingle1MoreDerived
+            {
+                Single = new2dd,
+                Root = new Root(),
+                DerivedRoot = new Root()
+            };
             var newRoot = new Root
             {
-                RequiredNonPkSingle = new1, RequiredNonPkSingleDerived = new1d, RequiredNonPkSingleMoreDerived = new1dd
+                RequiredNonPkSingle = new1,
+                RequiredNonPkSingleDerived = new1d,
+                RequiredNonPkSingleMoreDerived = new1dd
             };
             Root root = null;
             IReadOnlyList<EntityEntry> entries = null;
@@ -3356,9 +3365,11 @@ namespace Microsoft.EntityFrameworkCore
                         var message = Assert.Throws<InvalidOperationException>(testCode).Message;
 
                         Assert.True(
-                            message == CoreStrings.RelationshipConceptualNullSensitive(
+                            message
+                            == CoreStrings.RelationshipConceptualNullSensitive(
                                 nameof(Root), nameof(RequiredAk1), "{ParentId: " + removed1.ParentId + "}")
-                            || message == CoreStrings.RelationshipConceptualNullSensitive(
+                            || message
+                            == CoreStrings.RelationshipConceptualNullSensitive(
                                 nameof(RequiredAk1), nameof(RequiredAk2), "{ParentId: " + removed2.ParentId + "}"));
                     }
                     else
@@ -3471,7 +3482,12 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new OptionalSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
             var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
             Root root = null;
@@ -3625,7 +3641,12 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new OptionalSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
             var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
             Root root = null;
@@ -3807,7 +3828,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var new2 = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() };
             var new2c = new RequiredSingleComposite2();
-            var new1 = new RequiredSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new RequiredSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var newRoot = new Root { AlternateId = Guid.NewGuid(), RequiredSingleAk = new1 };
             Root root = null;
             IReadOnlyList<EntityEntry> entries = null;
@@ -3992,10 +4018,18 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new RequiredNonPkSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new1 = new RequiredNonPkSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2 };
-            var new1d = new RequiredNonPkSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d, Root = new Root() };
+            var new1d = new RequiredNonPkSingleAk1Derived
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2d,
+                Root = new Root()
+            };
             var new1dd = new RequiredNonPkSingleAk1MoreDerived
             {
-                AlternateId = Guid.NewGuid(), Single = new2dd, Root = new Root(), DerivedRoot = new Root()
+                AlternateId = Guid.NewGuid(),
+                Single = new2dd,
+                Root = new Root(),
+                DerivedRoot = new Root()
             };
             var newRoot = new Root
             {
@@ -4930,7 +4964,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(
                             cascadeRemoved.All(
                                 e => context.Entry(e).State
-                                     == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Deleted)));
+                                    == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Deleted)));
                     }
 
                     if (Fixture.ForceClientNoAction)
@@ -5089,7 +5123,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(
                             orphaned.All(
                                 e => context.Entry(e).State
-                                     == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
+                                    == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
                     }
 
                     if (Fixture.ForceClientNoAction)
@@ -5674,7 +5708,7 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.True(
                             orphaned.All(
                                 e => context.Entry(e).State
-                                     == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
+                                    == (Fixture.ForceClientNoAction ? EntityState.Unchanged : EntityState.Modified)));
                     }
 
                     Assert.True(context.ChangeTracker.HasChanges());
@@ -7039,10 +7073,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Deleted
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Deleted
+                            : EntityState.Unchanged;
 
                     Assert.True(cascadeRemoved.All(e => context.Entry(e).State == expectedState));
 
@@ -7136,10 +7170,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Modified
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Modified
+                            : EntityState.Unchanged;
 
                     Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
                     Assert.True(context.ChangeTracker.HasChanges());
@@ -7220,10 +7254,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Modified
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Modified
+                            : EntityState.Unchanged;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
 
@@ -7304,10 +7338,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Deleted
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Deleted
+                            : EntityState.Unchanged;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
 
@@ -7392,10 +7426,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Deleted
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Deleted
+                            : EntityState.Unchanged;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
 
@@ -7493,10 +7527,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Modified
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Modified
+                            : EntityState.Unchanged;
 
                     Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
                     Assert.True(orphanedC.All(e => context.Entry(e).State == expectedState));
@@ -7592,10 +7626,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Deleted
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Deleted
+                            : EntityState.Unchanged;
 
                     Assert.True(cascadeRemoved.All(e => context.Entry(e).State == expectedState));
                     Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == expectedState));
@@ -7689,10 +7723,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Modified
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Modified
+                            : EntityState.Unchanged;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
                     Assert.Equal(expectedState, context.Entry(orphanedC).State);
@@ -7780,10 +7814,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Deleted
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Deleted
+                            : EntityState.Unchanged;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
                     Assert.Equal(expectedState, context.Entry(orphanedC).State);
@@ -7872,10 +7906,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Deleted
-                        : EntityState.Unchanged;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Deleted
+                            : EntityState.Unchanged;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
 
@@ -7978,7 +8012,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     if ((cascadeDeleteTiming == CascadeTiming.Immediate
-                         || cascadeDeleteTiming == null)
+                            || cascadeDeleteTiming == null)
                         && !Fixture.ForceClientNoAction)
                     {
                         Assert.Equal(EntityState.Detached, context.Entry(added).State);
@@ -8086,10 +8120,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Detached
-                        : EntityState.Added;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Detached
+                            : EntityState.Added;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
 
@@ -8188,10 +8222,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Detached
-                        : EntityState.Added;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Detached
+                            : EntityState.Added;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
 
@@ -8304,7 +8338,7 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     if ((cascadeDeleteTiming == CascadeTiming.Immediate
-                         || cascadeDeleteTiming == null)
+                            || cascadeDeleteTiming == null)
                         && !Fixture.ForceClientNoAction)
                     {
                         Assert.Equal(EntityState.Detached, context.Entry(added).State);
@@ -8429,10 +8463,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Detached
-                        : EntityState.Added;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Detached
+                            : EntityState.Added;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
                     Assert.Equal(expectedState, context.Entry(orphanedC).State);
@@ -8534,10 +8568,10 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate
-                                         || cascadeDeleteTiming == null)
-                                        && !Fixture.ForceClientNoAction
-                        ? EntityState.Detached
-                        : EntityState.Added;
+                            || cascadeDeleteTiming == null)
+                        && !Fixture.ForceClientNoAction
+                            ? EntityState.Detached
+                            : EntityState.Added;
 
                     Assert.Equal(expectedState, context.Entry(orphaned).State);
 

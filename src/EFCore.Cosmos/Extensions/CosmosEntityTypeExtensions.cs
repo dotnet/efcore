@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static string GetDefaultContainer(IEntityType entityType)
             => entityType.IsOwned()
-               ? null
-               : entityType.Model.GetDefaultContainer()
+                ? null
+                : entityType.Model.GetDefaultContainer()
                   ?? entityType.ShortName();
 
         /// <summary>

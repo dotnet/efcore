@@ -160,7 +160,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<BusinessEntityAddress>(
                 entity =>
                 {
-                    entity.HasKey(e => new { e.BusinessEntityID, e.AddressID, e.AddressTypeID });
+                    entity.HasKey(
+                        e => new
+                        {
+                            e.BusinessEntityID,
+                            e.AddressID,
+                            e.AddressTypeID
+                        });
 
                     entity.ToTable("BusinessEntityAddress", "Person");
 
@@ -184,7 +190,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<BusinessEntityContact>(
                 entity =>
                 {
-                    entity.HasKey(e => new { e.BusinessEntityID, e.PersonID, e.ContactTypeID });
+                    entity.HasKey(
+                        e => new
+                        {
+                            e.BusinessEntityID,
+                            e.PersonID,
+                            e.ContactTypeID
+                        });
 
                     entity.ToTable("BusinessEntityContact", "Person");
 
@@ -394,7 +406,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<EmployeeDepartmentHistory>(
                 entity =>
                 {
-                    entity.HasKey(e => new { e.BusinessEntityID, e.StartDate, e.DepartmentID, e.ShiftID });
+                    entity.HasKey(
+                        e => new
+                        {
+                            e.BusinessEntityID,
+                            e.StartDate,
+                            e.DepartmentID,
+                            e.ShiftID
+                        });
 
                     entity.ToTable("EmployeeDepartmentHistory", "HumanResources");
 
@@ -528,7 +547,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<PersonPhone>(
                 entity =>
                 {
-                    entity.HasKey(e => new { e.BusinessEntityID, e.PhoneNumber, e.PhoneNumberTypeID });
+                    entity.HasKey(
+                        e => new
+                        {
+                            e.BusinessEntityID,
+                            e.PhoneNumber,
+                            e.PhoneNumberTypeID
+                        });
 
                     entity.ToTable("PersonPhone", "Person");
 
@@ -712,7 +737,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<ProductModelProductDescriptionCulture>(
                 entity =>
                 {
-                    entity.HasKey(e => new { e.ProductModelID, e.ProductDescriptionID, e.CultureID });
+                    entity.HasKey(
+                        e => new
+                        {
+                            e.ProductModelID,
+                            e.ProductDescriptionID,
+                            e.CultureID
+                        });
 
                     entity.ToTable("ProductModelProductDescriptionCulture", "Production");
 
@@ -1096,7 +1127,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<SalesTerritoryHistory>(
                 entity =>
                 {
-                    entity.HasKey(e => new { e.BusinessEntityID, e.StartDate, e.TerritoryID });
+                    entity.HasKey(
+                        e => new
+                        {
+                            e.BusinessEntityID,
+                            e.StartDate,
+                            e.TerritoryID
+                        });
 
                     entity.ToTable("SalesTerritoryHistory", "Sales");
 
@@ -1344,7 +1381,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<WorkOrderRouting>(
                 entity =>
                 {
-                    entity.HasKey(e => new { e.WorkOrderID, e.ProductID, e.OperationSequence });
+                    entity.HasKey(
+                        e => new
+                        {
+                            e.WorkOrderID,
+                            e.ProductID,
+                            e.OperationSequence
+                        });
 
                     entity.ToTable("WorkOrderRouting", "Production");
 

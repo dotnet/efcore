@@ -64,12 +64,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             public override bool Equals(object obj)
                 => !(obj is null)
-                   && obj is SqlServerCompiledQueryCacheKey
-                   && Equals((SqlServerCompiledQueryCacheKey)obj);
+                    && obj is SqlServerCompiledQueryCacheKey
+                    && Equals((SqlServerCompiledQueryCacheKey)obj);
 
             private bool Equals(SqlServerCompiledQueryCacheKey other)
                 => _relationalCompiledQueryCacheKey.Equals(other._relationalCompiledQueryCacheKey)
-                   && _useRowNumberOffset == other._useRowNumberOffset;
+                    && _useRowNumberOffset == other._useRowNumberOffset;
 
             public override int GetHashCode() => HashCode.Combine(_relationalCompiledQueryCacheKey, _useRowNumberOffset);
         }

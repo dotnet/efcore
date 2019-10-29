@@ -596,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var end = value.IndexOf('\'', position);
 
                 while (end + 1 < value.Length
-                       && value[end + 1] == '\'')
+                    && value[end + 1] == '\'')
                 {
                     end = value.IndexOf('\'', end + 2);
                 }

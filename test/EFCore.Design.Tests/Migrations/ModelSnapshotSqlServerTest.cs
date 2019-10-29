@@ -128,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             [Key]
             public int Id { get; set; }
+
             public int AlternateId { get; set; }
             public EntityWithOneProperty EntityWithOneProperty { get; set; }
 
@@ -279,7 +280,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<EntityWithTwoProperties>().Ignore(e => e.EntityWithOneProperty);
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -392,7 +394,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -427,7 +430,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<BaseEntity>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -477,7 +481,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithTwoProperties>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -508,7 +513,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<AnotherDerivedEntity>().HasBaseType<BaseEntity>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -574,7 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasValue(typeof(AnotherDerivedEntity), typeof(AnotherDerivedEntity).Name);
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -633,7 +640,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -670,7 +678,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -700,7 +709,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).HasNoKey(),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -728,7 +738,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -765,7 +776,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -800,7 +812,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -840,7 +853,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasForeignKey<EntityWithTwoProperties>(e => e.AlternateId);
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -901,7 +915,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     originalModel = builder.Model;
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", b =>
                 {
                     b.Property<Guid>(""Id"")
@@ -935,7 +950,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     originalModel = builder.Model;
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", b =>
                 {
                     b.Property<Guid>(""Id"")
@@ -972,7 +988,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     originalModel = builder.Model;
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1008,7 +1025,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithEnumType>().HasDiscriminator(e => e.Day),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1041,7 +1059,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.HasDiscriminator(e => e.Day);
                     }),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1112,7 +1131,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             }));
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1288,7 +1308,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<Order>().OwnsOne(p => p.OrderInfo, od => od.OwnsOne(c => c.StreetAddress));
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1471,7 +1492,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithTwoProperties>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1498,7 +1520,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithTwoProperties>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1520,7 +1543,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsRequired(),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1549,7 +1573,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1575,7 +1600,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(100),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1600,7 +1626,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsUnicode(false),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1625,7 +1652,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength(),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1657,7 +1685,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasAnnotation("AnnotationName", "AnnotationValue");
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1694,7 +1723,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1723,7 +1753,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1752,7 +1783,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1780,7 +1812,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1810,7 +1843,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1840,7 +1874,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1866,7 +1901,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithEnumType>().Property(e => e.Day).HasDefaultValue(Days.Wed),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1901,7 +1937,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             new { Id = 1, Day = Days.Fri });
                     }),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1943,7 +1980,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNullableEnumType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1968,7 +2006,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder => builder.Entity<EntityWithEnumType>().Property(e => e.Day)
                     .HasConversion(m => (long?)m, p => p.HasValue ? (Days)p.Value : default),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithEnumType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -1994,7 +2033,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day).HasConversion<string>(),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithNullableEnumType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2023,7 +2063,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2059,20 +2100,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder
                 .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Building", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.Entity(
+                "Building", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
 
-                b.HasKey("Id");
+                    b.HasKey("Id");
 
-                b.ToTable("Buildings");
-            });
+                    b.ToTable("Buildings");
+                });
 
             Test(
                 model.FinalizeModel(),
-                AddBoilerPlate(@"
+                AddBoilerPlate(
+                    @"
             modelBuilder
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -2109,7 +2152,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2141,7 +2185,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2174,7 +2219,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2217,7 +2263,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2248,7 +2295,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2279,7 +2327,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2311,7 +2360,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2345,7 +2395,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2386,7 +2437,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.HasIndex(propertyName);
                     }),
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2426,7 +2478,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasAnnotation("AnnotationName", "AnnotationValue");
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2484,7 +2537,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .IsRequired();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
                     b.Property<string>(""Id"")
@@ -2537,7 +2591,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasForeignKey(e => e.Name);
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringKey"", b =>
                 {
                     b.Property<string>(""Id"")
@@ -2587,7 +2642,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<EntityWithTwoProperties>().Ignore(e => e.EntityWithOneProperty);
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2637,7 +2693,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasForeignKey<EntityWithOneProperty>(e => e.Id);
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2689,7 +2746,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     originalModel = builder.Model;
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericKey<System.Guid>"", b =>
                 {
                     b.Property<Guid>(""Id"")
@@ -2767,7 +2825,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasConstraintName("Constraint");
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2825,7 +2884,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasConstraintName("Constraint");
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2886,7 +2946,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<DerivedType>();
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseType"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -2951,7 +3012,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasPrincipalKey<EntityWithTwoProperties>(e => e.AlternateId);
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -3008,7 +3070,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Entity<EntityWithTwoProperties>().HasAlternateKey(e => e.AlternateId).HasAnnotation("Name", "Value");
                 },
                 AddBoilerPlate(
-                    GetHeading() + @"
+                    GetHeading()
+                    + @"
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -3578,9 +3641,10 @@ namespace RootNamespace
         protected virtual string GetHeading(bool empty = false) => @"
             modelBuilder
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);" + (empty
-                                                                       ? null
-                                                                       : @"
+                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"
+            + (empty
+                ? null
+                : @"
 ");
 
         protected virtual ICollection<BuildReference> GetReferences() => new List<BuildReference>

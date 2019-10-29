@@ -25,7 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression)
         {
-            if (sqlExpression == null || sqlExpression.TypeMapping != null)
+            if (sqlExpression == null
+                || sqlExpression.TypeMapping != null)
             {
                 return sqlExpression;
             }
@@ -50,25 +51,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return sqlExpression switch
             {
-                CaseExpression e         => ApplyTypeMappingOnCase(e, typeMapping),
-                LikeExpression e         => ApplyTypeMappingOnLike(e),
-                SqlBinaryExpression e    => ApplyTypeMappingOnSqlBinary(e, typeMapping),
-                SqlUnaryExpression e     => ApplyTypeMappingOnSqlUnary(e, typeMapping),
-                SqlConstantExpression e  => e.ApplyTypeMapping(typeMapping),
-                SqlFragmentExpression e  => e,
-                SqlFunctionExpression e  => e.ApplyTypeMapping(typeMapping),
+                CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
+                LikeExpression e => ApplyTypeMappingOnLike(e),
+                SqlBinaryExpression e => ApplyTypeMappingOnSqlBinary(e, typeMapping),
+                SqlUnaryExpression e => ApplyTypeMappingOnSqlUnary(e, typeMapping),
+                SqlConstantExpression e => e.ApplyTypeMapping(typeMapping),
+                SqlFragmentExpression e => e,
+                SqlFunctionExpression e => e.ApplyTypeMapping(typeMapping),
                 SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
-                _                        => sqlExpression
+                _ => sqlExpression
             };
         }
 
         private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression)
         {
             var inferredTypeMapping = (likeExpression.EscapeChar == null
-                ? ExpressionExtensions.InferTypeMapping(
-                    likeExpression.Match, likeExpression.Pattern)
-                : ExpressionExtensions.InferTypeMapping(
-                    likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar))
+                    ? ExpressionExtensions.InferTypeMapping(
+                        likeExpression.Match, likeExpression.Pattern)
+                    : ExpressionExtensions.InferTypeMapping(
+                        likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar))
                 ?? _typeMappingSource.FindMapping(likeExpression.Match.Type);
 
             return new LikeExpression(
@@ -150,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.NotEqual:
                 {
                     inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
-                                          ?? _typeMappingSource.FindMapping(left.Type);
+                        ?? _typeMappingSource.FindMapping(left.Type);
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                     break;
@@ -290,11 +291,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual CaseExpression Case(SqlExpression operand, SqlExpression elseResult, params CaseWhenClause[] whenClauses)
         {
             var operandTypeMapping = operand.TypeMapping
-                                     ?? whenClauses.Select(wc => wc.Test.TypeMapping).FirstOrDefault(t => t != null)
-                                     ?? _typeMappingSource.FindMapping(operand.Type);
+                ?? whenClauses.Select(wc => wc.Test.TypeMapping).FirstOrDefault(t => t != null)
+                ?? _typeMappingSource.FindMapping(operand.Type);
 
             var resultTypeMapping = elseResult?.TypeMapping
-                                    ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
+                ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
 
             operand = ApplyTypeMapping(operand, operandTypeMapping);
 
@@ -318,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult)
         {
             var resultTypeMapping = elseResult?.TypeMapping
-                                    ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
+                ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
 
             var typeMappedWhenClauses = new List<CaseWhenClause>();
             foreach (var caseWhenClause in whenClauses)
@@ -484,8 +485,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     entityType.Model.GetEntityTypes()
                         .Where(
                             et => et.FindPrimaryKey() != null
-                                  && et.GetTableName() == entityType.GetTableName()
-                                  && et.GetSchema() == entityType.GetSchema()));
+                                && et.GetTableName() == entityType.GetTableName()
+                                && et.GetSchema() == entityType.GetSchema()));
 
                 if (sharingTypes.Count > 0)
                 {
@@ -494,8 +495,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var linkingFks = entityType.GetRootType().FindForeignKeys(entityType.FindPrimaryKey().Properties)
                         .Where(
                             fk => fk.PrincipalKey.IsPrimaryKey()
-                                  && fk.PrincipalEntityType != entityType
-                                  && sharingTypes.Contains(fk.PrincipalEntityType))
+                                && fk.PrincipalEntityType != entityType
+                                && sharingTypes.Contains(fk.PrincipalEntityType))
                         .ToList();
 
                     if (linkingFks.Count > 0)

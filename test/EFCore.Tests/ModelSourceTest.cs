@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore
                     new ModelSourceDependencies(
                         new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
                         InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>(),
-                        new MemoryCache(new MemoryCacheOptions() { SizeLimit = 200 })))
+                        new MemoryCache(new MemoryCacheOptions { SizeLimit = 200 })))
             {
             }
         }

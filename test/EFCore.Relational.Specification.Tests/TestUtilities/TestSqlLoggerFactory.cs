@@ -63,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
-                                  0,
-                                  currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
-                              + "QueryBaseline.txt";
+                        0,
+                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                    + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
 
@@ -111,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 LogLevel logLevel, EventId eventId, string message, TState state, Exception exception)
             {
                 if ((eventId.Id == RelationalEventId.CommandExecuted.Id
-                     || eventId.Id == RelationalEventId.CommandError.Id
-                     || eventId.Id == RelationalEventId.CommandExecuting.Id))
+                    || eventId.Id == RelationalEventId.CommandError.Id
+                    || eventId.Id == RelationalEventId.CommandExecuting.Id))
                 {
                     if (_shouldLogCommands)
                     {

@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return obj is null
                 ? false
                 : obj is ValueBuffer buffer
-                  && Equals(buffer);
+                && Equals(buffer);
         }
 
         private bool Equals(ValueBuffer other)

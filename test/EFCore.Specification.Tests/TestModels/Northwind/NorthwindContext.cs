@@ -105,7 +105,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                     () => Products
                         .Where(p => !p.Discontinued)
                         .Select(
-                            p => new ProductQuery { ProductID = p.ProductID, ProductName = p.ProductName, CategoryName = "Food" }));
+                            p => new ProductQuery
+                            {
+                                ProductID = p.ProductID,
+                                ProductName = p.ProductName,
+                                CategoryName = "Food"
+                            }));
 
             modelBuilder
                 .Query<CustomerQuery>()
@@ -118,7 +123,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                                 c =>
                                     new CustomerQuery
                                     {
-                                        CompanyName = c.CompanyName, OrderCount = c.Orders.Count(), SearchTerm = _searchTerm
+                                        CompanyName = c.CompanyName,
+                                        OrderCount = c.Orders.Count(),
+                                        SearchTerm = _searchTerm
                                     }));
 #pragma warning restore CS0618 // Type or member is obsolete
         }

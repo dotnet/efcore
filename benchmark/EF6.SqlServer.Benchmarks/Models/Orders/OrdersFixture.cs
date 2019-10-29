@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
         private bool IsDatabaseCorrect(OrdersContext context)
         {
             return context.Database.CompatibleWithModel(throwIfNoMetadata: true)
-                   && _productCount == context.Products.Count()
-                   && _customerCount == context.Customers.Count()
-                   && (_customerCount * _ordersPerCustomer == context.Orders.Count())
-                   && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
+                && _productCount == context.Products.Count()
+                && _customerCount == context.Customers.Count()
+                && (_customerCount * _ordersPerCustomer == context.Orders.Count())
+                && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
         }
 
         private void InsertSeedData()

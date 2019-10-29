@@ -77,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public override bool IsMultipleActiveResultSetsEnabled
             => (bool)(_multipleActiveResultSetsEnabled
-                      ?? (_multipleActiveResultSetsEnabled
-                          = new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets));
+                ?? (_multipleActiveResultSetsEnabled
+                    = new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets));
 
         /// <summary>
         ///     Indicates whether the store connection supports ambient transactions

@@ -329,10 +329,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             if (entry.Entity is TEntity entity)
             {
                 var wasIn = previousState != EntityState.Detached
-                            && previousState != EntityState.Deleted;
+                    && previousState != EntityState.Deleted;
 
                 var isIn = entry.EntityState != EntityState.Detached
-                           && entry.EntityState != EntityState.Deleted;
+                    && entry.EntityState != EntityState.Deleted;
 
                 if (wasIn != isIn)
                 {

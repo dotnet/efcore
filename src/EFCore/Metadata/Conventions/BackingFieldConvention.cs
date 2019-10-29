@@ -17,11 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     <para>
     ///         A convention that finds backing fields for properties based on their names:
-    ///             * &lt;[property name]&gt;k__BackingField
-    ///             * _[camel-cased property name]
-    ///             * _[property name]
-    ///             * m_[camel-cased property name]
-    ///             * m_[property name]
+    ///         * &lt;[property name]&gt;k__BackingField
+    ///         * _[camel-cased property name]
+    ///         * _[property name]
+    ///         * m_[camel-cased property name]
+    ///         * m_[property name]
     ///     </para>
     ///     <para>
     ///         The field type must be of a type that's assignable to or from the property type.
@@ -132,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var sortedFields = fields.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray();
-
 
             var match = TryMatch(sortedFields, "<", propertyName, ">k__BackingField", null, null, entityClrType, propertyName);
             if (match == null)
@@ -246,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
 
             return typeInfo.IsAssignableFrom(fieldTypeInfo)
-                   || fieldTypeInfo.IsAssignableFrom(typeInfo);
+                || fieldTypeInfo.IsAssignableFrom(typeInfo);
         }
 
         /// <summary>
@@ -269,10 +268,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         {
                             throw new InvalidOperationException((string)ambiguousField.Value);
                         }
-                        else
-                        {
-                            property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
-                        }
+
+                        property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
                     }
                 }
             }

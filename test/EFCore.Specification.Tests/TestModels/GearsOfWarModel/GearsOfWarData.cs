@@ -134,35 +134,115 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             };
 
         public static IReadOnlyList<SquadMission> CreateSquadMissions()
-            => new List<SquadMission> { new SquadMission(), new SquadMission(), new SquadMission() };
+            => new List<SquadMission>
+            {
+                new SquadMission(),
+                new SquadMission(),
+                new SquadMission()
+            };
 
         public static IReadOnlyList<City> CreateCities()
         {
-            var jacinto = new City { Location = "Jacinto's location", Name = "Jacinto", Nation = "Tyrus" };
+            var jacinto = new City
+            {
+                Location = "Jacinto's location",
+                Name = "Jacinto",
+                Nation = "Tyrus"
+            };
 
-            var ephyra = new City { Location = "Ephyra's location", Name = "Ephyra", Nation = "Tyrus" };
+            var ephyra = new City
+            {
+                Location = "Ephyra's location",
+                Name = "Ephyra",
+                Nation = "Tyrus"
+            };
 
             var hanover = new City { Location = "Hanover's location", Name = "Hanover" };
 
             var unknown = new City { Location = "Unknown", Name = "Unknown" };
 
-            var cities = new List<City> { jacinto, ephyra, hanover, unknown };
+            var cities = new List<City>
+            {
+                jacinto,
+                ephyra,
+                hanover,
+                unknown
+            };
             return cities;
         }
 
         public static IReadOnlyList<Weapon> CreateWeapons()
             => new List<Weapon>
             {
-                new Weapon { Id = 1, Name = "Marcus' Lancer", AmmunitionType = AmmunitionType.Cartridge, IsAutomatic = true },
-                new Weapon { Id = 2, Name = "Marcus' Gnasher", AmmunitionType = AmmunitionType.Shell, IsAutomatic = false },
-                new Weapon { Id = 3, Name = "Dom's Hammerburst", AmmunitionType = AmmunitionType.Cartridge, IsAutomatic = false },
-                new Weapon { Id = 4, Name = "Dom's Gnasher", AmmunitionType = AmmunitionType.Shell, IsAutomatic = false },
-                new Weapon { Id = 5, Name = "Cole's Gnasher", AmmunitionType = AmmunitionType.Shell, IsAutomatic = false },
-                new Weapon { Id = 6, Name = "Cole's Mulcher", AmmunitionType = AmmunitionType.Cartridge, IsAutomatic = true },
-                new Weapon { Id = 7, Name = "Baird's Lancer", AmmunitionType = AmmunitionType.Cartridge, IsAutomatic = true },
-                new Weapon { Id = 8, Name = "Baird's Gnasher", AmmunitionType = AmmunitionType.Shell, IsAutomatic = false },
-                new Weapon { Id = 9, Name = "Paduk's Markza", AmmunitionType = AmmunitionType.Cartridge, IsAutomatic = false },
-                new Weapon { Id = 10, Name = "Mauler's Flail", IsAutomatic = false }
+                new Weapon
+                {
+                    Id = 1,
+                    Name = "Marcus' Lancer",
+                    AmmunitionType = AmmunitionType.Cartridge,
+                    IsAutomatic = true
+                },
+                new Weapon
+                {
+                    Id = 2,
+                    Name = "Marcus' Gnasher",
+                    AmmunitionType = AmmunitionType.Shell,
+                    IsAutomatic = false
+                },
+                new Weapon
+                {
+                    Id = 3,
+                    Name = "Dom's Hammerburst",
+                    AmmunitionType = AmmunitionType.Cartridge,
+                    IsAutomatic = false
+                },
+                new Weapon
+                {
+                    Id = 4,
+                    Name = "Dom's Gnasher",
+                    AmmunitionType = AmmunitionType.Shell,
+                    IsAutomatic = false
+                },
+                new Weapon
+                {
+                    Id = 5,
+                    Name = "Cole's Gnasher",
+                    AmmunitionType = AmmunitionType.Shell,
+                    IsAutomatic = false
+                },
+                new Weapon
+                {
+                    Id = 6,
+                    Name = "Cole's Mulcher",
+                    AmmunitionType = AmmunitionType.Cartridge,
+                    IsAutomatic = true
+                },
+                new Weapon
+                {
+                    Id = 7,
+                    Name = "Baird's Lancer",
+                    AmmunitionType = AmmunitionType.Cartridge,
+                    IsAutomatic = true
+                },
+                new Weapon
+                {
+                    Id = 8,
+                    Name = "Baird's Gnasher",
+                    AmmunitionType = AmmunitionType.Shell,
+                    IsAutomatic = false
+                },
+                new Weapon
+                {
+                    Id = 9,
+                    Name = "Paduk's Markza",
+                    AmmunitionType = AmmunitionType.Cartridge,
+                    IsAutomatic = false
+                },
+                new Weapon
+                {
+                    Id = 10,
+                    Name = "Mauler's Flail",
+                    IsAutomatic = false
+                }
             };
 
         public static IReadOnlyList<CogTag> CreateTags()
@@ -248,12 +328,32 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public static IReadOnlyList<Faction> CreateFactions()
             => new List<Faction>
             {
-                new LocustHorde { Id = 1, Name = "Locust", Eradicated = true, CommanderName = "Queen Myrrah" },
-                new LocustHorde { Id = 2, Name = "Swarm", Eradicated = false, CommanderName = "Unknown" }
+                new LocustHorde
+                {
+                    Id = 1,
+                    Name = "Locust",
+                    Eradicated = true,
+                    CommanderName = "Queen Myrrah"
+                },
+                new LocustHorde
+                {
+                    Id = 2,
+                    Name = "Swarm",
+                    Eradicated = false,
+                    CommanderName = "Unknown"
+                }
             };
 
         public static IReadOnlyList<LocustHighCommand> CreateHighCommands()
-            => new List<LocustHighCommand> { new LocustHighCommand { Id = 1, Name = "Locust Main Command", IsOperational = true } };
+            => new List<LocustHighCommand>
+            {
+                new LocustHighCommand
+                {
+                    Id = 1,
+                    Name = "Locust Main Command",
+                    IsOperational = true
+                }
+            };
 
         public static void WireUp(
             IReadOnlyList<Squad> squads,
@@ -286,7 +386,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             squads[0].Missions = new List<SquadMission> { squadMissions[0], squadMissions[1] };
             squads[1].Missions = new List<SquadMission> { squadMissions[2] };
 
-            squads[0].Members = new List<Gear> { gears[0], gears[1], gears[3], gears[4] };
+            squads[0].Members = new List<Gear>
+            {
+                gears[0],
+                gears[1],
+                gears[3],
+                gears[4]
+            };
             squads[1].Members = new List<Gear> { gears[2] };
 
             weapons[1].SynergyWith = weapons[0];
@@ -331,7 +437,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             gears[4].Squad = squads[0];
             gears[4].Tag = tags[4];
             gears[4].Weapons = new List<Weapon> { weapons[0], weapons[1] };
-            ((Officer)gears[4]).Reports = new List<Gear> { gears[0], gears[1], gears[3] };
+            ((Officer)gears[4]).Reports = new List<Gear>
+            {
+                gears[0],
+                gears[1],
+                gears[3]
+            };
 
             cities[0].BornGears = new List<Gear> { gears[4] };
             cities[1].BornGears = new List<Gear> { gears[0] };
@@ -405,7 +516,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         {
             ((LocustHorde)factions[0]).Leaders = new List<LocustLeader>
             {
-                locustLeaders[0], locustLeaders[1], locustLeaders[2], locustLeaders[3]
+                locustLeaders[0],
+                locustLeaders[1],
+                locustLeaders[2],
+                locustLeaders[3]
             };
             ((LocustHorde)factions[1]).Leaders = new List<LocustLeader> { locustLeaders[4], locustLeaders[5] };
         }

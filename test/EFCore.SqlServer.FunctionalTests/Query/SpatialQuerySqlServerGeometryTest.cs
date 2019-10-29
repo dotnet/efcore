@@ -233,11 +233,7 @@ FROM [GeoPointEntity] AS [g]");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<PointEntity>().Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 })
-                    }),
+                    e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {

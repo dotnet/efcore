@@ -45,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return contextType.GetRuntimeProperties()
                 .Where(
                     p => !p.IsStatic()
-                         && !p.GetIndexParameters().Any()
-                         && p.DeclaringType != typeof(DbContext)
-                         && p.PropertyType.GetTypeInfo().IsGenericType
-                         && (p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
+                        && !p.GetIndexParameters().Any()
+                        && p.DeclaringType != typeof(DbContext)
+                        && p.PropertyType.GetTypeInfo().IsGenericType
+                        && (p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)
 #pragma warning disable CS0618 // Type or member is obsolete
-                             || p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
+                            || p.PropertyType.GetGenericTypeDefinition() == typeof(DbQuery<>)))
 #pragma warning restore CS0618 // Type or member is obsolete
                 .OrderBy(p => p.Name)
                 .Select(

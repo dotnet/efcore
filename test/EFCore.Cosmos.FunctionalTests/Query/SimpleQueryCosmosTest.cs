@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1025,9 +1024,13 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertSingleResult(
                 isAsync,
                 syncQuery: ss => ss.Set<Customer>()
-                    .All(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))),
+                    .All(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))),
                 asyncQuery: ss => ss.Set<Customer>()
-                    .AllAsync(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
+                    .AllAsync(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1041,13 +1044,19 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertSingleResult(
                 isAsync,
                 syncQuery: ss => ss.Set<Customer>()
-                    .All(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>()
-                        .Any(c2 => ss.Set<Customer>()
-                            .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
+                    .All(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>()
+                                .Any(
+                                    c2 => ss.Set<Customer>()
+                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
                 asyncQuery: ss => ss.Set<Customer>()
-                    .AllAsync(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>()
-                        .Any(c2 => ss.Set<Customer>()
-                            .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+                    .AllAsync(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>()
+                                .Any(
+                                    c2 => ss.Set<Customer>()
+                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1163,7 +1172,12 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                     from e1 in ss.Set<Employee>().Where(ct => ct.City == "London")
                     from c in ss.Set<Customer>().Where(ct => ct.City == "London")
                     from e2 in ss.Set<Employee>().Where(ct => ct.City == "London")
-                    select new { e1, c, e2.FirstName },
+                    select new
+                    {
+                        e1,
+                        c,
+                        e2.FirstName
+                    },
                 e => (e.e1.EmployeeID, e.c.CustomerID, e.FirstName),
                 entryCount: 10);
 
@@ -1182,7 +1196,13 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""City""] = ""London""))");
                       from e2 in ss.Set<Employee>()
                       from e3 in ss.Set<Employee>()
                       from e4 in ss.Set<Employee>()
-                      select new { e2, e3, e1, e4 },
+                      select new
+                      {
+                          e2,
+                          e3,
+                          e1,
+                          e4
+                      },
                 e => (e.e2.EmployeeID, e.e3.EmployeeID, e.e1.EmployeeID, e.e4.EmployeeID),
                 entryCount: 9);
 
@@ -1436,7 +1456,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     from c in ss.Set<Customer>().Where(cst => cst.CustomerID == "ALFKI")
                     from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                     select new { c.ContactName, o },
-                e => (e.ContactName, + e.o?.OrderID),
+                e => (e.ContactName, +e.o?.OrderID),
                 entryCount: 6);
 
             AssertSql(
@@ -1517,8 +1537,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                        from o in ss.Set<Order>().Where(or => or.OrderID < 10300)
                        orderby c.CustomerID, o.OrderID
                        select new { c, o })
-                        .Take(1)
-                        .Cast<object>(),
+                    .Take(1)
+                    .Cast<object>(),
                 entryCount: 2);
 
             AssertSql(
@@ -1852,7 +1872,8 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 {
                     var firstOrder = ss.Set<Order>().OrderBy(o => o.OrderID).First();
                     Expression<Func<Order, bool>> expr = x => x.OrderID == firstOrder.OrderID;
-                    return ss.Set<Order>().Where(o => o.OrderID < 10250).Where(x => ss.Set<Order>().Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
+                    return ss.Set<Order>().Where(o => o.OrderID < 10250)
+                        .Where(x => ss.Set<Order>().Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
                 },
                 entryCount: 1);
 
@@ -1975,9 +1996,10 @@ WHERE (c[""Discriminator""] = ""Product"")");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Product>().Where(p => p.ProductID == 72)
-                    .Where(p => ss.Set<OrderDetail>()
-                        .Where(o => o.ProductID == p.ProductID)
-                        .Select(odd => odd.Quantity).Contains<short>(5)),
+                    .Where(
+                        p => ss.Set<OrderDetail>()
+                            .Where(o => o.ProductID == p.ProductID)
+                            .Select(odd => odd.Quantity).Contains<short>(5)),
                 entryCount: 1);
 
             AssertSql(
@@ -2602,7 +2624,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                       from o2 in ss.Set<Order>().Where(o => o.OrderID < 10250).Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                       where o1 != null && o2 != null
                       orderby o1.OrderID, o2.OrderDate
-                      select new { c.CustomerID, o1.OrderID, o2.OrderDate },
+                      select new
+                      {
+                          c.CustomerID,
+                          o1.OrderID,
+                          o2.OrderDate
+                      },
                 elementSorter: e => (e.CustomerID, e.OrderID));
 
             AssertSql(
@@ -2791,10 +2818,12 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Order>().Where(
-                    o => o.OrderID > 11002 && o.OrderID < 11004 && ss.Set<OrderDetail>()
-                        .Where(od => od.Product.ProductName == "Chai")
-                        .Select(od => od.OrderID)
-                        .Contains(o.OrderID)),
+                    o => o.OrderID > 11002
+                        && o.OrderID < 11004
+                        && ss.Set<OrderDetail>()
+                            .Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)),
                 entryCount: 1);
 
             AssertSql(
@@ -3546,10 +3575,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 isAsync,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
                     .Select(
-                        c => new
-                        {
-                            c.CustomerID, OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0)
-                        }));
+                        c => new { c.CustomerID, OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0) }));
 
             AssertSql(
                 @"SELECT c
@@ -3725,8 +3751,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
-                ss => ss.Set<Customer>().Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault() == null),
                 entryCount: 89);
 
             AssertSql(
@@ -3739,7 +3767,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
                 ss => ss.Set<Customer>().Where(
                     c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
                 entryCount: 89);

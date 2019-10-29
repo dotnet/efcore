@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -164,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         r.WithOwner();
                         r.HasOne(d => d.Customer)
-                         .WithMany();
+                            .WithMany();
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -196,12 +195,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     r =>
                     {
                         r.HasOne(d => d.Customer)
-                         .WithMany();
+                            .WithMany();
                     });
 
-
-                Assert.Equal(CoreStrings.NavigationNotAdded(nameof(Customer), nameof(Customer.Details), nameof(CustomerDetails)),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Equal(
+                    CoreStrings.NavigationNotAdded(nameof(Customer), nameof(Customer.Details), nameof(CustomerDetails)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 
             [ConditionalFact]
@@ -247,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
                     .Single(
                         fk => fk.DeclaringEntityType.ClrType == typeof(CustomerDetails)
-                              && fk.PrincipalToDependent == null);
+                            && fk.PrincipalToDependent == null);
                 Assert.Same(ownership.DeclaringEntityType, foreignKey.DeclaringEntityType);
                 Assert.NotEqual(ownership.Properties.Single().Name, foreignKey.Properties.Single().Name);
                 Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
@@ -413,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
                     .Single(
                         fk => fk.DeclaringEntityType.ClrType == typeof(Order)
-                              && fk.PrincipalToDependent == null);
+                            && fk.PrincipalToDependent == null);
                 Assert.Same(ownership1.DeclaringEntityType, foreignKey.DeclaringEntityType);
                 Assert.Null(foreignKey.PrincipalToDependent);
                 Assert.NotEqual(ownership1.Properties.Single().Name, foreignKey.Properties.Single().Name);
@@ -743,7 +742,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).Ignore(l => l.Book);
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).Ignore(l => l.Book);
 
-                 modelBuilder.FinalizeModel();
+                modelBuilder.FinalizeModel();
             }
 
             [ConditionalFact]
@@ -1174,11 +1173,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>()
                     .Ignore(b => b.AlternateLabel)
                     .Ignore(b => b.Details)
-                    .OwnsOne(b => b.Label, lb =>
-                    {
-                        lb.Ignore(l => l.AnotherBookLabel);
-                        lb.Ignore(l => l.SpecialBookLabel);
-                    });
+                    .OwnsOne(
+                        b => b.Label, lb =>
+                        {
+                            lb.Ignore(l => l.AnotherBookLabel);
+                            lb.Ignore(l => l.SpecialBookLabel);
+                        });
 
                 Assert.Equal(
                     CoreStrings.ClashingOwnedEntityType(nameof(AnotherBookLabel)),
@@ -1218,7 +1218,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>()
                     .Ignore(b => b.AlternateLabel)
                     .Ignore(b => b.Details)
-                    .OwnsOne(c => c.Label, lb =>
+                    .OwnsOne(
+                        c => c.Label, lb =>
                         {
                             lb.Ignore(l => l.AnotherBookLabel);
                             lb.Ignore(l => l.SpecialBookLabel);

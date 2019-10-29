@@ -188,11 +188,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 {
                     return false;
                 }
-                else
-                {
-                    response.EnsureSuccessStatusCode();
-                    return response.StatusCode == HttpStatusCode.NoContent;
-                }
+
+                response.EnsureSuccessStatusCode();
+                return response.StatusCode == HttpStatusCode.NoContent;
             }
         }
 
@@ -243,11 +241,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 {
                     return false;
                 }
-                else
-                {
-                    response.EnsureSuccessStatusCode();
-                    return response.StatusCode == HttpStatusCode.Created;
-                }
+
+                response.EnsureSuccessStatusCode();
+                return response.StatusCode == HttpStatusCode.Created;
             }
         }
 

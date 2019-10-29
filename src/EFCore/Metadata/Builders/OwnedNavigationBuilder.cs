@@ -706,8 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
             }
 
-            return relatedEntityType ??
-                   Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
+            return relatedEntityType ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
         }
 
         /// <summary>
@@ -730,8 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relatedEntityType = Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, DependentEntityType);
             }
 
-            return relatedEntityType ??
-                   DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+            return relatedEntityType ?? DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
         }
 
         /// <summary>

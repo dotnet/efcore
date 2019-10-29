@@ -25,22 +25,23 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        const string genreName = "Genre 1";
-                        CreateTestGenres(numberOfGenres: 3, numberOfAlbums: 3, context: context);
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            const string genreName = "Genre 1";
+                            CreateTestGenres(numberOfGenres: 3, numberOfAlbums: 3, context: context);
 
-                        var controller = new StoreController(context);
+                            var controller = new StoreController(context);
 
-                        var result = await controller.Browse(genreName);
+                            var result = await controller.Browse(genreName);
 
-                        Assert.Equal(genreName, result.Name);
-                        Assert.NotNull(result.Albums);
-                        Assert.Equal(3, result.Albums.Count);
-                    }
-                });
+                            Assert.Equal(genreName, result.Name);
+                            Assert.NotNull(result.Albums);
+                            Assert.Equal(3, result.Albums.Count);
+                        }
+                    });
             }
         }
 
@@ -49,19 +50,20 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        CreateTestGenres(numberOfGenres: 10, numberOfAlbums: 1, context: context);
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            CreateTestGenres(numberOfGenres: 10, numberOfAlbums: 1, context: context);
 
-                        var controller = new StoreController(context);
+                            var controller = new StoreController(context);
 
-                        var result = await controller.Index();
+                            var result = await controller.Index();
 
-                        Assert.Equal(10, result.Count);
-                    }
-                });
+                            Assert.Equal(10, result.Count);
+                        }
+                    });
             }
         }
 
@@ -70,25 +72,26 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var genres = CreateTestGenres(numberOfGenres: 3, numberOfAlbums: 3, context: context);
-                        var albumId = genres.First().Albums[2].AlbumId;
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var genres = CreateTestGenres(numberOfGenres: 3, numberOfAlbums: 3, context: context);
+                            var albumId = genres.First().Albums[2].AlbumId;
 
-                        var controller = new StoreController(context);
+                            var controller = new StoreController(context);
 
-                        var result = await controller.Details(albumId);
+                            var result = await controller.Details(albumId);
 
-                        Assert.NotNull(result.Genre);
-                        var genre = genres.SingleOrDefault(g => g.GenreId == result.GenreId);
-                        Assert.NotNull(genre);
-                        Assert.NotNull(genre.Albums.SingleOrDefault(a => a.AlbumId == albumId));
-                        Assert.NotNull(result.Artist);
-                        Assert.NotEqual(0, result.ArtistId);
-                    }
-                });
+                            Assert.NotNull(result.Genre);
+                            var genre = genres.SingleOrDefault(g => g.GenreId == result.GenreId);
+                            Assert.NotNull(genre);
+                            Assert.NotNull(genre.Albums.SingleOrDefault(a => a.AlbumId == albumId));
+                            Assert.NotNull(result.Artist);
+                            Assert.NotEqual(0, result.ArtistId);
+                        }
+                    });
             }
         }
 
@@ -117,26 +120,27 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var controller = new HomeController();
-
-                        var albums = TestAlbumDataProvider.GetAlbums();
-
-                        foreach (var album in albums)
+                        using (Fixture.BeginTransaction(context))
                         {
-                            context.Add(album);
+                            var controller = new HomeController();
+
+                            var albums = TestAlbumDataProvider.GetAlbums();
+
+                            foreach (var album in albums)
+                            {
+                                context.Add(album);
+                            }
+
+                            context.SaveChanges();
+
+                            var result = await controller.Index(context);
+
+                            Assert.Equal(6, result.Count);
                         }
-
-                        context.SaveChanges();
-
-                        var result = await controller.Index(context);
-
-                        Assert.Equal(6, result.Count);
-                    }
-                });
+                    });
             }
         }
 
@@ -144,14 +148,22 @@ namespace Microsoft.EntityFrameworkCore
         {
             public static Album[] GetAlbums()
             {
-                var genres = Enumerable.Range(1, 10).Select(n =>
-                    new Genre { Name = "Genre Name " + n }).ToArray();
+                var genres = Enumerable.Range(1, 10).Select(
+                    n =>
+                        new Genre { Name = "Genre Name " + n }).ToArray();
 
-                var artists = Enumerable.Range(1, 10).Select(n =>
-                    new Artist { Name = "Artist Name " + n }).ToArray();
+                var artists = Enumerable.Range(1, 10).Select(
+                    n =>
+                        new Artist { Name = "Artist Name " + n }).ToArray();
 
-                var albums = Enumerable.Range(1, 10).Select(n =>
-                    new Album { Artist = artists[n - 1], Genre = genres[n - 1], Title = "Greatest Hits" }).ToArray();
+                var albums = Enumerable.Range(1, 10).Select(
+                    n =>
+                        new Album
+                        {
+                            Artist = artists[n - 1],
+                            Genre = genres[n - 1],
+                            Title = "Greatest Hits"
+                        }).ToArray();
 
                 return albums;
             }
@@ -162,23 +174,24 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var genreMenuComponent = new GenreMenuComponent(context);
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var genreMenuComponent = new GenreMenuComponent(context);
 
-                        var genres = Enumerable.Range(1, 10).Select(
-                            n => new Genre { Name = $"G{n}" });
+                            var genres = Enumerable.Range(1, 10).Select(
+                                n => new Genre { Name = $"G{n}" });
 
-                        context.AddRange(genres);
-                        context.SaveChanges();
+                            context.AddRange(genres);
+                            context.SaveChanges();
 
-                        var result = await genreMenuComponent.InvokeAsync();
+                            var result = await genreMenuComponent.InvokeAsync();
 
-                        Assert.Equal(9, result.Count);
-                    }
-                });
+                            Assert.Equal(9, result.Count);
+                        }
+                    });
             }
         }
 
@@ -193,22 +206,23 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var cartItems = CreateTestCartItems(cartId, itemPrice: 10, numberOfItems: 1);
-                        context.AddRange(cartItems.Select(n => n.Album).Distinct());
-                        context.AddRange(cartItems);
-                        context.SaveChanges();
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var cartItems = CreateTestCartItems(cartId, itemPrice: 10, numberOfItems: 1);
+                            context.AddRange(cartItems.Select(n => n.Album).Distinct());
+                            context.AddRange(cartItems);
+                            context.SaveChanges();
 
-                        var controller = new CheckoutController(formCollection);
+                            var controller = new CheckoutController(formCollection);
 
-                        var result = await controller.AddressAndPayment(context, cartId, order);
+                            var result = await controller.AddressAndPayment(context, cartId, order);
 
-                        Assert.Equal(order.OrderId, result);
-                    }
-                });
+                            Assert.Equal(order.OrderId, result);
+                        }
+                    });
             }
         }
 
@@ -219,18 +233,19 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var controller = new CheckoutController();
-                        var order = CreateOrder();
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var controller = new CheckoutController();
+                            var order = CreateOrder();
 
-                        var result = await controller.AddressAndPayment(context, cartId, order);
+                            var result = await controller.AddressAndPayment(context, cartId, order);
 
-                        Assert.Null(result);
-                    }
-                });
+                            Assert.Null(result);
+                        }
+                    });
             }
         }
 
@@ -254,20 +269,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var controller = new CheckoutController();
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var controller = new CheckoutController();
 
-                        var order = context.Add(CreateOrder()).Entity;
-                        context.SaveChanges();
+                            var order = context.Add(CreateOrder()).Entity;
+                            context.SaveChanges();
 
-                        var result = await controller.Complete(context, order.OrderId);
+                            var result = await controller.Complete(context, order.OrderId);
 
-                        Assert.Equal(order.OrderId, result);
-                    }
-                });
+                            Assert.Equal(order.OrderId, result);
+                        }
+                    });
             }
         }
 
@@ -276,17 +292,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var controller = new CheckoutController();
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var controller = new CheckoutController();
 
-                        var result = await controller.Complete(context, -3333);
+                            var result = await controller.Complete(context, -3333);
 
-                        Assert.Equal("Error", result);
-                    }
-                });
+                            Assert.Equal("Error", result);
+                        }
+                    });
             }
         }
 
@@ -299,30 +316,36 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var album = new Album
+                        using (Fixture.BeginTransaction(context))
                         {
-                            Title = albumTitle,
-                            Artist = new Artist { Name = "Kung Fu Kenny" },
-                            Genre = new Genre { Name = "Rap" }
-                        };
+                            var album = new Album
+                            {
+                                Title = albumTitle,
+                                Artist = new Artist { Name = "Kung Fu Kenny" },
+                                Genre = new Genre { Name = "Rap" }
+                            };
 
-                        var cartItems = Enumerable.Range(1, itemCount).Select(
-                            n =>
-                                new CartItem { Album = album, Count = 1, CartId = cartId }).ToArray();
+                            var cartItems = Enumerable.Range(1, itemCount).Select(
+                                n =>
+                                    new CartItem
+                                    {
+                                        Album = album,
+                                        Count = 1,
+                                        CartId = cartId
+                                    }).ToArray();
 
-                        context.AddRange(cartItems);
-                        context.SaveChanges();
+                            context.AddRange(cartItems);
+                            context.SaveChanges();
 
-                        var result = await new CartSummaryComponent(context, cartId).InvokeAsync();
+                            var result = await new CartSummaryComponent(context, cartId).InvokeAsync();
 
-                        Assert.Equal(itemCount, result.CartCount);
-                        Assert.Equal(albumTitle, result.CartSummary);
-                    }
-                });
+                            Assert.Equal(itemCount, result.CartCount);
+                            Assert.Equal(albumTitle, result.CartSummary);
+                        }
+                    });
             }
         }
 
@@ -331,37 +354,38 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var albums = CreateTestAlbums(
-                            10,
-                            new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var albums = CreateTestAlbums(
+                                10,
+                                new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
 
-                        context.Albums.AddRange(albums);
-                        await context.SaveChangesAsync();
+                            context.Albums.AddRange(albums);
+                            await context.SaveChangesAsync();
 
-                        var q = from album in context.Albums
-                                join genre in context.Genres on album.GenreId equals genre.GenreId
-                                join artist in context.Artists on album.ArtistId equals artist.ArtistId
-                                select new Album
-                                {
-                                    ArtistId = album.ArtistId,
-                                    AlbumArtUrl = album.AlbumArtUrl,
-                                    AlbumId = album.AlbumId,
-                                    GenreId = album.GenreId,
-                                    Price = album.Price,
-                                    Title = album.Title,
-                                    Artist = new Artist { ArtistId = album.ArtistId, Name = artist.Name },
-                                    Genre = new Genre { GenreId = album.GenreId, Name = genre.Name }
-                                };
+                            var q = from album in context.Albums
+                                    join genre in context.Genres on album.GenreId equals genre.GenreId
+                                    join artist in context.Artists on album.ArtistId equals artist.ArtistId
+                                    select new Album
+                                    {
+                                        ArtistId = album.ArtistId,
+                                        AlbumArtUrl = album.AlbumArtUrl,
+                                        AlbumId = album.AlbumId,
+                                        GenreId = album.GenreId,
+                                        Price = album.Price,
+                                        Title = album.Title,
+                                        Artist = new Artist { ArtistId = album.ArtistId, Name = artist.Name },
+                                        Genre = new Genre { GenreId = album.GenreId, Name = genre.Name }
+                                    };
 
-                        var foundAlbums = q.ToList();
+                            var foundAlbums = q.ToList();
 
-                        Assert.Equal(10, foundAlbums.Count);
-                    }
-                });
+                            Assert.Equal(10, foundAlbums.Count);
+                        }
+                    });
             }
         }
 
@@ -374,28 +398,29 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var cartItems = CreateTestCartItems(cartId, unitPrice, numberOfItems);
-                        context.AddRange(cartItems.Select(n => n.Album).Distinct());
-                        context.AddRange(cartItems);
-                        context.SaveChanges();
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var cartItems = CreateTestCartItems(cartId, unitPrice, numberOfItems);
+                            context.AddRange(cartItems.Select(n => n.Album).Distinct());
+                            context.AddRange(cartItems);
+                            context.SaveChanges();
 
-                        var controller = new ShoppingCartController(context, cartId);
+                            var controller = new ShoppingCartController(context, cartId);
 
-                        var cartItemId = cartItems[2].CartItemId;
-                        var viewModel = await controller.RemoveFromCart(cartItemId);
+                            var cartItemId = cartItems[2].CartItemId;
+                            var viewModel = await controller.RemoveFromCart(cartItemId);
 
-                        Assert.Equal(numberOfItems - 1, viewModel.CartCount);
-                        Assert.Equal((numberOfItems - 1) * 10, viewModel.CartTotal);
-                        Assert.Equal("Greatest Hits has been removed from your shopping cart.", viewModel.Message);
+                            Assert.Equal(numberOfItems - 1, viewModel.CartCount);
+                            Assert.Equal((numberOfItems - 1) * 10, viewModel.CartTotal);
+                            Assert.Equal("Greatest Hits has been removed from your shopping cart.", viewModel.Message);
 
-                        var cart = ShoppingCart.GetCart(context, cartId);
-                        Assert.DoesNotContain((await cart.GetCartItems()), c => c.CartItemId == cartItemId);
-                    }
-                });
+                            var cart = ShoppingCart.GetCart(context, cartId);
+                            Assert.DoesNotContain((await cart.GetCartItems()), c => c.CartItemId == cartItemId);
+                        }
+                    });
             }
         }
 
@@ -406,17 +431,18 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var controller = new ShoppingCartController(context, cartId);
-                        var viewModel = await controller.Index();
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var controller = new ShoppingCartController(context, cartId);
+                            var viewModel = await controller.Index();
 
-                        Assert.Empty(viewModel.CartItems);
-                        Assert.Equal(0, viewModel.CartTotal);
-                    }
-                });
+                            Assert.Empty(viewModel.CartItems);
+                            Assert.Equal(0, viewModel.CartTotal);
+                        }
+                    });
             }
         }
 
@@ -427,26 +453,27 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var cartItems = CreateTestCartItems(
-                            cartId,
-                            itemPrice: 10,
-                            numberOfItems: 5);
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var cartItems = CreateTestCartItems(
+                                cartId,
+                                itemPrice: 10,
+                                numberOfItems: 5);
 
-                        context.AddRange(cartItems.Select(n => n.Album).Distinct());
-                        context.AddRange(cartItems);
-                        context.SaveChanges();
+                            context.AddRange(cartItems.Select(n => n.Album).Distinct());
+                            context.AddRange(cartItems);
+                            context.SaveChanges();
 
-                        var controller = new ShoppingCartController(context, cartId);
-                        var viewModel = await controller.Index();
+                            var controller = new ShoppingCartController(context, cartId);
+                            var viewModel = await controller.Index();
 
-                        Assert.Equal(5, viewModel.CartItems.Count);
-                        Assert.Equal(5 * 10, viewModel.CartTotal);
-                    }
-                });
+                            Assert.Equal(5, viewModel.CartItems.Count);
+                            Assert.Equal(5 * 10, viewModel.CartTotal);
+                        }
+                    });
             }
         }
 
@@ -457,26 +484,27 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                {
-                    using (Fixture.BeginTransaction(context))
+                await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                    async () =>
                     {
-                        var albums = CreateTestAlbums(
-                            10,
-                            new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
+                        using (Fixture.BeginTransaction(context))
+                        {
+                            var albums = CreateTestAlbums(
+                                10,
+                                new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
 
-                        context.AddRange(albums);
-                        context.SaveChanges();
+                            context.AddRange(albums);
+                            context.SaveChanges();
 
-                        var controller = new ShoppingCartController(context, cartId);
-                        var albumId = albums[2].AlbumId;
-                        await controller.AddToCart(albumId);
+                            var controller = new ShoppingCartController(context, cartId);
+                            var albumId = albums[2].AlbumId;
+                            await controller.AddToCart(albumId);
 
-                        var cart = ShoppingCart.GetCart(context, cartId);
-                        Assert.Single(await cart.GetCartItems());
-                        Assert.Equal(albumId, (await cart.GetCartItems()).Single().AlbumId);
-                    }
-                });
+                            var cart = ShoppingCart.GetCart(context, cartId);
+                            Assert.Single(await cart.GetCartItems());
+                            Assert.Equal(albumId, (await cart.GetCartItems()).Single().AlbumId);
+                        }
+                    });
             }
         }
 
@@ -487,7 +515,12 @@ namespace Microsoft.EntityFrameworkCore
                 new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
 
             var cartItems = Enumerable.Range(1, numberOfItems).Select(
-                n => new CartItem { Count = 1, CartId = cartId, Album = albums[n % albums.Length] }).ToArray();
+                n => new CartItem
+                {
+                    Count = 1,
+                    CartId = cartId,
+                    Album = albums[n % albums.Length]
+                }).ToArray();
 
             return cartItems;
         }
@@ -496,7 +529,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             return Enumerable.Range(1, 10).Select(
                 n =>
-                    new Album { Title = "Greatest Hits", Price = itemPrice, Artist = artist, Genre = genre }).ToArray();
+                    new Album
+                    {
+                        Title = "Greatest Hits",
+                        Price = itemPrice,
+                        Artist = artist,
+                        Genre = genre
+                    }).ToArray();
         }
 
         protected class CartSummaryComponent
@@ -643,8 +682,7 @@ namespace Microsoft.EntityFrameworkCore
                 var userName = "RainbowDash";
 
                 var isValid = await context.Orders.AnyAsync(
-                    o => o.OrderId == id &&
-                         o.Username == userName);
+                    o => o.OrderId == id && o.Username == userName);
 
                 if (isValid)
                 {

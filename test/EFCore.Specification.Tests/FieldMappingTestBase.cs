@@ -1701,7 +1701,12 @@ namespace Microsoft.EntityFrameworkCore
             posts.Add(
                 new TPost { AccessId = 11, AccessTitle = "Post11" });
 
-            return new TBlog { AccessId = 10, AccessTitle = "Blog10", AccessPosts = (IEnumerable<IPostAccessor>)posts };
+            return new TBlog
+            {
+                AccessId = 10,
+                AccessTitle = "Blog10",
+                AccessPosts = (IEnumerable<IPostAccessor>)posts
+            };
         }
 
         protected static IList<TPost> CreatePostsAndBlog<TBlog, TPost>()
@@ -1712,8 +1717,18 @@ namespace Microsoft.EntityFrameworkCore
 
             return new List<TPost>
             {
-                new TPost { AccessId = 20, AccessTitle = "Post20", AccessBlog = blog },
-                new TPost { AccessId = 21, AccessTitle = "Post21", AccessBlog = blog }
+                new TPost
+                {
+                    AccessId = 20,
+                    AccessTitle = "Post20",
+                    AccessBlog = blog
+                },
+                new TPost
+                {
+                    AccessId = 21,
+                    AccessTitle = "Post21",
+                    AccessBlog = blog
+                }
             };
         }
 

@@ -710,7 +710,8 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Child>();
             var toy = modelBuilder.Entity<Toy>();
 
-            Assert.DoesNotContain(toy.Metadata.GetForeignKeys(), fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow)));
+            Assert.DoesNotContain(
+                toy.Metadata.GetForeignKeys(), fk => fk.IsUnique == false && fk.Properties.Any(p => p.Name == nameof(Toy.IdRow)));
 
             Validate(modelBuilder);
 
@@ -818,7 +819,12 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<GeneratedEntityNonInteger>().HasAlternateKey(
-                e => new { e.String, e.DateTime, e.Guid });
+                e => new
+                {
+                    e.String,
+                    e.DateTime,
+                    e.Guid
+                });
 
             var entity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntityNonInteger));
 
@@ -1892,12 +1898,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     CoreEventId.MultipleInversePropertiesSameTargetWarning,
-                CoreResources.LogMultipleInversePropertiesSameTarget(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage(
-                    $"{nameof(MultipleAnswersRepeatingInverse)}.{nameof(MultipleAnswersRepeatingInverse.Answers)},"
-                    + $" {nameof(MultipleAnswersInverse)}.{nameof(MultipleAnswersInverse.Answers)}",
-                         nameof(PartialAnswerInverse.Answer)),
-                "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
+                    CoreResources.LogMultipleInversePropertiesSameTarget(new TestLogger<TestLoggingDefinitions>())
+                        .GenerateMessage(
+                            $"{nameof(MultipleAnswersRepeatingInverse)}.{nameof(MultipleAnswersRepeatingInverse.Answers)},"
+                            + $" {nameof(MultipleAnswersInverse)}.{nameof(MultipleAnswersInverse.Answers)}",
+                            nameof(PartialAnswerInverse.Answer)),
+                    "CoreEventId.MultipleInversePropertiesSameTargetWarning"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
@@ -1908,7 +1914,9 @@ namespace Microsoft.EntityFrameworkCore
             public virtual AnswerBaseInverse Answer { get; set; }
         }
 
-        private class PartialAnswerRepeatingInverse : PartialAnswerInverse { }
+        private class PartialAnswerRepeatingInverse : PartialAnswerInverse
+        {
+        }
 
         private abstract class AnswerBaseInverse
         {

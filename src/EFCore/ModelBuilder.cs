@@ -379,14 +379,14 @@ namespace Microsoft.EntityFrameworkCore
                 .GetMethods()
                 .Single(
                     e => e.Name == nameof(ApplyConfiguration)
-                         && e.ContainsGenericParameters
-                         && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
-                         == typeof(IEntityTypeConfiguration<>));
+                        && e.ContainsGenericParameters
+                        && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
+                        == typeof(IEntityTypeConfiguration<>));
             var applyQueryConfigurationMethod = typeof(ModelBuilder).GetMethods().Single(
                 e => e.Name == nameof(ApplyConfiguration)
-                     && e.ContainsGenericParameters
+                    && e.ContainsGenericParameters
 #pragma warning disable CS0618 // Type or member is obsolete
-                     && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
+                    && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
 #pragma warning restore CS0618 // Type or member is obsolete
             foreach (var type in assembly.GetConstructibleTypes())
             {

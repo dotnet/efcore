@@ -194,9 +194,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var navigationValue = CurrentValue;
 
                 return navigationValue != null
-                       && (Metadata.IsCollection()
-                           ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
-                           : AnyFkPropertiesModified(navigationValue));
+                    && (Metadata.IsCollection()
+                        ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
+                        : AnyFkPropertiesModified(navigationValue));
             }
             set
             {
@@ -230,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
 
             return relatedEntry != null
-                   && (relatedEntry.EntityState == EntityState.Added
-                       || relatedEntry.EntityState == EntityState.Deleted
-                       || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
+                && (relatedEntry.EntityState == EntityState.Added
+                    || relatedEntry.EntityState == EntityState.Deleted
+                    || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
         }
 
         private bool AnyFkPropertiesModified(object relatedEntity)
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
 
             return relatedEntry != null
-                   && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
+                && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
         }
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)

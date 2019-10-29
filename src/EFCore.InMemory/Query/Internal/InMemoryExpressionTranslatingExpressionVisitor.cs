@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -74,7 +73,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var newLeft = Visit(binaryExpression.Left);
             var newRight = Visit(binaryExpression.Right);
 
-            if (newLeft == null || newRight == null)
+            if (newLeft == null
+                || newRight == null)
             {
                 return null;
             }
@@ -101,7 +101,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var ifTrue = Visit(conditionalExpression.IfTrue);
             var ifFalse = Visit(conditionalExpression.IfFalse);
 
-            if (test == null || ifTrue == null || ifFalse == null)
+            if (test == null
+                || ifTrue == null
+                || ifFalse == null)
             {
                 return null;
             }
@@ -124,29 +126,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var innerExpression = Visit(memberExpression.Expression);
-            if (memberExpression.Expression != null && innerExpression == null)
+            if (memberExpression.Expression != null
+                && innerExpression == null)
             {
                 return null;
             }
 
             if ((innerExpression is EntityProjectionExpression
-                || (innerExpression is UnaryExpression innerUnaryExpression
-                    && innerUnaryExpression.NodeType == ExpressionType.Convert
-                    && innerUnaryExpression.Operand is EntityProjectionExpression))
+                    || (innerExpression is UnaryExpression innerUnaryExpression
+                        && innerUnaryExpression.NodeType == ExpressionType.Convert
+                        && innerUnaryExpression.Operand is EntityProjectionExpression))
                 && TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), memberExpression.Type, out var result))
             {
                 return result;
             }
 
-            static bool shouldApplyNullProtectionForMemberAccess(Type callerType, string memberName)
-                => !(callerType.IsGenericType
-                    && callerType.GetGenericTypeDefinition() == typeof(Nullable<>)
-                    && (memberName == nameof(Nullable<int>.Value) || memberName == nameof(Nullable<int>.HasValue)));
-
             var updatedMemberExpression = (Expression)memberExpression.Update(innerExpression);
             if (innerExpression != null
                 && innerExpression.Type.IsNullableType()
-                && shouldApplyNullProtectionForMemberAccess(innerExpression.Type, memberExpression.Member.Name))
+                && ShouldApplyNullProtectionForMemberAccess(innerExpression.Type, memberExpression.Member.Name))
             {
                 updatedMemberExpression = ConvertToNullable(updatedMemberExpression);
 
@@ -157,6 +155,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             return updatedMemberExpression;
+
+            static bool ShouldApplyNullProtectionForMemberAccess(Type callerType, string memberName)
+                => !(callerType.IsGenericType
+                    && callerType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                    && (memberName == nameof(Nullable<int>.Value) || memberName == nameof(Nullable<int>.HasValue)));
         }
 
         private bool TryBindMember(Expression source, MemberIdentity memberIdentity, Type type, out Expression result)
@@ -178,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var entityType = entityProjection.EntityType;
                 if (convertedType != null
                     && !(convertedType.IsInterface
-                         && convertedType.IsAssignableFrom(entityType.ClrType)))
+                        && convertedType.IsAssignableFrom(entityType.ClrType)))
                 {
                     entityType = entityType.GetRootType().GetDerivedTypesInclusive()
                         .FirstOrDefault(et => et.ClrType == convertedType);
@@ -216,18 +219,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private static bool IsConvertedToNullable(Expression result, Expression original)
             => result.Type.IsNullableType()
-            && !original.Type.IsNullableType()
-            && result.Type.UnwrapNullableType() == original.Type;
+                && !original.Type.IsNullableType()
+                && result.Type.UnwrapNullableType() == original.Type;
 
         private static Expression ConvertToNullable(Expression expression)
             => !expression.Type.IsNullableType()
-            ? Expression.Convert(expression, expression.Type.MakeNullable())
-            : expression;
+                ? Expression.Convert(expression, expression.Type.MakeNullable())
+                : expression;
 
         private static Expression ConvertToNonNullable(Expression expression)
             => expression.Type.IsNullableType()
-            ? Expression.Convert(expression, expression.Type.UnwrapNullableType())
-            : expression;
+                ? Expression.Convert(expression, expression.Type.UnwrapNullableType())
+                : expression;
 
         private static Expression BindProperty(EntityProjectionExpression entityProjectionExpression, IProperty property)
             => entityProjectionExpression.BindProperty(property);
@@ -315,17 +318,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             ? method.MakeGenericMethod(typeof(ValueBuffer), selector.ReturnType)
                             : method.MakeGenericMethod(typeof(ValueBuffer));
 
-                        return Expression.Call(method,
+                        return Expression.Call(
+                            method,
                             groupByShaperExpression.GroupingParameter,
                             selector);
 
                         MethodInfo GetMethod()
                             => methodName switch
                             {
-                                nameof(Enumerable.Average) => InMemoryLinqOperatorProvider.GetAverageWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Max) => InMemoryLinqOperatorProvider.GetMaxWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Min) => InMemoryLinqOperatorProvider.GetMinWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Sum) => InMemoryLinqOperatorProvider.GetSumWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Average) => EnumerableMethods.GetAverageWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Max) => EnumerableMethods.GetMaxWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Min) => EnumerableMethods.GetMinWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Sum) => EnumerableMethods.GetSumWithSelector(selector.ReturnType),
                                 _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
                             };
                     }
@@ -339,9 +343,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         {
                             return Expression.Call(
                                 (countMethod
-                                     ? InMemoryLinqOperatorProvider.CountWithoutPredicate
-                                     : InMemoryLinqOperatorProvider.LongCountWithoutPredicate)
-                                    .MakeGenericMethod(typeof(ValueBuffer)),
+                                    ? EnumerableMethods.CountWithoutPredicate
+                                    : EnumerableMethods.LongCountWithoutPredicate)
+                                .MakeGenericMethod(typeof(ValueBuffer)),
                                 groupByShaperExpression.GroupingParameter);
                         }
 
@@ -355,9 +359,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                         return Expression.Call(
                             (countMethod
-                                 ? InMemoryLinqOperatorProvider.CountWithPredicate
-                                 : InMemoryLinqOperatorProvider.LongCountWithPredicate)
-                                .MakeGenericMethod(typeof(ValueBuffer)),
+                                ? EnumerableMethods.CountWithPredicate
+                                : EnumerableMethods.LongCountWithPredicate)
+                            .MakeGenericMethod(typeof(ValueBuffer)),
                             groupByShaperExpression.GroupingParameter,
                             predicate);
                     }
@@ -383,8 +387,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return null;
                 }
 
-                Expression result;
-
                 // Unwrap ResultEnumerable
                 var selectMethod = (MethodCallExpression)subquery.ServerQueryExpression;
                 var resultEnumerable = (NewExpression)selectMethod.Arguments[0];
@@ -392,6 +394,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 // New ValueBuffer construct
                 if (resultFunc is NewExpression newValueBufferExpression)
                 {
+                    Expression result;
                     var innerExpression = ((NewArrayExpression)newValueBufferExpression.Arguments[0]).Expressions[0];
                     if (innerExpression is UnaryExpression unaryExpression
                         && innerExpression.NodeType == ExpressionType.Convert
@@ -469,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard
             if (methodCallExpression.Object != null
                 && @object.Type.IsNullableType()
-                && !(methodCallExpression.Method.Name == nameof(Nullable<int>.GetValueOrDefault)))
+                && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault))
             {
                 var result = (Expression)methodCallExpression.Update(
                     Expression.Convert(@object, methodCallExpression.Object.Type),
@@ -559,6 +562,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     return null;
                 }
+
                 if (IsConvertedToNullable(newExpression, expression))
                 {
                     newExpression = ConvertToNonNullable(newExpression);
@@ -577,6 +581,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 return null;
             }
+
             if (IsConvertedToNullable(expression, memberAssignment.Expression))
             {
                 expression = ConvertToNonNullable(expression);
@@ -598,13 +603,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 case ProjectionBindingExpression projectionBindingExpression:
                     return projectionBindingExpression.ProjectionMember != null
                         ? ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : null;
 
                 case NullConditionalExpression nullConditionalExpression:
                 {
                     var translation = Visit(nullConditionalExpression.AccessOperation);
-
                     return translation.Type == nullConditionalExpression.Type
                         ? translation
                         : Expression.Convert(translation, nullConditionalExpression.Type);
@@ -679,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     result = innerUnary.Operand;
                 }
                 else if (outerMostType == typeof(object)
-                         && intermediateType == innerMostType.UnwrapNullableType())
+                    && intermediateType == innerMostType.UnwrapNullableType())
                 {
                     result = Expression.Convert(innerUnary.Operand, typeof(object));
                 }

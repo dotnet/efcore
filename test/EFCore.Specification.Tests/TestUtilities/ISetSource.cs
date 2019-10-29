@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public interface ISetSource
     {
-        public IQueryable<TEntity> Set<TEntity>()
+        IQueryable<TEntity> Set<TEntity>()
             where TEntity : class;
     }
 }

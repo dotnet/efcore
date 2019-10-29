@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using System.Globalization;
 using System.IO;
@@ -197,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
-                => throw new System.NotImplementedException();
+                => throw new NotImplementedException();
         }
     }
 }

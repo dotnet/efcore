@@ -191,9 +191,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 context.Set<Address>().AddRange(address1, address2, address3);
 
-                var address21 = new Address2 { Id = "1", Street = "3 Dragons Way", City = "Meereen" };
-                var address22 = new Address2 { Id = "2", Street = "42 Castle Black", City = "The Wall" };
-                var address23 = new Address2 { Id = "3", Street = "House of Black and White", City = "Braavos" };
+                var address21 = new Address2
+                {
+                    Id = "1",
+                    Street = "3 Dragons Way",
+                    City = "Meereen"
+                };
+                var address22 = new Address2
+                {
+                    Id = "2",
+                    Street = "42 Castle Black",
+                    City = "The Wall"
+                };
+                var address23 = new Address2
+                {
+                    Id = "3",
+                    Street = "House of Black and White",
+                    City = "Braavos"
+                };
 
                 context.Set<Person2>().AddRange(
                     new Person2 { Name = "Daenerys Targaryen", Address = address21 },

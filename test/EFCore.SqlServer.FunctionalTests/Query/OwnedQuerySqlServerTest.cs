@@ -302,7 +302,7 @@ ORDER BY [o].[Id], [o15].[ClientId], [o15].[Id]");
             await base.Query_for_branch_type_loads_all_owned_navs_tracking(isAsync);
 
             AssertSql(
-                            @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafAAddress_Country_Name], [t13].[LeafAAddress_Country_PlanetId], [o15].[ClientId], [o15].[Id]
+                @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafAAddress_Country_Name], [t13].[LeafAAddress_Country_PlanetId], [o15].[ClientId], [o15].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
     SELECT [o0].[Id], [t].[Id] AS [Id0]
@@ -1361,7 +1361,8 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [e].[Id]");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(
+            bool isAsync)
         {
             await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(isAsync);
 
@@ -1396,9 +1397,11 @@ LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
+        public override async Task
+            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
         {
-            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
+                isAsync);
 
             AssertSql(
                 @"SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
@@ -1523,7 +1526,7 @@ ORDER BY [o].[Id], [o15].[ClientId], [o15].[Id]");
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')",
                 //
-                 @"@__Count_0='4'
+                @"@__Count_0='4'
 @__p_1='0'
 @__p_2='100'
 
@@ -1743,7 +1746,6 @@ LEFT JOIN [Order] AS [o20] ON [o].[Id] = [o20].[ClientId]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([o].[Id] = 1)
 ORDER BY [o].[Id], [o20].[ClientId], [o20].[Id]");
         }
-
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual IModel Model
             => CoreOptions?.Model
-               ?? (_modelFromSource
-                   ?? (_modelFromSource = CreateModel()));
+                ?? (_modelFromSource
+                    ?? (_modelFromSource = CreateModel()));
 
         private CoreOptionsExtension CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();

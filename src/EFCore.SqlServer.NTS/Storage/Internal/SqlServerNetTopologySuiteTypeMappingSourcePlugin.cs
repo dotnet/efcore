@@ -60,13 +60,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var storeTypeName = mappingInfo.StoreTypeName;
 
             return typeof(Geometry).IsAssignableFrom(clrType)
-                   || (storeTypeName != null
-                       && _spatialStoreTypes.Contains(storeTypeName))
-                ? (RelationalTypeMapping)Activator.CreateInstance(
-                    typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType),
-                    _geometryServices,
-                    storeTypeName ?? "geography")
-                : null;
+                || (storeTypeName != null
+                    && _spatialStoreTypes.Contains(storeTypeName))
+                    ? (RelationalTypeMapping)Activator.CreateInstance(
+                        typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType),
+                        _geometryServices,
+                        storeTypeName ?? "geography")
+                    : null;
         }
     }
 }

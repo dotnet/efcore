@@ -1304,14 +1304,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private static string NodeString(EntityEntryGraphNode node)
             => EntryString(node.SourceEntry)
-               + " ---" + node.InboundNavigation?.Name + "--> "
-               + EntryString(node.Entry);
+                + " ---"
+                + node.InboundNavigation?.Name
+                + "--> "
+                + EntryString(node.Entry);
 
         private static string EntryString(EntityEntry entry)
             => entry == null
                 ? "<None>"
                 : entry.Metadata.DisplayName()
-                  + ":" + entry.Property(entry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue;
+                + ":"
+                + entry.Property(entry.Metadata.FindPrimaryKey().Properties[0].Name).CurrentValue;
 
         [ConditionalTheory]
         [InlineData(false, false)]
@@ -1324,7 +1327,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var category = new NullbileCategory
                 {
-                    Products = new List<NullbileProduct> { new NullbileProduct(), new NullbileProduct(), new NullbileProduct() }
+                    Products = new List<NullbileProduct>
+                    {
+                        new NullbileProduct(),
+                        new NullbileProduct(),
+                        new NullbileProduct()
+                    }
                 };
 
                 if (setKeys)
@@ -1526,7 +1534,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var dreams = new Dreams { Sweet = new Sweet { Id = 1 }, Are = new AreMade(), Made = new AreMade() };
+                var dreams = new Dreams
+                {
+                    Sweet = new Sweet { Id = 1 },
+                    Are = new AreMade(),
+                    Made = new AreMade()
+                };
 
                 if (setDependentKey)
                 {
@@ -1591,7 +1604,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var category = new Category
                 {
-                    Id = 1, Products = new List<Product> { new Product { Id = 1 }, new Product { Id = 2 }, new Product { Id = 3 } }
+                    Id = 1,
+                    Products = new List<Product>
+                    {
+                        new Product { Id = 1 },
+                        new Product { Id = 2 },
+                        new Product { Id = 3 }
+                    }
                 };
 
                 var traversal = new List<string>();
@@ -1737,7 +1756,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var details = new ProductDetails { Id = 1, Product = new Product { Id = 1 }, Tag = new ProductDetailsTag { Id = 1 } };
+                var details = new ProductDetails
+                {
+                    Id = 1,
+                    Product = new Product { Id = 1 },
+                    Tag = new ProductDetailsTag { Id = 1 }
+                };
 
                 var traversal = new List<string>();
 
@@ -1778,7 +1802,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 var category = new Category
                 {
-                    Id = 1, Products = new List<Product> { new Product { Id = 1 }, existingProduct, new Product { Id = 3 } }
+                    Id = 1,
+                    Products = new List<Product>
+                    {
+                        new Product { Id = 1 },
+                        existingProduct,
+                        new Product { Id = 3 }
+                    }
                 };
 
                 var traversal = new List<string>();
@@ -1793,7 +1823,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 Assert.Equal(
                     new List<string>
                     {
-                        "<None> -----> Category:1", "Category:1 ---Products--> Product:1", "Category:1 ---Products--> Product:3"
+                        "<None> -----> Category:1",
+                        "Category:1 ---Products--> Product:1",
+                        "Category:1 ---Products--> Product:3"
                     },
                     traversal);
 
@@ -1824,9 +1856,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 1,
                     Products = new List<Product>
                     {
-                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
-                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
-                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
+                        new Product
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 1 }
+                        },
+                        new Product
+                        {
+                            Id = 2,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 2 }
+                        },
+                        new Product
+                        {
+                            Id = 3,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 3 }
+                        }
                     }
                 };
 
@@ -2054,7 +2101,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new EarlyLearningCenter())
             {
-                var dreams = new Dreams { Sweet = new Sweet { Id = 1 }, Are = new AreMade(), Made = new AreMade() };
+                var dreams = new Dreams
+                {
+                    Sweet = new Sweet { Id = 1 },
+                    Are = new AreMade(),
+                    Made = new AreMade()
+                };
 
                 context.Entry(dreams.Sweet).State = EntityState.Unchanged;
 
@@ -2654,9 +2706,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 1,
                     Products = new List<Product>
                     {
-                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
-                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
-                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
+                        new Product
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 1 }
+                        },
+                        new Product
+                        {
+                            Id = 2,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 2 }
+                        },
+                        new Product
+                        {
+                            Id = 3,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 3 }
+                        }
                     }
                 };
 
@@ -2707,9 +2774,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     Id = 1,
                     Products = new List<Product>
                     {
-                        new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
-                        new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
-                        new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
+                        new Product
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 1 }
+                        },
+                        new Product
+                        {
+                            Id = 2,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 2 }
+                        },
+                        new Product
+                        {
+                            Id = 3,
+                            CategoryId = 1,
+                            Details = new ProductDetails { Id = 3 }
+                        }
                     }
                 };
 

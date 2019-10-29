@@ -6,12 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -1022,7 +1020,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<string>("MouseId");
                             x.Property<string>("BoneId");
                             x.HasData(
-                                new { Id = 42, MouseId = "1", BoneId = "2" });
+                                new
+                                {
+                                    Id = 42,
+                                    MouseId = "1",
+                                    BoneId = "2"
+                                });
                         });
                 },
                 modelBuilder =>
@@ -1080,7 +1083,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     s.Property<string>("Street");
                                     s.Property<string>("City");
                                     s.HasData(
-                                        new { OrderId = 42, Street = "Lombard", City = "San Francisco" });
+                                        new
+                                        {
+                                            OrderId = 42,
+                                            Street = "Lombard",
+                                            City = "San Francisco"
+                                        });
                                 });
                             x.OwnsOne(
                                 "Address", "BillingAddress", s =>
@@ -1088,7 +1096,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     s.Property<string>("Street");
                                     s.Property<string>("City");
                                     s.HasData(
-                                        new { OrderId = 42, Street = "Abbey Road", City = "London" });
+                                        new
+                                        {
+                                            OrderId = 42,
+                                            Street = "Abbey Road",
+                                            City = "London"
+                                        });
                                 });
                         });
                 },
@@ -1440,9 +1453,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Collection(
                             ToJaggedArray(m.Values),
                             r => Assert.Collection(
-                                 r,
-                                 v => Assert.Equal(42, v),
-                                 v => Assert.Equal("Firefly 1", v)),
+                                r,
+                                v => Assert.Equal(42, v),
+                                v => Assert.Equal("Firefly 1", v)),
                             r => Assert.Collection(
                                 r,
                                 v => Assert.Equal(43, v),
@@ -1542,8 +1555,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { IdBeforeRename = 42, Value1 = 32, Value2 = "equal" },
-                            new { IdBeforeRename = 24, Value1 = 72, Value2 = "not equal1" });
+                            new
+                            {
+                                IdBeforeRename = 42,
+                                Value1 = 32,
+                                Value2 = "equal"
+                            },
+                            new
+                            {
+                                IdBeforeRename = 24,
+                                Value1 = 72,
+                                Value2 = "not equal1"
+                            });
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -1553,8 +1576,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
-                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 27,
+                                Value2 = "equal"
+                            }, // modified
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 99,
+                                Value2 = "not equal2"
+                            }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -1694,15 +1727,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 source => source.Entity(
-                typeof(Crab).FullName,
-                x =>
-                {
-                    x.ToTable("Crab");
+                    typeof(Crab).FullName,
+                    x =>
+                    {
+                        x.ToTable("Crab");
 
-                    x.Property<string>("CrabId");
+                        x.Property<string>("CrabId");
 
-                    x.HasKey("CrabId");
-                }),
+                        x.HasKey("CrabId");
+                    }),
                 target => target.Entity<Crab>(),
                 operations =>
                 {
@@ -6603,8 +6636,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 42, Value1 = 32, Value2 = "equal" }, // modified
-                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 32,
+                                Value2 = "equal"
+                            }, // modified
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 72,
+                                Value2 = "not equal1"
+                            }); // modified
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -6616,8 +6659,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
-                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 27,
+                                Value2 = "equal"
+                            }, // modified
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 99,
+                                Value2 = "not equal2"
+                            }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -6953,10 +7006,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
-                            new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
-                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
-                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                            new
+                            {
+                                Id = 99999,
+                                Value1 = 0,
+                                Value2 = ""
+                            }, // deleted
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 32,
+                                Value2 = "equal",
+                                InvalidProperty = "is ignored"
+                            }, // modified
+                            new
+                            {
+                                Id = 8,
+                                Value1 = 100,
+                                Value2 = "equal"
+                            }, // unchanged
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 72,
+                                Value2 = "not equal1"
+                            }); // modified
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -6966,11 +7040,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 11111, Value1 = 0, Value2 = "" }, // added
-                            new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
-                            new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
-                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
-                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                            new
+                            {
+                                Id = 11111,
+                                Value1 = 0,
+                                Value2 = ""
+                            }, // added
+                            new
+                            {
+                                Id = 11112,
+                                Value1 = 1,
+                                Value2 = "new"
+                            }, // added
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 27,
+                                Value2 = "equal",
+                                InvalidProperty = "is ignored here too"
+                            }, // modified
+                            new
+                            {
+                                Id = 8,
+                                Value1 = 100,
+                                Value2 = "equal"
+                            }, // unchanged
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 99,
+                                Value2 = "not equal2"
+                            }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -7256,9 +7356,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
                             x.HasData(
-                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
-                                new { PostId = 545, Title = "Updated Title", BlogId = 38 },
-                                new { PostId = 546, Title = "New Post", BlogId = 32 });
+                                new
+                                {
+                                    PostId = 416,
+                                    Title = "Post To Non-existent BlogId",
+                                    BlogId = 316
+                                },
+                                new
+                                {
+                                    PostId = 545,
+                                    Title = "Updated Title",
+                                    BlogId = 38
+                                },
+                                new
+                                {
+                                    PostId = 546,
+                                    Title = "New Post",
+                                    BlogId = 32
+                                });
                         });
                 });
         }
@@ -7289,9 +7404,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
                             x.HasData(
-                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
-                                new { PostId = 545, Title = "Updated Title", BlogId = 38 },
-                                new { PostId = 546, Title = "New Post", BlogId = 32 });
+                                new
+                                {
+                                    PostId = 416,
+                                    Title = "Post To Non-existent BlogId",
+                                    BlogId = 316
+                                },
+                                new
+                                {
+                                    PostId = 545,
+                                    Title = "Updated Title",
+                                    BlogId = 38
+                                },
+                                new
+                                {
+                                    PostId = 546,
+                                    Title = "New Post",
+                                    BlogId = 32
+                                });
                         });
                 });
         }
@@ -7322,9 +7452,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
                             x.HasData(
-                                new { PostId = 545, Title = "Original Title", BlogId = 32 },
-                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
-                                new { PostId = 390, Title = "Post To Be Removed", BlogId = 32 });
+                                new
+                                {
+                                    PostId = 545,
+                                    Title = "Original Title",
+                                    BlogId = 32
+                                },
+                                new
+                                {
+                                    PostId = 416,
+                                    Title = "Post To Non-existent BlogId",
+                                    BlogId = 316
+                                },
+                                new
+                                {
+                                    PostId = 390,
+                                    Title = "Post To Be Removed",
+                                    BlogId = 32
+                                });
                         });
                 },
                 buildTargetAction,
@@ -7694,17 +7839,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             c.HasKey(x => x.Id);
                             c.HasData(new Customer { Id = 1 });
 
-                            c.OwnsMany(y => y.Orders, x =>
-                            {
-                                x.Ignore(o => o.Billing);
-                                x.Ignore(o => o.Shipping);
+                            c.OwnsMany(
+                                y => y.Orders, x =>
+                                {
+                                    x.Ignore(o => o.Billing);
+                                    x.Ignore(o => o.Shipping);
 
-                                x.WithOwner()
-                                    .HasForeignKey("CustomerId");
+                                    x.WithOwner()
+                                        .HasForeignKey("CustomerId");
 
-                                x.HasKey("CustomerId", "Id");
-                                x.HasData(new { Id = 2, CustomerId = 1 });
-                            });
+                                    x.HasKey("CustomerId", "Id");
+                                    x.HasData(new { Id = 2, CustomerId = 1 });
+                                });
                         });
                 },
                 _ => { },
@@ -7752,35 +7898,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                         .HasForeignKey("OrderInfo", "OrderId")
                                         .OnDelete(DeleteBehavior.Cascade);
 
-                                    b1.OwnsOne("Address", "ShippingAddress", b2 =>
-                                    {
-                                        b2.Property<int>("OrderId")
-                                            .ValueGeneratedOnAdd();
+                                    b1.OwnsOne(
+                                        "Address", "ShippingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
 
-                                        b2.HasKey("OrderId");
+                                            b2.HasKey("OrderId");
 
-                                        b2.ToTable("Order");
+                                            b2.ToTable("Order");
 
-                                        b2.HasOne("OrderInfo")
-                                            .WithOne("ShippingAddress")
-                                            .HasForeignKey("Address", "OrderId")
-                                            .OnDelete(DeleteBehavior.Cascade);
-                                    });
+                                            b2.HasOne("OrderInfo")
+                                                .WithOne("ShippingAddress")
+                                                .HasForeignKey("Address", "OrderId")
+                                                .OnDelete(DeleteBehavior.Cascade);
+                                        });
 
-                                    b1.OwnsOne("Address", "BillingAddress", b2 =>
-                                    {
-                                        b2.Property<int>("OrderId")
-                                            .ValueGeneratedOnAdd();
+                                    b1.OwnsOne(
+                                        "Address", "BillingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
 
-                                        b2.HasKey("OrderId");
+                                            b2.HasKey("OrderId");
 
-                                        b2.ToTable("Order");
+                                            b2.ToTable("Order");
 
-                                        b2.HasOne("OrderInfo")
-                                            .WithOne("BillingAddress")
-                                            .HasForeignKey("Address", "OrderId")
-                                            .OnDelete(DeleteBehavior.Cascade);
-                                    });
+                                            b2.HasOne("OrderInfo")
+                                                .WithOne("BillingAddress")
+                                                .HasForeignKey("Address", "OrderId")
+                                                .OnDelete(DeleteBehavior.Cascade);
+                                        });
                                 });
                         });
                 },
@@ -7802,31 +7950,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     b1.WithOwner("Order")
                                         .HasForeignKey("OrderId");
 
-                                    b1.OwnsOne("Address", "ShippingAddress", b2 =>
-                                    {
-                                        b2.Property<int>("OrderId")
-                                            .ValueGeneratedOnAdd();
+                                    b1.OwnsOne(
+                                        "Address", "ShippingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
 
-                                        b2.HasKey("OrderId");
+                                            b2.HasKey("OrderId");
 
-                                        b2.ToTable("Order");
+                                            b2.ToTable("Order");
 
-                                        b2.WithOwner()
-                                            .HasForeignKey("OrderId");
-                                    });
+                                            b2.WithOwner()
+                                                .HasForeignKey("OrderId");
+                                        });
 
-                                    b1.OwnsOne("Address", "BillingAddress", b2 =>
-                                    {
-                                        b2.Property<int>("OrderId")
-                                            .ValueGeneratedOnAdd();
+                                    b1.OwnsOne(
+                                        "Address", "BillingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
 
-                                        b2.HasKey("OrderId");
+                                            b2.HasKey("OrderId");
 
-                                        b2.ToTable("Order");
+                                            b2.ToTable("Order");
 
-                                        b2.WithOwner()
-                                            .HasForeignKey("OrderId");
-                                    });
+                                            b2.WithOwner()
+                                                .HasForeignKey("OrderId");
+                                        });
                                 });
                         });
                 },
@@ -8180,7 +8330,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Create_table_handles_same_name_but_different_schemas_and_identifying_relationship()
         {
             Execute(
-                (ModelBuilder _) => { },
+                _ => { },
                 modelBuilder => modelBuilder
                     .Entity(
                         "Entity1",
@@ -8256,12 +8406,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             b.HasBaseType("BaseType");
                             b.Property<int>("LevelId");
                             b.HasDiscriminator().HasValue("DerivedType");
-                            b.HasData(new { Id = 1, UserId = 1, LevelId = 1 });
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    LevelId = 1
+                                });
                         })
                     .Entity("BaseType")
-                        .HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId"),
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
                 modelBuilder => modelBuilder
                     .Entity(
                         "User",
@@ -8288,12 +8444,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             b.HasBaseType("BaseType");
                             b.Property<int>("LevelId");
                             b.HasDiscriminator().HasValue("DerivedType");
-                            b.HasData(new { Id = 1, UserId = 1, LevelId = 1 });
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    LevelId = 1
+                                });
                         })
                     .Entity("BaseType")
-                        .HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId"),
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
                 ops => { });
         }
 
@@ -8328,12 +8490,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             b.Property<int>("Level1Id");
                             b.Property<double>("Level2Id");
                             b.HasDiscriminator().HasValue("DerivedType");
-                            b.HasData(new { Id = 1, UserId = 1, Level1Id = 1, Level2Id = 1.0 });
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    Level1Id = 1,
+                                    Level2Id = 1.0
+                                });
                         })
                     .Entity("BaseType")
-                        .HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId"),
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
                 modelBuilder => modelBuilder
                     .Entity(
                         "User",
@@ -8361,12 +8530,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             b.Property<int>("Level1Id");
                             b.Property<double>("Level2Id");
                             b.HasDiscriminator().HasValue("DerivedType");
-                            b.HasData(new { Id = 1, UserId = 1, Level1Id = 1, Level2Id = 1.0 });
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    Level1Id = 1,
+                                    Level2Id = 1.0
+                                });
                         })
                     .Entity("BaseType")
-                        .HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId"),
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
                 ops => { });
         }
 

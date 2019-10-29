@@ -38,7 +38,10 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
                             contextScoped.Add(
                                 new Product
                                 {
-                                    Name = "Blue Cloud", ProductNumber = "xxxxxxxxxxx", Weight = 0.01m, SellStartDate = DateTime.Now
+                                    Name = "Blue Cloud",
+                                    ProductNumber = "xxxxxxxxxxx",
+                                    Weight = 0.01m,
+                                    SellStartDate = DateTime.Now
                                 });
                             Assert.Equal(1, contextScoped.SaveChanges());
                         }

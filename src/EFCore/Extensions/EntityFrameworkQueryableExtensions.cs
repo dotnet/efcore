@@ -2144,7 +2144,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].GetTypeInfo();
                         return typeInfo.IsGenericType
-                               && typeInfo.GetGenericTypeDefinition() == navType;
+                            && typeInfo.GetGenericTypeDefinition() == navType;
                     });
 
         internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
@@ -2152,7 +2152,7 @@ namespace Microsoft.EntityFrameworkCore
                 .GetTypeInfo().GetDeclaredMethods(nameof(ThenInclude))
                 .Single(
                     mi => mi.GetGenericArguments().Count() == 3
-                          && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
+                        && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
         /// <summary>
         ///     Specifies additional related data to be further included based on a related type that was just included.

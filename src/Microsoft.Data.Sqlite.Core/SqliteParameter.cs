@@ -126,11 +126,11 @@ namespace Microsoft.Data.Sqlite
         public override int Size
         {
             get => _size
-                   ?? (_value is string stringValue
-                       ? stringValue.Length
-                       : _value is byte[] byteArray
-                           ? byteArray.Length
-                           : 0);
+                ?? (_value is string stringValue
+                    ? stringValue.Length
+                    : _value is byte[] byteArray
+                        ? byteArray.Length
+                        : 0);
 
             set
             {

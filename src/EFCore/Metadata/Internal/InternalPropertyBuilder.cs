@@ -85,10 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetIsRequired(bool? required, ConfigurationSource? configurationSource)
             => ((configurationSource.HasValue
-                 && configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource()))
-                || (Metadata.IsNullable == !required))
-               && (required != false
-                   || Metadata.ClrType.IsNullableType());
+                        && configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource()))
+                    || (Metadata.IsNullable == !required))
+                && (required != false
+                    || Metadata.ClrType.IsNullableType());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetValueGeneratedConfigurationSource())
-               || Metadata.ValueGenerated == valueGenerated;
+                || Metadata.ValueGenerated == valueGenerated;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetIsConcurrencyToken(bool? concurrencyToken, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetIsConcurrencyTokenConfigurationSource())
-               || Metadata.IsConcurrencyToken == concurrencyToken;
+                || Metadata.IsConcurrencyToken == concurrencyToken;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,9 +179,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     fieldName, Metadata.DeclaringType, Metadata.Name,
                     shouldThrow: false);
                 return fieldInfo != null
-                       && PropertyBase.IsCompatible(
-                           fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                           shouldThrow: false);
+                    && PropertyBase.IsCompatible(
+                        fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
+                        shouldThrow: false);
             }
 
             return Metadata.FieldInfo?.GetSimpleMemberName() == fieldName;
@@ -213,11 +213,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
-                && (fieldInfo == null
-                    || PropertyBase.IsCompatible(
-                        fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                        shouldThrow: false)))
-               || Equals(Metadata.FieldInfo, fieldInfo);
+                    && (fieldInfo == null
+                        || PropertyBase.IsCompatible(
+                            fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
+                            shouldThrow: false)))
+                || Equals(Metadata.FieldInfo, fieldInfo);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
-               || Metadata.GetPropertyAccessMode() == propertyAccessMode;
+                || Metadata.GetPropertyAccessMode() == propertyAccessMode;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetMaxLength(int? maxLength, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetMaxLengthConfigurationSource())
-               || Metadata.GetMaxLength() == maxLength;
+                || Metadata.GetMaxLength() == maxLength;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetIsUnicode(bool? unicode, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetIsUnicodeConfigurationSource())
-               || Metadata.IsUnicode() == unicode;
+                || Metadata.IsUnicode() == unicode;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetBeforeSave(PropertySaveBehavior? behavior, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetBeforeSaveBehaviorConfigurationSource())
-               || Metadata.GetBeforeSaveBehavior() == behavior;
+                || Metadata.GetBeforeSaveBehavior() == behavior;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -360,9 +360,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetAfterSave(PropertySaveBehavior? behavior, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetAfterSaveBehaviorConfigurationSource())
-                && (behavior == null
-                    || Metadata.CheckAfterSaveBehavior(behavior.Value) == null))
-               || Metadata.GetAfterSaveBehavior() == behavior;
+                    && (behavior == null
+                        || Metadata.CheckAfterSaveBehavior(behavior.Value) == null))
+                || Metadata.GetAfterSaveBehavior() == behavior;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetValueGenerator(
             Func<IProperty, IEntityType, ValueGenerator> factory, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetValueGeneratorFactoryConfigurationSource())
-               || Metadata.GetValueGeneratorFactory() == factory;
+                || Metadata.GetValueGeneratorFactory() == factory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -459,8 +459,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetConversion(
             [CanBeNull] ValueConverter converter, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
-                && Metadata.CheckValueConverter(converter) == null)
-               || Metadata.GetValueConverter() == converter;
+                    && Metadata.CheckValueConverter(converter) == null)
+                || Metadata.GetValueConverter() == converter;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -488,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetConversion([CanBeNull] Type providerClrType, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
-               || Metadata.GetProviderClrType() == providerClrType;
+                || Metadata.GetProviderClrType() == providerClrType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -518,8 +518,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource())
-                && Metadata.CheckValueComparer(comparer) == null)
-               || Metadata.GetValueComparer() == comparer;
+                    && Metadata.CheckValueComparer(comparer) == null)
+                || Metadata.GetValueComparer() == comparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -549,8 +549,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetKeyValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetKeyValueComparerConfigurationSource())
-                && Metadata.CheckValueComparer(comparer) == null)
-               || Metadata.GetKeyValueComparer() == comparer;
+                    && Metadata.CheckValueComparer(comparer) == null)
+                || Metadata.GetKeyValueComparer() == comparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -580,8 +580,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetStructuralValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetStructuralValueComparerConfigurationSource())
-                && Metadata.CheckValueComparer(comparer) == null)
-               || Metadata.GetStructuralValueComparer() == comparer;
+                    && Metadata.CheckValueComparer(comparer) == null)
+                || Metadata.GetStructuralValueComparer() == comparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

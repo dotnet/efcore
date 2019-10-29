@@ -214,8 +214,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public static Expression RemoveConvert([CanBeNull] this Expression expression)
         {
             while (expression != null
-                   && (expression.NodeType == ExpressionType.Convert
-                       || expression.NodeType == ExpressionType.ConvertChecked))
+                && (expression.NodeType == ExpressionType.Convert
+                    || expression.NodeType == ExpressionType.ConvertChecked))
             {
                 expression = RemoveConvert(((UnaryExpression)expression).Operand);
             }

@@ -35,9 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is InnerJoinExpression innerJoinExpression
-                   && Equals(innerJoinExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is InnerJoinExpression innerJoinExpression
+                    && Equals(innerJoinExpression));
 
         private bool Equals(InnerJoinExpression innerJoinExpression)
             => base.Equals(innerJoinExpression);

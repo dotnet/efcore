@@ -111,21 +111,21 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool RequiresBrackets(SqlExpression expression)
         {
             return expression is SqlBinaryExpression sqlBinary
-                   && sqlBinary.OperatorType != ExpressionType.Coalesce
-                   || expression is LikeExpression;
+                && sqlBinary.OperatorType != ExpressionType.Coalesce
+                || expression is LikeExpression;
         }
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlBinaryExpression sqlBinaryExpression
-                   && Equals(sqlBinaryExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlBinaryExpression sqlBinaryExpression
+                    && Equals(sqlBinaryExpression));
 
         private bool Equals(SqlBinaryExpression sqlBinaryExpression)
             => base.Equals(sqlBinaryExpression)
-               && OperatorType == sqlBinaryExpression.OperatorType
-               && Left.Equals(sqlBinaryExpression.Left)
-               && Right.Equals(sqlBinaryExpression.Right);
+                && OperatorType == sqlBinaryExpression.OperatorType
+                && Left.Equals(sqlBinaryExpression.Left)
+                && Right.Equals(sqlBinaryExpression.Right);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Left, Right);
     }

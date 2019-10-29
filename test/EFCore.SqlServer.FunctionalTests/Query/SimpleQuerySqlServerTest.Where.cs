@@ -962,7 +962,7 @@ WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Be
             await base.Where_not_in_optimization3(isAsync);
 
             AssertSql(
-    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE ((([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Berlin') OR [c].[City] IS NULL)) AND (([c].[City] <> N'Seattle') OR [c].[City] IS NULL)");

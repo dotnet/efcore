@@ -22,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = Assert.Throws<InvalidOperationException>(() => base.Can_query_all_animal_views()).Message;
 
             Assert.Equal(
-                CoreStrings.TranslationFailed(@"DbSet<Bird>
+                CoreStrings.TranslationFailed(
+                    @"DbSet<Bird>
     .Select(b => InheritanceInMemoryFixture.MaterializeView(b))
     .OrderBy(a => a.CountryId)"),
                 message);
