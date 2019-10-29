@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -1546,6 +1547,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Order>().Where(o => new List<Order> { new Order { OrderID = 10248 }, new Order { OrderID = 10249 } }.Contains(o)),
                 entryCount: 2);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task List_Contains_with_parameter_HashSet(bool isAsync)
+        {
+            var ids = new HashSet<string> { "ALFKI" };
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task List_Contains_with_parameter_ImmutableHashSet(bool isAsync)
+        {
+            var ids = ImmutableHashSet<string>.Empty.Add("ALFKI");
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
+                entryCount: 1);
         }
 
         [ConditionalFact]
