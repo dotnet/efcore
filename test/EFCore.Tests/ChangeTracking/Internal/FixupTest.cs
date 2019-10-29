@@ -2185,7 +2185,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
 
                 var principal = new ParentDN { Id = 77 };
-                var oldDependent = new ChildDN { Id = 78, ParentId = principal.Id, Parent = principal };
+                var oldDependent = new ChildDN
+                {
+                    Id = 78,
+                    ParentId = principal.Id,
+                    Parent = principal
+                };
 
                 context.Entry(principal).State = oldEntityState;
                 context.Entry(oldDependent).State = oldEntityState;
@@ -2597,7 +2602,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     Product = attachedProduct
                 };
 
-                var attached = new ContainerX { Id = detachedContainer.Id, Name = "C1", Rooms = { attachedRoom } };
+                var attached = new ContainerX
+                {
+                    Id = detachedContainer.Id,
+                    Name = "C1",
+                    Rooms = { attachedRoom }
+                };
 
                 context.Attach(attached);
 
@@ -2668,7 +2678,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.AddRange(
                     new ParentX { Id = 101, Name = "Parent1" },
                     new ChildX { Id = 201, Name = "Child1" },
-                    new ParentChildX { ParentId = 101, ChildId = 201, SortOrder = 1 });
+                    new ParentChildX
+                    {
+                        ParentId = 101,
+                        ChildId = 201,
+                        SortOrder = 1
+                    });
 
                 context.SaveChanges();
             }
@@ -2684,7 +2699,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 parent.ParentChildren.Clear();
 
-                var newJoin = new ParentChildX { ParentId = 101, ChildId = 201, SortOrder = 1 };
+                var newJoin = new ParentChildX
+                {
+                    ParentId = 101,
+                    ChildId = 201,
+                    SortOrder = 1
+                };
 
                 parent.ParentChildren = new List<ParentChildX> { newJoin };
 

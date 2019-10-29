@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     orderby c.CustomerID
                                     select (from o1 in context.Orders
                                             where o1.CustomerID == c.CustomerID
-                                                  && o1.OrderDate.Value.Year == 1997
+                                                && o1.OrderDate.Value.Year == 1997
                                             orderby o1.OrderID
                                             select (from o2 in context.Orders
                                                     where o1.CustomerID == c.CustomerID

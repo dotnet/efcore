@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
                 if ((translation is SqlConstantExpression
-                     || translation is SqlParameterExpression)
+                        || translation is SqlParameterExpression)
                     && translation.TypeMapping == null)
                 {
                     // Non-mappable constant/parameter
@@ -191,9 +190,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             var innerExpression = Visit(memberExpression.Expression);
 
             if ((innerExpression is EntityProjectionExpression
-                 || (innerExpression is UnaryExpression innerUnaryExpression
-                     && innerUnaryExpression.NodeType == ExpressionType.Convert
-                     && innerUnaryExpression.Operand is EntityProjectionExpression))
+                    || (innerExpression is UnaryExpression innerUnaryExpression
+                        && innerUnaryExpression.NodeType == ExpressionType.Convert
+                        && innerUnaryExpression.Operand is EntityProjectionExpression))
                 && TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var result))
             {
                 return result;
@@ -223,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var entityType = entityProjectionExpression.EntityType;
                 if (convertedType != null
                     && !(convertedType.IsInterface
-                         && convertedType.IsAssignableFrom(entityType.ClrType)))
+                        && convertedType.IsAssignableFrom(entityType.ClrType)))
                 {
                     entityType = entityType.GetRootType().GetDerivedTypesInclusive()
                         .FirstOrDefault(et => et.ClrType == convertedType);
@@ -367,13 +366,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
 
                     return QueryableMethods.IsAverageWithoutSelector(method)
-                           || QueryableMethods.IsAverageWithSelector(method)
-                           || method == QueryableMethods.MaxWithoutSelector
-                           || method == QueryableMethods.MaxWithSelector
-                           || method == QueryableMethods.MinWithoutSelector
-                           || method == QueryableMethods.MinWithSelector
-                           || QueryableMethods.IsSumWithoutSelector(method)
-                           || QueryableMethods.IsSumWithSelector(method);
+                        || QueryableMethods.IsAverageWithSelector(method)
+                        || method == QueryableMethods.MaxWithoutSelector
+                        || method == QueryableMethods.MaxWithSelector
+                        || method == QueryableMethods.MinWithoutSelector
+                        || method == QueryableMethods.MinWithSelector
+                        || QueryableMethods.IsSumWithoutSelector(method)
+                        || QueryableMethods.IsSumWithSelector(method);
                 }
 
                 if (subqueryTranslation.ResultCardinality == ResultCardinality.Enumerable)
@@ -385,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 subquery.ApplyProjection();
 
                 if (!(subqueryTranslation.ShaperExpression is ProjectionBindingExpression
-                      || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
+                    || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
                 {
                     return null;
                 }
@@ -540,8 +539,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case MemberInitExpression memberInitExpression:
                     return CanEvaluate(memberInitExpression.NewExpression)
-                           && memberInitExpression.Bindings.All(
-                               mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+                        && memberInitExpression.Bindings.All(
+                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
 
                 default:
                     return false;
@@ -583,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ProjectionBindingExpression projectionBindingExpression:
                     return projectionBindingExpression.ProjectionMember != null
                         ? ((SelectExpression)projectionBindingExpression.QueryExpression)
-                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : null;
 
                 default:

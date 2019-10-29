@@ -149,17 +149,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlFunctionExpression sqlFunctionExpression
-                   && Equals(sqlFunctionExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlFunctionExpression sqlFunctionExpression
+                    && Equals(sqlFunctionExpression));
 
         private bool Equals(SqlFunctionExpression sqlFunctionExpression)
             => base.Equals(sqlFunctionExpression)
-               && string.Equals(Name, sqlFunctionExpression.Name)
-               && string.Equals(Schema, sqlFunctionExpression.Schema)
-               && ((Instance == null && sqlFunctionExpression.Instance == null)
-                   || (Instance != null && Instance.Equals(sqlFunctionExpression.Instance)))
-               && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
+                && string.Equals(Name, sqlFunctionExpression.Name)
+                && string.Equals(Schema, sqlFunctionExpression.Schema)
+                && ((Instance == null && sqlFunctionExpression.Instance == null)
+                    || (Instance != null && Instance.Equals(sqlFunctionExpression.Instance)))
+                && Arguments.SequenceEqual(sqlFunctionExpression.Arguments);
 
         public override int GetHashCode()
         {

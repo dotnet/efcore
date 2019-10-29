@@ -56,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override bool Equals(object obj)
             => obj != null
-               && (obj is ProjectionMember projectionMember
-                   && Equals(projectionMember));
+                && (obj is ProjectionMember projectionMember
+                    && Equals(projectionMember));
 
         private bool Equals(ProjectionMember other)
         {

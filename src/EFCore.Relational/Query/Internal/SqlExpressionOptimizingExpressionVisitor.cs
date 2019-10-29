@@ -13,15 +13,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static bool TryNegate(ExpressionType expressionType, out ExpressionType result)
         {
-            var negated = expressionType switch {
-                ExpressionType.AndAlso            => ExpressionType.OrElse,
-                ExpressionType.OrElse             => ExpressionType.AndAlso,
-                ExpressionType.Equal              => ExpressionType.NotEqual,
-                ExpressionType.NotEqual           => ExpressionType.Equal,
-                ExpressionType.GreaterThan        => ExpressionType.LessThanOrEqual,
+            var negated = expressionType switch
+            {
+                ExpressionType.AndAlso => ExpressionType.OrElse,
+                ExpressionType.OrElse => ExpressionType.AndAlso,
+                ExpressionType.Equal => ExpressionType.NotEqual,
+                ExpressionType.NotEqual => ExpressionType.Equal,
+                ExpressionType.GreaterThan => ExpressionType.LessThanOrEqual,
                 ExpressionType.GreaterThanOrEqual => ExpressionType.LessThan,
-                ExpressionType.LessThan           => ExpressionType.GreaterThanOrEqual,
-                ExpressionType.LessThanOrEqual    => ExpressionType.GreaterThan,
+                ExpressionType.LessThan => ExpressionType.GreaterThanOrEqual,
+                ExpressionType.LessThanOrEqual => ExpressionType.GreaterThan,
                 _ => (ExpressionType?)null
             };
 
@@ -40,11 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
             => extensionExpression switch
-                {
-                    SqlUnaryExpression sqlUnaryExpression => VisitSqlUnaryExpression(sqlUnaryExpression),
-                    SqlBinaryExpression sqlBinaryExpression => VisitSqlBinaryExpression(sqlBinaryExpression),
-                    _ => base.VisitExtension(extensionExpression),
-                };
+            {
+                SqlUnaryExpression sqlUnaryExpression => VisitSqlUnaryExpression(sqlUnaryExpression),
+                SqlBinaryExpression sqlBinaryExpression => VisitSqlBinaryExpression(sqlBinaryExpression),
+                _ => base.VisitExtension(extensionExpression),
+            };
 
         protected virtual Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
         {
@@ -60,11 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return SqlExpressionFactory.Constant(constantOperand.Value == null, sqlUnaryExpression.TypeMapping);
 
                         case ColumnExpression columnOperand
-                        when !columnOperand.IsNullable:
+                            when !columnOperand.IsNullable:
                             return SqlExpressionFactory.Constant(false, sqlUnaryExpression.TypeMapping);
 
                         case SqlUnaryExpression sqlUnaryOperand
-                        when sqlUnaryOperand.OperatorType == ExpressionType.Convert
+                            when sqlUnaryOperand.OperatorType == ExpressionType.Convert
                             || sqlUnaryOperand.OperatorType == ExpressionType.Not
                             || sqlUnaryOperand.OperatorType == ExpressionType.Negate:
                             return (SqlExpression)Visit(SqlExpressionFactory.IsNull(sqlUnaryOperand.Operand));
@@ -74,9 +75,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             var newRight = (SqlExpression)Visit(SqlExpressionFactory.IsNull(sqlBinaryOperand.Right));
 
                             return sqlBinaryOperand.OperatorType == ExpressionType.Coalesce
-                                ? SimplifyLogicalSqlBinaryExpression(ExpressionType.AndAlso, newLeft, newRight, sqlBinaryOperand.TypeMapping)
-                                : SimplifyLogicalSqlBinaryExpression(ExpressionType.OrElse, newLeft, newRight, sqlBinaryOperand.TypeMapping);
+                                ? SimplifyLogicalSqlBinaryExpression(
+                                    ExpressionType.AndAlso, newLeft, newRight, sqlBinaryOperand.TypeMapping)
+                                : SimplifyLogicalSqlBinaryExpression(
+                                    ExpressionType.OrElse, newLeft, newRight, sqlBinaryOperand.TypeMapping);
                     }
+
                     break;
 
                 case ExpressionType.NotEqual:
@@ -86,11 +90,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return SqlExpressionFactory.Constant(constantOperand.Value != null, sqlUnaryExpression.TypeMapping);
 
                         case ColumnExpression columnOperand
-                        when !columnOperand.IsNullable:
+                            when !columnOperand.IsNullable:
                             return SqlExpressionFactory.Constant(true, sqlUnaryExpression.TypeMapping);
 
                         case SqlUnaryExpression sqlUnaryOperand
-                        when sqlUnaryOperand.OperatorType == ExpressionType.Convert
+                            when sqlUnaryOperand.OperatorType == ExpressionType.Convert
                             || sqlUnaryOperand.OperatorType == ExpressionType.Not
                             || sqlUnaryOperand.OperatorType == ExpressionType.Negate:
                             return (SqlExpression)Visit(SqlExpressionFactory.IsNotNull(sqlUnaryOperand.Operand));
@@ -101,8 +105,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                             return sqlBinaryOperand.OperatorType == ExpressionType.Coalesce
                                 ? SimplifyLogicalSqlBinaryExpression(ExpressionType.OrElse, newLeft, newRight, sqlBinaryOperand.TypeMapping)
-                                : SimplifyLogicalSqlBinaryExpression(ExpressionType.AndAlso, newLeft, newRight, sqlBinaryOperand.TypeMapping);
+                                : SimplifyLogicalSqlBinaryExpression(
+                                    ExpressionType.AndAlso, newLeft, newRight, sqlBinaryOperand.TypeMapping);
                     }
+
                     break;
             }
 
@@ -169,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 // they are safe to do here because null semantics removes possibility of nulls in the tree
                 // however if we decide to do "partial" null semantics (that doesn't distinguish between NULL and FALSE, e.g. for predicates)
                 // we need to be extra careful here
-                if (!_useRelationalNulls && TryNegate(innerBinary.OperatorType, out var negated))
+                if (!_useRelationalNulls
+                    && TryNegate(innerBinary.OperatorType, out var negated))
                 {
                     return Visit(
                         SqlExpressionFactory.MakeBinary(
@@ -205,7 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             // however if we decide to do "partial" null semantics (that doesn't distinguish between NULL and FALSE, e.g. for predicates)
             // we need to be extra careful here
             if (!_useRelationalNulls
-                && (sqlBinaryExpression.OperatorType == ExpressionType.Equal || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual))
+                && (sqlBinaryExpression.OperatorType == ExpressionType.Equal
+                    || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual))
             {
                 // op(a, b) == true -> op(a, b)
                 // op(a, b) != false -> op(a, b)
@@ -213,7 +221,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 // op(a, b) != true -> !op(a, b)
                 var constant = sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression;
                 var binary = sqlBinaryExpression.Left as SqlBinaryExpression ?? sqlBinaryExpression.Right as SqlBinaryExpression;
-                if (constant != null && binary != null && TryNegate(binary.OperatorType, out var negated))
+                if (constant != null
+                    && binary != null
+                    && TryNegate(binary.OperatorType, out var negated))
                 {
                     return (bool)constant.Value == (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
                         ? binary
@@ -248,7 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         ? newLeftConstant
                         : newRight;
             }
-            else if (newRight is SqlConstantExpression newRightConstant)
+
+            if (newRight is SqlConstantExpression newRightConstant)
             {
                 // a && true -> a
                 // a || true -> true

@@ -26,9 +26,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
             context.Add(
                 new Category { Id = 78, PrincipalId = 778 });
             context.Add(
-                new Product { Id = productId1, Name = "Apple Cider", Price = 1.49M, DependentId = 778 });
+                new Product
+                {
+                    Id = productId1,
+                    Name = "Apple Cider",
+                    Price = 1.49M,
+                    DependentId = 778
+                });
             context.Add(
-                new Product { Id = productId2, Name = "Apple Cobler", Price = 2.49M, DependentId = 778 });
+                new Product
+                {
+                    Id = productId2,
+                    Name = "Apple Cobler",
+                    Price = 2.49M,
+                    DependentId = 778
+                });
 
             context.SaveChanges();
         }

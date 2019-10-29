@@ -25,7 +25,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new BronieContext(serviceProvider))
             {
                 context.Add(
-                    new Pegasus { Id1 = ticks, Id2 = ticks + 1, Name = "Rainbow Dash" });
+                    new Pegasus
+                    {
+                        Id1 = ticks,
+                        Id2 = ticks + 1,
+                        Name = "Rainbow Dash"
+                    });
                 await context.SaveChangesAsync();
             }
 
@@ -201,12 +206,22 @@ namespace Microsoft.EntityFrameworkCore
                         });
 
                 modelBuilder.Entity<Unicorn>().HasKey(
-                    e => new { e.Id1, e.Id2, e.Id3 });
+                    e => new
+                    {
+                        e.Id1,
+                        e.Id2,
+                        e.Id3
+                    });
                 modelBuilder.Entity<Unicorn>(
                     b =>
                     {
                         b.HasKey(
-                            e => new { e.Id1, e.Id2, e.Id3 });
+                            e => new
+                            {
+                                e.Id1,
+                                e.Id2,
+                                e.Id3
+                            });
                         b.Property(e => e.Id1).ValueGeneratedOnAdd();
                         b.Property(e => e.Id3).ValueGeneratedOnAdd();
                     });

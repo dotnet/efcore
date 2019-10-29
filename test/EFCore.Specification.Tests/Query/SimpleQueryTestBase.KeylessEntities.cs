@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>
@@ -156,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => from ov in ss.Set<OrderQuery>()
-                       where ov.Customer.City == "Seattle"
-                       select ov);
+                      where ov.Customer.City == "Seattle"
+                      select ov);
         }
 
         [ConditionalTheory]
@@ -167,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => from ov in ss.Set<OrderQuery>()
-                       where ov.Customer.Orders.Any()
-                       select ov);
+                      where ov.Customer.Orders.Any()
+                      select ov);
         }
     }
 }

@@ -110,6 +110,17 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalTheory]
+        [InlineData("Data Source=:memory:")]
+        [InlineData("Data Source=exists-memory;Mode=Memory;Cache=Shared")]
+        public void Exists_returns_true_when_memory(string connectionString)
+        {
+            var context = CreateContext(connectionString);
+
+            var creator = context.GetService<IRelationalDatabaseCreator>();
+            Assert.True(creator.Exists());
+        }
+
         private DbContext CreateContext(string connectionString)
             => new DbContext(
                 new DbContextOptionsBuilder()

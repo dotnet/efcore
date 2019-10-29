@@ -212,8 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                     // Iterate over the unsorted vertices
                     while ((candidateIndex < candidateVertices.Count)
-                           && !broken
-                           && (canBreakEdge != null))
+                        && !broken
+                        && (canBreakEdge != null))
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 

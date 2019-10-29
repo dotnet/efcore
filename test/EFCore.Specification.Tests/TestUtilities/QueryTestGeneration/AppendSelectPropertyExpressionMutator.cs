@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         public override bool IsValid(Expression expression)
             => IsQueryableResult(expression)
-               && HasValidPropertyToSelect(expression);
+                && HasValidPropertyToSelect(expression);
 
         public override Expression Apply(Expression expression, Random random)
         {
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
             if (properties[i].PropertyType.IsValueType
                 && !(properties[i].PropertyType.IsGenericType
-                     && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                    && properties[i].PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
             {
                 var nullablePropertyType = typeof(Nullable<>).MakeGenericType(properties[i].PropertyType);
                 select = QueryableMethods.Select.MakeGenericMethod(typeArgument, nullablePropertyType);

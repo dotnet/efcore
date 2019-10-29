@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static bool MethodIsClosedFormOf(
             [NotNull] this MethodInfo methodInfo, [NotNull] MethodInfo genericMethod)
             => methodInfo.IsGenericMethod
-               && Equals(
-                   methodInfo.GetGenericMethodDefinition(),
-                   genericMethod);
+                && Equals(
+                    methodInfo.GetGenericMethodDefinition(),
+                    genericMethod);
     }
 }

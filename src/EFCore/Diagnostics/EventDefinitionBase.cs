@@ -22,7 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="loggingOptions"> Logging options. </param>
         /// <param name="eventId"> The <see cref="Microsoft.Extensions.Logging.EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
-        /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />. </param>
+        /// <param name="eventIdCode">
+        ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
+        /// </param>
         protected EventDefinitionBase(
             [NotNull] ILoggingOptions loggingOptions,
             EventId eventId,
@@ -46,10 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
 
                 var behavior = warningsConfiguration.GetBehavior(eventId);
-                _warningBehavior = behavior ?? (level == LogLevel.Warning
-                                                && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
-                                       ? WarningBehavior.Throw
-                                       : WarningBehavior.Log);
+                _warningBehavior = behavior
+                    ?? (level == LogLevel.Warning
+                        && warningsConfiguration.DefaultBehavior == WarningBehavior.Throw
+                            ? WarningBehavior.Throw
+                            : WarningBehavior.Log);
             }
             else
             {

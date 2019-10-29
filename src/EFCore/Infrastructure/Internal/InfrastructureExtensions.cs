@@ -34,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                 var internalServiceProvider = accessor.Instance;
 
                 service = internalServiceProvider.GetService(typeof(TService))
-                          ?? internalServiceProvider.GetService<IDbContextOptions>()
-                              ?.Extensions.OfType<CoreOptionsExtension>().FirstOrDefault()
-                              ?.ApplicationServiceProvider
-                              ?.GetService(typeof(TService));
+                    ?? internalServiceProvider.GetService<IDbContextOptions>()
+                        ?.Extensions.OfType<CoreOptionsExtension>().FirstOrDefault()
+                        ?.ApplicationServiceProvider
+                        ?.GetService(typeof(TService));
 
                 if (service == null)
                 {

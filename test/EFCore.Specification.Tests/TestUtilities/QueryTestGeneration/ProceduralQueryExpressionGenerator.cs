@@ -401,14 +401,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 {
                 }
                 else if (exception.Message.Contains(
-                             @"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
-                         || exception.Message.Contains(
-                             @"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")
+                        @"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
+                    || exception.Message.Contains(
+                        @"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")
                 ) // 13753
                 {
                 }
                 else if (exception.Message
-                         == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
+                    == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
                 ) // 12788
                 {
                 }

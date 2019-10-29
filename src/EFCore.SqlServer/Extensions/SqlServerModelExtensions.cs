@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name to use for the default hi-lo sequence. </returns>
         public static string GetHiLoSequenceName([NotNull] this IModel model)
             => (string)model[SqlServerAnnotationNames.HiLoSequenceName]
-               ?? DefaultHiLoSequenceName;
+                ?? DefaultHiLoSequenceName;
 
         /// <summary>
         ///     Sets the name to use for the default hi-lo sequence.

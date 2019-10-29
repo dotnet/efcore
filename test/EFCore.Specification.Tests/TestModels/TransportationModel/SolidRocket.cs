@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
             => obj is SolidRocket other
-               && base.Equals(other);
+                && base.Equals(other);
 
         public override int GetHashCode()
             => HashCode.Combine(base.GetHashCode(), SolidFuelTank);

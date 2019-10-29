@@ -215,9 +215,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
             return targetClrType == null
-                   || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
-                ? null
-                : targetClrType;
+                || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
+                    ? null
+                    : targetClrType;
         }
 
         /// <summary>

@@ -287,12 +287,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (startsWith)
             {
                 return _sqlExpressionFactory.Equal(
-                        _sqlExpressionFactory.Function(
-                            "LEFT",
-                            new[] { instance, _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int)) },
-                            typeof(string),
-                            stringTypeMapping),
-                        pattern);
+                    _sqlExpressionFactory.Function(
+                        "LEFT",
+                        new[] { instance, _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int)) },
+                        typeof(string),
+                        stringTypeMapping),
+                    pattern);
             }
 
             return _sqlExpressionFactory.Equal(

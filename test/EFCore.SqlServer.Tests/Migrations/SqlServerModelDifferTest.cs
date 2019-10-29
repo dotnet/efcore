@@ -5,7 +5,6 @@ using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -510,10 +509,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
-                            new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
-                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
-                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                            new
+                            {
+                                Id = 99999,
+                                Value1 = 0,
+                                Value2 = ""
+                            }, // deleted
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 32,
+                                Value2 = "equal",
+                                InvalidProperty = "is ignored"
+                            }, // modified
+                            new
+                            {
+                                Id = 8,
+                                Value1 = 100,
+                                Value2 = "equal"
+                            }, // unchanged
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 72,
+                                Value2 = "not equal1"
+                            }); // modified
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -523,11 +543,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 11111, Value1 = 0, Value2 = "" }, // added
-                            new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
-                            new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
-                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
-                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                            new
+                            {
+                                Id = 11111,
+                                Value1 = 0,
+                                Value2 = ""
+                            }, // added
+                            new
+                            {
+                                Id = 11112,
+                                Value1 = 1,
+                                Value2 = "new"
+                            }, // added
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 27,
+                                Value2 = "equal",
+                                InvalidProperty = "is ignored here too"
+                            }, // modified
+                            new
+                            {
+                                Id = 8,
+                                Value1 = 100,
+                                Value2 = "equal"
+                            }, // unchanged
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 99,
+                                Value2 = "not equal2"
+                            }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,

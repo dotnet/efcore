@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         Expression.Constant(null, readExpression.Type));
             }
             else if (readExpression.Type.IsGenericType
-                     && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                && readExpression.Type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 hasDefaultValueExpression
                     = Expression.Not(
@@ -88,10 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var property = propertyBase as IProperty;
                 var comparer = property?.GetValueComparer()
-                               ?? property?.FindTypeMapping()?.Comparer
-                               ?? (ValueComparer)Activator.CreateInstance(
-                                   typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                                   new object[] { false });
+                    ?? property?.FindTypeMapping()?.Comparer
+                    ?? (ValueComparer)Activator.CreateInstance(
+                        typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
+                        new object[] { false });
 
                 hasDefaultValueExpression = comparer.ExtractEqualsBody(
                     comparer.Type != typeof(TValue)

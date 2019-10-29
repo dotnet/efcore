@@ -39,9 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 builder);
 
             Assert.Equal(
-                "mb.Sql(\"-- Don't stand so\");" + _eol +
-                _eol +
-                "mb.Sql(\"-- close to me\");",
+                "mb.Sql(\"-- Don't stand so\");" + _eol + _eol + "mb.Sql(\"-- close to me\");",
                 builder.ToString());
         }
 
@@ -49,11 +47,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddColumnOperation_required_args()
         {
             Test(
-                new AddColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int) },
-                "mb.AddColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    nullable: false);",
+                new AddColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    ClrType = typeof(int)
+                },
+                "mb.AddColumn<int>(" + _eol + "    name: \"Id\"," + _eol + "    table: \"Post\"," + _eol + "    nullable: false);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -81,18 +81,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IsFixedLength = true,
                     Comment = "My Comment"
                 },
-                "mb.AddColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    type: \"int\"," + _eol +
-                "    unicode: false," + _eol +
-                "    fixedLength: true," + _eol +
-                "    maxLength: 30," + _eol +
-                "    rowVersion: true," + _eol +
-                "    nullable: true," + _eol +
-                "    defaultValue: 1," + _eol +
-                "    comment: \"My Comment\");",
+                "mb.AddColumn<int>("
+                + _eol
+                + "    name: \"Id\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    type: \"int\","
+                + _eol
+                + "    unicode: false,"
+                + _eol
+                + "    fixedLength: true,"
+                + _eol
+                + "    maxLength: 30,"
+                + _eol
+                + "    rowVersion: true,"
+                + _eol
+                + "    nullable: true,"
+                + _eol
+                + "    defaultValue: 1,"
+                + _eol
+                + "    comment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -112,12 +123,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddColumnOperation_DefaultValueSql()
         {
             Test(
-                new AddColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int), DefaultValueSql = "1" },
-                "mb.AddColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    nullable: false," + _eol +
-                "    defaultValueSql: \"1\");",
+                new AddColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    ClrType = typeof(int),
+                    DefaultValueSql = "1"
+                },
+                "mb.AddColumn<int>("
+                + _eol
+                + "    name: \"Id\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    nullable: false,"
+                + _eol
+                + "    defaultValueSql: \"1\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -131,12 +152,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddColumnOperation_ComputedExpression()
         {
             Test(
-                new AddColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int), ComputedColumnSql = "1" },
-                "mb.AddColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    nullable: false," + _eol +
-                "    computedColumnSql: \"1\");",
+                new AddColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    ClrType = typeof(int),
+                    ComputedColumnSql = "1"
+                },
+                "mb.AddColumn<int>("
+                + _eol
+                + "    name: \"Id\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    nullable: false,"
+                + _eol
+                + "    computedColumnSql: \"1\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -158,12 +189,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     PrincipalTable = "Blog",
                     PrincipalColumns = new[] { "Id" }
                 },
-                "mb.AddForeignKey(" + _eol +
-                "    name: \"FK_Post_Blog_BlogId\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"BlogId\"," + _eol +
-                "    principalTable: \"Blog\"," + _eol +
-                "    principalColumn: \"Id\");",
+                "mb.AddForeignKey("
+                + _eol
+                + "    name: \"FK_Post_Blog_BlogId\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    column: \"BlogId\","
+                + _eol
+                + "    principalTable: \"Blog\","
+                + _eol
+                + "    principalColumn: \"Id\");",
                 o =>
                 {
                     Assert.Equal("Post", o.Table);
@@ -189,16 +225,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     OnUpdate = ReferentialAction.Restrict,
                     OnDelete = ReferentialAction.Cascade
                 },
-                "mb.AddForeignKey(" + _eol +
-                "    name: \"FK_Post_Blog_BlogId\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"BlogId\"," + _eol +
-                "    principalSchema: \"my\"," + _eol +
-                "    principalTable: \"Blog\"," + _eol +
-                "    principalColumn: \"Id\"," + _eol +
-                "    onUpdate: ReferentialAction.Restrict," + _eol +
-                "    onDelete: ReferentialAction.Cascade);",
+                "mb.AddForeignKey("
+                + _eol
+                + "    name: \"FK_Post_Blog_BlogId\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    column: \"BlogId\","
+                + _eol
+                + "    principalSchema: \"my\","
+                + _eol
+                + "    principalTable: \"Blog\","
+                + _eol
+                + "    principalColumn: \"Id\","
+                + _eol
+                + "    onUpdate: ReferentialAction.Restrict,"
+                + _eol
+                + "    onDelete: ReferentialAction.Cascade);",
                 o =>
                 {
                     Assert.Equal("Post", o.Table);
@@ -224,12 +269,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     PrincipalTable = "Blog",
                     PrincipalColumns = new[] { "Id1", "Id2" }
                 },
-                "mb.AddForeignKey(" + _eol +
-                "    name: \"FK_Post_Blog_BlogId1_BlogId2\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    columns: new[] { \"BlogId1\", \"BlogId2\" }," + _eol +
-                "    principalTable: \"Blog\"," + _eol +
-                "    principalColumns: new[] { \"Id1\", \"Id2\" });",
+                "mb.AddForeignKey("
+                + _eol
+                + "    name: \"FK_Post_Blog_BlogId1_BlogId2\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    columns: new[] { \"BlogId1\", \"BlogId2\" },"
+                + _eol
+                + "    principalTable: \"Blog\","
+                + _eol
+                + "    principalColumns: new[] { \"Id1\", \"Id2\" });",
                 o =>
                 {
                     Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
@@ -244,11 +294,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddPrimaryKey_required_args()
         {
             Test(
-                new AddPrimaryKeyOperation { Name = "PK_Post", Table = "Post", Columns = new[] { "Id" } },
-                "mb.AddPrimaryKey(" + _eol +
-                "    name: \"PK_Post\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"Id\");",
+                new AddPrimaryKeyOperation
+                {
+                    Name = "PK_Post",
+                    Table = "Post",
+                    Columns = new[] { "Id" }
+                },
+                "mb.AddPrimaryKey(" + _eol + "    name: \"PK_Post\"," + _eol + "    table: \"Post\"," + _eol + "    column: \"Id\");",
                 o =>
                 {
                     Assert.Equal("PK_Post", o.Name);
@@ -261,12 +313,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddPrimaryKey_all_args()
         {
             Test(
-                new AddPrimaryKeyOperation { Name = "PK_Post", Schema = "dbo", Table = "Post", Columns = new[] { "Id" } },
-                "mb.AddPrimaryKey(" + _eol +
-                "    name: \"PK_Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"Id\");",
+                new AddPrimaryKeyOperation
+                {
+                    Name = "PK_Post",
+                    Schema = "dbo",
+                    Table = "Post",
+                    Columns = new[] { "Id" }
+                },
+                "mb.AddPrimaryKey("
+                + _eol
+                + "    name: \"PK_Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    column: \"Id\");",
                 o =>
                 {
                     Assert.Equal("PK_Post", o.Name);
@@ -280,11 +342,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddPrimaryKey_composite()
         {
             Test(
-                new AddPrimaryKeyOperation { Name = "PK_Post", Table = "Post", Columns = new[] { "Id1", "Id2" } },
-                "mb.AddPrimaryKey(" + _eol +
-                "    name: \"PK_Post\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    columns: new[] { \"Id1\", \"Id2\" });",
+                new AddPrimaryKeyOperation
+                {
+                    Name = "PK_Post",
+                    Table = "Post",
+                    Columns = new[] { "Id1", "Id2" }
+                },
+                "mb.AddPrimaryKey("
+                + _eol
+                + "    name: \"PK_Post\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    columns: new[] { \"Id1\", \"Id2\" });",
                 o =>
                 {
                     Assert.Equal("PK_Post", o.Name);
@@ -297,11 +367,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddUniqueConstraint_required_args()
         {
             Test(
-                new AddUniqueConstraintOperation { Name = "AK_Post_AltId", Table = "Post", Columns = new[] { "AltId" } },
-                "mb.AddUniqueConstraint(" + _eol +
-                "    name: \"AK_Post_AltId\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"AltId\");",
+                new AddUniqueConstraintOperation
+                {
+                    Name = "AK_Post_AltId",
+                    Table = "Post",
+                    Columns = new[] { "AltId" }
+                },
+                "mb.AddUniqueConstraint("
+                + _eol
+                + "    name: \"AK_Post_AltId\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    column: \"AltId\");",
                 o =>
                 {
                     Assert.Equal("AK_Post_AltId", o.Name);
@@ -314,12 +392,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddUniqueConstraint_all_args()
         {
             Test(
-                new AddUniqueConstraintOperation { Name = "AK_Post_AltId", Schema = "dbo", Table = "Post", Columns = new[] { "AltId" } },
-                "mb.AddUniqueConstraint(" + _eol +
-                "    name: \"AK_Post_AltId\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"AltId\");",
+                new AddUniqueConstraintOperation
+                {
+                    Name = "AK_Post_AltId",
+                    Schema = "dbo",
+                    Table = "Post",
+                    Columns = new[] { "AltId" }
+                },
+                "mb.AddUniqueConstraint("
+                + _eol
+                + "    name: \"AK_Post_AltId\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    column: \"AltId\");",
                 o =>
                 {
                     Assert.Equal("AK_Post_AltId", o.Name);
@@ -333,11 +421,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AddUniqueConstraint_composite()
         {
             Test(
-                new AddUniqueConstraintOperation { Name = "AK_Post_AltId1_AltId2", Table = "Post", Columns = new[] { "AltId1", "AltId2" } },
-                "mb.AddUniqueConstraint(" + _eol +
-                "    name: \"AK_Post_AltId1_AltId2\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    columns: new[] { \"AltId1\", \"AltId2\" });",
+                new AddUniqueConstraintOperation
+                {
+                    Name = "AK_Post_AltId1_AltId2",
+                    Table = "Post",
+                    Columns = new[] { "AltId1", "AltId2" }
+                },
+                "mb.AddUniqueConstraint("
+                + _eol
+                + "    name: \"AK_Post_AltId1_AltId2\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    columns: new[] { \"AltId1\", \"AltId2\" });",
                 o =>
                 {
                     Assert.Equal("AK_Post_AltId1_AltId2", o.Name);
@@ -350,11 +446,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void CreateCheckConstraint_required_args()
         {
             Test(
-                new CreateCheckConstraintOperation { Name = "CK_Post_AltId1_AltId2", Table = "Post", Sql = "AltId1 > AltId2" },
-                "mb.CreateCheckConstraint(" + _eol +
-                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    sql: \"AltId1 > AltId2\");",
+                new CreateCheckConstraintOperation
+                {
+                    Name = "CK_Post_AltId1_AltId2",
+                    Table = "Post",
+                    Sql = "AltId1 > AltId2"
+                },
+                "mb.CreateCheckConstraint("
+                + _eol
+                + "    name: \"CK_Post_AltId1_AltId2\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    sql: \"AltId1 > AltId2\");",
                 o =>
                 {
                     Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
@@ -369,13 +473,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new CreateCheckConstraintOperation
                 {
-                    Name = "CK_Post_AltId1_AltId2", Schema = "dbo", Table = "Post", Sql = "AltId1 > AltId2"
+                    Name = "CK_Post_AltId1_AltId2",
+                    Schema = "dbo",
+                    Table = "Post",
+                    Sql = "AltId1 > AltId2"
                 },
-                "mb.CreateCheckConstraint(" + _eol +
-                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    sql: \"AltId1 > AltId2\");",
+                "mb.CreateCheckConstraint("
+                + _eol
+                + "    name: \"CK_Post_AltId1_AltId2\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    sql: \"AltId1 > AltId2\");",
                 o =>
                 {
                     Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
@@ -389,11 +500,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AlterColumnOperation_required_args()
         {
             Test(
-                new AlterColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int) },
-                "mb.AlterColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    nullable: false);",
+                new AlterColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    ClrType = typeof(int)
+                },
+                "mb.AlterColumn<int>(" + _eol + "    name: \"Id\"," + _eol + "    table: \"Post\"," + _eol + "    nullable: false);",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -452,27 +565,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Comment = "My Comment"
                     }
                 },
-                "mb.AlterColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    type: \"int\"," + _eol +
-                "    unicode: false," + _eol +
-                "    fixedLength: true," + _eol +
-                "    maxLength: 30," + _eol +
-                "    rowVersion: true," + _eol +
-                "    nullable: true," + _eol +
-                "    defaultValue: 1," + _eol +
-                "    comment: \"My Comment 2\"," + _eol +
-                "    oldClrType: typeof(string)," + _eol +
-                "    oldType: \"string\"," + _eol +
-                "    oldUnicode: false," + _eol +
-                "    oldFixedLength: true," + _eol +
-                "    oldMaxLength: 20," + _eol +
-                "    oldRowVersion: true," + _eol +
-                "    oldNullable: true," + _eol +
-                "    oldDefaultValue: 0," + _eol +
-                "    oldComment: \"My Comment\");",
+                "mb.AlterColumn<int>("
+                + _eol
+                + "    name: \"Id\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    type: \"int\","
+                + _eol
+                + "    unicode: false,"
+                + _eol
+                + "    fixedLength: true,"
+                + _eol
+                + "    maxLength: 30,"
+                + _eol
+                + "    rowVersion: true,"
+                + _eol
+                + "    nullable: true,"
+                + _eol
+                + "    defaultValue: 1,"
+                + _eol
+                + "    comment: \"My Comment 2\","
+                + _eol
+                + "    oldClrType: typeof(string),"
+                + _eol
+                + "    oldType: \"string\","
+                + _eol
+                + "    oldUnicode: false,"
+                + _eol
+                + "    oldFixedLength: true,"
+                + _eol
+                + "    oldMaxLength: 20,"
+                + _eol
+                + "    oldRowVersion: true,"
+                + _eol
+                + "    oldNullable: true,"
+                + _eol
+                + "    oldDefaultValue: 0,"
+                + _eol
+                + "    oldComment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -507,12 +640,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AlterColumnOperation_DefaultValueSql()
         {
             Test(
-                new AlterColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int), DefaultValueSql = "1" },
-                "mb.AlterColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    nullable: false," + _eol +
-                "    defaultValueSql: \"1\");",
+                new AlterColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    ClrType = typeof(int),
+                    DefaultValueSql = "1"
+                },
+                "mb.AlterColumn<int>("
+                + _eol
+                + "    name: \"Id\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    nullable: false,"
+                + _eol
+                + "    defaultValueSql: \"1\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -544,12 +687,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void AlterColumnOperation_computedColumnSql()
         {
             Test(
-                new AlterColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int), ComputedColumnSql = "1" },
-                "mb.AlterColumn<int>(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    nullable: false," + _eol +
-                "    computedColumnSql: \"1\");",
+                new AlterColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    ClrType = typeof(int),
+                    ComputedColumnSql = "1"
+                },
+                "mb.AlterColumn<int>("
+                + _eol
+                + "    name: \"Id\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    nullable: false,"
+                + _eol
+                + "    computedColumnSql: \"1\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -582,9 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new AlterDatabaseOperation { ["foo"] = "bar", OldDatabase = { ["bar"] = "foo" } },
-                "mb.AlterDatabase()" + _eol +
-                "    .Annotation(\"foo\", \"bar\")" + _eol +
-                "    .OldAnnotation(\"bar\", \"foo\");",
+                "mb.AlterDatabase()" + _eol + "    .Annotation(\"foo\", \"bar\")" + _eol + "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
                 {
                     Assert.Equal("bar", o["foo"]);
@@ -597,8 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-                "mb.AlterSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\");",
+                "mb.AlterSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -626,19 +776,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     MinValue = 2,
                     MaxValue = 4,
                     IsCyclic = true,
-                    OldSequence = { IncrementBy = 4, MinValue = 3, MaxValue = 5, IsCyclic = true }
+                    OldSequence =
+                    {
+                        IncrementBy = 4,
+                        MinValue = 3,
+                        MaxValue = 5,
+                        IsCyclic = true
+                    }
                 },
-                "mb.AlterSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    incrementBy: 3," + _eol +
-                "    minValue: 2L," + _eol +
-                "    maxValue: 4L," + _eol +
-                "    cyclic: true," + _eol +
-                "    oldIncrementBy: 4," + _eol +
-                "    oldMinValue: 3L," + _eol +
-                "    oldMaxValue: 5L," + _eol +
-                "    oldCyclic: true);",
+                "mb.AlterSequence("
+                + _eol
+                + "    name: \"EntityFrameworkHiLoSequence\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    incrementBy: 3,"
+                + _eol
+                + "    minValue: 2L,"
+                + _eol
+                + "    maxValue: 4L,"
+                + _eol
+                + "    cyclic: true,"
+                + _eol
+                + "    oldIncrementBy: 4,"
+                + _eol
+                + "    oldMinValue: 3L,"
+                + _eol
+                + "    oldMaxValue: 5L,"
+                + _eol
+                + "    oldCyclic: true);",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -659,8 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new AlterTableOperation { Name = "Customer" },
-                "mb.AlterTable(" + _eol +
-                "    name: \"Customer\");",
+                "mb.AlterTable(" + _eol + "    name: \"Customer\");",
                 o =>
                 {
                     Assert.Equal("Customer", o.Name);
@@ -673,13 +838,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new AlterTableOperation
                 {
-                    Name = "Customer", Schema = "dbo", Comment = "My Comment 2", OldTable = { Comment = "My Comment" }
+                    Name = "Customer",
+                    Schema = "dbo",
+                    Comment = "My Comment 2",
+                    OldTable = { Comment = "My Comment" }
                 },
-                "mb.AlterTable(" + _eol +
-                "    name: \"Customer\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    comment: \"My Comment 2\"," + _eol +
-                "    oldComment: \"My Comment\");",
+                "mb.AlterTable("
+                + _eol
+                + "    name: \"Customer\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    comment: \"My Comment 2\","
+                + _eol
+                + "    oldComment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("Customer", o.Name);
@@ -693,11 +865,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void CreateIndexOperation_required_args()
         {
             Test(
-                new CreateIndexOperation { Name = "IX_Post_Title", Table = "Post", Columns = new[] { "Title" } },
-                "mb.CreateIndex(" + _eol +
-                "    name: \"IX_Post_Title\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"Title\");",
+                new CreateIndexOperation
+                {
+                    Name = "IX_Post_Title",
+                    Table = "Post",
+                    Columns = new[] { "Title" }
+                },
+                "mb.CreateIndex("
+                + _eol
+                + "    name: \"IX_Post_Title\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    column: \"Title\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
@@ -719,13 +899,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     IsUnique = true,
                     Filter = "[Title] IS NOT NULL"
                 },
-                "mb.CreateIndex(" + _eol +
-                "    name: \"IX_Post_Title\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    column: \"Title\"," + _eol +
-                "    unique: true," + _eol +
-                "    filter: \"[Title] IS NOT NULL\");",
+                "mb.CreateIndex("
+                + _eol
+                + "    name: \"IX_Post_Title\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    column: \"Title\","
+                + _eol
+                + "    unique: true,"
+                + _eol
+                + "    filter: \"[Title] IS NOT NULL\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
@@ -740,11 +926,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void CreateIndexOperation_composite()
         {
             Test(
-                new CreateIndexOperation { Name = "IX_Post_Title_Subtitle", Table = "Post", Columns = new[] { "Title", "Subtitle" } },
-                "mb.CreateIndex(" + _eol +
-                "    name: \"IX_Post_Title_Subtitle\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    columns: new[] { \"Title\", \"Subtitle\" });",
+                new CreateIndexOperation
+                {
+                    Name = "IX_Post_Title_Subtitle",
+                    Table = "Post",
+                    Columns = new[] { "Title", "Subtitle" }
+                },
+                "mb.CreateIndex("
+                + _eol
+                + "    name: \"IX_Post_Title_Subtitle\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    columns: new[] { \"Title\", \"Subtitle\" });",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title_Subtitle", o.Name);
@@ -758,8 +952,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new EnsureSchemaOperation { Name = "my" },
-                "mb.EnsureSchema(" + _eol +
-                "    name: \"my\");",
+                "mb.EnsureSchema(" + _eol + "    name: \"my\");",
                 o => Assert.Equal("my", o.Name));
         }
 
@@ -768,8 +961,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(long) },
-                "mb.CreateSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\");",
+                "mb.CreateSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -782,8 +974,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(int) },
-                "mb.CreateSequence<int>(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\");",
+                "mb.CreateSequence<int>(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -806,14 +997,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     MaxValue = 4,
                     IsCyclic = true
                 },
-                "mb.CreateSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    startValue: 3L," + _eol +
-                "    incrementBy: 5," + _eol +
-                "    minValue: 2L," + _eol +
-                "    maxValue: 4L," + _eol +
-                "    cyclic: true);",
+                "mb.CreateSequence("
+                + _eol
+                + "    name: \"EntityFrameworkHiLoSequence\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    startValue: 3L,"
+                + _eol
+                + "    incrementBy: 5,"
+                + _eol
+                + "    minValue: 2L,"
+                + _eol
+                + "    maxValue: 4L,"
+                + _eol
+                + "    cyclic: true);",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -842,14 +1040,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     MaxValue = 4,
                     IsCyclic = true
                 },
-                "mb.CreateSequence<int>(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    startValue: 3L," + _eol +
-                "    incrementBy: 5," + _eol +
-                "    minValue: 2L," + _eol +
-                "    maxValue: 4L," + _eol +
-                "    cyclic: true);",
+                "mb.CreateSequence<int>("
+                + _eol
+                + "    name: \"EntityFrameworkHiLoSequence\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    startValue: 3L,"
+                + _eol
+                + "    incrementBy: 5,"
+                + _eol
+                + "    minValue: 2L,"
+                + _eol
+                + "    maxValue: 4L,"
+                + _eol
+                + "    cyclic: true);",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -869,17 +1074,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new CreateTableOperation
                 {
-                    Name = "Post", Columns = { new AddColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int) } }
+                    Name = "Post",
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "Post",
+                            ClrType = typeof(int)
+                        }
+                    }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        Id = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        Id = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("Post", o.Name);
@@ -917,17 +1139,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)"
-                + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", unicode: false, fixedLength: true, maxLength: 30, rowVersion: true, nullable: true, defaultValue: 1)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("Post", o.Name);
@@ -953,17 +1183,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new CreateTableOperation
                 {
                     Name = "Post",
-                    Columns = { new AddColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int), DefaultValueSql = "1" } }
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "Post",
+                            ClrType = typeof(int),
+                            DefaultValueSql = "1"
+                        }
+                    }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        Id = table.Column<int>(nullable: false, defaultValueSql: \"1\")" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        Id = table.Column<int>(nullable: false, defaultValueSql: \"1\")"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.Columns);
@@ -982,17 +1229,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new CreateTableOperation
                 {
                     Name = "Post",
-                    Columns = { new AddColumnOperation { Name = "Id", Table = "Post", ClrType = typeof(int), ComputedColumnSql = "1" } }
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "Id",
+                            Table = "Post",
+                            ClrType = typeof(int),
+                            ComputedColumnSql = "1"
+                        }
+                    }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\")" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\")"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.Columns);
@@ -1024,20 +1288,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        BlogId = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.ForeignKey(" + _eol +
-                "            name: \"FK_Post_Blog_BlogId\"," + _eol +
-                "            column: x => x.BlogId," + _eol +
-                "            principalTable: \"Blog\"," + _eol +
-                "            principalColumn: \"Id\");" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        BlogId = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.ForeignKey("
+                + _eol
+                + "            name: \"FK_Post_Blog_BlogId\","
+                + _eol
+                + "            column: x => x.BlogId,"
+                + _eol
+                + "            principalTable: \"Blog\","
+                + _eol
+                + "            principalColumn: \"Id\");"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.ForeignKeys);
@@ -1075,24 +1352,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        BlogId = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.ForeignKey(" + _eol +
-                "            name: \"FK_Post_Blog_BlogId\"," + _eol +
-                "            column: x => x.BlogId," + _eol +
-                "            principalSchema: \"my\"," + _eol +
-                "            principalTable: \"Blog\"," + _eol +
-                "            principalColumn: \"Id\"," + _eol +
-                "            onUpdate: ReferentialAction.SetNull," + _eol +
-                "            onDelete: ReferentialAction.SetDefault);" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        BlogId = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.ForeignKey("
+                + _eol
+                + "            name: \"FK_Post_Blog_BlogId\","
+                + _eol
+                + "            column: x => x.BlogId,"
+                + _eol
+                + "            principalSchema: \"my\","
+                + _eol
+                + "            principalTable: \"Blog\","
+                + _eol
+                + "            principalColumn: \"Id\","
+                + _eol
+                + "            onUpdate: ReferentialAction.SetNull,"
+                + _eol
+                + "            onDelete: ReferentialAction.SetDefault);"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.ForeignKeys);
@@ -1134,21 +1428,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        BlogId1 = table.Column<int>(nullable: false)," + _eol +
-                "        BlogId2 = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.ForeignKey(" + _eol +
-                "            name: \"FK_Post_Blog_BlogId1_BlogId2\"," + _eol +
-                "            columns: x => new { x.BlogId1, x.BlogId2 }," + _eol +
-                "            principalTable: \"Blog\"," + _eol +
-                "            principalColumns: new[] { \"Id1\", \"Id2\" });" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        BlogId1 = table.Column<int>(nullable: false),"
+                + _eol
+                + "        BlogId2 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.ForeignKey("
+                + _eol
+                + "            name: \"FK_Post_Blog_BlogId1_BlogId2\","
+                + _eol
+                + "            columns: x => new { x.BlogId1, x.BlogId2 },"
+                + _eol
+                + "            principalTable: \"Blog\","
+                + _eol
+                + "            principalColumns: new[] { \"Id1\", \"Id2\" });"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.ForeignKeys);
@@ -1169,18 +1477,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Name = "Post",
                     Columns = { new AddColumnOperation { Name = "Id", ClrType = typeof(int) } },
-                    PrimaryKey = new AddPrimaryKeyOperation { Name = "PK_Post", Table = "Post", Columns = new[] { "Id" } }
+                    PrimaryKey = new AddPrimaryKeyOperation
+                    {
+                        Name = "PK_Post",
+                        Table = "Post",
+                        Columns = new[] { "Id" }
+                    }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        Id = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        Id = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.PrimaryKey(\"PK_Post\", x => x.Id);"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.NotNull(o.PrimaryKey);
@@ -1202,20 +1524,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = { new AddColumnOperation { Name = "Id", ClrType = typeof(int) } },
                     PrimaryKey = new AddPrimaryKeyOperation
                     {
-                        Name = "PK_Post", Schema = "dbo", Table = "Post", Columns = new[] { "Id" }
+                        Name = "PK_Post",
+                        Schema = "dbo",
+                        Table = "Post",
+                        Columns = new[] { "Id" }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        Id = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.PrimaryKey(\"PK_Post\", x => x.Id);" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        Id = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.PrimaryKey(\"PK_Post\", x => x.Id);"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.NotNull(o.PrimaryKey);
@@ -1239,19 +1574,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new AddColumnOperation { Name = "Id1", ClrType = typeof(int) },
                         new AddColumnOperation { Name = "Id2", ClrType = typeof(int) }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation { Name = "PK_Post", Table = "Post", Columns = new[] { "Id1", "Id2" } }
+                    PrimaryKey = new AddPrimaryKeyOperation
+                    {
+                        Name = "PK_Post",
+                        Table = "Post",
+                        Columns = new[] { "Id1", "Id2" }
+                    }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        Id1 = table.Column<int>(nullable: false)," + _eol +
-                "        Id2 = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.PrimaryKey(\"PK_Post\", x => new { x.Id1, x.Id2 });" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        Id1 = table.Column<int>(nullable: false),"
+                + _eol
+                + "        Id2 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.PrimaryKey(\"PK_Post\", x => new { x.Id1, x.Id2 });"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.NotNull(o.PrimaryKey);
@@ -1272,19 +1622,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = { new AddColumnOperation { Name = "AltId", ClrType = typeof(int) } },
                     UniqueConstraints =
                     {
-                        new AddUniqueConstraintOperation { Name = "AK_Post_AltId", Table = "Post", Columns = new[] { "AltId" } }
+                        new AddUniqueConstraintOperation
+                        {
+                            Name = "AK_Post_AltId",
+                            Table = "Post",
+                            Columns = new[] { "AltId" }
+                        }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        AltId = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        AltId = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.UniqueConstraints);
@@ -1308,21 +1672,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         new AddUniqueConstraintOperation
                         {
-                            Name = "AK_Post_AltId", Schema = "dbo", Table = "Post", Columns = new[] { "AltId" }
+                            Name = "AK_Post_AltId",
+                            Schema = "dbo",
+                            Table = "Post",
+                            Columns = new[] { "AltId" }
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        AltId = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        AltId = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.UniqueConstraint(\"AK_Post_AltId\", x => x.AltId);"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.UniqueConstraints);
@@ -1350,21 +1727,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         new AddUniqueConstraintOperation
                         {
-                            Name = "AK_Post_AltId1_AltId2", Table = "Post", Columns = new[] { "AltId1", "AltId2" }
+                            Name = "AK_Post_AltId1_AltId2",
+                            Table = "Post",
+                            Columns = new[] { "AltId1", "AltId2" }
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        AltId1 = table.Column<int>(nullable: false)," + _eol +
-                "        AltId2 = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.UniqueConstraint(\"AK_Post_AltId1_AltId2\", x => new { x.AltId1, x.AltId2 });" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        AltId1 = table.Column<int>(nullable: false),"
+                + _eol
+                + "        AltId2 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.UniqueConstraint(\"AK_Post_AltId1_AltId2\", x => new { x.AltId1, x.AltId2 });"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.UniqueConstraints);
@@ -1391,21 +1780,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         new CreateCheckConstraintOperation
                         {
-                            Name = "CK_Post_AltId1_AltId2", Table = "Post", Sql = "AltId1 > AltId2"
+                            Name = "CK_Post_AltId1_AltId2",
+                            Table = "Post",
+                            Sql = "AltId1 > AltId2"
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        AltId1 = table.Column<int>(nullable: false)," + _eol +
-                "        AltId2 = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.CheckConstraint(\"CK_Post_AltId1_AltId2\", \"AltId1 > AltId2\");" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        AltId1 = table.Column<int>(nullable: false),"
+                + _eol
+                + "        AltId2 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.CheckConstraint(\"CK_Post_AltId1_AltId2\", \"AltId1 > AltId2\");"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.CheckConstraints);
@@ -1433,22 +1834,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         new CreateCheckConstraintOperation
                         {
-                            Name = "CK_Post_AltId1_AltId2", Schema = "dbo", Table = "Post", Sql = "AltId1 > AltId2"
+                            Name = "CK_Post_AltId1_AltId2",
+                            Schema = "dbo",
+                            Table = "Post",
+                            Sql = "AltId1 > AltId2"
                         }
                     }
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        AltId1 = table.Column<int>(nullable: false)," + _eol +
-                "        AltId2 = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "        table.CheckConstraint(\"CK_Post_AltId1_AltId2\", \"AltId1 > AltId2\");" + _eol +
-                "    });",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        AltId1 = table.Column<int>(nullable: false),"
+                + _eol
+                + "        AltId2 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.CheckConstraint(\"CK_Post_AltId1_AltId2\", \"AltId1 > AltId2\");"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Single(o.CheckConstraints);
@@ -1471,17 +1886,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = { new AddColumnOperation { Name = "AltId1", ClrType = typeof(int) } },
                     Comment = "My Comment"
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        AltId1 = table.Column<int>(nullable: false)" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "    }," + _eol +
-                "    comment: \"My Comment\");",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        AltId1 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "    },"
+                + _eol
+                + "    comment: \"My Comment\");",
                 o =>
                 {
                     Assert.Equal("My Comment", o.Comment);
@@ -1496,20 +1921,38 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     Name = "Post",
                     Schema = "dbo",
-                    Columns = { new AddColumnOperation { Name = "AltId1", ClrType = typeof(int), Comment = "My Column comment" } },
+                    Columns =
+                    {
+                        new AddColumnOperation
+                        {
+                            Name = "AltId1",
+                            ClrType = typeof(int),
+                            Comment = "My Column comment"
+                        }
+                    },
                     Comment = "My Operation Comment"
                 },
-                "mb.CreateTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    columns: table => new" + _eol +
-                "    {" + _eol +
-                "        AltId1 = table.Column<int>(nullable: false, comment: \"My Column comment\")" + _eol +
-                "    }," + _eol +
-                "    constraints: table =>" + _eol +
-                "    {" + _eol +
-                "    }," + _eol +
-                "    comment: \"My Operation Comment\");",
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        AltId1 = table.Column<int>(nullable: false, comment: \"My Column comment\")"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "    },"
+                + _eol
+                + "    comment: \"My Operation Comment\");",
                 o =>
                 {
                     Assert.Equal("My Operation Comment", o.Comment);
@@ -1522,9 +1965,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropColumnOperation { Name = "Id", Table = "Post" },
-                "mb.DropColumn(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\");",
+                "mb.DropColumn(" + _eol + "    name: \"Id\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -1536,11 +1977,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropColumnOperation_all_args()
         {
             Test(
-                new DropColumnOperation { Name = "Id", Schema = "dbo", Table = "Post" },
-                "mb.DropColumn(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\");",
+                new DropColumnOperation
+                {
+                    Name = "Id",
+                    Schema = "dbo",
+                    Table = "Post"
+                },
+                "mb.DropColumn(" + _eol + "    name: \"Id\"," + _eol + "    schema: \"dbo\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -1554,9 +1997,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropForeignKeyOperation { Name = "FK_Post_BlogId", Table = "Post" },
-                "mb.DropForeignKey(" + _eol +
-                "    name: \"FK_Post_BlogId\"," + _eol +
-                "    table: \"Post\");",
+                "mb.DropForeignKey(" + _eol + "    name: \"FK_Post_BlogId\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("FK_Post_BlogId", o.Name);
@@ -1568,11 +2009,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropForeignKeyOperation_all_args()
         {
             Test(
-                new DropForeignKeyOperation { Name = "FK_Post_BlogId", Schema = "dbo", Table = "Post" },
-                "mb.DropForeignKey(" + _eol +
-                "    name: \"FK_Post_BlogId\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\");",
+                new DropForeignKeyOperation
+                {
+                    Name = "FK_Post_BlogId",
+                    Schema = "dbo",
+                    Table = "Post"
+                },
+                "mb.DropForeignKey("
+                + _eol
+                + "    name: \"FK_Post_BlogId\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("FK_Post_BlogId", o.Name);
@@ -1586,9 +2035,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropIndexOperation { Name = "IX_Post_Title", Table = "Post" },
-                "mb.DropIndex(" + _eol +
-                "    name: \"IX_Post_Title\"," + _eol +
-                "    table: \"Post\");",
+                "mb.DropIndex(" + _eol + "    name: \"IX_Post_Title\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
@@ -1600,11 +2047,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropIndexOperation_all_args()
         {
             Test(
-                new DropIndexOperation { Name = "IX_Post_Title", Schema = "dbo", Table = "Post" },
-                "mb.DropIndex(" + _eol +
-                "    name: \"IX_Post_Title\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\");",
+                new DropIndexOperation
+                {
+                    Name = "IX_Post_Title",
+                    Schema = "dbo",
+                    Table = "Post"
+                },
+                "mb.DropIndex(" + _eol + "    name: \"IX_Post_Title\"," + _eol + "    schema: \"dbo\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
@@ -1618,9 +2067,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropPrimaryKeyOperation { Name = "PK_Post", Table = "Post" },
-                "mb.DropPrimaryKey(" + _eol +
-                "    name: \"PK_Post\"," + _eol +
-                "    table: \"Post\");",
+                "mb.DropPrimaryKey(" + _eol + "    name: \"PK_Post\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("PK_Post", o.Name);
@@ -1632,11 +2079,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropPrimaryKeyOperation_all_args()
         {
             Test(
-                new DropPrimaryKeyOperation { Name = "PK_Post", Schema = "dbo", Table = "Post" },
-                "mb.DropPrimaryKey(" + _eol +
-                "    name: \"PK_Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\");",
+                new DropPrimaryKeyOperation
+                {
+                    Name = "PK_Post",
+                    Schema = "dbo",
+                    Table = "Post"
+                },
+                "mb.DropPrimaryKey(" + _eol + "    name: \"PK_Post\"," + _eol + "    schema: \"dbo\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("PK_Post", o.Name);
@@ -1650,8 +2099,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropSchemaOperation { Name = "my" },
-                "mb.DropSchema(" + _eol +
-                "    name: \"my\");",
+                "mb.DropSchema(" + _eol + "    name: \"my\");",
                 o => Assert.Equal("my", o.Name));
         }
 
@@ -1660,8 +2108,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-                "mb.DropSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\");",
+                "mb.DropSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
@@ -1670,9 +2117,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo" },
-                "mb.DropSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
-                "    schema: \"dbo\");",
+                "mb.DropSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\"," + _eol + "    schema: \"dbo\");",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -1685,8 +2130,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropTableOperation { Name = "Post" },
-                "mb.DropTable(" + _eol +
-                "    name: \"Post\");",
+                "mb.DropTable(" + _eol + "    name: \"Post\");",
                 o => Assert.Equal("Post", o.Name));
         }
 
@@ -1695,9 +2139,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropTableOperation { Name = "Post", Schema = "dbo" },
-                "mb.DropTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\");",
+                "mb.DropTable(" + _eol + "    name: \"Post\"," + _eol + "    schema: \"dbo\");",
                 o =>
                 {
                     Assert.Equal("Post", o.Name);
@@ -1710,9 +2152,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropUniqueConstraintOperation { Name = "AK_Post_AltId", Table = "Post" },
-                "mb.DropUniqueConstraint(" + _eol +
-                "    name: \"AK_Post_AltId\"," + _eol +
-                "    table: \"Post\");",
+                "mb.DropUniqueConstraint(" + _eol + "    name: \"AK_Post_AltId\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("AK_Post_AltId", o.Name);
@@ -1724,11 +2164,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropUniqueConstraintOperation_all_args()
         {
             Test(
-                new DropUniqueConstraintOperation { Name = "AK_Post_AltId", Schema = "dbo", Table = "Post" },
-                "mb.DropUniqueConstraint(" + _eol +
-                "    name: \"AK_Post_AltId\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\");",
+                new DropUniqueConstraintOperation
+                {
+                    Name = "AK_Post_AltId",
+                    Schema = "dbo",
+                    Table = "Post"
+                },
+                "mb.DropUniqueConstraint("
+                + _eol
+                + "    name: \"AK_Post_AltId\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("AK_Post_AltId", o.Name);
@@ -1742,9 +2190,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new DropCheckConstraintOperation { Name = "CK_Post_AltId1_AltId2", Table = "Post" },
-                "mb.DropCheckConstraint(" + _eol +
-                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
-                "    table: \"Post\");",
+                "mb.DropCheckConstraint(" + _eol + "    name: \"CK_Post_AltId1_AltId2\"," + _eol + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
@@ -1756,11 +2202,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropCheckConstraintOperation_all_args()
         {
             Test(
-                new DropCheckConstraintOperation { Name = "CK_Post_AltId1_AltId2", Schema = "dbo", Table = "Post" },
-                "mb.DropCheckConstraint(" + _eol +
-                "    name: \"CK_Post_AltId1_AltId2\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\");",
+                new DropCheckConstraintOperation
+                {
+                    Name = "CK_Post_AltId1_AltId2",
+                    Schema = "dbo",
+                    Table = "Post"
+                },
+                "mb.DropCheckConstraint("
+                + _eol
+                + "    name: \"CK_Post_AltId1_AltId2\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\");",
                 o =>
                 {
                     Assert.Equal("CK_Post_AltId1_AltId2", o.Name);
@@ -1773,11 +2227,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void RenameColumnOperation_required_args()
         {
             Test(
-                new RenameColumnOperation { Name = "Id", Table = "Post", NewName = "PostId" },
-                "mb.RenameColumn(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    newName: \"PostId\");",
+                new RenameColumnOperation
+                {
+                    Name = "Id",
+                    Table = "Post",
+                    NewName = "PostId"
+                },
+                "mb.RenameColumn(" + _eol + "    name: \"Id\"," + _eol + "    table: \"Post\"," + _eol + "    newName: \"PostId\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -1790,12 +2246,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void RenameColumnOperation_all_args()
         {
             Test(
-                new RenameColumnOperation { Name = "Id", Schema = "dbo", Table = "Post", NewName = "PostId" },
-                "mb.RenameColumn(" + _eol +
-                "    name: \"Id\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    newName: \"PostId\");",
+                new RenameColumnOperation
+                {
+                    Name = "Id",
+                    Schema = "dbo",
+                    Table = "Post",
+                    NewName = "PostId"
+                },
+                "mb.RenameColumn("
+                + _eol
+                + "    name: \"Id\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    newName: \"PostId\");",
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -1809,11 +2275,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void RenameIndexOperation_required_args()
         {
             Test(
-                new RenameIndexOperation { Name = "IX_Post_Title", Table = "Post", NewName = "IX_Post_PostTitle" },
-                "mb.RenameIndex(" + _eol +
-                "    name: \"IX_Post_Title\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    newName: \"IX_Post_PostTitle\");",
+                new RenameIndexOperation
+                {
+                    Name = "IX_Post_Title",
+                    Table = "Post",
+                    NewName = "IX_Post_PostTitle"
+                },
+                "mb.RenameIndex("
+                + _eol
+                + "    name: \"IX_Post_Title\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    newName: \"IX_Post_PostTitle\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
@@ -1826,12 +2300,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void RenameIndexOperation_all_args()
         {
             Test(
-                new RenameIndexOperation { Name = "IX_dbo.Post_Title", Schema = "dbo", Table = "Post", NewName = "IX_dbo.Post_PostTitle" },
-                "mb.RenameIndex(" + _eol +
-                "    name: \"IX_dbo.Post_Title\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"Post\"," + _eol +
-                "    newName: \"IX_dbo.Post_PostTitle\");",
+                new RenameIndexOperation
+                {
+                    Name = "IX_dbo.Post_Title",
+                    Schema = "dbo",
+                    Table = "Post",
+                    NewName = "IX_dbo.Post_PostTitle"
+                },
+                "mb.RenameIndex("
+                + _eol
+                + "    name: \"IX_dbo.Post_Title\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    newName: \"IX_dbo.Post_PostTitle\");",
                 o =>
                 {
                     Assert.Equal("IX_dbo.Post_Title", o.Name);
@@ -1846,8 +2330,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-                "mb.RenameSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\");",
+                "mb.RenameSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\");",
                 o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
@@ -1857,13 +2340,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new RenameSequenceOperation
                 {
-                    Name = "EntityFrameworkHiLoSequence", Schema = "dbo", NewName = "MySequence", NewSchema = "my"
+                    Name = "EntityFrameworkHiLoSequence",
+                    Schema = "dbo",
+                    NewName = "MySequence",
+                    NewSchema = "my"
                 },
-                "mb.RenameSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    newName: \"MySequence\"," + _eol +
-                "    newSchema: \"my\");",
+                "mb.RenameSequence("
+                + _eol
+                + "    name: \"EntityFrameworkHiLoSequence\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    newName: \"MySequence\","
+                + _eol
+                + "    newSchema: \"my\");",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -1878,8 +2368,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new RenameTableOperation { Name = "Post" },
-                "mb.RenameTable(" + _eol +
-                "    name: \"Post\");",
+                "mb.RenameTable(" + _eol + "    name: \"Post\");",
                 o => Assert.Equal("Post", o.Name));
         }
 
@@ -1887,12 +2376,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void RenameTableOperation_all_args()
         {
             Test(
-                new RenameTableOperation { Name = "Post", Schema = "dbo", NewName = "Posts", NewSchema = "my" },
-                "mb.RenameTable(" + _eol +
-                "    name: \"Post\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    newName: \"Posts\"," + _eol +
-                "    newSchema: \"my\");",
+                new RenameTableOperation
+                {
+                    Name = "Post",
+                    Schema = "dbo",
+                    NewName = "Posts",
+                    NewSchema = "my"
+                },
+                "mb.RenameTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    newName: \"Posts\","
+                + _eol
+                + "    newSchema: \"my\");",
                 o =>
                 {
                     Assert.Equal("Post", o.Name);
@@ -1907,9 +2406,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             Test(
                 new RestartSequenceOperation { Name = "EntityFrameworkHiLoSequence", StartValue = 1 },
-                "mb.RestartSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
-                "    startValue: 1L);",
+                "mb.RestartSequence(" + _eol + "    name: \"EntityFrameworkHiLoSequence\"," + _eol + "    startValue: 1L);",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -1921,11 +2418,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void RestartSequenceOperation_all_args()
         {
             Test(
-                new RestartSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo", StartValue = 1 },
-                "mb.RestartSequence(" + _eol +
-                "    name: \"EntityFrameworkHiLoSequence\"," + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    startValue: 1L);",
+                new RestartSequenceOperation
+                {
+                    Name = "EntityFrameworkHiLoSequence",
+                    Schema = "dbo",
+                    StartValue = 1
+                },
+                "mb.RestartSequence("
+                + _eol
+                + "    name: \"EntityFrameworkHiLoSequence\","
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    startValue: 1L);",
                 o =>
                 {
                     Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -2007,28 +2512,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         { 7, "Aemon Targaryen", _geometryCollection }
                     }
                 },
-                "mb.InsertData(" + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"People\"," + _eol +
-                "    columns: new[] { \"Id\", \"Full Name\", \"Geometry\" }," + _eol +
-                "    values: new object[,]" + _eol +
-                "    {" + _eol +
-                "        { 0, null, null }," + _eol +
-                "        { 1, \"Daenerys Targaryen\", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT Z(1.1 2.2 3.3)\") },"
-                + _eol +
-                "        { 2, \"John Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") },"
-                + _eol +
-                "        { 3, \"Arya Stark\", (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\") },"
-                + _eol +
-                "        { 4, \"Harry Strickland\", (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\") },"
-                + _eol +
-                "        { 5, \"The Imp\", (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))\") },"
-                + _eol +
-                "        { 6, \"The Kingslayer\", (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") },"
-                + _eol +
-                "        { 7, \"Aemon Targaryen\", (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION Z(LINESTRING Z(1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), LINESTRING Z(7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN), MULTIPOINT Z((1.1 2.2 NaN), (2.2 2.2 NaN), (2.2 1.1 NaN)), POLYGON Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN)), POLYGON Z((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), POINT Z(1.1 2.2 3.3), MULTILINESTRING Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), (7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN)), MULTIPOLYGON Z(((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), ((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN))))\") }"
-                + _eol +
-                "    });",
+                "mb.InsertData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    columns: new[] { \"Id\", \"Full Name\", \"Geometry\" },"
+                + _eol
+                + "    values: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { 0, null, null },"
+                + _eol
+                + "        { 1, \"Daenerys Targaryen\", (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT Z(1.1 2.2 3.3)\") },"
+                + _eol
+                + "        { 2, \"John Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") },"
+                + _eol
+                + "        { 3, \"Arya Stark\", (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\") },"
+                + _eol
+                + "        { 4, \"Harry Strickland\", (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\") },"
+                + _eol
+                + "        { 5, \"The Imp\", (NetTopologySuite.Geometries.MultiPolygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOLYGON (((10.1 20.2, 20.2 20.2, 20.2 10.1, 10.1 20.2)), ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2)))\") },"
+                + _eol
+                + "        { 6, \"The Kingslayer\", (NetTopologySuite.Geometries.MultiLineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTILINESTRING ((1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2), (7.1 7.2, 20.2 20.2, 20.2 1.1, 70.1 70.2))\") },"
+                + _eol
+                + "        { 7, \"Aemon Targaryen\", (NetTopologySuite.Geometries.GeometryCollection)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;GEOMETRYCOLLECTION Z(LINESTRING Z(1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), LINESTRING Z(7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN), MULTIPOINT Z((1.1 2.2 NaN), (2.2 2.2 NaN), (2.2 1.1 NaN)), POLYGON Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN)), POLYGON Z((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), POINT Z(1.1 2.2 3.3), MULTILINESTRING Z((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 7.1 7.2 NaN), (7.1 7.2 NaN, 20.2 20.2 NaN, 20.2 1.1 NaN, 70.1 70.2 NaN)), MULTIPOLYGON Z(((10.1 20.2 NaN, 20.2 20.2 NaN, 20.2 10.1 NaN, 10.1 20.2 NaN)), ((1.1 2.2 NaN, 2.2 2.2 NaN, 2.2 1.1 NaN, 1.1 2.2 NaN))))\") }"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("dbo", o.Schema);
@@ -2051,11 +2563,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void InsertDataOperation_required_args()
         {
             Test(
-                new InsertDataOperation { Table = "People", Columns = new[] { "Geometry" }, Values = new object[,] { { _point1 } } },
-                "mb.InsertData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    column: \"Geometry\"," + _eol +
-                "    value: (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT Z(1.1 2.2 3.3)\"));",
+                new InsertDataOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "Geometry" },
+                    Values = new object[,] { { _point1 } }
+                },
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    column: \"Geometry\","
+                + _eol
+                + "    value: (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POINT Z(1.1 2.2 3.3)\"));",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2076,10 +2596,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "First Name", "Last Name", "Geometry" },
                     Values = new object[,] { { "John", "Snow", _polygon1 } }
                 },
-                "mb.InsertData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" }," + _eol +
-                "    values: new object[] { \"John\", \"Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") });",
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    columns: new[] { \"First Name\", \"Last Name\", \"Geometry\" },"
+                + _eol
+                + "    values: new object[] { \"John\", \"Snow\", (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))\") });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2097,18 +2620,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new InsertDataOperation
                 {
-                    Table = "People", Columns = new[] { "Geometries" }, Values = new object[,] { { _lineString1 }, { _multiPoint } }
+                    Table = "People",
+                    Columns = new[] { "Geometries" },
+                    Values = new object[,] { { _lineString1 }, { _multiPoint } }
                 },
-                "mb.InsertData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    column: \"Geometries\"," + _eol +
-                "    values: new object[]" + _eol +
-                "    {" + _eol +
-                "        (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\"),"
-                + _eol +
-                "        (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\")"
-                + _eol +
-                "    });",
+                "mb.InsertData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    column: \"Geometries\","
+                + _eol
+                + "    values: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        (NetTopologySuite.Geometries.LineString)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;LINESTRING (1.1 2.2, 2.2 2.2, 2.2 1.1, 7.1 7.2)\"),"
+                + _eol
+                + "        (NetTopologySuite.Geometries.MultiPoint)new NetTopologySuite.IO.WKTReader().Read(\"SRID=4326;MULTIPOINT ((1.1 2.2), (2.2 2.2), (2.2 1.1))\")"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2131,18 +2661,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     KeyColumns = new[] { "First Name" },
                     KeyValues = new object[,] { { "Hodor" }, { "Daenerys" }, { "John" }, { "Arya" }, { "Harry" } }
                 },
-                "mb.DeleteData(" + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumn: \"First Name\"," + _eol +
-                "    keyValues: new object[]" + _eol +
-                "    {" + _eol +
-                "        \"Hodor\"," + _eol +
-                "        \"Daenerys\"," + _eol +
-                "        \"John\"," + _eol +
-                "        \"Arya\"," + _eol +
-                "        \"Harry\"" + _eol +
-                "    });",
+                "mb.DeleteData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumn: \"First Name\","
+                + _eol
+                + "    keyValues: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        \"Hodor\","
+                + _eol
+                + "        \"Daenerys\","
+                + _eol
+                + "        \"John\","
+                + _eol
+                + "        \"Arya\","
+                + _eol
+                + "        \"Harry\""
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("dbo", o.Schema);
@@ -2164,24 +2705,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     KeyColumns = new[] { "First Name", "Last Name" },
                     KeyValues = new object[,]
                     {
-                        { "Hodor", null },
-                        { "Daenerys", "Targaryen" },
-                        { "John", "Snow" },
-                        { "Arya", "Stark" },
-                        { "Harry", "Strickland" }
+                        { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
                     }
                 },
-                "mb.DeleteData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
-                "    keyValues: new object[,]" + _eol +
-                "    {" + _eol +
-                "        { \"Hodor\", null }," + _eol +
-                "        { \"Daenerys\", \"Targaryen\" }," + _eol +
-                "        { \"John\", \"Snow\" }," + _eol +
-                "        { \"Arya\", \"Stark\" }," + _eol +
-                "        { \"Harry\", \"Strickland\" }" + _eol +
-                "    });",
+                "mb.DeleteData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyValues: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { \"Hodor\", null },"
+                + _eol
+                + "        { \"Daenerys\", \"Targaryen\" },"
+                + _eol
+                + "        { \"John\", \"Snow\" },"
+                + _eol
+                + "        { \"Arya\", \"Stark\" },"
+                + _eol
+                + "        { \"Harry\", \"Strickland\" }"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2196,11 +2743,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DeleteDataOperation_required_args()
         {
             Test(
-                new DeleteDataOperation { Table = "People", KeyColumns = new[] { "Last Name" }, KeyValues = new object[,] { { "Snow" } } },
-                "mb.DeleteData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumn: \"Last Name\"," + _eol +
-                "    keyValue: \"Snow\");",
+                new DeleteDataOperation
+                {
+                    Table = "People",
+                    KeyColumns = new[] { "Last Name" },
+                    KeyValues = new object[,] { { "Snow" } }
+                },
+                "mb.DeleteData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumn: \"Last Name\","
+                + _eol
+                + "    keyValue: \"Snow\");",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2217,12 +2772,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new DeleteDataOperation
                 {
-                    Table = "People", KeyColumns = new[] { "First Name", "Last Name" }, KeyValues = new object[,] { { "John", "Snow" } }
+                    Table = "People",
+                    KeyColumns = new[] { "First Name", "Last Name" },
+                    KeyValues = new object[,] { { "John", "Snow" } }
                 },
-                "mb.DeleteData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
-                "    keyValues: new object[] { \"John\", \"Snow\" });",
+                "mb.DeleteData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyValues: new object[] { \"John\", \"Snow\" });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2246,21 +2806,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                     Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumn: \"First Name\"," + _eol +
-                "    keyValues: new object[]" + _eol +
-                "    {" + _eol +
-                "        \"Hodor\"," + _eol +
-                "        \"Daenerys\"" + _eol +
-                "    }," + _eol +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
-                "    values: new object[,]" + _eol +
-                "    {" + _eol +
-                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + _eol +
-                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + _eol +
-                "    });",
+                "mb.UpdateData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumn: \"First Name\","
+                + _eol
+                + "    keyValues: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        \"Hodor\","
+                + _eol
+                + "        \"Daenerys\""
+                + _eol
+                + "    },"
+                + _eol
+                + "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" },"
+                + _eol
+                + "    values: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { \"Winterfell\", \"Stark\", \"Northmen\" },"
+                + _eol
+                + "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("dbo", o.Schema);
@@ -2288,20 +2862,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "House Allegiance" },
                     Values = new object[,] { { "Stark" }, { "Targaryen" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
-                "    keyValues: new object[,]" + _eol +
-                "    {" + _eol +
-                "        { \"Hodor\", null }," + _eol +
-                "        { \"Daenerys\", \"Targaryen\" }" + _eol +
-                "    }," + _eol +
-                "    column: \"House Allegiance\"," + _eol +
-                "    values: new object[]" + _eol +
-                "    {" + _eol +
-                "        \"Stark\"," + _eol +
-                "        \"Targaryen\"" + _eol +
-                "    });",
+                "mb.UpdateData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyValues: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { \"Hodor\", null },"
+                + _eol
+                + "        { \"Daenerys\", \"Targaryen\" }"
+                + _eol
+                + "    },"
+                + _eol
+                + "    column: \"House Allegiance\","
+                + _eol
+                + "    values: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        \"Stark\","
+                + _eol
+                + "        \"Targaryen\""
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2328,20 +2915,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                     Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
-                "    keyValues: new object[,]" + _eol +
-                "    {" + _eol +
-                "        { \"Hodor\", null }," + _eol +
-                "        { \"Daenerys\", \"Targaryen\" }" + _eol +
-                "    }," + _eol +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
-                "    values: new object[,]" + _eol +
-                "    {" + _eol +
-                "        { \"Winterfell\", \"Stark\", \"Northmen\" }," + _eol +
-                "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }" + _eol +
-                "    });",
+                "mb.UpdateData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyValues: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { \"Hodor\", null },"
+                + _eol
+                + "        { \"Daenerys\", \"Targaryen\" }"
+                + _eol
+                + "    },"
+                + _eol
+                + "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" },"
+                + _eol
+                + "    values: new object[,]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        { \"Winterfell\", \"Stark\", \"Northmen\" },"
+                + _eol
+                + "        { \"Dragonstone\", \"Targaryen\", \"Valyrian\" }"
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2369,13 +2969,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                     Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    schema: \"dbo\"," + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumn: \"Full Name\"," + _eol +
-                "    keyValue: \"Daenerys Targaryen\"," + _eol +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
-                "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
+                "mb.UpdateData("
+                + _eol
+                + "    schema: \"dbo\","
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumn: \"Full Name\","
+                + _eol
+                + "    keyValue: \"Daenerys Targaryen\","
+                + _eol
+                + "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" },"
+                + _eol
+                + "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
                 {
                     Assert.Equal("dbo", o.Schema);
@@ -2403,12 +3009,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "House Allegiance" },
                     Values = new object[,] { { "Targaryen" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumn: \"First Name\"," + _eol +
-                "    keyValue: \"Daenerys\"," + _eol +
-                "    column: \"House Allegiance\"," + _eol +
-                "    value: \"Targaryen\");",
+                "mb.UpdateData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumn: \"First Name\","
+                + _eol
+                + "    keyValue: \"Daenerys\","
+                + _eol
+                + "    column: \"House Allegiance\","
+                + _eol
+                + "    value: \"Targaryen\");",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2435,20 +3046,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "House Allegiance" },
                     Values = new object[,] { { "Stark" }, { "Targaryen" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumn: \"First Name\"," + _eol +
-                "    keyValues: new object[]" + _eol +
-                "    {" + _eol +
-                "        \"Hodor\"," + _eol +
-                "        \"Daenerys\"" + _eol +
-                "    }," + _eol +
-                "    column: \"House Allegiance\"," + _eol +
-                "    values: new object[]" + _eol +
-                "    {" + _eol +
-                "        \"Stark\"," + _eol +
-                "        \"Targaryen\"" + _eol +
-                "    });",
+                "mb.UpdateData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumn: \"First Name\","
+                + _eol
+                + "    keyValues: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        \"Hodor\","
+                + _eol
+                + "        \"Daenerys\""
+                + _eol
+                + "    },"
+                + _eol
+                + "    column: \"House Allegiance\","
+                + _eol
+                + "    values: new object[]"
+                + _eol
+                + "    {"
+                + _eol
+                + "        \"Stark\","
+                + _eol
+                + "        \"Targaryen\""
+                + _eol
+                + "    });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2475,12 +3099,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "House Allegiance" },
                     Values = new object[,] { { "Targaryen" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
-                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + _eol +
-                "    column: \"House Allegiance\"," + _eol +
-                "    value: \"Targaryen\");",
+                "mb.UpdateData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" },"
+                + _eol
+                + "    column: \"House Allegiance\","
+                + _eol
+                + "    value: \"Targaryen\");",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2507,12 +3136,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                     Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumns: new[] { \"First Name\", \"Last Name\" }," + _eol +
-                "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" }," + _eol +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
-                "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
+                "mb.UpdateData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumns: new[] { \"First Name\", \"Last Name\" },"
+                + _eol
+                + "    keyValues: new object[] { \"Daenerys\", \"Targaryen\" },"
+                + _eol
+                + "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" },"
+                + _eol
+                + "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2539,12 +3173,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                     Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
                 },
-                "mb.UpdateData(" + _eol +
-                "    table: \"People\"," + _eol +
-                "    keyColumn: \"Full Name\"," + _eol +
-                "    keyValue: \"Daenerys Targaryen\"," + _eol +
-                "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" }," + _eol +
-                "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
+                "mb.UpdateData("
+                + _eol
+                + "    table: \"People\","
+                + _eol
+                + "    keyColumn: \"Full Name\","
+                + _eol
+                + "    keyValue: \"Daenerys Targaryen\","
+                + _eol
+                + "    columns: new[] { \"Birthplace\", \"House Allegiance\", \"Culture\" },"
+                + _eol
+                + "    values: new object[] { \"Dragonstone\", \"Targaryen\", \"Valyrian\" });",
                 o =>
                 {
                     Assert.Equal("People", o.Table);
@@ -2595,7 +3234,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         public static void Create(MigrationBuilder mb)
                         {
-                            " + code + @"
+                            "
+                    + code
+                    + @"
                         }
                     }
                 "

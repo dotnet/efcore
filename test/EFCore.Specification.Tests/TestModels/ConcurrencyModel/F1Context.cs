@@ -66,7 +66,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
                 EngineSupplier = engineSuppliers.Single(s => s.Name == "Cosworth")
             };
 
-            foreach (var engine in new List<Engine> { mercedesEngine, renaultEngine, ferrariEngine, cosworthEngine })
+            foreach (var engine in new List<Engine>
+            {
+                mercedesEngine,
+                renaultEngine,
+                ferrariEngine,
+                cosworthEngine
+            })
             {
                 context.Engines.Add(engine);
             }
@@ -786,7 +792,13 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
             var bridgestone = new Sponsor { Name = "Bridgestone" };
             var fia = new Sponsor { Name = "FIA" };
 
-            foreach (var sponsor in new List<Sponsor> { shell, vodafone, bridgestone, fia })
+            foreach (var sponsor in new List<Sponsor>
+            {
+                shell,
+                vodafone,
+                bridgestone,
+                fia
+            })
             {
                 context.Sponsors.Add(sponsor);
             }

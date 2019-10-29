@@ -373,7 +373,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            isRead: false, isWrite: true, isKey: false, isCondition: false, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
+                            isRead: false, isWrite: true, isKey: false, isCondition: false, isConcurrencyToken: false,
+                            sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -406,7 +407,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            isRead: false, isWrite: false, isKey: false, isCondition: true, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
+                            isRead: false, isWrite: false, isKey: false, isCondition: true, isConcurrencyToken: false,
+                            sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -439,7 +441,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            isRead: false, isWrite: true, isKey: false, isCondition: true, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
+                            isRead: false, isWrite: true, isKey: false, isCondition: true, isConcurrencyToken: false,
+                            sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -474,7 +477,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             entry,
                             property,
                             parameterNameGenerator.GenerateNext,
-                            isRead: true, isWrite: false, isKey: false, isCondition: false, isConcurrencyToken: false, sensitiveLoggingEnabled: true)
+                            isRead: true, isWrite: false, isKey: false, isCondition: false, isConcurrencyToken: false,
+                            sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -560,7 +564,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                             typeMappingSource)),
                     new RelationalSqlGenerationHelper(
                         new RelationalSqlGenerationHelperDependencies()),
-                    sqlGenerator ?? new FakeSqlGenerator(
+                    sqlGenerator
+                    ?? new FakeSqlGenerator(
                         RelationalTestHelpers.Instance.CreateContextServices()
                             .GetRequiredService<UpdateSqlGeneratorDependencies>()),
                     new TypedRelationalValueBufferFactoryFactory(

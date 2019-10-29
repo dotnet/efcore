@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns> The store value generation strategy to set for the given property. </returns>
         public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property)
             => RelationalValueGenerationConvention.GetValueGenerated(property)
-               ?? (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None
-                   ? ValueGenerated.OnAdd
-                   : (ValueGenerated?)null);
+                ?? (property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.None
+                    ? ValueGenerated.OnAdd
+                    : (ValueGenerated?)null);
     }
 }

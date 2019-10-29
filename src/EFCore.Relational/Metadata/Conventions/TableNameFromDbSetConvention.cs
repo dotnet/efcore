@@ -59,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     entityTypeBuilder.ToTable(null);
                 }
                 else if (oldBaseType != null
-                         && newBaseType == null
-                         && entityType.ClrType != null
-                         && _sets.ContainsKey(entityType.ClrType))
+                    && newBaseType == null
+                    && entityType.ClrType != null
+                    && _sets.ContainsKey(entityType.ClrType))
                 {
                     entityTypeBuilder.ToTable(_sets[entityType.ClrType].Name);
                 }

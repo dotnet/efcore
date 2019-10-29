@@ -204,8 +204,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             CoreStrings.UntrackedDependentEntity(
                                 entity.GetType().ShortDisplayName(),
                                 "." + nameof(EntityEntry.Reference) + "()." + nameof(ReferenceEntry.TargetEntry),
-                                "." + nameof(EntityEntry.Collection) + "()." + nameof(CollectionEntry.FindEntry) +
-                                "()"));
+                                "." + nameof(EntityEntry.Collection) + "()." + nameof(CollectionEntry.FindEntry) + "()"));
                     }
 
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().ShortDisplayName()));
@@ -338,9 +337,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var clrType = entity.GetType();
             var entityType = baseEntityType.ClrType == clrType
-                             || baseEntityType.HasDefiningNavigation()
-                ? baseEntityType
-                : _model.FindRuntimeEntityType(clrType);
+                || baseEntityType.HasDefiningNavigation()
+                    ? baseEntityType
+                    : _model.FindRuntimeEntityType(clrType);
 
             var newEntry = valueBuffer.IsEmpty
                 ? _internalEntityEntryFactory.Create(this, entityType, entity)
@@ -479,9 +478,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return _identityMaps == null
-                   || !_identityMaps.TryGetValue(key, out var identityMap)
-                ? null
-                : identityMap;
+                || !_identityMaps.TryGetValue(key, out var identityMap)
+                    ? null
+                    : identityMap;
         }
 
         /// <summary>
@@ -758,9 +757,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IForeignKey foreignKey,
             InternalEntityEntry principalEntry)
             => principalEntry != null
-               && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
-                ? principalEntry
-                : null;
+                && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
+                    ? principalEntry
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1001,7 +1000,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 foreach (var dependent in (GetDependentsFromNavigation(entry, fk)
-                                           ?? GetDependents(entry, fk)).ToList())
+                    ?? GetDependents(entry, fk)).ToList())
                 {
                     if (dependent.EntityState != EntityState.Deleted
                         && dependent.EntityState != EntityState.Detached
@@ -1009,7 +1008,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             || KeysEqual(entry, fk, dependent)))
                     {
                         if ((fk.DeleteBehavior == DeleteBehavior.Cascade
-                             || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
+                                || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && doCascadeDelete)
                         {
                             var cascadeState = dependent.EntityState == EntityState.Added
@@ -1068,9 +1067,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static bool KeyValuesEqual(IProperty property, object value, object currentValue)
             => (property.GetKeyValueComparer()
-                ?? property.FindTypeMapping()?.KeyComparer)
-               ?.Equals(currentValue, value)
-               ?? Equals(currentValue, value);
+                    ?? property.FindTypeMapping()?.KeyComparer)
+                ?.Equals(currentValue, value)
+                ?? Equals(currentValue, value);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

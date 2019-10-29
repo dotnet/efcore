@@ -317,9 +317,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private Expression GenerateKey(Expression expression)
                 => expression is ProjectionBindingExpression projectionBindingExpression
-                   && projectionBindingExpression.ProjectionMember != null
-                    ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                    : expression;
+                    && projectionBindingExpression.ProjectionMember != null
+                        ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : expression;
         }
     }
 }

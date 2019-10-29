@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -196,6 +195,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         context.Entry(child).State = state;
                     }
+
                     context.Entry(parent).State = state;
 
                     context.ChangeTracker.LazyLoadingEnabled = true;
@@ -2613,7 +2613,15 @@ namespace Microsoft.EntityFrameworkCore
                 var nose3 = new Nose { Size = "Large" };
 
                 context.Add(
-                    new Entity { BaseNoses = new List<Nose> { nose1, nose2, nose3 } });
+                    new Entity
+                    {
+                        BaseNoses = new List<Nose>
+                        {
+                            nose1,
+                            nose2,
+                            nose3
+                        }
+                    });
 
                 context.Add(
                     new Parson { ParsonNoses = new List<Nose> { nose2, nose3 } });

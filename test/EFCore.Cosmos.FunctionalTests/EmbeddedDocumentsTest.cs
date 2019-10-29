@@ -15,6 +15,7 @@ using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Cosmos
 {
     public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosFixture>
@@ -163,8 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             using (var context = new EmbeddedTransportationContext(options))
             {
-                var peopleBase = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
-                var people = peopleBase.Cast<Person>().ToList();
+                var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
                 var addresses = people[0].Addresses.ToList();
                 Assert.Equal(addedAddress1.Street, addresses.Single().Street);
                 Assert.Equal(addedAddress1.City, addresses.Single().City);
@@ -300,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         Id = 3,
                         Addresses = new[]
                         {
-                                new Address { Street = "First", City = "City" }, new Address { Street = "Second", City = "City" }
+                            new Address { Street = "First", City = "City" }, new Address { Street = "Second", City = "City" }
                         }
                     });
 
@@ -322,7 +322,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             using (var context = new EmbeddedTransportationContext(options))
             {
                 context.Add(
-                    new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC", VehicleName = "Fuel transport" });
+                    new LicensedOperator
+                    {
+                        Name = "Jack Jackson",
+                        LicenseType = "Class A CDC",
+                        VehicleName = "Fuel transport"
+                    });
 
                 Assert.Equal(
                     CosmosStrings.OrphanedNestedDocumentSensitive(
@@ -364,10 +369,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 var bike = await context.Vehicles.SingleAsync(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                var newBike = new Vehicle { Name = "Trek Pro Fit Madone 6 Series", Operator = bike.Operator, SeatingCapacity = 2 };
+                var newBike = new Vehicle
+                {
+                    Name = "Trek Pro Fit Madone 6 Series",
+                    Operator = bike.Operator,
+                    SeatingCapacity = 2
+                };
 
-                var oldEntry = context.Remove(bike);
-                var newEntry = context.Add(newBike);
+                context.Remove(bike);
+                context.Add(newBike);
 
                 TestSqlLoggerFactory.Clear();
                 await context.SaveChangesAsync();
@@ -413,13 +423,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 OnModelCreatingAction = onModelCreating;
                 AdditionalModelCacheKey = additionalModelCacheKey;
                 var options = CreateOptions(TestStore);
-                TestStore.Initialize(ServiceProvider, () => new EmbeddedTransportationContext(options), c =>
-                {
-                    if (seed)
+                TestStore.Initialize(
+                    ServiceProvider, () => new EmbeddedTransportationContext(options), c =>
                     {
-                        ((TransportationContext)c).Seed();
-                    }
-                });
+                        if (seed)
+                        {
+                            ((TransportationContext)c).Seed();
+                        }
+                    });
 
                 ListLoggerFactory.Clear();
                 return options;
@@ -442,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     _getAdditionalKey = getAdditionalKey;
                 }
 
-                public virtual object Create(DbContext context) => Tuple.Create(context.GetType(), _getAdditionalKey());
+                public object Create(DbContext context) => Tuple.Create(context.GetType(), _getAdditionalKey());
             }
         }
 

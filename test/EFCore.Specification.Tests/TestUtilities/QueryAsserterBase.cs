@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class QueryAsserterBase
     {
-        public virtual Func<DbContext, ISetSource> SetSourceCreator { get; set; } 
+        public virtual Func<DbContext, ISetSource> SetSourceCreator { get; set; }
 
         public virtual ISetSource ExpectedData { get; set; }
 

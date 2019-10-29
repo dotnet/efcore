@@ -106,7 +106,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
                 b =>
                 {
                     b.HasKey(
-                        t => new { t.UserId, t.LoginProvider, t.Name });
+                        t => new
+                        {
+                            t.UserId,
+                            t.LoginProvider,
+                            t.Name
+                        });
 
                     if (maxKeyLength > 0)
                     {

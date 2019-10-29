@@ -66,18 +66,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ProjectionBindingExpression projectionBindingExpression
-                   && Equals(projectionBindingExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ProjectionBindingExpression projectionBindingExpression
+                    && Equals(projectionBindingExpression));
 
         private bool Equals(ProjectionBindingExpression projectionBindingExpression)
             => QueryExpression.Equals(projectionBindingExpression.QueryExpression)
-               && Type == projectionBindingExpression.Type
-               && (ProjectionMember?.Equals(projectionBindingExpression.ProjectionMember)
-                   ?? projectionBindingExpression.ProjectionMember == null)
-               && Index == projectionBindingExpression.Index
-               // Using reference equality here since if we are this far, we don't need to compare this.
-               && IndexMap == projectionBindingExpression.IndexMap;
+                && Type == projectionBindingExpression.Type
+                && (ProjectionMember?.Equals(projectionBindingExpression.ProjectionMember)
+                    ?? projectionBindingExpression.ProjectionMember == null)
+                && Index == projectionBindingExpression.Index
+                // Using reference equality here since if we are this far, we don't need to compare this.
+                && IndexMap == projectionBindingExpression.IndexMap;
 
         public override int GetHashCode() => HashCode.Combine(QueryExpression, ProjectionMember, Index, IndexMap);
     }

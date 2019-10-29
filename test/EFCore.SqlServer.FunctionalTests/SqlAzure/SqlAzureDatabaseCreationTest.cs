@@ -38,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             public DbSet<BigUn> BigUns { get; set; }
 
             public ElasticPoolContext(SqlServerTestStore testStore)
-                : base()
             {
                 _connectionString = testStore.ConnectionString;
             }
@@ -75,7 +74,6 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             public DbSet<BigUn> BigUns { get; set; }
 
             public BasicContext(SqlServerTestStore testStore)
-                : base()
             {
                 _connectionString = testStore.ConnectionString;
             }
@@ -113,7 +111,6 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
             public DbSet<BigUn> BigUns { get; set; }
 
             public BusinessCriticalContext(SqlServerTestStore testStore)
-                : base()
             {
                 _connectionString = testStore.ConnectionString;
             }
@@ -138,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
 
             await connection.OpenAsync();
             using var command = connection.CreateCommand();
-            command.CommandText = @$"
+            command.CommandText = $@"
 SELECT DATABASEPROPERTYEX('{storeName}', 'EDITION'),
        DATABASEPROPERTYEX('{storeName}', 'ServiceObjective'),
        DATABASEPROPERTYEX('{storeName}', 'MaxSizeInBytes');";

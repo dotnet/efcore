@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is CaseWhenClause caseWhenClause
-                   && Equals(caseWhenClause));
+                && (ReferenceEquals(this, obj)
+                    || obj is CaseWhenClause caseWhenClause
+                    && Equals(caseWhenClause));
 
         private bool Equals(CaseWhenClause caseWhenClause)
             => Test.Equals(caseWhenClause.Test)
-               && Result.Equals(caseWhenClause.Result);
+                && Result.Equals(caseWhenClause.Result);
 
         public override int GetHashCode() => HashCode.Combine(Test, Result);
     }

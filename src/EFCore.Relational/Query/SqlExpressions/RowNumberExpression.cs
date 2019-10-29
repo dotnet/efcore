@@ -52,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual RowNumberExpression Update(IReadOnlyList<SqlExpression> partitions, IReadOnlyList<OrderingExpression> orderings)
         {
             return (Partitions == null ? partitions == null : Partitions.SequenceEqual(partitions))
-                   && Orderings.SequenceEqual(orderings)
-                ? this
-                : new RowNumberExpression(partitions, orderings, TypeMapping);
+                && Orderings.SequenceEqual(orderings)
+                    ? this
+                    : new RowNumberExpression(partitions, orderings, TypeMapping);
         }
 
         public override void Print(ExpressionPrinter expressionPrinter)
@@ -74,14 +74,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is RowNumberExpression rowNumberExpression
-                   && Equals(rowNumberExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is RowNumberExpression rowNumberExpression
+                    && Equals(rowNumberExpression));
 
         private bool Equals(RowNumberExpression rowNumberExpression)
             => base.Equals(rowNumberExpression)
-               && (Partitions == null ? rowNumberExpression.Partitions == null : Partitions.SequenceEqual(rowNumberExpression.Partitions))
-               && Orderings.SequenceEqual(rowNumberExpression.Orderings);
+                && (Partitions == null ? rowNumberExpression.Partitions == null : Partitions.SequenceEqual(rowNumberExpression.Partitions))
+                && Orderings.SequenceEqual(rowNumberExpression.Orderings);
 
         public override int GetHashCode()
         {

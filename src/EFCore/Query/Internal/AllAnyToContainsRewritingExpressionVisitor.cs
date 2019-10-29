@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static bool IsExpressionOfFunc(Type type, int funcGenericArgs = 2)
             => type.IsGenericType
-               && type.GetGenericArguments().Length == funcGenericArgs;
+                && type.GetGenericArguments().Length == funcGenericArgs;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         (left, right) = (methodCallExpression.Object, methodCallExpression.Arguments[0]);
                     }
                     else if (methodCallExpression.Arguments.Count == 2
-                             && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
+                        && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
                     {
                         (left, right) = (methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]);
                     }

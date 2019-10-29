@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string DelimitIdentifier(string name, string schema)
             => (!string.IsNullOrEmpty(schema)
-                   ? DelimitIdentifier(schema) + "."
-                   : string.Empty)
-               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
+                    ? DelimitIdentifier(schema) + "."
+                    : string.Empty)
+                + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).

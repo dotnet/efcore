@@ -173,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private static bool ClientSource(Expression expression)
             => expression is ConstantExpression
-               || expression is MemberInitExpression
-               || expression is NewExpression
-               || expression is ParameterExpression;
+                || expression is MemberInitExpression
+                || expression is NewExpression
+                || expression is ParameterExpression;
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {

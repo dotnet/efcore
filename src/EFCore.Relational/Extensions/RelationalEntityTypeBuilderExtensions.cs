@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 if (!(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                    .Overrides(constraint.GetConfigurationSource()))
+                        .Overrides(constraint.GetConfigurationSource()))
                 {
                     return null;
                 }
@@ -457,9 +457,9 @@ namespace Microsoft.EntityFrameworkCore
             var constraint = entityTypeBuilder.Metadata.FindCheckConstraint(name);
 
             return constraint == null
-                   || constraint.Sql == sql
-                   || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                   .Overrides(constraint.GetConfigurationSource());
+                || constraint.Sql == sql
+                || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                    .Overrides(constraint.GetConfigurationSource());
         }
 
         /// <summary>

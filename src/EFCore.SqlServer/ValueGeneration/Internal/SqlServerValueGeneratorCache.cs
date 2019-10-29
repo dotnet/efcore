@@ -62,10 +62,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             var dbConnection = connection.DbConnection;
 
             return dbConnection.Database.ToUpperInvariant()
-                   + "::"
-                   + dbConnection.DataSource?.ToUpperInvariant()
-                   + "::"
-                   + (sequence.Schema == null ? "" : sequence.Schema + ".") + sequence.Name;
+                + "::"
+                + dbConnection.DataSource?.ToUpperInvariant()
+                + "::"
+                + (sequence.Schema == null ? "" : sequence.Schema + ".")
+                + sequence.Name;
         }
     }
 }

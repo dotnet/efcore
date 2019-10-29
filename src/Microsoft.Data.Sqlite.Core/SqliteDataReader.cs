@@ -210,8 +210,8 @@ namespace Microsoft.Data.Sqlite
 
         private static bool IsBusy(int rc)
             => rc == SQLITE_LOCKED
-               || rc == SQLITE_BUSY
-               || rc == SQLITE_LOCKED_SHAREDCACHE;
+                || rc == SQLITE_BUSY
+                || rc == SQLITE_LOCKED_SHAREDCACHE;
 
         /// <summary>
         ///     Closes the data reader.

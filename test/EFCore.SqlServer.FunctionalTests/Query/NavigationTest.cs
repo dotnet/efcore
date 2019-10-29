@@ -105,7 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var connStrBuilder = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection)
             {
-                InitialCatalog = "StateManagerBug", MultipleActiveResultSets = true, ["Trusted_Connection"] = true
+                InitialCatalog = "StateManagerBug",
+                MultipleActiveResultSets = true,
+                ["Trusted_Connection"] = true
             };
 
             _options = new DbContextOptionsBuilder()

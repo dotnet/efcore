@@ -316,7 +316,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(
                     CoreStrings.ExecutionStrategyExistingTransaction(
                         GetType().Name,
-                        nameof(DbContext) + "." + nameof(DbContext.Database) + "." + nameof(DatabaseFacade.CreateExecutionStrategy)
+                        nameof(DbContext)
+                        + "."
+                        + nameof(DbContext.Database)
+                        + "."
+                        + nameof(DatabaseFacade.CreateExecutionStrategy)
                         + "()"));
             }
 
@@ -344,7 +348,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (currentRetryCount < MaxRetryCount)
             {
                 var delta = (Math.Pow(DefaultExponentialBase, currentRetryCount) - 1.0)
-                            * (1.0 + Random.NextDouble() * (DefaultRandomFactor - 1.0));
+                    * (1.0 + Random.NextDouble() * (DefaultRandomFactor - 1.0));
 
                 var delay = Math.Min(
                     _defaultCoefficient.TotalMilliseconds * delta,

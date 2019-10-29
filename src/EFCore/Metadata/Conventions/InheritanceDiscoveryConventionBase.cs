@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType baseEntityType = null;
 
             while (baseType != null
-                   && baseEntityType == null)
+                && baseEntityType == null)
             {
                 baseEntityType = entityType.Model.FindEntityType(baseType);
                 baseType = baseType.GetTypeInfo().BaseType;

@@ -785,9 +785,19 @@ namespace Microsoft.EntityFrameworkCore
                     new IntKey { Id = 77, Foo = "Smokey" },
                     new NullableIntKey { Id = 77, Foo = "Smokey" },
                     new StringKey { Id = "Cat", Foo = "Alice" },
-                    new CompositeKey { Id1 = 77, Id2 = "Dog", Foo = "Olive" },
+                    new CompositeKey
+                    {
+                        Id1 = 77,
+                        Id2 = "Dog",
+                        Foo = "Olive"
+                    },
                     new BaseType { Id = 77, Foo = "Baxter" },
-                    new DerivedType { Id = 78, Foo = "Strawberry", Boo = "Cheesecake" });
+                    new DerivedType
+                    {
+                        Id = 78,
+                        Foo = "Strawberry",
+                        Boo = "Cheesecake"
+                    });
 
                 var entry = context.Entry(
                     new ShadowKey { Foo = "Clippy" });

@@ -505,7 +505,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterValues = new Dictionary<string, object>
             {
-                { "FirstInvariant", 17 }, { "SecondInvariant", 18L }, { "ThirdInvariant", null }
+                { "FirstInvariant", 17 },
+                { "SecondInvariant", 18L },
+                { "ThirdInvariant", null }
             };
 
             if (async)
@@ -561,7 +563,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var dbParameter = new FakeDbParameter { ParameterName = "FirstParameter", Value = 17, DbType = DbType.Int32 };
+            var dbParameter = new FakeDbParameter
+            {
+                ParameterName = "FirstParameter",
+                Value = 17,
+                DbType = DbType.Int32
+            };
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -573,7 +580,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var parameterValues = new Dictionary<string, object>
             {
-                { "FirstInvariant", dbParameter }, { "SecondInvariant", 18L }, { "ThirdInvariant", null }
+                { "FirstInvariant", dbParameter },
+                { "SecondInvariant", 18L },
+                { "ThirdInvariant", null }
             };
 
             if (async)
@@ -961,8 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             foreach (var (_, _, message, _, _) in logFactory.Log.Skip(2))
             {
                 Assert.EndsWith(
-                    "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol +
-                    "Logged Command",
+                    "[Parameters=[FirstParameter='?' (DbType = Int32)], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
                     message);
             }
         }
@@ -1023,8 +1031,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             foreach (var (_, _, message, _, _) in logFactory.Log.Skip(3))
             {
                 Assert.EndsWith(
-                    "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol +
-                    "Logged Command",
+                    "[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']" + _eol + "Logged Command",
                     message);
             }
         }

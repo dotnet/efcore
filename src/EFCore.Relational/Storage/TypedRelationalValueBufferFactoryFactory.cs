@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 message
                     = exception is NullReferenceException
-                      || Equals(value, DBNull.Value)
+                    || Equals(value, DBNull.Value)
                         ? CoreStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
                         : exception is InvalidCastException
                             ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)

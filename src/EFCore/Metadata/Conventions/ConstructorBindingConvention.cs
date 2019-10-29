@@ -16,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that binds entity type constructor parameters to existing properties and service properties based on their names:
-    ///         * [parameter name]
-    ///         * [pascal-cased parameter name]
-    ///         * _[parameter name]
-    ///         * _[pascal-cased parameter name]
-    ///         * m_[parameter name]
-    ///         * m_[pascal-cased parameter name]
+    ///     * [parameter name]
+    ///     * [pascal-cased parameter name]
+    ///     * _[parameter name]
+    ///     * _[pascal-cased parameter name]
+    ///     * m_[parameter name]
+    ///     * m_[pascal-cased parameter name]
     /// </summary>
     public class ConstructorBindingConvention : IModelFinalizedConvention
     {
@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         // Trying to find the constructor with the most service properties
                         // followed by the least scalar property parameters
-                        if (Dependencies.ConstructorBindingFactory.TryBindConstructor(entityType, constructor, out var binding, out var failures))
+                        if (Dependencies.ConstructorBindingFactory.TryBindConstructor(
+                            entityType, constructor, out var binding, out var failures))
                         {
                             var serviceParamCount = binding.ParameterBindings.OfType<ServiceParameterBinding>().Count();
                             var propertyParamCount = binding.ParameterBindings.Count - serviceParamCount;
@@ -102,12 +103,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             .Select(
                                 x => CoreStrings.ConstructorBindingFailed(
                                     string.Join("', '", x.Select(f => f.Name)),
-                                    entityType.DisplayName() + "(" +
-                                    string.Join(
+                                    entityType.DisplayName()
+                                    + "("
+                                    + string.Join(
                                         ", ", x.Key.GetParameters().Select(
                                             y => y.ParameterType.ShortDisplayName() + " " + y.Name)
-                                    ) +
-                                    ")"
+                                    )
+                                    + ")"
                                 )
                             );
 
@@ -133,7 +135,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static string FormatConstructorString(IEntityType entityType, InstantiationBinding binding)
-            => entityType.ClrType.ShortDisplayName() +
-               "(" + string.Join(", ", binding.ParameterBindings.Select(b => b.ParameterType.ShortDisplayName())) + ")";
+            => entityType.ClrType.ShortDisplayName()
+                + "("
+                + string.Join(", ", binding.ParameterBindings.Select(b => b.ParameterType.ShortDisplayName()))
+                + ")";
     }
 }

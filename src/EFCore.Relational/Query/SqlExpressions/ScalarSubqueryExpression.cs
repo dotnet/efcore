@@ -49,13 +49,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ScalarSubqueryExpression subSelectExpression
-                   && Equals(subSelectExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ScalarSubqueryExpression subSelectExpression
+                    && Equals(subSelectExpression));
 
         private bool Equals(ScalarSubqueryExpression scalarSubqueryExpression)
             => base.Equals(scalarSubqueryExpression)
-               && Subquery.Equals(scalarSubqueryExpression.Subquery);
+                && Subquery.Equals(scalarSubqueryExpression.Subquery);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Subquery);
     }

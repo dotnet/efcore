@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the properties of non-nullable types as required.
     /// </summary>
     public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
-        IPropertyAddedConvention, IPropertyFieldChangedConvention
+        IPropertyAddedConvention,
+        IPropertyFieldChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.

@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(schema, nameof(schema));
 
             return modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, name, fromDataAnnotation)
-                   && modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
+                && modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
         }
 
         /// <summary>

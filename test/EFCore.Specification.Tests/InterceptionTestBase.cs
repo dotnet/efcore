@@ -97,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        public class TestDiagnosticListener : ITestDiagnosticListener, IObserver<DiagnosticListener>,
+        public class TestDiagnosticListener : ITestDiagnosticListener,
+            IObserver<DiagnosticListener>,
             IObserver<KeyValuePair<string, object>>
         {
             private readonly DbContextId _contextId;

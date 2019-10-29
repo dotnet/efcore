@@ -350,12 +350,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var constructorBinding = (InstantiationBinding)propertyBase.DeclaringType[CoreAnnotationNames.ConstructorBinding];
 
             return constructorBinding?.ParameterBindings
-                       .OfType<ServiceParameterBinding>()
-                       .Any(b => b.ServiceType == typeof(ILazyLoader)) == true
-                ? CoreStrings.NoBackingFieldLazyLoading(
-                    propertyBase.Name, propertyBase.DeclaringType.DisplayName())
-                : CoreStrings.NoBackingField(
-                    propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
+                    .OfType<ServiceParameterBinding>()
+                    .Any(b => b.ServiceType == typeof(ILazyLoader))
+                == true
+                    ? CoreStrings.NoBackingFieldLazyLoading(
+                        propertyBase.Name, propertyBase.DeclaringType.DisplayName())
+                    : CoreStrings.NoBackingField(
+                        propertyBase.Name, propertyBase.DeclaringType.DisplayName(), nameof(PropertyAccessMode));
         }
 
         /// <summary>

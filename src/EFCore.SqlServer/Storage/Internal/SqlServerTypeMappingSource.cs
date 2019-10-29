@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => FindRawMapping(mappingInfo)?.Clone(mappingInfo)
-               ?? base.FindMapping(mappingInfo);
+                ?? base.FindMapping(mappingInfo);
 
         private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
@@ -289,9 +289,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
                 {
                     return clrType == null
-                           || mapping.ClrType == clrType
-                        ? mapping
-                        : null;
+                        || mapping.ClrType == clrType
+                            ? mapping
+                            : null;
                 }
             }
 

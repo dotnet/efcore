@@ -26,7 +26,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Add(
-                    new Pegasus { Id1 = ticks, Id2 = ticks + 1, Name = "Rainbow Dash" });
+                    new Pegasus
+                    {
+                        Id1 = ticks,
+                        Id2 = ticks + 1,
+                        Name = "Rainbow Dash"
+                    });
                 await context.SaveChangesAsync();
             }
 
@@ -118,11 +123,26 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var pony1 = context.Add(
-                    new EarthPony { Id1 = 1, Id2 = 7, Name = "Apple Jack 1" }).Entity;
+                    new EarthPony
+                    {
+                        Id1 = 1,
+                        Id2 = 7,
+                        Name = "Apple Jack 1"
+                    }).Entity;
                 var pony2 = context.Add(
-                    new EarthPony { Id1 = 2, Id2 = 7, Name = "Apple Jack 2" }).Entity;
+                    new EarthPony
+                    {
+                        Id1 = 2,
+                        Id2 = 7,
+                        Name = "Apple Jack 2"
+                    }).Entity;
                 var pony3 = context.Add(
-                    new EarthPony { Id1 = 3, Id2 = 7, Name = "Apple Jack 3" }).Entity;
+                    new EarthPony
+                    {
+                        Id1 = 3,
+                        Id2 = 7,
+                        Name = "Apple Jack 3"
+                    }).Entity;
 
                 await context.SaveChangesAsync();
 
@@ -201,7 +221,12 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(
-                            e => new { e.Id1, e.Id2, e.Id3 });
+                            e => new
+                            {
+                                e.Id1,
+                                e.Id2,
+                                e.Id3
+                            });
                         b.Property(e => e.Id1).ValueGeneratedOnAdd();
                         b.Property(e => e.Id3).ValueGeneratedOnAdd();
                     });

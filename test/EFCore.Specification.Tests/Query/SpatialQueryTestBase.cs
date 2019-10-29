@@ -604,7 +604,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Point0 = e.LineString == null ? null : e.LineString.GetPointN(0) }),
+                ss => ss.Set<LineStringEntity>()
+                    .Select(e => new { e.Id, Point0 = e.LineString == null ? null : e.LineString.GetPointN(0) }),
                 elementSorter: x => x.Id);
         }
 
@@ -615,7 +616,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<PolygonEntity>().Select(
-                    e => new { e.Id, InteriorPoint = e.Polygon == null ? null : e.Polygon.InteriorPoint, e.Polygon }),
+                    e => new
+                    {
+                        e.Id,
+                        InteriorPoint = e.Polygon == null ? null : e.Polygon.InteriorPoint,
+                        e.Polygon
+                    }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -704,7 +710,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, IsRing = e.LineString == null ? (bool?)null : e.LineString.IsRing }),
+                ss => ss.Set<LineStringEntity>()
+                    .Select(e => new { e.Id, IsRing = e.LineString == null ? (bool?)null : e.LineString.IsRing }),
                 elementSorter: x => x.Id);
         }
 
@@ -774,7 +781,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, Length = e.LineString == null ? (double?)null : e.LineString.Length }),
+                ss => ss.Set<LineStringEntity>()
+                    .Select(e => new { e.Id, Length = e.LineString == null ? (double?)null : e.LineString.Length }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -879,7 +887,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<PolygonEntity>().Select(
-                    e => new { e.Id, PointOnSurface = e.Polygon == null ? null : e.Polygon.PointOnSurface, e.Polygon }),
+                    e => new
+                    {
+                        e.Id,
+                        PointOnSurface = e.Polygon == null ? null : e.Polygon.PointOnSurface,
+                        e.Polygon
+                    }),
                 elementSorter: x => x.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -948,7 +961,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<LineStringEntity>().Select(e => new { e.Id, StartPoint = e.LineString == null ? null : e.LineString.StartPoint }),
+                ss => ss.Set<LineStringEntity>()
+                    .Select(e => new { e.Id, StartPoint = e.LineString == null ? null : e.LineString.StartPoint }),
                 elementSorter: x => x.Id);
         }
 

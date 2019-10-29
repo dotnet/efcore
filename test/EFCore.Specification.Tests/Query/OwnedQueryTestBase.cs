@@ -119,11 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<OwnedPerson>().Distinct()
-                        .OrderBy(p => p.Id)
-                        .Take(5)
-                        .Select(op => new { op }),
+                    .OrderBy(p => p.Id)
+                    .Take(5)
+                    .Select(op => new { op }),
                 assertOrder: true,
-                elementAsserter: (e, a) => AssertEqual<OwnedPerson>(e.op, a.op));
+                elementAsserter: (e, a) => AssertEqual(e.op, a.op));
         }
 
         [ConditionalTheory]
@@ -162,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQueryScalar(
                 isAsync,
-                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Id != 42).FirstOrDefault()));
+                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id)
+                    .Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Id != 42).FirstOrDefault()));
         }
 
         [ConditionalTheory]
@@ -171,7 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<OwnedPerson>().Select(p => p.Orders.OrderBy(o => o.Id).Select(o => o.Client.PersonAddress.Country.Name).FirstOrDefault()));
+                ss => ss.Set<OwnedPerson>().Select(
+                    p => p.Orders.OrderBy(o => o.Id).Select(o => o.Client.PersonAddress.Country.Name).FirstOrDefault()));
         }
 
         [ConditionalTheory]
@@ -209,7 +211,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 42).OrderBy(p => p.Id).Select(p => new { p.Orders }),
+                ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.Country.Planet.Id != 42).OrderBy(p => p.Id)
+                    .Select(p => new { p.Orders }),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders));
         }
@@ -220,7 +223,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id).Select(p => new { p.Orders, p.PersonAddress, p.PersonAddress.Country.Planet }),
+                ss => ss.Set<OwnedPerson>().OrderBy(p => p.Id)
+                    .Select(
+                        p => new
+                        {
+                            p.Orders,
+                            p.PersonAddress,
+                            p.PersonAddress.Country.Planet
+                        }),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {
@@ -246,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Count, a.Count);
-                    AssertEqual<Planet>(e.Planet, a.Planet);
+                    AssertEqual(e.Planet, a.Planet);
                 });
         }
 
@@ -329,7 +339,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
+        public virtual Task
+            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
         {
             return AssertQuery(
                 isAsync,
@@ -392,18 +403,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var expectedQuery = Fixture.QueryAsserter.ExpectedData.Set<OwnedPerson>().OrderBy(p => p.Id);
-                var expectedResult = expectedQuery.Select(q => new
-                {
-                    Query = q,
-                    Count = expectedQuery.Count()
-                }).Skip(0).Take(100).ToList();
+                var expectedResult = expectedQuery.Select(q => new { Query = q, Count = expectedQuery.Count() }).Skip(0).Take(100).ToList();
 
                 var baseQuery = context.Set<OwnedPerson>().OrderBy(p => p.Id);
-                var query = baseQuery.Select(q => new
-                {
-                    Query = q,
-                    Count = baseQuery.Count()
-                }).Skip(0).Take(100);
+                var query = baseQuery.Select(q => new { Query = q, Count = baseQuery.Count() }).Skip(0).Take(100);
 
                 var result = isAsync
                     ? await query.ToListAsync()
@@ -467,8 +470,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     { typeof(OwnedAddress), e => e?.Country.Name },
                     { typeof(OwnedCountry), e => e?.Name },
                     { typeof(Element), e => e?.Id },
-                    { typeof(Throned), e => e?.Property },
-                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
+                    { typeof(Throned), e => e?.Property }
+                }.ToDictionary(e => e.Key, e => (object)e.Value);
+                ;
 
                 var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
                 {
@@ -657,8 +661,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Assert.Equal(e.Property, a.Property);
                             }
                         }
-                    },
-                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
+                    }
+                }.ToDictionary(e => e.Key, e => (object)e.Value);
+                ;
 
                 QueryAsserter = new QueryAsserter<PoolableDbContext>(
                     CreateContext,
@@ -690,10 +695,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new { OwnedAddressOwnedPersonId = 1, PlanetId = 1, Name = "USA" },
-                                            new { OwnedAddressOwnedPersonId = 2, PlanetId = 1, Name = "USA" },
-                                            new { OwnedAddressOwnedPersonId = 3, PlanetId = 1, Name = "USA" },
-                                            new { OwnedAddressOwnedPersonId = 4, PlanetId = 1, Name = "USA" });
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 1,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 2,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 3,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 4,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            });
 
                                         cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
                                             .OnDelete(DeleteBehavior.Restrict);
@@ -729,8 +754,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new { OwnedAddressBranchId = 2, PlanetId = 1, Name = "Canada" },
-                                            new { OwnedAddressBranchId = 3, PlanetId = 1, Name = "Canada" });
+                                            new
+                                            {
+                                                OwnedAddressBranchId = 2,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressBranchId = 3,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            });
                                     });
                             });
                     });
@@ -754,7 +789,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             .OnDelete(DeleteBehavior.Restrict);
 
                                         cb.HasData(
-                                            new { OwnedAddressLeafAId = 3, PlanetId = 1, Name = "Mexico" });
+                                            new
+                                            {
+                                                OwnedAddressLeafAId = 3,
+                                                PlanetId = 1,
+                                                Name = "Mexico"
+                                            });
                                     });
                             });
                     });
@@ -778,14 +818,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             .OnDelete(DeleteBehavior.Restrict);
 
                                         cb.HasData(
-                                            new { OwnedAddressLeafBId = 4, PlanetId = 1, Name = "Panama" });
+                                            new
+                                            {
+                                                OwnedAddressLeafBId = 4,
+                                                PlanetId = 1,
+                                                Name = "Panama"
+                                            });
                                     });
                             });
                     });
 
                 modelBuilder.Entity<Planet>(pb => pb.HasData(new Planet { Id = 1, StarId = 1 }));
 
-                modelBuilder.Entity<Moon>(mb => mb.HasData(new Moon { Id = 1, PlanetId = 1, Diameter = 3474 }));
+                modelBuilder.Entity<Moon>(
+                    mb => mb.HasData(
+                        new Moon
+                        {
+                            Id = 1,
+                            PlanetId = 1,
+                            Diameter = 3474
+                        }));
 
                 modelBuilder.Entity<Star>(
                     sb =>
@@ -796,8 +848,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 ob.HasKey(e => e.Id);
                                 ob.HasData(
-                                    new { Id = "H", Name = "Hydrogen", StarId = 1 },
-                                    new { Id = "He", Name = "Helium", StarId = 1 });
+                                    new
+                                    {
+                                        Id = "H",
+                                        Name = "Hydrogen",
+                                        StarId = 1
+                                    },
+                                    new
+                                    {
+                                        Id = "He",
+                                        Name = "Helium",
+                                        StarId = 1
+                                    });
                             });
                     });
 
@@ -897,35 +959,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => new List<Planet> { new Planet { Id = 1, StarId = 1 } };
 
             private static IReadOnlyList<Star> CreateStars()
-                => new List<Star> {
+                => new List<Star>
+                {
                     new Star
                     {
                         Id = 1,
                         Name = "Sol",
                         Composition = new List<Element>
                         {
-                            new Element { Id = "H", Name = "Hydrogen", StarId = 1, },
-                            new Element { Id = "He", Name = "Helium", StarId = 1, },
+                            new Element
+                            {
+                                Id = "H",
+                                Name = "Hydrogen",
+                                StarId = 1
+                            },
+                            new Element
+                            {
+                                Id = "He",
+                                Name = "Helium",
+                                StarId = 1
+                            }
                         }
                     }
                 };
 
             private static IReadOnlyList<Moon> CreateMoons()
-                => new List<Moon> { new Moon { Id = 1, PlanetId = 1, Diameter = 3474 } };
+                => new List<Moon>
+                {
+                    new Moon
+                    {
+                        Id = 1,
+                        PlanetId = 1,
+                        Diameter = 3474
+                    }
+                };
 
             private static IReadOnlyList<OwnedPerson> CreateOwnedPeople()
             {
                 var ownedPerson1 = new OwnedPerson
                 {
-                    Id = 1,
-                    PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } },
+                    Id = 1, PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } }
                 };
 
                 var ownedPerson2 = new Branch
                 {
                     Id = 2,
                     PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } },
-                    BranchAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } },
+                    BranchAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } }
                 };
 
                 var ownedPerson3 = new LeafA
@@ -933,29 +1013,46 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Id = 3,
                     PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } },
                     BranchAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } },
-                    LeafAAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Mexico", PlanetId = 1 } },
+                    LeafAAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Mexico", PlanetId = 1 } }
                 };
 
                 var ownedPerson4 = new LeafB
                 {
                     Id = 4,
                     PersonAddress = new OwnedAddress { Country = new OwnedCountry { Name = "USA", PlanetId = 1 } },
-                    LeafBAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Panama", PlanetId = 1 } },
+                    LeafBAddress = new OwnedAddress { Country = new OwnedCountry { Name = "Panama", PlanetId = 1 } }
                 };
 
-                ownedPerson1.Orders = new List<Order> { new Order { Id = -11, Client = ownedPerson1 }, new Order { Id = -10, Client = ownedPerson1 } };
+                ownedPerson1.Orders = new List<Order>
+                {
+                    new Order { Id = -11, Client = ownedPerson1 }, new Order { Id = -10, Client = ownedPerson1 }
+                };
                 ownedPerson2.Orders = new List<Order> { new Order { Id = -20, Client = ownedPerson2 } };
                 ownedPerson3.Orders = new List<Order> { new Order { Id = -30, Client = ownedPerson3 } };
                 ownedPerson4.Orders = new List<Order> { new Order { Id = -40, Client = ownedPerson4 } };
 
-                return new List<OwnedPerson> { ownedPerson1, ownedPerson2, ownedPerson3, ownedPerson4 };
+                return new List<OwnedPerson>
+                {
+                    ownedPerson1,
+                    ownedPerson2,
+                    ownedPerson3,
+                    ownedPerson4
+                };
             }
 
             private static IReadOnlyList<Fink> CreateFinks()
                 => new List<Fink> { new Fink { Id = 1 } };
 
             private static IReadOnlyList<Barton> CreateBartons()
-                => new List<Barton> { new Barton { Id = 1, Simple = "Simple", Throned = new Throned { Property = "Property" } } };
+                => new List<Barton>
+                {
+                    new Barton
+                    {
+                        Id = 1,
+                        Simple = "Simple",
+                        Throned = new Throned { Property = "Property" }
+                    }
+                };
 
             private static void WireUp(
                 IReadOnlyList<OwnedPerson> ownedPeople,

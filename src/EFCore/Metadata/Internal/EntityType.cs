@@ -619,9 +619,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return _primaryKey != null
-                   && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
-                ? _primaryKey
-                : null;
+                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
+                    ? _primaryKey
+                    : null;
         }
 
         /// <summary>
@@ -1006,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(properties, nameof(properties));
 
             return _baseType?.FindForeignKeys(properties)?.Concat(FindDeclaredForeignKeys(properties))
-                   ?? FindDeclaredForeignKeys(properties);
+                ?? FindDeclaredForeignKeys(properties);
         }
 
         /// <summary>
@@ -1039,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
             return FindDeclaredForeignKey(properties, principalKey, principalEntityType)
-                   ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
+                ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
         }
 
         /// <summary>
@@ -1255,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => _baseType?.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
-               ?? GetDeclaredReferencingForeignKeys();
+                ?? GetDeclaredReferencingForeignKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1355,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "EntityType mismatch");
 
             var navigationProperty = propertyIdentity.MemberInfo
-                                     ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
             if (ClrType != null)
             {
                 Navigation.IsCompatible(
@@ -2300,7 +2300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         if (propertyBase is IProperty property)
                         {
                             valueConverter = property.FindTypeMapping()?.Converter
-                                             ?? property.GetValueConverter();
+                                ?? property.GetValueConverter();
                         }
 
                         valueConverters[memberInfo.Name] = valueConverter;
@@ -2396,7 +2396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                     || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                        || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
                     && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                 {
                     return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
@@ -2464,7 +2464,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             CheckDiscriminatorProperty(property);
 
             if (((property == null && BaseType == null)
-                 || (property != null && !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue()))))
+                || (property != null && !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue()))))
             {
                 ((IMutableEntityType)this).RemoveDiscriminatorValue();
                 if (BaseType == null)

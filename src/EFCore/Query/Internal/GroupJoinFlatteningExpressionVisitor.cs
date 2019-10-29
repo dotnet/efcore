@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             expression = memberExpression.Expression;
                         }
                         else if (expression is MethodCallExpression methodCallExpression
-                                 && methodCallExpression.Method.DeclaringType == typeof(Queryable))
+                            && methodCallExpression.Method.DeclaringType == typeof(Queryable))
                         {
                             expression = methodCallExpression.Arguments[0];
                         }

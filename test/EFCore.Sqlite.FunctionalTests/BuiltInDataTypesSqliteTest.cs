@@ -192,7 +192,12 @@ LIMIT 1");
         }
 
         private static MappedSizedDataTypes CreateMappedSizedDataTypes(int id)
-            => new MappedSizedDataTypes { Id = id, Nvarchar = "Into", Binary = new byte[] { 10, 11, 12, 13 } };
+            => new MappedSizedDataTypes
+            {
+                Id = id,
+                Nvarchar = "Into",
+                Binary = new byte[] { 10, 11, 12, 13 }
+            };
 
         [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types()
@@ -408,7 +413,12 @@ LIMIT 1");
         }
 
         private static MappedSizedDataTypesWithIdentity CreateMappedSizedDataTypesWithIdentity(int id)
-            => new MappedSizedDataTypesWithIdentity { AltId = id, Nvarchar = "Into", Binary = new byte[] { 10, 11, 12, 13 } };
+            => new MappedSizedDataTypesWithIdentity
+            {
+                AltId = id,
+                Nvarchar = "Into",
+                Binary = new byte[] { 10, 11, 12, 13 }
+            };
 
         [ConditionalFact]
         public virtual void Can_insert_and_read_back_nulls_for_all_mapped_sized_data_types_with_Identity()
@@ -967,10 +977,20 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Add(
-                    new BuiltInNullableDataTypes { Id = 205, PartitionId = 202, TestNullableDecimal = 1.000000000000003m });
+                    new BuiltInNullableDataTypes
+                    {
+                        Id = 205,
+                        PartitionId = 202,
+                        TestNullableDecimal = 1.000000000000003m
+                    });
 
                 context.Add(
-                    new BuiltInNullableDataTypes { Id = 206, PartitionId = 202, TestNullableDecimal = 1.000000000000001m });
+                    new BuiltInNullableDataTypes
+                    {
+                        Id = 206,
+                        PartitionId = 202,
+                        TestNullableDecimal = 1.000000000000001m
+                    });
 
                 context.SaveChanges();
 
@@ -987,10 +1007,20 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Add(
-                    new BuiltInDataTypes { Id = 205, PartitionId = 203, TestDecimal = 1.000000000000001m });
+                    new BuiltInDataTypes
+                    {
+                        Id = 205,
+                        PartitionId = 203,
+                        TestDecimal = 1.000000000000001m
+                    });
 
                 context.Add(
-                    new BuiltInDataTypes { Id = 206, PartitionId = 203, TestDecimal = 1.000000000000001m });
+                    new BuiltInDataTypes
+                    {
+                        Id = 206,
+                        PartitionId = 203,
+                        TestDecimal = 1.000000000000001m
+                    });
 
                 context.SaveChanges();
 
@@ -1016,14 +1046,22 @@ LIMIT 1");
                 context.Add(
                     new BuiltInDataTypes
                     {
-                        Id = 207, PartitionId = 204, TestDecimal = 1.000000000000001m, TestTimeSpan = TimeSpan.FromMinutes(1)
+                        Id = 207,
+                        PartitionId = 204,
+                        TestDecimal = 1.000000000000001m,
+                        TestTimeSpan = TimeSpan.FromMinutes(1)
                     });
 
                 context.SaveChanges();
 
                 var result = context.Set<BuiltInDataTypes>()
                     .Select(
-                        e => new BuiltInDataTypes { Id = e.Id, TestDecimal = -e.TestDecimal, TestTimeSpan = -e.TestTimeSpan })
+                        e => new BuiltInDataTypes
+                        {
+                            Id = e.Id,
+                            TestDecimal = -e.TestDecimal,
+                            TestTimeSpan = -e.TestTimeSpan
+                        })
                     .First(e => e.Id == 207);
 
                 Assert.Equal(-1.000000000000001m, result.TestDecimal);
@@ -1371,7 +1409,10 @@ LIMIT 1");
                 context.Add(
                     new BuiltInDataTypes
                     {
-                        Id = 216, PartitionId = 204, TestDecimal = 3.000000000000003m, TestUnsignedInt64 = 10000000000000000001
+                        Id = 216,
+                        PartitionId = 204,
+                        TestDecimal = 3.000000000000003m,
+                        TestUnsignedInt64 = 10000000000000000001
                     });
 
                 context.SaveChanges();

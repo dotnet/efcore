@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 using Xunit;
 
@@ -94,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData).ToArray();
 
-                if (!assertOrder && elementSorter == null)
+                if (!assertOrder
+                    && elementSorter == null)
                 {
                     _entitySorters.TryGetValue(typeof(TResult), out var sorter);
                     elementSorter = (Func<TResult, object>)sorter;
@@ -236,8 +236,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var expected = expectedQuery(ExpectedData).ToList();
 
-
-                if (!assertOrder && elementSorter == null)
+                if (!assertOrder
+                    && elementSorter == null)
                 {
                     _entitySorters.TryGetValue(typeof(TResult), out var sorter);
                     elementSorter = (Func<TResult, object>)sorter;
@@ -300,7 +300,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 Assert.Equal(expected, actual);
             }
-
 
             using (var context = _contextCreator())
             {
@@ -586,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override async Task AssertCount<TResult>(
-            Func<ISetSource , IQueryable<TResult>> actualQuery,
+            Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             bool isAsync = false)
         {
@@ -1551,7 +1550,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public override void AssertEqual<T>(T expected, T actual, Action<T, T> asserter = null)
         {
-            if (asserter == null && expected != null)
+            if (asserter == null
+                && expected != null)
             {
                 _entityAsserters.TryGetValue(typeof(T), out var entityAsserter);
                 asserter ??= (Action<T, T>)entityAsserter;
@@ -1576,7 +1576,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<TElement, object> elementSorter = null,
             Action<TElement, TElement> elementAsserter = null)
         {
-            if (expected == null && actual == null)
+            if (expected == null
+                && actual == null)
             {
                 return;
             }
@@ -1636,6 +1637,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private class DefaultSetSource : ISetSource
         {
             private readonly DbContext _context;
+
             public DefaultSetSource(DbContext context)
             {
                 _context = context;

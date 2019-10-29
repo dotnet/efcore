@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (finalContextNamespace != modelNamespace)
             {
-                _sb.AppendLine(String.Concat("using ", modelNamespace, ";"));
+                _sb.AppendLine(string.Concat("using ", modelNamespace, ";"));
             }
 
             _sb.AppendLine();
@@ -703,28 +703,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (((IConventionProperty)property).GetValueGeneratedConfigurationSource().HasValue
                 && RelationalValueGenerationConvention.GetValueGenerated(property) != valueGenerated)
             {
-                string methodName;
-                switch (valueGenerated)
+                var methodName = valueGenerated switch
                 {
-                    case ValueGenerated.OnAdd:
-                        methodName = nameof(PropertyBuilder.ValueGeneratedOnAdd);
-                        break;
-
-                    case ValueGenerated.OnAddOrUpdate:
-                        isRowVersion = property.IsConcurrencyToken;
-                        methodName = isRowVersion
-                            ? nameof(PropertyBuilder.IsRowVersion)
-                            : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate);
-                        break;
-
-                    case ValueGenerated.Never:
-                        methodName = nameof(PropertyBuilder.ValueGeneratedNever);
-                        break;
-
-                    default:
-                        methodName = "";
-                        break;
-                }
+                    ValueGenerated.OnAdd => nameof(PropertyBuilder.ValueGeneratedOnAdd),
+                    ValueGenerated.OnAddOrUpdate => property.IsConcurrencyToken
+                        ? nameof(PropertyBuilder.IsRowVersion)
+                        : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate),
+                    ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
+                    ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
+                    _ => throw new InvalidOperationException($"Unhandled enum value '{nameof(ValueGenerated)}.{valueGenerated}'")
+                };
 
                 lines.Add($".{methodName}()");
             }

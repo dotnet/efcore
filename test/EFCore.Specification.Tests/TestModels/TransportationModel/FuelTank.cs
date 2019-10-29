@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
             => obj is FuelTank other
-               && VehicleName == other.VehicleName
-               && FuelType == other.FuelType
-               && Capacity == other.Capacity;
+                && VehicleName == other.VehicleName
+                && FuelType == other.FuelType
+                && Capacity == other.Capacity;
 
         public override int GetHashCode()
             => HashCode.Combine(VehicleName, FuelType, Capacity);

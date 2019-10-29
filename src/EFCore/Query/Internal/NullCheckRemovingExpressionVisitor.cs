@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var operand = Visit(unaryExpression.Operand);
                 if ((unaryExpression.NodeType == ExpressionType.Convert
-                     || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                        || unaryExpression.NodeType == ExpressionType.ConvertChecked)
                     && _nullSafeAccesses.Contains(operand))
                 {
                     _nullSafeAccesses.Add(unaryExpression);
@@ -115,6 +115,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool IsNullConstant(Expression expression)
             => expression is ConstantExpression constantExpression
-               && constantExpression.Value == null;
+                && constantExpression.Value == null;
     }
 }

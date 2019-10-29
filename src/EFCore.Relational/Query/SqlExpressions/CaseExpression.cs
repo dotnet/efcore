@@ -110,15 +110,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is CaseExpression caseExpression
-                   && Equals(caseExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is CaseExpression caseExpression
+                    && Equals(caseExpression));
 
         private bool Equals(CaseExpression caseExpression)
             => base.Equals(caseExpression)
-               && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
-               && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
-               && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
+                && (Operand == null ? caseExpression.Operand == null : Operand.Equals(caseExpression.Operand))
+                && WhenClauses.SequenceEqual(caseExpression.WhenClauses)
+                && (ElseResult == null ? caseExpression.ElseResult == null : ElseResult.Equals(caseExpression.ElseResult));
 
         public override int GetHashCode()
         {
