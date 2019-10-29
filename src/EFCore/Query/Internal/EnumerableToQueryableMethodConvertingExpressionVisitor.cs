@@ -35,33 +35,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var enumerableMethod = methodCallExpression.Method;
                 var enumerableParameters = enumerableMethod.GetParameters();
-                Type[] genericArguments = null;
+                Type[] genericTypeArguments = null;
                 if (enumerableMethod.Name == nameof(Enumerable.Min)
                     || enumerableMethod.Name == nameof(Enumerable.Max))
                 {
-                    genericArguments = new Type[methodCallExpression.Arguments.Count];
+                    genericTypeArguments = new Type[methodCallExpression.Arguments.Count];
 
                     if (!enumerableMethod.IsGenericMethod)
                     {
-                        genericArguments[0] = enumerableMethod.ReturnType;
+                        genericTypeArguments[0] = enumerableMethod.ReturnType;
                     }
                     else
                     {
                         var argumentTypes = enumerableMethod.GetGenericArguments();
-                        if (argumentTypes.Length == genericArguments.Length)
+                        if (argumentTypes.Length == genericTypeArguments.Length)
                         {
-                            genericArguments = argumentTypes;
+                            genericTypeArguments = argumentTypes;
                         }
                         else
                         {
-                            genericArguments[0] = argumentTypes[0];
-                            genericArguments[1] = enumerableMethod.ReturnType;
+                            genericTypeArguments[0] = argumentTypes[0];
+                            genericTypeArguments[1] = enumerableMethod.ReturnType;
                         }
                     }
                 }
                 else if (enumerableMethod.IsGenericMethod)
                 {
-                    genericArguments = enumerableMethod.GetGenericArguments();
+                    genericTypeArguments = enumerableMethod.GetGenericArguments();
                 }
 
                 foreach (var method in typeof(Queryable).GetTypeInfo().GetDeclaredMethods(methodCallExpression.Method.Name))
@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var queryableMethod = method;
                     if (queryableMethod.IsGenericMethod)
                     {
-                        if (genericArguments != null
-                            && queryableMethod.GetGenericArguments().Length == genericArguments.Length)
+                        if (genericTypeArguments != null
+                            && queryableMethod.GetGenericArguments().Length == genericTypeArguments.Length)
                         {
-                            queryableMethod = queryableMethod.MakeGenericMethod(genericArguments);
+                            queryableMethod = queryableMethod.MakeGenericMethod(genericTypeArguments);
                         }
                         else
                         {
