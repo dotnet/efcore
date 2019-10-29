@@ -2588,13 +2588,23 @@ END, [c].[CustomerID]");
         {
             await base.Null_Coalesce_Short_Circuit(isAsync);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
-//FROM (
-//    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//    FROM [Customers] AS [c]
-//) AS [t]");
+            AssertSql(
+                @"@__p_0='False'
+
+SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], @__p_0 AS [Test]
+FROM (
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+) AS [t]");
+        }
+
+        public override async Task Null_Coalesce_Short_Circuit_with_server_correlated_leftover(bool isAsync)
+        {
+            await base.Null_Coalesce_Short_Circuit_with_server_correlated_leftover(isAsync);
+
+            AssertSql(
+                @"SELECT CAST(0 AS bit) AS [Result]
+FROM [Customers] AS [c]");
         }
 
         public override async Task OrderBy_conditional_operator_where_condition_false(bool isAsync)
@@ -2602,14 +2612,9 @@ END, [c].[CustomerID]");
             await base.OrderBy_conditional_operator_where_condition_false(isAsync);
 
             AssertSql(
-                @"@__p_0='False'
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY CASE
-    WHEN @__p_0 = CAST(1 AS bit) THEN N'ZZ'
-    ELSE [c].[City]
-END");
+ORDER BY [c].[City]");
         }
 
         public override async Task OrderBy_comparison_operator(bool isAsync)

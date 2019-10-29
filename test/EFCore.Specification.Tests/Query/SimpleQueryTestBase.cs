@@ -827,6 +827,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Ternary_should_not_evaluate_both_sides_with_parameter(bool isAsync)
+        {
+            DateTime? param = null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>().Select(
+                    o => new
+                    {
+                        // ReSharper disable SimplifyConditionalTernaryExpression
+                        Data1 = param != null ? o.OrderDate == param.Value : true,
+                        Data2 = param == null ? true : o.OrderDate == param.Value
+                        // ReSharper restore SimplifyConditionalTernaryExpression
+                    }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_Coalesce_Short_Circuit(bool isAsync)
         {
             List<int> values = null;
@@ -834,8 +852,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Distinct().Select(c => new { Customer = c, Test = (test ?? values.Contains(1)) }),
+                ss => ss.Set<Customer>().Distinct().Select(c => new
+                {
+                    Customer = c,
+                    Test = test ?? values.Contains(1)
+                }),
                 entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_Coalesce_Short_Circuit_with_server_correlated_leftover(bool isAsync)
+        {
+            List<Customer> values = null;
+            bool? test = false;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Select(c => new
+                {
+                    Result = test ?? values.Select(c2 => c2.CustomerID).Contains(c.CustomerID)
+                }));
         }
 
         [ConditionalTheory]

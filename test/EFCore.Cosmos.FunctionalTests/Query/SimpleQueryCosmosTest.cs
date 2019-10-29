@@ -2063,7 +2063,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
-ORDER BY (@__p_0 ? ""ZZ"" : c[""City""])");
+ORDER BY c[""City""]");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
