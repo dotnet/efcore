@@ -1147,9 +1147,9 @@ FROM [Orders] AS [o]
 WHERE [o].[OrderID] IN (10248, 10249)");
         }
 
-        public override async Task List_Contains_with_parameter_HashSet(bool isAsync)
+        public override async Task HashSet_Contains_with_parameter(bool isAsync)
         {
-            await base.List_Contains_with_parameter_HashSet(isAsync);
+            await base.HashSet_Contains_with_parameter(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1157,9 +1157,9 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ALFKI')");
         }
 
-        public override async Task List_Contains_with_parameter_ImmutableHashSet(bool isAsync)
+        public override async Task ImmutableHashSet_Contains_with_parameter(bool isAsync)
         {
-            await base.List_Contains_with_parameter_ImmutableHashSet(isAsync);
+            await base.ImmutableHashSet_Contains_with_parameter(isAsync);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1185,16 +1185,13 @@ SELECT CASE
 END");
         }
 
-        public override void Paging_operation_on_string_doesnt_issue_warning()
+        public override async Task String_FirstOrDefault_in_projection_does_client_eval(bool isAsync)
         {
-            base.Paging_operation_on_string_doesnt_issue_warning();
+            await base.String_FirstOrDefault_in_projection_does_client_eval(isAsync);
 
-            Assert.DoesNotContain(
-#pragma warning disable CS0612 // Type or member is obsolete
-                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
-#pragma warning restore CS0612 // Type or member is obsolete
-                    "(from char <generated>_1 in [c].CustomerID select [<generated>_1]).FirstOrDefault()"),
-                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+            AssertSql(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]");
         }
 
         public override async Task Project_constant_Sum(bool isAsync)

@@ -275,11 +275,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || method.DeclaringType == typeof(QueryableExtensions)
                 || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
             {
+                var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
                 var firstArgument = Visit(methodCallExpression.Arguments[0]);
                 if (firstArgument is NavigationExpansionExpression source)
                 {
-                    var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
-
                     if (source.PendingOrderings.Any()
                         && genericMethod != QueryableMethods.ThenBy
                         && genericMethod != QueryableMethods.ThenByDescending)
@@ -559,27 +558,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                     }
                 }
-                else if (firstArgument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression
-                    && method.Name == nameof(Queryable.AsQueryable))
-                {
-                    var subquery = materializeCollectionNavigationExpression.Subquery;
-                    return subquery is OwnedNavigationReference ownedNavigationReference
-                        && ownedNavigationReference.Navigation.IsCollection()
-                            ? Visit(
-                                Expression.Call(
-                                    QueryableMethods.AsQueryable.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
-                                    subquery))
-                            : subquery;
-                }
-                else if (firstArgument is OwnedNavigationReference ownedNavigationReference
-                    && ownedNavigationReference.Navigation.IsCollection()
-                    && method.Name == nameof(Queryable.AsQueryable))
-                {
-                    var parameterName = GetParameterName("o");
-                    var entityReference = ownedNavigationReference.EntityReference;
-                    var currentTree = new NavigationTreeExpression(entityReference);
 
-                    return new NavigationExpansionExpression(methodCallExpression, currentTree, currentTree, parameterName);
+                if (genericMethod == QueryableMethods.AsQueryable)
+                {
+                    if (firstArgument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
+                    {
+                        var subquery = materializeCollectionNavigationExpression.Subquery;
+
+                        return subquery is OwnedNavigationReference innerOwnedNavigationReference
+                            && innerOwnedNavigationReference.Navigation.IsCollection()
+                                ? Visit(
+                                    Expression.Call(
+                                        QueryableMethods.AsQueryable.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
+                                        subquery))
+                                : subquery;
+                    }
+
+                    if (firstArgument is OwnedNavigationReference ownedNavigationReference
+                        && ownedNavigationReference.Navigation.IsCollection())
+                    {
+                        var parameterName = GetParameterName("o");
+                        var entityReference = ownedNavigationReference.EntityReference;
+                        var currentTree = new NavigationTreeExpression(entityReference);
+
+                        return new NavigationExpansionExpression(methodCallExpression, currentTree, currentTree, parameterName);
+                    }
+
+                    return firstArgument;
+                }
+
+                if (firstArgument.Type.TryGetElementType(typeof(IQueryable<>)) == null)
+                {
+                    // firstArgument was not an queryable
+                    var visitedArguments = new[] { firstArgument }
+                        .Concat(methodCallExpression.Arguments.Skip(1).Select(Visit))
+                        .ToList();
+
+                    return ConvertToEnumerable(method, visitedArguments);
                 }
 
                 throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
@@ -616,6 +631,127 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return ProcessUnknownMethod(methodCallExpression);
+        }
+
+        private MethodCallExpression ConvertToEnumerable(MethodInfo queryableMethod, List<Expression> arguments)
+        {
+            var genericTypeArguments = queryableMethod.IsGenericMethod
+                ? queryableMethod.GetGenericArguments()
+                : null;
+            var enumerableArguments = arguments.Select(
+                arg => arg is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Quote
+                    && unaryExpression.Operand is LambdaExpression
+                    ? unaryExpression.Operand
+                    : arg)
+                .ToList();
+
+            if (queryableMethod.Name == nameof(Enumerable.Min))
+            {
+                if (genericTypeArguments.Length == 1)
+                {
+                    var resultType = genericTypeArguments[0];
+                    var enumerableMethod = EnumerableMethods.GetMinWithoutSelector(resultType);
+
+                    if (!IsNumericType(resultType))
+                    {
+                        enumerableMethod = enumerableMethod.MakeGenericMethod(resultType);
+                    }
+
+                    return Expression.Call(enumerableMethod, enumerableArguments);
+                }
+
+                if (genericTypeArguments.Length == 2)
+                {
+                    var resultType = genericTypeArguments[1];
+                    var enumerableMethod = EnumerableMethods.GetMinWithSelector(resultType);
+
+                    enumerableMethod = IsNumericType(resultType)
+                        ? enumerableMethod.MakeGenericMethod(resultType)
+                        : enumerableMethod.MakeGenericMethod(genericTypeArguments);
+
+                    return Expression.Call(enumerableMethod, enumerableArguments);
+                }
+            }
+
+            if (queryableMethod.Name == nameof(Enumerable.Max))
+            {
+                if (genericTypeArguments.Length == 1)
+                {
+                    var resultType = genericTypeArguments[0];
+                    var enumerableMethod = EnumerableMethods.GetMaxWithoutSelector(resultType);
+
+                    if (!IsNumericType(resultType))
+                    {
+                        enumerableMethod = enumerableMethod.MakeGenericMethod(resultType);
+                    }
+
+                    return Expression.Call(enumerableMethod, enumerableArguments);
+                }
+
+                if (genericTypeArguments.Length == 2)
+                {
+                    var resultType = genericTypeArguments[1];
+                    var enumerableMethod = EnumerableMethods.GetMaxWithSelector(resultType);
+
+                    enumerableMethod = IsNumericType(resultType)
+                        ? enumerableMethod.MakeGenericMethod(resultType)
+                        : enumerableMethod.MakeGenericMethod(genericTypeArguments);
+
+                    return Expression.Call(enumerableMethod, enumerableArguments);
+                }
+            }
+
+            foreach (var method in typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(queryableMethod.Name))
+            {
+                var enumerableMethod = method;
+                if (enumerableMethod.IsGenericMethod)
+                {
+                    if (genericTypeArguments != null
+                        && enumerableMethod.GetGenericArguments().Length == genericTypeArguments.Length)
+                    {
+                        enumerableMethod = enumerableMethod.MakeGenericMethod(genericTypeArguments);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+
+                var enumerableMethodParameters = enumerableMethod.GetParameters();
+                if (enumerableMethodParameters.Length != enumerableArguments.Count)
+                {
+                    continue;
+                }
+
+                var validMapping = true;
+                for (var i = 0; i < enumerableMethodParameters.Length; i++)
+                {
+                    if (!enumerableMethodParameters[i].ParameterType.IsAssignableFrom(enumerableArguments[i].Type))
+                    {
+                        validMapping = false;
+                        break;
+                    }
+                }
+
+                if (validMapping)
+                {
+                    return Expression.Call(enumerableMethod, enumerableArguments);
+                }
+            }
+
+            throw new InvalidOperationException("Unable to convert queryable method to enumerable method.");
+
+            static bool IsNumericType(Type type)
+            {
+                type = type.UnwrapNullableType();
+
+                return type == typeof(int)
+                    || type == typeof(long)
+                    || type == typeof(float)
+                    || type == typeof(double)
+                    || type == typeof(decimal);
+            }
         }
 
         private Expression ProcessDefaultIfEmpty(NavigationExpansionExpression source)

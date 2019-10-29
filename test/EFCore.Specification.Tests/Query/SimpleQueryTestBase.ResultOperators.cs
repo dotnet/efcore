@@ -1558,7 +1558,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task List_Contains_with_parameter_HashSet(bool isAsync)
+        public virtual Task HashSet_Contains_with_parameter(bool isAsync)
         {
             var ids = new HashSet<string> { "ALFKI" };
 
@@ -1570,13 +1570,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task List_Contains_with_parameter_ImmutableHashSet(bool isAsync)
+        public virtual Task ImmutableHashSet_Contains_with_parameter(bool isAsync)
         {
             var ids = ImmutableHashSet<string>.Empty.Add("ALFKI");
 
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)),
+                entryCount: 1);
+        }
+
+        private static readonly IEnumerable<string> _customers = new string[] { "ALFKI", "WRONG" };
+
+        [ConditionalTheory(Skip = "Issue#18658")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Array_cast_to_IEnumerable_Contains_with_constant(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Where(c => _customers.Contains(c.CustomerID)),
                 entryCount: 1);
         }
 
@@ -1615,23 +1627,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalFact]
-        public virtual void Paging_operation_on_string_doesnt_issue_warning()
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_FirstOrDefault_in_projection_does_client_eval(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var message = Assert
-                    .Throws<InvalidOperationException>(() => context.Customers.Select(c => c.CustomerID.FirstOrDefault()).ToList()).Message;
-
-                Assert.Equal(
-                    CoreStrings.QueryFailed(
-                        @"(NavigationTreeExpression
-    Value: (EntityReference: Customer)
-    Expression: c).CustomerID
-    .AsQueryable()",
-                        "NavigationExpandingExpressionVisitor"),
-                    message);
-            }
+            return AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Customer>().Select(c => c.CustomerID.FirstOrDefault()));
         }
 
         [ConditionalTheory]

@@ -31,6 +31,12 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_property_as_scalar()
+        {
+            base.Collection_property_as_scalar();
+        }
+
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
         {
             public override bool StrictEquality => true;
