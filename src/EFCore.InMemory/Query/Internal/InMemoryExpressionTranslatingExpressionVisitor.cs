@@ -9,7 +9,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -142,15 +141,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return result;
             }
 
-            static bool shouldApplyNullProtectionForMemberAccess(Type callerType, string memberName)
-                => !(callerType.IsGenericType
-                    && callerType.GetGenericTypeDefinition() == typeof(Nullable<>)
-                    && (memberName == nameof(Nullable<int>.Value) || memberName == nameof(Nullable<int>.HasValue)));
-
             var updatedMemberExpression = (Expression)memberExpression.Update(innerExpression);
             if (innerExpression != null
                 && innerExpression.Type.IsNullableType()
-                && shouldApplyNullProtectionForMemberAccess(innerExpression.Type, memberExpression.Member.Name))
+                && ShouldApplyNullProtectionForMemberAccess(innerExpression.Type, memberExpression.Member.Name))
             {
                 updatedMemberExpression = ConvertToNullable(updatedMemberExpression);
 
@@ -161,6 +155,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             return updatedMemberExpression;
+
+            static bool ShouldApplyNullProtectionForMemberAccess(Type callerType, string memberName)
+                => !(callerType.IsGenericType
+                    && callerType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                    && (memberName == nameof(Nullable<int>.Value) || memberName == nameof(Nullable<int>.HasValue)));
         }
 
         private bool TryBindMember(Expression source, MemberIdentity memberIdentity, Type type, out Expression result)
@@ -327,10 +326,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         MethodInfo GetMethod()
                             => methodName switch
                             {
-                                nameof(Enumerable.Average) => InMemoryLinqOperatorProvider.GetAverageWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Max) => InMemoryLinqOperatorProvider.GetMaxWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Min) => InMemoryLinqOperatorProvider.GetMinWithSelector(selector.ReturnType),
-                                nameof(Enumerable.Sum) => InMemoryLinqOperatorProvider.GetSumWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Average) => EnumerableMethods.GetAverageWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Max) => EnumerableMethods.GetMaxWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Min) => EnumerableMethods.GetMinWithSelector(selector.ReturnType),
+                                nameof(Enumerable.Sum) => EnumerableMethods.GetSumWithSelector(selector.ReturnType),
                                 _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
                             };
                     }
@@ -344,8 +343,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         {
                             return Expression.Call(
                                 (countMethod
-                                    ? InMemoryLinqOperatorProvider.CountWithoutPredicate
-                                    : InMemoryLinqOperatorProvider.LongCountWithoutPredicate)
+                                    ? EnumerableMethods.CountWithoutPredicate
+                                    : EnumerableMethods.LongCountWithoutPredicate)
                                 .MakeGenericMethod(typeof(ValueBuffer)),
                                 groupByShaperExpression.GroupingParameter);
                         }
@@ -360,8 +359,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                         return Expression.Call(
                             (countMethod
-                                ? InMemoryLinqOperatorProvider.CountWithPredicate
-                                : InMemoryLinqOperatorProvider.LongCountWithPredicate)
+                                ? EnumerableMethods.CountWithPredicate
+                                : EnumerableMethods.LongCountWithPredicate)
                             .MakeGenericMethod(typeof(ValueBuffer)),
                             groupByShaperExpression.GroupingParameter,
                             predicate);
@@ -473,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             // we special-case Nullable<>.GetValueOrDefault, which doesn't need the safeguard
             if (methodCallExpression.Object != null
                 && @object.Type.IsNullableType()
-                && !(methodCallExpression.Method.Name == nameof(Nullable<int>.GetValueOrDefault)))
+                && methodCallExpression.Method.Name != nameof(Nullable<int>.GetValueOrDefault))
             {
                 var result = (Expression)methodCallExpression.Update(
                     Expression.Convert(@object, methodCallExpression.Object.Type),
@@ -616,7 +615,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 case NullConditionalExpression nullConditionalExpression:
                 {
                     var translation = Visit(nullConditionalExpression.AccessOperation);
-
                     return translation.Type == nullConditionalExpression.Type
                         ? translation
                         : Expression.Convert(translation, nullConditionalExpression.Type);

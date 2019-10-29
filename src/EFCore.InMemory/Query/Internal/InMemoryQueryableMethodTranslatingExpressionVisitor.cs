@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(
-                    InMemoryLinqOperatorProvider.All.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    EnumerableMethods.All.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression,
                     predicate);
 
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             if (predicate == null)
             {
                 inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
-                    InMemoryLinqOperatorProvider.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    EnumerableMethods.AnyWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression);
             }
             else
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
-                    InMemoryLinqOperatorProvider.AnyWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    EnumerableMethods.AnyWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression,
                     predicate);
             }
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(InMemoryLinqOperatorProvider.Concat, source1, source2);
+            => TranslateSetOperation(EnumerableMethods.Concat, source1, source2);
 
         protected override ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item)
         {
@@ -144,9 +144,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             inMemoryQueryExpression.ServerQueryExpression =
                 Expression.Call(
-                    InMemoryLinqOperatorProvider.Contains.MakeGenericMethod(item.Type),
+                    EnumerableMethods.Contains.MakeGenericMethod(item.Type),
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.Select.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, item.Type),
+                        EnumerableMethods.Select.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, item.Type),
                         inMemoryQueryExpression.ServerQueryExpression,
                         Expression.Lambda(
                             inMemoryQueryExpression.GetMappedProjection(new ProjectionMember()), inMemoryQueryExpression.CurrentParameter)),
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.CountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                        EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                         inMemoryQueryExpression.ServerQueryExpression);
             }
             else
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.CountWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                        EnumerableMethods.CountWithPredicate.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                         inMemoryQueryExpression.ServerQueryExpression,
                         predicate);
             }
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             inMemoryQueryExpression.PushdownIntoSubquery();
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
-                    InMemoryLinqOperatorProvider.Distinct.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    EnumerableMethods.Distinct.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression);
 
             return source;
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => null;
 
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(InMemoryLinqOperatorProvider.Except, source1, source2);
+            => TranslateSetOperation(EnumerableMethods.Except, source1, source2);
 
         protected override ShapedQueryExpression TranslateFirstOrDefault(
             ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
@@ -229,8 +229,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 predicate,
                 returnType,
                 returnDefault
-                    ? InMemoryLinqOperatorProvider.FirstOrDefaultWithoutPredicate
-                    : InMemoryLinqOperatorProvider.FirstWithoutPredicate);
+                    ? EnumerableMethods.FirstOrDefaultWithoutPredicate
+                    : EnumerableMethods.FirstWithoutPredicate);
         }
 
         protected override ShapedQueryExpression TranslateGroupBy(
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             => null;
 
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(InMemoryLinqOperatorProvider.Intersect, source1, source2);
+            => TranslateSetOperation(EnumerableMethods.Intersect, source1, source2);
 
         protected override ShapedQueryExpression TranslateJoin(
             ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
@@ -411,8 +411,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 predicate,
                 returnType,
                 returnDefault
-                    ? InMemoryLinqOperatorProvider.LastOrDefaultWithoutPredicate
-                    : InMemoryLinqOperatorProvider.LastWithoutPredicate);
+                    ? EnumerableMethods.LastOrDefaultWithoutPredicate
+                    : EnumerableMethods.LastWithoutPredicate);
         }
 
         protected override ShapedQueryExpression TranslateLeftJoin(
@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.LongCountWithoutPredicate.MakeGenericMethod(
+                        EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(
                             inMemoryQueryExpression.CurrentParameter.Type),
                         inMemoryQueryExpression.ServerQueryExpression);
             }
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 inMemoryQueryExpression.ServerQueryExpression =
                     Expression.Call(
-                        InMemoryLinqOperatorProvider.LongCountWithPredicate.MakeGenericMethod(
+                        EnumerableMethods.LongCountWithPredicate.MakeGenericMethod(
                             inMemoryQueryExpression.CurrentParameter.Type),
                         inMemoryQueryExpression.ServerQueryExpression,
                         predicate);
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     }
 
                     inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
-                        InMemoryLinqOperatorProvider.Where.MakeGenericMethod(typeof(ValueBuffer)),
+                        EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
                         inMemoryQueryExpression.ServerQueryExpression,
                         discriminatorPredicate);
 
@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return null;
             }
 
-            var orderBy = ascending ? InMemoryLinqOperatorProvider.OrderBy : InMemoryLinqOperatorProvider.OrderByDescending;
+            var orderBy = ascending ? EnumerableMethods.OrderBy : EnumerableMethods.OrderByDescending;
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
                     orderBy.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
@@ -677,8 +677,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 predicate,
                 returnType,
                 returnDefault
-                    ? InMemoryLinqOperatorProvider.SingleOrDefaultWithoutPredicate
-                    : InMemoryLinqOperatorProvider.SingleWithoutPredicate);
+                    ? EnumerableMethods.SingleOrDefaultWithoutPredicate
+                    : EnumerableMethods.SingleWithoutPredicate);
         }
 
         protected override ShapedQueryExpression TranslateSkip(ShapedQueryExpression source, Expression count)
@@ -692,7 +692,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
-                    InMemoryLinqOperatorProvider.Skip.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    EnumerableMethods.Skip.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression,
                     count);
 
@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
-                    InMemoryLinqOperatorProvider.Take.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    EnumerableMethods.Take.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                     inMemoryQueryExpression.ServerQueryExpression,
                     count);
 
@@ -737,7 +737,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             inMemoryQueryExpression.ServerQueryExpression
                 = Expression.Call(
-                    (ascending ? InMemoryLinqOperatorProvider.ThenBy : InMemoryLinqOperatorProvider.ThenByDescending)
+                    (ascending ? EnumerableMethods.ThenBy : EnumerableMethods.ThenByDescending)
                     .MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, keySelector.ReturnType),
                     inMemoryQueryExpression.ServerQueryExpression,
                     keySelector);
@@ -746,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
-            => TranslateSetOperation(InMemoryLinqOperatorProvider.Union, source1, source2);
+            => TranslateSetOperation(EnumerableMethods.Union, source1, source2);
 
         protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
         {
@@ -758,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             inMemoryQueryExpression.ServerQueryExpression = Expression.Call(
-                InMemoryLinqOperatorProvider.Where.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                EnumerableMethods.Where.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
                 inMemoryQueryExpression.ServerQueryExpression,
                 predicate);
 
@@ -952,7 +952,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     var correlationPredicate = _expressionTranslator.Translate(predicate);
                     innerQueryExpression.ServerQueryExpression = Expression.Call(
-                        InMemoryLinqOperatorProvider.Where.MakeGenericMethod(innerQueryExpression.CurrentParameter.Type),
+                        EnumerableMethods.Where.MakeGenericMethod(innerQueryExpression.CurrentParameter.Type),
                         innerQueryExpression.ServerQueryExpression,
                         Expression.Lambda(correlationPredicate, innerQueryExpression.CurrentParameter));
 
@@ -1019,10 +1019,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             MethodInfo getMethod()
                 => methodName switch
                 {
-                    nameof(Enumerable.Average) => InMemoryLinqOperatorProvider.GetAverageWithSelector(selector.ReturnType),
-                    nameof(Enumerable.Max) => InMemoryLinqOperatorProvider.GetMaxWithSelector(selector.ReturnType),
-                    nameof(Enumerable.Min) => InMemoryLinqOperatorProvider.GetMinWithSelector(selector.ReturnType),
-                    nameof(Enumerable.Sum) => InMemoryLinqOperatorProvider.GetSumWithSelector(selector.ReturnType),
+                    nameof(Enumerable.Average) => EnumerableMethods.GetAverageWithSelector(selector.ReturnType),
+                    nameof(Enumerable.Max) => EnumerableMethods.GetMaxWithSelector(selector.ReturnType),
+                    nameof(Enumerable.Min) => EnumerableMethods.GetMinWithSelector(selector.ReturnType),
+                    nameof(Enumerable.Sum) => EnumerableMethods.GetSumWithSelector(selector.ReturnType),
                     _ => throw new InvalidOperationException("Invalid Aggregate Operator encountered."),
                 };
 

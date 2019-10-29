@@ -75,6 +75,15 @@ namespace Microsoft.EntityFrameworkCore
         public static MethodInfo GroupByWithKeyElementResultSelector { get; }
         public static MethodInfo GroupByWithKeyResultSelector { get; }
 
+        private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
+        private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
+        private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
+        private static Dictionary<Type, MethodInfo> AverageWithSelectorMethods { get; }
+        private static Dictionary<Type, MethodInfo> MaxWithoutSelectorMethods { get; }
+        private static Dictionary<Type, MethodInfo> MaxWithSelectorMethods { get; }
+        private static Dictionary<Type, MethodInfo> MinWithoutSelectorMethods { get; }
+        private static Dictionary<Type, MethodInfo> MinWithSelectorMethods { get; }
+
         public static bool IsSumWithoutSelector(MethodInfo methodInfo)
             => SumWithoutSelectorMethods.Values.Contains(methodInfo);
 
@@ -91,13 +100,29 @@ namespace Microsoft.EntityFrameworkCore
 
         public static MethodInfo GetSumWithoutSelector(Type type) => SumWithoutSelectorMethods[type];
         public static MethodInfo GetSumWithSelector(Type type) => SumWithSelectorMethods[type];
+
         public static MethodInfo GetAverageWithoutSelector(Type type) => AverageWithoutSelectorMethods[type];
         public static MethodInfo GetAverageWithSelector(Type type) => AverageWithSelectorMethods[type];
 
-        private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
-        private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
-        private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
-        private static Dictionary<Type, MethodInfo> AverageWithSelectorMethods { get; }
+        public static MethodInfo GetMaxWithoutSelector(Type type)
+            => MaxWithoutSelectorMethods.TryGetValue(type, out var method)
+                ? method
+                : MaxWithoutSelector;
+
+        public static MethodInfo GetMaxWithSelector(Type type)
+            => MaxWithSelectorMethods.TryGetValue(type, out var method)
+                ? method
+                : MaxWithSelector;
+
+        public static MethodInfo GetMinWithoutSelector(Type type)
+            => MinWithoutSelectorMethods.TryGetValue(type, out var method)
+                ? method
+                : MinWithoutSelector;
+
+        public static MethodInfo GetMinWithSelector(Type type)
+            => MinWithSelectorMethods.TryGetValue(type, out var method)
+                ? method
+                : MinWithSelector;
 
         static EnumerableMethods()
         {
@@ -294,67 +319,123 @@ namespace Microsoft.EntityFrameworkCore
 
             SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(long), GetSumOrAverageWithoutSelector<long>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(int), GetSumOrAverageWithoutSelector<int>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(double), GetSumOrAverageWithoutSelector<double>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(float), GetSumOrAverageWithoutSelector<float>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(enumerableMethods, nameof(Enumerable.Sum)) }
+                { typeof(decimal), GetMethodWithoutSelector<decimal>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(long), GetMethodWithoutSelector<long>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(int), GetMethodWithoutSelector<int>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(double), GetMethodWithoutSelector<double>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(float), GetMethodWithoutSelector<float>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(decimal?), GetMethodWithoutSelector<decimal?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(long?), GetMethodWithoutSelector<long?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(int?), GetMethodWithoutSelector<int?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(double?), GetMethodWithoutSelector<double?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(float?), GetMethodWithoutSelector<float?>(enumerableMethods, nameof(Enumerable.Sum)) }
             };
 
             SumWithSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(long), GetSumOrAverageWithSelector<long>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(int), GetSumOrAverageWithSelector<int>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(double), GetSumOrAverageWithSelector<double>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(float), GetSumOrAverageWithSelector<float>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(long?), GetSumOrAverageWithSelector<long?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(int?), GetSumOrAverageWithSelector<int?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(double?), GetSumOrAverageWithSelector<double?>(enumerableMethods, nameof(Enumerable.Sum)) },
-                { typeof(float?), GetSumOrAverageWithSelector<float?>(enumerableMethods, nameof(Enumerable.Sum)) }
+                { typeof(decimal), GetMethodWithSelector<decimal>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(long), GetMethodWithSelector<long>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(int), GetMethodWithSelector<int>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(double), GetMethodWithSelector<double>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(float), GetMethodWithSelector<float>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(decimal?), GetMethodWithSelector<decimal?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(long?), GetMethodWithSelector<long?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(int?), GetMethodWithSelector<int?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(double?), GetMethodWithSelector<double?>(enumerableMethods, nameof(Enumerable.Sum)) },
+                { typeof(float?), GetMethodWithSelector<float?>(enumerableMethods, nameof(Enumerable.Sum)) }
             };
 
             AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(long), GetSumOrAverageWithoutSelector<long>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(int), GetSumOrAverageWithoutSelector<int>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(double), GetSumOrAverageWithoutSelector<double>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(float), GetSumOrAverageWithoutSelector<float>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(enumerableMethods, nameof(Enumerable.Average)) }
+                { typeof(decimal), GetMethodWithoutSelector<decimal>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(long), GetMethodWithoutSelector<long>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(int), GetMethodWithoutSelector<int>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(double), GetMethodWithoutSelector<double>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(float), GetMethodWithoutSelector<float>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(decimal?), GetMethodWithoutSelector<decimal?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(long?), GetMethodWithoutSelector<long?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(int?), GetMethodWithoutSelector<int?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(double?), GetMethodWithoutSelector<double?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(float?), GetMethodWithoutSelector<float?>(enumerableMethods, nameof(Enumerable.Average)) }
             };
 
             AverageWithSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(long), GetSumOrAverageWithSelector<long>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(int), GetSumOrAverageWithSelector<int>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(double), GetSumOrAverageWithSelector<double>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(float), GetSumOrAverageWithSelector<float>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(long?), GetSumOrAverageWithSelector<long?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(int?), GetSumOrAverageWithSelector<int?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(double?), GetSumOrAverageWithSelector<double?>(enumerableMethods, nameof(Enumerable.Average)) },
-                { typeof(float?), GetSumOrAverageWithSelector<float?>(enumerableMethods, nameof(Enumerable.Average)) }
+                { typeof(decimal), GetMethodWithSelector<decimal>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(long), GetMethodWithSelector<long>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(int), GetMethodWithSelector<int>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(double), GetMethodWithSelector<double>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(float), GetMethodWithSelector<float>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(decimal?), GetMethodWithSelector<decimal?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(long?), GetMethodWithSelector<long?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(int?), GetMethodWithSelector<int?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(double?), GetMethodWithSelector<double?>(enumerableMethods, nameof(Enumerable.Average)) },
+                { typeof(float?), GetMethodWithSelector<float?>(enumerableMethods, nameof(Enumerable.Average)) }
             };
 
-            static MethodInfo GetSumOrAverageWithoutSelector<T>(List<MethodInfo> enumerableMethods, string methodName)
+            MaxWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetMethodWithoutSelector<decimal>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(long), GetMethodWithoutSelector<long>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(int), GetMethodWithoutSelector<int>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(double), GetMethodWithoutSelector<double>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(float), GetMethodWithoutSelector<float>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(decimal?), GetMethodWithoutSelector<decimal?>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(long?), GetMethodWithoutSelector<long?>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(int?), GetMethodWithoutSelector<int?>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(double?), GetMethodWithoutSelector<double?>(enumerableMethods,nameof(Queryable.Max)) },
+                { typeof(float?), GetMethodWithoutSelector<float?>(enumerableMethods,nameof(Queryable.Max)) }
+            };
+
+            MaxWithSelectorMethods = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetMethodWithSelector<decimal>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(long), GetMethodWithSelector<long>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(int), GetMethodWithSelector<int>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(double), GetMethodWithSelector<double>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(float), GetMethodWithSelector<float>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(decimal?), GetMethodWithSelector<decimal?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(long?), GetMethodWithSelector<long?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(int?), GetMethodWithSelector<int?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(double?), GetMethodWithSelector<double?>(enumerableMethods, nameof(Queryable.Max)) },
+                { typeof(float?), GetMethodWithSelector<float?>(enumerableMethods, nameof(Queryable.Max)) }
+            };
+
+            MinWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetMethodWithoutSelector<decimal>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(long), GetMethodWithoutSelector<long>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(int), GetMethodWithoutSelector<int>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(double), GetMethodWithoutSelector<double>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(float), GetMethodWithoutSelector<float>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(decimal?), GetMethodWithoutSelector<decimal?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(long?), GetMethodWithoutSelector<long?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(int?), GetMethodWithoutSelector<int?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(double?), GetMethodWithoutSelector<double?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(float?), GetMethodWithoutSelector<float?>(enumerableMethods, nameof(Queryable.Min)) }
+            };
+
+            MinWithSelectorMethods = new Dictionary<Type, MethodInfo>
+            {
+                { typeof(decimal), GetMethodWithSelector<decimal>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(long), GetMethodWithSelector<long>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(int), GetMethodWithSelector<int>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(double), GetMethodWithSelector<double>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(float), GetMethodWithSelector<float>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(decimal?), GetMethodWithSelector<decimal?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(long?), GetMethodWithSelector<long?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(int?), GetMethodWithSelector<int?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(double?), GetMethodWithSelector<double?>(enumerableMethods, nameof(Queryable.Min)) },
+                { typeof(float?), GetMethodWithSelector<float?>(enumerableMethods, nameof(Queryable.Min)) }
+            };
+
+            static MethodInfo GetMethodWithoutSelector<T>(List<MethodInfo> enumerableMethods, string methodName)
                 => enumerableMethods.Single(
                     mi => mi.Name == methodName
                         && mi.GetParameters().Length == 1
                         && mi.GetParameters()[0].ParameterType.GetGenericArguments()[0] == typeof(T));
 
-            static MethodInfo GetSumOrAverageWithSelector<T>(List<MethodInfo> enumerableMethods, string methodName)
+            static MethodInfo GetMethodWithSelector<T>(List<MethodInfo> enumerableMethods, string methodName)
                 => enumerableMethods.Single(
                     mi => mi.Name == methodName
                         && mi.GetParameters().Length == 2

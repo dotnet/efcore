@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _groupingParameter = null;
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 selectorLambda);
 
@@ -302,12 +302,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _groupingParameter = null;
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
+                EnumerableMethods.Select.MakeGenericMethod(ServerQueryExpression.Type.TryGetSequenceType(), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 selectorLambda);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
+                EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
                 ServerQueryExpression,
                 New(_valueBufferConstructor, NewArrayInit(typeof(object), Enumerable.Repeat(Constant(null), _valueBufferSlots.Count))));
 
@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 CurrentParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.Select.MakeGenericMethod(typeof(ValueBuffer), typeof(ValueBuffer)),
+                EnumerableMethods.Select.MakeGenericMethod(typeof(ValueBuffer), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 selectorLambda);
         }
@@ -388,7 +388,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _valueBufferParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.GroupByWithKeyElementSelector.MakeGenericMethod(
+                EnumerableMethods.GroupByWithKeyElementSelector.MakeGenericMethod(
                     typeof(ValueBuffer), typeof(ValueBuffer), typeof(ValueBuffer)),
                 selectMethod.Arguments[0],
                 keySelector,
@@ -540,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.Join.MakeGenericMethod(
+                EnumerableMethods.Join.MakeGenericMethod(
                     typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
                 ServerQueryExpression,
                 innerQueryExpression.ServerQueryExpression,
@@ -572,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             var groupJoinExpression = Call(
-                InMemoryLinqOperatorProvider.GroupJoin.MakeGenericMethod(
+                EnumerableMethods.GroupJoin.MakeGenericMethod(
                     typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, groupTransparentIdentifierType),
                 ServerQueryExpression,
                 innerQueryExpression.ServerQueryExpression,
@@ -652,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var collectionSelector = Lambda(
                 Call(
-                    InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
+                    EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
                     collection,
                     New(
                         _valueBufferConstructor,
@@ -673,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.SelectManyWithCollectionSelector.MakeGenericMethod(
+                EnumerableMethods.SelectManyWithCollectionSelector.MakeGenericMethod(
                     groupTransparentIdentifierType, typeof(ValueBuffer), typeof(ValueBuffer)),
                 groupJoinExpression,
                 collectionSelector,
@@ -767,7 +767,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.SelectManyWithCollectionSelector.MakeGenericMethod(
+                EnumerableMethods.SelectManyWithCollectionSelector.MakeGenericMethod(
                     typeof(ValueBuffer), typeof(ValueBuffer), typeof(ValueBuffer)),
                 ServerQueryExpression,
                 Lambda(innerQueryExpression.ServerQueryExpression, CurrentParameter),
@@ -798,7 +798,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             var groupJoinExpression = Call(
-                InMemoryLinqOperatorProvider.GroupJoin.MakeGenericMethod(
+                EnumerableMethods.GroupJoin.MakeGenericMethod(
                     typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, groupTransparentIdentifierType),
                 ServerQueryExpression,
                 innerQueryExpression.ServerQueryExpression,
@@ -889,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             var collectionSelector = Lambda(
                 Call(
-                    InMemoryLinqOperatorProvider.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
+                    EnumerableMethods.DefaultIfEmptyWithArgument.MakeGenericMethod(typeof(ValueBuffer)),
                     collection,
                     New(
                         _valueBufferConstructor,
@@ -910,7 +910,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 innerParameter);
 
             ServerQueryExpression = Call(
-                InMemoryLinqOperatorProvider.SelectManyWithCollectionSelector.MakeGenericMethod(
+                EnumerableMethods.SelectManyWithCollectionSelector.MakeGenericMethod(
                     groupTransparentIdentifierType, typeof(ValueBuffer), typeof(ValueBuffer)),
                 groupJoinExpression,
                 collectionSelector,
