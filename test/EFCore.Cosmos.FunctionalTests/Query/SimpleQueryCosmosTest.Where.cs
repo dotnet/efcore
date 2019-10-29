@@ -1585,7 +1585,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((((@__p_0 + c[""CustomerID""])
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : (c[""UnitsInStock""] < 20)))");
+WHERE ((c[""Discriminator""] = ""Product"") AND (c[""UnitsInStock""] >= 20))");
         }
 
         public override async Task Where_ternary_boolean_condition_false(bool isAsync)
