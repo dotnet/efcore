@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -107,60 +108,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
-            }
-        }
-
-        private class ResultCoordinator
-        {
-            public ResultCoordinator()
-            {
-                ResultContext = new ResultContext();
-            }
-
-            public ResultContext ResultContext { get; }
-            public bool ResultReady { get; set; }
-            public bool? HasNext { get; set; }
-            public IList<CollectionMaterializationContext> Collections { get; } = new List<CollectionMaterializationContext>();
-
-            public void SetCollectionMaterializationContext(
-                int collectionId, CollectionMaterializationContext collectionMaterializationContext)
-            {
-                while (Collections.Count <= collectionId)
-                {
-                    Collections.Add(null);
-                }
-
-                Collections[collectionId] = collectionMaterializationContext;
-            }
-        }
-
-        private class ResultContext
-        {
-            public object[] Values { get; set; }
-        }
-
-        private class CollectionMaterializationContext
-        {
-            public CollectionMaterializationContext(object parent, object collection, object[] parentIdentifier, object[] outerIdentifier)
-            {
-                Parent = parent;
-                Collection = collection;
-                ParentIdentifier = parentIdentifier;
-                OuterIdentifier = outerIdentifier;
-                ResultContext = new ResultContext();
-            }
-
-            public ResultContext ResultContext { get; }
-            public object Parent { get; }
-            public object Collection { get; }
-            public object Current { get; private set; }
-            public object[] ParentIdentifier { get; }
-            public object[] OuterIdentifier { get; }
-            public object[] SelfIdentifier { get; private set; }
-
-            public void UpdateSelfIdentifier(object[] selfIdentifier)
-            {
-                SelfIdentifier = selfIdentifier;
             }
         }
     }
