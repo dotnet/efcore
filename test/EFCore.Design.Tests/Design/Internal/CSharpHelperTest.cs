@@ -533,22 +533,35 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void Literal_with_static_field()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
-                v => Expression.Field(null, typeof(SimpleTestType).GetField(nameof(SimpleTestType.SomeField))));
+                v => Expression.Field(null, typeof(SimpleTestType).GetField(nameof(SimpleTestType.SomeStaticField))));
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeField",
-                new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeField));
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeStaticField",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
         [ConditionalFact]
         public void Literal_with_static_property()
         {
             var typeMapping = CreateTypeMappingSource<SimpleTestType>(
-                v => Expression.Property(null, typeof(SimpleTestType).GetProperty(nameof(SimpleTestType.SomeProperty))));
+                v => Expression.Property(null, typeof(SimpleTestType).GetProperty(nameof(SimpleTestType.SomeStaticProperty))));
 
             Assert.Equal(
-                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeProperty",
-                new CSharpHelper(typeMapping).UnknownLiteral(SimpleTestType.SomeProperty));
+                "Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType.SomeStaticProperty",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
+        }
+
+        [ConditionalFact]
+        public void Literal_with_instance_property()
+        {
+            var typeMapping = CreateTypeMappingSource<SimpleTestType>(
+                v => Expression.Property(
+                    Expression.New(typeof(SimpleTestType)),
+                    typeof(SimpleTestType).GetProperty(nameof(SimpleTestType.SomeInstanceProperty))));
+
+            Assert.Equal(
+                "new Microsoft.EntityFrameworkCore.Design.Internal.SimpleTestType().SomeInstanceProperty",
+                new CSharpHelper(typeMapping).UnknownLiteral(new SimpleTestType()));
         }
 
         [ConditionalFact]
@@ -672,8 +685,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
     internal class SimpleTestType
     {
-        public static readonly SimpleTestType SomeField = new SimpleTestType();
-        public static SimpleTestType SomeProperty { get; } = new SimpleTestType();
+        public static readonly int SomeStaticField = 8;
+        public readonly int SomeField = 8;
+        public static int SomeStaticProperty { get; } = 8;
+        public int SomeInstanceProperty { get; } = 8;
 
         public SimpleTestType()
         {
