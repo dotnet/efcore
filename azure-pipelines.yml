@@ -161,6 +161,6 @@ stages:
         -TsaCodebaseAdmin $(_TsaCodebaseAdmin)
         -TsaBugAreaPath $(_TsaBugAreaPath)
         -TsaIterationPath $(_TsaIterationPath)
-        -TsaRepositoryName "Arcade"
-        -TsaCodebaseName "Arcade"
+        -TsaRepositoryName "EntityFrameworkCore"
+        -TsaCodebaseName "EntityFrameworkCore"
         -TsaPublish $True'
