@@ -16,7 +16,7 @@ variables:
     
   # used for post-build phases, internal builds only
   - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-    - group: DotNet-Winforms-SDLValidation-Params
+    - group: DotNet-EFCore-SDLValidation-Params
 
 trigger:
   - master
