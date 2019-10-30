@@ -125,20 +125,20 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            if (TryBindMember(
+                memberExpression.Expression,
+                MemberIdentity.Create(memberExpression.Member),
+                memberExpression.Type,
+                out var result))
+            {
+                return result;
+            }
+
             var innerExpression = Visit(memberExpression.Expression);
             if (memberExpression.Expression != null
                 && innerExpression == null)
             {
                 return null;
-            }
-
-            if ((innerExpression is EntityProjectionExpression
-                    || (innerExpression is UnaryExpression innerUnaryExpression
-                        && innerUnaryExpression.NodeType == ExpressionType.Convert
-                        && innerUnaryExpression.Operand is EntityProjectionExpression))
-                && TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), memberExpression.Type, out var result))
-            {
-                return result;
             }
 
             var updatedMemberExpression = (Expression)memberExpression.Update(innerExpression);
@@ -164,24 +164,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private bool TryBindMember(Expression source, MemberIdentity memberIdentity, Type type, out Expression result)
         {
+            source = source.UnwrapTypeConversion(out var convertedType);
             result = null;
-            Type convertedType = null;
-            if (source is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert)
+            if (source is EntityShaperExpression entityShaperExpression)
             {
-                source = unaryExpression.Operand;
-                if (unaryExpression.Type != typeof(object))
-                {
-                    convertedType = unaryExpression.Type;
-                }
-            }
-
-            if (source is EntityProjectionExpression entityProjection)
-            {
-                var entityType = entityProjection.EntityType;
-                if (convertedType != null
-                    && !(convertedType.IsInterface
-                        && convertedType.IsAssignableFrom(entityType.ClrType)))
+                var entityType = entityShaperExpression.EntityType;
+                if (convertedType != null)
                 {
                     entityType = entityType.GetRootType().GetDerivedTypesInclusive()
                         .FirstOrDefault(et => et.ClrType == convertedType);
@@ -194,24 +182,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 var property = memberIdentity.MemberInfo != null
                     ? entityType.FindProperty(memberIdentity.MemberInfo)
                     : entityType.FindProperty(memberIdentity.Name);
-                // If unmapped property return null
-                if (property == null)
+                if (property != null
+                    && Visit(entityShaperExpression.ValueBufferExpression) is EntityProjectionExpression entityProjectionExpression
+                    && (entityProjectionExpression.EntityType.IsAssignableFrom(property.DeclaringEntityType)
+                        || property.DeclaringEntityType.IsAssignableFrom(entityProjectionExpression.EntityType)))
                 {
-                    return false;
+                    result = BindProperty(entityProjectionExpression, property);
+
+                    // if the result type change was just nullability change e.g from int to int?
+                    // we want to preserve the new type for null propagation
+                    if (result.Type != type
+                        && !(result.Type.IsNullableType()
+                            && !type.IsNullableType()
+                            && result.Type.UnwrapNullableType() == type))
+                    {
+                        result = Expression.Convert(result, type);
+                    }
+
+                    return true;
                 }
-
-                result = BindProperty(entityProjection, property);
-
-                // if the result type change was just nullability change e.g from int to int? we want to preserve the new type for null propagation
-                if (result.Type != type
-                    && !(result.Type.IsNullableType()
-                        && !type.IsNullableType()
-                        && result.Type.UnwrapNullableType() == type))
-                {
-                    result = Expression.Convert(result, type);
-                }
-
-                return true;
             }
 
             return false;
@@ -284,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             // EF.Property case
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName), methodCallExpression.Type, out var result))
+                if (TryBindMember(source, MemberIdentity.Create(propertyName), methodCallExpression.Type, out var result))
                 {
                     return result;
                 }
@@ -396,16 +385,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 {
                     Expression result;
                     var innerExpression = ((NewArrayExpression)newValueBufferExpression.Arguments[0]).Expressions[0];
-                    if (innerExpression is UnaryExpression unaryExpression
+                    result = innerExpression is UnaryExpression unaryExpression
                         && innerExpression.NodeType == ExpressionType.Convert
-                        && innerExpression.Type == typeof(object))
-                    {
-                        result = unaryExpression.Operand;
-                    }
-                    else
-                    {
-                        result = innerExpression;
-                    }
+                        && innerExpression.Type == typeof(object)
+                        ? unaryExpression.Operand
+                        : innerExpression;
 
                     return result.Type == methodCallExpression.Type
                         ? result

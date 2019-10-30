@@ -1439,7 +1439,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
@@ -1460,7 +1460,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once ConstantNullCoalescingCondition
+                                    // ReSharper disable once ConstantNullCoalescingCondition
                                 select new
                                 {
                                     One = eRootJoined,
@@ -1486,7 +1486,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                // ReSharper disable once MergeConditionalExpression
+                                    // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                                 select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -5316,7 +5316,8 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
                     context.Products.Add(
                         new Product15684
                         {
-                            Name = "Apple", Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
+                            Name = "Apple",
+                            Category = new Category15684 { Name = "Fruit", Status = CategoryStatus15684.Active }
                         });
 
                     context.Products.Add(new Product15684 { Name = "Bike" });
@@ -5908,8 +5909,14 @@ WHERE EXISTS (
                     var query = List17276(context.RemovableEntities);
 
                     AssertSql(
-                        @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser]
+                        @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
+LEFT JOIN (
+    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue], [r1].[Id] AS [Id0]
+    FROM [RemovableEntities] AS [r0]
+    INNER JOIN [RemovableEntities] AS [r1] ON [r0].[Id] = [r1].[Id]
+    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
+) AS [t] ON [r].[Id] = [t].[Id]
 WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
                 }
             }
@@ -5931,6 +5938,31 @@ WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
 FROM [Parents] AS [p]
 LEFT JOIN [RemovableEntities] AS [r] ON [p].[RemovableEntityId] = [r].[Id]
 WHERE [r].[IsRemoved] = CAST(1 AS bit)");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Expression_tree_constructed_via_interface_for_owned_navigation_works_17505()
+        {
+            using (CreateDatabase17276())
+            {
+                using (var context = new MyContext17276(_options))
+                {
+                    var query = context.RemovableEntities
+                        .Where(p => EF.Property<string>(EF.Property<IOwned>(p, "OwnedEntity"), "OwnedValue") == "Abc")
+                        .ToList();
+
+                    AssertSql(
+                        @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
+FROM [RemovableEntities] AS [r]
+LEFT JOIN (
+    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue], [r1].[Id] AS [Id0]
+    FROM [RemovableEntities] AS [r0]
+    INNER JOIN [RemovableEntities] AS [r1] ON [r0].[Id] = [r1].[Id]
+    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
+) AS [t] ON [r].[Id] = [t].[Id]
+WHERE ([t].[OwnedEntity_OwnedValue] = N'Abc') AND [t].[OwnedEntity_OwnedValue] IS NOT NULL");
                 }
             }
         }
@@ -6001,6 +6033,7 @@ WHERE [p].[Id] = @__id_0");
             public bool IsRemoved { get; set; }
             public string RemovedByUser { get; set; }
             public DateTime? Removed { get; set; }
+            public OwnedEntity OwnedEntity { get; set; }
         }
 
         private class Parent17276 : IHasId17276<int>
@@ -6009,9 +6042,20 @@ WHERE [p].[Id] = @__id_0");
             public RemovableEntity17276 RemovableEntity { get; set; }
         }
 
+        [Owned]
+        private class OwnedEntity : IOwned
+        {
+            public string OwnedValue { get; set; }
+        }
+
         private interface IHasId17276<out T>
         {
             T Id { get; }
+        }
+
+        private interface IOwned
+        {
+            public string OwnedValue { get; }
         }
 
         private class Specification17276<T>
@@ -7024,7 +7068,7 @@ ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
 
         #region Issue13517
 
-        [Fact]
+        [ConditionalFact]
         public void Query_filter_with_pk_fk_optimization_bug_13517()
         {
             using var _ = CreateDatabase13517();
@@ -7068,27 +7112,27 @@ WHERE [e].[Id] = 1");
                     ClearLog();
                 });
 
-        public class BugEntity13517
+        private class BugEntity13517
         {
             public int Id { get; set; }
             public int? RefEntityId { get; set; }
             public BugRefEntity13517 RefEntity { get; set; }
         }
 
-        public class BugRefEntity13517
+        private class BugRefEntity13517
         {
             public int Id { get; set; }
             public bool Public { get; set; }
         }
 
-        public class BugEntityDto13517
+        private class BugEntityDto13517
         {
             public int Id { get; set; }
             public int? RefEntityId { get; set; }
             public BugRefEntityDto13517 RefEntity { get; set; }
         }
 
-        public class BugRefEntityDto13517
+        private class BugRefEntityDto13517
         {
             public int Id { get; set; }
             public bool Public { get; set; }
@@ -7105,6 +7149,107 @@ WHERE [e].[Id] = 1");
             }
 
             public BugContext13517(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        #endregion
+
+        #region Issue17794
+
+        [ConditionalFact]
+        public void Double_convert_interface_created_expression_tree()
+        {
+            using var _ = CreateDatabase17794();
+            using var context = new BugContext17794(_options);
+
+            var expression = HasAction17794<Offer17794>(OfferActions17794.Accepted);
+            var query = context.Offers.Where(expression).Count();
+
+            Assert.Equal(1, query);
+
+            AssertSql(
+                @"@__action_0='1'
+
+SELECT COUNT(*)
+FROM [Offers] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [OfferActions] AS [o0]
+    WHERE ([o].[Id] = [o0].[OfferId]) AND ([o0].[Action] = @__action_0))");
+        }
+
+        private SqlServerTestStore CreateDatabase17794()
+            => CreateTestStore(
+                () => new BugContext17794(_options),
+                context =>
+                {
+                    context.Add(new Offer17794
+                    {
+                        Actions = new List<OfferAction17794>
+                        {
+                            new OfferAction17794
+                            {
+                                Action = OfferActions17794.Accepted
+                            }
+                        }
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private static Expression<Func<T, bool>> HasAction17794<T>(OfferActions17794 action)
+            where T : IOffer17794
+        {
+            Expression<Func<OfferAction17794, bool>> predicate = oa => oa.Action == action;
+
+            return v => v.Actions.AsQueryable().Any(predicate);
+        }
+
+        private interface IOffer17794
+        {
+            ICollection<OfferAction17794> Actions { get; set; }
+        }
+
+        private class Offer17794 : IOffer17794
+        {
+            public int Id { get; set; }
+
+            public ICollection<OfferAction17794> Actions { get; set; }
+        }
+
+        private enum OfferActions17794 : int
+        {
+            Accepted = 1,
+            Declined = 2
+        }
+
+        private class OfferAction17794
+        {
+            public int Id { get; set; }
+
+            [Required]
+            public Offer17794 Offer { get; set; }
+            public int OfferId { get; set; }
+
+            [Required]
+            public OfferActions17794 Action { get; set; }
+        }
+
+        private class BugContext17794 : DbContext
+        {
+            public DbSet<Offer17794> Offers { get; set; }
+            public DbSet<OfferAction17794> OfferActions { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+
+            }
+
+            public BugContext17794(DbContextOptions options)
                 : base(options)
             {
             }
