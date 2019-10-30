@@ -7503,6 +7503,32 @@ FROM [Gears] AS [g]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
+        public override async Task FirstOrDefault_navigation_access_entity_equality_in_where_predicate_apply_peneding_selector(bool isAsync)
+        {
+            await base.FirstOrDefault_navigation_access_entity_equality_in_where_predicate_apply_peneding_selector(isAsync);
+
+            AssertSql(
+                @"SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
+FROM [Factions] AS [f]
+LEFT JOIN [Cities] AS [c] ON [f].[CapitalName] = [c].[Name]
+WHERE ([f].[Discriminator] = N'LocustHorde') AND ((([c].[Name] = (
+    SELECT TOP(1) [c0].[Name]
+    FROM [Gears] AS [g]
+    INNER JOIN [Cities] AS [c0] ON [g].[CityOfBirthName] = [c0].[Name]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+    ORDER BY [g].[Nickname])) AND ([c].[Name] IS NOT NULL AND (
+    SELECT TOP(1) [c0].[Name]
+    FROM [Gears] AS [g]
+    INNER JOIN [Cities] AS [c0] ON [g].[CityOfBirthName] = [c0].[Name]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+    ORDER BY [g].[Nickname]) IS NOT NULL)) OR ([c].[Name] IS NULL AND (
+    SELECT TOP(1) [c0].[Name]
+    FROM [Gears] AS [g]
+    INNER JOIN [Cities] AS [c0] ON [g].[CityOfBirthName] = [c0].[Name]
+    WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
+    ORDER BY [g].[Nickname]) IS NULL))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

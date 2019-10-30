@@ -173,9 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        public override void Union_over_entities_with_different_nullability()
-        {
-        }
+        public override Task Union_over_entities_with_different_nullability(bool isAsync) => Task.CompletedTask;
 
         [ConditionalTheory(Skip = "Issue#16752")]
         public override Task Include_inside_subquery(bool isAsync)

@@ -1359,20 +1359,9 @@ WHERE ((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS
             await base.Where_ternary_boolean_condition_true(isAsync);
 
             AssertSql(
-                @"@__flag_0='True'
-
-SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE CASE
-    WHEN @__flag_0 = CAST(1 AS bit) THEN CASE
-        WHEN [p].[UnitsInStock] >= CAST(20 AS smallint) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-    ELSE CASE
-        WHEN [p].[UnitsInStock] < CAST(20 AS smallint) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-END = CAST(1 AS bit)");
+WHERE [p].[UnitsInStock] >= CAST(20 AS smallint)");
         }
 
         public override async Task Where_ternary_boolean_condition_false(bool isAsync)
@@ -1448,6 +1437,15 @@ FROM [Customers] AS [c]");
 
 SELECT [c].[CustomerID], @__p_0 AS [Data1], @__p_1 AS [Data2], @__p_2 AS [Data3]
 FROM [Customers] AS [c]");
+        }
+
+        public override async Task Ternary_should_not_evaluate_both_sides_with_parameter(bool isAsync)
+        {
+            await base.Ternary_should_not_evaluate_both_sides_with_parameter(isAsync);
+
+            AssertSql(
+                @"SELECT CAST(1 AS bit) AS [Data1]
+FROM [Orders] AS [o]");
         }
 
         public override async Task Where_compare_constructed_multi_value_equal(bool isAsync)

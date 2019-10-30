@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else
             {
                 propertyIndex = -1;
-                equals = (l, r) => ReferenceEquals(l, r);
+                equals = ReferenceEquals;
                 currentValueType = CurrentValueType.Normal;
             }
 

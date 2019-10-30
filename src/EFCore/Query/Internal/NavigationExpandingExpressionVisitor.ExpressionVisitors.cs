@@ -27,6 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _source = source;
             }
 
+            public Expression Expand(Expression expression, bool applyIncludes = false)
+            {
+                expression = Visit(expression);
+                if (applyIncludes)
+                {
+                    expression = new IncludeExpandingExpressionVisitor(_navigationExpandingExpressionVisitor, _source)
+                        .Visit(expression);
+                }
+
+                return expression;
+            }
+
             protected override Expression VisitExtension(Expression expression)
             {
                 switch (expression)
@@ -305,16 +317,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IncludeExpandingExpressionVisitor(
                 NavigationExpandingExpressionVisitor navigationExpandingExpressionVisitor,
-                NavigationExpansionExpression source,
-                bool tracking)
+                NavigationExpansionExpression source)
                 : base(navigationExpandingExpressionVisitor, source)
             {
-                _isTracking = tracking;
+                _isTracking = navigationExpandingExpressionVisitor._queryCompilationContext.IsTracking;
             }
 
-            public override Expression Visit(Expression expression)
+            protected override Expression VisitExtension(Expression extensionExpression)
             {
-                switch (expression)
+                switch (extensionExpression)
                 {
                     case NavigationTreeExpression navigationTreeExpression:
                         if (navigationTreeExpression.Value is EntityReference entityReference)
@@ -334,9 +345,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     case OwnedNavigationReference ownedNavigationReference:
                         return ExpandInclude(ownedNavigationReference, ownedNavigationReference.EntityReference);
+
+                    case MaterializeCollectionNavigationExpression _:
+                        return extensionExpression;
                 }
 
-                return base.Visit(expression);
+                return base.VisitExtension(extensionExpression);
             }
 
             protected override Expression VisitMember(MemberExpression memberExpression)
@@ -490,42 +504,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class IncludeApplyingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly NavigationExpandingExpressionVisitor _visitor;
-            private readonly bool _isTracking;
-
-            public IncludeApplyingExpressionVisitor(NavigationExpandingExpressionVisitor visitor, bool tracking)
-            {
-                _visitor = visitor;
-                _isTracking = tracking;
-            }
-
-            public override Expression Visit(Expression expression)
-            {
-                if (expression is NavigationExpansionExpression navigationExpansionExpression)
-                {
-                    var innerVisitor = new IncludeExpandingExpressionVisitor(_visitor, navigationExpansionExpression, _isTracking);
-                    var pendingSelector = innerVisitor.Visit(navigationExpansionExpression.PendingSelector);
-                    pendingSelector = _visitor.Visit(pendingSelector);
-                    pendingSelector = Visit(pendingSelector);
-
-                    navigationExpansionExpression.ApplySelector(pendingSelector);
-
-                    return navigationExpansionExpression;
-                }
-
-                return base.Visit(expression);
-            }
-        }
-
         private class PendingSelectorExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly NavigationExpandingExpressionVisitor _visitor;
+            private readonly bool _applyIncludes;
 
-            public PendingSelectorExpandingExpressionVisitor(NavigationExpandingExpressionVisitor visitor)
+            public PendingSelectorExpandingExpressionVisitor(
+                NavigationExpandingExpressionVisitor visitor, bool applyIncludes = false)
             {
                 _visitor = visitor;
+                _applyIncludes = applyIncludes;
             }
 
             public override Expression Visit(Expression expression)
@@ -534,11 +522,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     _visitor.ApplyPendingOrderings(navigationExpansionExpression);
 
-                    var pendingSelector = _visitor.ExpandNavigationsInExpression(
-                        navigationExpansionExpression, navigationExpansionExpression.PendingSelector);
-
+                    var pendingSelector = new ExpandingExpressionVisitor(_visitor, navigationExpansionExpression)
+                        .Expand(navigationExpansionExpression.PendingSelector, _applyIncludes);
+                    pendingSelector = _visitor._subqueryMemberPushdownExpressionVisitor.Visit(pendingSelector);
+                    pendingSelector = _visitor.Visit(pendingSelector);
                     pendingSelector = Visit(pendingSelector);
-
                     navigationExpansionExpression.ApplySelector(pendingSelector);
 
                     return navigationExpansionExpression;

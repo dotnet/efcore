@@ -975,29 +975,13 @@ END");
             base.Where_conditional_search_condition_in_result();
 
             AssertSql(
-                @"@__prm_0='True'
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN @__prm_0 = CAST(1 AS bit) THEN CASE
-        WHEN [e].[StringA] IN (N'Foo', N'Bar') THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit)",
+WHERE [e].[StringA] IN (N'Foo', N'Bar')",
                 //
-                @"@__p_0='False'
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN @__p_0 = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE CASE
-        WHEN [e].[StringA] LIKE N'A%' THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-END = CAST(1 AS bit)");
+WHERE [e].[StringA] LIKE N'A%'");
         }
 
         public override void Where_nested_conditional_search_condition_in_result()
@@ -1005,33 +989,8 @@ END = CAST(1 AS bit)");
             base.Where_nested_conditional_search_condition_in_result();
 
             AssertSql(
-                @"@__prm1_0='True'
-@__prm2_1='False'
-
-SELECT [e].[Id]
-FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN @__prm1_0 = CAST(1 AS bit) THEN CASE
-        WHEN @__prm2_1 = CAST(1 AS bit) THEN CASE
-            WHEN [e].[BoolA] = CAST(1 AS bit) THEN CASE
-                WHEN [e].[StringA] LIKE N'A%' THEN CAST(1 AS bit)
-                ELSE CAST(0 AS bit)
-            END
-            ELSE CAST(0 AS bit)
-        END
-        ELSE CAST(1 AS bit)
-    END
-    ELSE CASE
-        WHEN [e].[BoolB] = CAST(1 AS bit) THEN CASE
-            WHEN [e].[StringA] IN (N'Foo', N'Bar') THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END
-        ELSE CASE
-            WHEN [e].[StringB] IN (N'Foo', N'Bar') THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END
-    END
-END = CAST(1 AS bit)");
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]");
         }
 
         public override void Where_equal_using_relational_null_semantics()

@@ -7202,7 +7202,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public Squad Squad { get; set; }
         }
 
-        [ConditionalTheory(Skip = "issue #17852")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_entity_and_collection_element(bool isAsync)
         {
@@ -7499,6 +7499,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Gear>().Where(g => (g.Rank | rank) != rank));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_navigation_access_entity_equality_in_where_predicate_apply_peneding_selector(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Faction>()
+                    .Where(f => f.Capital == ss.Set<Gear>().OrderBy(s => s.Nickname).FirstOrDefault().CityOfBirth));
         }
 
         protected async Task AssertTranslationFailed(Func<Task> testCode)
