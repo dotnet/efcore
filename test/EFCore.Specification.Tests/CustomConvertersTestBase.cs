@@ -27,8 +27,18 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.AddRange(
                     new Person { Id = 1, Name = "Lewis" },
-                    new Person { Id = 2, Name = "Seb", SSN = new SocialSecurityNumber { Number = 111111111 } },
-                    new Person { Id = 3, Name = "Kimi", SSN = new SocialSecurityNumber { Number = 222222222 } },
+                    new Person
+                    {
+                        Id = 2,
+                        Name = "Seb",
+                        SSN = new SocialSecurityNumber { Number = 111111111 }
+                    },
+                    new Person
+                    {
+                        Id = 3,
+                        Name = "Kimi",
+                        SSN = new SocialSecurityNumber { Number = 222222222 }
+                    },
                     new Person { Id = 4, Name = "Valtteri" });
 
                 context.SaveChanges();
@@ -55,7 +65,12 @@ namespace Microsoft.EntityFrameworkCore
                 context.Remove(drivers[0]);
 
                 context.Add(
-                    new Person { Id = 5, Name = "Charles", SSN = new SocialSecurityNumber { Number = 222222222 } });
+                    new Person
+                    {
+                        Id = 5,
+                        Name = "Charles",
+                        SSN = new SocialSecurityNumber { Number = 222222222 }
+                    });
 
                 context.SaveChanges();
             }
@@ -105,8 +120,7 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1,
-                            Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
                         })
                     .Entity;
 
@@ -358,16 +372,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                context.Set<SimpleCounter>().Add(new SimpleCounter() { CounterId = 1, StyleKey = "Swag" });
+                context.Set<SimpleCounter>().Add(new SimpleCounter { CounterId = 1, StyleKey = "Swag" });
                 context.SaveChanges();
             }
 
             using (var context = CreateContext())
             {
                 var query = context.Set<SimpleCounter>()
-                    .Where(c => c.StyleKey == "Swag"
-                                && c.IsTest == false
-                                && c.Discriminator == new Dictionary<string, string>());
+                    .Where(
+                        c => c.StyleKey == "Swag"
+                            && c.IsTest == false
+                            && c.Discriminator == new Dictionary<string, string>());
 
                 var result = isAsync ? await query.SingleAsync() : query.Single();
                 Assert.NotNull(result);
@@ -390,13 +405,14 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var query = context.Set<Blog>()
-                                .Where(b => b.BlogId == 2)
-                                .Select(x => new
-                                {
-                                    BlogId = x.BlogId,
-                                    Url = x.Url,
-                                    RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
-                                }).ToList();
+                    .Where(b => b.BlogId == 2)
+                    .Select(
+                        x => new
+                        {
+                            x.BlogId,
+                            x.Url,
+                            RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
+                        }).ToList();
 
                 var result = Assert.Single(query);
                 Assert.Equal("http://rssblog.com/rss", result.RssUrl);
@@ -411,8 +427,18 @@ namespace Microsoft.EntityFrameworkCore
                 var blogId = 1;
                 var query = (from b in context.Set<Blog>()
                              join p in context.Set<Post>()
-                                 on new { BlogId = (int?)b.BlogId, b.IsVisible, AnotherId = b.BlogId }
-                                 equals new { p.BlogId, IsVisible = true, AnotherId = blogId }
+                                 on new
+                                 {
+                                     BlogId = (int?)b.BlogId,
+                                     b.IsVisible,
+                                     AnotherId = b.BlogId
+                                 }
+                                 equals new
+                                 {
+                                     p.BlogId,
+                                     IsVisible = true,
+                                     AnotherId = blogId
+                                 }
                              where b.IsVisible
                              select b.Url).ToList();
 
@@ -429,8 +455,18 @@ namespace Microsoft.EntityFrameworkCore
                 var blogId = 1;
                 var query = (from b in context.Set<Blog>()
                              join p in context.Set<Post>()
-                                 on new { BlogId = (int?)b.BlogId, b.IsVisible, AnotherId = b.BlogId }
-                                 equals new { p.BlogId, IsVisible = true, AnotherId = blogId } into g
+                                 on new
+                                 {
+                                     BlogId = (int?)b.BlogId,
+                                     b.IsVisible,
+                                     AnotherId = b.BlogId
+                                 }
+                                 equals new
+                                 {
+                                     p.BlogId,
+                                     IsVisible = true,
+                                     AnotherId = blogId
+                                 } into g
                              from p in g.DefaultIfEmpty()
                              where b.IsVisible
                              select b.Url).ToList();
@@ -456,7 +492,8 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Value_conversion_with_property_named_value()
         {
             using var context = CreateContext();
-            Assert.Throws<InvalidOperationException>(() => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
+            Assert.Throws<InvalidOperationException>(
+                () => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
         }
 
         protected class Blog
@@ -828,6 +865,13 @@ namespace Microsoft.EntityFrameworkCore
                             .HasConversion(
                                 BytesToStringConverter.DefaultInfo.Create())
                             .HasMaxLength(LongStringLength * 2);
+
+                        var bytesComparer = new ValueComparer<byte[]>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
+                        b.Property(e => e.ByteArray5).Metadata.SetValueComparer(bytesComparer);
+                        b.Property(e => e.ByteArray9000).Metadata.SetValueComparer(bytesComparer);
                     });
 
                 modelBuilder.Entity<StringListDataType>(
@@ -835,6 +879,12 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList());
                         b.Property(e => e.Id).ValueGeneratedNever();
+
+                        var comparer = new ValueComparer<IList<string>>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
+                        b.Property(e => e.Strings).Metadata.SetValueComparer(comparer);
                     });
 
                 modelBuilder.Entity<Order>(
@@ -852,6 +902,12 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(c => c.Discriminator).HasConversion(
                             d => StringToDictionarySerializer.Serialize(d),
                             json => StringToDictionarySerializer.Deserialize(json));
+
+                        var comparer = new ValueComparer<IDictionary<string, string>>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
+                        b.Property(e => e.Discriminator).Metadata.SetValueComparer(comparer);
                     });
 
                 var urlConverter = new UrlSchemeRemover();
@@ -885,16 +941,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Post>()
                     .HasData(
-                        new Post
-                        {
-                            PostId = 1,
-                            BlogId = 1
-                        },
-                        new Post
-                        {
-                            PostId = 2,
-                            BlogId = null
-                        });
+                        new Post { PostId = 1, BlogId = 1 },
+                        new Post { PostId = 2, BlogId = null });
 
                 modelBuilder.Entity<EntityWithValueWrapper>(
                     e =>
@@ -904,11 +952,7 @@ namespace Microsoft.EntityFrameworkCore
                             w => w.Value,
                             v => new ValueWrapper { Value = v }
                         );
-                        e.HasData(new EntityWithValueWrapper
-                        {
-                            Id = 1,
-                            Wrapper = new ValueWrapper { Value = "foo" }
-                        });
+                        e.HasData(new EntityWithValueWrapper { Id = 1, Wrapper = new ValueWrapper { Value = "foo" } });
                     });
             }
 
@@ -935,7 +979,8 @@ namespace Microsoft.EntityFrameworkCore
 
             private class OrderIdEntityFrameworkValueConverter : ValueConverter<OrderId, string>
             {
-                public OrderIdEntityFrameworkValueConverter() : this(null)
+                public OrderIdEntityFrameworkValueConverter()
+                    : this(null)
                 {
                 }
 
@@ -951,7 +996,10 @@ namespace Microsoft.EntityFrameworkCore
 
             private class UrlSchemeRemover : ValueConverter<string, string>
             {
-                public UrlSchemeRemover() : base(x => x.Remove(0, 7), x => "http://" + x) { }
+                public UrlSchemeRemover()
+                    : base(x => x.Remove(0, 7), x => "http://" + x)
+                {
+                }
             }
         }
     }

@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             return keyValues == null || keyValues.Any(v => v == null)
                 ? null
-                : FindTracked(keyValues, out var keyProperties)
-                  ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues)));
+                : (FindTracked(keyValues, out var keyProperties)
+                    ?? _queryRoot.FirstOrDefault(BuildLambda(keyProperties, new ValueBuffer(keyValues))));
         }
 
         /// <summary>

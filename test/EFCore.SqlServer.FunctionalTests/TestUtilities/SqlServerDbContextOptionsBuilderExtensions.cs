@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public static class DbContextOptionsBuilderExtensions
+    public static class SqlServerDbContextOptionsBuilderExtensions
     {
         public static SqlServerDbContextOptionsBuilder ApplyConfiguration(this SqlServerDbContextOptionsBuilder optionsBuilder)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 optionsBuilder.UseRowNumberForPaging();
             }
 
-            optionsBuilder.ExecutionStrategy(c => new TestSqlServerRetryingExecutionStrategy(c));
+            optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
 
             optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
 

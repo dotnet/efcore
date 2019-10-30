@@ -70,14 +70,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlUnaryExpression sqlUnaryExpression
-                   && Equals(sqlUnaryExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlUnaryExpression sqlUnaryExpression
+                    && Equals(sqlUnaryExpression));
 
         private bool Equals(SqlUnaryExpression sqlUnaryExpression)
             => base.Equals(sqlUnaryExpression)
-               && OperatorType == sqlUnaryExpression.OperatorType
-               && Operand.Equals(sqlUnaryExpression.Operand);
+                && OperatorType == sqlUnaryExpression.OperatorType
+                && Operand.Equals(sqlUnaryExpression.Operand);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Operand);
     }

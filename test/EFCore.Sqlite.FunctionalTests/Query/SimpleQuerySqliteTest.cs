@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -494,7 +493,7 @@ WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", 'start of 
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) = 1998) AND CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE (CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) = 1998) AND strftime('%Y', ""o"".""OrderDate"") IS NOT NULL");
         }
 
         public override async Task Where_datetime_month_component(bool isAsync)
@@ -504,7 +503,7 @@ WHERE (CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) = 1998) AND CAST(str
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE (CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) = 4) AND strftime('%m', ""o"".""OrderDate"") IS NOT NULL");
         }
 
         public override async Task Where_datetime_dayOfYear_component(bool isAsync)
@@ -514,7 +513,7 @@ WHERE (CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strfti
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) = 68) AND CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE (CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) = 68) AND strftime('%j', ""o"".""OrderDate"") IS NOT NULL");
         }
 
         public override async Task Where_datetime_day_component(bool isAsync)
@@ -524,7 +523,7 @@ WHERE (CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) = 68) AND CAST(strft
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE (CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) = 4) AND strftime('%d', ""o"".""OrderDate"") IS NOT NULL");
         }
 
         public override async Task Where_datetime_hour_component(bool isAsync)
@@ -534,7 +533,7 @@ WHERE (CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strfti
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) = 14) AND CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE (CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) = 14) AND strftime('%H', ""o"".""OrderDate"") IS NOT NULL");
         }
 
         public override async Task Where_datetime_minute_component(bool isAsync)
@@ -544,7 +543,7 @@ WHERE (CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) = 14) AND CAST(strft
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) = 23) AND CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE (CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) = 23) AND strftime('%M', ""o"".""OrderDate"") IS NOT NULL");
         }
 
         public override async Task Where_datetime_second_component(bool isAsync)
@@ -554,7 +553,7 @@ WHERE (CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) = 23) AND CAST(strft
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44) AND CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE (CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44) AND strftime('%S', ""o"".""OrderDate"") IS NOT NULL");
         }
 
         [ConditionalTheory(Skip = "Issue#15586")]
@@ -715,7 +714,7 @@ WHERE (length(""c"".""City"") = 6) AND length(""c"".""City"") IS NOT NULL");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((instr(""c"".""City"", 'Sea') - 1) <> -1) OR instr(""c"".""City"", 'Sea') - 1 IS NULL");
+WHERE ((instr(""c"".""City"", 'Sea') - 1) <> -1) OR instr(""c"".""City"", 'Sea') IS NULL");
         }
 
         public override async Task Indexof_with_emptystring(bool isAsync)
@@ -1312,7 +1311,8 @@ FROM (
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
 
-        public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync) => null;
+        public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync)
+            => null;
 
         public override Task SelectMany_correlated_subquery_hard(bool isAsync) => null;
 

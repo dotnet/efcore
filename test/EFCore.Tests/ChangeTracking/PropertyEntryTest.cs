@@ -31,7 +31,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new UserContext())
             {
                 var user = context.Attach(
-                    new User { Id = id, Name = "NewA", LongName = "NewB" }).Entity;
+                    new User
+                    {
+                        Id = id,
+                        Name = "NewA",
+                        LongName = "NewB"
+                    }).Entity;
 
                 context.Entry(user).Property(x => x.Name).IsModified = false;
                 context.Entry(user).Property(x => x.LongName).IsModified = true;
@@ -140,7 +145,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             using (var context = new UserContext())
             {
                 id = context.Add(
-                    new User { Id = Guid.NewGuid(), Name = "A", LongName = "B" }).Entity.Id;
+                    new User
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "A",
+                        LongName = "B"
+                    }).Entity.Id;
 
                 context.SaveChanges();
             }
@@ -183,7 +193,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var entry = context
                     .Entry(
-                        new TWotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" })
+                        new TWotty
+                        {
+                            Id = 1,
+                            Primate = "Monkey",
+                            RequiredPrimate = "Tarsier"
+                        })
                     .GetInfrastructure();
 
                 entry.SetEntityState(EntityState.Unchanged);
@@ -207,7 +222,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 var entry = context
                     .Entry(
-                        new TWotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" })
+                        new TWotty
+                        {
+                            Id = 1,
+                            Primate = "Monkey",
+                            RequiredPrimate = "Tarsier"
+                        })
                     .GetInfrastructure();
 
                 entry.SetEntityState(EntityState.Unchanged);
@@ -230,7 +250,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new TWotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new TWotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -260,7 +285,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new TWotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new TWotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -290,7 +320,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new TWotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new TWotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -368,7 +403,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new TWotty { Id = 1, Primate = "Monkey", RequiredPrimate = "Tarsier" };
+                var entity = new TWotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 
@@ -535,7 +575,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             using (var context = new PrimateContext())
             {
-                var entity = new TWotty { Id = 1, Primate = "Monkey", Marmate = "Bovril", RequiredPrimate = "Tarsier" };
+                var entity = new TWotty
+                {
+                    Id = 1,
+                    Primate = "Monkey",
+                    Marmate = "Bovril",
+                    RequiredPrimate = "Tarsier"
+                };
                 var entry = context.Entry(entity).GetInfrastructure();
                 entry.SetEntityState(EntityState.Unchanged);
 

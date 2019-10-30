@@ -26,13 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is FromSqlExpression fromSqlExpression
-                   && Equals(fromSqlExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is FromSqlExpression fromSqlExpression
+                    && Equals(fromSqlExpression));
 
         private bool Equals(FromSqlExpression fromSqlExpression)
             => base.Equals(fromSqlExpression)
-               && string.Equals(Sql, fromSqlExpression.Sql);
+                && string.Equals(Sql, fromSqlExpression.Sql);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Sql);
     }

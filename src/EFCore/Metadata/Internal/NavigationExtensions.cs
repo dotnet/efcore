@@ -61,13 +61,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return builder.ToString();
             }
 
-            if (navigation.GetFieldName() == null)
+            var field = navigation.GetFieldName();
+            if (field == null)
             {
                 builder.Append(" (no field, ");
             }
+            else if (!field.EndsWith(">k__BackingField", StringComparison.Ordinal))
+            {
+                builder.Append($" ({field}, ");
+            }
             else
             {
-                builder.Append(" (").Append(navigation.GetFieldName()).Append(", ");
+                builder.Append(" (");
             }
 
             builder.Append(navigation.ClrType?.ShortDisplayName()).Append(")");

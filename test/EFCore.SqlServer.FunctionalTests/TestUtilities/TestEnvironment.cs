@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             .GetSection("Test:SqlServer");
 
         public static string DefaultConnection { get; } = Config["DefaultConnection"]
-                                                          ?? "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0";
+            ?? "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0";
 
         private static readonly string _dataSource = new SqlConnectionStringBuilder(DefaultConnection).DataSource;
 
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public static bool IsSqlAzure { get; } = _dataSource.Contains("database.windows.net");
 
         public static bool IsCI { get; } = Environment.GetEnvironmentVariable("PIPELINE_WORKSPACE") != null
-                                           || Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
+            || Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
 
         private static bool? _fullTextInstalled;
 

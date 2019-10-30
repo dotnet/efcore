@@ -29,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlParameterExpression sqlParameterExpression
-                   && Equals(sqlParameterExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlParameterExpression sqlParameterExpression
+                    && Equals(sqlParameterExpression));
 
         private bool Equals(SqlParameterExpression sqlParameterExpression)
             => base.Equals(sqlParameterExpression)
-               && string.Equals(Name, sqlParameterExpression.Name);
+                && string.Equals(Name, sqlParameterExpression.Name);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Name);
     }

@@ -21,7 +21,7 @@ namespace Microsoft.Data.Sqlite
         internal SqliteTransaction(SqliteConnection connection, IsolationLevel isolationLevel)
         {
             if ((isolationLevel == IsolationLevel.ReadUncommitted
-                 && connection.ConnectionOptions.Cache != SqliteCacheMode.Shared)
+                    && connection.ConnectionOptions.Cache != SqliteCacheMode.Shared)
                 || isolationLevel == IsolationLevel.ReadCommitted
                 || isolationLevel == IsolationLevel.RepeatableRead)
             {
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Sqlite
                 : _isolationLevel != IsolationLevel.Unspecified
                     ? _isolationLevel
                     : (_connection.ConnectionOptions.Cache == SqliteCacheMode.Shared
-                       && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
+                        && _connection.ExecuteScalar<long>("PRAGMA read_uncommitted;") != 0)
                         ? IsolationLevel.ReadUncommitted
                         : IsolationLevel.Serializable;
 

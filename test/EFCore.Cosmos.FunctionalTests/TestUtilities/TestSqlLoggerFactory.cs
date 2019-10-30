@@ -70,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
-                                  0,
-                                  currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
-                              + "QueryBaseline.txt";
+                        0,
+                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                    + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
 

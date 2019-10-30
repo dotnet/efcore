@@ -1,10 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -1094,7 +1091,8 @@ WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
-        public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(
+            bool isAsync)
         {
             await base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(isAsync);
 
@@ -1108,9 +1106,13 @@ CROSS APPLY (
 ) AS [t]");
         }
 
-        public override async Task SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool isAsync)
+        public override async Task
+            SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                bool isAsync)
         {
-            await base.SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(isAsync);
+            await base
+                .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+                    isAsync);
 
             AssertSql(
                 @"");

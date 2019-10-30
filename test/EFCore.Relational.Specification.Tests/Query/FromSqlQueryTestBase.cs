@@ -240,12 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
                         NormalizeDelimetersInRawString(
-                            _eol +
-                            "    " + _eol +
-                            _eol +
-                            _eol +
-                            "SELECT" + _eol +
-                            "* FROM [Customers]"))
+                            _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + "* FROM [Customers]"))
                     .Where(c => c.ContactName.Contains("z"))
                     .ToArray();
 
@@ -689,7 +684,9 @@ FROM [Customers]"))
                         NormalizeDelimetersInRawString(
                             @"SELECT *
 FROM [Products]
-WHERE [Discontinued] <> " + boolMapping.GenerateSqlLiteral(true) + @"
+WHERE [Discontinued] <> "
+                            + boolMapping.GenerateSqlLiteral(true)
+                            + @"
 AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     .Select(p => p.ProductName)
                     .ToArray();
@@ -1001,11 +998,11 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var query3 = context.Orders
                     .Where(
                         o => o.OrderID <= max
-                             && context.Orders
-                                 .FromSqlInterpolated(
-                                     NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
-                                 .Select(i => i.OrderID)
-                                 .Contains(o.OrderID))
+                            && context.Orders
+                                .FromSqlInterpolated(
+                                    NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                                .Select(i => i.OrderID)
+                                .Contains(o.OrderID))
                     .Select(o => o.OrderID);
                 query3.ToList();
             }
@@ -1047,8 +1044,9 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
             var actual = context.Set<Customer>()
                 .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
-                .Concat(context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Berlin'")))
+                .Concat(
+                    context.Set<Customer>()
+                        .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Berlin'")))
                 .ToArray();
 
             Assert.Equal(7, actual.Length);

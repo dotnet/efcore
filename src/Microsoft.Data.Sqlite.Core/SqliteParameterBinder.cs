@@ -52,7 +52,7 @@ namespace Microsoft.Data.Sqlite
 
         private bool ShouldTruncate(int length)
             => _size.HasValue
-               && length > _size.Value
-               && _size.Value != -1;
+                && length > _size.Value
+                && _size.Value != -1;
     }
 }

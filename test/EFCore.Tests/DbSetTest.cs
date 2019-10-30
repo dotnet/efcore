@@ -181,8 +181,18 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var category1 = new Category { Id = 1, Name = "Beverages" };
                 var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
                 var categoryEntry1 = await categoryAdder(context.Categories, category1);
                 var categoryEntry2 = await categoryAdder(context.Categories, category2);
@@ -280,8 +290,18 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var category1 = new Category { Id = 1, Name = "Beverages" };
                 var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
                 await categoryAdder(context, new[] { category1, category2 });
                 await productAdder(context, new[] { product1, product2 });
@@ -417,8 +437,18 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var category1 = new Category { Id = 1, Name = "Beverages" };
                 var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product { Id = 1, Name = "Marmite", Price = 7.99m };
-                var product2 = new Product { Id = 2, Name = "Bovril", Price = 4.99m };
+                var product1 = new Product
+                {
+                    Id = 1,
+                    Name = "Marmite",
+                    Price = 7.99m
+                };
+                var product2 = new Product
+                {
+                    Id = 2,
+                    Name = "Bovril",
+                    Price = 4.99m
+                };
 
                 await categoryAdder(
                     context, new List<Category> { category1, category2 });

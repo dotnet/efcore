@@ -179,17 +179,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns> The store value generation strategy to set for the given property. </returns>
         public static ValueGenerated? GetValueGenerated([NotNull] IProperty property)
             => !property.IsForeignKey()
-               && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
-               && CanBeGenerated(property)
-                ? ValueGenerated.OnAdd
-                : (ValueGenerated?)null;
+                && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
+                && CanBeGenerated(property)
+                    ? ValueGenerated.OnAdd
+                    : (ValueGenerated?)null;
 
         private static bool ShouldHaveGeneratedProperty(IKey key)
         {
             var onOwnedType = key?.DeclaringEntityType.IsOwned();
             return key != null
-                   && (onOwnedType.Value && key.Properties.Count(p => !p.IsForeignKey()) == 1
-                       || !onOwnedType.Value && key.Properties.Count == 1);
+                && (onOwnedType.Value && key.Properties.Count(p => !p.IsForeignKey()) == 1
+                    || !onOwnedType.Value && key.Properties.Count == 1);
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var propertyType = property.ClrType.UnwrapNullableType();
             return (propertyType.IsInteger()
                     && propertyType != typeof(byte))
-                   || propertyType == typeof(Guid);
+                || propertyType == typeof(Guid);
         }
     }
 }

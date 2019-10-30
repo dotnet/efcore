@@ -30,12 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains("%B")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains("a_")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("a_")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("a_")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
@@ -50,17 +52,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains("_Ba_")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("_Ba_")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("_Ba_")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains("%B%a%r")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B%a%r")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("%B%a%r")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains("")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains("")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
@@ -76,13 +81,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm1)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm1)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm1)) == true)
+                    .Select(c => c.FirstName));
 
             var prm2 = "a_";
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm2)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm2)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm2)) == true)
+                    .Select(c => c.FirstName));
 
             var prm3 = (string)null;
             await AssertQuery(
@@ -100,13 +107,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.Contains(prm5)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm5)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm5)) == true)
+                    .Select(c => c.FirstName));
 
             var prm6 = "%B%a%r";
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.Contains(prm6)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm6)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.Contains(prm6)) == true)
+                    .Select(c => c.FirstName));
 
             var prm7 = "";
             await AssertQuery(
@@ -148,10 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.Contains(r.ln)),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.Contains(r.ln))) == true));
         }
 
@@ -162,12 +171,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("%B")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("a_")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("a_")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("a_")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
@@ -182,17 +193,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith("_Ba_")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("_Ba_")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("_Ba_")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith("%B%a%r")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B%a%r")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("%B%a%r")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith("")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith("")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
@@ -208,13 +222,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm1)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm1)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm1)) == true)
+                    .Select(c => c.FirstName));
 
             var prm2 = "a_";
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm2)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm2)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm2)) == true)
+                    .Select(c => c.FirstName));
 
             var prm3 = (string)null;
             await AssertQuery(
@@ -232,13 +248,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(prm5)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm5)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm5)) == true)
+                    .Select(c => c.FirstName));
 
             var prm6 = "%B%a%r";
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.StartsWith(prm6)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm6)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(prm6)) == true)
+                    .Select(c => c.FirstName));
 
             var prm7 = "";
             await AssertQuery(
@@ -293,7 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.StartsWith(c.LastName)),
-                ss => ss.Set<FunkyCustomer>().Where(c => c.LastName != null && MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(c.LastName)) == true));
+                ss => ss.Set<FunkyCustomer>().Where(
+                    c => c.LastName != null && MaybeScalar<bool>(c.FirstName, () => c.FirstName.StartsWith(c.LastName)) == true));
         }
 
         [ConditionalTheory]
@@ -323,10 +342,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.StartsWith(r.ln)),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.StartsWith(r.ln))) == true));
         }
 
@@ -337,12 +356,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith("%B")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith("a_")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("a_")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("a_")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
@@ -357,17 +378,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith("_Ba_")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("_Ba_")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("_Ba_")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith("%B%a%r")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B%a%r")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("%B%a%r")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith("")).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("")) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith("")) == true)
+                    .Select(c => c.FirstName));
 
             await AssertQuery(
                 isAsync,
@@ -383,13 +407,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm1)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm1)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm1)) == true)
+                    .Select(c => c.FirstName));
 
             var prm2 = "a_";
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm2)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm2)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm2)) == true)
+                    .Select(c => c.FirstName));
 
             var prm3 = (string)null;
             await AssertQuery(
@@ -407,13 +433,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => c.FirstName.EndsWith(prm5)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm5)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm5)) == true)
+                    .Select(c => c.FirstName));
 
             var prm6 = "%B%a%r";
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Where(c => !c.FirstName.EndsWith(prm6)).Select(c => c.FirstName),
-                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm6)) == true).Select(c => c.FirstName));
+                ss => ss.Set<FunkyCustomer>().Where(c => !MaybeScalar<bool>(c.FirstName, () => c.FirstName.EndsWith(prm6)) == true)
+                    .Select(c => c.FirstName));
 
             var prm7 = "";
             await AssertQuery(
@@ -455,12 +483,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.EndsWith(r.ln)),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true));
-
         }
 
         [ConditionalTheory]
@@ -474,7 +501,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(r => r.fn.EndsWith(r.ln) ? true : false),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                     .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln == "" || MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true ? true : false),
+                    .Where(
+                        r => r.ln == "" || MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true
+                            ? true
+                            : false),
                 elementSorter: e => (e.fn, e.ln),
                 elementAsserter: (e, a) =>
                 {
@@ -490,12 +520,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                     .Where(r => !r.fn.EndsWith(r.ln) ? true : false),
                 ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
-                .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
-                    .Where(r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true ? true : false));
-
+                    .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
+                    .Where(
+                        r => r.ln != "" && !MaybeScalar(r.fn, () => MaybeScalar<bool>(r.ln, () => r.fn.EndsWith(r.ln))) == true
+                            ? true
+                            : false));
         }
 
         [ConditionalTheory]
@@ -507,8 +539,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value),
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
-                    .Where(r => MaybeScalar(r.c1.FirstName, () => MaybeScalar<bool>(r.c2.LastName, () => r.c1.FirstName.EndsWith(r.c2.LastName))) == true
-                        == MaybeScalar<bool>(r.c1.NullableBool, () => r.c1.NullableBool.Value) == true),
+                    .Where(
+                        r => MaybeScalar(
+                                r.c1.FirstName, () => MaybeScalar<bool>(r.c2.LastName, () => r.c1.FirstName.EndsWith(r.c2.LastName)))
+                            == true
+                            == MaybeScalar<bool>(r.c1.NullableBool, () => r.c1.NullableBool.Value)),
                 elementSorter: e => (e.c1.Id, e.c2.Id),
                 elementAsserter: (e, a) =>
                 {
@@ -526,8 +561,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                     .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value),
                 ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
-                    .Where(r => MaybeScalar(r.c1.FirstName, () => MaybeScalar<bool>(r.c2.LastName, () => r.c1.FirstName.EndsWith(r.c2.LastName))) == true
-                        != MaybeScalar<bool>(r.c1.NullableBool, () => r.c1.NullableBool.Value) == true),
+                    .Where(
+                        r => MaybeScalar(
+                                r.c1.FirstName, () => MaybeScalar<bool>(r.c2.LastName, () => r.c1.FirstName.EndsWith(r.c2.LastName)))
+                            == true
+                            != MaybeScalar<bool>(r.c1.NullableBool, () => r.c1.NullableBool.Value)),
                 elementSorter: e => (e.c1.Id, e.c2.Id),
                 elementAsserter: (e, a) =>
                 {
@@ -546,10 +584,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public FunkyDataQueryFixtureBase()
             {
-                var entitySorters = new Dictionary<Type, Func<dynamic, object>>
-                {
-                    { typeof(FunkyCustomer), e => e?.Id },
-                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
+                var entitySorters =
+                    new Dictionary<Type, Func<dynamic, object>> { { typeof(FunkyCustomer), e => e?.Id } }.ToDictionary(
+                        e => e.Key, e => (object)e.Value);
+                ;
 
                 var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
                 {
@@ -565,8 +603,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Assert.Equal(e.NullableBool, a.NullableBool);
                             }
                         }
-                    },
-                }.ToDictionary(e => e.Key, e => (object)e.Value); ;
+                    }
+                }.ToDictionary(e => e.Key, e => (object)e.Value);
+                ;
 
                 QueryAsserter = new QueryAsserter<FunkyDataContext>(
                     CreateContext,

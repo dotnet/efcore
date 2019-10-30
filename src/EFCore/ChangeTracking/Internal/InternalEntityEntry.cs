@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             if ((newState == EntityState.Deleted
-                 || newState == EntityState.Detached)
+                    || newState == EntityState.Detached)
                 && HasConceptualNull)
             {
                 _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Null, flagged: false);
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
             else if (newState == EntityState.Detached
-                     || newState == EntityState.Unchanged)
+                || newState == EntityState.Unchanged)
             {
                 StateManager.ChangedCount--;
             }
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             FireStateChanged(oldState);
 
             if ((newState == EntityState.Deleted
-                 || newState == EntityState.Detached)
+                    || newState == EntityState.Detached)
                 && StateManager.CascadeDeleteTiming == CascadeTiming.Immediate)
             {
                 StateManager.CascadeDelete(this, force: false);
@@ -407,8 +407,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var propertyIndex = property.GetIndex();
 
             return _stateData.EntityState == EntityState.Modified
-                   && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Modified)
-                   && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
+                && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Modified)
+                && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
         }
 
         /// <summary>
@@ -501,9 +501,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
             else if (currentState == EntityState.Modified
-                     && changeState
-                     && !isModified
-                     && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified))
+                && changeState
+                && !isModified
+                && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified))
             {
                 StateManager.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
@@ -911,7 +911,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_temporaryValues.IsEmpty)
             {
-                _temporaryValues = new SidecarValues(this);
+                _temporaryValues = new SidecarValues(((EntityType)EntityType).TemporaryValuesFactory(this));
             }
         }
 
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.IsEmpty)
             {
-                _storeGeneratedValues = new SidecarValues(this);
+                _storeGeneratedValues = new SidecarValues(((EntityType)EntityType).StoreGeneratedValuesFactory(this));
             }
         }
 
@@ -1080,7 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else
             {
                 propertyIndex = -1;
-                equals = (l, r) => ReferenceEquals(l, r);
+                equals = ReferenceEquals;
                 currentValueType = CurrentValueType.Normal;
             }
 
@@ -1099,8 +1099,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     && (!asProperty.ClrType.IsNullableType()
                         || asProperty.GetContainingForeignKeys().Any(
                             fk => (fk.DeleteBehavior == DeleteBehavior.Cascade
-                                   || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
-                                  && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
+                                    || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
+                                && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
                 {
                     if (value == null)
                     {
@@ -1141,6 +1141,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (valueType == CurrentValueType.Normal)
                     {
                         WritePropertyValue(propertyBase, value, isMaterialization);
+
+                        if (currentValueType != CurrentValueType.Normal
+                            && !_temporaryValues.IsEmpty
+                            && equals(value, asProperty.ClrType.GetDefaultValue()))
+                        {
+                            var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
+                            _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
+                        }
                     }
                     else
                     {
@@ -1192,7 +1200,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private static Func<object, object, bool> ValuesEqualFunc(IProperty property)
         {
             var comparer = property.GetValueComparer()
-                           ?? property.FindTypeMapping()?.Comparer;
+                ?? property.FindTypeMapping()?.Comparer;
 
             return comparer != null
                 ? (Func<object, object, bool>)((l, r) => comparer.Equals(l, r))
@@ -1323,7 +1331,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             }
                         }
                         else if (EntityState != EntityState.Modified
-                                 || IsModified(property))
+                            || IsModified(property))
                         {
                             fks.Add(foreignKey);
                         }
@@ -1335,7 +1343,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var cascadeFk = fks.FirstOrDefault(
                 fk => fk.DeleteBehavior == DeleteBehavior.Cascade
-                      || fk.DeleteBehavior == DeleteBehavior.ClientCascade);
+                    || fk.DeleteBehavior == DeleteBehavior.ClientCascade);
             if (cascadeFk != null
                 && (force
                     || (!isCascadeDelete
@@ -1379,8 +1387,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var property = EntityType.GetProperties().FirstOrDefault(
                     p => (EntityState != EntityState.Modified
-                          || IsModified(p))
-                         && _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
+                            || IsModified(p))
+                        && _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
 
                 if (property != null)
                 {
@@ -1423,14 +1431,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool IsStoreGenerated(IProperty property)
             => (property.ValueGenerated.ForAdd()
-                && EntityState == EntityState.Added
-                && (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
-                    || HasTemporaryValue(property)
-                    || HasDefaultValue(property)))
-               || (property.ValueGenerated.ForUpdate()
-                   && EntityState == EntityState.Modified
-                   && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
-                       || !IsModified(property)));
+                    && EntityState == EntityState.Added
+                    && (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
+                        || HasTemporaryValue(property)
+                        || HasDefaultValue(property)))
+                || (property.ValueGenerated.ForUpdate()
+                    && EntityState == EntityState.Modified
+                    && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
+                        || !IsModified(property)));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1491,7 +1499,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var keyGenerated = keyProperty.ValueGenerated == ValueGenerated.OnAdd;
 
                     if ((HasTemporaryValue(keyProperty)
-                         || HasDefaultValue(keyProperty))
+                            || HasDefaultValue(keyProperty))
                         && (keyGenerated || keyProperty.IsForeignKey()))
                     {
                         return (true, false);
@@ -1658,7 +1666,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override string ToString()
             => $"{this.BuildCurrentValuesString(EntityType.FindPrimaryKey().Properties)} {EntityState}"
-               + $"{(((IUpdateEntry)this).SharedIdentityEntry == null ? "" : " Shared")} {EntityType}";
+                + $"{(((IUpdateEntry)this).SharedIdentityEntry == null ? "" : " Shared")} {EntityType}";
 
         IUpdateEntry IUpdateEntry.SharedIdentityEntry => SharedIdentityEntry;
 

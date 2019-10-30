@@ -224,7 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
 
             return changeTrackingStrategy == ChangeTrackingStrategy.Snapshot
-                   || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
+                || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
         }
 
         /// <summary>
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsSameHierarchy([NotNull] this IEntityType firstEntityType, [NotNull] IEntityType secondEntityType)
             => firstEntityType.IsAssignableFrom(secondEntityType)
-               || secondEntityType.IsAssignableFrom(firstEntityType);
+                || secondEntityType.IsAssignableFrom(firstEntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 // ReSharper disable once AssignNullToNotNullAttribute
                 var property = (IPropertyBase)entityType.FindProperty(propertyName)
-                               ?? entityType.FindNavigation(propertyName);
+                    ?? entityType.FindNavigation(propertyName);
                 if (property != null)
                 {
                     yield return property;

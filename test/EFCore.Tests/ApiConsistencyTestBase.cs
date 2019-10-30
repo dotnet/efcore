@@ -103,12 +103,12 @@ namespace Microsoft.EntityFrameworkCore
                         typeTuple =>
                             from readonlyMethod in typeTuple.Key.GetMethods(PublicInstance | BindingFlags.Static)
                             where readonlyMethod.Name != "get_Item"
-                                  && readonlyMethod.Name != "FindRuntimeEntityType"
-                                  && readonlyMethod.Name != "GetConcreteDerivedTypesInclusive"
-                                  && readonlyMethod.Name != "GetClosestCommonParent"
-                                  && readonlyMethod.Name != "LeastDerivedType"
-                                  && readonlyMethod.Name != "GetAllBaseTypesInclusive"
-                                  && readonlyMethod.Name != "GetAllBaseTypesInclusiveAscending"
+                                && readonlyMethod.Name != "FindRuntimeEntityType"
+                                && readonlyMethod.Name != "GetConcreteDerivedTypesInclusive"
+                                && readonlyMethod.Name != "GetClosestCommonParent"
+                                && readonlyMethod.Name != "LeastDerivedType"
+                                && readonlyMethod.Name != "GetAllBaseTypesInclusive"
+                                && readonlyMethod.Name != "GetAllBaseTypesInclusiveAscending"
                             join mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
                                 on readonlyMethod.Name equals mutableMethod.Name into mutableGroup
                             from mutableMethod in mutableGroup.DefaultIfEmpty()
@@ -173,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore
                         typeTuple =>
                             from mutableMethod in typeTuple.Value.Mutable.GetMethods(PublicInstance | BindingFlags.Static)
                             where !mutableMethod.Name.StartsWith("set_")
-                                  && mutableMethod.Name != "get_Item"
-                                  && mutableMethod.Name != "RemoveIgnored"
-                                  && mutableMethod.Name != "GetContainingPrimaryKey"
+                                && mutableMethod.Name != "get_Item"
+                                && mutableMethod.Name != "RemoveIgnored"
+                                && mutableMethod.Name != "GetContainingPrimaryKey"
                             join conventionMethod in typeTuple.Value.Convention.GetMethods(PublicInstance | BindingFlags.Static)
                                 on mutableMethod.Name equals conventionMethod.Name into conventionGroup
                             from conventionMethod in conventionGroup.DefaultIfEmpty()
@@ -242,17 +242,17 @@ namespace Microsoft.EntityFrameworkCore
             var badServiceTypes
                 = (from sd in serviceCollection
                    where sd.ServiceType.Namespace.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
-                         && sd.ServiceType != typeof(IDiagnosticsLogger<>)
-                         && sd.ServiceType != typeof(LoggingDefinitions)
+                       && sd.ServiceType != typeof(IDiagnosticsLogger<>)
+                       && sd.ServiceType != typeof(LoggingDefinitions)
                    let it = TryGetImplementationType(sd)
                    where !it.IsInterface
                    let ns = it.Namespace
                    where ns.StartsWith("Microsoft.Entity", StringComparison.Ordinal)
-                         && !ns.EndsWith(".Internal", StringComparison.Ordinal)
-                         && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
-                         && (it.GetConstructors().Length != 1
-                             || it.GetConstructors()[0].GetParameters().Length == 0
-                             || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies")
+                       && !ns.EndsWith(".Internal", StringComparison.Ordinal)
+                       && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
+                       && (it.GetConstructors().Length != 1
+                           || it.GetConstructors()[0].GetParameters().Length == 0
+                           || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies")
                    select it)
                 .ToList();
 
@@ -265,8 +265,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Type TryGetImplementationType(ServiceDescriptor descriptor)
             => descriptor.ImplementationType
-               ?? descriptor.ImplementationInstance?.GetType()
-               ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
+                ?? descriptor.ImplementationInstance?.GetType()
+                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
 
         [ConditionalFact]
         public virtual void Public_inheritable_apis_should_be_virtual()
@@ -274,18 +274,18 @@ namespace Microsoft.EntityFrameworkCore
             var nonVirtualMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.GetTypeInfo().IsVisible
-                         && !type.GetTypeInfo().IsSealed
-                         && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
-                         && type.Namespace?.EndsWith(".Compiled", StringComparison.Ordinal) == false
-                         && ShouldHaveVirtualMethods(type)
+                       && !type.GetTypeInfo().IsSealed
+                       && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
+                       && type.Namespace?.EndsWith(".Compiled", StringComparison.Ordinal) == false
+                       && ShouldHaveVirtualMethods(type)
                    from method in type.GetMethods(AnyInstance)
                    where method.DeclaringType == type
-                         && !(method.IsVirtual && !method.IsFinal)
-                         && !method.Name.StartsWith("add_", StringComparison.Ordinal)
-                         && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
-                         && !method.Name.Equals("get_NodeType", StringComparison.Ordinal)
-                         && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                         && method.Name != "GenerateCacheKeyCore"
+                       && !(method.IsVirtual && !method.IsFinal)
+                       && !method.Name.StartsWith("add_", StringComparison.Ordinal)
+                       && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
+                       && !method.Name.Equals("get_NodeType", StringComparison.Ordinal)
+                       && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                       && method.Name != "GenerateCacheKeyCore"
                    select type.FullName + "." + method.Name)
                 .ToList();
 
@@ -302,15 +302,16 @@ namespace Microsoft.EntityFrameworkCore
         {
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
-                                                      && !type.Namespace.Contains("Internal", StringComparison.Ordinal)
+                   where type.GetTypeInfo().IsVisible
+                       && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
+                       && !type.Namespace.Contains("Internal", StringComparison.Ordinal)
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                        .Concat<MethodBase>(type.GetConstructors())
                    where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                         && ShouldHaveNotNullAnnotation(method, type)
-                         && !method.DeclaringType.Namespace.Contains("Query", StringComparison.Ordinal)
+                       && ShouldHaveNotNullAnnotation(method, type)
+                       && !method.DeclaringType.Namespace.Contains("Query", StringComparison.Ordinal)
                    where type.GetTypeInfo().IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                    where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                    from parameter in method.GetParameters()
@@ -319,10 +320,10 @@ namespace Microsoft.EntityFrameworkCore
                        ? parameter.ParameterType.GetElementType()
                        : parameter.ParameterType
                    where !parameterType.GetTypeInfo().IsValueType
-                         && !parameter.GetCustomAttributes()
-                             .Any(
-                                 a => a.GetType().Name == nameof(NotNullAttribute)
-                                      || a.GetType().Name == nameof(CanBeNullAttribute))
+                       && !parameter.GetCustomAttributes()
+                           .Any(
+                               a => a.GetType().Name == nameof(NotNullAttribute)
+                                   || a.GetType().Name == nameof(CanBeNullAttribute))
                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
                 .ToList();
 
@@ -349,14 +350,14 @@ namespace Microsoft.EntityFrameworkCore
                    let parameterType = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType() : parameter.ParameterType
                    let attributes = parameter.GetCustomAttributes(inherit: false)
                    where (!ShouldHaveNotNullAnnotation(method, type)
-                          || !type.GetTypeInfo().IsInterface && interfaceMappings.Any(im => im.TargetMethods.Contains(method))
-                          || events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
-                          || parameterType.GetTypeInfo().IsValueType && !parameterType.GetTypeInfo().IsNullableType())
-                         && attributes.Any(
-                             a => a.GetType().Name == nameof(NotNullAttribute) || a.GetType().Name == nameof(CanBeNullAttribute))
-                         || parameterType.GetTypeInfo().IsValueType
-                         && parameterType.GetTypeInfo().IsNullableType()
-                         && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute))
+                           || !type.GetTypeInfo().IsInterface && interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                           || events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
+                           || parameterType.GetTypeInfo().IsValueType && !parameterType.GetTypeInfo().IsNullableType())
+                       && attributes.Any(
+                           a => a.GetType().Name == nameof(NotNullAttribute) || a.GetType().Name == nameof(CanBeNullAttribute))
+                       || parameterType.GetTypeInfo().IsValueType
+                       && parameterType.GetTypeInfo().IsNullableType()
+                       && attributes.Any(a => a.GetType().Name == nameof(CanBeNullAttribute))
                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]").ToList();
 
             Assert.False(
@@ -385,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore
                    where type.GetTypeInfo().IsVisible
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
                    where method.DeclaringType == type
-                         && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                       && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                    where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType.GetTypeInfo())
                    select method).ToList();
 
@@ -397,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
             var asyncMethodsWithoutToken
                 = (from method in asyncMethods
                    where !withoutCancellationToken.Contains(method.DeclaringType.Name + "." + method.Name)
-                         && method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
+                       && method.GetParameters().All(pi => pi.ParameterType != typeof(CancellationToken))
                    select method).ToList();
 
             var missingOverloads
@@ -405,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore
                    where !asyncMethodsWithToken
                        .Any(
                            methodWithToken => methodWithoutToken.Name == methodWithToken.Name
-                                              && methodWithoutToken.DeclaringType == methodWithToken.DeclaringType)
+                               && methodWithoutToken.DeclaringType == methodWithToken.DeclaringType)
                    // ReSharper disable once PossibleNullReferenceException
                    select methodWithoutToken.DeclaringType.Name + "." + methodWithoutToken.Name)
                 .Except(GetCancellationTokenExceptions())
@@ -439,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore
                     where !method.IsPrivate
                     from parameter in method.GetParameters()
                     where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
-                          && prefixes.Any(parameter.Name.StartsWith)
+                        && prefixes.Any(parameter.Name.StartsWith)
                     select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 

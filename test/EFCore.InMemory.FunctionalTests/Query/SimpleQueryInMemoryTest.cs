@@ -39,37 +39,44 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Where_query_composition_entity_equality_one_element_Single(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_one_element_Single(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_one_element_Single(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_one_element_First(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_one_element_First(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_one_element_First(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_no_elements_Single(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_no_elements_Single(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_no_elements_Single(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_no_elements_First(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_no_elements_First(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_no_elements_First(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_multiple_elements_Single(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync));
         }
 
         public override Task Collection_Last_member_access_in_projection_translated(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Collection_Last_member_access_in_projection_translated(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Collection_Last_member_access_in_projection_translated(isAsync));
         }
 
         // Sending client code to server

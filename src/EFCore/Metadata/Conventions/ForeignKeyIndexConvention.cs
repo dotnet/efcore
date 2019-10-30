@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IReadOnlyList<IConventionProperty> coveringIndexProperties,
             bool coveringIndexUnique)
             => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
-               || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));
+                || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));
 
         private static void RemoveIndex(IConventionIndex index)
             => index.DeclaringEntityType.Builder.HasNoIndex(index);

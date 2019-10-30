@@ -72,12 +72,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
                     p => p.ClrType.UnwrapNullableType() == typeof(decimal)
-                         && !p.IsForeignKey()))
+                        && !p.IsForeignKey()))
             {
                 var typeConfigurationSource = (property as IConventionProperty)?.GetColumnTypeConfigurationSource();
                 var typeMappingConfigurationSource = (property as IConventionProperty)?.GetTypeMappingConfigurationSource();
                 if ((typeConfigurationSource == null
-                     && ConfigurationSource.Convention.Overrides(typeMappingConfigurationSource))
+                        && ConfigurationSource.Convention.Overrides(typeMappingConfigurationSource))
                     || (typeConfigurationSource != null
                         && ConfigurationSource.Convention.Overrides(typeConfigurationSource)))
                 {
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
                     p => p.ClrType.UnwrapNullableType() == typeof(byte)
-                         && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
+                        && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
                 logger.ByteIdentityColumnWarning(property);
             }
@@ -118,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 .SelectMany(t => t.GetDeclaredProperties())
                 .Where(
                     p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
-                         && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
-                         && !p.IsKey()
-                         && p.ValueGenerated != ValueGenerated.Never
-                         && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionAnnotation strategy)
-                             || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
+                        && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
+                        && !p.IsKey()
+                        && p.ValueGenerated != ValueGenerated.Never
+                        && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is ConventionAnnotation strategy)
+                            || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));

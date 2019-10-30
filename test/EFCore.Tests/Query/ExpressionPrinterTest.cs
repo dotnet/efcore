@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal("(decimal)42", _expressionPrinter.Print(Expression.Convert(Expression.Constant(42), typeof(decimal))));
             Assert.Equal("throw \"Some exception\"", _expressionPrinter.Print(Expression.Throw(Expression.Constant("Some exception"))));
             Assert.Equal("!(True)", _expressionPrinter.Print(Expression.Not(Expression.Constant(true))));
-            Assert.Equal("(BaseClass as DerivedClass)", _expressionPrinter.Print(Expression.TypeAs(Expression.Constant(new BaseClass()), typeof(DerivedClass))));
+            Assert.Equal(
+                "(BaseClass as DerivedClass)",
+                _expressionPrinter.Print(Expression.TypeAs(Expression.Constant(new BaseClass()), typeof(DerivedClass))));
         }
 
         private class BaseClass
@@ -33,22 +35,60 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public void BinaryExpression_printed_correctly()
         {
-            Assert.Equal("7 == 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 != 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.NotEqual, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 > 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.GreaterThan, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 >= 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.GreaterThanOrEqual, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 < 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.LessThan, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 <= 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.LessThanOrEqual, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("True && True", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.AndAlso, Expression.Constant(true), Expression.Constant(true))));
-            Assert.Equal("True || True", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.OrElse, Expression.Constant(true), Expression.Constant(true))));
-            Assert.Equal("7 & 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.And, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 | 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Or, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 ^ 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.ExclusiveOr, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 + 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Add, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 - 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Subtract, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 * 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Multiply, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 / 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Divide, Expression.Constant(7), Expression.Constant(42))));
-            Assert.Equal("7 % 42", _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Modulo, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 == 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 != 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.NotEqual, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 > 42",
+                _expressionPrinter.Print(
+                    Expression.MakeBinary(ExpressionType.GreaterThan, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 >= 42",
+                _expressionPrinter.Print(
+                    Expression.MakeBinary(ExpressionType.GreaterThanOrEqual, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 < 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.LessThan, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 <= 42",
+                _expressionPrinter.Print(
+                    Expression.MakeBinary(ExpressionType.LessThanOrEqual, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "True && True",
+                _expressionPrinter.Print(
+                    Expression.MakeBinary(ExpressionType.AndAlso, Expression.Constant(true), Expression.Constant(true))));
+            Assert.Equal(
+                "True || True",
+                _expressionPrinter.Print(
+                    Expression.MakeBinary(ExpressionType.OrElse, Expression.Constant(true), Expression.Constant(true))));
+            Assert.Equal(
+                "7 & 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.And, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 | 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Or, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 ^ 42",
+                _expressionPrinter.Print(
+                    Expression.MakeBinary(ExpressionType.ExclusiveOr, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 + 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Add, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 - 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Subtract, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 * 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Multiply, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 / 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Divide, Expression.Constant(7), Expression.Constant(42))));
+            Assert.Equal(
+                "7 % 42",
+                _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Modulo, Expression.Constant(7), Expression.Constant(42))));
         }
 
         [ConditionalFact]

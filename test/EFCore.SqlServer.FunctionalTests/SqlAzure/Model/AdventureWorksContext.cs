@@ -172,7 +172,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasKey(
-                            e => new { e.ProductModelID, e.ProductDescriptionID, e.Culture })
+                            e => new
+                            {
+                                e.ProductModelID,
+                                e.ProductDescriptionID,
+                                e.Culture
+                            })
                         .HasName("PK_ProductModelProductDescription_ProductModelID_ProductDescriptionID_Culture");
 
                     entity.HasIndex(e => e.rowguid)

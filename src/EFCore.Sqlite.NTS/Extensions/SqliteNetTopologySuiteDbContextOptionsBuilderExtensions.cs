@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore
             var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
             var infrastructure = (IDbContextOptionsBuilderInfrastructure)coreOptionsBuilder;
             var sqliteExtension = coreOptionsBuilder.Options.FindExtension<SqliteOptionsExtension>()
-                                  ?? new SqliteOptionsExtension();
+                ?? new SqliteOptionsExtension();
             var ntsExtension = coreOptionsBuilder.Options.FindExtension<SqliteNetTopologySuiteOptionsExtension>()
-                               ?? new SqliteNetTopologySuiteOptionsExtension();
+                ?? new SqliteNetTopologySuiteOptionsExtension();
 
             infrastructure.AddOrUpdateExtension(sqliteExtension.WithLoadSpatialite(true));
             infrastructure.AddOrUpdateExtension(ntsExtension);

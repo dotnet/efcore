@@ -137,9 +137,9 @@ namespace Microsoft.EntityFrameworkCore
                     ChildrenAk = new List<ChildAk> { new ChildAk { Id = 31 }, new ChildAk { Id = 32 } },
                     ChildrenShadowFk = new List<ChildShadowFk> { new ChildShadowFk { Id = 51 }, new ChildShadowFk { Id = 52 } },
                     ChildrenCompositeKey = new List<ChildCompositeKey>
-                    {
-                        new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 }
-                    }
+                        {
+                            new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 }
+                        }
                 };
 
                 context.Attach(parent);
@@ -155,6 +155,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         context.Entry(child).State = state;
                     }
+
                     context.Entry(parent).State = state;
 
                     context.ChangeTracker.LazyLoadingEnabled = true;

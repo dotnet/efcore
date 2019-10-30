@@ -143,7 +143,7 @@ WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)");
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.City, "London")
-                             && EF.Functions.FreeText(c.Title, "Manager", 1033))
+                            && EF.Functions.FreeText(c.Title, "Manager", 1033))
                     .FirstOrDefault();
 
                 Assert.Equal(5u, result.EmployeeID);
@@ -175,8 +175,8 @@ WHERE FREETEXT([e].[City], N'London')) AND (FREETEXT([e].[Title], N'Manager', LA
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.Manager.Title, "President")
-                             && EF.Functions.FreeText(c.Title, "Inside")
-                             && c.FirstName.Contains("Lau"))
+                            && EF.Functions.FreeText(c.Title, "Inside")
+                            && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(8u, result.EmployeeID);
@@ -198,8 +198,8 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([e].[Title], 
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
-                             && EF.Functions.FreeText(c.Title, "Inside", 1031)
-                             && c.FirstName.Contains("Lau"))
+                            && EF.Functions.FreeText(c.Title, "Inside", 1031)
+                            && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(8u, result.EmployeeID);
@@ -401,7 +401,7 @@ WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.Contains(c.Manager.Title, "President")
-                             && EF.Functions.Contains(c.Title, "\"Ins*\""))
+                            && EF.Functions.Contains(c.Title, "\"Ins*\""))
                     .LastOrDefault();
 
                 Assert.NotNull(result);

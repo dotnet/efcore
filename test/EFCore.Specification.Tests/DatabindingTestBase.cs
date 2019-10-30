@@ -49,9 +49,19 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             drivers.Add(
-                new Driver { Name = "Pedro de la Rosa", TeamId = AddedTeam, CarNumber = 13 });
+                new Driver
+                {
+                    Name = "Pedro de la Rosa",
+                    TeamId = AddedTeam,
+                    CarNumber = 13
+                });
             drivers.Add(
-                new Driver { Name = "Kamui Kobayashi", TeamId = AddedTeam, CarNumber = null });
+                new Driver
+                {
+                    Name = "Kamui Kobayashi",
+                    TeamId = AddedTeam,
+                    CarNumber = null
+                });
         }
 
         [ConditionalTheory]
@@ -92,7 +102,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(0, local.Count);
 
-                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
+                var larry = new Driver
+                {
+                    Name = "Larry David",
+                    TeamId = Team.Ferrari,
+                    CarNumber = 13
+                };
                 context.Drivers.Add(larry);
 
                 Assert.Equal(1, local.Count);
@@ -115,7 +130,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(0, local.Count);
 
-                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
+                var larry = new Driver
+                {
+                    Name = "Larry David",
+                    TeamId = Team.Ferrari,
+                    CarNumber = 13
+                };
                 context.Drivers.Attach(larry);
 
                 Assert.Equal(1, local.Count);
@@ -321,7 +341,13 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Equal(0, local.Count);
 
-                var larry = new Driver { Id = -1, Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
+                var larry = new Driver
+                {
+                    Id = -1,
+                    Name = "Larry David",
+                    TeamId = Team.Ferrari,
+                    CarNumber = 13
+                };
 
                 local.Add(larry);
 
@@ -580,7 +606,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Empty(bindingList);
 
-                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
+                var larry = new Driver
+                {
+                    Name = "Larry David",
+                    TeamId = Team.Ferrari,
+                    CarNumber = 13
+                };
                 context.Drivers.Add(larry);
 
                 Assert.Contains(larry, bindingList);
@@ -654,7 +685,13 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Empty(bindingList);
 
-                var larry = new Driver { Id = -1, Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
+                var larry = new Driver
+                {
+                    Id = -1,
+                    Name = "Larry David",
+                    TeamId = Team.Ferrari,
+                    CarNumber = 13
+                };
 
                 bindingList.Add(larry);
 
@@ -829,7 +866,12 @@ namespace Microsoft.EntityFrameworkCore
                 var ferrari = context.Teams.Single(t => t.Id == Team.Ferrari);
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
 
-                var larry = new Driver { Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
+                var larry = new Driver
+                {
+                    Name = "Larry David",
+                    TeamId = Team.Ferrari,
+                    CarNumber = 13
+                };
                 context.Drivers.Add(larry);
 
                 Assert.True(navBindingList.Contains(larry));
@@ -845,7 +887,13 @@ namespace Microsoft.EntityFrameworkCore
                 var navBindingList = ((IListSource)ferrari.Drivers).GetList();
                 var localDrivers = context.Drivers.Local;
 
-                var larry = new Driver { Id = -1, Name = "Larry David", TeamId = Team.Ferrari, CarNumber = 13 };
+                var larry = new Driver
+                {
+                    Id = -1,
+                    Name = "Larry David",
+                    TeamId = Team.Ferrari,
+                    CarNumber = 13
+                };
                 navBindingList.Add(larry);
 
                 Assert.DoesNotContain(larry, localDrivers);

@@ -60,11 +60,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             var doubleValue = (double)value;
             return !literal.Contains("E")
-                   && !literal.Contains("e")
-                   && !double.IsNaN(doubleValue)
-                   && !double.IsInfinity(doubleValue)
-                ? literal + "E0"
-                : literal;
+                && !literal.Contains("e")
+                && !double.IsNaN(doubleValue)
+                && !double.IsInfinity(doubleValue)
+                    ? literal + "E0"
+                    : literal;
         }
 
         /// <summary>

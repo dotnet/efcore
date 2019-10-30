@@ -31,13 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlConstantExpression sqlConstantExpression
-                   && Equals(sqlConstantExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlConstantExpression sqlConstantExpression
+                    && Equals(sqlConstantExpression));
 
         private bool Equals(SqlConstantExpression sqlConstantExpression)
             => base.Equals(sqlConstantExpression)
-               && ValueEquals(Value, sqlConstantExpression.Value);
+                && ValueEquals(Value, sqlConstantExpression.Value);
 
         private bool ValueEquals(object value1, object value2)
         {

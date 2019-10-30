@@ -571,10 +571,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string Format([NotNull] IEnumerable<string> properties)
             => "{"
-               + string.Join(
-                   ", ",
-                   properties.Select(p => string.IsNullOrEmpty(p) ? "" : "'" + p + "'"))
-               + "}";
+                + string.Join(
+                    ", ",
+                    properties.Select(p => string.IsNullOrEmpty(p) ? "" : "'" + p + "'"))
+                + "}";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -592,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     property.IsShadowProperty()
                     || (entityType.HasClrType()
                         && ((property.PropertyInfo != null
-                             && entityType.GetRuntimeProperties().ContainsKey(property.Name))
+                                && entityType.GetRuntimeProperties().ContainsKey(property.Name))
                             || (property.FieldInfo != null
                                 && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
         }

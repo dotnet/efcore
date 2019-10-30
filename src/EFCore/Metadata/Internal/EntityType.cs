@@ -59,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private Func<InternalEntityEntry, ISnapshot> _relationshipSnapshotFactory;
         private Func<InternalEntityEntry, ISnapshot> _originalValuesFactory;
-        private Func<InternalEntityEntry, ISnapshot> _sidecarValuesFactory;
+        private Func<InternalEntityEntry, ISnapshot> _temporaryValuesFactory;
+        private Func<InternalEntityEntry, ISnapshot> _storeGeneratedValuesFactory;
         private Func<ValueBuffer, ISnapshot> _shadowValuesFactory;
         private Func<ISnapshot> _emptyShadowValuesFactory;
 
@@ -618,9 +619,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return _primaryKey != null
-                   && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
-                ? _primaryKey
-                : null;
+                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0
+                    ? _primaryKey
+                    : null;
         }
 
         /// <summary>
@@ -1005,7 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotEmpty(properties, nameof(properties));
 
             return _baseType?.FindForeignKeys(properties)?.Concat(FindDeclaredForeignKeys(properties))
-                   ?? FindDeclaredForeignKeys(properties);
+                ?? FindDeclaredForeignKeys(properties);
         }
 
         /// <summary>
@@ -1038,7 +1039,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
             return FindDeclaredForeignKey(properties, principalKey, principalEntityType)
-                   ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
+                ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
         }
 
         /// <summary>
@@ -1254,7 +1255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
             => _baseType?.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
-               ?? GetDeclaredReferencingForeignKeys();
+                ?? GetDeclaredReferencingForeignKeys();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1354,7 +1355,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "EntityType mismatch");
 
             var navigationProperty = propertyIdentity.MemberInfo
-                                     ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
+                ?? ClrType?.GetMembersInHierarchy(name).FirstOrDefault();
             if (ClrType != null)
             {
                 Navigation.IsCompatible(
@@ -2042,10 +2043,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<InternalEntityEntry, ISnapshot> SidecarValuesFactory
+        public virtual Func<InternalEntityEntry, ISnapshot> StoreGeneratedValuesFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _sidecarValuesFactory, this,
+                ref _storeGeneratedValuesFactory, this,
                 entityType => new SidecarValuesFactoryFactory().Create(entityType));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Func<InternalEntityEntry, ISnapshot> TemporaryValuesFactory
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _temporaryValuesFactory, this,
+                entityType => new TemporaryValuesFactoryFactory().Create(entityType));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2288,7 +2300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         if (propertyBase is IProperty property)
                         {
                             valueConverter = property.FindTypeMapping()?.Converter
-                                             ?? property.GetValueConverter();
+                                ?? property.GetValueConverter();
                         }
 
                         valueConverters[memberInfo.Name] = valueConverter;
@@ -2384,7 +2396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                     || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                        || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
                     && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                 {
                     return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
@@ -2451,8 +2463,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             CheckDiscriminatorProperty(property);
 
-            if ((property == null
-                 || !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue())))
+            if (((property == null && BaseType == null)
+                || (property != null && !property.ClrType.IsInstanceOfType(this.GetDiscriminatorValue()))))
             {
                 ((IMutableEntityType)this).RemoveDiscriminatorValue();
                 if (BaseType == null)

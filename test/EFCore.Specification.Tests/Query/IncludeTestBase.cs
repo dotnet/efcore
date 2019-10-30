@@ -4026,7 +4026,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(true, true)]
-        public virtual async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool useString, bool async)
+        public virtual async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(
+            bool useString, bool async)
         {
             using (var context = CreateContext())
             {
@@ -4040,7 +4041,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? await query.ToListAsync()
                     : query.ToList();
 
-                Assert.Collection(result,
+                Assert.Collection(
+                    result,
                     e => Assert.Equal("Employee Nancy reports to Andrew", e),
                     e2 => Assert.Equal("", e2));
             }
@@ -4048,7 +4050,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static string ClientMethod(Employee e)
             => e.FirstName + " reports to " + e.Manager.FirstName + e.Manager.LastName;
-
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [InlineData(false, false)]

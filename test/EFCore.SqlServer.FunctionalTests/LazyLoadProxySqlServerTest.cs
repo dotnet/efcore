@@ -177,7 +177,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("", Sql);
         }
 
-        public override void Lazy_load_many_to_one_reference_to_principal_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
+        public override void Lazy_load_many_to_one_reference_to_principal_already_loaded(
+            EntityState state, CascadeTiming cascadeDeleteTiming)
         {
             base.Lazy_load_many_to_one_reference_to_principal_already_loaded(state, cascadeDeleteTiming);
 
@@ -191,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("", Sql);
         }
 
-        public override void Lazy_load_one_to_one_reference_to_dependent_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
+        public override void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
+            EntityState state, CascadeTiming cascadeDeleteTiming)
         {
             base.Lazy_load_one_to_one_reference_to_dependent_already_loaded(state, cascadeDeleteTiming);
 
@@ -435,13 +437,13 @@ namespace Microsoft.EntityFrameworkCore
             base.Top_level_projection_track_entities_before_passing_to_client_method();
 
             Assert.Equal(
-                    @"@__p_0='707' (Nullable = true)
+                @"@__p_0='707' (Nullable = true)
 
             SELECT [e].[Id], [e].[ParentId]
             FROM [Child] AS [e]
             WHERE [e].[ParentId] = @__p_0",
-                                Sql,
-                                ignoreLineEndingDifferences: true);
+                Sql,
+                ignoreLineEndingDifferences: true);
         }
 
         protected override void ClearLog() => Fixture.TestSqlLoggerFactory.Clear();

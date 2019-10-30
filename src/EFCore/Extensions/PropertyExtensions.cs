@@ -226,9 +226,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.BeforeSaveBehavior]
-               ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                   ? PropertySaveBehavior.Ignore
-                   : PropertySaveBehavior.Save);
+                ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
+                    ? PropertySaveBehavior.Ignore
+                    : PropertySaveBehavior.Save);
 
         /// <summary>
         ///     <para>
@@ -247,11 +247,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.AfterSaveBehavior]
-               ?? (property.IsKey()
-                   ? PropertySaveBehavior.Throw
-                   : property.ValueGenerated.ForUpdate()
-                       ? PropertySaveBehavior.Ignore
-                       : PropertySaveBehavior.Save);
+                ?? (property.IsKey()
+                    ? PropertySaveBehavior.Throw
+                    : property.ValueGenerated.ForUpdate()
+                        ? PropertySaveBehavior.Ignore
+                        : PropertySaveBehavior.Save);
 
         /// <summary>
         ///     Gets the factory that has been set to generate values for this property, if any.
@@ -311,10 +311,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The string representation. </returns>
         public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
             => "{"
-               + string.Join(
-                   ", ",
-                   properties.Select(
-                       p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
-               + "}";
+                + string.Join(
+                    ", ",
+                    properties.Select(
+                        p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
+                + "}";
     }
 }

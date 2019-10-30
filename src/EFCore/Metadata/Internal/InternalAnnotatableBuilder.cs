@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
             return existingAnnotation == null
-                   || CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource: true);
+                || CanSetAnnotationValue(existingAnnotation, value, configurationSource, canOverrideSameSource: true);
         }
 
         private static bool CanSetAnnotationValue(
@@ -115,8 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var existingConfigurationSource = annotation.GetConfigurationSource();
             return configurationSource.Overrides(existingConfigurationSource)
-                   && (configurationSource != existingConfigurationSource
-                       || canOverrideSameSource);
+                && (configurationSource != existingConfigurationSource
+                    || canOverrideSameSource);
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
             return existingAnnotation == null
-                   || configurationSource.Overrides(existingAnnotation.GetConfigurationSource());
+                || configurationSource.Overrides(existingAnnotation.GetConfigurationSource());
         }
 
         /// <summary>

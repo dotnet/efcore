@@ -15,7 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate" /> if they were configured as computed columns.
     /// </summary>
     public class RelationalValueGenerationConvention :
-        ValueGenerationConvention, IPropertyAnnotationChangedConvention, IEntityTypeAnnotationChangedConvention
+        ValueGenerationConvention,
+        IPropertyAnnotationChangedConvention,
+        IEntityTypeAnnotationChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalValueGenerationConvention" />.
@@ -76,7 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     entityTypeBuilder,
                     (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultTableName(),
                     entityTypeBuilder.Metadata.GetSchema());
-            } else if (name == RelationalAnnotationNames.Schema)
+            }
+            else if (name == RelationalAnnotationNames.Schema)
             {
                 ProcessTableChanged(
                     entityTypeBuilder,
@@ -131,8 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             return property.GetComputedColumnSql() != null
                 ? ValueGenerated.OnAddOrUpdate
-                : property.GetDefaultValue() != null
-                  || property.GetDefaultValueSql() != null
+                : property.GetDefaultValue() != null || property.GetDefaultValueSql() != null
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null;
         }

@@ -52,8 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed("DbSet<Product>    .Where(p => NorthwindContext.ClientMethod(p))"),
-                RemoveNewLines(Assert.Throws<InvalidOperationException>(
-                    () => _context.Products.ToList()).Message));
+                RemoveNewLines(
+                    Assert.Throws<InvalidOperationException>(
+                        () => _context.Products.ToList()).Message));
         }
 
         [ConditionalFact]
@@ -136,8 +137,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 CoreStrings.TranslationFailed("DbSet<Product>    .Where(p => NorthwindContext.ClientMethod(p))"),
-                RemoveNewLines(Assert.Throws<InvalidOperationException>(
-                    () => _context.Products.Include(p => p.OrderDetails).ToList()).Message));
+                RemoveNewLines(
+                    Assert.Throws<InvalidOperationException>(
+                        () => _context.Products.Include(p => p.OrderDetails).ToList()).Message));
         }
 
         [ConditionalFact]

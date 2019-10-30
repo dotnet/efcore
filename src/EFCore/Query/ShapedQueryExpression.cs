@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual Expression QueryExpression { get; set; }
         public virtual ResultCardinality ResultCardinality { get; set; }
         public virtual Expression ShaperExpression { get; set; }
+
         public override Type Type => ResultCardinality == ResultCardinality.Enumerable
             ? typeof(IQueryable<>).MakeGenericType(ShaperExpression.Type)
             : ShaperExpression.Type;

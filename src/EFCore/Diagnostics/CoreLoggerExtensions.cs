@@ -983,6 +983,44 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.CollectionWithoutComparer" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="property"> The property. </param>
+        public static void CollectionWithoutComparer(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            [NotNull] IProperty property)
+        {
+            var definition = CoreResources.LogCollectionWithoutComparer(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(
+                    diagnostics,
+                    warningBehavior,
+                    property.Name, property.DeclaringEntityType.DisplayName());
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new PropertyEventData(
+                        definition,
+                        CollectionWithoutComparer,
+                        property));
+            }
+        }
+
+        private static string CollectionWithoutComparer(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (PropertyEventData)payload;
+            return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.RedundantIndexRemoved" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if they represent the same leased context; false otherwise. </returns>
         public bool Equals(DbContextId other)
             => InstanceId == other.InstanceId
-               && Lease == other.Lease;
+                && Lease == other.Lease;
 
         /// <summary>
         ///     Compares this ID to another ID to see if they represent the same leased context.

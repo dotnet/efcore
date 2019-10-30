@@ -133,8 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var candidateAssets = new Dictionary<string, int>();
                 var rid = RuntimeEnvironment.GetRuntimeIdentifier();
-                var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks
-                        .ToList()
+                var rids = DependencyContext.Default.RuntimeGraph.FirstOrDefault(g => g.Runtime == rid)?.Fallbacks.ToList()
                     ?? new List<string>();
                 rids.Insert(0, rid);
 

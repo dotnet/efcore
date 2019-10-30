@@ -156,12 +156,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var dimension = operation[SqliteAnnotationNames.Dimension] as string;
 
             var geometryType = operation.ColumnType
-                               ?? GetColumnType(
-                                   operation.Schema,
-                                   operation.Table,
-                                   operation.Name,
-                                   operation,
-                                   model);
+                ?? GetColumnType(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation,
+                    model);
             if (!string.IsNullOrEmpty(dimension))
             {
                 geometryType += dimension;
@@ -238,7 +238,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
             }
 
-            var dropOperation = new DropIndexOperation { Schema = operation.Schema, Table = operation.Table, Name = operation.Name };
+            var dropOperation = new DropIndexOperation
+            {
+                Schema = operation.Schema,
+                Table = operation.Table,
+                Name = operation.Name
+            };
             dropOperation.AddAnnotations(_migrationsAnnotations.ForRemove(index));
 
             var createOperation = new CreateIndexOperation
@@ -456,8 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = operation[SqliteAnnotationNames.Autoincrement] as bool?
-                                    // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
-                                    ?? operation[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
+                    // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
+                    ?? operation[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
                 if (autoincrement == true)
                 {
                     builder.Append(" AUTOINCREMENT");

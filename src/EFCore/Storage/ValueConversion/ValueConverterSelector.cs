@@ -247,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 }
             }
             else if (modelClrType == typeof(DateTime)
-                     || modelClrType == typeof(DateTimeOffset)
-                     || modelClrType == typeof(TimeSpan))
+                || modelClrType == typeof(DateTimeOffset)
+                || modelClrType == typeof(TimeSpan))
             {
                 if (providerClrType == null
                     || providerClrType == typeof(string))
@@ -295,10 +295,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 }
             }
             else if (_numerics.Contains(modelClrType)
-                     && (providerClrType == null
-                         || providerClrType == typeof(byte[])
-                         || providerClrType == typeof(string)
-                         || _numerics.Contains(providerClrType)))
+                && (providerClrType == null
+                    || providerClrType == typeof(byte[])
+                    || providerClrType == typeof(string)
+                    || _numerics.Contains(providerClrType)))
             {
                 foreach (var converterInfo in FindNumericConventions(
                     modelClrType,
@@ -494,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             foreach (var numeric in _numerics)
             {
                 if ((providerType == null
-                     || providerType == numeric)
+                        || providerType == numeric)
                     && !usedTypes.Contains(numeric))
                 {
                     yield return _converters.GetOrAdd(

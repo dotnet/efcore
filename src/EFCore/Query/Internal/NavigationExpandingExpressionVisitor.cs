@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         public virtual Expression Expand(Expression query)
         {
-            var result = ExpandAndReduce(query, applyInclude: true);
+            var result = ExpandAndReduce(query, applyIncludes: true);
 
             var dbContextOnQueryContextPropertyAccess =
                 Expression.Convert(
@@ -96,15 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return result;
         }
 
-        private Expression ExpandAndReduce(Expression query, bool applyInclude)
+        private Expression ExpandAndReduce(Expression query, bool applyIncludes)
         {
             var result = Visit(query);
-            result = _pendingSelectorExpandingExpressionVisitor.Visit(result);
-            if (applyInclude)
-            {
-                result = new IncludeApplyingExpressionVisitor(this, _queryCompilationContext.IsTracking).Visit(result);
-            }
-
+            result = new PendingSelectorExpandingExpressionVisitor(this, applyIncludes: applyIncludes).Visit(result);
             result = Reduce(result);
 
             return result;
@@ -131,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     navigationExpansionExpression = (NavigationExpansionExpression)Visit(processedDefiningQueryBody);
 
-                    var expanded = ExpandAndReduce(navigationExpansionExpression, applyInclude: false);
+                    var expanded = ExpandAndReduce(navigationExpansionExpression, applyIncludes: false);
                     navigationExpansionExpression = CreateNavigationExpansionExpression(expanded, entityType);
                 }
                 else
@@ -178,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
                             NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(rootEntityType.ClrType),
                             filterPredicate);
-                        var rewrittenFilterWrapper  = (MethodCallExpression)_entityEqualityRewritingExpressionVisitor.Rewrite(filterWrapper);
+                        var rewrittenFilterWrapper = (MethodCallExpression)_entityEqualityRewritingExpressionVisitor.Rewrite(filterWrapper);
                         filterPredicate = rewrittenFilterWrapper.Arguments[1].UnwrapLambdaFromQuote();
 
                         _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
@@ -228,9 +223,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitExtension(Expression extensionExpression)
         {
             return extensionExpression is NavigationExpansionExpression
-                   || extensionExpression is OwnedNavigationReference
-                ? extensionExpression
-                : base.VisitExtension(extensionExpression);
+                || extensionExpression is OwnedNavigationReference
+                    ? extensionExpression
+                    : base.VisitExtension(extensionExpression);
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -565,20 +560,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
                 else if (firstArgument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression
-                         && method.Name == nameof(Queryable.AsQueryable))
+                    && method.Name == nameof(Queryable.AsQueryable))
                 {
                     var subquery = materializeCollectionNavigationExpression.Subquery;
                     return subquery is OwnedNavigationReference ownedNavigationReference
-                           && ownedNavigationReference.Navigation.IsCollection()
-                        ? Visit(
-                            Expression.Call(
-                                QueryableMethods.AsQueryable.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
-                                subquery))
-                        : subquery;
+                        && ownedNavigationReference.Navigation.IsCollection()
+                            ? Visit(
+                                Expression.Call(
+                                    QueryableMethods.AsQueryable.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
+                                    subquery))
+                            : subquery;
                 }
                 else if (firstArgument is OwnedNavigationReference ownedNavigationReference
-                         && ownedNavigationReference.Navigation.IsCollection()
-                         && method.Name == nameof(Queryable.AsQueryable))
+                    && ownedNavigationReference.Navigation.IsCollection()
+                    && method.Name == nameof(Queryable.AsQueryable))
                 {
                     var parameterName = GetParameterName("o");
                     var entityReference = ownedNavigationReference.EntityReference;
@@ -705,8 +700,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         if (includeTreeNodes.Count == 0)
                         {
                             throw new InvalidOperationException(
-                                "Invalid include path: '" + navigationChain +
-                                "' - couldn't find navigation for: '" + navigationName + "'");
+                                "Invalid include path: '" + navigationChain + "' - couldn't find navigation for: '" + navigationName + "'");
                         }
                     }
                 }
@@ -907,8 +901,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return outer is DefaultExpression outerDefaultExpression
-                   && inner is DefaultExpression innerDefaultExpression
-                   && outerDefaultExpression.Type == innerDefaultExpression.Type;
+                && inner is DefaultExpression innerDefaultExpression
+                && outerDefaultExpression.Type == innerDefaultExpression.Type;
         }
 
         private Expression ProcessGroupBy(
@@ -950,9 +944,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 source = (NavigationExpansionExpression)ProcessSelect(source, elementSelector);
-                source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
-                source = (NavigationExpansionExpression)new IncludeApplyingExpressionVisitor(
-                    this, _queryCompilationContext.IsTracking).Visit(source);
+                source = (NavigationExpansionExpression)new PendingSelectorExpandingExpressionVisitor(this, applyIncludes: true)
+                    .Visit(source);
                 keySelector = GenerateLambda(keySelectorBody, source.CurrentParameter);
                 elementSelector = GenerateLambda(source.PendingSelector, source.CurrentParameter);
                 if (resultSelector == null)
@@ -1154,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var siblingNavigations = newEntityReference.IncludePaths.Keys
                         .Where(
                             n => !castEntityType.IsAssignableFrom(n.DeclaringEntityType)
-                                 && !n.DeclaringEntityType.IsAssignableFrom(castEntityType)).ToList();
+                                && !n.DeclaringEntityType.IsAssignableFrom(castEntityType)).ToList();
 
                     foreach (var navigation in siblingNavigations)
                     {
@@ -1333,10 +1326,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (source.SourceElementType.IsGenericType
                 && source.SourceElementType.GetGenericTypeDefinition() == typeof(IGrouping<,>)
                 && !(selector.ReturnType.IsGenericType
-                     && selector.ReturnType.GetGenericTypeDefinition() == typeof(IGrouping<,>)))
+                    && selector.ReturnType.GetGenericTypeDefinition() == typeof(IGrouping<,>)))
             {
                 var selectorLambda = GenerateLambda(ExpandNavigationsInLambdaExpression(source, selector), source.CurrentParameter);
-
                 var newSource = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(source.SourceElementType, selectorLambda.ReturnType),
                     source.Source,
@@ -1420,15 +1412,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _reducingExpressionVisitor.Visit(source);
         }
 
-        private Expression ExpandNavigationsInExpression(NavigationExpansionExpression source, Expression expression)
-        {
-            expression = new ExpandingExpressionVisitor(this, source).Visit(expression);
-            expression = _subqueryMemberPushdownExpressionVisitor.Visit(expression);
-            expression = Visit(expression);
-
-            return expression;
-        }
-
         private Expression ExpandNavigationsInLambdaExpression(
             NavigationExpansionExpression source,
             LambdaExpression lambdaExpression)
@@ -1438,7 +1421,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 source.PendingSelector,
                 lambdaExpression.Body);
 
-            return ExpandNavigationsInExpression(source, lambdaBody);
+            lambdaBody = new ExpandingExpressionVisitor(this, source).Visit(lambdaBody);
+            lambdaBody = _subqueryMemberPushdownExpressionVisitor.Visit(lambdaBody);
+            lambdaBody = Visit(lambdaBody);
+            lambdaBody = _pendingSelectorExpandingExpressionVisitor.Visit(lambdaBody);
+
+            return lambdaBody;
         }
 
         private class Parameters : IParameterValues

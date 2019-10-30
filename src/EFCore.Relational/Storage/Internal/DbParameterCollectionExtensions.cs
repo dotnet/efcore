@@ -134,7 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
         private static void FormatParameterValue(StringBuilder builder, object parameterValue)
         {
-            if (parameterValue == null || parameterValue == DBNull.Value)
+            if (parameterValue == null
+                || parameterValue == DBNull.Value)
             {
                 builder.Append("NULL");
             }

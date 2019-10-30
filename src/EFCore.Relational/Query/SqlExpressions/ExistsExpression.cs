@@ -45,14 +45,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ExistsExpression existsExpression
-                   && Equals(existsExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ExistsExpression existsExpression
+                    && Equals(existsExpression));
 
         private bool Equals(ExistsExpression existsExpression)
             => base.Equals(existsExpression)
-               && Subquery.Equals(existsExpression.Subquery)
-               && IsNegated == existsExpression.IsNegated;
+                && Subquery.Equals(existsExpression.Subquery)
+                && IsNegated == existsExpression.IsNegated;
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Subquery, IsNegated);
     }

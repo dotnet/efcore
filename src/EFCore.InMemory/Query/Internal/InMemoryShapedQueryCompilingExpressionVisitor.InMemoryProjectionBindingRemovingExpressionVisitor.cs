@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             private readonly IDictionary<ParameterExpression, (IDictionary<IProperty, int> IndexMap, ParameterExpression valueBuffer)>
                 _materializationContextBindings
-                = new Dictionary<ParameterExpression, (IDictionary<IProperty, int> IndexMap, ParameterExpression valueBuffer)>();
+                    = new Dictionary<ParameterExpression, (IDictionary<IProperty, int> IndexMap, ParameterExpression valueBuffer)>();
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
@@ -103,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return null;
             }
 
-            private object GetProjectionIndex(InMemoryQueryExpression queryExpression, ProjectionBindingExpression projectionBindingExpression)
+            private object GetProjectionIndex(
+                InMemoryQueryExpression queryExpression, ProjectionBindingExpression projectionBindingExpression)
             {
                 return projectionBindingExpression.ProjectionMember != null
                     ? ((ConstantExpression)queryExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)).Value

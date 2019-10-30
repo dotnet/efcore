@@ -49,8 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetType(Type type, bool fromDataAnnotation)
             => (type == null || Sequence.SupportedTypes.Contains(type))
-               && (Overrides(fromDataAnnotation, _sequence.GetClrTypeConfigurationSource())
-                   || _sequence.ClrType == type);
+                && (Overrides(fromDataAnnotation, _sequence.GetClrTypeConfigurationSource())
+                    || _sequence.ClrType == type);
 
         /// <summary>
         ///     Sets the <see cref="ISequence" /> to increment by the given amount when generating each next value.
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetIncrementsBy(int? increment, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetIncrementByConfigurationSource())
-               || _sequence.IncrementBy == increment;
+                || _sequence.IncrementBy == increment;
 
         /// <summary>
         ///     Sets the <see cref="ISequence" /> to start at the given value.
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetStartsAt(long? startValue, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetStartValueConfigurationSource())
-               || _sequence.StartValue == startValue;
+                || _sequence.StartValue == startValue;
 
         /// <summary>
         ///     Sets the maximum value for the <see cref="ISequence" />.
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetMax(long? maximum, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetMaxValueConfigurationSource())
-               || _sequence.MaxValue == maximum;
+                || _sequence.MaxValue == maximum;
 
         /// <summary>
         ///     Sets the minimum value for the <see cref="ISequence" />.
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetMin(long? minimum, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetMinValueConfigurationSource())
-               || _sequence.MinValue == minimum;
+                || _sequence.MinValue == minimum;
 
         /// <summary>
         ///     Sets whether or not the sequence will start again from the beginning once
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionSequenceBuilder.CanSetCyclic(bool? cyclic, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _sequence.GetIsCyclicConfigurationSource())
-               || _sequence.IsCyclic == cyclic;
+                || _sequence.IsCyclic == cyclic;
 
         private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
             => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)

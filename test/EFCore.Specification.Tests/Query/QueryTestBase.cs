@@ -137,7 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
             [CallerMemberName] string testMethodName = null)
-            => Fixture.QueryAsserter.AssertSingleResultTyped(actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
+            => Fixture.QueryAsserter.AssertSingleResultTyped(
+                actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, isAsync, testMethodName);
 
         #region Assert termination operation methods
 

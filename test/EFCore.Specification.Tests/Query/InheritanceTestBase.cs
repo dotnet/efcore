@@ -450,7 +450,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var kiwi = new Kiwi
                     {
-                        Species = "Apteryx owenii", Name = "Little spotted kiwi", IsFlightless = true, FoundOn = Island.North
+                        Species = "Apteryx owenii",
+                        Name = "Little spotted kiwi",
+                        IsFlightless = true,
+                        FoundOn = Island.North
                     };
 
                     var nz = context.Set<Country>().Single(c => c.Id == 1);
@@ -571,7 +574,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var eagle = new Eagle
                 {
-                    Species = "Haliaeetus leucocephalus", Name = "Bald eagle", Group = EagleGroup.Booted, EagleId = kiwi.Species
+                    Species = "Haliaeetus leucocephalus",
+                    Name = "Bald eagle",
+                    Group = EagleGroup.Booted,
+                    EagleId = kiwi.Species
                 };
 
                 context.Add(eagle);

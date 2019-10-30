@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     break;
                 case SqlServerAnnotationNames.ValueGenerationStrategy:
                     if ((propertyBuilder.HasDefaultValue(null, fromDataAnnotation) == null
-                         | propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
-                         | propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
+                            | propertyBuilder.HasDefaultValueSql(null, fromDataAnnotation) == null
+                            | propertyBuilder.HasComputedColumnSql(null, fromDataAnnotation) == null)
                         && propertyBuilder.HasValueGenerationStrategy(null, fromDataAnnotation) != null)
                     {
                         context.StopProcessing();

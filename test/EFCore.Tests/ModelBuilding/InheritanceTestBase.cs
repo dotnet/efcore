@@ -44,9 +44,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<SpecialBookLabel>().Property(b => b.BookId);
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
-                var model = modelBuilder.Model;
                 Assert.Empty(model.FindEntityType(typeof(ExtraSpecialBookLabel)).GetDeclaredProperties());
                 Assert.Empty(model.FindEntityType(typeof(SpecialBookLabel)).GetDeclaredProperties());
                 Assert.NotNull(model.FindEntityType(typeof(SpecialBookLabel)).FindProperty(nameof(BookLabel.BookId)));
@@ -62,15 +61,36 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<ExtraSpecialBookLabel>();
                 modelBuilder.Entity<SpecialBookLabel>().Ignore(b => b.BookLabel);
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
-                var model = modelBuilder.Model;
                 var moreDerived = model.FindEntityType(typeof(ExtraSpecialBookLabel));
                 var derived = model.FindEntityType(typeof(SpecialBookLabel));
                 var baseType = model.FindEntityType(typeof(BookLabel));
 
                 Assert.Same(baseType, derived.BaseType);
                 Assert.Same(derived, moreDerived.BaseType);
+            }
+
+            [ConditionalFact]
+            public virtual void Can_specify_discriminator_values_first()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<P>();
+
+                modelBuilder.Entity<PBase>()
+                    .HasDiscriminator<int>("TypeDiscriminator")
+                    .HasValue<T>(1)
+                    .HasValue<Q>(2);
+
+                modelBuilder.Entity<P>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Null(model.FindEntityType(typeof(PBase)).GetDiscriminatorValue());
+                Assert.Null(model.FindEntityType(typeof(P)).GetDiscriminatorValue());
+                Assert.Equal(1, model.FindEntityType(typeof(T)).GetDiscriminatorValue());
+                Assert.Equal(2, model.FindEntityType(typeof(Q)).GetDiscriminatorValue());
             }
 
             [ConditionalFact]
@@ -828,34 +848,34 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(ValueGenerated.OnAdd, mb.Model.FindEntityType(typeof(Q)).FindProperty(nameof(Q.ID)).ValueGenerated);
             }
 
-            public class L
+            protected class L
             {
                 public int Id { get; set; }
                 public IList<T> Ts { get; set; }
             }
 
-            public class T : P
+            protected class T : P
             {
                 public Q D { get; set; }
                 public P P { get; set; }
                 public Q F { get; set; }
             }
 
-            public class P : PBase
+            protected abstract class P : PBase
             {
             }
 
-            public class Q : PBase
+            protected class Q : PBase
             {
             }
 
-            public abstract class PBase
+            protected abstract class PBase
             {
                 public int ID { get; set; }
                 public string Stuff { get; set; }
             }
 
-            public class AL
+            protected class AL
             {
                 public int Id { get; set; }
                 public PBase L { get; set; }

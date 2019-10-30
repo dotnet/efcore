@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbCommand command)
             => command.Parameters.Count > 0
-               && diagnostics.ShouldLogSensitiveData();
+                && diagnostics.ShouldLogSensitiveData();
 
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.

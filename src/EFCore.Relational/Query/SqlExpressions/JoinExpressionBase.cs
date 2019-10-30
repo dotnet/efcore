@@ -17,13 +17,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is JoinExpressionBase joinExpressionBase
-                   && Equals(joinExpressionBase));
+                && (ReferenceEquals(this, obj)
+                    || obj is JoinExpressionBase joinExpressionBase
+                    && Equals(joinExpressionBase));
 
         private bool Equals(JoinExpressionBase joinExpressionBase)
             => base.Equals(joinExpressionBase)
-               && Table.Equals(joinExpressionBase.Table);
+                && Table.Equals(joinExpressionBase.Table);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Table);
     }

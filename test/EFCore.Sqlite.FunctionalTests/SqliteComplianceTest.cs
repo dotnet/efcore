@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     {
         protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
         {
-            typeof(FromSqlSprocQueryTestBase<>), typeof(SqlExecutorTestBase<>), typeof(UdfDbFunctionTestBase<>)
+            typeof(FromSqlSprocQueryTestBase<>),
+            typeof(SqlExecutorTestBase<>),
+            typeof(UdfDbFunctionTestBase<>)
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

@@ -9,7 +9,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -310,7 +309,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                 }
 
-
                 Expression navigationProjection;
                 var navigation = _includedNavigations.FirstOrDefault(n => n.Name == memberName);
                 if (navigation == null)
@@ -362,21 +360,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             if (_clientEval)
             {
                 var method = methodCallExpression.Method;
-                if (method.DeclaringType == typeof(Queryable)
-                    || method.DeclaringType == typeof(QueryableExtensions))
+                if (method.DeclaringType == typeof(Queryable))
                 {
                     var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
                     var visitedSource = Visit(methodCallExpression.Arguments[0]);
-                    
+
                     switch (method.Name)
                     {
                         case nameof(Queryable.AsQueryable)
-                        when genericMethod == QueryableMethods.AsQueryable:
+                            when genericMethod == QueryableMethods.AsQueryable:
                             // Unwrap AsQueryable
                             return visitedSource;
 
                         case nameof(Queryable.Select)
-                        when genericMethod == QueryableMethods.Select:
+                            when genericMethod == QueryableMethods.Select:
                             if (!(visitedSource is CollectionShaperExpression shaper))
                             {
                                 return null;

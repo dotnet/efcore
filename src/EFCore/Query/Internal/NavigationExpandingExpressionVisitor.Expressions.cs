@@ -199,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     // TODO: fully render nested structure of include tree
                     expressionPrinter.Append(
-                        " | IncludePaths: " + string.Join(
+                        " | IncludePaths: "
+                        + string.Join(
                             " ", IncludePaths.Select(ip => ip.Value.Count() > 0 ? ip.Key.Name + "->..." : ip.Key.Name)));
                 }
             }
@@ -339,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override bool Equals(object obj)
                 => obj != null
-                   && (ReferenceEquals(this, obj)
-                       || obj is IncludeTreeNode includeTreeNode
-                       && Equals(includeTreeNode));
+                    && (ReferenceEquals(this, obj)
+                        || obj is IncludeTreeNode includeTreeNode
+                        && Equals(includeTreeNode));
 
             private bool Equals(IncludeTreeNode includeTreeNode)
             {

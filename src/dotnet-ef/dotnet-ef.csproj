@@ -27,7 +27,6 @@ dotnet ef database update
       which maximizes the machines on which this tool will be compatible.
     -->
     <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
-    <NoWarn>$(NoWarn);NU5128</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

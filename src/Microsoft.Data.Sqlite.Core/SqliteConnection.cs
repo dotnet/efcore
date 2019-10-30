@@ -382,7 +382,12 @@ namespace Microsoft.Data.Sqlite
         ///     transaction.
         /// </remarks>
         public new virtual SqliteCommand CreateCommand()
-            => new SqliteCommand { Connection = this, CommandTimeout = DefaultTimeout, Transaction = Transaction };
+            => new SqliteCommand
+            {
+                Connection = this,
+                CommandTimeout = DefaultTimeout,
+                Transaction = Transaction
+            };
 
         /// <summary>
         ///     Creates a new command associated with the connection.
@@ -783,7 +788,7 @@ namespace Microsoft.Data.Sqlite
 
             public bool Equals((string name, int arity) x, (string name, int arity) y)
                 => StringComparer.OrdinalIgnoreCase.Equals(x.name, y.name)
-                   && x.arity == y.arity;
+                    && x.arity == y.arity;
 
             public int GetHashCode((string name, int arity) obj)
             {

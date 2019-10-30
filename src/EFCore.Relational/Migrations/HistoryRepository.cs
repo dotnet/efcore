@@ -130,13 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> <c>True</c> if the table already exists, <c>false</c> otherwise. </returns>
         public virtual bool Exists()
             => Dependencies.DatabaseCreator.Exists()
-               && InterpretExistsResult(
-                   Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
-                       new RelationalCommandParameterObject(
-                           Dependencies.Connection,
-                           null,
-                           Dependencies.CurrentContext.Context,
-                           Dependencies.CommandLogger)));
+                && InterpretExistsResult(
+                    Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
+                        new RelationalCommandParameterObject(
+                            Dependencies.Connection,
+                            null,
+                            Dependencies.CurrentContext.Context,
+                            Dependencies.CommandLogger)));
 
         /// <summary>
         ///     Checks whether or not the history table exists.
@@ -148,14 +148,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </returns>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
-               && InterpretExistsResult(
-                   await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                       new RelationalCommandParameterObject(
-                           Dependencies.Connection,
-                           null,
-                           Dependencies.CurrentContext.Context,
-                           Dependencies.CommandLogger),
-                       cancellationToken));
+                && InterpretExistsResult(
+                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(
+                            Dependencies.Connection,
+                            null,
+                            Dependencies.CurrentContext.Context,
+                            Dependencies.CommandLogger),
+                        cancellationToken));
 
         /// <summary>
         ///     Interprets the result of executing <see cref="ExistsSql" />.

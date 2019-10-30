@@ -67,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => result;
 
         /// <summary>
-        ///     Called just before EF intends to call <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
+        ///     Called just before EF intends to call
+        ///     <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
         /// </summary>
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
@@ -92,7 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Called immediately after EF calls <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
+        ///         Called immediately after EF calls
+        ///         <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
         ///     </para>
         ///     <para>
         ///         This method is still called if an interceptor suppressed creation in <see cref="IDbTransactionInterceptor.TransactionStarting" />.
@@ -102,7 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="result">
-        ///     The result of the call to <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
+        ///     The result of the call to
+        ///     <see cref="M:System.Data.Common.DbConnection.BeginTransactionAsync(System.Data.IsolationLevel,System.Threading.CancellationToken)" />.
         ///     This value is typically used as the return value for the implementation of this method.
         /// </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
@@ -198,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Called just before EF intends to call <see cref="M:System.Data.Common.DbTransaction.CommitAsync(System.Threading.CancellationToken)" />.
+        ///     Called just before EF intends to call
+        ///     <see cref="M:System.Data.Common.DbTransaction.CommitAsync(System.Threading.CancellationToken)" />.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
@@ -272,7 +276,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Called just before EF intends to call <see cref="M:System.Data.Common.DbTransaction.RollbackAsync(System.Threading.CancellationToken)" />.
+        ///     Called just before EF intends to call
+        ///     <see cref="M:System.Data.Common.DbTransaction.RollbackAsync(System.Threading.CancellationToken)" />.
         /// </summary>
         /// <param name="transaction"> The transaction. </param>
         /// <param name="eventData"> Contextual information about connection and transaction. </param>

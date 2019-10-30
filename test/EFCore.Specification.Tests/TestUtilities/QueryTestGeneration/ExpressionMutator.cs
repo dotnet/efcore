@@ -22,17 +22,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         {
             IncludeMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
                     m => m.Name == nameof(EntityFrameworkQueryableExtensions.Include)
-                         && m.GetParameters()[1].ParameterType != typeof(string))
+                        && m.GetParameters()[1].ParameterType != typeof(string))
                 .Single();
             ThenIncludeCollectionMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
                     m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
-                         && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].IsGenericType
-                         && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                        && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].IsGenericType
+                        && m.GetParameters()[0].ParameterType.GetGenericArguments()[1].GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Single();
 
             ThenIncludeReferenceMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
                 m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
-                     && m != ThenIncludeCollectionMethodInfo).Single();
+                    && m != ThenIncludeCollectionMethodInfo).Single();
         }
 
         public ExpressionMutator(DbContext context)
@@ -48,18 +48,18 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         protected static bool IsQueryableResult(Expression expression)
             => IsQueryableType(expression.Type)
-               || expression.Type.GetInterfaces().Any(i => IsQueryableType(i));
+                || expression.Type.GetInterfaces().Any(i => IsQueryableType(i));
 
         private static bool IsOrderedQueryableType(Type type)
             => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>);
 
         protected static bool IsOrderedQueryableResult(Expression expression)
             => IsOrderedQueryableType(expression.Type)
-               || expression.Type.GetInterfaces().Any(i => IsOrderedQueryableType(i));
+                || expression.Type.GetInterfaces().Any(i => IsOrderedQueryableType(i));
 
         protected static bool IsOrderedableType(Type type)
             => !typeof(Geometry).IsAssignableFrom(type)
-               && type.GetInterfaces().Any(i => i == typeof(IComparable));
+                && type.GetInterfaces().Any(i => i == typeof(IComparable));
 
         protected List<PropertyInfo> FilterPropertyInfos(Type type, List<PropertyInfo> properties)
         {

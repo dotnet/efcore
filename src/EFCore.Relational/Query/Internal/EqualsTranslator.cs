@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 right = RemoveObjectConvert(arguments[0]);
             }
             else if (instance == null
-                     && method.Name == nameof(object.Equals)
-                     && arguments.Count == 2)
+                && method.Name == nameof(object.Equals)
+                && arguments.Count == 2)
             {
                 left = RemoveObjectConvert(arguments[0]);
                 right = RemoveObjectConvert(arguments[1]);

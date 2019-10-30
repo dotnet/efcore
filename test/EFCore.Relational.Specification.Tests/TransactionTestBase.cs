@@ -57,7 +57,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -82,7 +87,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -485,7 +495,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -511,7 +526,12 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    new List<int> { 1, 2, 77 },
+                    new List<int>
+                    {
+                        1,
+                        2,
+                        77
+                    },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
         }
@@ -1307,7 +1327,7 @@ namespace Microsoft.EntityFrameworkCore
                 return !(obj is TransactionCustomer otherCustomer)
                     ? false
                     : Id == otherCustomer.Id
-                      && Name == otherCustomer.Name;
+                    && Name == otherCustomer.Name;
             }
 
             public override string ToString() => "Id = " + Id + ", Name = " + Name;

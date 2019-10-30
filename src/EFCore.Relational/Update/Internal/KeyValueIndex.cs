@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private bool Equals(KeyValueIndex<TKey> other)
             => other._fromOriginalValues == _fromOriginalValues
-               && other._foreignKey == _foreignKey
-               && _keyComparer.Equals(_keyValue, other._keyValue);
+                && other._foreignKey == _foreignKey
+                && _keyComparer.Equals(_keyValue, other._keyValue);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,9 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public override bool Equals(object obj)
             => !(obj is null)
-               && (ReferenceEquals(this, obj)
-                   || obj.GetType() == GetType()
-                   && Equals((KeyValueIndex<TKey>)obj));
+                && (ReferenceEquals(this, obj)
+                    || obj.GetType() == GetType()
+                    && Equals((KeyValueIndex<TKey>)obj));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

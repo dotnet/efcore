@@ -53,16 +53,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             return visitedExpression is SqlBinaryExpression sqlBinary
-                   && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-                   && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                       || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                ? null
-                : visitedExpression;
+                && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
+                && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
+                    || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
+                    ? null
+                    : visitedExpression;
         }
 
         public override SqlExpression TranslateLongCount(Expression expression = null)
         {
-            // TODO: Translate Count with predicate for GroupBy
+            if (expression != null)
+            {
+                // TODO: Translate Count with predicate for GroupBy
+                return null;
+            }
+
             return _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function("COUNT_BIG", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
         }

@@ -132,7 +132,7 @@ WHERE (([c].[ContactName] = N'') AND [c].[ContactName] IS NOT NULL) OR (CHARINDE
                 ss => ss.Set<Customer>().Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
                 ss => ss.Set<Customer>().Where(
                     c => c.ContactName.Contains(LocalMethod1().ToLower())
-                         || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
+                        || c.ContactName.Contains(LocalMethod1().ToUpper())), // case-sensitive
                 entryCount: 34);
 
             AssertSql(
@@ -871,7 +871,6 @@ WHERE POWER(CAST(CAST(LEN([c].[CustomerID]) AS int) AS float), 2.0E0) = 25.0E0")
         {
             await base.Convert_ToByte(isAsync);
 
-
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -1136,7 +1135,6 @@ WHERE (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL) AND (CONV
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL) AND ((CHARINDEX(N'1997', CONVERT(nvarchar(max), [o].[OrderDate])) > 0) OR (CHARINDEX(N'1998', CONVERT(nvarchar(max), [o].[OrderDate])) > 0))");
-
         }
 
         public override async Task Indexof_with_emptystring(bool isAsync)

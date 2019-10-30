@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
@@ -66,7 +67,7 @@ namespace Microsoft.Data.Sqlite
 
         /// <summary>
         ///     Gets or sets a value indicating how <see cref="CommandText" /> is interpreted. Only
-        ///     <see cref="CommandType.Text" /> is supported.
+        ///     <see cref="MediaTypeNames.Text" /> is supported.
         /// </summary>
         /// <value>A value indicating how <see cref="CommandText" /> is interpreted.</value>
         public override CommandType CommandType
@@ -546,7 +547,7 @@ namespace Microsoft.Data.Sqlite
 
         private static bool IsBusy(int rc)
             => rc == SQLITE_LOCKED
-               || rc == SQLITE_BUSY
-               || rc == SQLITE_LOCKED_SHAREDCACHE;
+                || rc == SQLITE_BUSY
+                || rc == SQLITE_LOCKED_SHAREDCACHE;
     }
 }

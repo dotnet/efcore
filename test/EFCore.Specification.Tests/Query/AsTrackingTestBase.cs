@@ -77,7 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                        join o in context.Set<Order>().AsTracking()
                            on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
-                       select new { c.CustomerID, c, ocid = o.CustomerID, o })
+                       select new
+                       {
+                           c.CustomerID,
+                           c,
+                           ocid = o.CustomerID,
+                           o
+                       })
                     .ToList();
 
                 Assert.Equal(6, customers.Count);

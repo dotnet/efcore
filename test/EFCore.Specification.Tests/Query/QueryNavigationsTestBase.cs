@@ -49,9 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>().Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
+                      join o in ss.Set<Order>().Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID into
+                          grouping
                       from o in grouping
-                      join od in ss.Set<OrderDetail>().Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID into grouping2
+                      join od in ss.Set<OrderDetail>().Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID into
+                          grouping2
                       from od in grouping2
                       select c,
                 entryCount: 89);
@@ -80,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from c in ss.Set<Customer>()
                       join o in ss.Set<Order>().Where(o => ClientPredicate(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
                       from o in grouping
-                      join od in ss.Set<OrderDetail>().Where(od => ClientPredicate(od, od.Product)) on o.OrderID equals od.OrderID into grouping2
+                      join od in ss.Set<OrderDetail>().Where(od => ClientPredicate(od, od.Product)) on o.OrderID equals od.OrderID into
+                          grouping2
                       from od in grouping2
                       select c,
                 entryCount: 89);
@@ -109,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from c in ss.Set<Customer>()
                       join o in ss.Set<Order>().OrderBy(o => ClientOrderBy(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
                       from o in grouping
-                      join od in ss.Set<OrderDetail>().OrderBy(od => ClientOrderBy(od, od.Product)) on o.OrderID equals od.OrderID into grouping2
+                      join od in ss.Set<OrderDetail>().OrderBy(od => ClientOrderBy(od, od.Product)) on o.OrderID equals od.OrderID into
+                          grouping2
                       from od in grouping2
                       select c,
                 entryCount: 89);
@@ -210,9 +214,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => (from od in ss.Set<OrderDetail>()
-                        where od.Order.Customer.City == "Seattle"
-                        orderby od.OrderID, od.ProductID
-                        select od).Take(1),
+                       where od.Order.Customer.City == "Seattle"
+                       orderby od.OrderID, od.ProductID
+                       select od).Take(1),
                 entryCount: 1);
         }
 
@@ -233,7 +237,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2).Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().CustomerID));
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault().CustomerID));
         }
 
         [ConditionalTheory]
@@ -430,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from o in ss.Set<Order>()
                       where o.Customer.City == "Seattle"
-                            && o.Customer.Phone != "555 555 5555"
+                          && o.Customer.Phone != "555 555 5555"
                       select o,
                 entryCount: 14);
         }
@@ -646,16 +651,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     isAsync,
                     ss => from c in ss.Set<Customer>()
                           orderby c.CustomerID
-                          select new
-                          {
-                              All = c.Orders.All(o => o.ShipCity == "London")
-                          },
+                          select new { All = c.Orders.All(o => o.ShipCity == "London") },
                     ss => from c in ss.Set<Customer>()
                           orderby c.CustomerID
-                          select new
-                          {
-                              All = (c.Orders ?? new List<Order>()).All(o => false)
-                          },
+                          select new { All = (c.Orders ?? new List<Order>()).All(o => false) },
                     assertOrder: true));
         }
 
@@ -971,9 +970,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => from od in ss.Set<OrderDetail>()
-                             join o in ss.Set<Order>() on od.OrderID equals o.OrderID
-                             where new[] { "USA", "Redania" }.Contains(o.Customer.Country)
-                             select od,
+                      join o in ss.Set<Order>() on od.OrderID equals o.OrderID
+                      where new[] { "USA", "Redania" }.Contains(o.Customer.Country)
+                      select od,
                 entryCount: 352);
         }
 
@@ -985,8 +984,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from p in ss.Set<Product>()
                       where p.OrderDetails.Contains(
-                        ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID)
-                            .FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
+                          ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID)
+                              .FirstOrDefault(orderDetail => orderDetail.Quantity == 1))
                       select p,
                 entryCount: 1);
         }
@@ -998,7 +997,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => from p in ss.Set<Product>()
-                      where p.OrderDetails.Contains(ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault())
+                      where p.OrderDetails.Contains(
+                          ss.Set<OrderDetail>().OrderByDescending(o => o.OrderID).ThenBy(o => o.ProductID).FirstOrDefault())
                       select p,
                 entryCount: 1);
         }
@@ -1030,7 +1030,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             // ReSharper disable once UseMethodAny.0
                             where (from od in context.OrderDetails
                                    where o.Customer.Country == od.Order.Customer.Country
-                                   select od).Count() > 0
+                                   select od).Count()
+                                > 0
                             where o.OrderID == 10643 || o.OrderID == 10692
                             select o;
 
@@ -1050,7 +1051,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             // ReSharper disable once UseMethodAny.0
                             where (from od in context.OrderDetails
                                    where o.Customer.Country == od.Order.Customer.Country
-                                   select od).Distinct().Count() > 0
+                                   select od).Distinct().Count()
+                                > 0
                             select o;
 
                 var result = query.ToList();
@@ -1155,7 +1157,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select new
                        {
                            o.OrderID,
-                           OrderDetail = o.OrderDetails.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID).Select(od => od.OrderID).FirstOrDefault(),
+                           OrderDetail = o.OrderDetails.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID).Select(od => od.OrderID)
+                               .FirstOrDefault(),
                            o.Customer.City
                        }).Take(3),
                 assertOrder: true);
@@ -1173,7 +1176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           join o in ss.Set<Order>() on od.OrderID equals 10260
                           join c2 in ss.Set<Customer>() on o.CustomerID equals c2.CustomerID
                           select c2
-                      on c.CustomerID equals subquery.CustomerID into result
+                          on c.CustomerID equals subquery.CustomerID into result
                       from subquery in result.DefaultIfEmpty()
                       select c,
                 entryCount: 91);
@@ -1191,7 +1194,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           join o in ss.Set<Order>() on od.OrderID equals 10260
                           join c2 in ss.Set<Customer>() on o.CustomerID equals c2.CustomerID
                           select c2
-                      on c.CustomerID equals subquery.CustomerID into result
+                          on c.CustomerID equals subquery.CustomerID into result
                       from subquery in result.DefaultIfEmpty()
                       select c.CustomerID);
         }
@@ -1267,7 +1270,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>().Where(oo => !anatrsOrders.Contains(oo.OrderID)) on c.CustomerID equals o.CustomerID into grouping
+                      join o in ss.Set<Order>().Where(oo => !anatrsOrders.Contains(oo.OrderID)) on c.CustomerID equals o.CustomerID into
+                          grouping
                       where c.CustomerID.StartsWith("A")
                       select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
                 elementSorter: e => e.c.CustomerID,

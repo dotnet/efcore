@@ -75,7 +75,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings
             = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
             {
-                { IntegerTypeName, _integer }, { RealTypeName, _real }, { BlobTypeName, _blob }, { TextTypeName, _text }
+                { IntegerTypeName, _integer },
+                { RealTypeName, _real },
+                { BlobTypeName, _blob },
+                { TextTypeName, _text }
             };
 
         /// <summary>
@@ -150,19 +153,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 ? _integer
                 : null,
             name => Contains(name, "CHAR")
-                    || Contains(name, "CLOB")
-                    || Contains(name, "TEXT")
-                ? _text
-                : null,
+                || Contains(name, "CLOB")
+                || Contains(name, "TEXT")
+                    ? _text
+                    : null,
             name => Contains(name, "BLOB")
-                    || Contains(name, "BIN")
-                ? _blob
-                : null,
+                || Contains(name, "BIN")
+                    ? _blob
+                    : null,
             name => Contains(name, "REAL")
-                    || Contains(name, "FLOA")
-                    || Contains(name, "DOUB")
-                ? _real
-                : null
+                || Contains(name, "FLOA")
+                || Contains(name, "DOUB")
+                    ? _real
+                    : null
         };
 
         private static bool Contains(string haystack, string needle)

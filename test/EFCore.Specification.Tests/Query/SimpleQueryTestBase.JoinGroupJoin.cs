@@ -62,7 +62,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from c in ss.Set<Customer>()
                       join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
                       from e in ss.Set<Employee>()
-                      select new { c, o, e },
+                      select new
+                      {
+                          c,
+                          o,
+                          e
+                      },
                 e => (e.c.CustomerID, e.o.OrderID, e.e.EmployeeID),
                 entryCount: 928);
         }
@@ -76,7 +81,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
                       join e2 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2) on e1.EmployeeID equals GetEmployeeID(e2)
                       from e3 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Skip(6).Take(2)
-                      select new { e1, e2, e3 },
+                      select new
+                      {
+                          e1,
+                          e2,
+                          e3
+                      },
                 e => (e.e1.EmployeeID, e.e2.EmployeeID, e.e3.EmployeeID),
                 entryCount: 4);
         }
@@ -141,7 +151,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                          orderby o2.OrderID
                          select new { o2 }) on c.CustomerID equals o1.o2.CustomerID
                     where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
-                    select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") },
+                    select new
+                    {
+                        o1,
+                        o1.o2,
+                        Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate")
+                    },
                 e => e.o1.o2.OrderID,
                 entryCount: 6);
         }
@@ -159,7 +174,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                          orderby o2.OrderID
                          select new { o2 }).Take(5) on c.CustomerID equals o1.o2.CustomerID
                     where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
-                    select new { o1, o1.o2, Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate") },
+                    select new
+                    {
+                        o1,
+                        o1.o2,
+                        Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate")
+                    },
                 e => e.o1.o2.OrderID);
         }
 
@@ -187,7 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss =>
                     from c in ss.Set<Customer>()
                     join o1 in
-                        (from o2 in ss.Set<Order>() where o2.OrderID > 0 orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1.CustomerID
+                        (from o2 in ss.Set<Order>() where o2.OrderID > 0 orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1
+                            .CustomerID
                     where o1.CustomerID == "ALFKI"
                     select new { c.ContactName, o1.OrderID },
                 e => e.OrderID);
@@ -300,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Customer>().Join(
                     ss.Set<Customer>(), o => o.CustomerID, i => i.CustomerID, (c1, c2) => new { c1, c2 }).Join(
-                        ss.Set<Customer>(), o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3),
+                    ss.Set<Customer>(), o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3),
                 entryCount: 91);
         }
 
@@ -585,7 +606,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().GroupJoin(ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => g.Select(o => o.CustomerID)),
+                ss => ss.Set<Customer>().GroupJoin(
+                    ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => g.Select(o => o.CustomerID)),
                 elementSorter: e => e.Count(),
                 elementAsserter: (e, a) => AssertCollection(e, a));
         }
@@ -634,7 +656,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from o0 in ss.Set<Order>().OrderBy(o => o.OrderID).Take(1)
                     join o1 in ss.Set<Order>() on c.CustomerID equals o1.CustomerID into orders
                     from o2 in orders
-                    select new { A = c.CustomerID, B = o0.CustomerID, C = o2.CustomerID },
+                    select new
+                    {
+                        A = c.CustomerID,
+                        B = o0.CustomerID,
+                        C = o2.CustomerID
+                    },
                 e => (e.A, e.B, e.C));
         }
 
@@ -665,7 +692,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from o1 in orders1.DefaultIfEmpty()
                     join o2 in ss.Set<Order>() on c.CustomerID equals o2.CustomerID into orders2
                     from o2 in orders2.DefaultIfEmpty()
-                    select new { c, o1, o2 },
+                    select new
+                    {
+                        c,
+                        o1,
+                        o2
+                    },
                 e => (e.c.CustomerID, e.o1?.OrderID, e.o2?.OrderID),
                 entryCount: 921);
         }

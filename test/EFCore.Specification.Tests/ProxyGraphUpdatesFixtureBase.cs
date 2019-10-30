@@ -396,7 +396,9 @@ namespace Microsoft.EntityFrameworkCore
                     RequiredNonPkSingleMoreDerived =
                         new RequiredNonPkSingle1MoreDerived
                         {
-                            Single = new RequiredNonPkSingle2MoreDerived(), Root = new Root(), DerivedRoot = new Root()
+                            Single = new RequiredNonPkSingle2MoreDerived(),
+                            Root = new Root(),
+                            DerivedRoot = new Root()
                         },
                     RequiredChildrenAk =
                         new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance)
@@ -406,8 +408,7 @@ namespace Microsoft.EntityFrameworkCore
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                                 {
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() },
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }, new RequiredAk2 { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
@@ -420,8 +421,7 @@ namespace Microsoft.EntityFrameworkCore
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                                 {
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() },
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }
+                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }, new RequiredAk2 { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
@@ -438,8 +438,7 @@ namespace Microsoft.EntityFrameworkCore
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                                 {
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() },
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }, new OptionalAk2 { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
@@ -452,8 +451,7 @@ namespace Microsoft.EntityFrameworkCore
                                 AlternateId = Guid.NewGuid(),
                                 Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                                 {
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() },
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }
+                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }, new OptionalAk2 { AlternateId = Guid.NewGuid() }
                                 },
                                 CompositeChildren =
                                     new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)

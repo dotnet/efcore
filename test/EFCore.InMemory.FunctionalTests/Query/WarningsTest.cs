@@ -226,9 +226,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(entity.Nav);
 
             var log = loggerFactory.Log.Single(
-                l => l.Message == CoreResources
-                         .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                         .GenerateMessage("Nav", "WarningAsErrorEntity"));
+                l => l.Message
+                    == CoreResources
+                        .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
+                        .GenerateMessage("Nav", "WarningAsErrorEntity"));
 
             Assert.Equal(LogLevel.Warning, log.Level);
         }
@@ -266,9 +267,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Null(entity.Nav);
 
             var log = loggerFactory.Log.Single(
-                l => l.Message == CoreResources
-                         .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
-                         .GenerateMessage("Nav", "WarningAsErrorEntity"));
+                l => l.Message
+                    == CoreResources
+                        .LogLazyLoadOnDisposedContext(new TestLogger<InMemoryLoggingDefinitions>())
+                        .GenerateMessage("Nav", "WarningAsErrorEntity"));
 
             Assert.Equal(LogLevel.Debug, log.Level);
         }

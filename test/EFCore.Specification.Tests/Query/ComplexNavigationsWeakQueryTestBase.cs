@@ -81,13 +81,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(bool isAsync)
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(
+            bool isAsync)
         {
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(isAsync);
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(bool isAsync)
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(
+            bool isAsync)
         {
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(isAsync);
         }
@@ -99,9 +101,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
-        public override Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
+        public override Task
+            Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool isAsync)
         {
-            return base.Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(isAsync);
+            return base.Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(
+                isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -169,20 +173,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        public override void Union_over_entities_with_different_nullability()
-        {
-        }
+        public override Task Union_over_entities_with_different_nullability(bool isAsync) => Task.CompletedTask;
 
         [ConditionalTheory(Skip = "Issue#16752")]
         public override Task Include_inside_subquery(bool isAsync)
         {
             return base.Include_inside_subquery(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#18519")]
-        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
-        {
-            return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
         }
     }
 }

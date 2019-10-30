@@ -60,8 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var isMaybeNull = memberInfo switch
             {
                 FieldInfo f => f.CustomAttributes.Any(a => a.AttributeType.FullName == MaybeNullAttributeFullName),
-                PropertyInfo p => p.GetMethod?.ReturnParameter?.CustomAttributes
-                    .FirstOrDefault(a => a.AttributeType.FullName == MaybeNullAttributeFullName) != null,
+                PropertyInfo p => p.GetMethod?.ReturnParameter?.CustomAttributes.FirstOrDefault(
+                    a => a.AttributeType.FullName == MaybeNullAttributeFullName)
+                != null,
                 _ => false
             };
 
@@ -127,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private NonNullabilityConventionState GetOrInitializeState(IConventionModelBuilder modelBuilder)
             => (NonNullabilityConventionState)(
-                modelBuilder.Metadata.FindAnnotation(StateAnnotationName) ??
-                modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NonNullabilityConventionState())
+                modelBuilder.Metadata.FindAnnotation(StateAnnotationName)
+                ?? modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NonNullabilityConventionState())
             ).Value;
 
         /// <summary>

@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 if (factory == null)
                 {
                     var converter = mapping?.Converter
-                                    ?? property.GetValueConverter();
+                        ?? property.GetValueConverter();
 
                     if (converter != null)
                     {

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsNullConstantExpression([NotNull] this Expression expression)
             => RemoveConvert(expression) is ConstantExpression constantExpression
-               && constantExpression.Value == null;
+                && constantExpression.Value == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,8 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             Debug.Assert(lambdaExpression.Body != null);
 
-            var parameterExpression
-                = lambdaExpression.Parameters.Single();
+            var parameterExpression = lambdaExpression.Parameters.Single();
 
             if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
             {
@@ -60,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return propertyInfos.Count != newExpression.Arguments.Count ? null : propertyInfos;
             }
 
-            var propertyPath
-                = propertyMatcher(lambdaExpression.Body, parameterExpression);
+            var propertyPath = propertyMatcher(lambdaExpression.Body, parameterExpression);
 
             return propertyPath != null ? new[] { propertyPath } : null;
         }
@@ -113,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static Expression RemoveTypeAs([CanBeNull] this Expression expression)
         {
-            while ((expression?.NodeType == ExpressionType.TypeAs))
+            while (expression?.NodeType == ExpressionType.TypeAs)
             {
                 expression = ((UnaryExpression)RemoveConvert(expression)).Operand;
             }
@@ -132,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             Check.NotNull(expression, nameof(expression));
 
             return expression.NodeType == ExpressionType.AndAlso
-                   || expression.NodeType == ExpressionType.OrElse;
+                || expression.NodeType == ExpressionType.OrElse;
         }
 
         /// <summary>
@@ -143,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool IsEntityQueryable([NotNull] this ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
-               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
+                && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -157,17 +154,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
                     ? (LambdaExpression)unary.Operand
                     : null;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
-            => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
-                ? unary.Operand
-                : expression);
 
         private static Expression RemoveConvert(Expression expression)
         {

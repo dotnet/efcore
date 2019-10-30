@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(0 == mCC.Compare(modificationCommandAdded, modificationCommandAdded));
             Assert.True(0 == mCC.Compare(null, null));
             Assert.True(
-                0 == mCC.Compare(
+                0
+                == mCC.Compare(
                     new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
                     new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
 
@@ -62,29 +63,35 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null), null));
 
             Assert.True(
-                0 > mCC.Compare(
+                0
+                > mCC.Compare(
                     new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null),
                     new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
             Assert.True(
-                0 < mCC.Compare(
+                0
+                < mCC.Compare(
                     new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
                     new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
 
             Assert.True(
-                0 > mCC.Compare(
+                0
+                > mCC.Compare(
                     new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
                     new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null)));
             Assert.True(
-                0 < mCC.Compare(
+                0
+                < mCC.Compare(
                     new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null),
                     new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
 
             Assert.True(
-                0 > mCC.Compare(
+                0
+                > mCC.Compare(
                     new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null),
                     new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null)));
             Assert.True(
-                0 < mCC.Compare(
+                0
+                < mCC.Compare(
                     new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null),
                     new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
 

@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         public static string GetTableName([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
                 ? entityType.GetRootType().GetTableName()
-                : (string)entityType[RelationalAnnotationNames.TableName]
-                  ?? GetDefaultTableName(entityType);
+                : (string)entityType[RelationalAnnotationNames.TableName] ?? GetDefaultTableName(entityType);
 
         /// <summary>
         ///     Returns the default table name that would be used for this entity type.
@@ -88,8 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         public static string GetSchema([NotNull] this IEntityType entityType) =>
             entityType.BaseType != null
                 ? entityType.GetRootType().GetSchema()
-                : (string)entityType[RelationalAnnotationNames.Schema]
-                  ?? GetDefaultSchema(entityType);
+                : (string)entityType[RelationalAnnotationNames.Schema] ?? GetDefaultSchema(entityType);
 
         /// <summary>
         ///     Returns the default database schema that would be used for this entity type.

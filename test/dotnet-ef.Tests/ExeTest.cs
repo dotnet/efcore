@@ -26,14 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 });
 
             Assert.Equal(
-                "Good " +
-                "Good\\ " +
-                "\"Needs quotes\" " +
-                "\"Needs escaping\\\\\" " +
-                "\"Needs escaping\\\\\\\\\" " +
-                "\"Needs \\\"escaping\\\"\" " +
-                "\"Needs \\\\\\\"escaping\\\"\" " +
-                "\"Needs escaping\\\\\\\\too\"",
+                "Good "
+                + "Good\\ "
+                + "\"Needs quotes\" "
+                + "\"Needs escaping\\\\\" "
+                + "\"Needs escaping\\\\\\\\\" "
+                + "\"Needs \\\"escaping\\\"\" "
+                + "\"Needs \\\\\\\"escaping\\\"\" "
+                + "\"Needs escaping\\\\\\\\too\"",
                 result);
         }
 

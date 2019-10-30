@@ -129,13 +129,13 @@ WHERE ([c].[City] = @__city_0) AND [c].[City] IS NOT NULL");
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND CAST([e].[ReportsTo] AS bigint) IS NOT NULL",
+WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
                 //
                 @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND CAST([e].[ReportsTo] AS bigint) IS NOT NULL");
+WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL");
         }
 
         public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool isAsync)
@@ -327,17 +327,17 @@ WHERE ([c].[City] = @__InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND CAST([e].[ReportsTo] AS bigint) IS NOT NULL",
+WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
                 //
                 @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND CAST([e].[ReportsTo] AS bigint) IS NOT NULL",
+WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
                 //
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CAST([e].[ReportsTo] AS bigint) IS NULL");
+WHERE [e].[ReportsTo] IS NULL");
         }
 
         public override async Task Where_simple_closure_via_query_cache_nullable_type_reverse(bool isAsync)
@@ -347,19 +347,19 @@ WHERE CAST([e].[ReportsTo] AS bigint) IS NULL");
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CAST([e].[ReportsTo] AS bigint) IS NULL",
+WHERE [e].[ReportsTo] IS NULL",
                 //
                 @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND CAST([e].[ReportsTo] AS bigint) IS NOT NULL",
+WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
                 //
                 @"@__p_0='2' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND CAST([e].[ReportsTo] AS bigint) IS NOT NULL");
+WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL");
         }
 
         public override void Where_subquery_closure_via_query_cache()
@@ -647,7 +647,7 @@ WHERE [e].[ReportsTo] IS NULL");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CAST(LEN([c].[City]) AS int) = 6) AND CAST(LEN([c].[City]) AS int) IS NOT NULL");
+WHERE (CAST(LEN([c].[City]) AS int) = 6) AND LEN([c].[City]) IS NOT NULL");
         }
 
         public override async Task Where_string_indexof(bool isAsync)
@@ -962,7 +962,7 @@ WHERE (([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Be
             await base.Where_not_in_optimization3(isAsync);
 
             AssertSql(
-    @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
 WHERE ((([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'Berlin') OR [c].[City] IS NULL)) AND (([c].[City] <> N'Seattle') OR [c].[City] IS NULL)");
@@ -1292,7 +1292,7 @@ WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IS NOT NULL");
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ((([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]) AND ([c].[CustomerID] + CAST(@__i_0 AS nchar(5)) IS NOT NULL AND [c].[CompanyName] IS NOT NULL)) OR ([c].[CustomerID] + CAST(@__i_0 AS nchar(5)) IS NULL AND [c].[CompanyName] IS NULL)");
+WHERE (([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
         }
 
         public override async Task Where_concat_string_int_comparison2(bool isAsync)
@@ -1304,7 +1304,7 @@ WHERE ((([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]) AND (
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]) AND (CAST(@__i_0 AS nchar(5)) + [c].[CustomerID] IS NOT NULL AND [c].[CompanyName] IS NOT NULL)) OR (CAST(@__i_0 AS nchar(5)) + [c].[CustomerID] IS NULL AND [c].[CompanyName] IS NULL)");
+WHERE ((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
         }
 
         public override async Task Where_concat_string_int_comparison3(bool isAsync)
@@ -1317,7 +1317,7 @@ WHERE (((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]) AND (
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (((((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))) + CAST(42 AS nchar(5))) = [c].[CompanyName]) AND (((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))) + CAST(42 AS nchar(5)) IS NOT NULL AND [c].[CompanyName] IS NOT NULL)) OR (((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))) + CAST(42 AS nchar(5)) IS NULL AND [c].[CompanyName] IS NULL)");
+WHERE ((((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))) + CAST(42 AS nchar(5))) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
         }
 
         public override async Task Where_concat_string_int_comparison4(bool isAsync)
@@ -1327,7 +1327,7 @@ WHERE (((((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE (((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) AND (CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] IS NOT NULL)) OR (CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)");
+WHERE (((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) AND ([o].[CustomerID] IS NOT NULL AND [o].[CustomerID] IS NOT NULL)) OR ([o].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)");
         }
 
         public override async Task Where_concat_string_string_comparison(bool isAsync)
@@ -1339,7 +1339,7 @@ WHERE (((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID])
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND (@__i_0 + [c].[CustomerID] IS NOT NULL AND [c].[CompanyName] IS NOT NULL)) OR (@__i_0 + [c].[CustomerID] IS NULL AND [c].[CompanyName] IS NULL)");
+WHERE ((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
         }
 
         public override async Task Where_string_concat_method_comparison(bool isAsync)
@@ -1351,7 +1351,7 @@ WHERE (((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND (@__i_0 + [c].[Cust
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND (@__i_0 + [c].[CustomerID] IS NOT NULL AND [c].[CompanyName] IS NOT NULL)) OR (@__i_0 + [c].[CustomerID] IS NULL AND [c].[CompanyName] IS NULL)");
+WHERE ((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool isAsync)
@@ -1359,20 +1359,9 @@ WHERE (((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND (@__i_0 + [c].[Cust
             await base.Where_ternary_boolean_condition_true(isAsync);
 
             AssertSql(
-                @"@__flag_0='True'
-
-SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE CASE
-    WHEN @__flag_0 = CAST(1 AS bit) THEN CASE
-        WHEN [p].[UnitsInStock] >= CAST(20 AS smallint) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-    ELSE CASE
-        WHEN [p].[UnitsInStock] < CAST(20 AS smallint) THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-END = CAST(1 AS bit)");
+WHERE [p].[UnitsInStock] >= CAST(20 AS smallint)");
         }
 
         public override async Task Where_ternary_boolean_condition_false(bool isAsync)
@@ -1448,6 +1437,15 @@ FROM [Customers] AS [c]");
 
 SELECT [c].[CustomerID], @__p_0 AS [Data1], @__p_1 AS [Data2], @__p_2 AS [Data3]
 FROM [Customers] AS [c]");
+        }
+
+        public override async Task Ternary_should_not_evaluate_both_sides_with_parameter(bool isAsync)
+        {
+            await base.Ternary_should_not_evaluate_both_sides_with_parameter(isAsync);
+
+            AssertSql(
+                @"SELECT CAST(1 AS bit) AS [Data1]
+FROM [Orders] AS [o]");
         }
 
         public override async Task Where_compare_constructed_multi_value_equal(bool isAsync)
