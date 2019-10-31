@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         outerKeySelector: i => i, 
         innerKeySelector: (e1, i) => e1)",
                         "NavigationExpandingExpressionVisitor"),
-                    message);
+                    message, ignoreLineEndingDifferences: true);
             }
         }
 
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         outerKeySelector: i => i, 
         innerKeySelector: (e1, g) => e1)",
                         "NavigationExpandingExpressionVisitor"),
-                    message);
+                    message, ignoreLineEndingDifferences: true);
             }
         }
 

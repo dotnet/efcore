@@ -2551,7 +2551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Where(c => c.EmployeeID == 4294967295)
     .DefaultIfEmpty(__p_0)",
                     "NavigationExpandingExpressionVisitor"),
-                message);
+                message, ignoreLineEndingDifferences: true);
         }
 
         [ConditionalTheory]
@@ -2570,7 +2570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Where(c => c.EmployeeID == 4294967295)
     .DefaultIfEmpty(__p_0)",
                     "NavigationExpandingExpressionVisitor"),
-                message);
+                message, ignoreLineEndingDifferences: true);
         }
 
         [ConditionalTheory]

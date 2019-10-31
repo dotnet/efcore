@@ -1594,7 +1594,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
                 Value: (EntityReference: Gear)
                 Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
-                message);
+                message, ignoreLineEndingDifferences: true);
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -1648,7 +1648,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
                 Value: (EntityReference: Gear)
                 Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
-                message);
+                message, ignoreLineEndingDifferences: true);
         }
 
         [ConditionalTheory]
