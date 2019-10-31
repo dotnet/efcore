@@ -897,34 +897,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 CreateKeyAccessExpression(Unwrap(right), keyProperties));
         }
 
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            switch (expression)
-            {
-                case EntityReferenceExpression _:
-                    // If the expression is an EntityReferenceExpression, simply returns it as all rewriting has already occurred.
-                    // This is necessary when traversing wrapping expressions that have been injected into the lambda for parameters.
-                    return expression;
-
-                case NullConditionalExpression nullConditionalExpression:
-                    return VisitNullConditional(nullConditionalExpression);
-
-                default:
-                    return base.VisitExtension(expression);
-            }
-        }
-
-        private Expression VisitNullConditional(NullConditionalExpression expression)
-        {
-            var newCaller = Visit(expression.Caller);
-            var newAccessOperation = Visit(expression.AccessOperation);
-            var visitedExpression = expression.Update(Unwrap(newCaller), Unwrap(newAccessOperation));
-
-            // TODO: Can the access operation be anything else than a MemberExpression?
-            return newCaller is EntityReferenceExpression wrapper
-                && expression.AccessOperation is MemberExpression memberExpression
-                    ? wrapper.TraverseProperty(memberExpression.Member.Name, visitedExpression)
-                    : visitedExpression;
+            // If the expression is an EntityReferenceExpression, simply returns it as all rewriting has already occurred.
+            // This is necessary when traversing wrapping expressions that have been injected into the lambda for parameters.
+            return extensionExpression is EntityReferenceExpression
+                ? extensionExpression
+                : base.VisitExtension(extensionExpression);
         }
 
         private Expression CreateKeyAccessExpression(
