@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     }
                     else
                     {
-                        Assert.Same(property.GetValue(clone), property.GetValue(dependencies));
+                        Assert.Equal(property.GetValue(clone), property.GetValue(dependencies));
                     }
                 }
             }

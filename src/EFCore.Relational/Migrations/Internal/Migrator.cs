@@ -117,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     new RelationalCommandParameterObject(
                         _connection,
                         null,
+                        null,
                         _currentContext.Context,
                         _commandLogger));
             }
@@ -153,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 await command.ExecuteNonQueryAsync(
                     new RelationalCommandParameterObject(
                         _connection,
+                        null,
                         null,
                         _currentContext.Context,
                         _commandLogger),

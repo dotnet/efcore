@@ -745,7 +745,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext(useRelationalNulls: true))
             {
                 var actual = context.Entities1
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Entities1]"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Entities1]"))
                     .Where(c => c.StringA == c.StringB)
                     .ToArray();
 
@@ -1065,11 +1065,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return caller == null ? null : expression();
         }
 
-        private string NormalizeDelimetersInRawString(string sql)
-            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
+        private string NormalizeDelimitersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
         private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
+            => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
         protected abstract NullSemanticsContext CreateContext(bool useRelationalNulls = false);
 

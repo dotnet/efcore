@@ -64,8 +64,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             public override bool Equals(object obj)
                 => !(obj is null)
-                    && obj is SqlServerCompiledQueryCacheKey
-                    && Equals((SqlServerCompiledQueryCacheKey)obj);
+                    && obj is SqlServerCompiledQueryCacheKey key
+                    && Equals(key);
 
             private bool Equals(SqlServerCompiledQueryCacheKey other)
                 => _relationalCompiledQueryCacheKey.Equals(other._relationalCompiledQueryCacheKey)

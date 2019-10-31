@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
 
+            IsBuffering = queryCompilationContext.IsBuffering;
             IsAsync = queryCompilationContext.IsAsync;
 
             if (queryCompilationContext.IsAsync)
@@ -54,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual ShapedQueryCompilingExpressionVisitorDependencies Dependencies { get; }
 
         protected virtual bool IsTracking { get; }
+
+        public virtual bool IsBuffering { get; internal set; }
 
         protected virtual bool IsAsync { get; }
 

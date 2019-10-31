@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public BatchExecutor([NotNull] ICurrentDbContext currentContext, [NotNull] IExecutionStrategyFactory executionStrategyFactory)
         {
             CurrentContext = currentContext;
+#pragma warning disable 618
             ExecutionStrategyFactory = executionStrategyFactory;
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -54,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete("This isn't used anymore")]
         protected virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
@@ -65,14 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual int Execute(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection)
-            => CurrentContext.Context.Database.AutoTransactionsEnabled
-                ? ExecutionStrategyFactory.Create().Execute((commandBatches, connection), Execute, null)
-                : Execute(CurrentContext.Context, (commandBatches, connection));
-
-        private int Execute(DbContext _, (IEnumerable<ModificationCommandBatch>, IRelationalConnection) parameters)
         {
-            var commandBatches = parameters.Item1;
-            var connection = parameters.Item2;
             var rowsAffected = 0;
             IDbContextTransaction startedTransaction = null;
             try
@@ -118,21 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task<int> ExecuteAsync(
+        public virtual async Task<int> ExecuteAsync(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection,
             CancellationToken cancellationToken = default)
-            => CurrentContext.Context.Database.AutoTransactionsEnabled
-                ? ExecutionStrategyFactory.Create().ExecuteAsync((commandBatches, connection), ExecuteAsync, null, cancellationToken)
-                : ExecuteAsync(CurrentContext.Context, (commandBatches, connection), cancellationToken);
-
-        private async Task<int> ExecuteAsync(
-            DbContext _,
-            (IEnumerable<ModificationCommandBatch>, IRelationalConnection) parameters,
-            CancellationToken cancellationToken = default)
         {
-            var commandBatches = parameters.Item1;
-            var connection = parameters.Item2;
             var rowsAffected = 0;
             IDbContextTransaction startedTransaction = null;
             try

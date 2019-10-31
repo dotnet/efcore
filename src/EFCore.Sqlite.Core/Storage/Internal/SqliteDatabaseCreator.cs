@@ -64,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         Dependencies.Connection,
                         null,
                         null,
+                        null,
                         Dependencies.CommandLogger));
 
             Dependencies.Connection.Close();
@@ -112,6 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 .ExecuteScalar(
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
+                        null,
                         null,
                         null,
                         Dependencies.CommandLogger));

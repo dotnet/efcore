@@ -165,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     innerEntityReference.SetIncludePaths(innerIncludeTreeNode);
                 }
 
-                var innerSoureSequenceType = innerSource.Type.GetSequenceType();
-                var innerParameter = Expression.Parameter(innerSoureSequenceType, "i");
+                var innerSourceSequenceType = innerSource.Type.GetSequenceType();
+                var innerParameter = Expression.Parameter(innerSourceSequenceType, "i");
                 Expression outerKey;
                 if (root is NavigationExpansionExpression innerNavigationExpansionExpression
                     && innerNavigationExpansionExpression.CardinalityReducingGenericMethodInfo != null)
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         : Expression.Equal(outerKey, innerKey);
 
                     var subquery = Expression.Call(
-                        QueryableMethods.Where.MakeGenericMethod(innerSoureSequenceType),
+                        QueryableMethods.Where.MakeGenericMethod(innerSourceSequenceType),
                         innerSource,
                         Expression.Quote(
                             Expression.Lambda(

@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = from mep in context.Set<MostExpensiveProduct>()
                             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                         from p in context.Set<Product>()
-                            .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
+                            .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Products]"))
                         where mep.TenMostExpensiveProducts == p.ProductName
                         select new { mep, p };
 
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query1 = context.Set<MostExpensiveProduct>()
                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
             var query2 = context.Set<Product>()
-                .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"));
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Products]"));
 
             var results1 = async ? await query1.ToListAsync() : query1.ToList();
             var results2 = async ? await query2.ToListAsync() : query2.ToList();
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task From_sql_queryable_select_and_stored_procedure(bool async)
         {
             using var context = CreateContext();
-            var query = from p in context.Set<Product>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"))
+            var query = from p in context.Set<Product>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Products]"))
                         from mep in context.Set<MostExpensiveProduct>()
                             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                         where mep.TenMostExpensiveProducts == p.ProductName
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
 
             var query1 = context.Set<Product>()
-                .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Products]"));
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Products]"));
             var query2 = context.Set<MostExpensiveProduct>()
                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters());
 
@@ -445,8 +445,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(10, actual.Length);
         }
 
-        private string NormalizeDelimetersInRawString(string sql)
-            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
+        private string NormalizeDelimitersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
         protected virtual object[] GetTenMostExpensiveProductsParameters()
             => Array.Empty<object>();

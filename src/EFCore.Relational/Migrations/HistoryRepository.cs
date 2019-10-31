@@ -127,13 +127,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Checks whether or not the history table exists.
         /// </summary>
-        /// <returns> <c>True</c> if the table already exists, <c>false</c> otherwise. </returns>
+        /// <returns> <c>true</c> if the table already exists, <c>false</c> otherwise. </returns>
         public virtual bool Exists()
             => Dependencies.DatabaseCreator.Exists()
                 && InterpretExistsResult(
                     Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
                         new RelationalCommandParameterObject(
                             Dependencies.Connection,
+                            null,
                             null,
                             Dependencies.CurrentContext.Context,
                             Dependencies.CommandLogger)));
@@ -144,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     <c>True</c> if the table already exists, <c>false</c> otherwise.
+        ///     <c>true</c> if the table already exists, <c>false</c> otherwise.
         /// </returns>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
@@ -153,6 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         new RelationalCommandParameterObject(
                             Dependencies.Connection,
                             null,
+                            null,
                             Dependencies.CurrentContext.Context,
                             Dependencies.CommandLogger),
                         cancellationToken));
@@ -160,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Interprets the result of executing <see cref="ExistsSql" />.
         /// </summary>
-        /// <returns>true if the table exists; otherwise, false.</returns>
+        /// <returns><c>true</c> if the table already exists, <c>false</c> otherwise.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);
 
         /// <summary>
@@ -217,6 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,
+                        null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.CommandLogger)))
                 {
@@ -250,6 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 await using (var reader = await command.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
+                        null,
                         null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.CommandLogger),

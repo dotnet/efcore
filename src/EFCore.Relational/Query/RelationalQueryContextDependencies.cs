@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -62,7 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
 
             RelationalConnection = relationalConnection;
+#pragma warning disable 618
             ExecutionStrategyFactory = executionStrategyFactory;
+#pragma warning restore 618
         }
 
         /// <summary>
@@ -73,6 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The execution strategy.
         /// </summary>
+        [Obsolete("Moved to QueryContextDependencies")]
         public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
         /// <summary>
@@ -81,7 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="relationalConnection"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalQueryContextDependencies With([NotNull] IRelationalConnection relationalConnection)
+#pragma warning disable 618
             => new RelationalQueryContextDependencies(relationalConnection, ExecutionStrategyFactory);
+#pragma warning restore 618
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
