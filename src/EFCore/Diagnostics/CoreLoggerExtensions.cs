@@ -48,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var definition = CoreResources.LogExceptionDuringSaveChanges(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
+            var interceptor = diagnostics.Interceptors?.Aggregate<ISaveChangesInterceptor>();
+
             if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
@@ -59,13 +61,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new DbContextErrorEventData(
+                DbContextErrorEventData eventData = new DbContextErrorEventData(
                         definition,
                         SaveChangesFailed,
                         context,
-                        exception));
+                        exception);
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    eventData);
+                if(interceptor != null){
+                    interceptor.SavingChangesFiled(eventData);
+                }
             }
         }
 
@@ -90,6 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
+            var interceptor = diagnostics.Interceptors?.Aggregate<ISaveChangesInterceptor>();
+
             if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
@@ -100,13 +108,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new DbContextErrorEventData(
+                DbContextErrorEventData eventData = new DbContextErrorEventData(
                         definition,
                         OptimisticConcurrencyException,
                         context,
-                        exception));
+                        exception);
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    eventData);
+                if(interceptor != null){
+                    interceptor.SavingChangesFiled(eventData);
+                }
             }
         }
 
@@ -2935,6 +2947,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var definition = CoreResources.LogSaveChangesStarting(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
+            var interceptor = diagnostics.Interceptors.Aggregate<ISaveChangesInterceptor>();
+
             if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
@@ -2945,12 +2959,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new DbContextEventData(
+                var eventData = new DbContextEventData(
                         definition,
                         SaveChangesStarting,
-                        context));
+                        context);
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    eventData);
+                if(interceptor != null){
+                    interceptor.SavingChanges(eventData, default);
+                }
             }
         }
 
@@ -2975,6 +2993,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var definition = CoreResources.LogSaveChangesCompleted(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
+            var interceptor = diagnostics.Interceptors?.Aggregate<ISaveChangesInterceptor>();
+
             if (warningBehavior != WarningBehavior.Ignore)
             {
                 definition.Log(
@@ -2986,13 +3006,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new SaveChangesCompletedEventData(
+                SaveChangesCompletedEventData eventData = new SaveChangesCompletedEventData(
                         definition,
                         SaveChangesCompleted,
                         context,
-                        entitiesSavedCount));
+                        entitiesSavedCount);
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    eventData);
+                if(interceptor != null){
+                    interceptor.SavedChanges(eventData, entitiesSavedCount);
+                }
             }
         }
 
