@@ -243,6 +243,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     elementSorter = (Func<TResult, object>)sorter;
                 }
 
+                if (elementSorter != null)
+                {
+                    actual = actual.OrderBy(elementSorter).ToList();
+                    expected = expected.OrderBy(elementSorter).ToList();
+                }
+
                 if (clientProjections != null)
                 {
                     foreach (var clientProjection in clientProjections)
