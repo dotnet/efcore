@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         protected TestStore TestStore { get; }
         public void Dispose() => TestStore.Dispose();
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public virtual void Can_save_changes_and_query()
         {
             int secondId;
