@@ -1,8 +1,7 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Collections;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
             => new SqlConstantExpression(_constantExpression, typeMapping);
+
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
         public override void Print(ExpressionPrinter expressionPrinter) => Print(Value, expressionPrinter);
 
@@ -31,13 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlConstantExpression sqlConstantExpression
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlConstantExpression sqlConstantExpression
                     && Equals(sqlConstantExpression));
 
         private bool Equals(SqlConstantExpression sqlConstantExpression)
             => base.Equals(sqlConstantExpression)
-            && ValueEquals(Value, sqlConstantExpression.Value);
+                && ValueEquals(Value, sqlConstantExpression.Value);
 
         private bool ValueEquals(object value1, object value2)
         {

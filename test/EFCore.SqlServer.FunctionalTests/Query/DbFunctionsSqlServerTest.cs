@@ -63,12 +63,12 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
                     .Where(c => EF.Functions.FreeText(c.Title, "Representative"))
                     .ToListAsync();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
+                Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative')");
             }
         }
 
@@ -89,12 +89,12 @@ WHERE FREETEXT([c].[Title], N'Representative')");
                     .Where(c => EF.Functions.FreeText(c.Title, "Representative Sales"))
                     .Count();
 
-                Assert.Equal(result, 9);
+                Assert.Equal(9, result);
 
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative Sales')");
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative Sales')");
             }
         }
 
@@ -106,12 +106,12 @@ WHERE FREETEXT([c].[Title], N'Representative Sales')");
             {
                 var result = context.Employees.SingleOrDefault(c => EF.Functions.FreeText(c.Title, "President", 1033));
 
-                Assert.Equal(result.EmployeeID, 2u);
+                Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)");
             }
         }
 
@@ -125,12 +125,12 @@ WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
                     .Where(c => EF.Functions.FreeText(c.Title, "Representative President", 1033))
                     .ToList();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
+                Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)");
             }
         }
 
@@ -143,15 +143,15 @@ WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.City, "London")
-                             && EF.Functions.FreeText(c.Title, "Manager", 1033))
+                            && EF.Functions.FreeText(c.Title, "Manager", 1033))
                     .FirstOrDefault();
 
-                Assert.Equal(result.EmployeeID, 5u);
+                Assert.Equal(5u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(1) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', LANGUAGE 1033))");
+                    @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[City], N'London')) AND (FREETEXT([e].[Title], N'Manager', LANGUAGE 1033)");
             }
         }
 
@@ -166,7 +166,7 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation()
         {
@@ -175,21 +175,21 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.Manager.Title, "President")
-                             && EF.Functions.FreeText(c.Title, "Inside")
-                             && c.FirstName.Contains("Lau"))
+                            && EF.Functions.FreeText(c.Title, "Inside")
+                            && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
-                Assert.Equal(result.EmployeeID, 8u);
+                Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([e].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation_with_language_terms()
         {
@@ -198,17 +198,17 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
-                             && EF.Functions.FreeText(c.Title, "Inside", 1031)
-                             && c.FirstName.Contains("Lau"))
+                            && EF.Functions.FreeText(c.Title, "Inside", 1031)
+                            && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
-                Assert.Equal(result.EmployeeID, 8u);
+                Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([c].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([e].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
             }
         }
 
@@ -310,12 +310,12 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                     .Where(c => EF.Functions.Contains(c.Title, "Representative"))
                     .ToListAsync();
 
-                Assert.Equal(result.First().EmployeeID, 1u);
+                Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'Representative')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'Representative')");
             }
         }
 
@@ -327,12 +327,12 @@ WHERE CONTAINS([c].[Title], N'Representative')");
             {
                 var result = context.Employees.SingleOrDefault(c => EF.Functions.Contains(c.Title, "President", 1033));
 
-                Assert.Equal(result.EmployeeID, 2u);
+                Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)");
             }
         }
 
@@ -350,9 +350,9 @@ WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
                 Assert.Equal(2u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'Vice OR Inside')");
             }
         }
 
@@ -368,9 +368,9 @@ WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
                 Assert.Equal(5u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'""Mana*""', LANGUAGE 1033)");
             }
         }
 
@@ -386,13 +386,13 @@ WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
                 Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_through_navigation()
         {
@@ -401,17 +401,17 @@ WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.Contains(c.Manager.Title, "President")
-                             && EF.Functions.Contains(c.Title, "\"Ins*\""))
+                            && EF.Functions.Contains(c.Title, "\"Ins*\""))
                     .LastOrDefault();
 
                 Assert.NotNull(result);
-                Assert.Equal(result.EmployeeID, 8u);
+                Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([c].[Title], N'""Ins*""'))");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([e].[Title], N'""Ins*""'))");
             }
         }
 
@@ -571,7 +571,7 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
                     .Select(c => EF.Functions.IsDate(c.CustomerID))
                     .FirstOrDefault();
 
-                Assert.Equal(actual, false);
+                Assert.False(actual);
 
                 AssertSql(
                     @"SELECT TOP(1) CAST(ISDATE([o].[CustomerID]) AS bit)
@@ -591,13 +591,12 @@ WHERE CAST(ISDATE([o].[CustomerID]) AS bit) <> CAST(1 AS bit)");
                     .Select(c => EF.Functions.IsDate(c.OrderDate.Value.ToString()))
                     .FirstOrDefault();
 
-                Assert.Equal(actual, true);
+                Assert.True(actual);
 
                 AssertSql(
                     @"SELECT TOP(1) CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit)
 FROM [Orders] AS [o]
 WHERE CAST(ISDATE(CONVERT(VARCHAR(100), [o].[OrderDate])) AS bit) = CAST(1 AS bit)");
-
             }
         }
 

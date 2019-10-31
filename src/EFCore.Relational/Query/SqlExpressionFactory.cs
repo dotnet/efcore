@@ -1,16 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,9 +24,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression)
-            => sqlExpression == null || sqlExpression.TypeMapping != null
-                ? sqlExpression
-                : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
+        {
+            if (sqlExpression == null
+                || sqlExpression.TypeMapping != null)
+            {
+                return sqlExpression;
+            }
+
+            if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
+                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+                && sqlUnaryExpression.Type == typeof(object))
+            {
+                return sqlUnaryExpression.Operand;
+            }
+
+            return ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
+        }
 
         public virtual SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping)
         {
@@ -42,22 +51,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return sqlExpression switch
             {
-                CaseExpression e         => ApplyTypeMappingOnCase(e, typeMapping),
-                LikeExpression e         => ApplyTypeMappingOnLike(e),
-                SqlBinaryExpression e    => ApplyTypeMappingOnSqlBinary(e, typeMapping),
-                SqlUnaryExpression e     => ApplyTypeMappingOnSqlUnary(e, typeMapping),
-                SqlConstantExpression e  => e.ApplyTypeMapping(typeMapping),
-                SqlFragmentExpression e  => e,
-                SqlFunctionExpression e  => e.ApplyTypeMapping(typeMapping),
+                CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
+                LikeExpression e => ApplyTypeMappingOnLike(e),
+                SqlBinaryExpression e => ApplyTypeMappingOnSqlBinary(e, typeMapping),
+                SqlUnaryExpression e => ApplyTypeMappingOnSqlUnary(e, typeMapping),
+                SqlConstantExpression e => e.ApplyTypeMapping(typeMapping),
+                SqlFragmentExpression e => e,
+                SqlFunctionExpression e => e.ApplyTypeMapping(typeMapping),
                 SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
-                _                        => sqlExpression
+                _ => sqlExpression
             };
         }
 
         private SqlExpression ApplyTypeMappingOnLike(LikeExpression likeExpression)
         {
-            var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(
-                likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar)
+            var inferredTypeMapping = (likeExpression.EscapeChar == null
+                    ? ExpressionExtensions.InferTypeMapping(
+                        likeExpression.Match, likeExpression.Pattern)
+                    : ExpressionExtensions.InferTypeMapping(
+                        likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar))
                 ?? _typeMappingSource.FindMapping(likeExpression.Match.Type);
 
             return new LikeExpression(
@@ -142,8 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ?? _typeMappingSource.FindMapping(left.Type);
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
+                    break;
                 }
-                break;
 
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
@@ -151,8 +163,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     inferredTypeMapping = _boolTypeMapping;
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
+                    break;
                 }
-                break;
 
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
@@ -166,8 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
                     resultType = left.Type;
                     resultTypeMapping = inferredTypeMapping;
+                    break;
                 }
-                break;
 
                 default:
                     throw new InvalidOperationException("Incorrect operatorType for SqlBinaryExpression");
@@ -257,7 +269,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual SqlBinaryExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
             => MakeBinary(ExpressionType.Coalesce, left, right, typeMapping);
 
-        public virtual SqlUnaryExpression MakeUnary(ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
+        public virtual SqlUnaryExpression MakeUnary(
+            ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null)
             => (SqlUnaryExpression)ApplyTypeMapping(new SqlUnaryExpression(operatorType, operand, type, null), typeMapping);
 
         public virtual SqlUnaryExpression IsNull(SqlExpression operand)
@@ -357,7 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual SqlFunctionExpression Function(
-            SqlExpression instance, string name, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null)
+            SqlExpression instance, string name, IEnumerable<SqlExpression> arguments, Type returnType,
+            RelationalTypeMapping typeMapping = null)
         {
             instance = ApplyDefaultTypeMapping(instance);
             var typeMappedArguments = new List<SqlExpression>();
@@ -380,7 +394,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual SqlFunctionExpression Function(string schema, string name, Type returnType, RelationalTypeMapping typeMapping = null)
             => SqlFunctionExpression.CreateNiladic(schema, name, returnType, typeMapping);
 
-        public virtual SqlFunctionExpression Function(SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression Function(
+            SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null)
             => SqlFunctionExpression.CreateNiladic(ApplyDefaultTypeMapping(instance), name, returnType, typeMapping);
 
         public virtual ExistsExpression Exists(SelectExpression subquery, bool negated)
@@ -403,7 +418,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (typeMapping == null)
             {
-                throw new InvalidOperationException($"The subquery '{subquery.Print()}' references type '{sqlExpression.Type}' for which no type mapping could be found.");
+                throw new InvalidOperationException(
+                    $"The subquery '{subquery.Print()}' references type '{sqlExpression.Type}' for which no type mapping could be found.");
             }
 
             item = ApplyTypeMapping(item, typeMapping);
@@ -430,10 +446,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (projection != null)
             {
-                selectExpression.ReplaceProjectionMapping(new Dictionary<ProjectionMember, Expression>
-                {
-                    { new ProjectionMember(), projection }
-                });
+                selectExpression.ReplaceProjectionMapping(
+                    new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
             }
 
             return selectExpression;
@@ -468,21 +482,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             else
             {
                 sharingTypes ??= new HashSet<IEntityType>(
-                        entityType.Model.GetEntityTypes()
-                            .Where(et => et.FindPrimaryKey() != null
-                                      && et.GetTableName() == entityType.GetTableName()
-                                      && et.GetSchema() == entityType.GetSchema()));
+                    entityType.Model.GetEntityTypes()
+                        .Where(
+                            et => et.FindPrimaryKey() != null
+                                && et.GetTableName() == entityType.GetTableName()
+                                && et.GetSchema() == entityType.GetSchema()));
 
                 if (sharingTypes.Count > 0)
                 {
                     bool discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
 
                     var linkingFks = entityType.GetRootType().FindForeignKeys(entityType.FindPrimaryKey().Properties)
-                                        .Where(
-                                            fk => fk.PrincipalKey.IsPrimaryKey()
-                                                  && fk.PrincipalEntityType != entityType
-                                                  && sharingTypes.Contains(fk.PrincipalEntityType))
-                                        .ToList();
+                        .Where(
+                            fk => fk.PrincipalKey.IsPrimaryKey()
+                                && fk.PrincipalEntityType != entityType
+                                && sharingTypes.Contains(fk.PrincipalEntityType))
+                        .ToList();
 
                     if (linkingFks.Count > 0)
                     {
@@ -568,7 +583,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var discriminatorColumn = GetMappedEntityProjectionExpression(selectExpression)
                     .BindProperty(concreteEntityTypes[0].GetDiscriminatorProperty());
 
-                predicate = In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false);
+                predicate = In(
+                    discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false);
             }
 
             selectExpression.ApplyPredicate(predicate);
@@ -619,6 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                             IsNotNull(property, entityProjectionExpression),
                                             current));
                     }
+
                     selectExpression.ApplyPredicate(predicate);
 
                     foreach (var referencingFk in entityType.GetReferencingForeignKeys())
@@ -626,9 +643,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var otherSelectExpression = new SelectExpression(entityType);
 
                         var sameTable = sharingTypes.Contains(referencingFk.DeclaringEntityType);
-                        AddInnerJoin(otherSelectExpression, referencingFk,
-                                        sameTable ? sharingTypes : null,
-                                        skipInnerJoins: sameTable);
+                        AddInnerJoin(
+                            otherSelectExpression, referencingFk,
+                            sameTable ? sharingTypes : null,
+                            skipInnerJoins: sameTable);
                         selectExpression.ApplyUnion(otherSelectExpression, distinct: true);
                     }
                 }

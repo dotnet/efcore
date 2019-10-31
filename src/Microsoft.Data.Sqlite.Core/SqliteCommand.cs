@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,11 +7,11 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Sqlite
 
         /// <summary>
         ///     Gets or sets a value indicating how <see cref="CommandText" /> is interpreted. Only
-        ///     <see cref="CommandType.Text" /> is supported.
+        ///     <see cref="MediaTypeNames.Text" /> is supported.
         /// </summary>
         /// <value>A value indicating how <see cref="CommandText" /> is interpreted.</value>
         public override CommandType CommandType
@@ -306,10 +306,10 @@ namespace Microsoft.Data.Sqlite
             var timer = new Stopwatch();
             var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
-            DataReader = new SqliteDataReader(this, timer, GetStatements(timer), closeConnection);
-            DataReader.NextResult();
+            var dataReader = new SqliteDataReader(this, timer, GetStatements(timer), closeConnection);
+            dataReader.NextResult();
 
-            return DataReader = DataReader;
+            return DataReader = dataReader;
         }
 
         private IEnumerable<sqlite3_stmt> GetStatements(Stopwatch timer)
@@ -547,7 +547,7 @@ namespace Microsoft.Data.Sqlite
 
         private static bool IsBusy(int rc)
             => rc == SQLITE_LOCKED
-               || rc == SQLITE_BUSY
-               || rc == SQLITE_LOCKED_SHAREDCACHE;
+                || rc == SQLITE_BUSY
+                || rc == SQLITE_LOCKED_SHAREDCACHE;
     }
 }

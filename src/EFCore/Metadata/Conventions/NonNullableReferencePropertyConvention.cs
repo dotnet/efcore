@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -14,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the properties of non-nullable types as required.
     /// </summary>
     public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
-        IPropertyAddedConvention, IPropertyFieldChangedConvention
+        IPropertyAddedConvention,
+        IPropertyFieldChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="NonNullableReferencePropertyConvention" />.

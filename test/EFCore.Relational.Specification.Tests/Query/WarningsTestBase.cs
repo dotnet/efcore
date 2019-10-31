@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = context.Customers.Where(c => c.CustomerID == "ALFKI" && c.Orders.FirstOrDefault().OrderID > 1000).ToList();
-                Assert.Equal(1, query.Count);
+                Assert.Single(query);
             }
         }
 
@@ -119,8 +119,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var query = context.Orders.Select(o => o.OrderID).Max();
-
-                Assert.NotNull(query);
             }
         }
 

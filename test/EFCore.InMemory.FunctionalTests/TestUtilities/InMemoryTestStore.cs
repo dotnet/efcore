@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public InMemoryTestStore InitializeInMemory(
             IServiceProvider serviceProvider, Func<DbContext> createContext, Action<DbContext> seed)
-            => (InMemoryTestStore)Initialize(serviceProvider, createContext, seed, null);
+            => (InMemoryTestStore)Initialize(serviceProvider, createContext, seed);
 
         public InMemoryTestStore InitializeInMemory(
             IServiceProvider serviceProvider, Func<InMemoryTestStore, DbContext> createContext, Action<DbContext> seed)
-            => (InMemoryTestStore)Initialize(serviceProvider, () => createContext(this), seed, null);
+            => (InMemoryTestStore)Initialize(serviceProvider, () => createContext(this), seed);
 
         protected override TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider)
             => serviceProvider == null

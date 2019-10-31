@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             ValueGeneratorFactory = parameters.ValueGeneratorFactory
-                                    ?? converter?.MappingHints?.ValueGeneratorFactory;
+                ?? converter?.MappingHints?.ValueGeneratorFactory;
         }
 
         /// <summary>

@@ -30,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore
                             ColumnType = "INT"
                         }
                     }
-                }, new AddForeignKeyOperation
+                },
+                new AddForeignKeyOperation
                 {
                     Table = "Pie",
                     PrincipalTable = "Flavor",
@@ -111,18 +112,8 @@ namespace Microsoft.EntityFrameworkCore
                             IsNullable = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
-                    {
-                        Name = pkName,
-                        Columns = new[] { "Id" }
-                    },
-                    UniqueConstraints =
-                    {
-                        new AddUniqueConstraintOperation
-                        {
-                            Columns = new[] { "SSN" }
-                        }
-                    },
+                    PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = new[] { "Id" } },
+                    UniqueConstraints = { new AddUniqueConstraintOperation { Columns = new[] { "SSN" } } },
                     ForeignKeys =
                     {
                         new AddForeignKeyOperation
@@ -157,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_with_defaultValue();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
 ");
         }
 
@@ -165,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_without_column_type();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Alias"" TEXT NOT NULL;
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Alias"" TEXT NOT NULL;
 ");
         }
 
@@ -183,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore
                     DefaultValueSql = "10"
                 });
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Age"" int NULL DEFAULT (10);
 ");
         }
 
@@ -192,7 +186,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength();
 
             // See issue #3698
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
         }
 
@@ -201,7 +196,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_overridden();
 
             // See issue #3698
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
         }
 
@@ -210,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore
             base.AddColumnOperation_with_maxLength_on_derived();
 
             // See issue #3698
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
         }
 
@@ -218,7 +215,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             base.AddColumnOperation_with_shared_column();
 
-            AssertSql(@"ALTER TABLE ""Base"" ADD ""Foo"" TEXT NULL;
+            AssertSql(
+                @"ALTER TABLE ""Base"" ADD ""Foo"" TEXT NULL;
 ");
         }
 
@@ -352,7 +350,8 @@ namespace Microsoft.EntityFrameworkCore
                     NewName = "FullName"
                 });
 
-            AssertSql(@"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME COLUMN ""Name"" TO ""FullName"";
 ");
         }
 
@@ -401,7 +400,8 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
         {
             base.RenameTableOperation_legacy();
 
-            AssertSql(@"ALTER TABLE ""People"" RENAME TO ""Person"";
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Person"";
 ");
         }
 
@@ -409,7 +409,8 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
         {
             base.RenameTableOperation();
 
-            AssertSql(@"ALTER TABLE ""People"" RENAME TO ""Person"";
+            AssertSql(
+                @"ALTER TABLE ""People"" RENAME TO ""Person"";
 ");
         }
 
@@ -447,7 +448,8 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
         {
             base.DropIndexOperation();
 
-            AssertSql(@"DROP INDEX ""IX_People_Name"";
+            AssertSql(
+                @"DROP INDEX ""IX_People_Name"";
 ");
         }
 
@@ -493,10 +495,7 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
                             ["Autoincrement"] = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
-                    {
-                        Columns = new[] { "Id" }
-                    }
+                    PrimaryKey = new AddPrimaryKeyOperation { Columns = new[] { "Id" } }
                 });
 
             AssertSql(
@@ -582,8 +581,7 @@ CREATE UNIQUE INDEX ""IX_Person_FullName"" ON ""Person"" (""FullName"") WHERE ""
 comment.
 More information can
 be found in the docs."
-
-                        },
+                        }
                     }
                 });
 
@@ -616,7 +614,7 @@ that continues onto another line",
                             ClrType = typeof(int),
                             IsNullable = false,
                             Comment = "My Comment"
-                        },
+                        }
                     }
                 });
 

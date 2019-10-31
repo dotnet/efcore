@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -447,8 +447,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool EntityTypeShouldHaveDefiningNavigation(in TypeIdentity type)
             => _entityTypesWithDefiningNavigation.ContainsKey(type.Name)
-               || (_detachedEntityTypesWithDefiningNavigation.TryGetValue(type.Name, out var detachedTypes)
-                   && detachedTypes.Count > 1);
+                || (_detachedEntityTypesWithDefiningNavigation.TryGetValue(type.Name, out var detachedTypes)
+                    && detachedTypes.Count > 1);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -529,10 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityType = FindEntityType(name);
             return entityType == null
                 ? Array.Empty<EntityType>()
-                : new[]
-                {
-                    entityType
-                };
+                : new[] { entityType };
         }
 
         /// <summary>
@@ -544,10 +541,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyList<EntityType> FindLeastDerivedEntityTypes(
             [NotNull] Type type, [CanBeNull] Func<EntityType, bool> condition = null)
         {
-            var derivedLevels = new Dictionary<TypeInfo, int>
-            {
-                [type.GetTypeInfo()] = 0
-            };
+            var derivedLevels = new Dictionary<TypeInfo, int> { [type.GetTypeInfo()] = 0 };
 
             var leastDerivedTypesGroups = GetEntityTypes()
                 .GroupBy(t => GetDerivedLevel(t.ClrType.GetTypeInfo(), derivedLevels))
@@ -973,8 +967,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionModelBuilder IConventionModel.Builder
         {
-            [DebuggerStepThrough]
-            get => Builder;
+            [DebuggerStepThrough] get => Builder;
         }
 
         /// <summary>

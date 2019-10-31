@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [Conditional("DEBUG")]
-        public static void DebugAssert([System.Diagnostics.CodeAnalysis.DoesNotReturnIf(false)] bool condition, string message)
+        public static void DebugAssert(bool condition, string message)
         {
             if (!condition)
             {

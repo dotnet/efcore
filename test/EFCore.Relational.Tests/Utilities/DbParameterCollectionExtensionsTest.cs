@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Formats_null_string_parameter()
         {
             Assert.Equal(
-                "@param=''",
+                "@param=NULL",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", null, true, ParameterDirection.Input, DbType.String, true, 0, 0, 0));
         }
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Formats_null_non_unicode_string_parameter()
         {
             Assert.Equal(
-                "@param='' (DbType = AnsiString)",
+                "@param=NULL (DbType = AnsiString)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", null, true, ParameterDirection.Input, DbType.AnsiString, true, 0, 0, 0));
         }
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Formats_null_fixed_length_string_parameter()
         {
             Assert.Equal(
-                "@param='' (DbType = StringFixedLength)",
+                "@param=NULL (DbType = StringFixedLength)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", null, true, ParameterDirection.Input, DbType.StringFixedLength, true, 0, 0, 0));
         }
@@ -206,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public void Formats_null_nullable_int_parameter()
         {
             Assert.Equal(
-                "@param='' (DbType = Int32)",
+                "@param=NULL (DbType = Int32)",
                 DbParameterCollectionExtensions.FormatParameter(
                     "@param", null, true, ParameterDirection.Input, DbType.Int32, true, 0, 0, 0));
         }

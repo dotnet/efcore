@@ -4,9 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -136,18 +134,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         protected virtual MigrationOperation Drop(DatabaseSequence sequence)
-            => new DropSequenceOperation
-            {
-                Name = sequence.Name,
-                Schema = sequence.Schema
-            };
+            => new DropSequenceOperation { Name = sequence.Name, Schema = sequence.Schema };
 
         protected virtual MigrationOperation Drop(DatabaseTable table)
-            => new DropTableOperation
-            {
-                Name = table.Name,
-                Schema = table.Schema
-            };
+            => new DropTableOperation { Name = table.Name, Schema = table.Schema };
 
         protected virtual MigrationOperation Drop(DatabaseForeignKey foreignKey)
             => new DropForeignKeyOperation

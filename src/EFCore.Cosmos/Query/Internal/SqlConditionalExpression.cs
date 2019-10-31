@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -110,15 +110,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlConditionalExpression sqlConditionalExpression
-                    && Equals(sqlConditionalExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is SqlConditionalExpression sqlConditionalExpression
+                   && Equals(sqlConditionalExpression));
 
         private bool Equals(SqlConditionalExpression sqlConditionalExpression)
             => base.Equals(sqlConditionalExpression)
-            && Test.Equals(sqlConditionalExpression.Test)
-            && IfTrue.Equals(sqlConditionalExpression.IfTrue)
-            && IfFalse.Equals(sqlConditionalExpression.IfFalse);
+               && Test.Equals(sqlConditionalExpression.Test)
+               && IfTrue.Equals(sqlConditionalExpression.IfTrue)
+               && IfFalse.Equals(sqlConditionalExpression.IfFalse);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

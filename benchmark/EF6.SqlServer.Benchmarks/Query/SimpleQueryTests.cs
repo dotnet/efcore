@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
     {
         private static readonly OrdersFixture _fixture
             = new OrdersFixture("Perf_Query_Simple_EF6", 1000, 1000, 2, 2);
+
         private OrdersContext _context;
 
         [Params(true, false)]
@@ -130,11 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
             var query = _context.Products
                 .GroupBy(p => p.Retail)
                 .Select(
-                    g => new
-                    {
-                        Retail = g.Key,
-                        Products = g
-                    });
+                    g => new { Retail = g.Key, Products = g });
 
             if (Async)
             {

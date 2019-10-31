@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -20,8 +20,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private InMemoryQueryExpression _queryExpression;
         private bool _clientEval;
+
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
+
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
 
         public InMemoryProjectionBindingExpressionVisitor(
@@ -68,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             if (!(expression is NewExpression
-                  || expression is MemberInitExpression
-                  || expression is EntityShaperExpression
-                  || expression is IncludeExpression))
+                || expression is MemberInitExpression
+                || expression is EntityShaperExpression
+                || expression is IncludeExpression))
             {
                 // This skips the group parameter from GroupJoin
                 if (expression is ParameterExpression parameter
@@ -139,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         translation = NullSafeConvert(translation, expression.Type);
                     }
 
-                    return new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(translation), expression.Type);
+                    return new ProjectionBindingExpression(
+                        _queryExpression, _queryExpression.AddToProjection(translation), expression.Type);
                 }
                 else
                 {
@@ -202,13 +205,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return entityShaperExpression.Update(
                         new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjectionExpression)));
                 }
-                else
-                {
-                    _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
 
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
-                }
+                _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
+
+                return entityShaperExpression.Update(
+                    new ProjectionBindingExpression(_queryExpression, _projectionMembers.Peek(), typeof(ValueBuffer)));
             }
 
             if (extensionExpression is IncludeExpression includeExpression)
@@ -223,6 +224,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
+            // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
+            if (newExpression.Constructor == null)
+            {
+                return newExpression;
+            }
+
             if (newExpression.Arguments.Count == 0)
             {
                 return newExpression;
@@ -250,6 +257,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     {
                         return null;
                     }
+
                     _projectionMembers.Pop();
                 }
             }

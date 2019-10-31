@@ -44,11 +44,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<SpecialBookLabel>().Property(b => b.BookId);
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
-                var model = modelBuilder.Model;
-                Assert.Equal(0, model.FindEntityType(typeof(ExtraSpecialBookLabel)).GetDeclaredProperties().Count());
-                Assert.Equal(0, model.FindEntityType(typeof(SpecialBookLabel)).GetDeclaredProperties().Count());
+                Assert.Empty(model.FindEntityType(typeof(ExtraSpecialBookLabel)).GetDeclaredProperties());
+                Assert.Empty(model.FindEntityType(typeof(SpecialBookLabel)).GetDeclaredProperties());
                 Assert.NotNull(model.FindEntityType(typeof(SpecialBookLabel)).FindProperty(nameof(BookLabel.BookId)));
             }
 
@@ -62,9 +61,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<ExtraSpecialBookLabel>();
                 modelBuilder.Entity<SpecialBookLabel>().Ignore(b => b.BookLabel);
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
-                var model = modelBuilder.Model;
                 var moreDerived = model.FindEntityType(typeof(ExtraSpecialBookLabel));
                 var derived = model.FindEntityType(typeof(SpecialBookLabel));
                 var baseType = model.FindEntityType(typeof(BookLabel));
@@ -74,22 +72,40 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Can_specify_discriminator_values_first()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<P>();
+
+                modelBuilder.Entity<PBase>()
+                    .HasDiscriminator<int>("TypeDiscriminator")
+                    .HasValue<T>(1)
+                    .HasValue<Q>(2);
+
+                modelBuilder.Entity<P>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Null(model.FindEntityType(typeof(PBase)).GetDiscriminatorValue());
+                Assert.Null(model.FindEntityType(typeof(P)).GetDiscriminatorValue());
+                Assert.Equal(1, model.FindEntityType(typeof(T)).GetDiscriminatorValue());
+                Assert.Equal(2, model.FindEntityType(typeof(Q)).GetDiscriminatorValue());
+            }
+
+            [ConditionalFact]
             public virtual void Can_map_derived_self_ref_many_to_one()
             {
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<SelfRefManyToOneDerived>().HasData(
-                    new SelfRefManyToOneDerived
-                    {
-                        Id = 1,
-                        SelfRefId = 1
-                    });
+                    new SelfRefManyToOneDerived { Id = 1, SelfRefId = 1 });
                 modelBuilder.Entity<SelfRefManyToOne>();
 
                 modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
-                Assert.Equal(0, model.FindEntityType(typeof(SelfRefManyToOneDerived)).GetDeclaredProperties().Count());
+                Assert.Empty(model.FindEntityType(typeof(SelfRefManyToOneDerived)).GetDeclaredProperties());
                 Assert.NotNull(model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef1)));
                 Assert.NotNull(model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef2)));
             }
@@ -509,34 +525,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 principalEntityBuilder.HasMany(c => c.Orders).WithOne(o => o.Customer)
                     .HasForeignKey(
-                        o => new
-                        {
-                            o.CustomerId,
-                            o.AnotherCustomerId
-                        })
+                        o => new { o.CustomerId, o.AnotherCustomerId })
                     .HasPrincipalKey(
-                        c => new
-                        {
-                            c.Id,
-                            c.AlternateKey
-                        });
+                        c => new { c.Id, c.AlternateKey });
 
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
                 derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
                     .HasForeignKey(
-                        o => new
-                        {
-                            o.CustomerId
-                        })
+                        o => new { o.CustomerId })
                     .HasPrincipalKey(
-                        c => new
-                        {
-                            c.Id
-                        });
+                        c => new { c.Id });
 
                 var fk = dependentEntityType.GetForeignKeys().Single();
-                Assert.Equal(1, dependentEntityType.GetIndexes().Count());
+                Assert.Single(dependentEntityType.GetIndexes());
                 Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);
                 Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
                 Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
@@ -557,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 derivedDependentEntityBuilder.HasBaseType<Order>();
 
                 fk = dependentEntityType.GetForeignKeys().Single();
-                Assert.Equal(1, dependentEntityType.GetIndexes().Count());
+                Assert.Single(dependentEntityType.GetIndexes());
                 Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);
 
                 AssertEqual(initialProperties, derivedDependentEntityType.GetProperties(), new PropertyComparer(compareAnnotations: false));
@@ -567,15 +569,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 principalEntityBuilder.HasOne<Order>().WithOne()
                     .HasPrincipalKey<Customer>(
-                        c => new
-                        {
-                            c.Id
-                        })
+                        c => new { c.Id })
                     .HasForeignKey<Order>(
-                        o => new
-                        {
-                            o.CustomerId
-                        });
+                        o => new { o.CustomerId });
 
                 modelBuilder.FinalizeModel();
 
@@ -606,24 +602,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var derivedDependentEntityBuilder = modelBuilder.Entity<BackOrder>();
 
                 dependentEntityBuilder.HasIndex(
-                        o => new
-                        {
-                            o.CustomerId,
-                            o.AnotherCustomerId
-                        })
+                        o => new { o.CustomerId, o.AnotherCustomerId })
                     .IsUnique();
 
                 derivedPrincipalEntityBuilder.HasMany<BackOrder>().WithOne()
                     .HasPrincipalKey(
-                        c => new
-                        {
-                            c.Id
-                        })
+                        c => new { c.Id })
                     .HasForeignKey(
-                        o => new
-                        {
-                            o.CustomerId
-                        });
+                        o => new { o.CustomerId });
 
                 var dependentEntityType = dependentEntityBuilder.Metadata;
                 var derivedDependentEntityType = derivedDependentEntityBuilder.Metadata;
@@ -862,34 +848,34 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(ValueGenerated.OnAdd, mb.Model.FindEntityType(typeof(Q)).FindProperty(nameof(Q.ID)).ValueGenerated);
             }
 
-            public class L
+            protected class L
             {
                 public int Id { get; set; }
                 public IList<T> Ts { get; set; }
             }
 
-            public class T : P
+            protected class T : P
             {
                 public Q D { get; set; }
                 public P P { get; set; }
                 public Q F { get; set; }
             }
 
-            public class P : PBase
+            protected abstract class P : PBase
             {
             }
 
-            public class Q : PBase
+            protected class Q : PBase
             {
             }
 
-            public abstract class PBase
+            protected abstract class PBase
             {
                 public int ID { get; set; }
                 public string Stuff { get; set; }
             }
 
-            public class AL
+            protected class AL
             {
                 public int Id { get; set; }
                 public PBase L { get; set; }

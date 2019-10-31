@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Subquery = subquery;
         }
+
         private static SelectExpression Verify(SelectExpression selectExpression)
         {
             if (selectExpression.Projection.Count != 1)
@@ -42,17 +43,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 expressionPrinter.Visit(Subquery);
             }
+
             expressionPrinter.Append(")");
         }
+
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is ScalarSubqueryExpression subSelectExpression
+                && (ReferenceEquals(this, obj)
+                    || obj is ScalarSubqueryExpression subSelectExpression
                     && Equals(subSelectExpression));
 
         private bool Equals(ScalarSubqueryExpression scalarSubqueryExpression)
             => base.Equals(scalarSubqueryExpression)
-            && Subquery.Equals(scalarSubqueryExpression.Subquery);
+                && Subquery.Equals(scalarSubqueryExpression.Subquery);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Subquery);
     }

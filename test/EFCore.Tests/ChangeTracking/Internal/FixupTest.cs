@@ -4,12 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
@@ -266,14 +263,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryPN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductPN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryPN { Id = 77 };
+                var dependent = new ProductPN { Id = 78 };
                 if (setFk)
                 {
                     dependent.CategoryId = principal.Id;
@@ -366,14 +357,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductDN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryDN { Id = 77 };
+                var dependent = new ProductDN { Id = 78 };
                 if (setFk)
                 {
                     dependent.CategoryId = principal.Id;
@@ -415,15 +400,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductNN
-                {
-                    Id = 78,
-                    CategoryId = principal.Id
-                };
+                var principal = new CategoryNN { Id = 77 };
+                var dependent = new ProductNN { Id = 78, CategoryId = principal.Id };
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -447,15 +425,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductNN
-                {
-                    Id = 78,
-                    CategoryId = principal.Id
-                };
+                var principal = new CategoryNN { Id = 77 };
+                var dependent = new ProductNN { Id = 78, CategoryId = principal.Id };
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -716,14 +687,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildPN
-                {
-                    Id = 78
-                };
+                var principal = new ParentPN { Id = 77 };
+                var dependent = new ChildPN { Id = 78 };
 
                 if (setFk)
                 {
@@ -824,14 +789,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildDN
-                {
-                    Id = 78
-                };
+                var principal = new ParentDN { Id = 77 };
+                var dependent = new ChildDN { Id = 78 };
 
                 if (setFk)
                 {
@@ -875,15 +834,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildNN
-                {
-                    Id = 78,
-                    ParentId = principal.Id
-                };
+                var principal = new ParentNN { Id = 77 };
+                var dependent = new ChildNN { Id = 78, ParentId = principal.Id };
 
                 context.Entry(dependent).State = entityState;
                 context.Entry(principal).State = entityState;
@@ -907,15 +859,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildNN
-                {
-                    Id = 78,
-                    ParentId = principal.Id
-                };
+                var principal = new ParentNN { Id = 77 };
+                var dependent = new ChildNN { Id = 78, ParentId = principal.Id };
 
                 context.Entry(principal).State = entityState;
                 context.Entry(dependent).State = entityState;
@@ -1170,14 +1115,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryPN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductPN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryPN { Id = 77 };
+                var dependent = new ProductPN { Id = 78 };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1238,14 +1177,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryPN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductPN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryPN { Id = 77 };
+                var dependent = new ProductPN { Id = 78 };
 
                 context.Entry(principal).State = entityState;
 
@@ -1304,14 +1237,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductDN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryDN { Id = 77 };
+                var dependent = new ProductDN { Id = 78 };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1372,14 +1299,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryDN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductDN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryDN { Id = 77 };
+                var dependent = new ProductDN { Id = 78 };
 
                 context.Entry(principal).State = entityState;
 
@@ -1415,14 +1336,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductNN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryNN { Id = 77 };
+                var dependent = new ProductNN { Id = 78 };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1450,14 +1365,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new CategoryNN
-                {
-                    Id = 77
-                };
-                var dependent = new ProductNN
-                {
-                    Id = 78
-                };
+                var principal = new CategoryNN { Id = 77 };
+                var dependent = new ProductNN { Id = 78 };
 
                 context.Entry(principal).State = entityState;
 
@@ -1724,14 +1633,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildPN
-                {
-                    Id = 78
-                };
+                var principal = new ParentPN { Id = 77 };
+                var dependent = new ChildPN { Id = 78 };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1792,14 +1695,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildPN
-                {
-                    Id = 78
-                };
+                var principal = new ParentPN { Id = 77 };
+                var dependent = new ChildPN { Id = 78 };
 
                 context.Entry(principal).State = entityState;
 
@@ -1858,14 +1755,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildDN
-                {
-                    Id = 78
-                };
+                var principal = new ParentDN { Id = 77 };
+                var dependent = new ChildDN { Id = 78 };
 
                 context.Entry(dependent).State = entityState;
 
@@ -1925,14 +1816,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentDN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildDN
-                {
-                    Id = 78
-                };
+                var principal = new ParentDN { Id = 77 };
+                var dependent = new ChildDN { Id = 78 };
 
                 context.Entry(principal).State = entityState;
 
@@ -1968,14 +1853,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildNN
-                {
-                    Id = 78
-                };
+                var principal = new ParentNN { Id = 77 };
+                var dependent = new ChildNN { Id = 78 };
 
                 context.Entry(dependent).State = entityState;
 
@@ -2003,14 +1882,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentNN
-                {
-                    Id = 77
-                };
-                var dependent = new ChildNN
-                {
-                    Id = 78
-                };
+                var principal = new ParentNN { Id = 77 };
+                var dependent = new ChildNN { Id = 78 };
 
                 context.Entry(principal).State = entityState;
 
@@ -2226,25 +2099,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
 
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
-                var oldDependent = new ChildPN
-                {
-                    Id = 78,
-                    ParentId = principal.Id
-                };
+                var principal = new ParentPN { Id = 77 };
+                var oldDependent = new ChildPN { Id = 78, ParentId = principal.Id };
                 principal.Child = oldDependent;
 
                 context.Entry(principal).State = oldEntityState;
                 context.Entry(oldDependent).State = oldEntityState;
 
-                var newDependent = new ChildPN
-                {
-                    Id = 88,
-                    ParentId = setFk ? principal.Id : 0
-                };
+                var newDependent = new ChildPN { Id = 88, ParentId = setFk ? principal.Id : 0 };
                 if (setToDependent)
                 {
                     principal.Child = newDependent;
@@ -2322,10 +2184,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
 
-                var principal = new ParentDN
-                {
-                    Id = 77
-                };
+                var principal = new ParentDN { Id = 77 };
                 var oldDependent = new ChildDN
                 {
                     Id = 78,
@@ -2336,11 +2195,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 context.Entry(principal).State = oldEntityState;
                 context.Entry(oldDependent).State = oldEntityState;
 
-                var newDependent = new ChildDN
-                {
-                    Id = 88,
-                    ParentId = setFk ? principal.Id : 0
-                };
+                var newDependent = new ChildDN { Id = 88, ParentId = setFk ? principal.Id : 0 };
                 if (setToPrincipal)
                 {
                     newDependent.Parent = principal;
@@ -2381,24 +2236,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
 
-                var principal = new ParentNN
-                {
-                    Id = 77
-                };
-                var oldDependent = new ChildNN
-                {
-                    Id = 78,
-                    ParentId = principal.Id
-                };
+                var principal = new ParentNN { Id = 77 };
+                var oldDependent = new ChildNN { Id = 78, ParentId = principal.Id };
 
                 context.Entry(principal).State = oldEntityState;
                 context.Entry(oldDependent).State = oldEntityState;
 
-                var newDependent = new ChildNN
-                {
-                    Id = 88,
-                    ParentId = principal.Id
-                };
+                var newDependent = new ChildNN { Id = 88, ParentId = principal.Id };
 
                 context.Entry(newDependent).State = newEntityState;
 
@@ -2636,23 +2480,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new ComparableEntitiesContext("ComparableEntities"))
             {
-                var level2a = new Level2
-                {
-                    Name = "Foo"
-                };
+                var level2a = new Level2 { Name = "Foo" };
 
-                var level2b = new Level2
-                {
-                    Name = "Bar"
-                };
+                var level2b = new Level2 { Name = "Bar" };
 
-                var level1 = new Level1
-                {
-                    Children =
-                    {
-                        level2a, level2b,
-                    },
-                };
+                var level1 = new Level1 { Children = { level2a, level2b } };
 
                 context.Add(level1);
                 context.SaveChanges();
@@ -2675,15 +2507,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 Assert.Equal(0, level1.Children.Count);
 
-                var level2c = new Level2
-                {
-                    Name = "Foo"
-                };
+                var level2c = new Level2 { Name = "Foo" };
 
-                var level2d = new Level2
-                {
-                    Name = "Quz"
-                };
+                var level2d = new Level2 { Name = "Quz" };
 
                 level1.Children.Add(level2c);
                 level1.Children.Add(level2d);
@@ -2717,7 +2543,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public int Id { get; set; }
 
             [Required]
-            public ICollection<Level2> Children { get; set; } = new SortedSet<Level2>();
+            public ICollection<Level2> Children { get; } = new SortedSet<Level2>();
         }
 
         private class Level2 : IComparable<Level2>
@@ -2751,25 +2577,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public void Use_correct_entity_after_SetValues()
         {
-            var detachedProduct = new ProductX
-            {
-                Description = "Heavy Engine XT3"
-            };
+            var detachedProduct = new ProductX { Description = "Heavy Engine XT3" };
 
-            var detachedRoom = new ContainerRoomX
-            {
-                Number = 1,
-                Product = detachedProduct
-            };
+            var detachedRoom = new ContainerRoomX { Number = 1, Product = detachedProduct };
 
-            var detachedContainer = new ContainerX
-            {
-                Name = "C1",
-                Rooms =
-                {
-                    detachedRoom
-                }
-            };
+            var detachedContainer = new ContainerX { Name = "C1", Rooms = { detachedRoom } };
 
             using (var context = new EscapeRoom(nameof(EscapeRoom)))
             {
@@ -2779,11 +2591,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             using (var context = new EscapeRoom(nameof(EscapeRoom)))
             {
-                var attachedProduct = new ProductX
-                {
-                    Id = detachedProduct.Id,
-                    Description = "Heavy Engine XT3"
-                };
+                var attachedProduct = new ProductX { Id = detachedProduct.Id, Description = "Heavy Engine XT3" };
 
                 var attachedRoom = new ContainerRoomX
                 {
@@ -2798,10 +2606,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     Id = detachedContainer.Id,
                     Name = "C1",
-                    Rooms =
-                    {
-                        attachedRoom
-                    }
+                    Rooms = { attachedRoom }
                 };
 
                 context.Attach(attached);
@@ -2871,17 +2676,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = new BadHashDay("BadHashDay"))
             {
                 context.AddRange(
-                    new ParentX
-                    {
-                        Id = 101, Name = "Parent1"
-                    },
-                    new ChildX
-                    {
-                        Id = 201, Name = "Child1"
-                    },
+                    new ParentX { Id = 101, Name = "Parent1" },
+                    new ChildX { Id = 201, Name = "Child1" },
                     new ParentChildX
                     {
-                        ParentId = 101, ChildId = 201, SortOrder = 1
+                        ParentId = 101,
+                        ChildId = 201,
+                        SortOrder = 1
                     });
 
                 context.SaveChanges();
@@ -2905,10 +2706,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     SortOrder = 1
                 };
 
-                parent.ParentChildren = new List<ParentChildX>
-                {
-                    newJoin
-                };
+                parent.ParentChildren = new List<ParentChildX> { newJoin };
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
@@ -3004,10 +2802,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     .IsRequired();
 
                 modelBuilder.Entity<ParentChildX>().HasKey(
-                    x => new
-                    {
-                        x.ParentId, x.ChildId
-                    });
+                    x => new { x.ParentId, x.ChildId });
             }
         }
 
@@ -3016,21 +2811,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new BadBeeContext(nameof(BadBeeContext)))
             {
-                var b1 = new EntityB
-                {
-                    EntityBId = 1
-                };
+                var b1 = new EntityB { EntityBId = 1 };
                 context.BEntities.Attach(b1);
 
-                var b2 = new EntityB
-                {
-                    EntityBId = 1
-                };
+                var b2 = new EntityB { EntityBId = 1 };
 
-                var a = new EntityA
-                {
-                    EntityAId = 1, EntityB = b2
-                };
+                var a = new EntityA { EntityAId = 1, EntityB = b2 };
 
                 Assert.Equal(
                     CoreStrings.IdentityConflict(
@@ -3261,7 +3047,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             private readonly int _id;
             private int _categoryId;
             private Category _category;
-            private ICollection<SpecialOffer> _specialOffers;
 
             // ReSharper disable once UnusedMember.Local
             public Product()
@@ -3288,10 +3073,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public void SetCategory(Category category) => _category = category;
 
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
-            public ICollection<SpecialOffer> SpecialOffers => _specialOffers;
+            public ICollection<SpecialOffer> SpecialOffers
+            {
+                get;
+                private set;
+            }
 
             public void AddSpecialOffer(SpecialOffer specialOffer)
-                => (_specialOffers ??= new List<SpecialOffer>()).Add(specialOffer);
+                => (SpecialOffers ??= new List<SpecialOffer>()).Add(specialOffer);
         }
 
         private class SpecialOffer
@@ -3429,22 +3218,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var db = new Context4853())
             {
-                var assembly = new TestAssembly
-                {
-                    Name = "Assembly1"
-                };
+                var assembly = new TestAssembly { Name = "Assembly1" };
                 db.Classes.Add(
-                    new TestClass
-                    {
-                        Assembly = assembly,
-                        Name = "Class1"
-                    });
+                    new TestClass { Assembly = assembly, Name = "Class1" });
                 db.Classes.Add(
-                    new TestClass
-                    {
-                        Assembly = assembly,
-                        Name = "Class2"
-                    });
+                    new TestClass { Assembly = assembly, Name = "Class2" });
                 db.SaveChanges();
             }
 

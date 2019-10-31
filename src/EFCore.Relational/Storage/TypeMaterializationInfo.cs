@@ -79,11 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (mapping == null)
             {
                 mapping = property?.GetRelationalTypeMapping()
-                          ?? typeMappingSource?.GetMapping(modelClrType);
+                    ?? typeMappingSource?.GetMapping(modelClrType);
             }
 
             ProviderClrType = mapping?.Converter?.ProviderClrType
-                              ?? modelClrType;
+                ?? modelClrType;
 
             ModelClrType = modelClrType;
             Mapping = mapping;
@@ -130,11 +130,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if the specified object is equal to the current object; otherwise, <c>false</c>. </returns>
         protected virtual bool Equals([NotNull] TypeMaterializationInfo other)
             => ProviderClrType == other.ProviderClrType
-               && ModelClrType == other.ModelClrType
-               && Equals(Mapping, other.Mapping)
-               && Equals(Property, other.Property)
-               && Index == other.Index
-               && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin;
+                && ModelClrType == other.ModelClrType
+                && Equals(Mapping, other.Mapping)
+                && Equals(Property, other.Property)
+                && Index == other.Index
+                && IsFromLeftOuterJoin == other.IsFromLeftOuterJoin;
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
@@ -143,9 +143,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if the specified object is equal to the current object; otherwise, <c>false</c>. </returns>
         public override bool Equals(object obj)
             => !(obj is null)
-               && (ReferenceEquals(this, obj)
-                   || obj.GetType() == GetType()
-                   && Equals((TypeMaterializationInfo)obj));
+                && (ReferenceEquals(this, obj)
+                    || obj.GetType() == GetType()
+                    && Equals((TypeMaterializationInfo)obj));
 
         /// <summary>
         ///     Serves as the default hash function.

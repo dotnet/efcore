@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public static bool CanSort(Type type)
                 => type.GetInterface("IComparable") != null
-                   || (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
+                    || (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
     }
 }

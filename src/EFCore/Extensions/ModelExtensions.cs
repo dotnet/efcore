@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore
             var realModel = (Model)Check.NotNull(model, nameof(model));
 
             return realModel.FindEntityType(type)
-                   ?? (type.BaseType == null
-                       ? null
-                       : realModel.FindEntityType(type.BaseType));
+                ?? (type.BaseType == null
+                    ? null
+                    : realModel.FindEntityType(type.BaseType));
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static ChangeTrackingStrategy GetChangeTrackingStrategy([NotNull] this IModel model)
             => (ChangeTrackingStrategy?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.ChangeTrackingStrategy]
-               ?? ChangeTrackingStrategy.Snapshot;
+                ?? ChangeTrackingStrategy.Snapshot;
 
         /// <summary>
         ///     <para>
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static PropertyAccessMode GetPropertyAccessMode([NotNull] this IModel model)
             => (PropertyAccessMode?)Check.NotNull(model, nameof(model))[CoreAnnotationNames.PropertyAccessMode]
-               ?? PropertyAccessMode.PreferField;
+                ?? PropertyAccessMode.PreferField;
 
         /// <summary>
         ///     Gets the EF Core assembly version used to build this model

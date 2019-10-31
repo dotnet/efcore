@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -180,16 +179,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var category2 = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
+                var category1 = new Category { Id = 1, Name = "Beverages" };
+                var category2 = new Category { Id = 2, Name = "Foods" };
                 var product1 = new Product
                 {
                     Id = 1,
@@ -297,16 +288,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var category2 = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
+                var category1 = new Category { Id = 1, Name = "Beverages" };
+                var category2 = new Category { Id = 2, Name = "Foods" };
                 var product1 = new Product
                 {
                     Id = 1,
@@ -452,16 +435,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var category1 = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
-                var category2 = new Category
-                {
-                    Id = 2,
-                    Name = "Foods"
-                };
+                var category1 = new Category { Id = 1, Name = "Beverages" };
+                var category2 = new Category { Id = 2, Name = "Foods" };
                 var product1 = new Product
                 {
                     Id = 1,
@@ -476,17 +451,9 @@ namespace Microsoft.EntityFrameworkCore
                 };
 
                 await categoryAdder(
-                    context, new List<Category>
-                    {
-                        category1,
-                        category2
-                    });
+                    context, new List<Category> { category1, category2 });
                 await productAdder(
-                    context, new List<Product>
-                    {
-                        product1,
-                        product2
-                    });
+                    context, new List<Product> { product1, product2 });
 
                 Assert.Same(category1, context.Entry(category1).Entity);
                 Assert.Same(category2, context.Entry(category2).Entity);
@@ -622,11 +589,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var entity = new Category
-                {
-                    Id = 1,
-                    Name = "Beverages"
-                };
+                var entity = new Category { Id = 1, Name = "Beverages" };
                 var entry = context.Entry(entity);
 
                 entry.State = initialState;
@@ -644,14 +607,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = new EarlyLearningCenter())
             {
-                var gu1 = new TheGu
-                {
-                    ShirtColor = "Red"
-                };
-                var gu2 = new TheGu
-                {
-                    ShirtColor = "Still Red"
-                };
+                var gu1 = new TheGu { ShirtColor = "Red" };
+                var gu2 = new TheGu { ShirtColor = "Still Red" };
 
                 if (async)
                 {

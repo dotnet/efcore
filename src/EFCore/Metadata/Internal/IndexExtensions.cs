@@ -54,12 +54,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             builder
-                .AppendJoin(
-                    ", ",
-                    index.Properties.Select(
-                        p => singleLine
-                            ? p.DeclaringEntityType.DisplayName() + "." + p.Name
-                            : p.Name));
+                .Append(
+                    string.Join(
+                        ", ",
+                        index.Properties.Select(
+                            p => singleLine
+                                ? p.DeclaringEntityType.DisplayName() + "." + p.Name
+                                : p.Name)));
 
             if (index.IsUnique)
             {

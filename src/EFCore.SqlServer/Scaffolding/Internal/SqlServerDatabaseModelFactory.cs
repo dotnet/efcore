@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+// Note: Hard reference to SqlClient here.
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
@@ -66,13 +67,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
         // see https://msdn.microsoft.com/en-us/library/ff878091.aspx
         // decimal/numeric are excluded because default value varies based on the precision.
-        private static readonly Dictionary<string, long[]> _defaultSequenceMinMax = new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "tinyint", new[] { 0L, 255L } },
-            { "smallint", new[] { -32768L, 32767L } },
-            { "int", new[] { -2147483648L, 2147483647L } },
-            { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
-        };
+        private static readonly Dictionary<string, long[]> _defaultSequenceMinMax =
+            new Dictionary<string, long[]>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "tinyint", new[] { 0L, 255L } },
+                { "smallint", new[] { -32768L, 32767L } },
+                { "int", new[] { -2147483648L, 2147483647L } },
+                { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
+            };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -163,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                     var (parsedSchema, parsedTableName) = Parse(table);
                     if (!databaseModel.Tables.Any(
                         t => !string.IsNullOrEmpty(parsedSchema)
-                             && t.Schema == parsedSchema
-                             || t.Name == parsedTableName))
+                            && t.Schema == parsedSchema
+                            || t.Name == parsedTableName))
                     {
                         _logger.MissingTableWarning(table);
                     }
@@ -206,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                     var schemaFilterBuilder = new StringBuilder();
                     schemaFilterBuilder.Append(s);
                     schemaFilterBuilder.Append(" IN (");
-                    schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
+                    schemaFilterBuilder.Append(string.Join(", ", schemas.Select(EscapeLiteral)));
                     schemaFilterBuilder.Append(")");
                     return schemaFilterBuilder.ToString();
                 })
@@ -233,72 +235,73 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             Func<string, string> schemaFilter)
         {
             return schemaFilter != null
-                   || tables.Count > 0
-                ? ((s, t) =>
-                {
-                    var tableFilterBuilder = new StringBuilder();
-
-                    var openBracket = false;
-                    if (schemaFilter != null)
+                || tables.Count > 0
+                    ? ((s, t) =>
                     {
-                        tableFilterBuilder
-                            .Append("(")
-                            .Append(schemaFilter(s));
-                        openBracket = true;
-                    }
+                        var tableFilterBuilder = new StringBuilder();
 
-                    if (tables.Count > 0)
-                    {
-                        if (openBracket)
+                        var openBracket = false;
+                        if (schemaFilter != null)
                         {
                             tableFilterBuilder
-                                .AppendLine()
-                                .Append("OR ");
-                        }
-                        else
-                        {
-                            tableFilterBuilder.Append("(");
+                                .Append("(")
+                                .Append(schemaFilter(s));
                             openBracket = true;
                         }
 
-                        var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithoutSchema.Count > 0)
+                        if (tables.Count > 0)
                         {
-                            tableFilterBuilder.Append(t);
-                            tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
-                            tableFilterBuilder.Append(")");
-                        }
-
-                        var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                        if (tablesWithSchema.Count > 0)
-                        {
-                            if (tablesWithoutSchema.Count > 0)
+                            if (openBracket)
                             {
-                                tableFilterBuilder.Append(" OR ");
+                                tableFilterBuilder
+                                    .AppendLine()
+                                    .Append("OR ");
+                            }
+                            else
+                            {
+                                tableFilterBuilder.Append("(");
+                                openBracket = true;
                             }
 
-                            tableFilterBuilder.Append(t);
-                            tableFilterBuilder.Append(" IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
-                            tableFilterBuilder.Append(") AND (");
-                            tableFilterBuilder.Append(s);
-                            tableFilterBuilder.Append(" + N'.' + ");
-                            tableFilterBuilder.Append(t);
-                            tableFilterBuilder.Append(") IN (");
-                            tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
+                            var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
+                            if (tablesWithoutSchema.Count > 0)
+                            {
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(" IN (");
+                                tableFilterBuilder.Append(string.Join(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table))));
+                                tableFilterBuilder.Append(")");
+                            }
+
+                            var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
+                            if (tablesWithSchema.Count > 0)
+                            {
+                                if (tablesWithoutSchema.Count > 0)
+                                {
+                                    tableFilterBuilder.Append(" OR ");
+                                }
+
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(" IN (");
+                                tableFilterBuilder.Append(string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table))));
+                                tableFilterBuilder.Append(") AND (");
+                                tableFilterBuilder.Append(s);
+                                tableFilterBuilder.Append(" + N'.' + ");
+                                tableFilterBuilder.Append(t);
+                                tableFilterBuilder.Append(") IN (");
+                                tableFilterBuilder.Append(
+                                    string.Join(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}"))));
+                                tableFilterBuilder.Append(")");
+                            }
+                        }
+
+                        if (openBracket)
+                        {
                             tableFilterBuilder.Append(")");
                         }
-                    }
 
-                    if (openBracket)
-                    {
-                        tableFilterBuilder.Append(")");
-                    }
-
-                    return tableFilterBuilder.ToString();
-                })
-                : (Func<string, string, string>)null;
+                        return tableFilterBuilder.ToString();
+                    })
+                    : (Func<string, string, string>)null;
         }
 
         private static string EscapeLiteral(string s)
@@ -373,7 +376,8 @@ JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]";
                 if (schemaFilter != null)
                 {
                     command.CommandText += @"
-WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
+WHERE "
+                        + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                 }
 
                 using (var reader = command.ExecuteReader())
@@ -420,7 +424,9 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
                             sequence.MinValue = sequence.MinValue == defaultMin ? null : sequence.MinValue;
                             sequence.StartValue = sequence.StartValue == defaultMin ? null : sequence.StartValue;
 
-                            sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1] ? null : sequence.MaxValue;
+                            sequence.MaxValue = sequence.MaxValue == _defaultSequenceMinMax[sequence.StoreType][1]
+                                ? null
+                                : sequence.MaxValue;
                         }
 
                         yield return sequence;
@@ -466,7 +472,9 @@ AND NOT EXISTS (SELECT *
         AND [ep].[class] = 1
         AND [ep].[name] = N'microsoft_database_tools_support'
     )
-AND [t].[name] <> '" + HistoryRepository.DefaultTableName + "'";
+AND [t].[name] <> '"
+                    + HistoryRepository.DefaultTableName
+                    + "'";
 
                 if (supportsTemporalTable)
                 {
@@ -477,11 +485,14 @@ AND [t].[temporal_type] <> 1";
                 if (tableFilter != null)
                 {
                     filter += @"
-AND " + tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]");
+AND "
+                        + tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]");
                 }
 
-                commandText = commandText + @"
-WHERE " + filter;
+                commandText = commandText
+                    + @"
+WHERE "
+                    + filter;
 
                 var viewCommandText = @"
 UNION
@@ -507,11 +518,14 @@ AND [v].[is_date_correlation_view] = 0 ";
                 if (tableFilter != null)
                 {
                     viewFilter += @"
-AND " + tableFilter("SCHEMA_NAME([v].[schema_id])", "[v].[name]");
+AND "
+                        + tableFilter("SCHEMA_NAME([v].[schema_id])", "[v].[name]");
                 }
 
-                viewCommandText = viewCommandText + @"
-WHERE " + viewFilter;
+                viewCommandText = viewCommandText
+                    + @"
+WHERE "
+                    + viewFilter;
 
                 command.CommandText = commandText + viewCommandText;
 
@@ -745,13 +759,13 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                 }
             }
             else if ((defaultValue == "(CONVERT([real],(0)))" && dataTypeName == "real")
-                     || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
-                     || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
-                     || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
-                     || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
-                     || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
-                     || (defaultValue == "('00:00:00')" && dataTypeName == "time")
-                     || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
+                || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
+                || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
+                || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
+                || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
+                || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
+                || (defaultValue == "('00:00:00')" && dataTypeName == "time")
+                || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
             {
                 return null;
             }
@@ -817,7 +831,8 @@ FROM [sys].[indexes] AS [i]
 JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
 JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
 JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
-WHERE " + tableFilter;
+WHERE "
+                    + tableFilter;
 
                 if (SupportsTemporalTable(connection))
                 {
@@ -829,7 +844,8 @@ AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarcha
    JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
    JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
    JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
-   WHERE " + tableFilter;
+   WHERE "
+                        + tableFilter;
 
                     commandText += @"
    AND [c].[is_hidden] = 1
@@ -869,11 +885,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                             _logger.PrimaryKeyFound(primaryKeyGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                            var primaryKey = new DatabasePrimaryKey
-                            {
-                                Table = table,
-                                Name = primaryKeyGroup.Key.Name
-                            };
+                            var primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
 
                             if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
                             {
@@ -884,7 +896,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 primaryKey.Columns.Add(column);
@@ -905,11 +918,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         {
                             _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name, DisplayName(tableSchema, tableName));
 
-                            var uniqueConstraint = new DatabaseUniqueConstraint
-                            {
-                                Table = table,
-                                Name = uniqueConstraintGroup.Key.Name
-                            };
+                            var uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
 
                             if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
                             {
@@ -920,7 +929,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 uniqueConstraint.Columns.Add(column);
@@ -932,7 +942,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var indexGroups = tableIndexGroup
                             .Where(
                                 ddr => !ddr.GetValueOrDefault<bool>("is_primary_key")
-                                       && !ddr.GetValueOrDefault<bool>("is_unique_constraint"))
+                                    && !ddr.GetValueOrDefault<bool>("is_unique_constraint"))
                             .GroupBy(
                                 ddr =>
                                     (Name: ddr.GetValueOrDefault<string>("index_name"),
@@ -963,7 +973,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 index.Columns.Add(column);
@@ -993,7 +1004,9 @@ SELECT
 FROM [sys].[foreign_keys] AS [f]
 JOIN [sys].[tables] AS [t] ON [f].[parent_object_id] = [t].[object_id]
 JOIN [sys].[foreign_key_columns] AS [fc] ON [f].[object_id] = [fc].[constraint_object_id]
-WHERE " + tableFilter + @"
+WHERE "
+                    + tableFilter
+                    + @"
 ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
 
                 using (var reader = command.ExecuteReader())
@@ -1031,11 +1044,11 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                                 onDeleteAction);
 
                             var principalTable = tables.FirstOrDefault(
-                                                     t => t.Schema == principalTableSchema
-                                                          && t.Name == principalTableName)
-                                                 ?? tables.FirstOrDefault(
-                                                     t => t.Schema.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase)
-                                                          && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                                    t => t.Schema == principalTableSchema
+                                        && t.Name == principalTableName)
+                                ?? tables.FirstOrDefault(
+                                    t => t.Schema.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase)
+                                        && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
 
                             if (principalTable == null)
                             {
@@ -1061,12 +1074,14 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                             {
                                 var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                                 var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                             ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? table.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                                 Debug.Assert(column != null, "column is null.");
 
                                 var principalColumnName = dataRecord.GetValueOrDefault<string>("referenced_column_name");
                                 var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)
-                                                      ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
+                                    ?? foreignKey.PrincipalTable.Columns.FirstOrDefault(
+                                        c => c.Name.Equals(principalColumnName, StringComparison.OrdinalIgnoreCase));
                                 if (principalColumn == null)
                                 {
                                     invalid = true;

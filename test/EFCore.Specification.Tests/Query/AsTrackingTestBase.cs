@@ -59,11 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from c in context.Set<Customer>().AsTracking()
                        from o in context.Set<Order>().AsTracking()
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToList();
 
                 Assert.Equal(830, customers.Count);
@@ -105,11 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                        join o in context.Set<Order>().AsTracking()
                            on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .AsTracking()
                     .ToList();
 

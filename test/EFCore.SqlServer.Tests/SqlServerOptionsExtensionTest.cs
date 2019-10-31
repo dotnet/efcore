@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
 
             new SqlServerOptionsExtension().ApplyServices(services);
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(ISqlServerConnection)));
+            Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerConnection));
         }
 
         [ConditionalFact]

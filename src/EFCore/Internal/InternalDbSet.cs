@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -28,7 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
 #pragma warning disable CS0618 // Type or member is obsolete
         DbQuery<TEntity>,
 #pragma warning restore CS0618 // Type or member is obsolete
-        IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
+        IQueryable<TEntity>,
+        IAsyncEnumerable<TEntity>,
+        IInfrastructure<IServiceProvider>,
+        IResettableService
         where TEntity : class
     {
         private readonly DbContext _context;

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -84,28 +84,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandNonQueryExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var nonQueryResult = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : command.ExecuteNonQuery();
 
                 return logger?.CommandNonQueryExecuted(
-                           connection,
-                           command,
-                           context,
-                           commandId,
-                           connection.ConnectionId,
-                           nonQueryResult,
-                           startTime,
-                           stopwatch.Elapsed)
-                       ?? nonQueryResult;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        nonQueryResult,
+                        startTime,
+                        stopwatch.Elapsed)
+                    ?? nonQueryResult;
             }
             catch (Exception exception)
             {
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IRelationalConnection connection)
         {
             command.Parameters.Clear();
-            await command.DisposeAsync();
+            await command.DisposeAsyncIfAvailable();
             await connection.CloseAsync();
         }
 
@@ -244,28 +244,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandScalarExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var result = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : command.ExecuteScalar();
 
                 return logger?.CommandScalarExecuted(
-                           connection,
-                           command,
-                           context,
-                           commandId,
-                           connection.ConnectionId,
-                           result,
-                           startTime,
-                           stopwatch.Elapsed)
-                       ?? result;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        result,
+                        startTime,
+                        stopwatch.Elapsed)
+                    ?? result;
             }
             catch (Exception exception)
             {
@@ -389,13 +389,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandReaderExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var reader = interceptionResult.HasResult
                     ? interceptionResult.Result
@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stopwatch = Stopwatch.StartNew();
 
             var interceptionResult = logger?.CommandCreating(connection, commandMethod, context, commandId, connectionId, startTime)
-                                     ?? default;
+                ?? default;
 
             var command = interceptionResult.HasResult
                 ? interceptionResult.Result
@@ -577,7 +577,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (logger != null)
             {
-                command = logger.CommandCreated(connection, command, commandMethod, context, commandId, connectionId, startTime, stopwatch.Elapsed);
+                command = logger.CommandCreated(
+                    connection, command, commandMethod, context, commandId, connectionId, startTime, stopwatch.Elapsed);
             }
 
             command.CommandText = CommandText;

@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -78,9 +79,11 @@ namespace Microsoft.EntityFrameworkCore
             var model = CreateDefaultModelSource(setFinder)
                 .GetModel(
                     InMemoryTestHelpers.Instance.CreateContext(),
-                    new RuntimeConventionSetBuilder(new ProviderConventionSetBuilder(
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                            .With(setFinder)), new List<IConventionSetPlugin>()));
+                    new RuntimeConventionSetBuilder(
+                        new ProviderConventionSetBuilder(
+                            InMemoryTestHelpers.Instance.CreateContextServices()
+                                .GetRequiredService<ProviderConventionSetBuilderDependencies>()
+                                .With(setFinder)), new List<IConventionSetPlugin>()));
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -171,7 +174,8 @@ namespace Microsoft.EntityFrameworkCore
                 : base(
                     new ModelSourceDependencies(
                         new ModelCustomizer(new ModelCustomizerDependencies(setFinder)),
-                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>()))
+                        InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelCacheKeyFactory>(),
+                        new MemoryCache(new MemoryCacheOptions { SizeLimit = 200 })))
             {
             }
         }

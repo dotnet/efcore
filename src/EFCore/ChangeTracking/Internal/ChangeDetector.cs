@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
             else if (propertyBase.GetRelationshipIndex() != -1
-                     && propertyBase is INavigation navigation)
+                && propertyBase is INavigation navigation)
             {
                 DetectNavigationChange(entry, navigation);
             }
@@ -252,12 +252,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var currentValue = entry[property];
 
                 var comparer = property.GetKeyValueComparer()
-                               ?? property.FindTypeMapping()?.KeyComparer;
+                    ?? property.FindTypeMapping()?.KeyComparer;
 
                 // Note that mutation of a byte[] key is not supported or detected, but two different instances
                 // of byte[] with the same content must be detected as equal.
                 if (!(comparer?.Equals(currentValue, snapshotValue)
-                      ?? StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue)))
+                    ?? StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue)))
                 {
                     var keys = property.GetContainingKeys().ToList();
                     var foreignKeys = property.GetContainingForeignKeys()
@@ -272,7 +272,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         _logger.ForeignKeyChangeDetected(entry, property, snapshotValue, currentValue);
                     }
 
-                    entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(entry, property, keys, foreignKeys, snapshotValue, currentValue);
+                    entry.StateManager.InternalEntityEntryNotifier.KeyPropertyChanged(
+                        entry, property, keys, foreignKeys, snapshotValue, currentValue);
                 }
             }
         }
@@ -325,8 +326,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue)
-                     && (!navigation.ForeignKey.IsOwnership
-                         || !navigation.IsDependentToPrincipal()))
+                && (!navigation.ForeignKey.IsOwnership
+                    || !navigation.IsDependentToPrincipal()))
             {
                 if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                 {

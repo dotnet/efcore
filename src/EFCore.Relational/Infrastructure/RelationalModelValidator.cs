@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         The validator that enforces rules common for all relational providers.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class RelationalModelValidator : ModelValidator
@@ -68,7 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateDbFunctions([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        protected virtual void ValidateDbFunctions(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var dbFunction in model.GetDbFunctions())
             {
@@ -103,11 +104,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Validates the mapping/configuration of <see cref="bool"/> properties in the model.
+        ///     Validates the mapping/configuration of <see cref="bool" /> properties in the model.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateBoolsWithDefaults([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        protected virtual void ValidateBoolsWithDefaults(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             Check.NotNull(model, nameof(model));
 
@@ -125,14 +127,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsNotNullAndFalse(object value)
             => value != null
-               && (!(value is bool asBool) || asBool);
+                && (!(value is bool asBool) || asBool);
 
         /// <summary>
         ///     Validates the mapping/configuration of default values in the model.
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateDefaultValuesOnKeys([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        protected virtual void ValidateDefaultValuesOnKeys(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var property in model.GetEntityTypes().SelectMany(
                     t => t.GetDeclaredKeys().SelectMany(k => k.Properties))
@@ -184,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedTableCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             if (mappedTypes.Count == 1)
             {
@@ -196,11 +200,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var mappedType in mappedTypes)
             {
                 if (mappedType.BaseType != null
-                    || (mappedType.FindPrimaryKey() != null && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
-                        .Any(
-                            fk => fk.PrincipalKey.IsPrimaryKey()
-                                  && fk.PrincipalEntityType.GetRootType() != mappedType
-                                  && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
+                    || (mappedType.FindPrimaryKey() != null
+                        && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                            .Any(
+                                fk => fk.PrincipalKey.IsPrimaryKey()
+                                    && fk.PrincipalEntityType.GetRootType() != mappedType
+                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
                 {
                     continue;
                 }
@@ -295,8 +300,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
             => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
-                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
-                          && fk.PrincipalEntityType == principalEntityType);
+                .Any(
+                    fk => fk.PrincipalKey.IsPrimaryKey()
+                        && fk.PrincipalEntityType == principalEntityType);
 
         /// <summary>
         ///     Validates the compatibility of properties sharing columns in a given table.
@@ -356,9 +362,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
                     var currentTypeString = property.GetColumnType()
-                                            ?? property.GetRelationalTypeMapping().StoreType;
+                        ?? property.GetRelationalTypeMapping().StoreType;
                     var previousTypeString = duplicateProperty.GetColumnType()
-                                             ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
+                        ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
                     if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidOperationException(
@@ -373,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 currentTypeString));
                     }
 
-                    if (property.IsColumnNullable() != duplicateProperty.IsColumnNullable())
+                    if (property.IsNullable != duplicateProperty.IsNullable)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.DuplicateColumnNameNullabilityMismatch(
@@ -472,7 +478,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedForeignKeysCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var foreignKeyMappings = new Dictionary<string, IForeignKey>();
 
@@ -496,7 +503,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The table name. </param>
         /// <param name="logger"> The logger to use. </param>
         protected virtual void ValidateSharedIndexesCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            [NotNull] IReadOnlyList<IEntityType> mappedTypes, [NotNull] string tableName,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var indexMappings = new Dictionary<string, IIndex>();
 
@@ -558,14 +566,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The model to validate. </param>
         /// <param name="logger"> The logger to use. </param>
-        protected virtual void ValidateInheritanceMapping([NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        protected virtual void ValidateInheritanceMapping(
+            [NotNull] IModel model, [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
                 if (entityType.BaseType != null
                     && entityType[RelationalAnnotationNames.TableName] != null
                     && ((EntityType)entityType).FindAnnotation(RelationalAnnotationNames.TableName).GetConfigurationSource()
-                        == ConfigurationSource.Explicit)
+                    == ConfigurationSource.Explicit)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DerivedTypeTable(entityType.DisplayName(), entityType.BaseType.DisplayName()));

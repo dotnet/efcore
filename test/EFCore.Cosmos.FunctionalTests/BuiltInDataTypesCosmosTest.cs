@@ -83,6 +83,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             // TODO: Better translation of sequential equality #17246
         }
 
+        [ConditionalFact(Skip = "Issue #17670")]
+        public override void Can_read_back_mapped_enum_from_collection_first_or_default()
+        {
+            base.Can_read_back_mapped_enum_from_collection_first_or_default();
+        }
+
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Can_read_back_bool_mapped_as_int_through_navigation()
+        {
+            base.Can_read_back_bool_mapped_as_int_through_navigation();
+        }
+
         public class BuiltInDataTypesCosmosFixture : BuiltInDataTypesFixtureBase
         {
             protected override ITestStoreFactory TestStoreFactory => CosmosTestStoreFactory.Instance;

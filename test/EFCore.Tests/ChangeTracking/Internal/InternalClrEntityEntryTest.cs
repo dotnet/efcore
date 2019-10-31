@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -112,14 +111,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = new KClrContext())
             {
                 var ownerEntry = context.Entry(
-                    new OwnerClass
-                    {
-                        Id = 1,
-                        Owned = new OwnedClass
-                        {
-                            Value = "Kool"
-                        }
-                    }).GetInfrastructure();
+                    new OwnerClass { Id = 1, Owned = new OwnedClass { Value = "Kool" } }).GetInfrastructure();
 
                 var entry = context.Entry(((OwnerClass)ownerEntry.Entity).Owned).GetInfrastructure();
                 var valueProperty = entry.EntityType.FindProperty(nameof(OwnedClass.Value));
@@ -190,29 +182,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [ConditionalFact]
         public void Setting_CLR_property_with_snapshot_change_tracking_requires_DetectChanges()
             => SetPropertyClrTest(
-                new SomeEntity
-                {
-                    Id = 1,
-                    Name = "Kool"
-                }, needsDetectChanges: true);
+                new SomeEntity { Id = 1, Name = "Kool" }, needsDetectChanges: true);
 
         [ConditionalFact]
         public void Setting_CLR_property_with_changed_only_notifications_does_not_require_DetectChanges()
             => SetPropertyClrTest(
-                new ChangedOnlyEntity
-                {
-                    Id = 1,
-                    Name = "Kool"
-                }, needsDetectChanges: false);
+                new ChangedOnlyEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
 
         [ConditionalFact]
         public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
             => SetPropertyClrTest(
-                new FullNotificationEntity
-                {
-                    Id = 1,
-                    Name = "Kool"
-                }, needsDetectChanges: false);
+                new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
 
         private void SetPropertyClrTest<TEntity>(TEntity entity, bool needsDetectChanges)
             where TEntity : class, ISomeEntity
@@ -473,21 +453,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 base.OnModelCreating(modelBuilder);
 
-                modelBuilder.Entity<InternalClrEntityEntryTest.FullNotificationEntity>(
+                modelBuilder.Entity<FullNotificationEntity>(
                     b =>
                     {
                         b.Property(e => e.Name).IsConcurrencyToken();
                         b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
                     });
 
-                modelBuilder.Entity<InternalClrEntityEntryTest.ChangedOnlyEntity>(
+                modelBuilder.Entity<ChangedOnlyEntity>(
                     b =>
                     {
                         b.Property(e => e.Name).IsConcurrencyToken();
                         b.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
                     });
 
-                modelBuilder.Entity<InternalClrEntityEntryTest.OwnerClass>(
+                modelBuilder.Entity<OwnerClass>(
                     eb =>
                     {
                         eb.HasKey(e => e.Id);

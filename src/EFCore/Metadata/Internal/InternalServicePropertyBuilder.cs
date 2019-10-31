@@ -60,9 +60,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     fieldName, Metadata.DeclaringType, Metadata.Name,
                     shouldThrow: false);
                 return fieldInfo != null
-                       && PropertyBase.IsCompatible(
-                           fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                           shouldThrow: false);
+                    && PropertyBase.IsCompatible(
+                        fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
+                        shouldThrow: false);
             }
 
             return Metadata.FieldInfo?.GetSimpleMemberName() == fieldName;
@@ -94,11 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetFieldInfoConfigurationSource())
-                && (fieldInfo == null
-                    || PropertyBase.IsCompatible(
-                        fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
-                        shouldThrow: false)))
-               || Equals(Metadata.FieldInfo, fieldInfo);
+                    && (fieldInfo == null
+                        || PropertyBase.IsCompatible(
+                            fieldInfo, Metadata.ClrType, Metadata.DeclaringType.ClrType, Metadata.Name,
+                            shouldThrow: false)))
+                || Equals(Metadata.FieldInfo, fieldInfo);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetParameterBinding(ServiceParameterBinding parameterBinding, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetParameterBindingConfigurationSource())
-               || (Metadata.ParameterBinding == parameterBinding);
+                || (Metadata.ParameterBinding == parameterBinding);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

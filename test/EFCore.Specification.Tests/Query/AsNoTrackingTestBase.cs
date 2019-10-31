@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     : context.Set<Customer>().AsNoTracking().ToList();
 
                 Assert.Equal(91, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -62,15 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from c in context.Set<Customer>().AsNoTracking()
                        from o in context.Set<Order>().AsNoTracking()
                        where c.CustomerID == o.CustomerID
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .ToList();
 
                 Assert.Equal(830, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -94,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -108,16 +103,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                        join o in context.Set<Order>().AsNoTracking()
                            on c.CustomerID equals o.CustomerID
                        where c.CustomerID == "ALFKI"
-                       select new
-                       {
-                           c,
-                           o
-                       })
+                       select new { c, o })
                     .AsNoTracking()
                     .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -214,11 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var results
                     = (from e in context.Set<Employee>()
                        from c in context.Set<Customer>()
-                       select new
-                       {
-                           c,
-                           e
-                       })
+                       select new { c, e })
                     .AsNoTracking()
                     .ToList();
 

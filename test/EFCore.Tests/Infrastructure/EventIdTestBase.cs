@@ -42,10 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 if (eventMappings == null
                     || !eventMappings.TryGetValue(eventName, out var mappedNames))
                 {
-                    mappedNames = new List<string>
-                    {
-                        eventName
-                    };
+                    mappedNames = new List<string> { eventName };
                 }
 
                 foreach (var mappedName in mappedNames)
@@ -98,10 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         }
                     }
 
-                    foreach (var enableFor in new[]
-                    {
-                        "Foo", eventId.Name
-                    })
+                    foreach (var enableFor in new[] { "Foo", eventId.Name })
                     {
                         testDiagnostics.EnableFor = enableFor;
 

@@ -48,11 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             ((IConventionEntityType)entityType).SetPartitionKeyPropertyName("pk");
             Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
-            Assert.Equal(ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
+            Assert.Equal(
+                ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
 
             entityType.SetPartitionKeyPropertyName("pk");
             Assert.Equal("pk", entityType.GetPartitionKeyPropertyName());
-            Assert.Equal(ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
+            Assert.Equal(
+                ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
 
             entityType.SetPartitionKeyPropertyName(null);
             Assert.Null(entityType.GetPartitionKeyPropertyName());

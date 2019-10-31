@@ -183,6 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case Collection<TElement> concreteCollection:
                     for (var i = 0; i < concreteCollection.Count; i++)
@@ -193,11 +194,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case SortedSet<TElement> sortedSet:
-                    return sortedSet.TryGetValue((TElement)value, out var found)
-                           && ReferenceEquals(found, value)
-                           && sortedSet.Remove(found);
+                    foreach (var item in sortedSet)
+                    {
+                        if (ReferenceEquals(item, value))
+                        {
+                            sortedSet.Remove(item);
+                            return true;
+                        }
+                    }
+
+                    return false;
                 default:
                     return collection?.Remove((TElement)value) ?? false;
             }
@@ -215,6 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case Collection<TElement> concreteCollection:
                     for (var i = 0; i < concreteCollection.Count; i++)
@@ -224,10 +234,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             return true;
                         }
                     }
+
                     return false;
                 case SortedSet<TElement> sortedSet:
-                    return sortedSet.TryGetValue((TElement)value, out var found)
-                           && ReferenceEquals(found, value);
+                    foreach (var element in sortedSet)
+                    {
+                        if (ReferenceEquals(element, value))
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 default:
                     return collection?.Contains((TElement)value) == true;
             }

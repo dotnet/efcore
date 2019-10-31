@@ -322,7 +322,7 @@ WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL");
             base.FromSqlRaw_queryable_with_null_parameter();
 
             AssertSql(
-                @"p0='' (Nullable = false)
+                @"p0=NULL (Nullable = false)
 
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }
@@ -339,7 +339,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
-WHERE (([c].[ContactTitle] = @__contactTitle_1) AND ([c].[ContactTitle] IS NOT NULL AND @__contactTitle_1 IS NOT NULL)) OR ([c].[ContactTitle] IS NULL AND @__contactTitle_1 IS NULL)");
+WHERE ([c].[ContactTitle] = @__contactTitle_1) AND [c].[ContactTitle] IS NOT NULL");
         }
 
         public override void FromSqlRaw_queryable_simple_cache_key_includes_query_string()
@@ -381,14 +381,14 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
             base.FromSqlRaw_queryable_simple_projection_composed();
 
             // issue #16079
-//            AssertSql(
-//                @"SELECT [p].[ProductName]
-//FROM (
-//    SELECT *
-//    FROM ""Products""
-//    WHERE ""Discontinued"" <> CAST(1 AS bit)
-//    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
-//) AS [p]");
+            //            AssertSql(
+            //                @"SELECT [p].[ProductName]
+            //FROM (
+            //    SELECT *
+            //    FROM ""Products""
+            //    WHERE ""Discontinued"" <> CAST(1 AS bit)
+            //    AND ((""UnitsInStock"" + ""UnitsOnOrder"") < ""ReorderLevel"")
+            //) AS [p]");
         }
 
         public override void FromSqlRaw_queryable_simple_include()
@@ -538,7 +538,7 @@ SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
             base.FromSqlInterpolated_with_inlined_db_parameter_without_name_prefix();
 
             AssertSql(
-    @"somename='ALFKI' (Nullable = false) (Size = 5)
+                @"somename='ALFKI' (Nullable = false) (Size = 5)
 
 SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
         }
@@ -586,10 +586,7 @@ WHERE [o].[CustomerID] IN (
                                 .FromSqlRaw(
                                     @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                                     // ReSharper disable once FormatStringProblem
-                                    new SqlParameter
-                                    {
-                                        Value = "London"
-                                    })
+                                    new SqlParameter { Value = "London" })
                                 .Select(c => c.CustomerID)
                                 .Contains(o.CustomerID))
                     .ToArray();
@@ -749,12 +746,37 @@ WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
 SELECT * FROM ""Orders"" WHERE ""OrderID"" < @p0");
         }
 
+        public override void Entity_equality_through_fromsql()
+        {
+            base.Entity_equality_through_fromsql();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Orders""
+) AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE ([c].[CustomerID] = N'VINET') AND [c].[CustomerID] IS NOT NULL");
+        }
+
+        public override void FromSqlRaw_with_set_operation()
+        {
+            base.FromSqlRaw_with_set_operation();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'London'
+) AS [c]
+UNION ALL
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'Berlin'
+) AS [c0]");
+        }
+
         protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqlParameter
-            {
-                ParameterName = name,
-                Value = value
-            };
+            => new SqlParameter { ParameterName = name, Value = value };
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

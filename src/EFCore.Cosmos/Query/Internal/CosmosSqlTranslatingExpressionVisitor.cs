@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -118,6 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     convertedType = unaryExpression.Type;
                 }
+
                 source = unaryExpression.Operand;
             }
 
@@ -161,36 +162,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
             {
-                if (!TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result))
-                {
-                    throw new InvalidOperationException($"Property {propertyName} not found on {source}");
-                }
-
-                return result;
+                return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result)
+                    ? result
+                    : null;
             }
-
-            //if (methodCallExpression.Method.DeclaringType == typeof(Queryable))
-            //{
-            //    var translation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
-
-            //    var subquery = (SelectExpression)translation.QueryExpression;
-            //    subquery.ApplyProjection();
-
-            //    if (methodCallExpression.Method.Name == nameof(Queryable.Any)
-            //        || methodCallExpression.Method.Name == nameof(Queryable.All)
-            //        || methodCallExpression.Method.Name == nameof(Queryable.Contains))
-            //    {
-            //        if (subquery.Tables.Count == 0
-            //            && subquery.Projection.Count == 1)
-            //        {
-            //            return subquery.Projection[0].Expression;
-            //        }
-
-            //        throw new InvalidOperationException();
-            //    }
-
-            //    return new SubSelectExpression(subquery);
-            //}
 
             var @object = Visit(methodCallExpression.Object);
             if (TranslationFailed(methodCallExpression.Object, @object))
@@ -206,6 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     return null;
                 }
+
                 arguments[i] = (SqlExpression)argument;
             }
 
@@ -251,10 +227,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
-                return Visit(Expression.Condition(
-                    Expression.NotEqual(binaryExpression.Left, Expression.Constant(null, binaryExpression.Left.Type)),
-                    binaryExpression.Left,
-                    binaryExpression.Right));
+                return Visit(
+                    Expression.Condition(
+                        Expression.NotEqual(binaryExpression.Left, Expression.Constant(null, binaryExpression.Left.Type)),
+                        binaryExpression.Left,
+                        binaryExpression.Right));
             }
 
             var left = TryRemoveImplicitConvert(binaryExpression.Left);
@@ -322,7 +299,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             switch (unaryExpression.NodeType)
             {
-
                 case ExpressionType.Not:
                     return _sqlExpressionFactory.Not(sqlOperand);
 
@@ -332,21 +308,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ExpressionType.Convert:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
-                            && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
+                        && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
                         || unaryExpression.Type.UnwrapNullableType() == operand.Type
                         || unaryExpression.Type.UnwrapNullableType() == typeof(Enum))
                     {
                         return sqlOperand;
                     }
-
-                    //// Introduce explicit cast only if the target type is mapped else we need to client eval
-                    //if (unaryExpression.Type == typeof(object)
-                    //    || _sqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
-                    //{
-                    //    sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
-
-                    //    return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
-                    //}
 
                     break;
             }
@@ -377,8 +344,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 case MemberInitExpression memberInitExpression:
                     return CanEvaluate(memberInitExpression.NewExpression)
-                        && memberInitExpression.Bindings.All(
-                            mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
+                           && memberInitExpression.Bindings.All(
+                               mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
 
                 default:
                     return false;
@@ -469,11 +436,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return Visit(entityShaperExpression.ValueBufferExpression);
 
                 case ProjectionBindingExpression projectionBindingExpression:
-                    var selectExpression = (SelectExpression)projectionBindingExpression.QueryExpression;
-                    return selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember);
-
-                case NullConditionalExpression nullConditionalExpression:
-                    return Visit(nullConditionalExpression.AccessOperation);
+                    return projectionBindingExpression.ProjectionMember != null
+                        ? ((SelectExpression)projectionBindingExpression.QueryExpression)
+                            .GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : null;
 
                 default:
                     return null;

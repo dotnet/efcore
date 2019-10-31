@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -12,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         A factory for <see cref="RelationalQueryContext" /> instances.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly RelationalQueryContextDependencies _relationalDependencies;
 
         /// <summary>
-        ///     Creates a new <see cref="RelationalQueryContextFactory"/> instance using the given dependencies.
+        ///     Creates a new <see cref="RelationalQueryContextFactory" /> instance using the given dependencies.
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         /// <param name="relationalDependencies"> Relational-specific dependencies. </param>
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         /// <summary>
-        ///     Creates a new <see cref="RelationalQueryContext"/>.
+        ///     Creates a new <see cref="RelationalQueryContext" />.
         /// </summary>
         /// <returns>
         ///     A QueryContext.

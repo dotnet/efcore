@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -167,9 +166,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                     if (!interceptionResult.IsSuppressed)
                     {
-                        await _reader.DisposeAsync();
+                        await _reader.DisposeAsyncIfAvailable();
                         _command.Parameters.Clear();
-                        await _command.DisposeAsync();
+                        await _command.DisposeAsyncIfAvailable();
                         await _connection.CloseAsync();
                     }
                 }

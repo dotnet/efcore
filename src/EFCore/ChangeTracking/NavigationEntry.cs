@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     throw new InvalidOperationException(
                         CoreStrings.NavigationIsProperty(
                             name, internalEntry.EntityType.DisplayName(),
-                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection), nameof(ChangeTracking.EntityEntry.Property)));
+                            nameof(ChangeTracking.EntityEntry.Reference), nameof(ChangeTracking.EntityEntry.Collection),
+                            nameof(ChangeTracking.EntityEntry.Property)));
                 }
 
                 throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
@@ -193,9 +194,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var navigationValue = CurrentValue;
 
                 return navigationValue != null
-                       && (Metadata.IsCollection()
-                           ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
-                           : AnyFkPropertiesModified(navigationValue));
+                    && (Metadata.IsCollection()
+                        ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
+                        : AnyFkPropertiesModified(navigationValue));
             }
             set
             {
@@ -229,9 +230,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
 
             return relatedEntry != null
-                   && (relatedEntry.EntityState == EntityState.Added
-                       || relatedEntry.EntityState == EntityState.Deleted
-                       || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
+                && (relatedEntry.EntityState == EntityState.Added
+                    || relatedEntry.EntityState == EntityState.Deleted
+                    || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
         }
 
         private bool AnyFkPropertiesModified(object relatedEntity)
@@ -239,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
 
             return relatedEntry != null
-                   && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
+                && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
         }
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)

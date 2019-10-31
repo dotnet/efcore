@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -123,9 +123,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var other = (CompiledQueryCacheKey)obj;
 
                 return ReferenceEquals(_model, other._model)
-                       && _queryTrackingBehavior == other._queryTrackingBehavior
-                       && _async == other._async
-                       && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
+                    && _queryTrackingBehavior == other._queryTrackingBehavior
+                    && _async == other._async
+                    && ExpressionEqualityComparer.Instance.Equals(_query, other._query);
             }
 
             /// <summary>

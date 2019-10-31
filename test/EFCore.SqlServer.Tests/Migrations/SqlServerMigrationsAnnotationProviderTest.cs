@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
 
         public SqlServerMigrationsAnnotationProviderTest()
         {
-            _modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(/*skipValidation: true*/);
+            _modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder( /*skipValidation: true*/);
             _annotations = new SqlServerMigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies());
         }
 
@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
             var index = _modelBuilder.Entity<Entity>().HasIndex(e => e.IndexedProp).IncludeProperties(e => e.IncludedProp).Metadata;
             _modelBuilder.FinalizeModel();
 
-            Assert.Contains(_annotations.For(index), a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value).Contains("IncludedColumn"));
+            Assert.Contains(
+                _annotations.For(index), a => a.Name == SqlServerAnnotationNames.Include && ((string[])a.Value).Contains("IncludedColumn"));
         }
 
         private class Entity

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -24,19 +24,21 @@ namespace Microsoft.EntityFrameworkCore.Query
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
             _translators.AddRange(
-                new IMethodCallTranslator[] {
+                new IMethodCallTranslator[]
+                {
                     new EqualsTranslator(sqlExpressionFactory),
                     new StringMethodTranslator(sqlExpressionFactory),
                     new ContainsTranslator(sqlExpressionFactory),
                     new LikeTranslator(sqlExpressionFactory),
                     new EnumHasFlagTranslator(sqlExpressionFactory),
                     new GetValueOrDefaultTranslator(sqlExpressionFactory),
-                    new ComparisonTranslator(sqlExpressionFactory),
+                    new ComparisonTranslator(sqlExpressionFactory)
                 });
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        public virtual SqlExpression Translate(IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
+        public virtual SqlExpression Translate(
+            IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             var dbFunction = model.FindDbFunction(method);
             if (dbFunction != null)

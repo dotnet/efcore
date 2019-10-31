@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             var entry = GetInternalTargetEntry(entity);
             return entry == null
-                    ? null
-                    : new EntityEntry<TRelatedEntity>(entry);
+                ? null
+                : new EntityEntry<TRelatedEntity>(entry);
         }
     }
 }

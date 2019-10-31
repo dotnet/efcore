@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        private bool _isNullable = false;
+        private bool _isNullable;
+        private readonly List<ColumnExpression> _nonNullableColumns = new List<ColumnExpression>();
 
         public NullSemanticsRewritingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory)
         {
@@ -73,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private ColumnExpression VisitColumnExpression(ColumnExpression columnExpression)
         {
-            _isNullable = columnExpression.IsNullable;
+            _isNullable = !_nonNullableColumns.Contains(columnExpression) && columnExpression.IsNullable;
 
             return columnExpression;
         }
@@ -191,12 +192,29 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private SqlBinaryExpression VisitSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
         {
             _isNullable = false;
+
+            var nonNullableColumns = new List<ColumnExpression>();
+            if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+            {
+                nonNullableColumns = FindNonNullableColumns(sqlBinaryExpression.Left);
+            }
+
             var newLeft = (SqlExpression)Visit(sqlBinaryExpression.Left);
             var leftNullable = _isNullable;
 
             _isNullable = false;
+            if (nonNullableColumns.Count > 0)
+            {
+                _nonNullableColumns.AddRange(nonNullableColumns);
+            }
+
             var newRight = (SqlExpression)Visit(sqlBinaryExpression.Right);
             var rightNullable = _isNullable;
+
+            foreach (var nonNullableColumn in nonNullableColumns)
+            {
+                _nonNullableColumns.Remove(nonNullableColumn);
+            }
 
             if (sqlBinaryExpression.OperatorType == ExpressionType.Coalesce)
             {
@@ -224,16 +242,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     newRight = rightUnary.Operand;
                 }
 
-                // TODO: optimize this by looking at subcomponents, e.g. f(a, b) == null <=> a == null || b == null
                 var leftIsNull = _sqlExpressionFactory.IsNull(newLeft);
                 var rightIsNull = _sqlExpressionFactory.IsNull(newRight);
 
                 // doing a full null semantics rewrite - removing all nulls from truth table
+                // this will NOT be correct once we introduce simplified null semantics
                 _isNullable = false;
 
                 if (sqlBinaryExpression.OperatorType == ExpressionType.Equal)
                 {
-                    if (!leftNullable && !rightNullable)
+                    if (!leftNullable
+                        && !rightNullable)
                     {
                         // a == b <=> !a == !b -> a == b
                         // !a == b <=> a == !b -> a != b
@@ -272,7 +291,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
                 {
-                    if (!leftNullable && !rightNullable)
+                    if (!leftNullable
+                        && !rightNullable)
                     {
                         // a != b <=> !a != !b -> a != b
                         // !a != b <=> a != !b -> a == b
@@ -313,6 +333,40 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _isNullable = leftNullable || rightNullable;
 
             return sqlBinaryExpression.Update(newLeft, newRight);
+        }
+
+        private List<ColumnExpression> FindNonNullableColumns(SqlExpression sqlExpression)
+        {
+            var result = new List<ColumnExpression>();
+            if (sqlExpression is SqlBinaryExpression sqlBinaryExpression)
+            {
+                if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+                {
+                    if (sqlBinaryExpression.Left is ColumnExpression leftColumn
+                        && leftColumn.IsNullable
+                        && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
+                        && rightConstant.Value == null)
+                    {
+                        result.Add(leftColumn);
+                    }
+
+                    if (sqlBinaryExpression.Right is ColumnExpression rightColumn
+                        && rightColumn.IsNullable
+                        && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
+                        && leftConstant.Value == null)
+                    {
+                        result.Add(rightColumn);
+                    }
+                }
+
+                if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+                {
+                    result.AddRange(FindNonNullableColumns(sqlBinaryExpression.Left));
+                    result.AddRange(FindNonNullableColumns(sqlBinaryExpression.Right));
+                }
+            }
+
+            return result;
         }
 
         // ?a == ?b -> [(a == b) && (a != null && b != null)] || (a == null && b == null))

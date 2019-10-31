@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IEnumerable<(ParameterInfo Parameter, ParameterBinding Binding)> bindings
                 = constructor.GetParameters().Select(
                         p => (p, _propertyFactory.FindParameter(entityType, p.ParameterType, p.Name)
-                                 ?? bind(_factories.FindFactory(p.ParameterType, p.Name), entityType, p.ParameterType, p.Name)))
+                            ?? bind(_factories.FindFactory(p.ParameterType, p.Name), entityType, p.ParameterType, p.Name)))
                     .ToList();
 
             if (bindings.Any(b => b.Binding == null))

@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IParameterBindingFactory FindFactory(Type parameterType, string parameterName)
             => _parameterBindingFactories.FirstOrDefault(f => f.CanBind(parameterType, parameterName))
-               ?? (_registeredServices.Services.Contains(parameterType)
-                   ? new ServiceParameterBindingFactory(parameterType)
-                   : null);
+                ?? (_registeredServices.Services.Contains(parameterType)
+                    ? new ServiceParameterBindingFactory(parameterType)
+                    : null);
     }
 }

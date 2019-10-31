@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -106,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// </returns>
             public override bool Equals(object obj)
                 => !(obj is null)
-                   && obj is RelationalCompiledQueryCacheKey
-                   && Equals((RelationalCompiledQueryCacheKey)obj);
+                    && obj is RelationalCompiledQueryCacheKey
+                    && Equals((RelationalCompiledQueryCacheKey)obj);
 
             private bool Equals(RelationalCompiledQueryCacheKey other)
                 => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
-                   && _useRelationalNulls == other._useRelationalNulls;
+                    && _useRelationalNulls == other._useRelationalNulls;
 
             /// <summary>
             ///     Gets the hash code for the key.

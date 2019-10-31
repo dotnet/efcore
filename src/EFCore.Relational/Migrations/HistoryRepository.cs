@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         Database providers must inherit from this class to implement provider-specific functionality.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -130,13 +130,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns> <c>True</c> if the table already exists, <c>false</c> otherwise. </returns>
         public virtual bool Exists()
             => Dependencies.DatabaseCreator.Exists()
-               && InterpretExistsResult(
-                   Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
-                       new RelationalCommandParameterObject(
-                           Dependencies.Connection,
-                           null,
-                           Dependencies.CurrentContext.Context,
-                           Dependencies.CommandLogger)));
+                && InterpretExistsResult(
+                    Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
+                        new RelationalCommandParameterObject(
+                            Dependencies.Connection,
+                            null,
+                            Dependencies.CurrentContext.Context,
+                            Dependencies.CommandLogger)));
 
         /// <summary>
         ///     Checks whether or not the history table exists.
@@ -148,14 +148,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </returns>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
             => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken)
-               && InterpretExistsResult(
-                   await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
-                       new RelationalCommandParameterObject(
-                           Dependencies.Connection,
-                           null,
-                           Dependencies.CurrentContext.Context,
-                           Dependencies.CommandLogger),
-                       cancellationToken));
+                && InterpretExistsResult(
+                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
+                        new RelationalCommandParameterObject(
+                            Dependencies.Connection,
+                            null,
+                            Dependencies.CurrentContext.Context,
+                            Dependencies.CommandLogger),
+                        cancellationToken));
 
         /// <summary>
         ///     Interprets the result of executing <see cref="ExistsSql" />.
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
-                await using(var reader = await command.ExecuteReaderAsync(
+                await using (var reader = await command.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
                         Dependencies.Connection,
                         null,

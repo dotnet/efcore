@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
             var oldConfigurationSource = _configurationSource;
-            _configurationSource = _configurationSource.Max(configurationSource);
+            _configurationSource = configurationSource.Max(_configurationSource);
             return _configurationSource != oldConfigurationSource;
         }
 
@@ -571,26 +571,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string Format([NotNull] IEnumerable<string> properties)
             => "{"
-               + string.Join(
-                   ", ",
-                   properties.Select(p => string.IsNullOrEmpty(p) ? "" : "'" + p + "'"))
-               + "}";
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IEntityType IProperty.DeclaringEntityType => DeclaringEntityType;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
+                + string.Join(
+                    ", ",
+                    properties.Select(p => string.IsNullOrEmpty(p) ? "" : "'" + p + "'"))
+                + "}";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -608,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     property.IsShadowProperty()
                     || (entityType.HasClrType()
                         && ((property.PropertyInfo != null
-                             && entityType.GetRuntimeProperties().ContainsKey(property.Name))
+                                && entityType.GetRuntimeProperties().ContainsKey(property.Name))
                             || (property.FieldInfo != null
                                 && entityType.GetRuntimeFields().ContainsKey(property.Name)))));
         }
@@ -671,6 +655,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         IConventionPropertyBuilder IConventionProperty.Builder
         {
             [DebuggerStepThrough] get => Builder;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IEntityType IProperty.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IMutableEntityType IMutableProperty.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         /// <summary>

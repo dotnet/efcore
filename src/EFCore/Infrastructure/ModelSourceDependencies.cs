@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -24,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>.
-    ///         This means a single instance of each service is used by many <see cref="DbContext"/> instances.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />.
+    ///         This means a single instance of each service is used by many <see cref="DbContext" /> instances.
     ///         The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public sealed class ModelSourceDependencies
@@ -54,13 +55,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [EntityFrameworkInternal]
         public ModelSourceDependencies(
             [NotNull] IModelCustomizer modelCustomizer,
-            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
+            [NotNull] IModelCacheKeyFactory modelCacheKeyFactory,
+            [NotNull] IMemoryCache memoryCache)
         {
             Check.NotNull(modelCustomizer, nameof(modelCustomizer));
             Check.NotNull(modelCacheKeyFactory, nameof(modelCacheKeyFactory));
+            Check.NotNull(memoryCache, nameof(memoryCache));
 
             ModelCustomizer = modelCustomizer;
             ModelCacheKeyFactory = modelCacheKeyFactory;
+            MemoryCache = memoryCache;
         }
 
         /// <summary>
@@ -76,12 +80,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public IModelCacheKeyFactory ModelCacheKeyFactory { get; }
 
         /// <summary>
+        ///     Gets the <see cref="IMemoryCache" /> that will be used to cache models.
+        /// </summary>
+        public IMemoryCache MemoryCache { get; }
+
+        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="modelCustomizer"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ModelSourceDependencies With([NotNull] IModelCustomizer modelCustomizer)
-            => new ModelSourceDependencies(modelCustomizer, ModelCacheKeyFactory);
+            => new ModelSourceDependencies(modelCustomizer, ModelCacheKeyFactory, MemoryCache);
 
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
@@ -89,6 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelCacheKeyFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public ModelSourceDependencies With([NotNull] IModelCacheKeyFactory modelCacheKeyFactory)
-            => new ModelSourceDependencies(ModelCustomizer, modelCacheKeyFactory);
+            => new ModelSourceDependencies(ModelCustomizer, modelCacheKeyFactory, MemoryCache);
+
+        /// <summary>
+        ///     Clones this dependency parameter object with one service replaced.
+        /// </summary>
+        /// <param name="memoryCache"> A replacement for the current dependency of this type. </param>
+        /// <returns> A new parameter object with the given service replaced. </returns>
+        public ModelSourceDependencies With([NotNull] IMemoryCache memoryCache)
+            => new ModelSourceDependencies(ModelCustomizer, ModelCacheKeyFactory, memoryCache);
     }
 }

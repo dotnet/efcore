@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,12 +7,12 @@ using System.ComponentModel;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetName(string name, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetNameConfigurationSource())
-               || _function.Name == name;
+                || _function.Name == name;
 
         /// <summary>
         ///     Sets the schema of the database function.
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetSchema(string schema, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetSchemaConfigurationSource())
-               || _function.Schema == schema;
+                || _function.Schema == schema;
 
         /// <summary>
         ///     Sets the store type of the database function.
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetStoreType(string storeType, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetStoreTypeConfigurationSource())
-               || _function.StoreType == storeType;
+                || _function.StoreType == storeType;
 
         /// <inheritdoc />
         IConventionDbFunctionBuilder IConventionDbFunctionBuilder.HasTypeMapping(
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         bool IConventionDbFunctionBuilder.CanSetTypeMapping(RelationalTypeMapping returnTypeMapping, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetTypeMappingConfigurationSource())
-               || _function.TypeMapping == returnTypeMapping;
+                || _function.TypeMapping == returnTypeMapping;
 
         /// <summary>
         ///     <para>
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///    Creates a <see cref="DbFunctionParameterBuilder"/> for a parameter with the given name.
+        ///     Creates a <see cref="DbFunctionParameterBuilder" /> for a parameter with the given name.
         /// </summary>
         /// <param name="name"> The parameter name. </param>
         /// <returns> The builder to use for further parameter configuration. </returns>
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         bool IConventionDbFunctionBuilder.CanSetTranslation(
             Func<IReadOnlyCollection<SqlExpression>, SqlExpression> translation, bool fromDataAnnotation)
             => Overrides(fromDataAnnotation, _function.GetTranslationConfigurationSource())
-               || _function.Translation == translation;
+                || _function.Translation == translation;
 
         private bool Overrides(bool fromDataAnnotation, ConfigurationSource? configurationSource)
             => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)

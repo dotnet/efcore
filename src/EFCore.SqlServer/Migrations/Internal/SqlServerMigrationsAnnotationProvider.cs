@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -21,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
@@ -43,7 +44,48 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IModel model) => ForRemove(model);
+        public override IEnumerable<IAnnotation> For(IModel model)
+        {
+            var maxSize = model.GetDatabaseMaxSize();
+            var serviceTier = model.GetServiceTierSql();
+            var performanceLevel = model.GetPerformanceLevelSql();
+            if (maxSize != null
+                || serviceTier != null
+                || performanceLevel != null)
+            {
+                var options = new StringBuilder();
+
+                if (maxSize != null)
+                {
+                    options.Append("MAXSIZE = ");
+                    options.Append(maxSize);
+                    options.Append(", ");
+                }
+
+                if (serviceTier != null)
+                {
+                    options.Append("EDITION = ");
+                    options.Append(serviceTier);
+                    options.Append(", ");
+                }
+
+                if (performanceLevel != null)
+                {
+                    options.Append("SERVICE_OBJECTIVE = ");
+                    options.Append(performanceLevel);
+                    options.Append(", ");
+                }
+
+                options.Remove(options.Length - 2, 2);
+
+                yield return new Annotation(SqlServerAnnotationNames.EditionOptions, options.ToString());
+            }
+
+            foreach (var annotationForRemove in ForRemove(model))
+            {
+                yield return annotationForRemove;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -124,7 +166,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
                     SqlServerAnnotationNames.Identity,
                     string.Format(CultureInfo.InvariantCulture, "{0}, {1}", seed ?? 1, increment ?? 1));
             }
-
         }
 
         /// <summary>

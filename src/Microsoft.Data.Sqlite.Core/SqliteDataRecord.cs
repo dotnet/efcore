@@ -1,14 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -296,6 +294,7 @@ namespace Microsoft.Data.Sqlite
 
                 return HasRows;
             }
+
             if (sqlite3_data_count(Handle) == 0)
             {
                 return false;
@@ -340,20 +339,20 @@ namespace Microsoft.Data.Sqlite
             }
 
             var typeRules = new Func<string, int?>[]
-                {
-                    name => Contains(name, "INT") ? SQLITE_INTEGER : (int?)null,
-                    name => Contains(name, "CHAR")
-                        || Contains(name, "CLOB")
-                        || Contains(name, "TEXT")
+            {
+                name => Contains(name, "INT") ? SQLITE_INTEGER : (int?)null,
+                name => Contains(name, "CHAR")
+                    || Contains(name, "CLOB")
+                    || Contains(name, "TEXT")
                         ? SQLITE_TEXT
                         : (int?)null,
-                    name => Contains(name, "BLOB") ? SQLITE_BLOB : (int?)null,
-                    name => Contains(name, "REAL")
-                        || Contains(name, "FLOA")
-                        || Contains(name, "DOUB")
+                name => Contains(name, "BLOB") ? SQLITE_BLOB : (int?)null,
+                name => Contains(name, "REAL")
+                    || Contains(name, "FLOA")
+                    || Contains(name, "DOUB")
                         ? SQLITE_FLOAT
                         : (int?)null
-                };
+            };
 
             return typeRules.Select(r => r(dataTypeName)).FirstOrDefault(r => r != null) ?? SQLITE_TEXT; // code NUMERICAL affinity as TEXT
         }

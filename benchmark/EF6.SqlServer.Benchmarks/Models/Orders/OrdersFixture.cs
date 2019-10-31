@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
         private readonly int _ordersPerCustomer;
         private readonly int _linesPerOrder;
 
-        public OrdersFixture(string databaseName, int productCount, int customerCount,
+        public OrdersFixture(
+            string databaseName, int productCount, int customerCount,
             int ordersPerCustomer, int linesPerOrder, Action<DbContext> seedAction = null)
         {
             _connectionString = SqlServerBenchmarkEnvironment.CreateConnectionString(databaseName);

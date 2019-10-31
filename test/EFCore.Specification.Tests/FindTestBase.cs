@@ -30,10 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new IntKey
-                    {
-                        Id = 88
-                    }).Entity;
+                    new IntKey { Id = 88 }).Entity;
 
                 Assert.Same(entity, Find<IntKey>(context, 88));
             }
@@ -63,10 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new NullableIntKey
-                    {
-                        Id = 88
-                    }).Entity;
+                    new NullableIntKey { Id = 88 }).Entity;
 
                 Assert.Same(entity, Find<NullableIntKey>(context, 88));
             }
@@ -96,10 +90,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new StringKey
-                    {
-                        Id = "Rabbit"
-                    }).Entity;
+                    new StringKey { Id = "Rabbit" }).Entity;
 
                 Assert.Same(entity, Find<StringKey>(context, "Rabbit"));
             }
@@ -129,11 +120,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new CompositeKey
-                    {
-                        Id1 = 88,
-                        Id2 = "Rabbit"
-                    }).Entity;
+                    new CompositeKey { Id1 = 88, Id2 = "Rabbit" }).Entity;
 
                 Assert.Same(entity, Find<CompositeKey>(context, 88, "Rabbit"));
             }
@@ -163,10 +150,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new BaseType
-                    {
-                        Id = 88
-                    }).Entity;
+                    new BaseType { Id = 88 }).Entity;
 
                 Assert.Same(entity, Find<BaseType>(context, 88));
             }
@@ -196,10 +180,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new DerivedType
-                    {
-                        Id = 88
-                    }).Entity;
+                    new DerivedType { Id = 88 }).Entity;
 
                 Assert.Same(entity, Find<DerivedType>(context, 88));
             }
@@ -231,10 +212,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Attach(
-                    new BaseType
-                    {
-                        Id = 88
-                    });
+                    new BaseType { Id = 88 });
 
                 Assert.Null(Find<DerivedType>(context, 88));
             }
@@ -255,10 +233,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new DerivedType
-                    {
-                        Id = 88
-                    }).Entity;
+                    new DerivedType { Id = 88 }).Entity;
 
                 Assert.Same(entity, Find<BaseType>(context, 88));
             }
@@ -403,10 +378,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new IntKey
-                    {
-                        Id = 88
-                    }).Entity;
+                    new IntKey { Id = 88 }).Entity;
 
                 var valueTask = FindAsync<IntKey>(context, 88);
                 Assert.True(valueTask.IsCompleted);
@@ -438,10 +410,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new NullableIntKey
-                    {
-                        Id = 88
-                    }).Entity;
+                    new NullableIntKey { Id = 88 }).Entity;
 
                 Assert.Same(entity, await FindAsync<NullableIntKey>(context, 88));
             }
@@ -471,10 +440,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new StringKey
-                    {
-                        Id = "Rabbit"
-                    }).Entity;
+                    new StringKey { Id = "Rabbit" }).Entity;
 
                 Assert.Same(entity, await FindAsync<StringKey>(context, "Rabbit"));
             }
@@ -504,11 +470,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new CompositeKey
-                    {
-                        Id1 = 88,
-                        Id2 = "Rabbit"
-                    }).Entity;
+                    new CompositeKey { Id1 = 88, Id2 = "Rabbit" }).Entity;
 
                 Assert.Same(entity, await FindAsync<CompositeKey>(context, 88, "Rabbit"));
             }
@@ -538,10 +500,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new BaseType
-                    {
-                        Id = 88
-                    }).Entity;
+                    new BaseType { Id = 88 }).Entity;
 
                 Assert.Same(entity, await FindAsync<BaseType>(context, 88));
             }
@@ -571,10 +530,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new DerivedType
-                    {
-                        Id = 88
-                    }).Entity;
+                    new DerivedType { Id = 88 }).Entity;
 
                 Assert.Same(entity, await FindAsync<DerivedType>(context, 88));
             }
@@ -606,10 +562,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Attach(
-                    new BaseType
-                    {
-                        Id = 88
-                    });
+                    new BaseType { Id = 88 });
 
                 Assert.Null(await FindAsync<DerivedType>(context, 88));
             }
@@ -630,10 +583,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 var entity = context.Attach(
-                    new DerivedType
-                    {
-                        Id = 88
-                    }).Entity;
+                    new DerivedType { Id = 88 }).Entity;
 
                 Assert.Same(entity, await FindAsync<BaseType>(context, 88));
             }
@@ -823,11 +773,7 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<NullableIntKey>();
                 modelBuilder.Entity<StringKey>();
                 modelBuilder.Entity<CompositeKey>().HasKey(
-                    e => new
-                    {
-                        e.Id1,
-                        e.Id2
-                    });
+                    e => new { e.Id1, e.Id2 });
                 modelBuilder.Entity<BaseType>();
                 modelBuilder.Entity<DerivedType>();
                 modelBuilder.Entity<ShadowKey>().Property(typeof(int), "Id").ValueGeneratedNever();
@@ -836,32 +782,16 @@ namespace Microsoft.EntityFrameworkCore
             protected override void Seed(PoolableDbContext context)
             {
                 context.AddRange(
-                    new IntKey
-                    {
-                        Id = 77,
-                        Foo = "Smokey"
-                    },
-                    new NullableIntKey
-                    {
-                        Id = 77,
-                        Foo = "Smokey"
-                    },
-                    new StringKey
-                    {
-                        Id = "Cat",
-                        Foo = "Alice"
-                    },
+                    new IntKey { Id = 77, Foo = "Smokey" },
+                    new NullableIntKey { Id = 77, Foo = "Smokey" },
+                    new StringKey { Id = "Cat", Foo = "Alice" },
                     new CompositeKey
                     {
                         Id1 = 77,
                         Id2 = "Dog",
                         Foo = "Olive"
                     },
-                    new BaseType
-                    {
-                        Id = 77,
-                        Foo = "Baxter"
-                    },
+                    new BaseType { Id = 77, Foo = "Baxter" },
                     new DerivedType
                     {
                         Id = 78,
@@ -870,10 +800,7 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 var entry = context.Entry(
-                    new ShadowKey
-                    {
-                        Foo = "Clippy"
-                    });
+                    new ShadowKey { Foo = "Clippy" });
                 entry.Property("Id").CurrentValue = 77;
                 entry.State = EntityState.Added;
 

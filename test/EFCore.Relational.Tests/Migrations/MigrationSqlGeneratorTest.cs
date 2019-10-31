@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddColumnOperation_with_defaultValue();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD ""Name"" varchar(30) NOT NULL DEFAULT 'John Doe';
 ");
         }
 
@@ -21,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddColumnOperation_with_defaultValueSql();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Birthday"" date NULL DEFAULT (CURRENT_TIMESTAMP);
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Birthday"" date NULL DEFAULT (CURRENT_TIMESTAMP);
 ");
         }
 
@@ -29,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddColumnOperation_without_column_type();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD ""Alias"" just_string(max) NOT NULL;
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD ""Alias"" just_string(max) NOT NULL;
 ");
         }
 
@@ -37,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddColumnOperation_with_maxLength();
 
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" just_string(30) NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" just_string(30) NULL;
 ");
         }
 
@@ -45,7 +49,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddColumnOperation_with_maxLength_on_derived();
 
-            AssertSql(@"ALTER TABLE ""Person"" ADD ""Name"" just_string(30) NULL;
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Name"" just_string(30) NULL;
 ");
         }
 
@@ -53,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddColumnOperation_with_shared_column();
 
-            AssertSql(@"ALTER TABLE ""Base"" ADD ""Foo"" just_string(max) NULL;
+            AssertSql(
+                @"ALTER TABLE ""Base"" ADD ""Foo"" just_string(max) NULL;
 ");
         }
 
@@ -61,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddForeignKeyOperation_with_name();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""FK_People_Companies"" FOREIGN KEY (""EmployerId1"", ""EmployerId2"") REFERENCES ""hr"".""Companies"" (""Id1"", ""Id2"") ON DELETE CASCADE;
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""FK_People_Companies"" FOREIGN KEY (""EmployerId1"", ""EmployerId2"") REFERENCES ""hr"".""Companies"" (""Id1"", ""Id2"") ON DELETE CASCADE;
 ");
         }
 
@@ -69,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddForeignKeyOperation_without_name();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD FOREIGN KEY (""SpouseId"") REFERENCES ""People"" (""Id"");
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD FOREIGN KEY (""SpouseId"") REFERENCES ""People"" (""Id"");
 ");
         }
 
@@ -77,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddForeignKeyOperation_without_principal_columns();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD FOREIGN KEY (""SpouseId"") REFERENCES ""People"";
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD FOREIGN KEY (""SpouseId"") REFERENCES ""People"";
 ");
         }
 
@@ -85,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddPrimaryKeyOperation_with_name();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""PK_People"" PRIMARY KEY (""Id1"", ""Id2"");
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""PK_People"" PRIMARY KEY (""Id1"", ""Id2"");
 ");
         }
 
@@ -93,7 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddPrimaryKeyOperation_without_name();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD PRIMARY KEY (""Id"");
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD PRIMARY KEY (""Id"");
 ");
         }
 
@@ -101,7 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddUniqueConstraintOperation_with_name();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""AK_People_DriverLicense"" UNIQUE (""DriverLicense_State"", ""DriverLicense_Number"");
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""AK_People_DriverLicense"" UNIQUE (""DriverLicense_State"", ""DriverLicense_Number"");
 ");
         }
 
@@ -109,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AddUniqueConstraintOperation_without_name();
 
-            AssertSql(@"ALTER TABLE ""People"" ADD UNIQUE (""SSN"");
+            AssertSql(
+                @"ALTER TABLE ""People"" ADD UNIQUE (""SSN"");
 ");
         }
 
@@ -117,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.CreateCheckConstraintOperation_with_name();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""CK_People_DriverLicense"" CHECK (DriverLicense_Number > 0);
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" ADD CONSTRAINT ""CK_People_DriverLicense"" CHECK (DriverLicense_Number > 0);
 ");
         }
 
@@ -125,7 +139,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AlterSequenceOperation_with_minValue_and_maxValue();
 
-            AssertSql(@"ALTER SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
+            AssertSql(
+                @"ALTER SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
 ");
         }
 
@@ -133,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.AlterSequenceOperation_without_minValue_and_maxValue();
 
-            AssertSql(@"ALTER SEQUENCE ""EntityFrameworkHiLoSequence"" INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+            AssertSql(
+                @"ALTER SEQUENCE ""EntityFrameworkHiLoSequence"" INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 ");
         }
 
@@ -141,7 +157,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.CreateIndexOperation_unique();
 
-            AssertSql(@"CREATE UNIQUE INDEX ""IX_People_Name"" ON ""dbo"".""People"" (""FirstName"", ""LastName"");
+            AssertSql(
+                @"CREATE UNIQUE INDEX ""IX_People_Name"" ON ""dbo"".""People"" (""FirstName"", ""LastName"");
 ");
         }
 
@@ -149,7 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.CreateIndexOperation_nonunique();
 
-            AssertSql(@"CREATE INDEX ""IX_People_Name"" ON ""People"" (""Name"");
+            AssertSql(
+                @"CREATE INDEX ""IX_People_Name"" ON ""People"" (""Name"");
 ");
         }
 
@@ -157,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.CreateIndexOperation_with_where_clauses();
 
-            AssertSql(@"CREATE INDEX ""IX_People_Name"" ON ""People"" (""Name"") WHERE [Id] > 2;
+            AssertSql(
+                @"CREATE INDEX ""IX_People_Name"" ON ""People"" (""Name"") WHERE [Id] > 2;
 ");
         }
 
@@ -165,7 +184,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.CreateSequenceOperation_with_minValue_and_maxValue();
 
-            AssertSql(@"CREATE SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
+            AssertSql(
+                @"CREATE SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
 ");
         }
 
@@ -173,7 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.CreateSequenceOperation_with_minValue_and_maxValue_not_long();
 
-            AssertSql(@"CREATE SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" AS default_int_mapping START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
+            AssertSql(
+                @"CREATE SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"" AS default_int_mapping START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;
 ");
         }
 
@@ -181,7 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.CreateSequenceOperation_without_minValue_and_maxValue();
 
-            AssertSql(@"CREATE SEQUENCE ""EntityFrameworkHiLoSequence"" START WITH 3 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+            AssertSql(
+                @"CREATE SEQUENCE ""EntityFrameworkHiLoSequence"" START WITH 3 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 ");
         }
 
@@ -217,7 +239,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.DropColumnOperation();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" DROP COLUMN ""LuckyNumber"";
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP COLUMN ""LuckyNumber"";
 ");
         }
 
@@ -225,7 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.DropForeignKeyOperation();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""FK_People_Companies"";
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""FK_People_Companies"";
 ");
         }
 
@@ -233,7 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.DropPrimaryKeyOperation();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""PK_People"";
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""PK_People"";
 ");
         }
 
@@ -241,7 +266,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.DropSequenceOperation();
 
-            AssertSql(@"DROP SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"";
+            AssertSql(
+                @"DROP SEQUENCE ""dbo"".""EntityFrameworkHiLoSequence"";
 ");
         }
 
@@ -249,7 +275,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.DropTableOperation();
 
-            AssertSql(@"DROP TABLE ""dbo"".""People"";
+            AssertSql(
+                @"DROP TABLE ""dbo"".""People"";
 ");
         }
 
@@ -257,7 +284,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.DropUniqueConstraintOperation();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""AK_People_SSN"";
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""AK_People_SSN"";
 ");
         }
 
@@ -265,7 +293,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.DropCheckConstraintOperation();
 
-            AssertSql(@"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""CK_People_SSN"";
+            AssertSql(
+                @"ALTER TABLE ""dbo"".""People"" DROP CONSTRAINT ""CK_People_SSN"";
 ");
         }
 
@@ -273,7 +302,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             base.SqlOperation();
 
-            AssertSql(@"-- I <3 DDL
+            AssertSql(
+                @"-- I <3 DDL
 ");
         }
 
@@ -281,14 +311,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public void Generate_doesnt_batch_by_default()
         {
             Generate(
-                new SqlOperation
-                {
-                    Sql = "SELECT 1;"
-                },
-                new SqlOperation
-                {
-                    Sql = "SELECT 2;"
-                });
+                new SqlOperation { Sql = "SELECT 1;" },
+                new SqlOperation { Sql = "SELECT 2;" });
 
             AssertSql(
                 @"SELECT 1;

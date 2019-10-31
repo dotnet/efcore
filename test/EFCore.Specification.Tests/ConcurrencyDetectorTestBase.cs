@@ -3,11 +3,9 @@
 
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -165,10 +163,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = CreateContext())
             {
                 context.Products.Add(
-                    new Product
-                    {
-                        ProductID = 10001
-                    });
+                    new Product { ProductID = 10001 });
 
                 var concurrencyDetector = context.GetService<IConcurrencyDetector>();
                 IDisposable disposer = null;
