@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().GroupBy(o => o.OrderDate).Select(
                     g =>
                         new { g.Key, SomeValue = g.Count() == 0 ? 1 : g.Sum(o => o.OrderID % 2 == 0 ? 1 : 0) / g.Count() }),
-                e => e.SomeValue);
+                e => (e.Key, e.SomeValue));
         }
 
         [ConditionalTheory]
@@ -1948,8 +1948,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Order>()
                     .OrderBy(o => o.CustomerID)
+                    .ThenBy(o => o.OrderID)
                     .Skip(80)
                     .OrderBy(o => o.CustomerID)
+                    .ThenBy(o => o.OrderID)
                     .GroupBy(o => o.CustomerID)
                     .Select(g => g.Sum(o => o.OrderID))
             );

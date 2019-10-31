@@ -2110,7 +2110,7 @@ SELECT SUM([t].[OrderID])
 FROM (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    ORDER BY [o].[CustomerID]
+    ORDER BY [o].[CustomerID], [o].[OrderID]
     OFFSET @__p_0 ROWS
 ) AS [t]
 GROUP BY [t].[CustomerID]");
