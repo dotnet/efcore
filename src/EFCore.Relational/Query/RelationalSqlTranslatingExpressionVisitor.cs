@@ -573,9 +573,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case SqlExpression _:
                     return extensionExpression;
 
-                case NullConditionalExpression nullConditionalExpression:
-                    return Visit(nullConditionalExpression.AccessOperation);
-
                 case EntityShaperExpression entityShaperExpression:
                     return Visit(entityShaperExpression.ValueBufferExpression);
 

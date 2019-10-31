@@ -612,14 +612,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : null;
 
-                case NullConditionalExpression nullConditionalExpression:
-                {
-                    var translation = Visit(nullConditionalExpression.AccessOperation);
-                    return translation.Type == nullConditionalExpression.Type
-                        ? translation
-                        : Expression.Convert(translation, nullConditionalExpression.Type);
-                }
-
                 default:
                     return null;
             }

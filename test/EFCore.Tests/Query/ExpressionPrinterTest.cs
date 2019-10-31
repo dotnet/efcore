@@ -165,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public void Complex_MethodCall_printed_correctly()
         {
             Assert.Equal(
-                @"""Foobar"".Substring(
+                "\"Foobar\""
++ @".Substring(
     startIndex: 0, 
     length: 4)",
                 _expressionPrinter.Print(
@@ -194,16 +195,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     .AsEnumerable()
     .Where(x => x.Length > 1)",
                 _expressionPrinter.Print(expr.Body));
-        }
-
-        [ConditionalFact]
-        public void Use_Print_method_when_printing_extension_expression()
-        {
-            var expr = new NullConditionalExpression(
-                Expression.Constant("caller"),
-                Expression.Constant("accessOperation"));
-
-            Assert.Equal(expr.Print(), _expressionPrinter.Print(expr));
         }
     }
 }

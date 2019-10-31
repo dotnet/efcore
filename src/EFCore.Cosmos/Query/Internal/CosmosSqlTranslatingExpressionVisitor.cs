@@ -441,9 +441,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             .GetMappedProjection(projectionBindingExpression.ProjectionMember)
                         : null;
 
-                case NullConditionalExpression nullConditionalExpression:
-                    return Visit(nullConditionalExpression.AccessOperation);
-
                 default:
                     return null;
             }

@@ -69,9 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     case OwnedNavigationReference ownedNavigationReference:
                         return ownedNavigationReference.EntityReference;
 
-                    case NullConditionalExpression nullConditionalExpression:
-                        return UnwrapEntityReference(nullConditionalExpression.AccessOperation);
-
                     default:
                         return null;
                 }
