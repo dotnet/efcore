@@ -7259,6 +7259,117 @@ WHERE EXISTS (
 
         #endregion
 
+        #region Issue18087
+
+        [ConditionalFact]
+        public void Cast_to_implemented_interface_is_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var id = 1;
+            var query = queryBase.Cast<IDomainEntity>().FirstOrDefault(x => x.Id == id);
+
+            Assert.Equal(1, query.Id);
+
+            AssertSql(
+                @"@__id_0='1'
+
+SELECT TOP(1) [m].[Id], [m].[Name], [m].[NavigationEntityId]
+FROM [MockEntities] AS [m]
+WHERE [m].[Id] = @__id_0");
+        }
+
+        [ConditionalFact]
+        public void Cast_to_object_is_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var query = queryBase.Cast<object>().Count();
+
+            Assert.Equal(3, query);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [MockEntities] AS [m]");
+        }
+
+        [ConditionalFact]
+        public void Cast_to_non_implemented_interface_is_not_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var id = 1;
+
+            var message = Assert.Throws<InvalidOperationException>(
+                () => queryBase.Cast<IDummyEntity>().FirstOrDefault(x => x.Id == id)).Message;
+
+            Assert.Equal(
+                CoreStrings.TranslationFailed(@"DbSet<MockEntity>    .Cast()    .Where(e => e.Id == __id_0)"),
+                message.Replace("\r", "").Replace("\n", ""));
+        }
+
+        private SqlServerTestStore CreateDatabase18087()
+            => CreateTestStore(
+                () => new BugContext18087(_options),
+                context =>
+                {
+                    context.AddRange(new MockEntity()
+                    {
+                        Name = "Entity1",
+                        NavigationEntity = null
+                    },
+                    new MockEntity()
+                    {
+                        Name = "Entity2",
+                        NavigationEntity = null
+                    },
+                    new MockEntity()
+                    {
+                        Name = "NewEntity",
+                        NavigationEntity = null
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private interface IDomainEntity
+        {
+            int Id { get; set; }
+        }
+
+        private interface IDummyEntity
+        {
+            int Id { get; set; }
+        }
+
+        private class MockEntity : IDomainEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public MockEntity NavigationEntity { get; set; }
+        }
+
+        private class BugContext18087 : DbContext
+        {
+            public BugContext18087(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<MockEntity> MockEntities { get; set; }
+        }
+
+        #endregion
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
