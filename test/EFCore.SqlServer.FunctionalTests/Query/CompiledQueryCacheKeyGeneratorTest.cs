@@ -50,7 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (rowNumberPaging)
             {
+#pragma warning disable 618
                 new SqlServerDbContextOptionsBuilder(builder).UseRowNumberForPaging();
+#pragma warning restore 618
             }
 
             return builder.Options;
