@@ -56,7 +56,9 @@ namespace Microsoft.EntityFrameworkCore
             {
                 Assert.Equal(
                     CoreStrings.SingletonOptionChanged(
+#pragma warning disable 618
                         nameof(SqlServerDbContextOptionsBuilder.UseRowNumberForPaging),
+#pragma warning restore 618
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
                     Assert.Throws<InvalidOperationException>(() => context.Model).Message);
             }
@@ -92,7 +94,9 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             if (_rowNumberPagingEnabled)
                             {
+#pragma warning disable 618
                                 b.UseRowNumberForPaging();
+#pragma warning restore 618
                             }
                         });
             }
