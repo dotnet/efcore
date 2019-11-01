@@ -3402,7 +3402,9 @@ WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__
                     .EnableServiceProviderCaching(false)
                     .UseSqlServer(
                         SqlServerTestStore.CreateConnectionString("RowNumberPaging_Owned"),
+#pragma warning disable 618
                         b => b.UseRowNumberForPaging());
+#pragma warning restore 618
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

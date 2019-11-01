@@ -90,7 +90,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
 
+#pragma warning disable 618
             optionsBuilder.UseSqlServer("Database=Kilimanjaro", b => b.UseRowNumberForPaging());
+#pragma warning restore 618
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 

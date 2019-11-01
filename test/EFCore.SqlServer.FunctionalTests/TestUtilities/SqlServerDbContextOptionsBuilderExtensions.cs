@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var offsetSupport = TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
             if (!offsetSupport)
             {
+#pragma warning disable 618
                 optionsBuilder.UseRowNumberForPaging();
+#pragma warning restore 618
             }
 
             optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
