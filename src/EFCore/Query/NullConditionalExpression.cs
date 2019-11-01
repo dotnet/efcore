@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     Expression representing null-conditional access.
     ///     Logic in this file is based on https://github.com/bartdesmet/ExpressionFutures
     /// </summary>
+    [Obsolete("Use ConditionalExpression with null check instead")]
     public class NullConditionalExpression : Expression, IPrintableExpression
     {
         /// <summary>

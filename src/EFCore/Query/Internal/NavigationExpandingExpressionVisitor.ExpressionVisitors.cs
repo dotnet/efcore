@@ -69,9 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     case OwnedNavigationReference ownedNavigationReference:
                         return ownedNavigationReference.EntityReference;
 
-                    case NullConditionalExpression nullConditionalExpression:
-                        return UnwrapEntityReference(nullConditionalExpression.AccessOperation);
-
                     default:
                         return null;
                 }
@@ -98,25 +95,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private Expression TryExpandNavigation(Expression root, MemberIdentity memberIdentity)
             {
-                Type convertedType = null;
-                var innerExpression = root;
-                if (innerExpression is UnaryExpression unaryExpression
-                    && unaryExpression.NodeType == ExpressionType.Convert)
-                {
-                    innerExpression = unaryExpression.Operand;
-                    if (unaryExpression.Type != typeof(object)
-                        && unaryExpression.Type != innerExpression.Type)
-                    {
-                        convertedType = unaryExpression.Type;
-                    }
-                }
-
+                var innerExpression = root.UnwrapTypeConversion(out var convertedType);
                 if (UnwrapEntityReference(innerExpression) is EntityReference entityReference)
                 {
                     var entityType = entityReference.EntityType;
-                    if (convertedType != null
-                        && !(convertedType.IsInterface
-                            && convertedType.IsAssignableFrom(entityType.ClrType)))
+                    if (convertedType != null)
                     {
                         entityType = entityType.GetTypesInHierarchy()
                             .FirstOrDefault(et => et.ClrType == convertedType);

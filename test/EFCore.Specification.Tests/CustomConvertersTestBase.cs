@@ -527,6 +527,23 @@ namespace Microsoft.EntityFrameworkCore
             public string Value { get; set; }
         }
 
+        [ConditionalFact]
+        public virtual void Collection_property_as_scalar()
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
+                    .Message.Replace("\r","").Replace("\n",""));
+        }
+
+        protected class CollectionScalar
+        {
+            public int Id { get; set; }
+            public List<string> Tags { get; set; }
+        }
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -954,9 +971,32 @@ namespace Microsoft.EntityFrameworkCore
                         );
                         e.HasData(new EntityWithValueWrapper { Id = 1, Wrapper = new ValueWrapper { Value = "foo" } });
                     });
+
+                modelBuilder.Entity<CollectionScalar>(
+                    b =>
+                    {
+                        b.Property(e => e.Tags).HasConversion(
+                            c => string.Join(",", c),
+                            s => s.Split(',', StringSplitOptions.None).ToList()).Metadata
+                            .SetValueComparer(new ListOfStringComparer());
+
+                        b.HasData(new CollectionScalar
+                        {
+                            Id = 1,
+                            Tags = new List<string> { "A", "B", "C" }
+                        });
+                    });
             }
 
-            public static class StringToDictionarySerializer
+            private class ListOfStringComparer : ValueComparer<List<string>>
+            {
+                public ListOfStringComparer()
+                    : base(favorStructuralComparisons: true)
+                {
+                }
+            }
+
+            private static class StringToDictionarySerializer
             {
                 public static string Serialize(IDictionary<string, string> dictionary)
                 {

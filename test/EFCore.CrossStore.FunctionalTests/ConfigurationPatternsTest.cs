@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_register_multiple_context_types_with_default_service_provider()
         {
             using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => new ExternalProviderContext(sqlServerServiceProvider));
             }
 
-            [ConditionalFact]
+            [ConditionalFact(Skip = "#18682")]
             public Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
                 => NestedContextTest(() => new BlogContext(), () => new ExternalProviderContext());
 

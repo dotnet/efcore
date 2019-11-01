@@ -980,19 +980,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var innerExpression = Visit(memberExpression.Expression);
 
-                if (innerExpression is EntityShaperExpression
-                    || (innerExpression is UnaryExpression innerUnaryExpression
-                        && innerUnaryExpression.NodeType == ExpressionType.Convert
-                        && innerUnaryExpression.Operand is EntityShaperExpression))
-                {
-                    var collectionNavigation = Expand(innerExpression, MemberIdentity.Create(memberExpression.Member));
-                    if (collectionNavigation != null)
-                    {
-                        return collectionNavigation;
-                    }
-                }
-
-                return memberExpression.Update(innerExpression);
+                return TryExpand(innerExpression, MemberIdentity.Create(memberExpression.Member))
+                    ?? memberExpression.Update(innerExpression);
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -1000,19 +989,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
                 {
                     source = Visit(source);
-                    if (source is EntityShaperExpression
-                        || (source is UnaryExpression innerUnaryExpression
-                            && innerUnaryExpression.NodeType == ExpressionType.Convert
-                            && innerUnaryExpression.Operand is EntityShaperExpression))
-                    {
-                        var collectionNavigation = Expand(source, MemberIdentity.Create(navigationName));
-                        if (collectionNavigation != null)
-                        {
-                            return collectionNavigation;
-                        }
-                    }
 
-                    return methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                    return TryExpand(source, MemberIdentity.Create(navigationName))
+                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
@@ -1023,19 +1002,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? extensionExpression
                     : base.VisitExtension(extensionExpression);
 
-            private Expression Expand(Expression source, MemberIdentity member)
+            private Expression TryExpand(Expression source, MemberIdentity member)
             {
-                Type convertedType = null;
-                if (source is UnaryExpression unaryExpression
-                    && unaryExpression.NodeType == ExpressionType.Convert)
-                {
-                    source = unaryExpression.Operand;
-                    if (unaryExpression.Type != typeof(object))
-                    {
-                        convertedType = unaryExpression.Type;
-                    }
-                }
-
+                source = source.UnwrapTypeConversion(out var convertedType);
                 if (!(source is EntityShaperExpression entityShaperExpression))
                 {
                     return null;

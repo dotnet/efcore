@@ -742,27 +742,6 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""FRANK""))");
         }
 
-        public override async Task Null_conditional_simple(bool isAsync)
-        {
-            await base.Null_conditional_simple(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
-        }
-
-        [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task Null_conditional_deep(bool isAsync)
-        {
-            await base.Null_conditional_deep(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
         public override async Task Queryable_simple(bool isAsync)
         {
             await base.Queryable_simple(isAsync);
@@ -3763,6 +3742,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17314")]
         public override async Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool isAsync)
         {
             await AssertQuery(

@@ -213,6 +213,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
         }
 
+        public static class OuterA
+        {
+            public static class Inner
+            {
+                public static decimal? Min(decimal? a, decimal? b)
+                {
+                    throw new Exception();
+                }
+            }
+        }
+        public static class OuterB
+        {
+            public static class Inner
+            {
+                public static decimal? Min(decimal? a, decimal? b)
+                {
+                    throw new Exception();
+                }
+            }
+        }
+
         [ConditionalFact]
         public virtual void DbFunctions_with_duplicate_names_and_parameters_on_different_types_dont_collide()
         {
@@ -599,6 +620,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("d", dbFunc.Parameters[1].Name);
             Assert.Equal(typeof(int), dbFunc.Parameters[1].ClrType);
+        }
+
+        [ConditionalFact]
+        public void DbFunction_Annotation_FullName()
+        {
+            var modelBuilder = GetModelBuilder();
+
+            var methodA = typeof(OuterA.Inner).GetMethod(nameof(OuterA.Inner.Min));
+            var methodB = typeof(OuterB.Inner).GetMethod(nameof(OuterB.Inner.Min));
+
+            var funcA = modelBuilder.HasDbFunction(methodA);
+            var funcB = modelBuilder.HasDbFunction(methodB);
+
+            funcA.HasName("MinA");
+
+            Assert.Equal("MinA", funcA.Metadata.Name);
+            Assert.Equal("Min", funcB.Metadata.Name);
+            Assert.NotEqual(funcA.Metadata.Name, funcB.Metadata.Name);
         }
 
         private ModelBuilder GetModelBuilder(DbContext dbContext = null)

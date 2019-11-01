@@ -520,52 +520,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Null_conditional_simple(bool isAsync)
-        {
-            var c = Expression.Parameter(typeof(Customer));
-
-            var predicate
-                = Expression.Lambda<Func<Customer, bool>>(
-                    Expression.Equal(
-                        new NullConditionalExpression(c, Expression.Property(c, "CustomerID")),
-                        Expression.Constant("ALFKI")),
-                    c);
-
-            return AssertQuery(
-                isAsync,
-                ss => ss.Set<Customer>().Where(predicate),
-                entryCount: 1);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Null_conditional_deep(bool isAsync)
-        {
-            var c = Expression.Parameter(typeof(Customer));
-
-            var nullConditionalExpression
-                = new NullConditionalExpression(c, Expression.Property(c, "CustomerID"));
-
-            nullConditionalExpression
-                = new NullConditionalExpression(
-                    nullConditionalExpression,
-                    Expression.Property(nullConditionalExpression, "Length"));
-
-            var predicate
-                = Expression.Lambda<Func<Customer, bool>>(
-                    Expression.Equal(
-                        nullConditionalExpression,
-                        Expression.Constant(5, typeof(int?))),
-                    c);
-
-            return AssertQuery(
-                isAsync,
-                ss => ss.Set<Customer>().Where(predicate),
-                entryCount: 91);
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public virtual Task Queryable_simple(bool isAsync)
         {
             return AssertQuery(
@@ -2597,7 +2551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Where(c => c.EmployeeID == 4294967295)
     .DefaultIfEmpty(__p_0)",
                     "NavigationExpandingExpressionVisitor"),
-                message);
+                message, ignoreLineEndingDifferences: true);
         }
 
         [ConditionalTheory]
@@ -2616,7 +2570,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Where(c => c.EmployeeID == 4294967295)
     .DefaultIfEmpty(__p_0)",
                     "NavigationExpandingExpressionVisitor"),
-                message);
+                message, ignoreLineEndingDifferences: true);
         }
 
         [ConditionalTheory]
