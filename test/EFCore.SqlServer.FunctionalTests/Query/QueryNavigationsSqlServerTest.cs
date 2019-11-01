@@ -167,16 +167,42 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"@__p_0='2'
 
-SELECT [t1].[CustomerID], [t1].[OrderID]
+SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t0].[CustomerID], [t0].[OrderID]
+    SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
     FROM (
-        SELECT [o].[CustomerID], [o].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        SELECT [o].[CustomerID], [o].[OrderID], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
+ORDER BY [t].[CustomerID]");
+        }
+
+        public override async Task Select_collection_FirstOrDefault_project_anonymous_type_client_eval(bool isAsync)
+        {
+            await base.Select_collection_FirstOrDefault_project_anonymous_type_client_eval(isAsync);
+
+            AssertSql(
+                @"@__p_0='2'
+
+SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN (
+    SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
+    FROM (
+        SELECT [o].[CustomerID], [o].[OrderID], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
     ) AS [t0]
     WHERE [t0].[row] <= 1

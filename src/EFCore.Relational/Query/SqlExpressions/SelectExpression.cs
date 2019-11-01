@@ -799,6 +799,31 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public Expression AddSingleProjection(ShapedQueryExpression shapedQueryExpression)
         {
             var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
+            var shaperExpression = shapedQueryExpression.ShaperExpression;
+            var innerExpression = RemoveConvert(shaperExpression);
+            if (!(innerExpression is EntityShaperExpression))
+            {
+                var sentinelExpression = innerSelectExpression.Limit;
+                ProjectionBindingExpression dummyProjection;
+                if (innerSelectExpression.Projection.Any())
+                {
+                    var index = innerSelectExpression.AddToProjection(sentinelExpression);
+                    dummyProjection = new ProjectionBindingExpression(
+                        innerSelectExpression, index, sentinelExpression.Type);
+                }
+                else
+                {
+                    innerSelectExpression._projectionMapping[new ProjectionMember()] = sentinelExpression;
+                    dummyProjection = new ProjectionBindingExpression(
+                        innerSelectExpression, new ProjectionMember(), sentinelExpression.Type);
+                }
+
+                shaperExpression = Condition(
+                    Equal(dummyProjection, Default(dummyProjection.Type)),
+                    Default(shaperExpression.Type),
+                    shaperExpression);
+            }
+
             innerSelectExpression.ApplyProjection();
             var projectionCount = innerSelectExpression.Projection.Count;
             AddOuterApply(innerSelectExpression, null);
@@ -816,7 +841,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset)
-                .Visit(shapedQueryExpression.ShaperExpression);
+                .Visit(shaperExpression);
+
+            static Expression RemoveConvert(Expression expression)
+                => expression is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                    ? RemoveConvert(unaryExpression.Operand)
+                    : expression;
         }
 
         public CollectionShaperExpression AddCollectionProjection(
