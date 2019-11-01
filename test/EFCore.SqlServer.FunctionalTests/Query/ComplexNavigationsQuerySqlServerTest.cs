@@ -4411,15 +4411,15 @@ FROM (
             AssertSql(
                 @"@__p_0='25'
 
-SELECT [t].[Id], [t1].[Id], [l1].[Id]
+SELECT [t].[Id], [t1].[Id], [t1].[c], [l1].[Id]
 FROM (
     SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
     FROM [LevelOne] AS [l]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[OneToMany_Required_Inverse2Id]
+    SELECT [t0].[Id], [t0].[c], [t0].[OneToMany_Required_Inverse2Id]
     FROM (
-        SELECT [l0].[Id], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
+        SELECT [l0].[Id], 1 AS [c], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [LevelTwo] AS [l0]
     ) AS [t0]
     WHERE [t0].[row] <= 1

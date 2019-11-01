@@ -5684,6 +5684,38 @@ FROM [Squads] AS [s]
 WHERE ([s].[Name] = N'Kilo') AND [s].[Name] IS NOT NULL");
         }
 
+        public override async Task Project_one_value_type_converted_to_nullable_from_empty_collection(bool isAsync)
+        {
+            await base.Project_one_value_type_converted_to_nullable_from_empty_collection(isAsync);
+
+            AssertSql(
+                @"SELECT [s].[Name], (
+    SELECT TOP(1) [g].[SquadId]
+    FROM [Gears] AS [g]
+    WHERE ([g].[Discriminator] IN (N'Gear', N'Officer') AND ([s].[Id] = [g].[SquadId])) AND ([g].[HasSoulPatch] = CAST(1 AS bit))) AS [SquadId]
+FROM [Squads] AS [s]
+WHERE ([s].[Name] = N'Kilo') AND [s].[Name] IS NOT NULL");
+        }
+
+        public override async Task Project_one_value_type_with_client_projection_from_empty_collection(bool isAsync)
+        {
+            await base.Project_one_value_type_with_client_projection_from_empty_collection(isAsync);
+
+            AssertSql(
+                @"SELECT [s].[Name], [t0].[SquadId], [t0].[LeaderSquadId], [t0].[c]
+FROM [Squads] AS [s]
+LEFT JOIN (
+    SELECT [t].[SquadId], [t].[LeaderSquadId], [t].[c], [t].[Nickname]
+    FROM (
+        SELECT [g].[SquadId], [g].[LeaderSquadId], 1 AS [c], [g].[Nickname], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
+        FROM [Gears] AS [g]
+        WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAST(1 AS bit))
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [s].[Id] = [t0].[SquadId]
+WHERE ([s].[Name] = N'Kilo') AND [s].[Name] IS NOT NULL");
+        }
+
         public override async Task Filter_on_subquery_projecting_one_value_type_from_empty_collection(bool isAsync)
         {
             await base.Filter_on_subquery_projecting_one_value_type_from_empty_collection(isAsync);
@@ -5739,20 +5771,17 @@ FROM [Squads] AS [s]");
             await base.Select_subquery_projecting_single_constant_inside_anonymous(isAsync);
 
             AssertSql(
-                @"SELECT [s].[Name], [s].[Id]
-FROM [Squads] AS [s]",
-                //
-                @"@_outer_Id='1'
-
-SELECT TOP(1) 1
-FROM [Gears] AS [g]
-WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND (@_outer_Id = [g].[SquadId])) AND ([g].[HasSoulPatch] = CAST(1 AS bit))",
-                //
-                @"@_outer_Id='2'
-
-SELECT TOP(1) 1
-FROM [Gears] AS [g]
-WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND (@_outer_Id = [g].[SquadId])) AND ([g].[HasSoulPatch] = CAST(1 AS bit))");
+                @"SELECT [s].[Name], [t0].[c]
+FROM [Squads] AS [s]
+LEFT JOIN (
+    SELECT [t].[c], [t].[Nickname], [t].[SquadId]
+    FROM (
+        SELECT 1 AS [c], [g].[Nickname], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
+        FROM [Gears] AS [g]
+        WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAST(1 AS bit))
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [s].[Id] = [t0].[SquadId]");
         }
 
         public override async Task Select_subquery_projecting_multiple_constants_inside_anonymous(bool isAsync)
@@ -5760,20 +5789,17 @@ WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND (@_outer_Id = [g].[Squad
             await base.Select_subquery_projecting_multiple_constants_inside_anonymous(isAsync);
 
             AssertSql(
-                @"SELECT [s].[Name], [s].[Id]
-FROM [Squads] AS [s]",
-                //
-                @"@_outer_Id='1'
-
-SELECT TOP(1) 1
-FROM [Gears] AS [g]
-WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND (@_outer_Id = [g].[SquadId])) AND ([g].[HasSoulPatch] = CAST(1 AS bit))",
-                //
-                @"@_outer_Id='2'
-
-SELECT TOP(1) 1
-FROM [Gears] AS [g]
-WHERE ([g].[Discriminator] IN (N'Officer', N'Gear') AND (@_outer_Id = [g].[SquadId])) AND ([g].[HasSoulPatch] = CAST(1 AS bit))");
+                @"SELECT [s].[Name], [t0].[c], [t0].[c0], [t0].[c1]
+FROM [Squads] AS [s]
+LEFT JOIN (
+    SELECT [t].[c], [t].[c0], [t].[c1], [t].[Nickname], [t].[SquadId]
+    FROM (
+        SELECT CAST(1 AS bit) AS [c], CAST(0 AS bit) AS [c0], 1 AS [c1], [g].[Nickname], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
+        FROM [Gears] AS [g]
+        WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAST(1 AS bit))
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [s].[Id] = [t0].[SquadId]");
         }
 
         public override async Task Include_with_order_by_constant(bool isAsync)
@@ -5827,12 +5853,12 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
             await base.Select_subquery_projecting_single_constant_null_of_non_mapped_type(isAsync);
 
             AssertSql(
-                @"SELECT [s].[Name]
+                @"SELECT [s].[Name], [t0].[c]
 FROM [Squads] AS [s]
 LEFT JOIN (
-    SELECT [t].[Nickname], [t].[SquadId]
+    SELECT [t].[c], [t].[Nickname], [t].[SquadId]
     FROM (
-        SELECT [g].[Nickname], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
+        SELECT 1 AS [c], [g].[Nickname], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
         FROM [Gears] AS [g]
         WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAST(1 AS bit))
     ) AS [t]
@@ -5845,12 +5871,12 @@ LEFT JOIN (
             await base.Select_subquery_projecting_single_constant_of_non_mapped_type(isAsync);
 
             AssertSql(
-                @"SELECT [s].[Name]
+                @"SELECT [s].[Name], [t0].[c]
 FROM [Squads] AS [s]
 LEFT JOIN (
-    SELECT [t].[Nickname], [t].[SquadId]
+    SELECT [t].[c], [t].[Nickname], [t].[SquadId]
     FROM (
-        SELECT [g].[Nickname], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
+        SELECT 1 AS [c], [g].[Nickname], [g].[SquadId], ROW_NUMBER() OVER(PARTITION BY [g].[SquadId] ORDER BY [g].[Nickname], [g].[SquadId]) AS [row]
         FROM [Gears] AS [g]
         WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[HasSoulPatch] = CAST(1 AS bit))
     ) AS [t]

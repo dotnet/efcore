@@ -257,11 +257,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2).Select(
+                ss => ss.Set<Customer>().Where(e => e.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID).Take(2).Select(
                     c => c.Orders.OrderBy(o => o.OrderID).Select(
                         o => new { o.CustomerID, o.OrderID }).FirstOrDefault()),
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_collection_FirstOrDefault_project_anonymous_type_client_eval(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Where(e => e.CustomerID.StartsWith("F")).OrderBy(c => c.CustomerID).Take(2).Select(
+                    c => c.Orders.OrderBy(o => o.OrderID).Select(
+                        o => new { o.CustomerID, OrderID = ClientFunction(o.OrderID, 5) }).FirstOrDefault()),
+                assertOrder: true);
+        }
+
+        private static int ClientFunction(int a, int b) => a + b + 1;
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

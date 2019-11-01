@@ -737,7 +737,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(
                         b => new
                         {
-                            hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal), hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
+                            hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
+                            hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
                         }));
         }
 
@@ -1251,11 +1252,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from g in ss.Set<Gear>()
                       from o in ss.Set<Gear>().OfType<Officer>()
                       where new
-                          {
-                              Name = g.LeaderNickname,
-                              Squad = g.LeaderSquadId,
-                              Five = 5
-                          }
+                      {
+                          Name = g.LeaderNickname,
+                          Squad = g.LeaderSquadId,
+                          Five = 5
+                      }
                           == new
                           {
                               Name = o.Nickname,
@@ -1282,8 +1283,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
+                // ReSharper disable once EqualExpressionComparison
                 ss => from g in ss.Set<Gear>()
-                      // ReSharper disable once EqualExpressionComparison
                       where new { Five = 5 } == new { Five = 5 }
                       select g.Nickname);
         }
@@ -3275,7 +3276,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                       orderby f.Name
                       select new
                       {
-                          Name = EF.Property<string>(horde, "Name"), Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated")
+                          Name = EF.Property<string>(horde, "Name"),
+                          Eradicated = EF.Property<bool>((LocustHorde)f, "Eradicated")
                       },
                 ss => from f in ss.Set<Faction>()
                       where f is LocustHorde
@@ -3443,7 +3445,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from g1 in ss.Set<Gear>()
                       from g2 in ss.Set<Gear>()
-                      // ReSharper disable once PossibleUnintendedReferenceComparison
+                          // ReSharper disable once PossibleUnintendedReferenceComparison
                       where g1.Weapons == g2.Weapons
                       orderby g1.Nickname
                       select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname },
@@ -3596,7 +3598,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(
                         f => new
                         {
-                            f.Id, Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander.DefeatedBy, "Reports")
+                            f.Id,
+                            Gears = EF.Property<ICollection<Gear>>((Officer)((LocustHorde)f).Commander.DefeatedBy, "Reports")
                         }),
                 ss => ss.Set<Faction>()
                     .Where(f => f is LocustHorde)
@@ -5576,6 +5579,33 @@ namespace Microsoft.EntityFrameworkCore.Query
                     s => new { s.Name, SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => m.SquadId).FirstOrDefault() }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_one_value_type_converted_to_nullable_from_empty_collection(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Squad>().Where(s => s.Name == "Kilo").Select(
+                    s => new { s.Name, SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => (int?)m.SquadId).FirstOrDefault() }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_one_value_type_with_client_projection_from_empty_collection(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Squad>().Where(s => s.Name == "Kilo").Select(
+                    s => new
+                    {
+                        s.Name,
+                        SquadId = s.Members.Where(m => m.HasSoulPatch).Select(m => ClientFunction(m.SquadId, m.LeaderSquadId)).FirstOrDefault()
+                    }),
+                elementSorter: s => s.Name);
+        }
+
+        private static int ClientFunction(int a, int b) => a + b + 1;
+
         [ConditionalTheory(Skip = "issue #15864")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Filter_on_subquery_projecting_one_value_type_from_empty_collection(bool isAsync)
@@ -5616,7 +5646,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => true).FirstOrDefault() }));
         }
 
-        [ConditionalTheory(Skip = "Issue#17287")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_projecting_single_constant_inside_anonymous(bool isAsync)
         {
@@ -5626,12 +5656,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     s => new
                     {
                         s.Name,
-                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(
-                            g => new { One = 1 }).FirstOrDefault()
+                        Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new { One = 1 }).FirstOrDefault()
                     }));
         }
 
-        [ConditionalTheory(Skip = "Issue#17287")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_subquery_projecting_multiple_constants_inside_anonymous(bool isAsync)
         {
@@ -5712,7 +5741,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Squad>().Select(
                     s => new { s.Name, Gear = s.Members.Where(g => g.HasSoulPatch).Select(g => new MyDTO()).FirstOrDefault() }),
                 elementSorter: e => e.Name,
-                elementAsserter: (e, a) => Assert.Equal(e.Name, a.Name));
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Name, a.Name);
+                    if (e.Gear == null)
+                    {
+                        Assert.Null(a.Gear);
+                    }
+                });
         }
 
         [ConditionalTheory(Skip = "issue #11567")]
