@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -3722,7 +3723,7 @@ namespace RootNamespace
                 Activator.CreateInstance(factoryType),
                 new object[] { builder });
 
-            var modelFromSnapshot = new SnapshotModelProcessor(new TestOperationReporter()).Process(builder.Model.FinalizeModel());
+            var modelFromSnapshot = new SnapshotModelProcessor(new TestOperationReporter()).Process(builder.Model);
 
             assert(modelFromSnapshot, model);
         }
