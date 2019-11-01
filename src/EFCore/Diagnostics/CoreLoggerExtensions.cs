@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition.EventId.Name,
                     eventData);
                 if(interceptor != null){
-                    interceptor.SavingChangesFiled(eventData);
+                    interceptor.SavingChangesFailed(eventData);
                 }
             }
         }
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition.EventId.Name,
                     eventData);
                 if(interceptor != null){
-                    interceptor.SavingChangesFiled(eventData);
+                    interceptor.SavingChangesFailed(eventData);
                 }
             }
         }
@@ -2947,7 +2947,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var definition = CoreResources.LogSaveChangesStarting(diagnostics);
 
             var warningBehavior = definition.GetLogBehavior(diagnostics);
-            var interceptor = diagnostics.Interceptors.Aggregate<ISaveChangesInterceptor>();
+            var interceptor = diagnostics.Interceptors?.Aggregate<ISaveChangesInterceptor>();
 
             if (warningBehavior != WarningBehavior.Ignore)
             {

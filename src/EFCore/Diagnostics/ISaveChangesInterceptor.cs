@@ -68,6 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// Invoked if <see cref="DbContext.SaveChanges()" /> or <see cref="DbContext.SaveChangesAsync(CancellationToken)" /> failed.
         /// </summary>
         /// <param name="eventData">Event data</param>
-        void SavingChangesFiled([NotNull] DbContextErrorEventData eventData);
+        void SavingChangesFailed([NotNull] DbContextErrorEventData eventData);
     }
 }

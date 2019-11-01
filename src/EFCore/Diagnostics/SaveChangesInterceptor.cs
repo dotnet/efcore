@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="eventData">Event data</param>
 
-        public virtual void SavingChangesFiled(DbContextErrorEventData eventData)
+        public virtual void SavingChangesFailed(DbContextErrorEventData eventData)
         {
             throw new System.NotImplementedException();
         }
