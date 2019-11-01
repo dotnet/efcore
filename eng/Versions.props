@@ -52,7 +52,7 @@
     <MicrosoftExtensionsDependencyModelPackageVersion>3.1.0-preview3.19531.15</MicrosoftExtensionsDependencyModelPackageVersion>
     <MicrosoftNETCoreAppRefPackageVersion>3.1.0-preview3.19531.15</MicrosoftNETCoreAppRefPackageVersion>
     <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.1.0-preview3.19531.15</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
-    <NETStandardLibraryRefPackageVersion>2.1.0-preview3.19531.15</NETStandardLibraryRefPackageVersion>
+    <NETStandardLibraryRefPackageVersion>2.1.0</NETStandardLibraryRefPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/roslyn">
     <MicrosoftNetCompilersToolsetVersion>3.5.0-beta1-19531-01</MicrosoftNetCompilersToolsetVersion>
