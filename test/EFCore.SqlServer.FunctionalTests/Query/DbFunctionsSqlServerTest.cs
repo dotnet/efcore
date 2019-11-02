@@ -575,7 +575,7 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5) AND DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') IS NOT NULL");
+WHERE DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
             }
         }
 
@@ -594,7 +594,7 @@ WHERE (DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5) AND DATED
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5) AND DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') IS NOT NULL");
+WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5");
             }
         }
 
