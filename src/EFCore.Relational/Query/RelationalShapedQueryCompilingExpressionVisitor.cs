@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -54,16 +55,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             shaper = InjectEntityMaterializers(shaper);
 
-            shaper = new RelationalProjectionBindingRemovingExpressionVisitor(selectExpression, dataReaderParameter)
-                .Visit(shaper);
-            shaper = new CustomShaperCompilingExpressionVisitor(
-                    dataReaderParameter, resultCoordinatorParameter, IsTracking)
+            var isNonComposedFromSql = selectExpression.IsNonComposedFromSql();
+            shaper = new RelationalProjectionBindingRemovingExpressionVisitor(
+                    selectExpression,
+                    dataReaderParameter,
+                    isNonComposedFromSql ? indexMapParameter : null,
+                    IsBuffering)
+                .Visit(shaper, out var projectionColumns);
+
+            shaper = new CustomShaperCompilingExpressionVisitor(dataReaderParameter, resultCoordinatorParameter, IsTracking)
                 .Visit(shaper);
 
             IReadOnlyList<string> columnNames = null;
-            if (selectExpression.IsNonComposedFromSql())
+            if (isNonComposedFromSql)
             {
-                shaper = new IndexMapInjectingExpressionVisitor(indexMapParameter).Visit(shaper);
                 columnNames = selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList();
             }
 
@@ -82,33 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                 Expression.Constant(relationalCommandCache),
                 Expression.Constant(columnNames, typeof(IReadOnlyList<string>)),
+                Expression.Constant(projectionColumns, typeof(IReadOnlyList<ReaderColumn>)),
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
                 Expression.Constant(_logger));
-        }
-
-        private class IndexMapInjectingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly ParameterExpression _indexMapParameter;
-
-            public IndexMapInjectingExpressionVisitor(ParameterExpression indexMapParameter)
-            {
-                _indexMapParameter = indexMapParameter;
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.Object != null
-                    && typeof(DbDataReader).IsAssignableFrom(methodCallExpression.Object.Type))
-                {
-                    var indexArgument = methodCallExpression.Arguments[0];
-                    return methodCallExpression.Update(
-                        methodCallExpression.Object,
-                        new[] { Expression.ArrayIndex(_indexMapParameter, indexArgument) });
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
         }
     }
 }

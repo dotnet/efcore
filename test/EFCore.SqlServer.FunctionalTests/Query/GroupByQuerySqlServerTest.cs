@@ -1098,11 +1098,11 @@ GROUP BY [o0].[CustomerID], [p].[ProductName]");
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE ([c].[ContactTitle] = N'Owner') AND [c].[ContactTitle] IS NOT NULL
+    WHERE [c].[ContactTitle] = N'Owner'
     UNION
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE ([c0].[City] = N'México D.F.') AND [c0].[City] IS NOT NULL
+    WHERE [c0].[City] = N'México D.F.'
 ) AS [t]
 GROUP BY [t].[City]");
         }
@@ -1255,7 +1255,7 @@ ORDER BY [o].[CustomerID]");
                 @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [c]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
-HAVING ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+HAVING [o].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task GroupBy_filter_count(bool isAsync)

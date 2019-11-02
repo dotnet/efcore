@@ -104,7 +104,7 @@ WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR (
                     AssertSql(
                         @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) AND ([d].[DateTime] <> GETDATE())) AND ([d].[SmallDateTime] <> GETDATE())");
+WHERE (((([d].[DateTime2_2] <> GETDATE()) OR GETDATE() IS NULL) AND (([d].[DateTime2_7] <> GETDATE()) OR GETDATE() IS NULL)) AND (([d].[DateTime] <> GETDATE()) OR GETDATE() IS NULL)) AND (([d].[SmallDateTime] <> GETDATE()) OR GETDATE() IS NULL)");
                 }
             }
         }
@@ -589,7 +589,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     AssertSql(
                         @"SELECT [c].[FirstName], [c].[LastName], [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Customer] AS [c]
-LEFT JOIN [Order] AS [o] ON (([c].[FirstName] = [o].[CustomerFirstName]) AND [o].[CustomerFirstName] IS NOT NULL) AND (([c].[LastName] = [o].[CustomerLastName]) AND [o].[CustomerLastName] IS NOT NULL)
+LEFT JOIN [Order] AS [o] ON ([c].[FirstName] = [o].[CustomerFirstName]) AND ([c].[LastName] = [o].[CustomerLastName])
 ORDER BY [c].[FirstName], [c].[LastName], [o].[Id]");
                 }
             }
@@ -615,7 +615,7 @@ ORDER BY [c].[FirstName], [c].[LastName], [o].[Id]");
                     AssertSql(
                         @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND [o].[CustomerFirstName] IS NOT NULL) AND (([o].[CustomerLastName] = [c].[LastName]) AND [o].[CustomerLastName] IS NOT NULL)");
+LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])");
                 }
             }
         }
@@ -2398,7 +2398,7 @@ WHERE [e].[Id] IN (
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Name] = @__name_0) AND [e].[Name] IS NOT NULL",
+WHERE [e].[Name] = @__name_0",
                         //
                         @"SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
@@ -5439,7 +5439,7 @@ FROM [BuildingSet] AS [b]
 INNER JOIN [Builder] AS [b0] ON [b].[BuilderId] = [b0].[Id]
 INNER JOIN [City] AS [c] ON [b0].[CityId] = [c].[Id]
 INNER JOIN [MandatorSet] AS [m] ON [b].[MandatorId] = [m].[Id]
-WHERE ([c].[Name] = N'Leeds') AND [c].[Name] IS NOT NULL");
+WHERE [c].[Name] = N'Leeds'");
                 }
             }
         }
@@ -5964,7 +5964,7 @@ LEFT JOIN (
     INNER JOIN [RemovableEntities] AS [r1] ON [r0].[Id] = [r1].[Id]
     WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
 ) AS [t] ON [r].[Id] = [t].[Id]
-WHERE ([t].[OwnedEntity_OwnedValue] = N'Abc') AND [t].[OwnedEntity_OwnedValue] IS NOT NULL");
+WHERE [t].[OwnedEntity_OwnedValue] = N'Abc'");
                 }
             }
         }
@@ -6088,7 +6088,7 @@ WHERE [p].[Id] = @__id_0");
                     AssertSql(
                         @"SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
+WHERE [f].[String] = N'1337'");
                 }
             }
         }
@@ -6109,7 +6109,7 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE ([f].[String] = @__bar_Value_0) AND [f].[String] IS NOT NULL");
+WHERE [f].[String] = @__bar_Value_0");
                 }
             }
         }
@@ -6130,7 +6130,7 @@ WHERE ([f].[String] = @__bar_Value_0) AND [f].[String] IS NOT NULL");
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE ([f].[String] = @__ToString_0) AND [f].[String] IS NOT NULL");
+WHERE [f].[String] = @__ToString_0");
                 }
             }
         }
@@ -6151,7 +6151,7 @@ WHERE ([f].[String] = @__ToString_0) AND [f].[String] IS NOT NULL");
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE ([f].[String] = @__p_0) AND [f].[String] IS NOT NULL");
+WHERE [f].[String] = @__p_0");
                 }
             }
         }
@@ -6169,7 +6169,7 @@ WHERE ([f].[String] = @__p_0) AND [f].[String] IS NOT NULL");
                     AssertSql(
                         @"SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
+WHERE [f].[String] = N'1337'");
                 }
             }
         }
@@ -6540,16 +6540,13 @@ OUTER APPLY (
     WHERE (
         SELECT TOP(1) [v].[Id]
         FROM [Values] AS [v]
-        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NOT NULL AND ((((
+        WHERE [e].[Id] = [v].[Entity11023Id]) IS NOT NULL AND (((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
-        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) = [t].[Value11023Id]) AND ((
+        WHERE [e].[Id] = [v0].[Entity11023Id]) = [t].[Value11023Id]) OR ((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
-        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) IS NOT NULL AND [t].[Value11023Id] IS NOT NULL)) OR ((
-        SELECT TOP(1) [v0].[Id]
-        FROM [Values] AS [v0]
-        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) IS NULL AND [t].[Value11023Id] IS NULL))
+        WHERE [e].[Id] = [v0].[Entity11023Id]) IS NULL AND [t].[Value11023Id] IS NULL))
 ) AS [t0]
 ORDER BY [e].[Id], [t0].[Id]");
                 }
@@ -6816,13 +6813,10 @@ OUTER APPLY (
     SELECT [a1].[Id], [a1].[ActivityTypeId], [a1].[CompetitionSeasonId], [a1].[Points], [c0].[Id] AS [Id0]
     FROM [ActivityTypePoints12456] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
-    WHERE (([c0].[Id] = (
+    WHERE ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND (
-        SELECT TOP(1) [c1].[Id]
-        FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate])) IS NOT NULL) AND ([a0].[Id] = [a1].[ActivityTypeId])
+        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND ([a0].[Id] = [a1].[ActivityTypeId])
 ) AS [t]
 ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
                 }
@@ -6863,13 +6857,10 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
     SELECT TOP(1) [a].[Points]
     FROM [ActivityTypePoints12456] AS [a]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a].[CompetitionSeasonId] = [c0].[Id]
-    WHERE ([a1].[Id] = [a].[ActivityTypeId]) AND (([c0].[Id] = (
+    WHERE ([a1].[Id] = [a].[ActivityTypeId]) AND ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate]))) AND (
-        SELECT TOP(1) [c1].[Id]
-        FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate])) IS NOT NULL))) AS [Points]
+        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate]))))) AS [Points]
 FROM [Activities] AS [a0]
 INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                 }
@@ -6983,7 +6974,7 @@ LEFT JOIN (
         WHEN COALESCE((
             SELECT MAX([d].[GameNumber])
             FROM [DbGame] AS [d]
-            WHERE [d2].[Id] IS NOT NULL AND (([d2].[Id] = [d].[SeasonId]) AND [d].[SeasonId] IS NOT NULL)), 0) > 10 THEN CAST(1 AS bit)
+            WHERE [d2].[Id] IS NOT NULL AND ([d2].[Id] = [d].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], [d0].[DbTradeId]
     FROM [DbTradeAsset] AS [d0]
@@ -7255,6 +7246,117 @@ WHERE EXISTS (
                 : base(options)
             {
             }
+        }
+
+        #endregion
+
+        #region Issue18087
+
+        [ConditionalFact]
+        public void Cast_to_implemented_interface_is_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var id = 1;
+            var query = queryBase.Cast<IDomainEntity>().FirstOrDefault(x => x.Id == id);
+
+            Assert.Equal(1, query.Id);
+
+            AssertSql(
+                @"@__id_0='1'
+
+SELECT TOP(1) [m].[Id], [m].[Name], [m].[NavigationEntityId]
+FROM [MockEntities] AS [m]
+WHERE [m].[Id] = @__id_0");
+        }
+
+        [ConditionalFact]
+        public void Cast_to_object_is_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var query = queryBase.Cast<object>().Count();
+
+            Assert.Equal(3, query);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [MockEntities] AS [m]");
+        }
+
+        [ConditionalFact]
+        public void Cast_to_non_implemented_interface_is_not_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var id = 1;
+
+            var message = Assert.Throws<InvalidOperationException>(
+                () => queryBase.Cast<IDummyEntity>().FirstOrDefault(x => x.Id == id)).Message;
+
+            Assert.Equal(
+                CoreStrings.TranslationFailed(@"DbSet<MockEntity>    .Cast()    .Where(e => e.Id == __id_0)"),
+                message.Replace("\r", "").Replace("\n", ""));
+        }
+
+        private SqlServerTestStore CreateDatabase18087()
+            => CreateTestStore(
+                () => new BugContext18087(_options),
+                context =>
+                {
+                    context.AddRange(new MockEntity()
+                    {
+                        Name = "Entity1",
+                        NavigationEntity = null
+                    },
+                    new MockEntity()
+                    {
+                        Name = "Entity2",
+                        NavigationEntity = null
+                    },
+                    new MockEntity()
+                    {
+                        Name = "NewEntity",
+                        NavigationEntity = null
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private interface IDomainEntity
+        {
+            int Id { get; set; }
+        }
+
+        private interface IDummyEntity
+        {
+            int Id { get; set; }
+        }
+
+        private class MockEntity : IDomainEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public MockEntity NavigationEntity { get; set; }
+        }
+
+        private class BugContext18087 : DbContext
+        {
+            public BugContext18087(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<MockEntity> MockEntities { get; set; }
         }
 
         #endregion

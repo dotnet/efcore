@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -375,7 +376,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The result of the command. </returns>
         public virtual RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
         {
-            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+            var connection = parameterObject.Connection;
+            var context = parameterObject.Context;
+            var readerColumns = parameterObject.ReaderColumns;
+            var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
             var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -412,6 +416,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         reader,
                         startTime,
                         stopwatch.Elapsed);
+                }
+
+                if (readerColumns != null)
+                {
+                    reader = new BufferedDataReader(reader).Initialize(readerColumns);
                 }
 
                 var result = CreateRelationalDataReader(
@@ -461,7 +470,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
         {
-            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+            var connection = parameterObject.Connection;
+            var context = parameterObject.Context;
+            var readerColumns = parameterObject.ReaderColumns;
+            var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
             var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -501,6 +513,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         startTime,
                         stopwatch.Elapsed,
                         cancellationToken);
+                }
+
+                if (readerColumns != null)
+                {
+                    reader = await new BufferedDataReader(reader).InitializeAsync(readerColumns, cancellationToken);
                 }
 
                 var result = CreateRelationalDataReader(

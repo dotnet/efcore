@@ -64,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 new RelationalCommandParameterObject(
                     connection,
                     parameterValues,
+                    null,
                     _context,
                     _logger));
 
@@ -82,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 new RelationalCommandParameterObject(
                     connection,
                     parameterValues,
+                    null,
                     _context,
                     _logger),
                 cancellationToken);

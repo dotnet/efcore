@@ -32,7 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(SqlExpression sqlExpression)
             => Type == sqlExpression.Type
-                && TypeMapping?.Equals(sqlExpression.TypeMapping) == true;
+               && ((TypeMapping == null && sqlExpression.TypeMapping == null)
+                || TypeMapping?.Equals(sqlExpression.TypeMapping) == true);
 
         public override int GetHashCode() => HashCode.Combine(Type, TypeMapping);
     }

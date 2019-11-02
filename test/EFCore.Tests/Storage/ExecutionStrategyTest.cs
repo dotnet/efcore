@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 Assert.True(
                     Math.Abs((delays[i] - expectedDelays[i]).TotalMilliseconds)
                     <= expectedDelays[i].TotalMilliseconds * 0.1 + 1,
-                    string.Format("Expected: {0}; Actual: {1}", expectedDelays[i], delays[i]));
+                    $"Expected: {expectedDelays[i]}; Actual: {delays[i]}");
             }
         }
 
@@ -281,18 +281,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
-        public void Execute_Action_retries_until_not_retrieable_exception_is_thrown()
+        public void Execute_Action_retries_until_not_retriable_exception_is_thrown()
         {
-            Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(() => f()));
+            Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(() => f()));
         }
 
         [ConditionalFact]
-        public void Execute_Func_retries_until_not_retrieable_exception_is_thrown()
+        public void Execute_Func_retries_until_not_retriable_exception_is_thrown()
         {
-            Execute_retries_until_not_retrieable_exception_is_thrown((e, f) => e.Execute(f));
+            Execute_retries_until_not_retriable_exception_is_thrown((e, f) => e.Execute(f));
         }
 
-        private void Execute_retries_until_not_retrieable_exception_is_thrown(Action<ExecutionStrategy, Func<int>> execute)
+        private void Execute_retries_until_not_retriable_exception_is_thrown(Action<ExecutionStrategy, Func<int>> execute)
         {
             var executionStrategyMock = new TestExecutionStrategy(
                 Context,

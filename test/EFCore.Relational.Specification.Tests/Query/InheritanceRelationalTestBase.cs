@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                context.Set<Animal>().FromSqlRaw(NormalizeDelimetersInRawString("select * from [Animal]")).ToList();
+                context.Set<Animal>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
             }
         }
 
@@ -32,14 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                context.Set<Eagle>().FromSqlRaw(NormalizeDelimetersInRawString("select * from [Animal]")).ToList();
+                context.Set<Eagle>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
             }
         }
 
-        private string NormalizeDelimetersInRawString(string sql)
-            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimetersInRawString(sql);
+        private string NormalizeDelimitersInRawString(string sql)
+            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInRawString(sql);
 
-        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
-            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimetersInInterpolatedString(sql);
+        private FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
+            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInInterpolatedString(sql);
     }
 }

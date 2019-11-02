@@ -124,22 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     while (await asyncEnumerator.MoveNextAsync())
                     {
-                        if (!context.GetService<IRelationalConnection>().IsMultipleActiveResultSetsEnabled)
-                        {
-                            // Not supported, we could make it work by triggering buffering
-                            // from RelationalCommand.
-
-                            await Assert.ThrowsAsync<InvalidOperationException>(
-                                () => context.Database.ExecuteSqlRawAsync(
-                                    "[dbo].[CustOrderHist] @CustomerID = {0}",
-                                    asyncEnumerator.Current.CustomerID));
-                        }
-                        else
-                        {
-                            await context.Database.ExecuteSqlRawAsync(
-                                "[dbo].[CustOrderHist] @CustomerID = {0}",
-                                asyncEnumerator.Current.CustomerID);
-                        }
+                        // Outer query is buffered by default
+                        await context.Database.ExecuteSqlRawAsync(
+                            "[dbo].[CustOrderHist] @CustomerID = {0}",
+                            asyncEnumerator.Current.CustomerID);
                     }
                 }
             }

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore
                 AssertSql(
                     @"SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE ([m].[TimeSpanAsTime] = '00:01:02') AND [m].[TimeSpanAsTime] IS NOT NULL");
+WHERE [m].[TimeSpanAsTime] = '00:01:02'");
             }
         }
 
@@ -89,7 +89,7 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE ([m].[TimeSpanAsTime] = @__timeSpan_0) AND [m].[TimeSpanAsTime] IS NOT NULL");
+WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
             }
         }
 
@@ -112,7 +112,7 @@ WHERE ([m].[TimeSpanAsTime] = @__timeSpan_0) AND [m].[TimeSpanAsTime] IS NOT NUL
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -135,7 +135,7 @@ WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOU
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -158,7 +158,7 @@ WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(M
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -181,7 +181,7 @@ WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(S
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -204,7 +204,7 @@ WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -227,7 +227,7 @@ WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 

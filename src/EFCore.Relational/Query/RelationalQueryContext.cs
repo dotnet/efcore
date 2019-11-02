@@ -46,14 +46,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual IRelationalConnection Connection
             => RelationalDependencies.RelationalConnection;
-
-        /// <summary>
-        ///     The execution strategy factory.
-        /// </summary>
-        /// <value>
-        ///     The execution strategy factory.
-        /// </value>
-        public virtual IExecutionStrategyFactory ExecutionStrategyFactory
-            => RelationalDependencies.ExecutionStrategyFactory;
     }
 }
