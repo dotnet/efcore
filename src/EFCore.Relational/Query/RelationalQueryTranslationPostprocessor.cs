@@ -43,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             query = OptimizeSqlExpression(query);
-            query = new NullComparisonTransformingExpressionVisitor().Visit(query);
 
             return query;
         }

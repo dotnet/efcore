@@ -1310,6 +1310,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Where(c => string.IsNullOrWhiteSpace(c.CustomerID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task TrimStart_without_arguments_in_predicate(bool isAsync)
         {
             return AssertQuery(

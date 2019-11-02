@@ -890,47 +890,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            if (ChangedCount == 0)
-            {
-                return 0;
-            }
-
-            var entriesToSave = GetEntriesToSave(cascadeChanges: true);
-            if (entriesToSave.Count == 0)
-            {
-                return 0;
-            }
-
-            try
-            {
-                var result = SaveChanges(entriesToSave);
-
-                if (acceptAllChangesOnSuccess)
-                {
-                    AcceptAllChanges((IReadOnlyList<IUpdateEntry>)entriesToSave);
-                }
-
-                return result;
-            }
-            catch
-            {
-                foreach (var entry in entriesToSave)
-                {
-                    ((InternalEntityEntry)entry).DiscardStoreGeneratedValues();
-                }
-
-                throw;
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual IList<IUpdateEntry> GetEntriesToSave(bool cascadeChanges)
         {
             if (cascadeChanges)
@@ -1071,14 +1030,99 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 ?.Equals(currentValue, value)
                 ?? Equals(currentValue, value);
 
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<int> SaveChangesAsync(
+        protected virtual int SaveChanges(
+            [NotNull] IList<IUpdateEntry> entriesToSave)
+        {
+            using (_concurrencyDetector.EnterCriticalSection())
+            {
+                return _database.SaveChanges(entriesToSave);
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual async Task<int> SaveChangesAsync(
+            [NotNull] IList<IUpdateEntry> entriesToSave,
+            CancellationToken cancellationToken = default)
+        {
+            using (_concurrencyDetector.EnterCriticalSection())
+            {
+                return await _database.SaveChangesAsync(entriesToSave, cancellationToken);
+            }
+        }
+
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
+            => Context.Database.AutoTransactionsEnabled
+                ? Dependencies.ExecutionStrategyFactory.Create().Execute(acceptAllChangesOnSuccess, SaveChanges, null)
+                : SaveChanges(Context, acceptAllChangesOnSuccess);
+
+        private int SaveChanges(DbContext _, bool acceptAllChangesOnSuccess)
+        {
+            if (ChangedCount == 0)
+            {
+                return 0;
+            }
+
+            var entriesToSave = GetEntriesToSave(cascadeChanges: true);
+            if (entriesToSave.Count == 0)
+            {
+                return 0;
+            }
+
+            try
+            {
+                var result = SaveChanges(entriesToSave);
+
+                if (acceptAllChangesOnSuccess)
+                {
+                    AcceptAllChanges((IReadOnlyList<IUpdateEntry>)entriesToSave);
+                }
+
+                return result;
+            }
+            catch
+            {
+                foreach (var entry in entriesToSave)
+                {
+                    ((InternalEntityEntry)entry).DiscardStoreGeneratedValues();
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+            => Context.Database.AutoTransactionsEnabled
+                ? Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(acceptAllChangesOnSuccess, SaveChangesAsync, null, cancellationToken)
+                : SaveChangesAsync(Context, acceptAllChangesOnSuccess, cancellationToken);
+
+        private async Task<int> SaveChangesAsync(
+            DbContext _, bool acceptAllChangesOnSuccess, CancellationToken cancellationToken)
         {
             if (ChangedCount == 0)
             {
@@ -1110,37 +1154,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 throw;
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual int SaveChanges(
-            [NotNull] IList<IUpdateEntry> entriesToSave)
-        {
-            using (_concurrencyDetector.EnterCriticalSection())
-            {
-                return _database.SaveChanges(entriesToSave);
-            }
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual async Task<int> SaveChangesAsync(
-            [NotNull] IList<IUpdateEntry> entriesToSave,
-            CancellationToken cancellationToken = default)
-        {
-            using (_concurrencyDetector.EnterCriticalSection())
-            {
-                return await _database.SaveChangesAsync(entriesToSave, cancellationToken);
             }
         }
 

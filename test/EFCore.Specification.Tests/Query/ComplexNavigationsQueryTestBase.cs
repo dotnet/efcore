@@ -5904,8 +5904,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Id, a.Id);
-                    // See issue#17287
-                    Assert.Equal(e.c1?.Id ?? 0, a.c1?.Id);
+                    Assert.Equal(e.c1?.Id, a.c1?.Id);
                     AssertCollection(e.c2, a.c2, elementSorter: i => i.Id, elementAsserter: (ie, ia) => Assert.Equal(ie.Id, ia.Id));
                 });
         }

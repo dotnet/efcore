@@ -80,46 +80,49 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
-                if (extensionExpression is SelectExpression selectExpression)
+                // workaround for issue #18492
+                var newExpression = base.VisitExtension(extensionExpression);
+                if (newExpression is SelectExpression newSelectExpression)
                 {
-                    var newSelectExpression = (SelectExpression)base.VisitExtension(extensionExpression);
+                    var changed = false;
+                    var newPredicate = newSelectExpression.Predicate;
+                    var newHaving = newSelectExpression.Having;
+                    if (newSelectExpression.Predicate is SqlConstantExpression predicateConstantExpression
+                        && predicateConstantExpression.Value is bool predicateBoolValue
+                        && !predicateBoolValue)
+                    {
+                        changed = true;
+                        newPredicate = SqlExpressionFactory.Equal(
+                            predicateConstantExpression,
+                            SqlExpressionFactory.Constant(true, predicateConstantExpression.TypeMapping));
+                    }
 
-                    // if predicate is optimized to true, we can simply remove it
-                    var newPredicate = newSelectExpression.Predicate is SqlConstantExpression newSelectPredicateConstant
-                        && !(selectExpression.Predicate is SqlConstantExpression)
-                            ? (bool)newSelectPredicateConstant.Value
-                                ? null
-                                : SqlExpressionFactory.Equal(
-                                    newSelectPredicateConstant,
-                                    SqlExpressionFactory.Constant(true, newSelectPredicateConstant.TypeMapping))
-                            : newSelectExpression.Predicate;
+                    if (newSelectExpression.Having is SqlConstantExpression havingConstantExpression
+                        && havingConstantExpression.Value is bool havingBoolValue
+                        && !havingBoolValue)
+                    {
+                        changed = true;
+                        newHaving = SqlExpressionFactory.Equal(
+                            havingConstantExpression,
+                            SqlExpressionFactory.Constant(true, havingConstantExpression.TypeMapping));
+                    }
 
-                    var newHaving = newSelectExpression.Having is SqlConstantExpression newSelectHavingConstant
-                        && !(selectExpression.Having is SqlConstantExpression)
-                            ? (bool)newSelectHavingConstant.Value
-                                ? null
-                                : SqlExpressionFactory.Equal(
-                                    newSelectHavingConstant,
-                                    SqlExpressionFactory.Constant(true, newSelectHavingConstant.TypeMapping))
-                            : newSelectExpression.Having;
-
-                    return !ReferenceEquals(newPredicate, newSelectExpression.Predicate)
-                        || !ReferenceEquals(newHaving, newSelectExpression.Having)
-                            ? newSelectExpression.Update(
-                                newSelectExpression.Projection.ToList(),
-                                newSelectExpression.Tables.ToList(),
-                                newPredicate,
-                                newSelectExpression.GroupBy.ToList(),
-                                newHaving,
-                                newSelectExpression.Orderings.ToList(),
-                                newSelectExpression.Limit,
-                                newSelectExpression.Offset,
-                                newSelectExpression.IsDistinct,
-                                newSelectExpression.Alias)
-                            : newSelectExpression;
+                    return changed
+                        ? newSelectExpression.Update(
+                            newSelectExpression.Projection.ToList(),
+                            newSelectExpression.Tables.ToList(),
+                            newPredicate,
+                            newSelectExpression.GroupBy.ToList(),
+                            newHaving,
+                            newSelectExpression.Orderings.ToList(),
+                            newSelectExpression.Limit,
+                            newSelectExpression.Offset,
+                            newSelectExpression.IsDistinct,
+                            newSelectExpression.Alias)
+                        : newSelectExpression;
                 }
 
-                return base.VisitExtension(extensionExpression);
+                return newExpression;
             }
 
             protected override Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
@@ -137,6 +140,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
                     {
                         return SqlExpressionFactory.Constant(parameterValue != null, sqlUnaryExpression.TypeMapping);
+                    }
+                }
+
+                return result;
+            }
+
+            protected override Expression VisitSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
+            {
+                var result = base.VisitSqlBinaryExpression(sqlBinaryExpression);
+                if (result is SqlBinaryExpression sqlBinaryResult)
+                {
+                    var leftNullParameter = sqlBinaryResult.Left is SqlParameterExpression leftParameter
+                        && _parametersValues[leftParameter.Name] == null;
+
+                    var rightNullParameter = sqlBinaryResult.Right is SqlParameterExpression rightParameter
+                        && _parametersValues[rightParameter.Name] == null;
+
+                    if ((sqlBinaryResult.OperatorType == ExpressionType.Equal || sqlBinaryResult.OperatorType == ExpressionType.NotEqual)
+                        && (leftNullParameter || rightNullParameter))
+                    {
+                        return SimplifyNullComparisonExpression(
+                            sqlBinaryResult.OperatorType,
+                            sqlBinaryResult.Left,
+                            sqlBinaryResult.Right,
+                            leftNullParameter,
+                            rightNullParameter,
+                            sqlBinaryResult.TypeMapping);
                     }
                 }
 

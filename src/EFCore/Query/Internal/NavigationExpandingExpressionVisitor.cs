@@ -1260,38 +1260,44 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             MethodInfo genericMethod,
             Type castType)
         {
+            if ((castType.IsInterface
+                 && castType.IsAssignableFrom(source.PendingSelector.Type))
+                 || castType == typeof(object))
+            {
+                // Casting to base/implementing interface is redundant
+                return source;
+            }
+
             source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
             var newStructure = SnapshotExpression(source.PendingSelector);
             var queryable = Reduce(source);
 
             var result = Expression.Call(genericMethod.MakeGenericMethod(castType), queryable);
 
-            if (newStructure is EntityReference entityReference)
+            if (newStructure is EntityReference entityReference
+                && entityReference.EntityType.GetTypesInHierarchy()
+                    .FirstOrDefault(et => et.ClrType == castType) is EntityType castEntityType)
             {
-                var castEntityType = entityReference.EntityType.GetTypesInHierarchy().FirstOrDefault(et => et.ClrType == castType);
-                if (castEntityType != null)
+                var newEntityReference = new EntityReference(castEntityType);
+                if (entityReference.IsOptional)
                 {
-                    var newEntityReference = new EntityReference(castEntityType);
-                    if (entityReference.IsOptional)
-                    {
-                        newEntityReference.MarkAsOptional();
-                    }
-
-                    newEntityReference.SetIncludePaths(entityReference.IncludePaths);
-
-                    // Prune includes for sibling types
-                    var siblingNavigations = newEntityReference.IncludePaths.Keys
-                        .Where(
-                            n => !castEntityType.IsAssignableFrom(n.DeclaringEntityType)
-                                && !n.DeclaringEntityType.IsAssignableFrom(castEntityType)).ToList();
-
-                    foreach (var navigation in siblingNavigations)
-                    {
-                        newEntityReference.IncludePaths.Remove(navigation);
-                    }
-
-                    newStructure = newEntityReference;
+                    newEntityReference.MarkAsOptional();
                 }
+
+                newEntityReference.SetIncludePaths(entityReference.IncludePaths);
+
+                // Prune includes for sibling types
+                var siblingNavigations = newEntityReference.IncludePaths.Keys
+                    .Where(
+                        n => !castEntityType.IsAssignableFrom(n.DeclaringEntityType)
+                            && !n.DeclaringEntityType.IsAssignableFrom(castEntityType)).ToList();
+
+                foreach (var navigation in siblingNavigations)
+                {
+                    newEntityReference.IncludePaths.Remove(navigation);
+                }
+
+                newStructure = newEntityReference;
             }
             else
             {

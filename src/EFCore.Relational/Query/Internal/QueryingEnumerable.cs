@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
         private readonly IReadOnlyList<string> _columnNames;
+        private readonly IReadOnlyList<ReaderColumn> _readerColumns;
         private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -32,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             RelationalQueryContext relationalQueryContext,
             RelationalCommandCache relationalCommandCache,
             IReadOnlyList<string> columnNames,
+            IReadOnlyList<ReaderColumn> readerColumns,
             Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
             Type contextType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -39,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _relationalQueryContext = relationalQueryContext;
             _relationalCommandCache = relationalCommandCache;
             _columnNames = columnNames;
+            _readerColumns = readerColumns;
             _shaper = shaper;
             _contextType = contextType;
             _logger = logger;
@@ -50,11 +53,38 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual IEnumerator<T> GetEnumerator() => new Enumerator(this);
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        public static int[] BuildIndexMap(IReadOnlyList<string> columnNames, DbDataReader dataReader)
+        {
+            if (columnNames == null)
+            {
+                return null;
+            }
+
+            // Non-Composed FromSql
+            var readerColumns = Enumerable.Range(0, dataReader.FieldCount)
+                .ToDictionary(dataReader.GetName, i => i, StringComparer.OrdinalIgnoreCase);
+
+            var indexMap = new int[columnNames.Count];
+            for (var i = 0; i < columnNames.Count; i++)
+            {
+                var columnName = columnNames[i];
+                if (!readerColumns.TryGetValue(columnName, out var ordinal))
+                {
+                    throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
+                }
+
+                indexMap[i] = ordinal;
+            }
+
+            return indexMap;
+        }
+
         private sealed class Enumerator : IEnumerator<T>
         {
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly RelationalCommandCache _relationalCommandCache;
             private readonly IReadOnlyList<string> _columnNames;
+            private readonly IReadOnlyList<ReaderColumn> _readerColumns;
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -62,12 +92,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader _dataReader;
             private int[] _indexMap;
             private ResultCoordinator _resultCoordinator;
+            private IExecutionStrategy _executionStrategy;
 
             public Enumerator(QueryingEnumerable<T> queryingEnumerable)
             {
                 _relationalQueryContext = queryingEnumerable._relationalQueryContext;
                 _relationalCommandCache = queryingEnumerable._relationalCommandCache;
                 _columnNames = queryingEnumerable._columnNames;
+                _readerColumns = queryingEnumerable._readerColumns;
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
                 _logger = queryingEnumerable._logger;
@@ -85,41 +117,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            var relationalCommand = _relationalCommandCache.GetRelationalCommand(
-                                _relationalQueryContext.ParameterValues);
-
-                            _dataReader
-                                = relationalCommand.ExecuteReader(
-                                    new RelationalCommandParameterObject(
-                                        _relationalQueryContext.Connection,
-                                        _relationalQueryContext.ParameterValues,
-                                        _relationalQueryContext.Context,
-                                        _relationalQueryContext.CommandLogger));
-
-                            // Non-Composed FromSql
-                            if (_columnNames != null)
+                            if (_executionStrategy == null)
                             {
-                                var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
-                                    .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
-
-                                _indexMap = new int[_columnNames.Count];
-                                for (var i = 0; i < _columnNames.Count; i++)
-                                {
-                                    var columnName = _columnNames[i];
-                                    if (!readerColumns.TryGetValue(columnName, out var ordinal))
-                                    {
-                                        throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
-                                    }
-
-                                    _indexMap[i] = ordinal;
-                                }
-                            }
-                            else
-                            {
-                                _indexMap = null;
+                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
                             }
 
-                            _resultCoordinator = new ResultCoordinator();
+                            _executionStrategy.Execute(true, InitializeReader, null);
                         }
 
                         var hasNext = _resultCoordinator.HasNext ?? _dataReader.Read();
@@ -166,6 +169,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            private bool InitializeReader(DbContext _, bool result)
+            {
+                var relationalCommand = _relationalCommandCache.GetRelationalCommand(_relationalQueryContext.ParameterValues);
+
+                _dataReader
+                    = relationalCommand.ExecuteReader(
+                        new RelationalCommandParameterObject(
+                            _relationalQueryContext.Connection,
+                            _relationalQueryContext.ParameterValues,
+                            _readerColumns,
+                            _relationalQueryContext.Context,
+                            _relationalQueryContext.CommandLogger));
+
+                _indexMap = BuildIndexMap(_columnNames, _dataReader.DbDataReader);
+
+                _resultCoordinator = new ResultCoordinator();
+
+                return result;
+            }
+
             public void Dispose()
             {
                 _dataReader?.Dispose();
@@ -180,6 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private readonly RelationalQueryContext _relationalQueryContext;
             private readonly RelationalCommandCache _relationalCommandCache;
             private readonly IReadOnlyList<string> _columnNames;
+            private readonly IReadOnlyList<ReaderColumn> _readerColumns;
             private readonly Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> _shaper;
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
@@ -188,6 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader _dataReader;
             private int[] _indexMap;
             private ResultCoordinator _resultCoordinator;
+            private IExecutionStrategy _executionStrategy;
 
             public AsyncEnumerator(
                 QueryingEnumerable<T> queryingEnumerable,
@@ -196,6 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _relationalQueryContext = queryingEnumerable._relationalQueryContext;
                 _relationalCommandCache = queryingEnumerable._relationalCommandCache;
                 _columnNames = queryingEnumerable._columnNames;
+                _readerColumns = queryingEnumerable._readerColumns;
                 _shaper = queryingEnumerable._shaper;
                 _contextType = queryingEnumerable._contextType;
                 _logger = queryingEnumerable._logger;
@@ -212,42 +238,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            var relationalCommand = _relationalCommandCache.GetRelationalCommand(
-                                _relationalQueryContext.ParameterValues);
-
-                            _dataReader
-                                = await relationalCommand.ExecuteReaderAsync(
-                                    new RelationalCommandParameterObject(
-                                        _relationalQueryContext.Connection,
-                                        _relationalQueryContext.ParameterValues,
-                                        _relationalQueryContext.Context,
-                                        _relationalQueryContext.CommandLogger),
-                                    _cancellationToken);
-
-                            // Non-Composed FromSql
-                            if (_columnNames != null)
+                            if (_executionStrategy == null)
                             {
-                                var readerColumns = Enumerable.Range(0, _dataReader.DbDataReader.FieldCount)
-                                    .ToDictionary(i => _dataReader.DbDataReader.GetName(i), i => i, StringComparer.OrdinalIgnoreCase);
-
-                                _indexMap = new int[_columnNames.Count];
-                                for (var i = 0; i < _columnNames.Count; i++)
-                                {
-                                    var columnName = _columnNames[i];
-                                    if (!readerColumns.TryGetValue(columnName, out var ordinal))
-                                    {
-                                        throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
-                                    }
-
-                                    _indexMap[i] = ordinal;
-                                }
-                            }
-                            else
-                            {
-                                _indexMap = null;
+                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
                             }
 
-                            _resultCoordinator = new ResultCoordinator();
+                            await _executionStrategy.ExecuteAsync(true, InitializeReaderAsync, null, _cancellationToken);
                         }
 
                         var hasNext = _resultCoordinator.HasNext ?? await _dataReader.ReadAsync(_cancellationToken);
@@ -292,6 +288,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     throw;
                 }
+            }
+
+            private async Task<bool> InitializeReaderAsync(DbContext _, bool result, CancellationToken cancellationToken)
+            {
+                var relationalCommand = _relationalCommandCache.GetRelationalCommand(
+                    _relationalQueryContext.ParameterValues);
+
+                _dataReader
+                    = await relationalCommand.ExecuteReaderAsync(
+                        new RelationalCommandParameterObject(
+                            _relationalQueryContext.Connection,
+                            _relationalQueryContext.ParameterValues,
+                            _readerColumns,
+                            _relationalQueryContext.Context,
+                            _relationalQueryContext.CommandLogger),
+                        cancellationToken);
+
+                _indexMap = BuildIndexMap(_columnNames, _dataReader.DbDataReader);
+
+                _resultCoordinator = new ResultCoordinator();
+
+                return result;
             }
 
             public ValueTask DisposeAsync()

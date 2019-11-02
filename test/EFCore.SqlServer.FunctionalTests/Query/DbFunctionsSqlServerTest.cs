@@ -428,7 +428,7 @@ WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([e].[Title], N
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -444,7 +444,7 @@ WHERE (DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(YEAR, [o].[O
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -460,7 +460,7 @@ WHERE (DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MONTH, [o].
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(DAY, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -476,7 +476,7 @@ WHERE (DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(DAY, [o].[Ord
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -492,7 +492,7 @@ WHERE (DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(HOUR, [o].[O
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -508,7 +508,7 @@ WHERE (DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MINUTE, [o
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 

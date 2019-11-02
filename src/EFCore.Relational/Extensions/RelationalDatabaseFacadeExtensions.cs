@@ -222,6 +222,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             GetFacadeDependencies(databaseFacade).RelationalConnection,
                             rawSqlCommand.ParameterValues,
+                            null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger));
             }
@@ -388,6 +389,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
+                            null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger),
                         cancellationToken);
@@ -504,6 +506,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
+                            null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger));
             }
@@ -656,6 +659,7 @@ namespace Microsoft.EntityFrameworkCore
                         new RelationalCommandParameterObject(
                             facadeDependencies.RelationalConnection,
                             rawSqlCommand.ParameterValues,
+                            null,
                             ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Context,
                             logger),
                         cancellationToken);

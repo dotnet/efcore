@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 AssertTranslationFailed(
                     () => context.Customers
-                        .FromSqlRaw(NormalizeDelimetersInRawString("select * from [Customers]"))
+                        .FromSqlRaw(NormalizeDelimitersInRawString("select * from [Customers]"))
                         .Where(c => c.IsLondon)
                         .ToList());
             }
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var customers
                     = context.Customers
-                        .FromSqlRaw(NormalizeDelimetersInRawString("select * from [Customers]"))
+                        .FromSqlRaw(NormalizeDelimitersInRawString("select * from [Customers]"))
                         .ToList();
 
                 Assert.Equal(91, customers.Count);
@@ -232,8 +232,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private string NormalizeDelimetersInRawString(string sql)
-            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
+        private string NormalizeDelimitersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
         private void AssertTranslationFailed(Action testCode)
         {

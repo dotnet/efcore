@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore
             public virtual DbContextOptions CreateOptions(
                 IEnumerable<IInterceptor> appInterceptors,
                 IEnumerable<IInterceptor> injectedInterceptors)
-                => base.AddOptions(
+                => AddOptions(
                         TestStore
                             .AddProviderOptions(
                                 new DbContextOptionsBuilder()

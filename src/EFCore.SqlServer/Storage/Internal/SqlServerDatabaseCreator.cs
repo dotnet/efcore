@@ -121,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 new RelationalCommandParameterObject(
                                     connection,
                                     null,
+                                    null,
                                     Dependencies.CurrentContext.Context,
                                     Dependencies.CommandLogger))
                         != 0);
@@ -138,6 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         .ExecuteScalarAsync(
                             new RelationalCommandParameterObject(
                                 connection,
+                                null,
                                 null,
                                 Dependencies.CurrentContext.Context,
                                 Dependencies.CommandLogger),
@@ -198,6 +200,7 @@ SELECT 1 ELSE SELECT 0");
                                     new RelationalCommandParameterObject(
                                         _connection,
                                         null,
+                                        null,
                                         Dependencies.CurrentContext.Context,
                                         Dependencies.CommandLogger));
 
@@ -257,6 +260,7 @@ SELECT 1 ELSE SELECT 0");
                                 .ExecuteNonQueryAsync(
                                     new RelationalCommandParameterObject(
                                         _connection,
+                                        null,
                                         null,
                                         Dependencies.CurrentContext.Context,
                                         Dependencies.CommandLogger),

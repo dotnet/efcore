@@ -20,7 +20,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             query = base.Process(query);
             query = new SearchConditionConvertingExpressionVisitor(SqlExpressionFactory).Visit(query);
-            query = OptimizeSqlExpression(query);
 
             return query;
         }

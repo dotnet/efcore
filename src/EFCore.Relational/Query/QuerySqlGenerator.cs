@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
-        private static readonly Regex _composibleSql
+        private static readonly Regex _composableSql
             = new Regex(@"^\s*?SELECT\b", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(value: 1000.0));
 
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             _relationalCommandBuilder.AppendLine("(");
 
-            if (!_composibleSql.IsMatch(fromSqlExpression.Sql))
+            if (!_composableSql.IsMatch(fromSqlExpression.Sql))
             {
                 throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
             }

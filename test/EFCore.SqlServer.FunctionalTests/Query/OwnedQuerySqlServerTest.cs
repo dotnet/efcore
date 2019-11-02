@@ -711,7 +711,7 @@ LEFT JOIN (
     ) AS [t2] ON [o2].[Id] = [t2].[Id]
     WHERE [o2].[PersonAddress_Country_PlanetId] IS NOT NULL
 ) AS [t3] ON [t0].[Id] = [t3].[Id]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([t3].[PersonAddress_Country_Name] = N'USA') AND [t3].[PersonAddress_Country_Name] IS NOT NULL)");
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([t3].[PersonAddress_Country_Name] = N'USA')");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_projecting_entity(bool isAsync)
@@ -814,7 +814,7 @@ LEFT JOIN (
     WHERE [o17].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t18] ON [t15].[Id] = [t18].[Id]
 LEFT JOIN [Order] AS [o20] ON [o].[Id] = [o20].[ClientId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([t3].[PersonAddress_Country_Name] = N'USA') AND [t3].[PersonAddress_Country_Name] IS NOT NULL)
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([t3].[PersonAddress_Country_Name] = N'USA')
 ORDER BY [o].[Id], [o20].[ClientId], [o20].[Id]");
         }
 
@@ -1432,7 +1432,7 @@ LEFT JOIN (
 LEFT JOIN [Planet] AS [p] ON [t3].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND (([s].[Name] = N'Sol') AND [s].[Name] IS NOT NULL)
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([s].[Name] = N'Sol')
 ORDER BY [o].[Id], [e].[Id]");
         }
 

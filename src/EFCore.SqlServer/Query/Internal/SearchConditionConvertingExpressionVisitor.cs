@@ -253,9 +253,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
-        {
-            return sqlFragmentExpression;
-        }
+            => sqlFragmentExpression;
 
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
@@ -283,9 +281,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         protected override Expression VisitTable(TableExpression tableExpression)
-        {
-            return tableExpression;
-        }
+            => tableExpression;
 
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {

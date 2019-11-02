@@ -239,6 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
+                        null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger)))
                 {
@@ -276,6 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
+                        null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger),
                     cancellationToken))

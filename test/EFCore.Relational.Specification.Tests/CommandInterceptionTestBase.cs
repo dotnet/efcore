@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class CommandInterceptionTestBase : InterceptionTestBase
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -292,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -483,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -683,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -891,6 +892,20 @@ namespace Microsoft.EntityFrameworkCore
                 _secondReader = secondReader;
             }
 
+            public override int FieldCount => _firstReader.FieldCount;
+            public override int RecordsAffected => _firstReader.RecordsAffected + _secondReader.RecordsAffected;
+            public override bool HasRows => _firstReader.HasRows || _secondReader.HasRows;
+            public override bool IsClosed => _firstReader.IsClosed;
+            public override int Depth => _firstReader.Depth;
+
+            public override string GetDataTypeName(int ordinal) => _firstReader.GetDataTypeName(ordinal);
+            public override Type GetFieldType(int ordinal) => _firstReader.GetFieldType(ordinal);
+            public override string GetName(int ordinal) => _firstReader.GetName(ordinal);
+            public override bool NextResult() => _firstReader.NextResult() || _secondReader.NextResult();
+
+            public override async Task<bool> NextResultAsync(CancellationToken cancellationToken)
+                => await _firstReader.NextResultAsync(cancellationToken) || await _secondReader.NextResultAsync(cancellationToken);
+
             public override void Close()
             {
                 _firstReader.Close();
@@ -948,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -1104,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 try
                 {
@@ -1188,7 +1203,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 var exception = async
                     ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(commandParameterObject))
@@ -1323,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore
             var connection = context.GetService<IRelationalConnection>();
             var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-            var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+            var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
             Assert.Equal(
                 ResultReplacingScalarCommandInterceptor.InterceptedResult,
@@ -1520,6 +1535,11 @@ namespace Microsoft.EntityFrameworkCore
             private readonly int[] _ints = { 977, 988, 999 };
 
             private readonly string[] _strings = { "<977>", "<988>", "<999>" };
+            public override int FieldCount { get; }
+            public override int RecordsAffected { get; }
+            public override bool HasRows { get; }
+            public override bool IsClosed { get; }
+            public override int Depth { get; }
 
             public override bool Read()
                 => _index++ < _ints.Length;
@@ -1557,14 +1577,9 @@ namespace Microsoft.EntityFrameworkCore
             public override int GetOrdinal(string name) => throw new NotImplementedException();
             public override object GetValue(int ordinal) => throw new NotImplementedException();
             public override int GetValues(object[] values) => throw new NotImplementedException();
-            public override int FieldCount { get; }
             public override object this[int ordinal] => throw new NotImplementedException();
             public override object this[string name] => throw new NotImplementedException();
-            public override int RecordsAffected { get; }
-            public override bool HasRows { get; }
-            public override bool IsClosed { get; }
             public override bool NextResult() => throw new NotImplementedException();
-            public override int Depth { get; }
             public override IEnumerator GetEnumerator() => throw new NotImplementedException();
         }
 

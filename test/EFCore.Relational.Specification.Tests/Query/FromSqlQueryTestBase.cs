@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().FromSqlRaw(
-                                    NormalizeDelimetersInRawString(
+                                    NormalizeDelimitersInRawString(
                                         @"SELECT [ProductID] AS [ProductName], [ProductName] AS [ProductID], [SupplierID], [UnitPrice], [UnitsInStock], [Discontinued]
                                FROM [Products]"))
                                 .ToList()).Message);
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().FromSqlRaw(
-                                    NormalizeDelimetersInRawString(
+                                    NormalizeDelimitersInRawString(
                                         @"SELECT [ProductID], [SupplierID] AS [UnitPrice], [ProductName], [SupplierID], [UnitsInStock], [Discontinued]
                                FROM [Products]"))
                                 .ToList()).Message);
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().FromSqlRaw(
-                                    NormalizeDelimetersInRawString(
+                                    NormalizeDelimitersInRawString(
                                         @"SELECT [ProductID], [SupplierID] AS [UnitPrice], [ProductName], [UnitsInStock], [Discontinued]
                                FROM [Products]"))
                                 .Select(p => p.UnitPrice)
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () =>
                             context.Set<Product>()
                                 .FromSqlRaw(
-                                    NormalizeDelimetersInRawString(
+                                    NormalizeDelimitersInRawString(
                                         @"SELECT [ProductID] AS [ProductName], [ProductName] AS [ProductID], [SupplierID], [UnitPrice], [UnitsInStock], [Discontinued]
                                FROM [Products]")).AsNoTracking()
                                 .ToList()).Message);
@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 context.Set<Product>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             @"SELECT [ProductID], [ProductName], [SupplierID], [UnitPrice], [UnitsInStock], NULL AS [Discontinued]
                                FROM [Products]"))
                     .ToList();
@@ -117,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().FromSqlRaw(
-                                    NormalizeDelimetersInRawString(
+                                    NormalizeDelimitersInRawString(
                                         @"SELECT [ProductID], [ProductName], [SupplierID], [UnitPrice], [UnitsInStock], NULL AS [Discontinued]
                                FROM [Products]"))
                                 .ToList()).Message);
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>().FromSqlRaw(
-                                    NormalizeDelimetersInRawString(
+                                    NormalizeDelimitersInRawString(
                                         @"SELECT [ProductID], [ProductName], [SupplierID], [UnitPrice], [UnitsInStock], NULL AS [Discontinued]
                                FROM [Products]"))
                                 .Select(p => p.Discontinued)
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () =>
                             context.Set<Product>()
                                 .FromSqlRaw(
-                                    NormalizeDelimetersInRawString(
+                                    NormalizeDelimitersInRawString(
                                         @"SELECT [ProductID], [ProductName], [SupplierID], [UnitPrice], [UnitsInStock], NULL AS [Discontinued]
                                FROM [Products]")).AsNoTracking()
                                 .ToList()).Message);
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             "SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
                     .ToArray();
 
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             "SELECT [Region], [PostalCode], [PostalCode] AS [Foo], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
                     .ToArray();
 
@@ -213,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     RelationalStrings.FromSqlMissingColumn("Region"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Set<Customer>().FromSqlRaw(
-                                NormalizeDelimetersInRawString(
+                                NormalizeDelimitersInRawString(
                                     "SELECT [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
                             .ToArray()
                     ).Message);
@@ -225,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Where(c => c.ContactName.Contains("z"))
                     .ToArray();
 
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + "* FROM [Customers]"))
                     .Where(c => c.ContactName.Contains("z"))
                     .ToArray();
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var query = EF.CompileQuery(
                 (NorthwindContext context) => context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
@@ -270,7 +270,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = EF.CompileQuery(
                 (NorthwindContext context) => context.Set<Customer>()
                     .FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"), "CONSH")
                     .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = EF.CompileQuery(
                 (NorthwindContext context) => context.Set<Customer>()
                     .FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @customer"),
                         CreateDbParameter("customer", "CONSH"))
                     .Where(c => c.ContactName.Contains("z")));
 
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = EF.CompileQuery(
                 (NorthwindContext context) => context.Set<Customer>()
                     .FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
                         CreateDbParameter(null, "CONSH"))
                     .Where(c => c.ContactName.Contains("z")));
 
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = (from c in context.Set<Customer>()
-                       where context.Orders.FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
+                       where context.Orders.FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
                            .Select(o => o.CustomerID)
                            .Contains(c.CustomerID)
                        select c)
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     = (from c in context.Set<Customer>()
                        where
                            c.CustomerID == "ALFKI"
-                           && context.Orders.FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
+                           && context.Orders.FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
                                .Select(o => o.CustomerID)
                                .Contains(c.CustomerID)
                        select c)
@@ -359,8 +359,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
-                       from o in context.Set<Order>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
+                    = (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
+                       from o in context.Set<Order>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
                     .ToArray();
@@ -378,9 +378,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                    = (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                        from o in context.Set<Order>().FromSqlRaw(
-                           NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
+                           NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
@@ -402,9 +402,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSqlRaw(
-                           NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                           NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                        from o in context.Set<Order>().FromSqlRaw(
-                           NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
+                           NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
@@ -419,9 +419,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 actual
                     = (from c in context.Set<Customer>().FromSqlRaw(
-                           NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                           NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                        from o in context.Set<Order>().FromSqlRaw(
-                           NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
+                           NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
                            startDate,
                            endDate)
                        where c.CustomerID == o.CustomerID
@@ -438,7 +438,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             @"SELECT *
 FROM [Customers]
 WHERE [City] = 'London'"))
@@ -455,7 +455,7 @@ WHERE [City] = 'London'"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             @"SELECT *
 FROM [Customers]"))
                     .Where(c => c.City == "London")
@@ -475,7 +475,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city,
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city,
                         contactTitle)
                     .ToArray();
 
@@ -491,7 +491,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), "London",
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), "London",
                         "Sales Representative")
                     .ToArray();
 
@@ -510,7 +510,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlInterpolated(
-                        NormalizeDelimetersInInterpolatedString(
+                        NormalizeDelimitersInInterpolatedString(
                             $"SELECT * FROM [Customers] WHERE [City] = {city} AND [ContactTitle] = {contactTitle}"))
                     .ToArray();
 
@@ -526,7 +526,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlInterpolated(
-                        NormalizeDelimetersInInterpolatedString(
+                        NormalizeDelimitersInInterpolatedString(
                             $"SELECT * FROM [Customers] WHERE [City] = {"London"} AND [ContactTitle] = {"Sales Representative"}"))
                     .ToArray();
 
@@ -547,9 +547,9 @@ FROM [Customers]"))
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSqlRaw(
-                           NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                           NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                        from o in context.Set<Order>().FromSqlInterpolated(
-                           NormalizeDelimetersInInterpolatedString(
+                           NormalizeDelimitersInInterpolatedString(
                                $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
@@ -563,9 +563,9 @@ FROM [Customers]"))
 
                 actual
                     = (from c in context.Set<Customer>().FromSqlRaw(
-                           NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                           NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                        from o in context.Set<Order>().FromSqlInterpolated(
-                           NormalizeDelimetersInInterpolatedString(
+                           NormalizeDelimitersInInterpolatedString(
                                $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
                        where c.CustomerID == o.CustomerID
                        select new { c, o })
@@ -583,7 +583,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Employee>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             // ReSharper disable once ExpressionIsAlwaysNull
                             "SELECT * FROM [Employees] WHERE [ReportsTo] = {0} OR ([ReportsTo] IS NULL AND {0} IS NULL)"), reportsTo)
                     .ToArray();
@@ -601,7 +601,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                     .Where(c => c.ContactTitle == contactTitle)
                     .ToArray();
 
@@ -617,14 +617,14 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));
 
                 actual = context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
                     .ToArray();
 
                 Assert.Single(actual);
@@ -641,7 +641,7 @@ FROM [Customers]"))
 
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString(sql), city, contactTitle)
+                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString(sql), city, contactTitle)
                     .ToArray();
 
                 Assert.Equal(3, actual.Length);
@@ -651,7 +651,7 @@ FROM [Customers]"))
                 city = "Madrid";
                 contactTitle = "Accounting Manager";
 
-                actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString(sql), city, contactTitle)
+                actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString(sql), city, contactTitle)
                     .ToArray();
 
                 Assert.Equal(2, actual.Length);
@@ -665,7 +665,7 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .AsNoTracking()
                     .ToArray();
 
@@ -681,7 +681,7 @@ FROM [Customers]"))
             {
                 var boolMapping = (RelationalTypeMapping)context.GetService<ITypeMappingSource>().FindMapping(typeof(bool));
                 var actual = context.Set<Product>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             @"SELECT *
 FROM [Products]
 WHERE [Discontinued] <> "
@@ -700,7 +700,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Include(c => c.Orders)
                     .ToArray();
 
@@ -713,7 +713,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Include(c => c.Orders)
                     .Where(c => c.City == "London")
                     .ToArray();
@@ -728,7 +728,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             using (var context = CreateContext())
             {
                 var actual = context.Customers
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
@@ -745,7 +745,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArray();
 
@@ -761,7 +761,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var parameter = CreateDbParameter("@city", "London");
 
                 var actual = context.Customers.FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
@@ -777,7 +777,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var parameter = CreateDbParameter("city", "London");
 
                 var actual = context.Customers.FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = @city"), parameter)
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
@@ -796,7 +796,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var titleParameter = CreateDbParameter("@title", title);
 
                 var actual = context.Customers.FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             "SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = @title"), city, titleParameter)
                     .ToArray();
 
@@ -807,7 +807,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var cityParameter = CreateDbParameter("@city", city);
 
                 actual = context.Customers.FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             "SELECT * FROM [Customers] WHERE [City] = @city AND [ContactTitle] = {1}"), cityParameter, title)
                     .ToArray();
 
@@ -855,7 +855,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var parameter = CreateDbParameter("@id", "ALFKI");
 
                 var query = context.Customers.FromSqlRaw(
-                    NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @id"), parameter);
+                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = @id"), parameter);
 
                 // ReSharper disable PossibleMultipleEnumeration
                 var result1 = query.ToList();
@@ -875,9 +875,9 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             using (var context = CreateContext())
             {
                 var query = from c1 in context.Set<Customer>()
-                                .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
+                                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
                             from c2 in context.Set<Customer>().FromSqlRaw(
-                                    NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'AROUT'"))
+                                    NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'AROUT'"))
                                 .Include(c => c.Orders)
                             select new { c1, c2 };
 
@@ -904,9 +904,9 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             using (var context = CreateContext())
             {
                 var query = from c in context.Set<Customer>()
-                                .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
+                                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
                             join o in context.Set<Order>().FromSqlRaw(
-                                        NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderID] <> 1"))
+                                        NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderID] <> 1"))
                                     .Include(o => o.OrderDetails)
                                 on c.CustomerID equals o.CustomerID
                             select new { c, o };
@@ -952,7 +952,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
                 var actual = context.Customers
                     .FromSqlInterpolated(
-                        NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
+                        NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
                     .ToList();
 
                 Assert.Single(actual);
@@ -969,7 +969,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
                 var actual = context.Customers
                     .FromSqlInterpolated(
-                        NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
+                        NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Customers] WHERE [CustomerID] = {parameter}"))
                     .ToList();
 
                 Assert.Single(actual);
@@ -986,7 +986,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var max = 10400;
 
                 var query1 = context.Orders
-                    .FromSqlInterpolated(NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                    .FromSqlInterpolated(NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
                     .Select(i => i.OrderID);
                 query1.ToList();
 
@@ -1000,7 +1000,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                         o => o.OrderID <= max
                             && context.Orders
                                 .FromSqlInterpolated(
-                                    NormalizeDelimetersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
+                                    NormalizeDelimitersInInterpolatedString($"SELECT * FROM [Orders] WHERE [OrderID] >= {min}"))
                                 .Select(i => i.OrderID)
                                 .Contains(o.OrderID))
                     .Select(o => o.OrderID);
@@ -1016,7 +1016,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 var tableName = "Orders";
                 var max = 10250;
                 var query = context.Orders.FromSqlRaw(
-                        NormalizeDelimetersInRawString($"SELECT * FROM [{tableName}] WHERE [OrderID] < {{0}}"), max)
+                        NormalizeDelimitersInRawString($"SELECT * FROM [{tableName}] WHERE [OrderID] < {{0}}"), max)
                     .ToList();
 
                 Assert.Equal(2, query.Count);
@@ -1029,7 +1029,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             using (var context = CreateContext())
             {
                 var actual = context.Set<Order>()
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
                     .Where(o => o.Customer == new Customer { CustomerID = "VINET" })
                     .ToArray();
 
@@ -1043,20 +1043,20 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             using var context = CreateContext();
 
             var actual = context.Set<Customer>()
-                .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
                 .Concat(
                     context.Set<Customer>()
-                        .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Berlin'")))
+                        .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Berlin'")))
                 .ToArray();
 
             Assert.Equal(7, actual.Length);
         }
 
-        protected string NormalizeDelimetersInRawString(string sql)
-            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
+        protected string NormalizeDelimitersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
-        protected FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
+        protected FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
         protected abstract DbParameter CreateDbParameter(string name, object value);
 

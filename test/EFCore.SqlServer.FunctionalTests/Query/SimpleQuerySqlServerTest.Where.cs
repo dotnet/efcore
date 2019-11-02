@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = N'London'");
         }
 
         public override async Task Where_as_queryable_expression(bool isAsync)
@@ -27,7 +27,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE (([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AND (([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL))");
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI'))");
         }
 
         public override async Task Where_simple_closure(bool isAsync)
@@ -39,7 +39,7 @@ WHERE EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__city_0");
         }
 
         public override async Task Where_indexer_closure(bool isAsync)
@@ -51,7 +51,7 @@ WHERE ([c].[City] = @__city_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__p_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__p_0");
         }
 
         public override async Task Where_dictionary_key_access_closure(bool isAsync)
@@ -63,7 +63,7 @@ WHERE ([c].[City] = @__p_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__get_Item_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__get_Item_0");
         }
 
         public override async Task Where_tuple_item_closure(bool isAsync)
@@ -75,7 +75,7 @@ WHERE ([c].[City] = @__get_Item_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__predicateTuple_Item2_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__predicateTuple_Item2_0");
         }
 
         public override async Task Where_named_tuple_item_closure(bool isAsync)
@@ -87,7 +87,7 @@ WHERE ([c].[City] = @__predicateTuple_Item2_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__predicateTuple_Item2_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__predicateTuple_Item2_0");
         }
 
         public override async Task Where_simple_closure_constant(bool isAsync)
@@ -111,13 +111,13 @@ WHERE @__predicate_0 = CAST(1 AS bit)");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__city_0",
                 //
                 @"@__city_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__city_0");
         }
 
         public override async Task Where_method_call_nullable_type_closure_via_query_cache(bool isAsync)
@@ -129,13 +129,13 @@ WHERE ([c].[City] = @__city_0) AND [c].[City] IS NOT NULL");
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
+WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0",
                 //
                 @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL");
+WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0");
         }
 
         public override async Task Where_method_call_nullable_type_reverse_closure_via_query_cache(bool isAsync)
@@ -165,13 +165,13 @@ WHERE CAST([e].[EmployeeID] AS bigint) > @__p_0");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__GetCity_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__GetCity_0",
                 //
                 @"@__GetCity_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__GetCity_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__GetCity_0");
         }
 
         public override async Task Where_field_access_closure_via_query_cache(bool isAsync)
@@ -183,13 +183,13 @@ WHERE ([c].[City] = @__GetCity_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_InstanceFieldValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__city_InstanceFieldValue_0",
                 //
                 @"@__city_InstanceFieldValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__city_InstanceFieldValue_0");
         }
 
         public override async Task Where_property_access_closure_via_query_cache(bool isAsync)
@@ -201,13 +201,13 @@ WHERE ([c].[City] = @__city_InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_InstancePropertyValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__city_InstancePropertyValue_0",
                 //
                 @"@__city_InstancePropertyValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_InstancePropertyValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__city_InstancePropertyValue_0");
         }
 
         public override async Task Where_static_field_access_closure_via_query_cache(bool isAsync)
@@ -219,13 +219,13 @@ WHERE ([c].[City] = @__city_InstancePropertyValue_0) AND [c].[City] IS NOT NULL"
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__StaticFieldValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__StaticFieldValue_0",
                 //
                 @"@__StaticFieldValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__StaticFieldValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__StaticFieldValue_0");
         }
 
         public override async Task Where_static_property_access_closure_via_query_cache(bool isAsync)
@@ -237,13 +237,13 @@ WHERE ([c].[City] = @__StaticFieldValue_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__StaticPropertyValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__StaticPropertyValue_0",
                 //
                 @"@__StaticPropertyValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__StaticPropertyValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__StaticPropertyValue_0");
         }
 
         public override async Task Where_nested_field_access_closure_via_query_cache(bool isAsync)
@@ -255,13 +255,13 @@ WHERE ([c].[City] = @__StaticPropertyValue_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_Nested_InstanceFieldValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0",
                 //
                 @"@__city_Nested_InstanceFieldValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_Nested_InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0");
         }
 
         public override async Task Where_nested_property_access_closure_via_query_cache(bool isAsync)
@@ -273,13 +273,13 @@ WHERE ([c].[City] = @__city_Nested_InstanceFieldValue_0) AND [c].[City] IS NOT N
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_Nested_InstancePropertyValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0",
                 //
                 @"@__city_Nested_InstancePropertyValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__city_Nested_InstancePropertyValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0");
         }
 
         public override async Task Where_new_instance_field_access_query_cache(bool isAsync)
@@ -291,13 +291,13 @@ WHERE ([c].[City] = @__city_Nested_InstancePropertyValue_0) AND [c].[City] IS NO
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__InstanceFieldValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__InstanceFieldValue_0",
                 //
                 @"@__InstanceFieldValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__InstanceFieldValue_0");
         }
 
         public override async Task Where_new_instance_field_access_closure_via_query_cache(bool isAsync)
@@ -309,13 +309,13 @@ WHERE ([c].[City] = @__InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__InstanceFieldValue_0) AND [c].[City] IS NOT NULL",
+WHERE [c].[City] = @__InstanceFieldValue_0",
                 //
                 @"@__InstanceFieldValue_0='Seattle' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = @__InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = @__InstanceFieldValue_0");
         }
 
         public override async Task Where_simple_closure_via_query_cache_nullable_type(bool isAsync)
@@ -327,13 +327,13 @@ WHERE ([c].[City] = @__InstanceFieldValue_0) AND [c].[City] IS NOT NULL");
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
+WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0",
                 //
                 @"@__p_0='5' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
+WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0",
                 //
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -353,13 +353,13 @@ WHERE [e].[ReportsTo] IS NULL",
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL",
+WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0",
                 //
                 @"@__p_0='2' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CAST([e].[ReportsTo] AS bigint) = @__p_0) AND [e].[ReportsTo] IS NOT NULL");
+WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0");
         }
 
         public override void Where_subquery_closure_via_query_cache()
@@ -374,7 +374,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE (([o].[CustomerID] = @__customerID_0) AND [o].[CustomerID] IS NOT NULL) AND (([o].[CustomerID] = [c].[CustomerID]) AND [o].[CustomerID] IS NOT NULL))",
+    WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))",
                 //
                 @"@__customerID_0='ANATR' (Size = 5)
 
@@ -383,7 +383,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE (([o].[CustomerID] = @__customerID_0) AND [o].[CustomerID] IS NOT NULL) AND (([o].[CustomerID] = [c].[CustomerID]) AND [o].[CustomerID] IS NOT NULL))");
+    WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))");
         }
 
         public override async Task Where_bitwise_or(bool isAsync)
@@ -434,7 +434,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE ([e].[Title] = N'Sales Representative') AND [e].[Title] IS NOT NULL");
+WHERE [e].[Title] = N'Sales Representative'");
         }
 
         public override async Task Where_simple_shadow_projection(bool isAsync)
@@ -444,7 +444,7 @@ WHERE ([e].[Title] = N'Sales Representative') AND [e].[Title] IS NOT NULL");
             AssertSql(
                 @"SELECT [e].[Title]
 FROM [Employees] AS [e]
-WHERE ([e].[Title] = N'Sales Representative') AND [e].[Title] IS NOT NULL");
+WHERE [e].[Title] = N'Sales Representative'");
         }
 
         public override async Task Where_shadow_subquery_FirstOrDefault(bool isAsync)
@@ -482,7 +482,7 @@ WHERE EXISTS (
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = N'London'");
         }
 
         public override async Task Where_equals_method_int(bool isAsync)
@@ -579,13 +579,13 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE ([e].[ReportsTo] = @__intPrm_0) AND [e].[ReportsTo] IS NOT NULL",
+WHERE [e].[ReportsTo] = @__intPrm_0",
                 //
                 @"@__intPrm_0='2'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (@__intPrm_0 = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL");
+WHERE @__intPrm_0 = [e].[ReportsTo]");
         }
 
         public override async Task Where_equals_on_matched_nullable_int_types(bool isAsync)
@@ -597,13 +597,13 @@ WHERE (@__intPrm_0 = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL");
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (@__nullableIntPrm_0 = [e].[ReportsTo]) AND [e].[ReportsTo] IS NOT NULL",
+WHERE @__nullableIntPrm_0 = [e].[ReportsTo]",
                 //
                 @"@__nullableIntPrm_0='2' (Nullable = true)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE ([e].[ReportsTo] = @__nullableIntPrm_0) AND [e].[ReportsTo] IS NOT NULL");
+WHERE [e].[ReportsTo] = @__nullableIntPrm_0");
         }
 
         public override async Task Where_equals_on_null_nullable_int_types(bool isAsync)
@@ -627,7 +627,7 @@ WHERE [e].[ReportsTo] IS NULL");
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE ([e].[ReportsTo] = 2) AND [e].[ReportsTo] IS NOT NULL");
+WHERE [e].[ReportsTo] = 2");
         }
 
         public override async Task Where_comparison_nullable_type_null(bool isAsync)
@@ -647,7 +647,7 @@ WHERE [e].[ReportsTo] IS NULL");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CAST(LEN([c].[City]) AS int) = 6) AND LEN([c].[City]) IS NOT NULL");
+WHERE CAST(LEN([c].[City]) AS int) = 6");
         }
 
         public override async Task Where_string_indexof(bool isAsync)
@@ -673,7 +673,7 @@ END IS NULL");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (REPLACE([c].[City], N'Sea', N'Rea') = N'Reattle') AND REPLACE([c].[City], N'Sea', N'Rea') IS NOT NULL");
+WHERE REPLACE([c].[City], N'Sea', N'Rea') = N'Reattle'");
         }
 
         public override async Task Where_string_substring(bool isAsync)
@@ -683,7 +683,7 @@ WHERE (REPLACE([c].[City], N'Sea', N'Rea') = N'Reattle') AND REPLACE([c].[City],
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (SUBSTRING([c].[City], 1 + 1, 2) = N'ea') AND SUBSTRING([c].[City], 1 + 1, 2) IS NOT NULL");
+WHERE SUBSTRING([c].[City], 1 + 1, 2) = N'ea'");
         }
 
         public override async Task Where_datetime_now(bool isAsync)
@@ -719,7 +719,7 @@ WHERE (SUBSTRING([c].[City], 1 + 1, 2) = N'ea') AND SUBSTRING([c].[City], 1 + 1,
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
+WHERE (CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())) OR CONVERT(date, GETDATE()) IS NULL");
         }
 
         public override async Task Where_datetime_date_component(bool isAsync)
@@ -731,7 +731,7 @@ WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (CONVERT(date, [o].[OrderDate]) = @__myDatetime_0) AND CONVERT(date, [o].[OrderDate]) IS NOT NULL");
+WHERE CONVERT(date, [o].[OrderDate]) = @__myDatetime_0");
         }
 
         public override async Task Where_date_add_year_constant_component(bool isAsync)
@@ -741,7 +741,7 @@ WHERE (CONVERT(date, [o].[OrderDate]) = @__myDatetime_0) AND CONVERT(date, [o].[
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(year, DATEADD(year, CAST(-1 AS int), [o].[OrderDate])) = 1997) AND DATEPART(year, DATEADD(year, CAST(-1 AS int), [o].[OrderDate])) IS NOT NULL");
+WHERE DATEPART(year, DATEADD(year, CAST(-1 AS int), [o].[OrderDate])) = 1997");
         }
 
         public override async Task Where_datetime_year_component(bool isAsync)
@@ -751,7 +751,7 @@ WHERE (DATEPART(year, DATEADD(year, CAST(-1 AS int), [o].[OrderDate])) = 1997) A
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(year, [o].[OrderDate]) = 1998) AND DATEPART(year, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(year, [o].[OrderDate]) = 1998");
         }
 
         public override async Task Where_datetime_month_component(bool isAsync)
@@ -761,7 +761,7 @@ WHERE (DATEPART(year, [o].[OrderDate]) = 1998) AND DATEPART(year, [o].[OrderDate
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(month, [o].[OrderDate]) = 4) AND DATEPART(month, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(month, [o].[OrderDate]) = 4");
         }
 
         public override async Task Where_datetime_dayOfYear_component(bool isAsync)
@@ -771,7 +771,7 @@ WHERE (DATEPART(month, [o].[OrderDate]) = 4) AND DATEPART(month, [o].[OrderDate]
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(dayofyear, [o].[OrderDate]) = 68) AND DATEPART(dayofyear, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(dayofyear, [o].[OrderDate]) = 68");
         }
 
         public override async Task Where_datetime_day_component(bool isAsync)
@@ -781,7 +781,7 @@ WHERE (DATEPART(dayofyear, [o].[OrderDate]) = 68) AND DATEPART(dayofyear, [o].[O
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(day, [o].[OrderDate]) = 4) AND DATEPART(day, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(day, [o].[OrderDate]) = 4");
         }
 
         public override async Task Where_datetime_hour_component(bool isAsync)
@@ -791,7 +791,7 @@ WHERE (DATEPART(day, [o].[OrderDate]) = 4) AND DATEPART(day, [o].[OrderDate]) IS
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(hour, [o].[OrderDate]) = 14) AND DATEPART(hour, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(hour, [o].[OrderDate]) = 14");
         }
 
         public override async Task Where_datetime_minute_component(bool isAsync)
@@ -801,7 +801,7 @@ WHERE (DATEPART(hour, [o].[OrderDate]) = 14) AND DATEPART(hour, [o].[OrderDate])
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(minute, [o].[OrderDate]) = 23) AND DATEPART(minute, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(minute, [o].[OrderDate]) = 23");
         }
 
         public override async Task Where_datetime_second_component(bool isAsync)
@@ -811,7 +811,7 @@ WHERE (DATEPART(minute, [o].[OrderDate]) = 23) AND DATEPART(minute, [o].[OrderDa
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(second, [o].[OrderDate]) = 44) AND DATEPART(second, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(second, [o].[OrderDate]) = 44");
         }
 
         public override async Task Where_datetime_millisecond_component(bool isAsync)
@@ -821,7 +821,7 @@ WHERE (DATEPART(second, [o].[OrderDate]) = 44) AND DATEPART(second, [o].[OrderDa
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (DATEPART(millisecond, [o].[OrderDate]) = 88) AND DATEPART(millisecond, [o].[OrderDate]) IS NOT NULL");
+WHERE DATEPART(millisecond, [o].[OrderDate]) = 88");
         }
 
         public override async Task Where_datetimeoffset_now_component(bool isAsync)
@@ -853,7 +853,7 @@ WHERE (DATEPART(millisecond, [o].[OrderDate]) = 88) AND DATEPART(millisecond, [o
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (N'London' = [c].[City]) AND [c].[City] IS NOT NULL");
+WHERE N'London' = [c].[City]");
         }
 
         public override async Task Where_is_null(bool isAsync)
@@ -921,7 +921,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (([c].[City] = [c].[City]) AND ([c].[City] IS NOT NULL AND [c].[City] IS NOT NULL)) OR ([c].[City] IS NULL AND [c].[City] IS NULL)");
+WHERE ([c].[City] = [c].[City]) OR [c].[City] IS NULL");
         }
 
         public override async Task Where_in_optimization_multiple(bool isAsync)
@@ -932,7 +932,7 @@ WHERE (([c].[City] = [c].[City]) AND ([c].[City] IS NOT NULL AND [c].[City] IS N
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE (((([c].[City] = N'London') AND [c].[City] IS NOT NULL) OR (([c].[City] = N'Berlin') AND [c].[City] IS NOT NULL)) OR ([c].[CustomerID] = N'ALFKI')) OR ([c].[CustomerID] = N'ABCDE')");
+WHERE ((([c].[City] = N'London') OR ([c].[City] = N'Berlin')) OR ([c].[CustomerID] = N'ALFKI')) OR ([c].[CustomerID] = N'ABCDE')");
         }
 
         public override async Task Where_not_in_optimization1(bool isAsync)
@@ -987,7 +987,7 @@ WHERE (((([c].[City] <> N'London') OR [c].[City] IS NULL) AND (([c].[City] <> N'
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ((([c].[City] = N'London') AND [c].[City] IS NOT NULL) AND (([c].[Country] = N'UK') AND [c].[Country] IS NOT NULL)) AND ((([e].[City] = N'London') AND [e].[City] IS NOT NULL) AND (([e].[Country] = N'UK') AND [e].[Country] IS NOT NULL))");
+WHERE (([c].[City] = N'London') AND ([c].[Country] = N'UK')) AND (([e].[City] = N'London') AND ([e].[Country] = N'UK'))");
         }
 
         public override async Task Where_primitive(bool isAsync)
@@ -1105,8 +1105,7 @@ END");
 
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-FROM [Products] AS [p]
-WHERE [p].[Discontinued] = [p].[Discontinued]");
+FROM [Products] AS [p]");
         }
 
         public override async Task Where_negated_boolean_expression_compared_to_another_negated_boolean_expression(bool isAsync)
@@ -1280,7 +1279,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IS NOT NULL");
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Where_concat_string_int_comparison1(bool isAsync)
@@ -1292,7 +1291,7 @@ WHERE ([c].[CustomerID] = N'ALFKI') AND [c].[CustomerID] IS NOT NULL");
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
+WHERE ([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]");
         }
 
         public override async Task Where_concat_string_int_comparison2(bool isAsync)
@@ -1304,7 +1303,7 @@ WHERE (([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]) AND [c
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
+WHERE (CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_concat_string_int_comparison3(bool isAsync)
@@ -1317,7 +1316,7 @@ WHERE ((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]) AND [c
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ((((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))) + CAST(42 AS nchar(5))) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
+WHERE (((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))) + CAST(42 AS nchar(5))) = [c].[CompanyName]");
         }
 
         public override async Task Where_concat_string_int_comparison4(bool isAsync)
@@ -1327,7 +1326,7 @@ WHERE ((((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5)
             AssertSql(
                 @"SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE (((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) AND ([o].[CustomerID] IS NOT NULL AND [o].[CustomerID] IS NOT NULL)) OR ([o].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)");
+WHERE ((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) OR [o].[CustomerID] IS NULL");
         }
 
         public override async Task Where_concat_string_string_comparison(bool isAsync)
@@ -1339,7 +1338,7 @@ WHERE (((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID])
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
+WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_string_concat_method_comparison(bool isAsync)
@@ -1351,7 +1350,7 @@ WHERE ((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ((@__i_0 + [c].[CustomerID]) = [c].[CompanyName]) AND [c].[CompanyName] IS NOT NULL");
+WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool isAsync)
@@ -1527,7 +1526,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] IS NULL AND (([c].[Country] = N'UK') AND [c].[Country] IS NOT NULL)");
+WHERE [c].[City] IS NULL AND ([c].[Country] = N'UK')");
         }
 
         public override async Task Where_Is_on_same_type(bool isAsync)
@@ -1546,7 +1545,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (([o].[CustomerID] = N'QUICK') AND [o].[CustomerID] IS NOT NULL) AND ([o].[OrderDate] > '1998-01-01T00:00:00.000')");
+WHERE ([o].[CustomerID] = N'QUICK') AND ([o].[OrderDate] > '1998-01-01T00:00:00.000')");
         }
 
         public override void Where_navigation_contains()
@@ -1632,7 +1631,7 @@ WHERE EXISTS (
     WHERE [o].[OrderID] IN (
         SELECT [o0].[OrderID]
         FROM [Orders] AS [o0]
-        WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
     )
 )");
         }
@@ -1647,7 +1646,7 @@ FROM [Customers] AS [c]
 WHERE (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+    WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID]) IS NULL");
         }
 
@@ -1658,15 +1657,11 @@ WHERE (
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ((
+WHERE (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-    ORDER BY [o].[OrderID]) = 10243) AND (
-    SELECT TOP(1) [o].[OrderID]
-    FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
-    ORDER BY [o].[OrderID]) IS NOT NULL");
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID]) = 10243");
         }
 
         public override async Task Time_of_day_datetime(bool isAsync)
@@ -1761,7 +1756,7 @@ WHERE [c].[City] IN (N'Seattle')");
                 @"SELECT (
     SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
     FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL)
+    WHERE [o].[CustomerID] = N'John Doe')
 FROM [Customers] AS [c]");
         }
 
@@ -1772,13 +1767,10 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ((
+WHERE (
     SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
     FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL) = 0) AND (
-    SELECT TOP(1) CAST(LEN([o].[CustomerID]) AS int)
-    FROM [Orders] AS [o]
-    WHERE ([o].[CustomerID] = N'John Doe') AND [o].[CustomerID] IS NOT NULL) IS NOT NULL");
+    WHERE [o].[CustomerID] = N'John Doe') = 0");
         }
 
         public override async Task Like_with_non_string_column_using_ToString(bool isAsync)
