@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
             using (var context = new MultipleProvidersContext())
