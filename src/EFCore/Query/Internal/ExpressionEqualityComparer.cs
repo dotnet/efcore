@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                                     break;
                                 default:
-                                    throw new NotImplementedException($"Unhandled binding type: {memberBinding}");
+                                    throw new NotImplementedException($"Unhandled binding type: {memberBinding.BindingType}");
                             }
                         }
 
