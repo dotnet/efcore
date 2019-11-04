@@ -7513,25 +7513,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Where_with_enum_flags_parameter(bool isAsync)
         {
             MilitaryRank? rank = MilitaryRank.Private;
-
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Gear>().Where(g => (g.Rank & rank) == rank));
 
             rank = null;
-
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Gear>().Where(g => (g.Rank & rank) == rank));
 
             rank = MilitaryRank.Corporal;
-
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Gear>().Where(g => (g.Rank | rank) != rank));
 
             rank = null;
-
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Gear>().Where(g => (g.Rank | rank) != rank));
@@ -7545,6 +7541,72 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Faction>()
                     .Where(f => f.Capital == ss.Set<Gear>().OrderBy(s => s.Nickname).FirstOrDefault().CityOfBirth));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Bitwise_operation_with_non_null_parameter_optimizes_null_checks(bool isAsync)
+        {
+            var ranks = MilitaryRank.Corporal | MilitaryRank.Sergeant | MilitaryRank.General;
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => (g.Rank & ranks) != 0));
+
+            await AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Gear>().Select(g => (g.Rank | ranks) == ranks));
+
+            await AssertQueryScalar(
+                isAsync,
+                ss => ss.Set<Gear>().Select(g => (g.Rank | (g.Rank | (ranks | (g.Rank | ranks)))) == ranks));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Bitwise_operation_with_null_arguments(bool isAsync)
+        {
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>().Where(w => (w.AmmunitionType & AmmunitionType.Cartridge) == null));
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>().Where(w => (w.AmmunitionType | AmmunitionType.Shell) == null));
+
+            AmmunitionType? prm = null;
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>().Where(w => (w.AmmunitionType | AmmunitionType.Shell) == prm));
+
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>().Where(w => (w.AmmunitionType & prm) == prm));
+
+            prm = AmmunitionType.Shell;
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>().Where(w => (w.AmmunitionType & prm) != 0));
+
+            prm = AmmunitionType.Cartridge;
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Weapon>().Where(w => (w.AmmunitionType & prm) == prm));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Logical_operation_with_non_null_parameter_optimizes_null_checks(bool isAsync)
+        {
+            var prm = true;
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => (g.HasSoulPatch && prm) != prm));
+
+            prm = false;
+            await AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => (g.HasSoulPatch || prm) != prm));
         }
 
         protected async Task AssertTranslationFailed(Func<Task> testCode)

@@ -241,13 +241,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             // for coalesce:
                             // (a ?? b) == null -> a == null && b == null
                             // (a ?? b) != null -> a != null || b != null
-                            // for AndAlso, OrElse, And, Or we can't do this optimization
+                            // for AndAlso, OrElse we can't do this optimization
                             // we could do something like this, but it seems too complicated:
                             // (a && b) == null -> a == null && b != 0 || a != 0 && b == null
                             if (sqlBinaryOperand.OperatorType != ExpressionType.AndAlso
-                                && sqlBinaryOperand.OperatorType != ExpressionType.OrElse
-                                && sqlBinaryOperand.OperatorType != ExpressionType.And
-                                && sqlBinaryOperand.OperatorType != ExpressionType.Or)
+                                && sqlBinaryOperand.OperatorType != ExpressionType.OrElse)
                             {
                                 var newLeft = SimplifyNullNotNullExpression(operatorType, sqlBinaryOperand.Left, typeof(bool), typeMapping);
                                 var newRight = SimplifyNullNotNullExpression(operatorType, sqlBinaryOperand.Right, typeof(bool), typeMapping);
