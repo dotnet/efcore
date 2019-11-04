@@ -52,6 +52,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
+            protected override Expression VisitMember(MemberExpression memberExpression)
+            {
+                var innerExpression = Visit(memberExpression.Expression);
+                return TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member))
+                    ?? memberExpression.Update(innerExpression);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
+                {
+                    source = Visit(source);
+                    return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
+                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
             protected EntityReference UnwrapEntityReference(Expression expression)
             {
                 switch (expression)
@@ -72,25 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     default:
                         return null;
                 }
-            }
-
-            protected override Expression VisitMember(MemberExpression memberExpression)
-            {
-                var innerExpression = Visit(memberExpression.Expression);
-                return TryExpandNavigation(innerExpression, MemberIdentity.Create(memberExpression.Member))
-                    ?? memberExpression.Update(innerExpression);
-            }
-
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var navigationName))
-                {
-                    source = Visit(source);
-                    return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
-                        ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
             }
 
             private Expression TryExpandNavigation(Expression root, MemberIdentity memberIdentity)
