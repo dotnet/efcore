@@ -53,8 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private int? CharacterLimit { get; set; }
-
-        private bool GenerateUniqueParameterIds { get; set; }
+        private bool Verbose { get; set; }
 
         public virtual void VisitList<T>(
             IReadOnlyList<T> items,
@@ -110,18 +109,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual string Print(
             Expression expression,
             int? characterLimit = null)
-            => PrintCore(expression, characterLimit, generateUniqueParameterIds: false);
+            => PrintCore(expression, characterLimit, verbose: false);
 
         public virtual string PrintDebug(
             Expression expression,
             int? characterLimit = null,
-            bool generateUniqueParameterIds = true)
-            => PrintCore(expression, characterLimit, generateUniqueParameterIds);
+            bool verbose = true)
+            => PrintCore(expression, characterLimit, verbose);
 
         protected virtual string PrintCore(
             Expression expression,
             int? characterLimit,
-            bool generateUniqueParameterIds)
+            bool verbose)
         {
             _stringBuilder.Clear();
             _parametersInScope.Clear();
@@ -129,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _encounteredParameters.Clear();
 
             CharacterLimit = characterLimit;
-            GenerateUniqueParameterIds = generateUniqueParameterIds;
+            Verbose = verbose;
 
             Visit(expression);
 
@@ -552,8 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var methodArguments = methodCallExpression.Arguments.ToList();
             var method = methodCallExpression.Method;
 
-            // TODO: issue #18413
-            var extensionMethod = !GenerateUniqueParameterIds
+            var extensionMethod = !Verbose
                 && methodCallExpression.Arguments.Count > 0
                 && method.IsDefined(typeof(ExtensionAttribute), inherit: false);
 
@@ -564,6 +562,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _stringBuilder.AppendLine();
                 _stringBuilder.Append($".{method.Name}");
                 methodArguments = methodArguments.Skip(1).ToList();
+                if (method.Name == nameof(Enumerable.Cast)
+                    || method.Name == nameof(Enumerable.OfType))
+                {
+                    PrintGenericArguments(method, _stringBuilder);
+                }
             }
             else
             {
@@ -573,23 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 _stringBuilder.Append(method.Name);
-                if (method.IsGenericMethod)
-                {
-                    _stringBuilder.Append("<");
-                    var first = true;
-                    foreach (var genericArgument in method.GetGenericArguments())
-                    {
-                        if (!first)
-                        {
-                            _stringBuilder.Append(", ");
-                        }
-
-                        _stringBuilder.Append(genericArgument.ShortDisplayName());
-                        first = false;
-                    }
-
-                    _stringBuilder.Append(">");
-                }
+                PrintGenericArguments(method, _stringBuilder);
             }
 
             _stringBuilder.Append("(");
@@ -647,6 +634,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return methodCallExpression;
+
+            static void PrintGenericArguments(MethodInfo method, IndentedStringBuilder stringBuilder)
+            {
+                if (method.IsGenericMethod)
+                {
+                    stringBuilder.Append("<");
+                    var first = true;
+                    foreach (var genericArgument in method.GetGenericArguments())
+                    {
+                        if (!first)
+                        {
+                            stringBuilder.Append(", ");
+                        }
+
+                        stringBuilder.Append(genericArgument.ShortDisplayName());
+                        first = false;
+                    }
+
+                    stringBuilder.Append(">");
+                }
+            }
         }
 
         protected override Expression VisitNew(NewExpression newExpression)
@@ -756,8 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else
             {
-                // TODO: issue #18413
-                if (GenerateUniqueParameterIds)
+                if (Verbose)
                 {
                     Append("(Unhandled parameter: ");
                     Append(parameterExpression.Name);
@@ -769,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            if (GenerateUniqueParameterIds)
+            if (Verbose)
             {
                 var parameterIndex = _encounteredParameters.Count;
                 if (_encounteredParameters.Contains(parameterExpression))
