@@ -44,9 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().Where(l => l.OneToOne_Optional_FK1 == new Level2()),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().Where(l => l.OneToOne_Optional_FK1 == new Level2()));
         }
 
         [ConditionalTheory]
@@ -56,9 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Optional_FK1, "Id") == 0),
-                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Optional_FK1, () => l.OneToOne_Optional_FK1.Id) == 0),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Optional_FK1, () => l.OneToOne_Optional_FK1.Id) == 0));
         }
 
         [ConditionalTheory]
@@ -68,9 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Required_FK1, "Id") > 7),
-                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) > 7),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) > 7));
         }
 
         [ConditionalTheory]
@@ -80,9 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level2>().Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse2, "Id") > 7),
-                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id > 7),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id > 7));
         }
 
         [ConditionalTheory]
@@ -92,9 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level1>().Where(l => EF.Property<int>(EF.Property<Level2>(l, "OneToOne_Required_FK1"), "Id") == 7),
-                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 7),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 7));
         }
 
         [ConditionalTheory]
@@ -104,9 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level2>().Where(l => EF.Property<int>(EF.Property<Level1>(l, "OneToOne_Required_FK_Inverse2"), "Id") == 7),
-                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 7),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 7));
         }
 
         [ConditionalTheory]
@@ -116,9 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level1>().Where(l => EF.Property<Level2>(l, "OneToOne_Required_FK1").Id == 7),
-                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 7),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 7));
         }
 
         [ConditionalTheory]
@@ -128,9 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level1>().Where(l => EF.Property<int>(l.OneToOne_Required_FK1, "Id") == 7),
-                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 7),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().Where(l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 7));
         }
 
         [ConditionalTheory]
@@ -140,9 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level2>().Where(l => EF.Property<int>(l.OneToOne_Required_FK_Inverse2, "Id") == 7),
-                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 7),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 7));
         }
 
         [ConditionalTheory]
@@ -153,9 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2 == new Level1 { Id = 1 }),
-                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 1),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level2>().Where(l => l.OneToOne_Required_FK_Inverse2.Id == 1));
         }
 
         [ConditionalTheory]
@@ -169,9 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || l.OneToOne_Required_FK1 == new Level2 { Id = 2 }),
                 ss => ss.Set<Level1>().Where(
                     l => MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 1
-                        || MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 2),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        || MaybeScalar<int>(l.OneToOne_Required_FK1, () => l.OneToOne_Required_FK1.Id) == 2));
         }
 
         [ConditionalTheory]
@@ -185,9 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         || l.OneToOne_Required_FK_Inverse2 == new Level1 { Id = 2 }),
                 ss => ss.Set<Level2>().Where(
                     l => l.OneToOne_Required_FK_Inverse2.Id == 1
-                        || l.OneToOne_Required_FK_Inverse2.Id == 2),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        || l.OneToOne_Required_FK_Inverse2.Id == 2));
         }
 
         [ConditionalTheory]
@@ -203,8 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertIncludeQuery(
                 isAsync,
                 ss => ss.Set<Level1>().Include(e => e.OneToMany_Optional1).ThenInclude(e => e.OneToMany_Optional2),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -228,8 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Level1>().Include(e => e.OneToMany_Optional1).ThenInclude(e => e.OneToMany_Optional2)
                     .ThenInclude(e => e.OneToMany_Required_Inverse3.OneToMany_Optional2),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalFact]
@@ -335,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Required_PK1), elementSorter: e => e.Id);
+                ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Required_PK1));
         }
 
         [ConditionalTheory]
@@ -344,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>(), elementSorter: e => e.Id);
+                ss => ss.Set<Level1>());
         }
 
         [ConditionalTheory]
@@ -353,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2), elementSorter: e => e.Id);
+                ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2));
         }
 
         [ConditionalTheory]
@@ -402,8 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2.OneToOne_Required_PK3),
-                elementSorter: e => e.Id);
+                ss => ss.Set<Level1>().Include(l1 => l1.OneToOne_Required_PK1.OneToOne_Required_PK2.OneToOne_Required_PK3));
         }
 
         [ConditionalTheory]
@@ -428,9 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select e1,
                 ss => from e1 in ss.Set<Level1>()
                       where MaybeScalar<bool>(e1.OneToOne_Required_FK1, () => e1.OneToOne_Required_FK1.Name.StartsWith("L")) == true
-                      select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select e1);
         }
 
         [ConditionalTheory]
@@ -441,9 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => from e3 in ss.Set<Level3>()
                       where e3.OneToOne_Required_FK_Inverse3.Name.StartsWith("L")
-                      select e3,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select e3);
         }
 
         [ConditionalTheory]
@@ -457,9 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select e1,
                 ss => from e1 in ss.Set<Level1>()
                       where MaybeScalar<bool>(e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Name.StartsWith("L")) == true
-                      select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select e1);
         }
 
         [ConditionalTheory]
@@ -473,9 +440,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select e1,
                 ss => from e1 in ss.Set<Level1>()
                       where Maybe(e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Name.ToUpper()) == "L2 01"
-                      select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select e1);
         }
 
         [ConditionalTheory]
@@ -490,9 +455,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from e1 in ss.Set<Level1>()
                       where MaybeScalar<bool>(e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Name.ToUpper().StartsWith("L"))
                           == true
-                      select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select e1);
         }
 
         [ConditionalTheory]
@@ -508,9 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where MaybeScalar<bool>(
                               e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Name.StartsWith(e1.OneToOne_Optional_FK1.Name))
                           == true
-                      select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select e1);
         }
 
         [ConditionalTheory]
@@ -527,9 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from e1 in ss.Set<Level1>()
                     where MaybeScalar<DateTime>(e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Date.AddDays(10))
                         > new DateTime(2000, 2, 1)
-                    select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select e1);
         }
 
         [ConditionalTheory]
@@ -547,9 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where MaybeScalar<DateTime>(
                             e1.OneToOne_Optional_FK1, () => e1.OneToOne_Optional_FK1.Date.AddDays(10).AddDays(15).AddMonths(2))
                         > new DateTime(2000, 2, 1)
-                    select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select e1);
         }
 
         [ConditionalTheory]
@@ -569,9 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             e1.OneToOne_Optional_FK1,
                             () => e1.OneToOne_Optional_FK1.Date.AddDays(15).AddDays(e1.OneToOne_Optional_FK1.Id))
                         > new DateTime(2000, 2, 1)
-                    select e1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select e1);
         }
 
         [ConditionalTheory]
@@ -874,8 +829,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ThenInclude(e => e.OneToMany_Optional2)
                     .Include(e => e.OneToMany_Optional1)
                     .ThenInclude(e => e.OneToOne_Optional_FK2),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -899,8 +853,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .ThenInclude(e => e.OneToMany_Optional_Self1)
                     .Include(e => e.OneToMany_Optional_Self1)
                     .ThenInclude(e => e.OneToOne_Optional_Self1),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -926,8 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(e => e)
                     .Include(e => e.OneToMany_Optional1)
                     .ThenInclude(e => e.OneToOne_Optional_FK2),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -1108,9 +1060,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2,
                                 () => l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Name))
                         != "L3 05"
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -1131,9 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2,
                                 () => l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2.Name))
                         != null
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -1152,9 +1100,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             l1.OneToOne_Optional_FK1,
                             () => l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2)
                         == null
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -1173,9 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             l3.OneToOne_Optional_FK_Inverse3,
                             () => l3.OneToOne_Optional_FK_Inverse3.OneToOne_Optional_FK_Inverse2)
                         == null
-                    select l3,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l3);
         }
 
         [ConditionalTheory]
@@ -1194,9 +1138,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         != Maybe(
                             l1.OneToOne_Optional_FK1,
                             () => l1.OneToOne_Optional_FK1.OneToOne_Optional_FK2)
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -1214,9 +1156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     where null
                         != Maybe(
                             l3.OneToOne_Optional_FK_Inverse3, () => l3.OneToOne_Optional_FK_Inverse3.OneToOne_Optional_FK_Inverse2)
-                    select l3,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l3);
         }
 
         [ConditionalTheory]
@@ -1232,9 +1172,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             () => Maybe(
                                 e.OneToOne_Optional_FK1.OneToOne_Required_FK2,
                                 () => e.OneToOne_Optional_FK1.OneToOne_Required_FK2.OneToOne_Required_FK3))
-                        == null),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        == null));
         }
 
         [ConditionalTheory]
@@ -1295,9 +1233,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 l1.OneToOne_Optional_FK1.OneToOne_Required_FK2,
                                 () => l1.OneToOne_Optional_FK1.OneToOne_Required_FK2.Name))
                         != "L3 05"
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -1476,12 +1412,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 () => MaybeScalar<int>(
                                     e.OneToOne_Required_FK1.OneToOne_Optional_FK2, () => e.OneToOne_Required_FK1.OneToOne_Optional_FK2.Id))
                         }),
-                elementSorter: e => (e.Name, e.Id),
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Name, a.Name);
-                    Assert.Equal(e.Id, a.Id);
-                });
+                elementSorter: e => (e.Name, e.Id));
         }
 
         [ConditionalTheory]
@@ -1679,8 +1610,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from l1 in ss.Set<Level1>().Include(e => e.OneToOne_Optional_FK1)
                       where Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.Name) != "L2 05"
                       select l1,
-                new List<IExpectedInclude> { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1") },
-                elementSorter: e => e.Id);
+                new List<IExpectedInclude> { new ExpectedInclude<Level1>(l1 => l1.OneToOne_Optional_FK1, "OneToOne_Optional_FK1") });
         }
 
         [ConditionalTheory]
@@ -1705,8 +1635,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from l1 in ss.Set<Level1>()
                       where Maybe(l1.OneToOne_Optional_FK1, () => l1.OneToOne_Optional_FK1.Name) != "L2 09"
                       select l1,
-                expectedIncludes,
-                elementSorter: l1 => l1.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory(Skip = "issue #17068")]
@@ -1789,9 +1718,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Optional1),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Optional1));
         }
 
         [ConditionalTheory]
@@ -1809,9 +1736,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().Where(e => e.Id == 1).SelectMany(l1 => l1.OneToMany_Optional1),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().Where(e => e.Id == 1).SelectMany(l1 => l1.OneToMany_Optional1));
         }
 
         [ConditionalTheory]
@@ -1820,9 +1745,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Optional1).Where(e => e.Id != 6),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Optional1).Where(e => e.Id != 6));
         }
 
         [ConditionalTheory]
@@ -1836,9 +1759,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l1 => Maybe(
                             l1.OneToOne_Required_FK1,
                             () => l1.OneToOne_Required_FK1.OneToMany_Optional2)
-                        ?? new List<Level3>()),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        ?? new List<Level3>()));
         }
 
         [ConditionalTheory]
@@ -1861,9 +1782,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().SelectMany(e => e.OneToMany_Optional1).SelectMany(e => e.OneToMany_Optional2),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().SelectMany(e => e.OneToMany_Optional1).SelectMany(e => e.OneToMany_Optional2));
         }
 
         [ConditionalTheory]
@@ -1877,19 +1796,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l1 => Maybe(
                             l1.OneToMany_Optional1,
                             () => l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_FK2))
-                        ?? new List<Level3>()),
-                e => e?.Id,
-                (e, a) =>
-                {
-                    if (e == null)
-                    {
-                        Assert.Null(a);
-                    }
-                    else
-                    {
-                        Assert.Equal(e.Id, a.Id);
-                    }
-                });
+                        ?? new List<Level3>()));
         }
 
         [ConditionalTheory(Skip = " Issue#16093")]
@@ -1905,9 +1812,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             () => MaybeScalar<int>(
                                 l1.OneToOne_Required_FK1.OneToMany_Optional2,
                                 () => l1.OneToOne_Required_FK1.OneToMany_Optional2.Count))
-                        > 0),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        > 0));
         }
 
         [ConditionalTheory]
@@ -1921,9 +1826,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l3 => MaybeScalar<int>(
                             l3.OneToOne_Required_FK_Inverse3.OneToMany_Optional2,
                             () => l3.OneToOne_Required_FK_Inverse3.OneToMany_Optional2.Count)
-                        > 0),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        > 0));
         }
 
         [ConditionalTheory]
@@ -1937,9 +1840,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     l2 => MaybeScalar<int>(
                             l2.OneToMany_Required_Inverse2.OneToMany_Optional1,
                             () => l2.OneToMany_Required_Inverse2.OneToMany_Optional1.Count())
-                        > 0),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        > 0));
         }
 
         [ConditionalTheory]
@@ -1960,8 +1861,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(e => e.OneToOne_Required_FK1).ThenInclude(e => e.OneToMany_Required2)
                     .OrderBy(t => t.Name)
                     .Skip(0).Take(10),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -2124,9 +2024,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         l2 => l2 != null ? l2.Level1_Optional_Id : null,
                         (l1, l2s) => new { l1, l2s })
                     .Where(r => r.l2s.Any())
-                    .Select(r => r.l1),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    .Select(r => r.l1));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -2141,9 +2039,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             l1 => l1.Id,
                             l2 => MaybeScalar(l2, () => l2.Level1_Optional_Id),
                             (l1, l2s) => new { l1, l2s })
-                        .Select(r => r.l1),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        .Select(r => r.l1));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -2165,9 +2061,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             l1 => l1.Id,
                             l2 => MaybeScalar(l2, () => l2.Level1_Optional_Id),
                             (l1, l2s) => new { l1, l2s })
-                        .Select(r => r.l1),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                        .Select(r => r.l1));
         }
 
         [ConditionalTheory(Skip = "Issue#17068")]
@@ -2209,9 +2103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Required1).Where(l2 => l2.OneToMany_Required2.Any()),
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                ss => ss.Set<Level1>().SelectMany(l1 => l1.OneToMany_Required1).Where(l2 => l2.OneToMany_Required2.Any()));
         }
 
         [ConditionalTheory]
@@ -2383,8 +2275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory]
@@ -2399,8 +2290,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToMany_Optional2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory]
@@ -2415,8 +2305,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Required_FK2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory]
@@ -2435,8 +2324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .SelectMany(l1 => l1.OneToMany_Optional1)
                     .Include(l2 => l2.OneToOne_Required_FK2)
                     .ThenInclude(l3 => l3.OneToMany_Optional3),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -2456,8 +2344,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .SelectMany(l2 => l2.OneToMany_Optional2)
                     .Include(l3 => l3.OneToOne_Required_FK3)
                     .Include(l3 => l3.OneToMany_Optional3),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -2472,8 +2359,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_FK2, "OneToOne_Required_FK2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory]
@@ -2491,8 +2377,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level1>()
                     .SelectMany(l1 => l1.OneToMany_Optional1)
                     .Include("OneToOne_Required_FK2.OneToOne_Required_FK3"),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
@@ -2508,8 +2393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level3>(l3 => l3.OneToOne_Required_FK3, "OneToOne_Required_FK3")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2524,8 +2408,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToMany_Required_Inverse2, "OneToMany_Required_Inverse2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2545,8 +2428,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l4 => l4.OneToOne_Required_FK_Inverse4)
                     .Include(l3 => l3.OneToMany_Required_Inverse3)
                     .ThenInclude(l2 => l2.OneToMany_Optional_Inverse2),
-                expectedIncludes,
-                elementSorter: e => e.Id);
+                expectedIncludes);
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2561,8 +2443,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2578,8 +2459,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2594,8 +2474,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2611,8 +2490,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2627,8 +2505,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2")
-                },
-                elementSorter: e => e != null ? e.Id : 0);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2647,8 +2524,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l1 => l1.OneToOne_Optional_FK1)
                     .Include(l2 => l2.OneToMany_Optional2)
                     .ThenInclude(l3 => l3.OneToOne_Optional_FK3),
-                expectedIncludes,
-                elementSorter: e => e != null ? e.Id : 0);
+                expectedIncludes);
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2665,8 +2541,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional3")
-                },
-                elementSorter: e => e != null ? e.Id : 0);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2685,8 +2560,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level3>(l3 => l3.OneToMany_Optional3, "OneToMany_Optional3")
-                },
-                elementSorter: e => e != null ? e.Id : 0);
+                });
         }
 
         [ConditionalTheory(Skip = "Issue#16752")]
@@ -2779,9 +2653,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from l1 in ss.Set<Level1>()
                     from l2 in l1.OneToMany_Optional1.DefaultIfEmpty()
                     where l2 != null
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -2797,8 +2669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes: new List<IExpectedInclude>
                 {
                     new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1")
-                },
-                elementSorter: e => e.Id);
+                });
         }
 
         [ConditionalTheory]
@@ -2810,9 +2681,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from l1 in ss.Set<Level1>()
                       from l2 in l1.OneToMany_Optional1.Where(l => l.Id > 5).DefaultIfEmpty()
                       where l2 != null
-                      select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select l1);
         }
 
         [ConditionalTheory]
@@ -2833,9 +2702,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             () => l1.OneToOne_Required_FK1.OneToMany_Optional2.DefaultIfEmpty())
                         ?? new List<Level3>()
                     where l3 != null
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -2855,9 +2722,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         l1.OneToOne_Optional_FK1,
                         () => l1.OneToOne_Optional_FK1.OneToMany_Optional2.Where(l => l.Id > 5).DefaultIfEmpty())
                     where l3 != null
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -2877,9 +2742,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         l1.OneToOne_Required_FK1,
                         () => l1.OneToOne_Required_FK1.OneToMany_Required2.Where(l => l.Id > 5).DefaultIfEmpty())
                     where l3 != null
-                    select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                    select l1);
         }
 
         [ConditionalTheory]
@@ -3211,9 +3074,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       from l2 in l1.OneToMany_Optional1
                       from l3 in l2.OneToMany_Optional2.Where(l => l.Id > 5).DefaultIfEmpty()
                       where l3 != null
-                      select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select l1);
         }
 
         [ConditionalTheory]
@@ -3225,9 +3086,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from l1 in ss.Set<Level1>()
                       from l2 in l1.OneToMany_Required1.Where(l => l.Id > 5).OrderBy(l => l.Id).Take(3).DefaultIfEmpty()
                       where l2 != null
-                      select l1,
-                e => e.Id,
-                (e, a) => Assert.Equal(e.Id, a.Id));
+                      select l1);
         }
 
         [ConditionalTheory]
@@ -3877,8 +3736,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
                     from l2 in groupJoin.DefaultIfEmpty()
                     select new { l1.Id, client = ClientMethodNullableInt(l1.Id) },
-                elementSorter: e => e.Id,
-                elementAsserter: (e, a) => Assert.Equal(e.Id + " " + e.client, a.Id + " " + a.client));
+                elementSorter: e => e.Id);
         }
 
         [ConditionalTheory(Skip = "Issue #17328")]

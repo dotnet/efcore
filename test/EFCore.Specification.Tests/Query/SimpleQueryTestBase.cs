@@ -3026,7 +3026,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from c in ss.Set<Customer>()
                     from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                     select o,
-                e => e?.OrderID,
                 entryCount: 830);
         }
 

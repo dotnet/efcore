@@ -2264,8 +2264,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync,
                 ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").Select(
-                    t => new Squad { Id = t.Gear.SquadId }),
-                elementSorter: e => e.Id);
+                    t => new Squad { Id = t.Gear.SquadId }));
         }
 
         [ConditionalTheory]
@@ -5148,8 +5147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<LocustLeader>().Include(ll => ((LocustCommander)ll).DefeatedBy).ThenInclude(g => g.Weapons)
                     .OrderBy(ll => ((LocustCommander)ll).DefeatedBy.Tag.Note).Take(10),
                 ss => ss.Set<LocustLeader>().Take(10),
-                expectedIncludes,
-                elementSorter: e => e.Name);
+                expectedIncludes);
         }
 
         [ConditionalTheory]
