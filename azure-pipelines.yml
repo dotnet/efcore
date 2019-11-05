@@ -117,6 +117,7 @@ stages:
             pool:
               vmImage: ubuntu-16.04
             variables:
+              - _runCounter: $[counter(variables['Build.Reason'], 0)]
               - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
                 - _CosmosConnectionUrl: 'true'
             steps:
@@ -127,12 +128,12 @@ stages:
                     echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-nightly-test.documents.azure.com:443/"
                     echo "##vso[task.setvariable variable=_CosmosToken]$(ef-nightly-cosmos-key)"
                 displayName: Prepare to run Cosmos tests on ef-nightly-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['Build.BuildId'], '0'), endsWith(variables['Build.BuildId'], '2'), endsWith(variables['Build.BuildId'], '4'), endsWith(variables['Build.BuildId'], '6'), endsWith(variables['Build.BuildId'], '8')))
+                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '0'), endsWith(variables['_runCounter'], '2'), endsWith(variables['_runCounter'], '4'), endsWith(variables['_runCounter'], '6'), endsWith(variables['_runCounter'], '8')))
               - bash: |
                     echo "##vso[task.setvariable variable=_CosmosConnectionUrl]https://ef-pr-test.documents.azure.com:443/"
                     echo "##vso[task.setvariable variable=_CosmosToken]$(ef-pr-cosmos-test)"
                 displayName: Prepare to run Cosmos tests on ef-pr-test
-                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['Build.BuildId'], '1'), endsWith(variables['Build.BuildId'], '3'), endsWith(variables['Build.BuildId'], '5'), endsWith(variables['Build.BuildId'], '7'), endsWith(variables['Build.BuildId'], '9')))
+                condition: and(eq(variables['_CosmosConnectionUrl'], 'true'), or(endsWith(variables['_runCounter'], '1'), endsWith(variables['_runCounter'], '3'), endsWith(variables['_runCounter'], '5'), endsWith(variables['_runCounter'], '7'), endsWith(variables['_runCounter'], '9')))
               - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
