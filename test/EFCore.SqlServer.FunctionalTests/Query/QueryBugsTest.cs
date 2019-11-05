@@ -7361,6 +7361,57 @@ FROM [MockEntities] AS [m]");
 
         #endregion
 
+        #region Issue18759
+
+        [ConditionalFact]
+        public void Query_filter_with_null_constant()
+        {
+            using var _ = CreateDatabase18759();
+            using var context = new BugContext18759(_options);
+
+            var people = context.People.ToList();
+
+            AssertSql(
+                @"SELECT [p].[Id], [p].[UserDeleteId]
+FROM [People] AS [p]
+LEFT JOIN [User18759] AS [u] ON [p].[UserDeleteId] = [u].[Id]
+WHERE [u].[Id] IS NOT NULL");
+        }
+
+        private SqlServerTestStore CreateDatabase18759()
+            => CreateTestStore(
+                () => new BugContext18759(_options),
+                context =>
+                {
+                    ClearLog();
+                });
+
+        public class Person18759
+        {
+            public int Id { get; set; }
+            public User18759 UserDelete { get; set; }
+        }
+
+        public class User18759
+        {
+            public int Id { get; set; }
+        }
+
+        private class BugContext18759 : DbContext
+        {
+            public DbSet<Person18759> People { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Person18759>().HasQueryFilter(p => p.UserDelete != null);
+
+            public BugContext18759(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        #endregion Issue18759
+
         private DbContextOptions _options;
 
         private SqlServerTestStore CreateTestStore<TContext>(
