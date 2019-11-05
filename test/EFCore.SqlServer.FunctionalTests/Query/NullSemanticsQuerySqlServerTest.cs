@@ -1412,6 +1412,16 @@ FROM [Entities1] AS [e]
 WHERE [e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL");
         }
 
+        public override void Coalesce_not_equal()
+        {
+            base.Coalesce_not_equal();
+
+            AssertSql(
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE COALESCE([e].[NullableIntA], 0) <> 0");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

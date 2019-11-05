@@ -1053,6 +1053,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Coalesce_not_equal()
+        {
+            AssertQuery<NullSemanticsEntity1>(es => es.Where(e => (e.NullableIntA ?? 0) != 0));
+        }
+
         protected static TResult Maybe<TResult>(object caller, Func<TResult> expression)
             where TResult : class
         {
