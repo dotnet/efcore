@@ -161,5 +161,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                       where ov.Customer.Orders.Any()
                       select ov);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task KeylesEntity_groupby(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<CustomerView>()
+                    .GroupBy(cv => cv.City)
+                    .Select(g => new { g.Key, Count = g.Count(), Sum = g.Sum(e => e.Address.Length) }),
+                elementSorter: e => (e.Key, e.Count, e.Sum));
+        }
     }
 }

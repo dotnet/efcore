@@ -2351,7 +2351,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (~c[""CustomerID""] = @__negatedId_0)");
+WHERE ((c[""Discriminator""] = ""Order"") AND (~(c[""OrderID""]) = @__negatedId_0))");
         }
 
         public override async Task Where_bitwise_binary_and(bool isAsync)
@@ -2361,7 +2361,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (~c[""CustomerID""] = @__negate
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] & 10248) = 10248)");
+WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] & 10248) = 10248))");
         }
 
         public override async Task Where_bitwise_binary_or(bool isAsync)
@@ -2371,7 +2371,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] & 10248) = 
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] | 10248) = 10248)");
+WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] | 10248) = 10248))");
         }
 
         [ConditionalFact(Skip = "Issue #17246")]
