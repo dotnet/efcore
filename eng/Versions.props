@@ -1,7 +1,8 @@
 <Project>
   <PropertyGroup Label="Version settings">
     <VersionPrefix>5.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>alpha1</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <!--
         When StabilizePackageVersion is set to 'true', this branch will produce stable outputs for 'Shipping' packages
