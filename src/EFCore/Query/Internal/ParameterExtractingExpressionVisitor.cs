@@ -349,11 +349,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public ParameterExpression ContextParameterExpression { get; }
 
             public override Expression Visit(Expression expression)
-            {
-                return expression?.Type.GetTypeInfo().IsAssignableFrom(_contextType) == true
+                => expression?.Type != typeof(object)
+                    && expression?.Type.GetTypeInfo().IsAssignableFrom(_contextType) == true
                     ? ContextParameterExpression
                     : base.Visit(expression);
-            }
         }
 
         private static Expression RemoveConvert(Expression expression)
