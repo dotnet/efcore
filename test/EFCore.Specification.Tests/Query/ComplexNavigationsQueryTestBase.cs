@@ -3124,7 +3124,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = " Issue#16093")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains_with_subquery_optional_navigation_and_constant_item(bool isAsync)
         {
