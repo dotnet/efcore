@@ -16,18 +16,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             AddTranslators(
                 new IMethodCallTranslator[]
                 {
-                    new SqlServerConvertTranslator(sqlExpressionFactory),
-                    new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
+					new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
+					new SqlServerConvertTranslator(sqlExpressionFactory),
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
+                    new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory),
+                    new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
                     new SqlServerMathTranslator(sqlExpressionFactory),
                     new SqlServerNewGuidTranslator(sqlExpressionFactory),
                     new SqlServerObjectToStringTranslator(sqlExpressionFactory),
-                    new SqlServerStringMethodTranslator(sqlExpressionFactory),
-					new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
-
-					new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory)
+                    new SqlServerStringMethodTranslator(sqlExpressionFactory)
                 });
         }
     }

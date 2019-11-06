@@ -438,12 +438,14 @@ WHERE (DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(YEAR, [o].[O
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => c.OrderDate <= EF.Functions.DateTimeFromParts(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0, 0));
+                    .Count(c => c.OrderDate <= EF.Functions.DateTimeFromParts(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 30, 12));
+
+                Assert.True(count > 0);
 
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <= CAST(DATETIMEFROMPARTS(DATEPART(year, GETDATE()), DATEPART(month, GETDATE()), DATEPART(day, GETDATE()), 0, 0, 0, 0) AS datetime)");
+WHERE [o].[OrderDate] <= DATETIMEFROMPARTS(DATEPART(year, GETDATE()), DATEPART(month, GETDATE()), DATEPART(day, GETDATE()), 23, 59, 30, 12)");
             }
         }
 

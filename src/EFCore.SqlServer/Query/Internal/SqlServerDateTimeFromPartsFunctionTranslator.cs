@@ -21,12 +21,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             return _methodInfo.Equals(method)
-                ? _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function(
+                ? _sqlExpressionFactory.Function(
                         "DATETIMEFROMPARTS",
                         new[] { arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7] },
-                        _methodInfo.ReturnType),
-                    _methodInfo.ReturnType)
+                        _methodInfo.ReturnType)
                 : null;
         }
     }
