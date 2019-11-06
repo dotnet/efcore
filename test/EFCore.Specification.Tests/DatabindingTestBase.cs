@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Load_executes_query_on_DbQuery()
+        public virtual void Load_executes_query_on_keyless_entity_type()
         {
             using var context = CreateF1Context();
             context.Drivers.Where(d => d.TeamId == UnchangedTeam).Load();

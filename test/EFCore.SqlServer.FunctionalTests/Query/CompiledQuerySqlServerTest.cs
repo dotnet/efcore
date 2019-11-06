@@ -161,50 +161,6 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
-        public override async Task DbQuery_query_async()
-        {
-            await base.DbQuery_query_async();
-
-            AssertSql(
-                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]",
-                //
-                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
-        }
-
-        public override void DbQuery_query_first()
-        {
-            base.DbQuery_query_first();
-
-            AssertSql(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
-FROM (
-    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-) AS [c]
-ORDER BY [c].[CompanyName]");
-        }
-
-        public override async Task DbQuery_query_first_async()
-        {
-            await base.DbQuery_query_first_async();
-
-            AssertSql(
-                @"SELECT TOP(1) [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
-FROM (
-    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-) AS [c]
-ORDER BY [c].[CompanyName]");
-        }
-
-        public override void DbQuery_query()
-        {
-            base.DbQuery_query();
-
-            AssertSql(
-                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]",
-                //
-                @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
-        }
-
         public override void Compiled_query_when_does_not_end_in_query_operator()
         {
             base.Compiled_query_when_does_not_end_in_query_operator();

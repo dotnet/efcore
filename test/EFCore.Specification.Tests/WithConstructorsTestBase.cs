@@ -98,9 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Query_with_keyless_type()
         {
             using var context = CreateContext();
-#pragma warning disable CS0618 // Type or member is obsolete
-            var blogs = context.Query<BlogQuery>().ToList();
-#pragma warning restore CS0618 // Type or member is obsolete
+            var blogs = context.Set<BlogQuery>().ToList();
 
             Assert.Single(blogs);
             Assert.Equal("Puppies", blogs[0].Title);
