@@ -66,26 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact(Skip = "Issue#17498")]
-        public virtual void Query_with_ignored_include_should_log_warning()
-        {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Customers
-                        .Include(c => c.Orders)
-                        .Select(c => c.CustomerID)
-                        .ToList();
-
-                Assert.NotNull(customers);
-                Assert.Contains(
-#pragma warning disable CS0612 // Type or member is obsolete
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"),
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-#pragma warning restore CS0612 // Type or member is obsolete
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#17498")]
         public virtual void Include_navigation()
         {
             using (var context = CreateContext())
@@ -115,27 +95,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     + "select Customer _Include("
                     ,
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #16752")]
-        public virtual void GroupBy_Include_collection_ignored()
-        {
-            using (var context = CreateContext())
-            {
-                var orders = context.Orders
-                    .GroupBy(o => o.OrderID)
-                    .Select(g => g.OrderBy(o => o.OrderID).FirstOrDefault())
-                    .Include(o => o.OrderDetails)
-                    .ToList();
-
-                Assert.NotNull(orders);
-                Assert.Contains(
-#pragma warning disable CS0612 // Type or member is obsolete
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
-#pragma warning restore CS0612 // Type or member is obsolete
-                        "{from Order o in [g] orderby [o].OrderID asc select [o] => FirstOrDefault()}.OrderDetails"),
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
 

@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -3335,98 +3334,6 @@ ORDER BY [p].[Id], [c].[Id]");
             public int Id { get; set; }
             public string Name { get; set; }
             public int ParentId { get; set; }
-        }
-
-        #endregion
-
-        #region Bug10168
-
-        [ConditionalFact(Skip = "issue #16400")]
-        public void Row_number_paging_with_owned_type()
-        {
-            using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
-            {
-                context.Database.EnsureClean();
-                context.Add(
-                    new Note { Text = "Foo Bar", User = new User10168 { Fullname = "Full1", Email = "abc@def.com" } });
-
-                context.SaveChanges();
-                ClearLog();
-            }
-
-            using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
-            {
-                var query = context.Note.Where(x => x.Text == "Foo Bar")
-                    .Skip(0)
-                    .Take(100)
-                    .ToList();
-
-                var result = Assert.Single(query);
-                Assert.NotNull(result.User);
-                Assert.Equal("Full1", result.User.Fullname);
-
-                AssertSql(
-                    @"@__p_0='?' (DbType = Int32)
-@__p_1='?' (DbType = Int32)
-
-SELECT [t0].[Id], [t0].[Text], [t0].[Id0], [t0].[User_Email], [t0].[User_Fullname]
-FROM (
-    SELECT [x].[Id], [x].[Text], [t].[Id] AS [Id0], [t].[User_Email], [t].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
-    FROM [Note] AS [x]
-    LEFT JOIN (
-        SELECT [x.User].*
-        FROM [Note] AS [x.User]
-        WHERE [x.User].[User_Fullname] IS NOT NULL OR [x.User].[User_Email] IS NOT NULL
-    ) AS [t] ON [x].[Id] = [t].[Id]
-    WHERE [x].[Text] = N'Foo Bar'
-) AS [t0]
-WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))");
-            }
-        }
-
-        private class MyContext10168 : DbContext
-        {
-            private readonly ILoggerFactory _loggerFactory;
-
-            public MyContext10168(ILoggerFactory loggerFactory)
-            {
-                _loggerFactory = loggerFactory;
-            }
-
-            public DbSet<Note> Note { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
-                    .UseLoggerFactory(_loggerFactory)
-                    .EnableServiceProviderCaching(false)
-                    .UseSqlServer(
-                        SqlServerTestStore.CreateConnectionString("RowNumberPaging_Owned"),
-#pragma warning disable 618
-                        b => b.UseRowNumberForPaging());
-#pragma warning restore 618
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Note>().OwnsOne(n => n.User).WithOwner().HasForeignKey(u => u.Id);
-            }
-        }
-
-        private class Note
-        {
-            [Key]
-            public Guid Id { get; set; }
-
-            public string Text { get; set; }
-            public User10168 User { get; set; }
-        }
-
-        private class User10168
-        {
-            public Guid Id { get; set; }
-            public string Fullname { get; set; }
-            public string Email { get; set; }
         }
 
         #endregion

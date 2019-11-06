@@ -309,29 +309,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual bool Equals(Expression x, Expression y) => new ExpressionComparer().Compare(x, y);
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [Obsolete("Use Equals instead")]
-        public virtual bool SequenceEquals(IEnumerable<Expression> x, IEnumerable<Expression> y)
-        {
-            if (x == null
-                || y == null)
-            {
-                return false;
-            }
-
-            if (x.Count() != y.Count())
-            {
-                return false;
-            }
-
-            return x.Zip(y, (l, r) => new ExpressionComparer().Compare(l, r)).All(r => r);
-        }
-
         private struct ExpressionComparer
         {
             private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;

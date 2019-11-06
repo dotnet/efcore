@@ -727,11 +727,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     && --_openedCount == 0)
                 && _openedInternally;
 
-        /// <summary>
-        ///     Gets a value indicating whether the multiple active result sets feature is enabled.
-        /// </summary>
-        public virtual bool IsMultipleActiveResultSetsEnabled => false;
-
         void IResettableService.ResetState() => Dispose();
 
         Task IResettableService.ResetStateAsync(CancellationToken cancellationToken) => DisposeAsync().AsTask();

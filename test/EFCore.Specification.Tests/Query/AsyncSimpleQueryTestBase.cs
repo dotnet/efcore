@@ -46,9 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Query_backed_by_database_view()
         {
             using var context = CreateContext();
-#pragma warning disable CS0618 // Type or member is obsolete
-            var results = await context.Query<ProductQuery>().ToArrayAsync();
-#pragma warning restore CS0618 // Type or member is obsolete
+            var results = await context.Set<ProductQuery>().ToArrayAsync();
 
             Assert.Equal(69, results.Length);
         }
