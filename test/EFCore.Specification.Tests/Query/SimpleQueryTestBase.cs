@@ -3764,6 +3764,38 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_bitwise_binary_not(bool isAsync)
+        {
+            var negatedId = ~10248;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => ~o.OrderID == negatedId),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_bitwise_binary_and(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => (o.OrderID & 10248) == 10248),
+                entryCount: 416);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_bitwise_binary_or(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => (o.OrderID | 10248) == 10248),
+                entryCount: 1);
+        }
+
         [ConditionalFact]
         public virtual void Select_bitwise_or_with_logical_or()
         {

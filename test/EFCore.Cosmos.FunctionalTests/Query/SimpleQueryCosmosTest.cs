@@ -2342,6 +2342,38 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")) OR (c[""CustomerID""] = ""ANTON"")))");
         }
 
+        public override async Task Where_bitwise_binary_not(bool isAsync)
+        {
+            await base.Where_bitwise_binary_not(isAsync);
+
+            AssertSql(
+                @"@__negatedId_0='-10249'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (~c[""CustomerID""] = @__negatedId_0)");
+        }
+
+        public override async Task Where_bitwise_binary_and(bool isAsync)
+        {
+            await base.Where_bitwise_binary_and(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] & 10248) = 10248)");
+        }
+
+        public override async Task Where_bitwise_binary_or(bool isAsync)
+        {
+            await base.Where_bitwise_binary_or(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] | 10248) = 10248)");
+        }
+
         [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or_with_logical_or()
         {

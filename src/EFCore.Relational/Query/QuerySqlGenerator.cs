@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -515,11 +516,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
                 }
 
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when sqlUnaryExpression.IsLogicalNot():
                 {
                     _relationalCommandBuilder.Append("NOT (");
                     Visit(sqlUnaryExpression.Operand);
                     _relationalCommandBuilder.Append(")");
+                    break;
+                }
+
+                case ExpressionType.Not:
+                {
+                    _relationalCommandBuilder.Append("~");
+                    Visit(sqlUnaryExpression.Operand);
                     break;
                 }
 

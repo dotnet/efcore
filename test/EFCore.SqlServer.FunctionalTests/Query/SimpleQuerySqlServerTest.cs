@@ -2887,6 +2887,38 @@ END & CASE
 END) = CAST(1 AS bit)) OR ([c].[CustomerID] = N'ANTON')");
         }
 
+        public override async Task Where_bitwise_binary_not(bool isAsync)
+        {
+            await base.Where_bitwise_binary_not(isAsync);
+
+            AssertSql(
+                @"@__negatedId_0='-10249'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ~[o].[OrderID] = @__negatedId_0");
+        }
+
+        public override async Task Where_bitwise_binary_and(bool isAsync)
+        {
+            await base.Where_bitwise_binary_and(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] & 10248) = 10248");
+        }
+
+        public override async Task Where_bitwise_binary_or(bool isAsync)
+        {
+            await base.Where_bitwise_binary_or(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] | 10248) = 10248");
+        }
+
         public override void Select_bitwise_or_with_logical_or()
         {
             base.Select_bitwise_or_with_logical_or();
