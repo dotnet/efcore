@@ -151,15 +151,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Select_Where_Navigation_Async()
         {
-            using (var context = CreateContext())
-            {
-                var orders
-                    = await (from o in context.Set<Order>()
-                             where o.Customer.City == "Seattle"
-                             select o).ToListAsync();
+            using var context = CreateContext();
+            var orders
+                = await (from o in context.Set<Order>()
+                         where o.Customer.City == "Seattle"
+                         select o).ToListAsync();
 
-                Assert.Equal(14, orders.Count);
-            }
+            Assert.Equal(14, orders.Count);
         }
 
         [ConditionalTheory]
@@ -428,17 +426,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Select_Singleton_Navigation_With_Member_Access_Async()
         {
-            using (var context = CreateContext())
-            {
-                var orders
-                    = await (from o in context.Set<Order>()
-                             where o.Customer.City == "Seattle"
-                             where o.Customer.Phone != "555 555 5555"
-                             select new { A = o.Customer, B = o.Customer.City }).ToListAsync();
+            using var context = CreateContext();
+            var orders
+                = await (from o in context.Set<Order>()
+                         where o.Customer.City == "Seattle"
+                         where o.Customer.Phone != "555 555 5555"
+                         select new { A = o.Customer, B = o.Customer.City }).ToListAsync();
 
-                Assert.Equal(14, orders.Count);
-                Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
-            }
+            Assert.Equal(14, orders.Count);
+            Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
         }
 
         [ConditionalTheory]
@@ -837,15 +833,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual async Task Collection_where_nav_prop_sum_async()
         {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = await (from c in context.Set<Customer>()
-                             where c.Orders.Sum(o => o.OrderID) > 1000
-                             select c).ToListAsync();
+            using var context = CreateContext();
+            var customers
+                = await (from c in context.Set<Customer>()
+                         where c.Orders.Sum(o => o.OrderID) > 1000
+                         select c).ToListAsync();
 
-                Assert.Equal(89, customers.Count);
-            }
+            Assert.Equal(89, customers.Count);
         }
 
         [ConditionalTheory]
@@ -1038,41 +1032,37 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query()
         {
-            using (var context = CreateContext())
-            {
-                var query = from o in context.Orders
-                            // ReSharper disable once UseMethodAny.0
-                            where (from od in context.OrderDetails
-                                   where o.Customer.Country == od.Order.Customer.Country
-                                   select od).Count()
-                                > 0
-                            where o.OrderID == 10643 || o.OrderID == 10692
-                            select o;
+            using var context = CreateContext();
+            var query = from o in context.Orders
+                        // ReSharper disable once UseMethodAny.0
+                        where (from od in context.OrderDetails
+                               where o.Customer.Country == od.Order.Customer.Country
+                               select od).Count()
+                            > 0
+                        where o.OrderID == 10643 || o.OrderID == 10692
+                        select o;
 
-                var result = query.ToList();
+            var result = query.ToList();
 
-                Assert.Equal(2, result.Count);
-            }
+            Assert.Equal(2, result.Count);
         }
 
         [ConditionalFact]
         public virtual void Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count()
         {
-            using (var context = CreateContext())
-            {
-                var query = from o in context.Orders
-                            where o.OrderID == 10643 || o.OrderID == 10692
-                            // ReSharper disable once UseMethodAny.0
-                            where (from od in context.OrderDetails
-                                   where o.Customer.Country == od.Order.Customer.Country
-                                   select od).Distinct().Count()
-                                > 0
-                            select o;
+            using var context = CreateContext();
+            var query = from o in context.Orders
+                        where o.OrderID == 10643 || o.OrderID == 10692
+                        // ReSharper disable once UseMethodAny.0
+                        where (from od in context.OrderDetails
+                               where o.Customer.Country == od.Order.Customer.Country
+                               select od).Distinct().Count()
+                            > 0
+                        select o;
 
-                var result = query.ToList();
+            var result = query.ToList();
 
-                Assert.Equal(2, result.Count);
-            }
+            Assert.Equal(2, result.Count);
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
@@ -1300,42 +1290,38 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue#17068")]
         public virtual void Include_on_inner_projecting_groupjoin()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from c in ctx.Customers
-                            join o in ctx.Orders.Include(oo => oo.OrderDetails) on c.CustomerID equals o.CustomerID into grouping
-                            where c.CustomerID == "ALFKI"
-                            select grouping.ToList();
+            using var ctx = CreateContext();
+            var query = from c in ctx.Customers
+                        join o in ctx.Orders.Include(oo => oo.OrderDetails) on c.CustomerID equals o.CustomerID into grouping
+                        where c.CustomerID == "ALFKI"
+                        select grouping.ToList();
 
-                var result = query.ToList();
-                Assert.Single(result);
-                foreach (var order in result[0])
-                {
-                    Assert.True(order.OrderDetails.Count > 0);
-                }
+            var result = query.ToList();
+            Assert.Single(result);
+            foreach (var order in result[0])
+            {
+                Assert.True(order.OrderDetails.Count > 0);
             }
         }
 
         [ConditionalFact(Skip = "Issue#17068")]
         public virtual void Include_on_inner_projecting_groupjoin_complex()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from c in ctx.Customers
-                            join o in ctx.Orders.Include(oo => oo.OrderDetails).ThenInclude(od => od.Product) on c.CustomerID equals o
-                                .CustomerID into grouping
-                            where c.CustomerID == "ALFKI"
-                            select grouping.ToList();
+            using var ctx = CreateContext();
+            var query = from c in ctx.Customers
+                        join o in ctx.Orders.Include(oo => oo.OrderDetails).ThenInclude(od => od.Product) on c.CustomerID equals o
+                            .CustomerID into grouping
+                        where c.CustomerID == "ALFKI"
+                        select grouping.ToList();
 
-                var result = query.ToList();
-                Assert.Single(result);
-                foreach (var order in result[0])
+            var result = query.ToList();
+            Assert.Single(result);
+            foreach (var order in result[0])
+            {
+                Assert.True(order.OrderDetails.Count > 0);
+                foreach (var detail in order.OrderDetails)
                 {
-                    Assert.True(order.OrderDetails.Count > 0);
-                    foreach (var detail in order.OrderDetails)
-                    {
-                        Assert.NotNull(detail.Product);
-                    }
+                    Assert.NotNull(detail.Product);
                 }
             }
         }

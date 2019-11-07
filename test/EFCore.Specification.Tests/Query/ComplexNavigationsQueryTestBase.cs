@@ -209,48 +209,46 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Multi_level_include_with_short_circuiting()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Fields
-                    .Include(x => x.Label.Globalizations)
-                    .ThenInclude(x => x.Language)
-                    .Include(x => x.Placeholder.Globalizations)
-                    .ThenInclude(x => x.Language);
+            using var context = CreateContext();
+            var query = context.Fields
+                .Include(x => x.Label.Globalizations)
+                .ThenInclude(x => x.Language)
+                .Include(x => x.Placeholder.Globalizations)
+                .ThenInclude(x => x.Language);
 
-                var result = query.ToList().OrderBy(e => e.Name).ToList();
+            var result = query.ToList().OrderBy(e => e.Name).ToList();
 
-                Assert.Equal(2, result.Count);
-                Assert.Equal("Field1", result[0].Name);
-                Assert.Equal("Field2", result[1].Name);
+            Assert.Equal(2, result.Count);
+            Assert.Equal("Field1", result[0].Name);
+            Assert.Equal("Field2", result[1].Name);
 
-                Assert.Equal("MLS1", result[0].Label.DefaultText);
-                Assert.Equal("MLS3", result[1].Label.DefaultText);
-                Assert.Null(result[0].Placeholder);
-                Assert.Equal("MLS4", result[1].Placeholder.DefaultText);
+            Assert.Equal("MLS1", result[0].Label.DefaultText);
+            Assert.Equal("MLS3", result[1].Label.DefaultText);
+            Assert.Null(result[0].Placeholder);
+            Assert.Equal("MLS4", result[1].Placeholder.DefaultText);
 
-                var globalizations_0_label = result[0].Label.Globalizations.OrderBy(g => g.Text).ToList();
-                Assert.Equal(3, globalizations_0_label.Count);
-                Assert.Equal("Globalization0", globalizations_0_label[0].Text);
-                Assert.Equal("Language0", globalizations_0_label[0].Language.Name);
-                Assert.Equal("Globalization1", globalizations_0_label[1].Text);
-                Assert.Equal("Language1", globalizations_0_label[1].Language.Name);
-                Assert.Equal("Globalization2", globalizations_0_label[2].Text);
-                Assert.Equal("Language2", globalizations_0_label[2].Language.Name);
+            var globalizations_0_label = result[0].Label.Globalizations.OrderBy(g => g.Text).ToList();
+            Assert.Equal(3, globalizations_0_label.Count);
+            Assert.Equal("Globalization0", globalizations_0_label[0].Text);
+            Assert.Equal("Language0", globalizations_0_label[0].Language.Name);
+            Assert.Equal("Globalization1", globalizations_0_label[1].Text);
+            Assert.Equal("Language1", globalizations_0_label[1].Language.Name);
+            Assert.Equal("Globalization2", globalizations_0_label[2].Text);
+            Assert.Equal("Language2", globalizations_0_label[2].Language.Name);
 
-                var globalizations_1_label = result[1].Label.Globalizations.OrderBy(g => g.Text).ToList();
-                Assert.Equal(3, globalizations_1_label.Count);
-                Assert.Equal("Globalization6", globalizations_1_label[0].Text);
-                Assert.Equal("Language6", globalizations_1_label[0].Language.Name);
-                Assert.Equal("Globalization7", globalizations_1_label[1].Text);
-                Assert.Equal("Language7", globalizations_1_label[1].Language.Name);
-                Assert.Equal("Globalization8", globalizations_1_label[2].Text);
-                Assert.Equal("Language8", globalizations_1_label[2].Language.Name);
+            var globalizations_1_label = result[1].Label.Globalizations.OrderBy(g => g.Text).ToList();
+            Assert.Equal(3, globalizations_1_label.Count);
+            Assert.Equal("Globalization6", globalizations_1_label[0].Text);
+            Assert.Equal("Language6", globalizations_1_label[0].Language.Name);
+            Assert.Equal("Globalization7", globalizations_1_label[1].Text);
+            Assert.Equal("Language7", globalizations_1_label[1].Language.Name);
+            Assert.Equal("Globalization8", globalizations_1_label[2].Text);
+            Assert.Equal("Language8", globalizations_1_label[2].Language.Name);
 
-                var globalizations_1_placeholder = result[1].Placeholder.Globalizations.OrderBy(g => g.Text).ToList();
-                Assert.Single(globalizations_1_placeholder);
-                Assert.Equal("Globalization9", globalizations_1_placeholder[0].Text);
-                Assert.Equal("Language9", globalizations_1_placeholder[0].Language.Name);
-            }
+            var globalizations_1_placeholder = result[1].Placeholder.Globalizations.OrderBy(g => g.Text).ToList();
+            Assert.Single(globalizations_1_placeholder);
+            Assert.Equal("Globalization9", globalizations_1_placeholder[0].Text);
+            Assert.Equal("Language9", globalizations_1_placeholder[0].Language.Name);
         }
 
         [ConditionalTheory]
@@ -4522,19 +4520,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Entries_for_detached_entities_are_removed()
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-                var entity = Fixture.QueryAsserter.SetSourceCreator(context).Set<Level2>().OrderBy(l2 => l2.Id).First();
-                var entry = context.ChangeTracker.Entries().Single();
-                Assert.Same(entity, entry.Entity);
+            using var context = CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+            var entity = Fixture.QueryAsserter.SetSourceCreator(context).Set<Level2>().OrderBy(l2 => l2.Id).First();
+            var entry = context.ChangeTracker.Entries().Single();
+            Assert.Same(entity, entry.Entity);
 
-                entry.State = EntityState.Detached;
+            entry.State = EntityState.Detached;
 
-                Assert.Empty(context.ChangeTracker.Entries());
+            Assert.Empty(context.ChangeTracker.Entries());
 
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            }
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         [ConditionalTheory(Skip = "Issue#12088")]
@@ -5216,37 +5212,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue#16752")]
         public virtual void Include15()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 })
-                    .Include(x => x.foo.OneToOne_Optional_FK2).Include(x => x.bar.OneToMany_Optional2);
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 })
+                .Include(x => x.foo.OneToOne_Optional_FK2).Include(x => x.bar.OneToMany_Optional2);
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact(Skip = "Issue#16752")]
         public virtual void Include16()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 }).Distinct()
-                    .Include(x => x.foo.OneToOne_Optional_FK2).Include(x => x.bar.OneToMany_Optional2);
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 }).Distinct()
+                .Include(x => x.foo.OneToOne_Optional_FK2).Include(x => x.bar.OneToMany_Optional2);
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact(Skip = "Issue#16752")]
         public virtual void Include17()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 })
-                    .Include(x => x.foo.OneToOne_Optional_FK2).Distinct();
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 })
+                .Include(x => x.foo.OneToOne_Optional_FK2).Distinct();
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalTheory]
@@ -5300,37 +5290,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Include18_3()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.OrderBy(x => x.OneToOne_Required_FK1.Name).Include(x => x.OneToOne_Optional_FK1)
-                    .Select(l1 => new { foo = l1, bar = l1 }).Take(10);
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.OrderBy(x => x.OneToOne_Required_FK1.Name).Include(x => x.OneToOne_Optional_FK1)
+                .Select(l1 => new { foo = l1, bar = l1 }).Take(10);
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void Include18_3_1()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.OrderBy(x => x.OneToOne_Required_FK1.Name).Include(x => x.OneToOne_Optional_FK1)
-                    .Select(l1 => new { foo = l1, bar = l1 }).Take(10).Select(x => new { x.foo, x.bar });
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.OrderBy(x => x.OneToOne_Required_FK1.Name).Include(x => x.OneToOne_Optional_FK1)
+                .Select(l1 => new { foo = l1, bar = l1 }).Take(10).Select(x => new { x.foo, x.bar });
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void Include18_3_2()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.OrderBy(x => x.OneToOne_Required_FK1.Name).Include(x => x.OneToOne_Optional_FK1)
-                    .Select(l1 => new { outer_foo = new { inner_foo = l1, inner_bar = l1.Name }, outer_bar = l1 }).Take(10);
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.OrderBy(x => x.OneToOne_Required_FK1.Name).Include(x => x.OneToOne_Optional_FK1)
+                .Select(l1 => new { outer_foo = new { inner_foo = l1, inner_bar = l1.Name }, outer_bar = l1 }).Take(10);
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalTheory]
@@ -5352,162 +5336,134 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Include18_4()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(x => x.OneToOne_Optional_FK1).Select(l1 => new { foo = l1, bar = l1 }).Distinct();
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(x => x.OneToOne_Optional_FK1).Select(l1 => new { foo = l1, bar = l1 }).Distinct();
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void Include18()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(x => x.OneToOne_Optional_FK1)
-                    .Select(l1 => new { foo = l1, bar = l1.OneToOne_Optional_PK1 }).OrderBy(x => x.foo.Id).Take(10);
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(x => x.OneToOne_Optional_FK1)
+                .Select(l1 => new { foo = l1, bar = l1.OneToOne_Optional_PK1 }).OrderBy(x => x.foo.Id).Take(10);
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void Include19()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(x => x.OneToOne_Optional_FK1)
-                    .Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 }).Distinct();
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(x => x.OneToOne_Optional_FK1)
+                .Select(l1 => new { foo = l1.OneToOne_Optional_FK1, bar = l1.OneToOne_Optional_PK1 }).Distinct();
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection1()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection2()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection3()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToOne_Optional_FK1).ThenInclude(l2 => l2.OneToMany_Optional2);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToOne_Optional_FK1).ThenInclude(l2 => l2.OneToMany_Optional2);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection4()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).Select(l1 => l1.OneToMany_Optional1);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).Select(l1 => l1.OneToMany_Optional1);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection5()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .Select(l1 => l1.OneToMany_Optional1);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                .Select(l1 => l1.OneToMany_Optional1);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection6()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
-                    .Select(l1 => l1.OneToMany_Optional1);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
+                .Select(l1 => l1.OneToMany_Optional1);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection6_1()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                .ThenInclude(l3 => l3.OneToOne_Optional_FK3);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection6_2()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_FK2)
-                    .ThenInclude(l3 => l3.OneToMany_Optional3)
-                    .Select(l1 => l1.OneToMany_Optional1);
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
+                .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_FK2)
+                .ThenInclude(l3 => l3.OneToMany_Optional3)
+                .Select(l1 => l1.OneToMany_Optional1);
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection6_3()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
-                    .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_FK2)
-                    .ThenInclude(l3 => l3.OneToMany_Optional3);
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
+                .Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_FK2)
+                .ThenInclude(l3 => l3.OneToMany_Optional3);
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection6_4()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
-                    .Select(l1 => l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_PK2));
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                .ThenInclude(l3 => l3.OneToOne_Optional_FK3)
+                .Select(l1 => l1.OneToMany_Optional1.Select(l2 => l2.OneToOne_Optional_PK2));
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void IncludeCollection7()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
-                    .Select(l1 => new { l1, l1.OneToMany_Optional1 });
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Include(l1 => l1.OneToMany_Optional1).ThenInclude(l2 => l2.OneToOne_Optional_PK2)
+                .Select(l1 => new { l1, l1.OneToMany_Optional1 });
+            var result = query.ToList();
         }
 
         [ConditionalTheory]
@@ -5563,90 +5519,80 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Join_with_navigations_in_the_result_selector2()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.Join(
-                    ctx.LevelTwo, l1 => l1.Id, l2 => l2.Level1_Required_Id,
-                    (o, i) => new { o.OneToOne_Optional_FK1, i.OneToMany_Optional2 });
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.Join(
+                ctx.LevelTwo, l1 => l1.Id, l2 => l2.Level1_Required_Id,
+                (o, i) => new { o.OneToOne_Optional_FK1, i.OneToMany_Optional2 });
+            var result = query.ToList();
         }
 
         [ConditionalFact(Skip = "issue #12200")]
         public virtual void GroupJoin_with_navigations_in_the_result_selector()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.LevelOne.GroupJoin(
-                    ctx.LevelTwo, l1 => l1.Id, l2 => l2.Level1_Required_Id, (o, i) => new { o.OneToOne_Optional_FK1, i });
-                var result = query.ToList();
-            }
+            using var ctx = CreateContext();
+            var query = ctx.LevelOne.GroupJoin(
+                ctx.LevelTwo, l1 => l1.Id, l2 => l2.Level1_Required_Id, (o, i) => new { o.OneToOne_Optional_FK1, i });
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void Member_pushdown_chain_3_levels_deep()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from l1 in ctx.LevelOne
-                            orderby l1.Id
-                            where (from l2 in ctx.LevelTwo
-                                   orderby l2.Id
-                                   where l2.Level1_Optional_Id == l1.Id
-                                   select (from l3 in ctx.LevelThree
-                                           orderby l3.Id
-                                           where l3.Level2_Required_Id == l2.Id
-                                           select (from l4 in ctx.LevelFour
-                                                   where l4.Level3_Required_Id == l3.Id
-                                                   orderby l4.Id
-                                                   select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name
-                                != "Foo"
-                            select l1;
+            using var ctx = CreateContext();
+            var query = from l1 in ctx.LevelOne
+                        orderby l1.Id
+                        where (from l2 in ctx.LevelTwo
+                               orderby l2.Id
+                               where l2.Level1_Optional_Id == l1.Id
+                               select (from l3 in ctx.LevelThree
+                                       orderby l3.Id
+                                       where l3.Level2_Required_Id == l2.Id
+                                       select (from l4 in ctx.LevelFour
+                                               where l4.Level3_Required_Id == l3.Id
+                                               orderby l4.Id
+                                               select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name
+                            != "Foo"
+                        select l1;
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void Member_pushdown_chain_3_levels_deep_entity()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from l1 in ctx.LevelOne
-                            orderby l1.Id
-                            select (from l2 in ctx.LevelTwo
-                                    orderby l2.Id
-                                    where l2.Level1_Optional_Id == l1.Id
-                                    select (from l3 in ctx.LevelThree
-                                            orderby l3.Id
-                                            where l3.Level2_Required_Id == l2.Id
-                                            select (from l4 in ctx.LevelFour
-                                                    where l4.Level3_Required_Id == l3.Id
-                                                    orderby l4.Id
-                                                    select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
+            using var ctx = CreateContext();
+            var query = from l1 in ctx.LevelOne
+                        orderby l1.Id
+                        select (from l2 in ctx.LevelTwo
+                                orderby l2.Id
+                                where l2.Level1_Optional_Id == l1.Id
+                                select (from l3 in ctx.LevelThree
+                                        orderby l3.Id
+                                        where l3.Level2_Required_Id == l2.Id
+                                        select (from l4 in ctx.LevelFour
+                                                where l4.Level3_Required_Id == l3.Id
+                                                orderby l4.Id
+                                                select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault();
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalFact]
         public virtual void Member_pushdown_with_collection_navigation_in_the_middle()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from l1 in ctx.LevelOne
-                            orderby l1.Id
-                            select (from l2 in ctx.LevelTwo
-                                    orderby l2.Id
-                                    where l2.Level1_Required_Id == l1.Id
-                                    select l2.OneToMany_Optional2.Select(
-                                        l3 => (from l4 in ctx.LevelFour
-                                               where l4.Level3_Required_Id == l3.Id
-                                               orderby l4.Id
-                                               select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name;
+            using var ctx = CreateContext();
+            var query = from l1 in ctx.LevelOne
+                        orderby l1.Id
+                        select (from l2 in ctx.LevelTwo
+                                orderby l2.Id
+                                where l2.Level1_Required_Id == l1.Id
+                                select l2.OneToMany_Optional2.Select(
+                                    l3 => (from l4 in ctx.LevelFour
+                                           where l4.Level3_Required_Id == l3.Id
+                                           orderby l4.Id
+                                           select l4).FirstOrDefault()).FirstOrDefault()).FirstOrDefault().Name;
 
-                var result = query.ToList();
-            }
+            var result = query.ToList();
         }
 
         [ConditionalTheory]

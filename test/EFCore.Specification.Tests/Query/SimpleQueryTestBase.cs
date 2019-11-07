@@ -36,113 +36,96 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Multiple_context_instances()
         {
-            using (var context1 = CreateContext())
-            {
-                using (var context2 = CreateContext())
-                {
-                    Assert.Equal(
-                        CoreStrings.ErrorInvalidQueryable,
-                        Assert.Throws<InvalidOperationException>(
-                            () =>
-                                (from c in context1.Customers
-                                 from o in context2.Orders
-                                 select c).First()).Message);
-                }
-            }
+            using var context1 = CreateContext();
+            using var context2 = CreateContext();
+            Assert.Equal(
+                CoreStrings.ErrorInvalidQueryable,
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        (from c in context1.Customers
+                         from o in context2.Orders
+                         select c).First()).Message);
         }
 
         [ConditionalFact]
         public virtual void Multiple_context_instances_2()
         {
-            using (var context1 = CreateContext())
-            {
-                using (var context2 = CreateContext())
-                {
-                    Assert.Equal(
-                        CoreStrings.ErrorInvalidQueryable,
-                        Assert.Throws<InvalidOperationException>(
-                            () =>
-                                (from c in context1.Customers
-                                 from o in context2.Set<Order>()
-                                 select c).First()).Message);
-                }
-            }
+            using var context1 = CreateContext();
+            using var context2 = CreateContext();
+            Assert.Equal(
+                CoreStrings.ErrorInvalidQueryable,
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        (from c in context1.Customers
+                         from o in context2.Set<Order>()
+                         select c).First()).Message);
         }
 
         [ConditionalFact]
         public virtual void Multiple_context_instances_set()
         {
-            using (var context1 = CreateContext())
-            {
-                using (var context2 = CreateContext())
-                {
-                    var set = context2.Orders;
+            using var context1 = CreateContext();
+            using var context2 = CreateContext();
+            var set = context2.Orders;
 
-                    Assert.Equal(
-                        CoreStrings.ErrorInvalidQueryable,
-                        Assert.Throws<InvalidOperationException>(
-                            () => (from c in context1.Customers
-                                   from o in set
-                                   select c).First()).Message);
-                }
-            }
+            Assert.Equal(
+                CoreStrings.ErrorInvalidQueryable,
+                Assert.Throws<InvalidOperationException>(
+                    () => (from c in context1.Customers
+                           from o in set
+                           select c).First()).Message);
         }
 
         [ConditionalFact]
         public virtual void Multiple_context_instances_parameter()
         {
-            using (var context1 = CreateContext())
-            {
-                using (var context2 = CreateContext())
-                {
-                    Customer query(NorthwindContext c2) =>
-                        (from c in context1.Customers
-                         from o in c2.Orders
-                         select c).First();
+            using var context1 = CreateContext();
+            using var context2 = CreateContext();
 
-                    Assert.Equal(
-                        CoreStrings.ErrorInvalidQueryable,
-                        Assert.Throws<InvalidOperationException>(
-                            () => query(context2)).Message);
-                }
-            }
+            Customer query(NorthwindContext c2) =>
+                (from c in context1.Customers
+                 from o in c2.Orders
+                 select c).First();
+
+            Assert.Equal(
+                CoreStrings.ErrorInvalidQueryable,
+                Assert.Throws<InvalidOperationException>(
+                    () => query(context2)).Message);
         }
 
         [ConditionalFact]
         public virtual void Query_when_evaluatable_queryable_method_call_with_repository()
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            using var context = CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
-                var customerRepository = new Repository<Customer>(context);
-                var orderRepository = new Repository<Order>(context);
+            var customerRepository = new Repository<Customer>(context);
+            var orderRepository = new Repository<Order>(context);
 
-                var results
-                    = customerRepository.Find()
-                        .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID))
-                        .ToList();
-
-                Assert.Equal(89, results.Count);
-
-                results
-                    = (from c in customerRepository.Find()
-                       where orderRepository.Find().Any(o => o.CustomerID == c.CustomerID)
-                       select c)
+            var results
+                = customerRepository.Find()
+                    .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID))
                     .ToList();
 
-                Assert.Equal(89, results.Count);
+            Assert.Equal(89, results.Count);
 
-                var orderQuery = orderRepository.Find();
+            results
+                = (from c in customerRepository.Find()
+                   where orderRepository.Find().Any(o => o.CustomerID == c.CustomerID)
+                   select c)
+                .ToList();
 
-                results = customerRepository.Find()
-                    .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID))
-                    .ToList();
+            Assert.Equal(89, results.Count);
 
-                Assert.Equal(89, results.Count);
+            var orderQuery = orderRepository.Find();
 
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-            }
+            results = customerRepository.Find()
+                .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID))
+                .ToList();
+
+            Assert.Equal(89, results.Count);
+
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         }
 
         protected class Repository<T>
@@ -164,49 +147,45 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Lifting_when_subquery_nested_order_by_simple()
         {
-            using (var context = CreateContext())
-            {
-                var results
-                    = (from c1_Orders in context.Orders
-                       join _c1 in
-                           (from c1 in
-                                (from c in context.Customers
-                                 orderby c.CustomerID
-                                 select c)
-                                .Take(2)
-                            from c2 in context.Customers
-                            select EF.Property<string>(c1, "CustomerID"))
-                           .Distinct()
-                           on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
-                       orderby _c1
-                       select c1_Orders).ToList();
+            using var context = CreateContext();
+            var results
+                = (from c1_Orders in context.Orders
+                   join _c1 in
+                       (from c1 in
+                            (from c in context.Customers
+                             orderby c.CustomerID
+                             select c)
+                            .Take(2)
+                        from c2 in context.Customers
+                        select EF.Property<string>(c1, "CustomerID"))
+                       .Distinct()
+                       on EF.Property<string>(c1_Orders, "CustomerID") equals _c1
+                   orderby _c1
+                   select c1_Orders).ToList();
 
-                Assert.Equal(10, results.Count);
-            }
+            Assert.Equal(10, results.Count);
         }
 
         [ConditionalFact]
         public virtual void Lifting_when_subquery_nested_order_by_anonymous()
         {
-            using (var context = CreateContext())
-            {
-                var results
-                    = (from c1_Orders in context.Orders
-                       join _c1 in
-                           (from c1 in
-                                (from c in context.Customers
-                                 orderby c.CustomerID
-                                 select c)
-                                .Take(2)
-                            from c2 in context.Customers
-                            select new { CustomerID = EF.Property<string>(c1, "CustomerID") })
-                           .Distinct()
-                           on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
-                       orderby _c1.CustomerID
-                       select c1_Orders).ToList();
+            using var context = CreateContext();
+            var results
+                = (from c1_Orders in context.Orders
+                   join _c1 in
+                       (from c1 in
+                            (from c in context.Customers
+                             orderby c.CustomerID
+                             select c)
+                            .Take(2)
+                        from c2 in context.Customers
+                        select new { CustomerID = EF.Property<string>(c1, "CustomerID") })
+                       .Distinct()
+                       on EF.Property<string>(c1_Orders, "CustomerID") equals _c1.CustomerID
+                   orderby _c1.CustomerID
+                   select c1_Orders).ToList();
 
-                Assert.Equal(10, results.Count);
-            }
+            Assert.Equal(10, results.Count);
         }
 
         private class Context
@@ -236,55 +215,49 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public void Query_composition_against_ienumerable_set()
         {
-            using (var context = CreateContext())
-            {
-                IEnumerable<Order> orders = context.Orders;
+            using var context = CreateContext();
+            IEnumerable<Order> orders = context.Orders;
 
-                var results
-                    = orders
-                        .Where(x => x.OrderDate < new DateTime(1996, 7, 12) && x.OrderDate > new DateTime(1996, 7, 4))
-                        .OrderBy(x => x.ShippedDate)
-                        .GroupBy(x => x.ShipName)
-                        .ToList();
+            var results
+                = orders
+                    .Where(x => x.OrderDate < new DateTime(1996, 7, 12) && x.OrderDate > new DateTime(1996, 7, 4))
+                    .OrderBy(x => x.ShippedDate)
+                    .GroupBy(x => x.ShipName)
+                    .ToList();
 
-                Assert.Single(results);
-            }
+            Assert.Single(results);
         }
 
         [ConditionalFact]
         public virtual void Shaper_command_caching_when_parameter_names_different()
         {
-            using (var context = CreateContext())
-            {
-                var variableName = "test";
-                var differentVariableName = "test";
+            using var context = CreateContext();
+            var variableName = "test";
+            var differentVariableName = "test";
 
-                context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
-                    .Where(e2 => InMemoryCheck.Check(variableName, e2.CustomerID) || true).Count();
+            context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
+                .Where(e2 => InMemoryCheck.Check(variableName, e2.CustomerID) || true).Count();
 
-                context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
-                    .Where(e2 => InMemoryCheck.Check(differentVariableName, e2.CustomerID) || true).Count();
-            }
+            context.Set<Customer>().Where(e => e.CustomerID == "ALFKI")
+                .Where(e2 => InMemoryCheck.Check(differentVariableName, e2.CustomerID) || true).Count();
         }
 
         [ConditionalFact] // See issue #12771
         public virtual void Can_convert_manually_build_expression_with_default()
         {
-            using (var context = CreateContext())
-            {
-                var parameter = Expression.Parameter(typeof(Customer));
-                var defaultExpression =
-                    Expression.Lambda<Func<Customer, bool>>(
-                        Expression.NotEqual(
-                            Expression.Property(
-                                parameter,
-                                "CustomerID"),
-                            Expression.Default(typeof(string))),
-                        parameter);
+            using var context = CreateContext();
+            var parameter = Expression.Parameter(typeof(Customer));
+            var defaultExpression =
+                Expression.Lambda<Func<Customer, bool>>(
+                    Expression.NotEqual(
+                        Expression.Property(
+                            parameter,
+                            "CustomerID"),
+                        Expression.Default(typeof(string))),
+                    parameter);
 
-                context.Set<Customer>().Where(defaultExpression).Count();
-                context.Set<Customer>().Count(defaultExpression);
-            }
+            context.Set<Customer>().Where(defaultExpression).Count();
+            context.Set<Customer>().Count(defaultExpression);
         }
 
         private static class InMemoryCheck
@@ -1083,14 +1056,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Any_with_multiple_conditions_still_uses_exists()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers
-                    .Where(c => c.City == "London" && c.Orders.Any(o => o.EmployeeID == 1))
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Customers
+                .Where(c => c.City == "London" && c.Orders.Any(o => o.EmployeeID == 1))
+                .ToList();
 
-                Assert.Equal(4, query.Count);
-            }
+            Assert.Equal(4, query.Count);
         }
 
         [ConditionalTheory]
@@ -1449,123 +1420,113 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_DTO_distinct_translated_to_server()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var actual = context.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO())
+                .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO())
+                .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
             {
-                var actual = context.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(o => new OrderCountDTO())
-                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(o => new OrderCountDTO())
-                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Id, actual[i].Id);
-                    Assert.Equal(expected[i].Count, actual[i].Count);
-                }
+                Assert.Equal(expected[i].Id, actual[i].Id);
+                Assert.Equal(expected[i].Count, actual[i].Count);
             }
         }
 
         [ConditionalFact]
         public virtual void Select_DTO_constructor_distinct_translated_to_server()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var actual = context.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO(o.CustomerID))
+                .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO(o.CustomerID))
+                .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
             {
-                var actual = context.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(o => new OrderCountDTO(o.CustomerID))
-                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(o => new OrderCountDTO(o.CustomerID))
-                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Id, actual[i].Id);
-                    Assert.Equal(expected[i].Count, actual[i].Count);
-                }
+                Assert.Equal(expected[i].Id, actual[i].Id);
+                Assert.Equal(expected[i].Count, actual[i].Count);
             }
         }
 
         [ConditionalFact]
         public virtual void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var actual = context.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO(o.Customer.City))
+                .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(o => new OrderCountDTO(o.Customer.City))
+                .Distinct().ToList().OrderBy(e => e.Id).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
             {
-                var actual = context.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(o => new OrderCountDTO(o.Customer.City))
-                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(o => new OrderCountDTO(o.Customer.City))
-                    .Distinct().ToList().OrderBy(e => e.Id).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Id, actual[i].Id);
-                    Assert.Equal(expected[i].Count, actual[i].Count);
-                }
+                Assert.Equal(expected[i].Id, actual[i].Id);
+                Assert.Equal(expected[i].Count, actual[i].Count);
             }
         }
 
         [ConditionalFact]
         public virtual void Select_DTO_with_member_init_distinct_translated_to_server()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var actual = context.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(
+                    o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                .Distinct().ToList().OrderBy(e => e.Count).ToList();
+
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
+                .Where(o => o.OrderID < 10300)
+                .Select(
+                    o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                .Distinct().ToList().OrderBy(e => e.Count).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
             {
-                var actual = context.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(
-                        o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                    .Distinct().ToList().OrderBy(e => e.Count).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Order>()
-                    .Where(o => o.OrderID < 10300)
-                    .Select(
-                        o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                    .Distinct().ToList().OrderBy(e => e.Count).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Id, actual[i].Id);
-                    Assert.Equal(expected[i].Count, actual[i].Count);
-                }
+                Assert.Equal(expected[i].Id, actual[i].Id);
+                Assert.Equal(expected[i].Count, actual[i].Count);
             }
         }
 
         [ConditionalFact]
         public virtual void Select_nested_collection_count_using_DTO()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var actual = context.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
+                .ToList().OrderBy(e => e.Id).ToList();
+
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
+                .ToList().OrderBy(e => e.Id).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
             {
-                var actual = context.Set<Customer>()
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
-                    .ToList().OrderBy(e => e.Id).ToList();
-
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Customer>()
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new OrderCountDTO { Id = c.CustomerID, Count = c.Orders.Count })
-                    .ToList().OrderBy(e => e.Id).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i], actual[i]);
-                }
+                Assert.Equal(expected[i], actual[i]);
             }
         }
 
@@ -1604,29 +1565,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var actual = (from c in context.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                          from o in context.Set<Order>().Where(o => o.OrderID < 10300)
+                              .Select(
+                                  o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                              .Distinct()
+                          select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
+
+            var expected = (from c in Fixture.QueryAsserter.ExpectedData.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                            from o in Fixture.QueryAsserter.ExpectedData.Set<Order>().Where(o => o.OrderID < 10300)
+                                .Select(
+                                    o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
+                                .Distinct()
+                            select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
             {
-                var actual = (from c in context.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
-                              from o in context.Set<Order>().Where(o => o.OrderID < 10300)
-                                  .Select(
-                                      o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                                  .Distinct()
-                              select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
-
-                var expected = (from c in Fixture.QueryAsserter.ExpectedData.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
-                                from o in Fixture.QueryAsserter.ExpectedData.Set<Order>().Where(o => o.OrderID < 10300)
-                                    .Select(
-                                        o => new OrderCountDTO { Id = o.CustomerID, Count = o.OrderID })
-                                    .Distinct()
-                                select new { c, o }).ToList().OrderBy(e => e.c.CustomerID + " " + e.o.Count).ToList();
-
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].c.CustomerID, actual[i].c.CustomerID);
-                    Assert.Equal(expected[i].o.Id, actual[i].o.Id);
-                    Assert.Equal(expected[i].o.Count, actual[i].o.Count);
-                }
+                Assert.Equal(expected[i].c.CustomerID, actual[i].c.CustomerID);
+                Assert.Equal(expected[i].o.Id, actual[i].o.Id);
+                Assert.Equal(expected[i].o.Count, actual[i].o.Count);
             }
         }
 
@@ -2967,12 +2926,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void OrderBy_any()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers.OrderBy(p => p.Orders.Any(o => o.OrderID > 11000)).ThenBy(p => p.CustomerID).ToList();
+            using var context = CreateContext();
+            var query = context.Customers.OrderBy(p => p.Orders.Any(o => o.OrderID > 11000)).ThenBy(p => p.CustomerID).ToList();
 
-                Assert.Equal(91, query.Count);
-            }
+            Assert.Equal(91, query.Count);
         }
 
         [ConditionalTheory]
@@ -3310,216 +3267,192 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Selected_column_can_coalesce()
         {
-            using (var context = CreateContext())
-            {
-                var customers = (from c in context.Set<Customer>()
-                                 orderby c.Region ?? "ZZ"
-                                 select c)
-                    .ToList();
+            using var context = CreateContext();
+            var customers = (from c in context.Set<Customer>()
+                             orderby c.Region ?? "ZZ"
+                             select c)
+                .ToList();
 
-                Assert.Equal(91, customers.Count);
-            }
+            Assert.Equal(91, customers.Count);
         }
 
         [ConditionalFact]
         public virtual void Can_cast_CreateQuery_result_to_IQueryable_T_bug_1730()
         {
-            using (var context = CreateContext())
-            {
-                IQueryable<Product> products = context.Products;
+            using var context = CreateContext();
+            IQueryable<Product> products = context.Products;
 
-                // ReSharper disable once RedundantAssignment
-                products = (IQueryable<Product>)products.Provider.CreateQuery(products.Expression);
-            }
+            // ReSharper disable once RedundantAssignment
+            products = (IQueryable<Product>)products.Provider.CreateQuery(products.Expression);
         }
 
         [ConditionalFact(Skip = "Issue #16314")]
         public virtual void Select_Subquery_Single()
         {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = (from od in context.Set<OrderDetail>()
-                       orderby od.ProductID, od.OrderID
-                       select (from o in context.Set<Order>()
-                               where od.OrderID == o.OrderID
-                               orderby o.OrderID
-                               select o).First())
-                    .Take(2)
-                    .ToList();
+            using var context = CreateContext();
+            var orderDetails
+                = (from od in context.Set<OrderDetail>()
+                   orderby od.ProductID, od.OrderID
+                   select (from o in context.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           orderby o.OrderID
+                           select o).First())
+                .Take(2)
+                .ToList();
 
-                Assert.Equal(2, orderDetails.Count);
-            }
+            Assert.Equal(2, orderDetails.Count);
         }
 
         [ConditionalFact]
         public virtual void Select_Where_Subquery_Deep_Single()
         {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = (from od in context.Set<OrderDetail>().Where(od => od.OrderID == 10344)
-                       where (
-                               from o in context.Set<Order>()
-                               where od.OrderID == o.OrderID
-                               select (
-                                   from c in context.Set<Customer>()
-                                   where o.CustomerID == c.CustomerID
-                                   select c
-                               ).Single()
+            using var context = CreateContext();
+            var orderDetails
+                = (from od in context.Set<OrderDetail>().Where(od => od.OrderID == 10344)
+                   where (
+                           from o in context.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in context.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
                            ).Single()
-                           .City
-                           == "Seattle"
-                       select od)
-                    .Take(2)
-                    .ToList();
+                       ).Single()
+                       .City
+                       == "Seattle"
+                   select od)
+                .Take(2)
+                .ToList();
 
-                Assert.Equal(2, orderDetails.Count);
-            }
+            Assert.Equal(2, orderDetails.Count);
         }
 
         [ConditionalFact]
         public virtual void Select_Where_Subquery_Deep_First()
         {
-            using (var context = CreateContext())
-            {
-                var orderDetails
-                    = (from od in context.Set<OrderDetail>()
-                       where (
-                               from o in context.Set<Order>()
-                               where od.OrderID == o.OrderID
-                               select (
-                                   from c in context.Set<Customer>()
-                                   where o.CustomerID == c.CustomerID
-                                   select c
-                               ).FirstOrDefault()
+            using var context = CreateContext();
+            var orderDetails
+                = (from od in context.Set<OrderDetail>()
+                   where (
+                           from o in context.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in context.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
                            ).FirstOrDefault()
-                           .City
-                           == "Seattle"
-                       select od)
-                    .Take(2)
-                    .ToList();
+                       ).FirstOrDefault()
+                       .City
+                       == "Seattle"
+                   select od)
+                .Take(2)
+                .ToList();
 
-                Assert.Equal(2, orderDetails.Count);
-            }
+            Assert.Equal(2, orderDetails.Count);
         }
 
         [ConditionalFact]
         public virtual void Select_Where_Subquery_Equality()
         {
-            using (var context = CreateContext())
-            {
-                var orders
-                    = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
-                       // ReSharper disable once UseMethodAny.0
-                       where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
-                              where (from c in context.Set<Customer>()
-                                     where c.CustomerID == o.CustomerID
-                                     orderby c.CustomerID
-                                     select c).First().Country
-                                  == (from o2 in context.Set<Order>()
-                                      join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
-                                      where o2.OrderID == od.OrderID
-                                      orderby o2.OrderID, c.CustomerID
-                                      select c).First().Country
-                              orderby od.ProductID, od.OrderID
-                              select od).Count()
-                           > 0
-                       orderby o.OrderID
-                       select o).ToList();
+            using var context = CreateContext();
+            var orders
+                = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
+                   // ReSharper disable once UseMethodAny.0
+                   where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
+                          where (from c in context.Set<Customer>()
+                                 where c.CustomerID == o.CustomerID
+                                 orderby c.CustomerID
+                                 select c).First().Country
+                              == (from o2 in context.Set<Order>()
+                                  join c in context.Set<Customer>() on o2.CustomerID equals c.CustomerID
+                                  where o2.OrderID == od.OrderID
+                                  orderby o2.OrderID, c.CustomerID
+                                  select c).First().Country
+                          orderby od.ProductID, od.OrderID
+                          select od).Count()
+                       > 0
+                   orderby o.OrderID
+                   select o).ToList();
 
-                Assert.Single(orders);
-            }
+            Assert.Single(orders);
         }
 
         [ConditionalFact(Skip = "Issue#17019")]
         public virtual void Throws_on_concurrent_query_list()
         {
-            using (var context = CreateContext())
-            {
-                context.Database.EnsureCreatedResiliently();
+            using var context = CreateContext();
+            context.Database.EnsureCreatedResiliently();
 
-                using (var synchronizationEvent = new ManualResetEventSlim(false))
+            using var synchronizationEvent = new ManualResetEventSlim(false);
+            using var blockingSemaphore = new SemaphoreSlim(0);
+            var blockingTask = Task.Run(
+                () =>
                 {
-                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    try
                     {
-                        var blockingTask = Task.Run(
-                            () =>
-                            {
-                                try
-                                {
-                                    context.Customers.Select(
-                                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
-                                }
-                                finally
-                                {
-                                    synchronizationEvent.Set();
-                                }
-                            });
-
-                        var throwingTask = Task.Run(
-                            () =>
-                            {
-                                synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
-                                Assert.Equal(
-                                    CoreStrings.ConcurrentMethodInvocation,
-                                    Assert.Throws<InvalidOperationException>(
-                                        () => context.Customers.ToList()).Message);
-                            });
-
-                        throwingTask.Wait(TimeSpan.FromMinutes(5));
-
-                        blockingSemaphore.Release(1);
-
-                        blockingTask.Wait(TimeSpan.FromMinutes(5));
+                        context.Customers.Select(
+                            c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
                     }
-                }
-            }
+                    finally
+                    {
+                        synchronizationEvent.Set();
+                    }
+                });
+
+            var throwingTask = Task.Run(
+                () =>
+                {
+                    synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
+                    Assert.Equal(
+                        CoreStrings.ConcurrentMethodInvocation,
+                        Assert.Throws<InvalidOperationException>(
+                            () => context.Customers.ToList()).Message);
+                });
+
+            throwingTask.Wait(TimeSpan.FromMinutes(5));
+
+            blockingSemaphore.Release(1);
+
+            blockingTask.Wait(TimeSpan.FromMinutes(5));
         }
 
         [ConditionalFact(Skip = "Issue#17019")]
         public virtual void Throws_on_concurrent_query_first()
         {
-            using (var context = CreateContext())
-            {
-                context.Database.EnsureCreatedResiliently();
+            using var context = CreateContext();
+            context.Database.EnsureCreatedResiliently();
 
-                using (var synchronizationEvent = new ManualResetEventSlim(false))
+            using var synchronizationEvent = new ManualResetEventSlim(false);
+            using var blockingSemaphore = new SemaphoreSlim(0);
+            var blockingTask = Task.Run(
+                () =>
                 {
-                    using (var blockingSemaphore = new SemaphoreSlim(0))
+                    try
                     {
-                        var blockingTask = Task.Run(
-                            () =>
-                            {
-                                try
-                                {
-                                    context.Customers.Select(
-                                        c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
-                                }
-                                finally
-                                {
-                                    synchronizationEvent.Set();
-                                }
-                            });
-
-                        var throwingTask = Task.Run(
-                            () =>
-                            {
-                                synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
-                                Assert.Equal(
-                                    CoreStrings.ConcurrentMethodInvocation,
-                                    Assert.Throws<InvalidOperationException>(
-                                        () => context.Customers.First()).Message);
-                            });
-
-                        throwingTask.Wait(TimeSpan.FromMinutes(5));
-
-                        blockingSemaphore.Release(1);
-
-                        blockingTask.Wait(TimeSpan.FromMinutes(5));
+                        context.Customers.Select(
+                            c => Process(c, synchronizationEvent, blockingSemaphore)).ToList();
                     }
-                }
-            }
+                    finally
+                    {
+                        synchronizationEvent.Set();
+                    }
+                });
+
+            var throwingTask = Task.Run(
+                () =>
+                {
+                    synchronizationEvent.Wait(TimeSpan.FromMinutes(5));
+                    Assert.Equal(
+                        CoreStrings.ConcurrentMethodInvocation,
+                        Assert.Throws<InvalidOperationException>(
+                            () => context.Customers.First()).Message);
+                });
+
+            throwingTask.Wait(TimeSpan.FromMinutes(5));
+
+            blockingSemaphore.Release(1);
+
+            blockingTask.Wait(TimeSpan.FromMinutes(5));
         }
 
         private static Customer Process(Customer c, ManualResetEventSlim e, SemaphoreSlim s)
@@ -3674,55 +3607,47 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_bitwise_or()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers.OrderBy(c => c.CustomerID).Select(
-                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToList();
+            using var context = CreateContext();
+            var query = context.Customers.OrderBy(c => c.CustomerID).Select(
+                c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" }).ToList();
 
-                Assert.All(query.Take(2), t => Assert.True(t.Value));
-                Assert.All(query.Skip(2), t => Assert.False(t.Value));
-            }
+            Assert.All(query.Take(2), t => Assert.True(t.Value));
+            Assert.All(query.Skip(2), t => Assert.False(t.Value));
         }
 
         [ConditionalFact]
         public virtual void Select_bitwise_or_multiple()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers.OrderBy(c => c.CustomerID)
-                    .Select(
-                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Customers.OrderBy(c => c.CustomerID)
+                .Select(
+                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" | c.CustomerID == "ANTON" })
+                .ToList();
 
-                Assert.All(query.Take(3), t => Assert.True(t.Value));
-                Assert.All(query.Skip(3), t => Assert.False(t.Value));
-            }
+            Assert.All(query.Take(3), t => Assert.True(t.Value));
+            Assert.All(query.Skip(3), t => Assert.False(t.Value));
         }
 
         [ConditionalFact]
         public virtual void Select_bitwise_and()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers.OrderBy(c => c.CustomerID).Select(
-                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToList();
+            using var context = CreateContext();
+            var query = context.Customers.OrderBy(c => c.CustomerID).Select(
+                c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" }).ToList();
 
-                Assert.All(query, t => Assert.False(t.Value));
-            }
+            Assert.All(query, t => Assert.False(t.Value));
         }
 
         [ConditionalFact]
         public virtual void Select_bitwise_and_or()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers.OrderBy(c => c.CustomerID)
-                    .Select(
-                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Customers.OrderBy(c => c.CustomerID)
+                .Select(
+                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" | c.CustomerID == "ANTON" })
+                .ToList();
 
-                Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.False(t.Value));
-            }
+            Assert.All(query.Where(c => c.CustomerID != "ANTON"), t => Assert.False(t.Value));
         }
 
         [ConditionalTheory]
@@ -3799,28 +3724,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_bitwise_or_with_logical_or()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers.OrderBy(c => c.CustomerID).Select(
-                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON" })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Customers.OrderBy(c => c.CustomerID).Select(
+                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" | c.CustomerID == "ANATR" || c.CustomerID == "ANTON" })
+                .ToList();
 
-                Assert.All(query.Take(3), t => Assert.True(t.Value));
-                Assert.All(query.Skip(3), t => Assert.False(t.Value));
-            }
+            Assert.All(query.Take(3), t => Assert.True(t.Value));
+            Assert.All(query.Skip(3), t => Assert.False(t.Value));
         }
 
         [ConditionalFact]
         public virtual void Select_bitwise_and_with_logical_and()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers.OrderBy(c => c.CustomerID).Select(
-                        c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON" })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Customers.OrderBy(c => c.CustomerID).Select(
+                    c => new { c.CustomerID, Value = c.CustomerID == "ALFKI" & c.CustomerID == "ANATR" && c.CustomerID == "ANTON" })
+                .ToList();
 
-                Assert.All(query, t => Assert.False(t.Value));
-            }
+            Assert.All(query, t => Assert.False(t.Value));
         }
 
         [ConditionalTheory]
@@ -3927,31 +3848,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Parameter_extraction_can_throw_exception_from_user_code()
         {
-            using (var context = CreateContext())
-            {
-                var customer = new Customer();
+            using var context = CreateContext();
+            var customer = new Customer();
 
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Customers.Where(c => Equals(c.Orders.First(), customer.Orders.First())).ToList());
-            }
+            Assert.Throws<InvalidOperationException>(
+                () => context.Customers.Where(c => Equals(c.Orders.First(), customer.Orders.First())).ToList());
         }
 
         [ConditionalFact]
         public virtual void Parameter_extraction_can_throw_exception_from_user_code_2()
         {
-            using (var context = CreateContext())
-            {
-                DateTime? dateFilter = null;
+            using var context = CreateContext();
+            DateTime? dateFilter = null;
 
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Orders
-                        .Where(
-                            o => (o.OrderID < 10400)
-                                && ((o.OrderDate.HasValue
-                                    && o.OrderDate.Value.Month == dateFilter.Value.Month
-                                    && o.OrderDate.Value.Year == dateFilter.Value.Year)))
-                        .ToList());
-            }
+            Assert.Throws<InvalidOperationException>(
+                () => context.Orders
+                    .Where(
+                        o => (o.OrderID < 10400)
+                            && ((o.OrderDate.HasValue
+                                && o.OrderDate.Value.Month == dateFilter.Value.Month
+                                && o.OrderDate.Value.Year == dateFilter.Value.Year)))
+                    .ToList());
         }
 
         [ConditionalTheory]
@@ -4172,17 +4089,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void DefaultIfEmpty_without_group_join()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers
-                    .Where(c => c.City == "London")
-                    .DefaultIfEmpty()
-                    .Where(d => d != null)
-                    .Select(d => d.CustomerID)
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Customers
+                .Where(c => c.City == "London")
+                .DefaultIfEmpty()
+                .Where(d => d != null)
+                .Select(d => d.CustomerID)
+                .ToList();
 
-                Assert.Equal(6, query.Count);
-            }
+            Assert.Equal(6, query.Count);
         }
 
         [ConditionalTheory]
@@ -5283,23 +5198,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #16314")]
         public virtual void Streaming_chained_sync_query()
         {
-            using (var context = CreateContext())
-            {
-                var results
-                    = (context.Customers
-                        .Select(
-                            c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID) }).ToList())
+            using var context = CreateContext();
+            var results
+                = (context.Customers
                     .Select(
-                        x => new
-                        {
-                            Orders = x.Orders
-                                .GroupJoin(
-                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
-                        })
-                    .ToList();
+                        c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID) }).ToList())
+                .Select(
+                    x => new
+                    {
+                        Orders = x.Orders
+                            .GroupJoin(
+                                new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
+                    })
+                .ToList();
 
-                Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
-            }
+            Assert.Equal(830, results.SelectMany(r => r.Orders).ToList().Count);
         }
 
         [ConditionalTheory]
@@ -5342,29 +5255,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Manual_expression_tree_typed_null_equality()
         {
-            using (var context = CreateContext())
-            {
-                var orderParameter = Expression.Parameter(typeof(Order), "o");
-                var orderCustomer = Expression.MakeMemberAccess(
-                    orderParameter, typeof(Order).GetMember(nameof(Order.Customer))[0]);
+            using var context = CreateContext();
+            var orderParameter = Expression.Parameter(typeof(Order), "o");
+            var orderCustomer = Expression.MakeMemberAccess(
+                orderParameter, typeof(Order).GetMember(nameof(Order.Customer))[0]);
 
-                var selector = Expression.Lambda<Func<Order, string>>(
-                    Expression.Condition(
-                        Expression.NotEqual(
-                            orderCustomer,
-                            Expression.Constant(null, typeof(Customer))),
-                        Expression.MakeMemberAccess(
-                            orderCustomer,
-                            typeof(Customer).GetMember(nameof(Customer.City))[0]),
-                        Expression.Constant(null, typeof(string))),
-                    orderParameter);
+            var selector = Expression.Lambda<Func<Order, string>>(
+                Expression.Condition(
+                    Expression.NotEqual(
+                        orderCustomer,
+                        Expression.Constant(null, typeof(Customer))),
+                    Expression.MakeMemberAccess(
+                        orderCustomer,
+                        typeof(Customer).GetMember(nameof(Customer.City))[0]),
+                    Expression.Constant(null, typeof(string))),
+                orderParameter);
 
-                var query = context.Orders
-                    .Where(o => o.OrderID < 10300)
-                    .Select(selector).ToList();
+            var query = context.Orders
+                .Where(o => o.OrderID < 10300)
+                .Select(selector).ToList();
 
-                // No verification. Query Compilation check.
-            }
+            // No verification. Query Compilation check.
         }
 
         [ConditionalTheory]
@@ -5550,15 +5461,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Client_code_using_instance_method_throws()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
-                        GetType().DisplayName(),
-                        nameof(InstanceMethod)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.Select(c => InstanceMethod(c)).ToList()).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.ClientProjectionCapturingConstantInMethodInstance(
+                    GetType().DisplayName(),
+                    nameof(InstanceMethod)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => InstanceMethod(c)).ToList()).Message);
         }
 
         private string InstanceMethod(Customer c) => c.City;
@@ -5566,15 +5475,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Client_code_using_instance_in_static_method()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
-                        GetType().DisplayName(),
-                        nameof(StaticMethod)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.Select(c => StaticMethod(this, c)).ToList()).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.ClientProjectionCapturingConstantInMethodArgument(
+                    GetType().DisplayName(),
+                    nameof(StaticMethod)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => StaticMethod(this, c)).ToList()).Message);
         }
 
         private static string StaticMethod(SimpleQueryTestBase<TFixture> containingClass, Customer c) => c.City;
@@ -5582,14 +5489,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Client_code_using_instance_in_anonymous_type()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.ClientProjectionCapturingConstantInTree(
-                        GetType().DisplayName()),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Customers.Select(c => new { A = this }).ToList()).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.ClientProjectionCapturingConstantInTree(
+                    GetType().DisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Customers.Select(c => new { A = this }).ToList()).Message);
         }
 
         [ConditionalTheory]

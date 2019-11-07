@@ -297,71 +297,65 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_where_list_contains_navigation(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+            using var context = CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
-                var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
+            var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var query = context.Gears
-                    .Include(g => g.Tag)
-                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
+            var query = context.Gears
+                .Include(g => g.Tag)
+                .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
 
-                var gears = isAsync
-                    ? (await query.ToListAsync())
-                    : query.ToList();
+            var gears = isAsync
+                ? (await query.ToListAsync())
+                : query.ToList();
 
-                Assert.Equal(5, gears.Count);
+            Assert.Equal(5, gears.Count);
 
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            }
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Include_where_list_contains_navigation2(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+            using var context = CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
-                var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
+            var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var query = context.Gears
-                    .Include(g => g.Tag)
-                    .Where(g => g.CityOfBirth.Location != null && tags.Contains(g.Tag.Id));
+            var query = context.Gears
+                .Include(g => g.Tag)
+                .Where(g => g.CityOfBirth.Location != null && tags.Contains(g.Tag.Id));
 
-                var gears = isAsync
-                    ? (await query.ToListAsync())
-                    : query.ToList();
+            var gears = isAsync
+                ? (await query.ToListAsync())
+                : query.ToList();
 
-                Assert.Equal(5, gears.Count);
+            Assert.Equal(5, gears.Count);
 
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            }
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Navigation_accessed_twice_outside_and_inside_subquery(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
+            using var context = CreateContext();
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
-                var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
+            var tags = context.Tags.Select(t => (Guid?)t.Id).ToList();
 
-                var query = context.Gears
-                    .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
+            var query = context.Gears
+                .Where(g => g.Tag != null && tags.Contains(g.Tag.Id));
 
-                var gears = isAsync
-                    ? (await query.ToListAsync())
-                    : query.ToList();
+            var gears = isAsync
+                ? (await query.ToListAsync())
+                : query.ToList();
 
-                Assert.Equal(5, gears.Count);
+            Assert.Equal(5, gears.Count);
 
-                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            }
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         [ConditionalTheory]
@@ -1962,37 +1956,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
         {
-            using (var context = CreateContext())
-            {
-                var query = from g1 in context.Gears.Include(g => g.Weapons)
-                            join g2 in context.Gears
-                                on g1.LeaderNickname equals g2.Nickname into grouping
-                            from g2 in grouping.DefaultIfEmpty()
-                            select g2 ?? g1;
+            using var context = CreateContext();
+            var query = from g1 in context.Gears.Include(g => g.Weapons)
+                        join g2 in context.Gears
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                        from g2 in grouping.DefaultIfEmpty()
+                        select g2 ?? g1;
 
-                var result = query.ToList();
+            var result = query.ToList();
 
-                Assert.Equal(new[] { "Marcus", "Marcus", "Marcus", "Marcus", "Baird" }, result.Select(g => g.Nickname));
-                Assert.Equal(new[] { 0, 0, 0, 2, 0 }, result.Select(g => g.Weapons.Count));
-            }
+            Assert.Equal(new[] { "Marcus", "Marcus", "Marcus", "Marcus", "Baird" }, result.Select(g => g.Nickname));
+            Assert.Equal(new[] { 0, 0, 0, 2, 0 }, result.Select(g => g.Weapons.Count));
         }
 
         [ConditionalFact]
         public virtual void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()
         {
-            using (var context = CreateContext())
-            {
-                var query = from g1 in context.Gears
-                            join g2 in context.Gears.Include(g => g.Weapons)
-                                on g1.LeaderNickname equals g2.Nickname into grouping
-                            from g2 in grouping.DefaultIfEmpty()
-                            select g2 ?? g1;
+            using var context = CreateContext();
+            var query = from g1 in context.Gears
+                        join g2 in context.Gears.Include(g => g.Weapons)
+                            on g1.LeaderNickname equals g2.Nickname into grouping
+                        from g2 in grouping.DefaultIfEmpty()
+                        select g2 ?? g1;
 
-                var result = query.ToList();
+            var result = query.ToList();
 
-                Assert.Equal(new[] { "Marcus", "Marcus", "Marcus", "Marcus", "Baird" }, result.Select(g => g.Nickname));
-                Assert.Equal(new[] { 2, 2, 2, 0, 2 }, result.Select(g => g.Weapons.Count));
-            }
+            Assert.Equal(new[] { "Marcus", "Marcus", "Marcus", "Marcus", "Baird" }, result.Select(g => g.Nickname));
+            Assert.Equal(new[] { 2, 2, 2, 0, 2 }, result.Select(g => g.Weapons.Count));
         }
 
         [ConditionalTheory]
@@ -4976,36 +4966,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_and_last()
         {
-            using (var ctx = CreateContext())
-            {
-                var actual = ctx.Gears.OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(
+            using var ctx = CreateContext();
+            var actual = ctx.Gears.OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(
+                g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons)
+                .Select(
                     g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons)
-                    .Select(
-                        g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
 
-                Assert.Equal(expected.Count, actual.Count);
+            Assert.Equal(expected.Count, actual.Count);
 
-                for (var i = 0; i < expected.Count; i++)
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].Key, actual[i].Key);
+                var expectedInners = expected[i].ToList();
+                var actualInners = actual[i].ToList();
+
+                Assert.Equal(expectedInners.Count, actualInners.Count);
+                for (var j = 0; j < expectedInners.Count; j++)
                 {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    var expectedInners = expected[i].ToList();
-                    var actualInners = actual[i].ToList();
+                    Assert.Equal(expectedInners[j].g.Rank, actualInners[j].g.Rank);
 
-                    Assert.Equal(expectedInners.Count, actualInners.Count);
-                    for (var j = 0; j < expectedInners.Count; j++)
+                    var expectedWeapons = expectedInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
+                    var actualWeapons = actualInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
+
+                    Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
+                    for (var k = 0; k < expectedWeapons.Count; k++)
                     {
-                        Assert.Equal(expectedInners[j].g.Rank, actualInners[j].g.Rank);
-
-                        var expectedWeapons = expectedInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
-                        var actualWeapons = actualInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
-
-                        Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
-                        for (var k = 0; k < expectedWeapons.Count; k++)
-                        {
-                            Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
-                            Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
-                        }
+                        Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
+                        Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
                     }
                 }
             }
@@ -5014,36 +5002,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_with_composite_group_key()
         {
-            using (var ctx = CreateContext())
+            using var ctx = CreateContext();
+            var actual = ctx.Gears.OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
+                g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
+                g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
+
+            Assert.Equal(expected.Count, actual.Count);
+
+            for (var i = 0; i < expected.Count; i++)
             {
-                var actual = ctx.Gears.OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
-                    g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
-                    g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
+                Assert.Equal(expected[i].Key, actual[i].Key);
+                var expectedInners = expected[i].ToList();
+                var actualInners = actual[i].ToList();
 
-                Assert.Equal(expected.Count, actual.Count);
-
-                for (var i = 0; i < expected.Count; i++)
+                Assert.Equal(expectedInners.Count, actualInners.Count);
+                for (var j = 0; j < expectedInners.Count; j++)
                 {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    var expectedInners = expected[i].ToList();
-                    var actualInners = actual[i].ToList();
+                    Assert.Equal(expectedInners[j].Rank, actualInners[j].Rank);
+                    Assert.Equal(expectedInners[j].HasSoulPatch, actualInners[j].HasSoulPatch);
 
-                    Assert.Equal(expectedInners.Count, actualInners.Count);
-                    for (var j = 0; j < expectedInners.Count; j++)
+                    var expectedWeapons = expectedInners[j].Weapons.OrderBy(w => w.Id).ToList();
+                    var actualWeapons = actualInners[j].Weapons.OrderBy(w => w.Id).ToList();
+
+                    Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
+                    for (var k = 0; k < expectedWeapons.Count; k++)
                     {
-                        Assert.Equal(expectedInners[j].Rank, actualInners[j].Rank);
-                        Assert.Equal(expectedInners[j].HasSoulPatch, actualInners[j].HasSoulPatch);
-
-                        var expectedWeapons = expectedInners[j].Weapons.OrderBy(w => w.Id).ToList();
-                        var actualWeapons = actualInners[j].Weapons.OrderBy(w => w.Id).ToList();
-
-                        Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
-                        for (var k = 0; k < expectedWeapons.Count; k++)
-                        {
-                            Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
-                            Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
-                        }
+                        Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
+                        Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
                     }
                 }
             }
@@ -5052,36 +5038,32 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_order_by_take()
         {
-            using (var ctx = CreateContext())
-            {
-                var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch).ToList();
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch)
-                    .ToList();
+            using var ctx = CreateContext();
+            var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch).ToList();
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch)
+                .ToList();
 
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    Assert.Equal(expected[i].Count(), actual[i].Count());
-                }
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].Key, actual[i].Key);
+                Assert.Equal(expected[i].Count(), actual[i].Count());
             }
         }
 
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_distinct()
         {
-            using (var ctx = CreateContext())
-            {
-                var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Distinct().GroupBy(g => g.HasSoulPatch).ToList();
-                var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Distinct()
-                    .GroupBy(g => g.HasSoulPatch).ToList();
+            using var ctx = CreateContext();
+            var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Distinct().GroupBy(g => g.HasSoulPatch).ToList();
+            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Distinct()
+                .GroupBy(g => g.HasSoulPatch).ToList();
 
-                Assert.Equal(expected.Count, actual.Count);
-                for (var i = 0; i < expected.Count; i++)
-                {
-                    Assert.Equal(expected[i].Key, actual[i].Key);
-                    Assert.Equal(expected[i].Count(), actual[i].Count());
-                }
+            Assert.Equal(expected.Count, actual.Count);
+            for (var i = 0; i < expected.Count; i++)
+            {
+                Assert.Equal(expected[i].Key, actual[i].Key);
+                Assert.Equal(expected[i].Count(), actual[i].Count());
             }
         }
 
@@ -5123,13 +5105,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_collection_group_by_reference()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Gear>()
-                    .Include(g => g.Weapons)
-                    .GroupBy(g => g.Squad)
-                    .ToList();
-            }
+            using var context = CreateContext();
+            var query = context.Set<Gear>()
+                .Include(g => g.Weapons)
+                .GroupBy(g => g.Squad)
+                .ToList();
         }
 
         [ConditionalTheory]
@@ -5486,17 +5466,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_on_entity_qsre()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Squads.Include(s => s.Members).GroupBy(s => s);
-                var results = query.ToList();
+            using var ctx = CreateContext();
+            var query = ctx.Squads.Include(s => s.Members).GroupBy(s => s);
+            var results = query.ToList();
 
-                foreach (var result in results)
+            foreach (var result in results)
+            {
+                foreach (var grouping in result)
                 {
-                    foreach (var grouping in result)
-                    {
-                        Assert.True(grouping.Members.Count > 0);
-                    }
+                    Assert.True(grouping.Members.Count > 0);
                 }
             }
         }
@@ -5504,17 +5482,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_on_entity_qsre_with_composite_key()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Gears.Include(g => g.Weapons).GroupBy(g => g);
-                var results = query.ToList();
+            using var ctx = CreateContext();
+            var query = ctx.Gears.Include(g => g.Weapons).GroupBy(g => g);
+            var results = query.ToList();
 
-                foreach (var result in results)
+            foreach (var result in results)
+            {
+                foreach (var grouping in result)
                 {
-                    foreach (var grouping in result)
-                    {
-                        Assert.True(grouping.Weapons.Count > 0);
-                    }
+                    Assert.True(grouping.Weapons.Count > 0);
                 }
             }
         }
@@ -5522,17 +5498,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_on_entity_navigation()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Gears.Include(g => g.Weapons).Where(g => !g.HasSoulPatch).GroupBy(g => g.Squad);
-                var results = query.ToList();
+            using var ctx = CreateContext();
+            var query = ctx.Gears.Include(g => g.Weapons).Where(g => !g.HasSoulPatch).GroupBy(g => g.Squad);
+            var results = query.ToList();
 
-                foreach (var result in results)
+            foreach (var result in results)
+            {
+                foreach (var grouping in result)
                 {
-                    foreach (var grouping in result)
-                    {
-                        Assert.True(grouping.Weapons.Count > 0);
-                    }
+                    Assert.True(grouping.Weapons.Count > 0);
                 }
             }
         }
@@ -5540,17 +5514,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_with_group_by_on_entity_navigation_with_inheritance()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Factions.OfType<LocustHorde>().Include(lh => lh.Leaders).GroupBy(lh => lh.Commander.DefeatedBy);
-                var results = query.ToList();
+            using var ctx = CreateContext();
+            var query = ctx.Factions.OfType<LocustHorde>().Include(lh => lh.Leaders).GroupBy(lh => lh.Commander.DefeatedBy);
+            var results = query.ToList();
 
-                foreach (var result in results)
+            foreach (var result in results)
+            {
+                foreach (var grouping in result)
                 {
-                    foreach (var grouping in result)
-                    {
-                        Assert.True(grouping.Leaders.Count > 0);
-                    }
+                    Assert.True(grouping.Leaders.Count > 0);
                 }
             }
         }
@@ -5687,17 +5659,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void Include_groupby_constant()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
-                var result = query.ToList();
+            using var ctx = CreateContext();
+            var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
+            var result = query.ToList();
 
-                Assert.Single(result);
-                var bucket = result[0].ToList();
-                Assert.Equal(2, bucket.Count);
-                Assert.NotNull(bucket[0].Members);
-                Assert.NotNull(bucket[1].Members);
-            }
+            Assert.Single(result);
+            var bucket = result[0].ToList();
+            Assert.Equal(2, bucket.Count);
+            Assert.NotNull(bucket[0].Members);
+            Assert.NotNull(bucket[1].Members);
         }
 
         [ConditionalTheory]
@@ -5763,17 +5733,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "issue #11567")]
         public virtual void Include_groupby_constant_null_of_non_mapped_type()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Squads.Include(s => s.Members).GroupBy(s => (MyDTO)null);
-                var result = query.ToList();
+            using var ctx = CreateContext();
+            var query = ctx.Squads.Include(s => s.Members).GroupBy(s => (MyDTO)null);
+            var result = query.ToList();
 
-                Assert.Single(result);
-                var bucket = result[0].ToList();
-                Assert.Equal(2, bucket.Count);
-                Assert.NotNull(bucket[0].Members);
-                Assert.NotNull(bucket[1].Members);
-            }
+            Assert.Single(result);
+            var bucket = result[0].ToList();
+            Assert.Equal(2, bucket.Count);
+            Assert.NotNull(bucket[0].Members);
+            Assert.NotNull(bucket[1].Members);
         }
 
         [ConditionalTheory]
@@ -5796,24 +5764,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17068")]
         public virtual void GroupBy_composite_key_with_Include()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Gears.Include(o => o.Weapons).GroupBy(
-                    o => new
-                    {
-                        o.Rank,
-                        One = 1,
-                        o.Nickname
-                    });
-                var result = query.ToList();
-
-                Assert.Equal(5, result.Count);
-                foreach (var bucket in result)
+            using var ctx = CreateContext();
+            var query = ctx.Gears.Include(o => o.Weapons).GroupBy(
+                o => new
                 {
-                    foreach (var gear in bucket)
-                    {
-                        Assert.True(gear.Weapons.Count > 0);
-                    }
+                    o.Rank,
+                    One = 1,
+                    o.Nickname
+                });
+            var result = query.ToList();
+
+            Assert.Equal(5, result.Count);
+            foreach (var bucket in result)
+            {
+                foreach (var gear in bucket)
+                {
+                    Assert.True(gear.Weapons.Count > 0);
                 }
             }
         }
@@ -6445,23 +6411,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual Task Multiple_includes_with_client_method_around_entity_and_also_projecting_included_collection()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Squads
-                    .Include(s => s.Members)
-                    .ThenInclude(g => g.Weapons)
-                    .Where(s => s.Name == "Delta")
-                    .Select(s => new { s.Name, Client(s).Members });
+            using var ctx = CreateContext();
+            var query = ctx.Squads
+                .Include(s => s.Members)
+                .ThenInclude(g => g.Weapons)
+                .Where(s => s.Name == "Delta")
+                .Select(s => new { s.Name, Client(s).Members });
 
-                var result = query.ToList();
+            var result = query.ToList();
 
-                Assert.Single(result);
+            Assert.Single(result);
 
-                var topLevel = result[0];
+            var topLevel = result[0];
 
-                Assert.Equal(4, topLevel.Members.Count);
-                Assert.True(topLevel.Members.First().Weapons.Count > 0);
-            }
+            Assert.Equal(4, topLevel.Members.Count);
+            Assert.True(topLevel.Members.First().Weapons.Count > 0);
 
             return Task.CompletedTask;
         }
@@ -6684,23 +6648,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "Issue #17328")]
         public virtual void Nav_rewrite_Distinct_with_convert()
         {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
-                    .Where(f => f.Capital.Name != "Foo").Select(f => (LocustHorde)f)
-                    .Distinct().Where(lh => lh.Commander.Name != "Bar").ToList();
-            }
+            using var ctx = CreateContext();
+            var result = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
+                .Where(f => f.Capital.Name != "Foo").Select(f => (LocustHorde)f)
+                .Distinct().Where(lh => lh.Commander.Name != "Bar").ToList();
         }
 
         [ConditionalFact(Skip = "Issue #17328")]
         public virtual void Nav_rewrite_Distinct_with_convert_anonymous()
         {
-            using (var ctx = CreateContext())
-            {
-                var result = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
-                    .Where(f => f.Capital.Name != "Foo").Select(f => new { horde = (LocustHorde)f })
-                    .Distinct().Where(lh => lh.horde.Commander.Name != "Bar").ToList();
-            }
+            using var ctx = CreateContext();
+            var result = ctx.Factions.Include(f => ((LocustHorde)f).Commander)
+                .Where(f => f.Capital.Name != "Foo").Select(f => new { horde = (LocustHorde)f })
+                .Distinct().Where(lh => lh.horde.Commander.Name != "Bar").ToList();
         }
 
         [ConditionalTheory]
