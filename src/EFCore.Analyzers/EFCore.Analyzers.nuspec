@@ -5,13 +5,12 @@
     <dependencies>
       <group targetFramework=".NETStandard2.0" />
     </dependencies>
-    <icon>packageIcon.png</icon>
   </metadata>
 
   <files>
+    $CommonFileElements$
     <file src="_._" target="lib\$targetFramework$\" />
     <file src="$OutputBinary$" target="analyzers\dotnet\cs\" />
     <file src="$OutputSymbol$" target="analyzers\dotnet\cs\" />
-    <file src="$PackageIcon$" target="" />
   </files>
 </package>
