@@ -562,15 +562,13 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         {
             await base.FirstOrDefault_inside_subquery_gets_server_evaluated(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE ([c].[CustomerID] = N'ALFKI') AND ((
-//    SELECT TOP(1) [o].[CustomerID]
-//    FROM [Orders] AS [o]
-//    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI')
-//) = N'ALFKI')");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ([c].[CustomerID] = N'ALFKI') AND ((
+    SELECT TOP(1) [o].[CustomerID]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI')) = N'ALFKI')");
         }
 
         public override async Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
@@ -611,21 +609,22 @@ ORDER BY [od].[ProductID]");
         {
             await base.Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT (
-//    SELECT TOP(1) [od].[ProductID]
-//    FROM [Order Details] AS [od]
-//    WHERE [od].[OrderID] = COALESCE((
-//        SELECT TOP(1) [o].[OrderID]
-//        FROM [Orders] AS [o]
-//        WHERE [c].[CustomerID] = [o].[CustomerID]
-//        ORDER BY [o].[OrderID]
-//    ), 0)
-//    ORDER BY [od].[ProductID]
-//)
-//FROM [Customers] AS [c]
-//ORDER BY [c].[CustomerID]");
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [o].[ProductID]
+    FROM [Order Details] AS [o]
+    WHERE (
+        SELECT TOP(1) [o0].[OrderID]
+        FROM [Orders] AS [o0]
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+        ORDER BY [o0].[OrderID]) IS NOT NULL AND ((
+        SELECT TOP(1) [o1].[OrderID]
+        FROM [Orders] AS [o1]
+        WHERE [c].[CustomerID] = [o1].[CustomerID]
+        ORDER BY [o1].[OrderID]) = [o].[OrderID])
+    ORDER BY [o].[ProductID])
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task First_inside_subquery_gets_client_evaluated(bool async)
@@ -872,11 +871,10 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
         {
             await base.Contains_with_local_collection_false(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI')");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI')");
         }
 
         public override async Task Contains_with_local_collection_complex_predicate_and(bool async)
@@ -893,33 +891,33 @@ WHERE (([c].[CustomerID] = N'ALFKI') OR ([c].[CustomerID] = N'ABCDE')) AND [c].[
         {
             await base.Contains_with_local_collection_complex_predicate_or(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI', N'ALFKI', N'ABCDE')");
+            // issue #18791
+            //            AssertSql(
+            //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            //FROM [Customers] AS [c]
+            //WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI', N'ALFKI', N'ABCDE')");
         }
 
         public override async Task Contains_with_local_collection_complex_predicate_not_matching_ins1(bool async)
         {
             await base.Contains_with_local_collection_complex_predicate_not_matching_ins1(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] IN (N'ALFKI', N'ABCDE') OR [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI')");
+            // issue #18791
+            //            AssertSql(
+            //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            //FROM [Customers] AS [c]
+            //WHERE [c].[CustomerID] IN (N'ALFKI', N'ABCDE') OR [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI')");
         }
 
         public override async Task Contains_with_local_collection_complex_predicate_not_matching_ins2(bool async)
         {
             await base.Contains_with_local_collection_complex_predicate_not_matching_ins2(async);
 
-            // issue #15944
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI') AND [c].[CustomerID] NOT IN (N'ALFKI', N'ABCDE')");
+            // issue #18791
+            //            AssertSql(
+            //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            //FROM [Customers] AS [c]
+            //WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI') AND [c].[CustomerID] NOT IN (N'ALFKI', N'ABCDE')");
         }
 
         public override async Task Contains_with_local_collection_sql_injection(bool async)
@@ -956,17 +954,17 @@ WHERE CAST(1 AS bit) = CAST(1 AS bit)");
         {
             await base.Contains_top_level(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__p_0='ALFKI' (Size = 4000)
+            AssertSql(
+                @"@__p_0='ALFKI' (Size = 4000)
 
-//SELECT CASE
-//    WHEN @__p_0 IN (
-//        SELECT [c].[CustomerID]
-//        FROM [Customers] AS [c]
-//    )
-//    THEN CAST(1 AS bit) ELSE CAST(0 AS bit)
-//END");
+SELECT CASE
+    WHEN @__p_0 IN (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+    )
+     THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
         }
 
         public override async Task Contains_with_local_anonymous_type_array_closure(bool async)

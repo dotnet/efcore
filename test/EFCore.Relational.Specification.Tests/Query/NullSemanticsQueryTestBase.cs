@@ -826,6 +826,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                 useRelationalNulls: false);
         }
 
+        [ConditionalFact(Skip = "Issue #18773")]
+        public virtual void Where_IndexOf_empty()
+        {
+            AssertQuery<NullSemanticsEntity1>(
+                es => es.Where(e => e.NullableStringA.IndexOf("") == e.NullableIntA),
+                es => es.Where(e => 0 == e.NullableIntA),
+                useRelationalNulls: false);
+        }
+
+        [ConditionalFact(Skip = "issue #18772")]
+        public virtual void Select_IndexOf()
+        {
+            using (var ctx = CreateContext())
+            {
+                var query = ctx.Entities1.OrderBy(e => e.Id).Select(e => e.NullableStringA.IndexOf("oo")).ToList();
+                var expected = _clientData._entities1.OrderBy(e => e.Id).Select(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo"))).ToList();
+
+                for (var i = 0; i < query.Count; i++)
+                {
+                    Assert.Equal(expected[i], query[i]);
+                }
+            }
+        }
+
         [ConditionalFact]
         public virtual void Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments()
         {
@@ -933,8 +957,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var result = query.ToList();
 
-                var expected = (from e1 in ctx.Entities1.ToList()
-                                join e2 in ctx.Entities2.ToList()
+                var expected = (from e1 in _clientData._entities1
+                                join e2 in _clientData._entities2
                                     on new
                                     {
                                         one = e1.NullableStringA,
@@ -950,6 +974,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 select new { e1, e2 }).ToList();
 
                 Assert.Equal(result.Count, expected.Count);
+                var orderedResult = result.OrderBy(x => x.e1.Id).ThenBy(x => x.e2.Id).ToList();
+                var orderedExpected = expected.OrderBy(x => x.e1.Id).ThenBy(x => x.e2.Id).ToList();
+                for (var i = 0; i < orderedExpected.Count; i++)
+                {
+                    Assert.Equal(orderedExpected[i].e1.Id, orderedResult[i].e1.Id);
+                    Assert.Equal(orderedExpected[i].e2.Id, orderedResult[i].e2.Id);
+                }
             }
         }
 

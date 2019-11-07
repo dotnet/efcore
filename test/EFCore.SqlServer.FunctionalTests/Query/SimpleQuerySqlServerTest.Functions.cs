@@ -98,11 +98,10 @@ WHERE [c].[ContactName] IS NOT NULL AND ([c].[ContactName] LIKE N'%m')");
                 ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("M") || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         }
 
         public override async Task String_Contains_Identity(bool async)
@@ -145,7 +144,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_simple_zero(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -176,7 +175,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_simple_one(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -207,7 +206,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_compare_with_parameter(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"@__customer_CustomerID_0='ALFKI' (Size = 4000)
 
@@ -250,23 +249,37 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_simple_more_than_one(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]",
-//                //
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]",
-//                //
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN 0
+    WHEN [c].[CustomerID] > N'ALFKI' THEN 1
+    WHEN [c].[CustomerID] < N'ALFKI' THEN -1
+END = 42",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN 0
+    WHEN [c].[CustomerID] > N'ALFKI' THEN 1
+    WHEN [c].[CustomerID] < N'ALFKI' THEN -1
+END > 42",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 42 > CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN 0
+    WHEN [c].[CustomerID] > N'ALFKI' THEN 1
+    WHEN [c].[CustomerID] < N'ALFKI' THEN -1
+END");
         }
 
         public override async Task String_Compare_nested(bool async)
         {
             await base.String_Compare_nested(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -297,7 +310,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_multi_predicate(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -312,7 +325,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_to_simple_zero(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -343,7 +356,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_to_simple_one(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -374,7 +387,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_compare_to_with_parameter(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"@__customer_CustomerID_0='ALFKI' (Size = 4000)
 
@@ -417,23 +430,37 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_to_simple_more_than_one(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]",
-//                //
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]",
-//                //
-//                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN 0
+    WHEN [c].[CustomerID] > N'ALFKI' THEN 1
+    WHEN [c].[CustomerID] < N'ALFKI' THEN -1
+END = 42",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN 0
+    WHEN [c].[CustomerID] > N'ALFKI' THEN 1
+    WHEN [c].[CustomerID] < N'ALFKI' THEN -1
+END > 42",
+                //
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 42 > CASE
+    WHEN [c].[CustomerID] = N'ALFKI' THEN 0
+    WHEN [c].[CustomerID] > N'ALFKI' THEN 1
+    WHEN [c].[CustomerID] < N'ALFKI' THEN -1
+END");
         }
 
         public override async Task String_Compare_to_nested(bool async)
         {
             await base.String_Compare_to_nested(async);
 
-            //issue #15994
+            //issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -464,7 +491,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.String_Compare_to_multi_predicate(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 //FROM [Customers] AS [c]
@@ -479,7 +506,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.DateTime_Compare_to_simple_zero(async, compareTo);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"@__myDatetime_0='1998-05-04T00:00:00'
 
@@ -522,7 +549,7 @@ WHERE CHARINDEX(N'M', [c].[ContactName]) > 0");
         {
             await base.Int_Compare_to_simple_zero(async);
 
-            // issue #15994
+            // issue #16092
 //            AssertSql(
 //                @"@__orderId_0='10250'
 
@@ -1164,33 +1191,30 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         {
             await base.Substring_with_zero_startindex(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT SUBSTRING([c].[ContactName], 1, 3)
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] = N'ALFKI'");
+            AssertSql(
+                @"SELECT SUBSTRING([c].[ContactName], 0 + 1, 3)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Substring_with_zero_length(bool async)
         {
             await base.Substring_with_zero_length(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT SUBSTRING([c].[ContactName], 3, 0)
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] = N'ALFKI'");
+            AssertSql(
+                @"SELECT SUBSTRING([c].[ContactName], 2 + 1, 0)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Substring_with_constant(bool async)
         {
             await base.Substring_with_constant(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT SUBSTRING([c].[ContactName], 2, 3)
-//FROM [Customers] AS [c]
-//WHERE [c].[CustomerID] = N'ALFKI'");
+            AssertSql(
+                @"SELECT SUBSTRING([c].[ContactName], 1 + 1, 3)
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task Substring_with_closure(bool async)

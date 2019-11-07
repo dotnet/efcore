@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Where(e2 => InMemoryCheck.Check(differentVariableName, e2.CustomerID) || true).Count();
         }
 
-        [ConditionalFact] // See issue #12771
+        [ConditionalFact]
         public virtual void Can_convert_manually_build_expression_with_default()
         {
             using var context = CreateContext();
@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.NotEqual(
                         Expression.Property(
                             parameter,
-                            "CustomerID"),
+                            "City"),
                         Expression.Default(typeof(string))),
                     parameter);
 

@@ -451,15 +451,16 @@ WHERE [e].[Title] = N'Sales Representative'");
         {
             await base.Where_shadow_subquery_FirstOrDefault(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-//FROM [Employees] AS [e]
-//WHERE [e].[Title] = (
-//    SELECT TOP(1) [e2].[Title]
-//    FROM [Employees] AS [e2]
-//    ORDER BY [e2].[Title]
-//)");
+            AssertSql(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE ([e].[Title] = (
+    SELECT TOP(1) [e0].[Title]
+    FROM [Employees] AS [e0]
+    ORDER BY [e0].[Title])) OR ([e].[Title] IS NULL AND (
+    SELECT TOP(1) [e0].[Title]
+    FROM [Employees] AS [e0]
+    ORDER BY [e0].[Title]) IS NULL)");
         }
 
         public override async Task Where_subquery_correlated(bool async)
@@ -690,26 +691,24 @@ WHERE SUBSTRING([c].[City], 1 + 1, 2) = N'ea'");
         {
             await base.Where_datetime_now(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__myDatetime_0='2015-04-10T00:00:00'
+            AssertSql(
+                @"@__myDatetime_0='2015-04-10T00:00:00'
 
-//SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE GETDATE() <> @__myDatetime_0");
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (GETDATE() <> @__myDatetime_0) OR GETDATE() IS NULL");
         }
 
         public override async Task Where_datetime_utcnow(bool async)
         {
             await base.Where_datetime_utcnow(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__myDatetime_0='2015-04-10T00:00:00'
+            AssertSql(
+                @"@__myDatetime_0='2015-04-10T00:00:00'
 
-//SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-//FROM [Customers] AS [c]
-//WHERE GETUTCDATE() <> @__myDatetime_0");
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (GETUTCDATE() <> @__myDatetime_0) OR GETUTCDATE() IS NULL");
         }
 
         public override async Task Where_datetime_today(bool async)
@@ -828,22 +827,20 @@ WHERE DATEPART(millisecond, [o].[OrderDate]) = 88");
         {
             await base.Where_datetimeoffset_now_component(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-//FROM [Orders] AS [o]
-//WHERE [o].[OrderDate] = SYSDATETIMEOFFSET()");
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE (CAST([o].[OrderDate] AS datetimeoffset) = SYSDATETIMEOFFSET()) OR ([o].[OrderDate] IS NULL AND SYSDATETIMEOFFSET() IS NULL)");
         }
 
         public override async Task Where_datetimeoffset_utcnow_component(bool async)
         {
             await base.Where_datetimeoffset_utcnow_component(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-//FROM [Orders] AS [o]
-//WHERE [o].[OrderDate] = CAST(SYSUTCDATETIME() AS datetimeoffset)");
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE (CAST([o].[OrderDate] AS datetimeoffset) = CAST(SYSUTCDATETIME() AS datetimeoffset)) OR ([o].[OrderDate] IS NULL AND SYSUTCDATETIME() IS NULL)");
         }
 
         public override async Task Where_simple_reversed(bool async)
@@ -1019,22 +1016,11 @@ WHERE [p].[Discontinued] = CAST(1 AS bit)");
         {
             await base.Where_bool_member_false(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-//FROM [Products] AS [p]
-//WHERE [p].[Discontinued] = CAST(0 AS bit)");
+            AssertSql(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] <> CAST(1 AS bit)");
         }
-
-        //        public override async Task Where_bool_client_side_negated(bool async)
-        //        {
-        //            await base.Where_bool_client_side_negated(async);
-
-        //            AssertSql(
-        //                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-        //FROM [Products] AS [p]
-        //WHERE [p].[Discontinued] = 1");
-        //        }
 
         public override async Task Where_bool_member_negated_twice(bool async)
         {
@@ -1367,53 +1353,42 @@ WHERE [p].[UnitsInStock] >= CAST(20 AS smallint)");
         {
             await base.Where_ternary_boolean_condition_false(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__flag_0='False'
-
-//SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-//FROM [Products] AS [p]
-//WHERE ((@__flag_0 = CAST(1 AS bit)) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_0 <> CAST(1 AS bit)) AND ([p].[UnitsInStock] < CAST(20 AS smallint)))");
+            AssertSql(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[UnitsInStock] < CAST(20 AS smallint)");
         }
 
         public override async Task Where_ternary_boolean_condition_with_another_condition(bool async)
         {
             await base.Where_ternary_boolean_condition_with_another_condition(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__productId_0='15'
-//@__flag_1='True'
+            AssertSql(
+                @"@__productId_0='15'
 
-//SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-//FROM [Products] AS [p]
-//WHERE ([p].[ProductID] < @__productId_0) AND (((@__flag_1 = CAST(1 AS bit)) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))) OR ((@__flag_1 <> CAST(1 AS bit)) AND ([p].[UnitsInStock] < CAST(20 AS smallint))))");
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ([p].[ProductID] < @__productId_0) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
         }
 
         public override async Task Where_ternary_boolean_condition_with_false_as_result_true(bool async)
         {
             await base.Where_ternary_boolean_condition_with_false_as_result_true(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__flag_0='True'
-
-//SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-//FROM [Products] AS [p]
-//WHERE (@__flag_0 = CAST(1 AS bit)) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
+            AssertSql(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[UnitsInStock] >= CAST(20 AS smallint)");
         }
 
         public override async Task Where_ternary_boolean_condition_with_false_as_result_false(bool async)
         {
             await base.Where_ternary_boolean_condition_with_false_as_result_false(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"@__flag_0='False'
-
-//SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
-//FROM [Products] AS [p]
-//WHERE (@__flag_0 = CAST(1 AS bit)) AND ([p].[UnitsInStock] >= CAST(20 AS smallint))");
+            AssertSql(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
         public override async Task Where_compare_constructed_equal(bool async)
@@ -1584,19 +1559,19 @@ WHERE [c].[CustomerID] = @__p_0");
         {
             await base.Where_multiple_contains_in_subquery_with_or(async);
 
-            // issue #15994
-//            AssertSql(
-//                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
-//FROM [Order Details] AS [od]
-//WHERE [od].[ProductID] IN (
-//    SELECT TOP(1) [p].[ProductID]
-//    FROM [Products] AS [p]
-//    ORDER BY [p].[ProductID]
-//) OR [od].[OrderID] IN (
-//    SELECT TOP(1) [o].[OrderID]
-//    FROM [Orders] AS [o]
-//    ORDER BY [o].[OrderID]
-//)");
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[ProductID] IN (
+    SELECT TOP(1) [p].[ProductID]
+    FROM [Products] AS [p]
+    ORDER BY [p].[ProductID]
+)
+ OR [o].[OrderID] IN (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    ORDER BY [o0].[OrderID]
+)");
         }
 
         public override async Task Where_multiple_contains_in_subquery_with_and(bool async)
