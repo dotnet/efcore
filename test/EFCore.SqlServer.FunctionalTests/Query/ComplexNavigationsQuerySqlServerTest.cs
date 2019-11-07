@@ -1248,14 +1248,13 @@ ORDER BY [l].[Id], [l1].[Id], [t].[Id]");
             await base.Where_navigation_property_to_collection(isAsync);
 
             AssertSql(
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Name], [l1].[OneToMany_Optional_Self_Inverse1Id], [l1].[OneToMany_Required_Self_Inverse1Id], [l1].[OneToOne_Optional_Self1Id]
-FROM [LevelOne] AS [l1]
-LEFT JOIN [LevelTwo] AS [l1.OneToOne_Required_FK1] ON [l1].[Id] = [l1.OneToOne_Required_FK1].[Level1_Required_Id]
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 WHERE (
     SELECT COUNT(*)
-    FROM [LevelThree] AS [l]
-    WHERE [l1.OneToOne_Required_FK1].[Id] = [l].[OneToMany_Optional_Inverse3Id]
-) > 0");
+    FROM [LevelThree] AS [l1]
+    WHERE [l0].[Id] IS NOT NULL AND ([l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id])) > 0");
         }
 
         public override async Task Where_navigation_property_to_collection2(bool isAsync)
@@ -2998,14 +2997,13 @@ WHERE EXISTS (
             await base.Navigations_compared_to_each_other4(isAsync);
 
             AssertSql(
-                @"SELECT [l2].[Name]
-FROM [LevelTwo] AS [l2]
-LEFT JOIN [LevelThree] AS [l2.OneToOne_Required_FK2] ON [l2].[Id] = [l2.OneToOne_Required_FK2].[Level2_Required_Id]
+                @"SELECT [l].[Name]
+FROM [LevelTwo] AS [l]
+LEFT JOIN [LevelThree] AS [l0] ON [l].[Id] = [l0].[Level2_Required_Id]
 WHERE EXISTS (
     SELECT 1
-    FROM [LevelFour] AS [l]
-    LEFT JOIN [LevelThree] AS [i.OneToOne_Optional_PK_Inverse4] ON [l].[OneToOne_Optional_PK_Inverse4Id] = [i.OneToOne_Optional_PK_Inverse4].[Id]
-    WHERE [l2.OneToOne_Required_FK2].[Id] = [l].[OneToMany_Optional_Inverse4Id])");
+    FROM [LevelFour] AS [l1]
+    WHERE [l0].[Id] IS NOT NULL AND ([l0].[Id] = [l1].[OneToMany_Optional_Inverse4Id]))");
         }
 
         public override async Task Navigations_compared_to_each_other5(bool isAsync)
@@ -3013,15 +3011,14 @@ WHERE EXISTS (
             await base.Navigations_compared_to_each_other5(isAsync);
 
             AssertSql(
-                @"SELECT [l2].[Name]
-FROM [LevelTwo] AS [l2]
-LEFT JOIN [LevelThree] AS [l2.OneToOne_Required_FK2] ON [l2].[Id] = [l2.OneToOne_Required_FK2].[Level2_Required_Id]
-LEFT JOIN [LevelThree] AS [l2.OneToOne_Required_FK2.OneToOne_Optional_PK2] ON [l2].[Id] = [l2.OneToOne_Required_FK2.OneToOne_Optional_PK2].[OneToOne_Optional_PK_Inverse3Id]
+                @"SELECT [l].[Name]
+FROM [LevelTwo] AS [l]
+LEFT JOIN [LevelThree] AS [l0] ON [l].[Id] = [l0].[Level2_Required_Id]
+LEFT JOIN [LevelThree] AS [l1] ON [l].[Id] = [l1].[OneToOne_Optional_PK_Inverse3Id]
 WHERE EXISTS (
     SELECT 1
-    FROM [LevelFour] AS [l]
-    LEFT JOIN [LevelThree] AS [i.OneToOne_Optional_PK_Inverse4] ON [l].[OneToOne_Optional_PK_Inverse4Id] = [i.OneToOne_Optional_PK_Inverse4].[Id]
-    WHERE [l2.OneToOne_Required_FK2].[Id] = [l].[OneToMany_Optional_Inverse4Id])");
+    FROM [LevelFour] AS [l2]
+    WHERE [l0].[Id] IS NOT NULL AND ([l0].[Id] = [l2].[OneToMany_Optional_Inverse4Id]))");
         }
 
         public override async Task Level4_Include(bool isAsync)
@@ -3175,13 +3172,12 @@ ORDER BY [l].[Id], [l1].[Id]");
             await base.Project_collection_navigation_count(isAsync);
 
             AssertSql(
-                @"SELECT [l1].[Id], (
+                @"SELECT [l0].[Id], (
     SELECT COUNT(*)
     FROM [LevelThree] AS [l]
-    WHERE [l1.OneToOne_Optional_FK1].[Id] = [l].[OneToMany_Optional_Inverse3Id]
-) AS [Count]
-FROM [LevelOne] AS [l1]
-LEFT JOIN [LevelTwo] AS [l1.OneToOne_Optional_FK1] ON [l1].[Id] = [l1.OneToOne_Optional_FK1].[Level1_Optional_Id]");
+    WHERE [l1].[Id] IS NOT NULL AND ([l1].[Id] = [l].[OneToMany_Optional_Inverse3Id])) AS [Count]
+FROM [LevelOne] AS [l0]
+LEFT JOIN [LevelTwo] AS [l1] ON [l0].[Id] = [l1].[Level1_Optional_Id]");
         }
 
         public override async Task Project_collection_navigation_composed(bool isAsync)

@@ -147,10 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.QueryFailed(
                         @"DbSet<Employee>
     .Join(
-        outer: __p_0, 
-        inner: e1 => e1.EmployeeID, 
-        outerKeySelector: i => i, 
-        innerKeySelector: (e1, i) => e1)",
+        inner: __p_0, 
+        outerKeySelector: e1 => e1.EmployeeID, 
+        innerKeySelector: i => i, 
+        resultSelector: (e1, i) => e1)",
                         "NavigationExpandingExpressionVisitor"),
                     message, ignoreLineEndingDifferences: true);
             }
@@ -171,10 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                     CoreStrings.QueryFailed(
                         @"DbSet<Employee>
     .GroupJoin(
-        outer: __p_0, 
-        inner: e1 => e1.EmployeeID, 
-        outerKeySelector: i => i, 
-        innerKeySelector: (e1, g) => e1)",
+        inner: __p_0, 
+        outerKeySelector: e1 => e1.EmployeeID, 
+        innerKeySelector: i => i, 
+        resultSelector: (e1, g) => e1)",
                         "NavigationExpandingExpressionVisitor"),
                     message, ignoreLineEndingDifferences: true);
             }

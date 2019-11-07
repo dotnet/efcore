@@ -593,7 +593,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 var argumentNames
                     = !isSimpleMethodOrProperty
-                        ? method.GetParameters().Select(p => p.Name).ToList()
+                        ? extensionMethod
+                            ? method.GetParameters().Skip(1).Select(p => p.Name).ToList()
+                            : method.GetParameters().Select(p => p.Name).ToList()
                         : new List<string>();
 
                 IDisposable indent = null;

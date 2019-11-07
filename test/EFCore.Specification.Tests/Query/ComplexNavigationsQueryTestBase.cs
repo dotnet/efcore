@@ -1797,7 +1797,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ?? new List<Level3>()));
         }
 
-        [ConditionalTheory(Skip = " Issue#16093")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_navigation_property_to_collection(bool isAsync)
         {
@@ -4109,7 +4109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select l2.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue#16093")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigations_compared_to_each_other4(bool isAsync)
         {
@@ -4130,7 +4130,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select l2.Name);
         }
 
-        [ConditionalTheory(Skip = "Issue#16093")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Navigations_compared_to_each_other5(bool isAsync)
         {
@@ -4324,7 +4324,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = " Issue#16093")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_collection_navigation_count(bool isAsync)
         {
