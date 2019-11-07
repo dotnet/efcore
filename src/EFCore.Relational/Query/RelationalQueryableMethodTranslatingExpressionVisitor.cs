@@ -520,6 +520,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         : _sqlExpressionFactory.AndAlso(result, joinPredicate);
                 }
 
+                if (outerNew.Arguments.Count == 1)
+                {
+                    result = _sqlExpressionFactory.AndAlso(
+                        result,
+                        CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true)));
+                }
+
                 return result;
             }
 

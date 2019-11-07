@@ -3919,7 +3919,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l3 => l3.Name));
         }
 
-        [ConditionalTheory(Skip = " Issue#16093")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool isAsync)
         {
