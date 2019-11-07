@@ -40,16 +40,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_All()
         {
-            using (var context = CreateContext())
-            {
-                Assert.False(
-                    context
-                        .Set<Order>()
-                        .Select(
-                            o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
-                        .All(p => p.Customer == "ALFKI")
-                );
-            }
+            using var context = CreateContext();
+            Assert.False(
+                context
+                    .Set<Order>()
+                    .Select(
+                        o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
+                    .All(p => p.Customer == "ALFKI")
+            );
         }
 
         private class ProjectedType
@@ -392,112 +390,88 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Min_no_data()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID));
-            }
+            using var context = CreateContext();
+            Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID));
         }
 
         [ConditionalFact]
         public virtual void Min_no_data_nullable()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(context.Products.Where(o => o.SupplierID == -1).Min(o => o.SupplierID));
-            }
+            using var context = CreateContext();
+            Assert.Null(context.Products.Where(o => o.SupplierID == -1).Min(o => o.SupplierID));
         }
 
         [ConditionalFact]
         public virtual void Min_no_data_cast_to_nullable()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(context.Orders.Where(o => o.OrderID == -1).Min(o => (int?)o.OrderID));
-            }
+            using var context = CreateContext();
+            Assert.Null(context.Orders.Where(o => o.OrderID == -1).Min(o => (int?)o.OrderID));
         }
 
         [ConditionalFact]
         public virtual void Min_no_data_subquery()
         {
-            using (var context = CreateContext())
-            {
-                // Verify that it does not throw
-                context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList();
-            }
+            using var context = CreateContext();
+            // Verify that it does not throw
+            context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Min(o => o.OrderID)).ToList();
         }
 
         [ConditionalFact]
         public virtual void Max_no_data()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID));
-            }
+            using var context = CreateContext();
+            Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID));
         }
 
         [ConditionalFact]
         public virtual void Max_no_data_nullable()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(context.Products.Where(o => o.SupplierID == -1).Max(o => o.SupplierID));
-            }
+            using var context = CreateContext();
+            Assert.Null(context.Products.Where(o => o.SupplierID == -1).Max(o => o.SupplierID));
         }
 
         [ConditionalFact]
         public virtual void Max_no_data_cast_to_nullable()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(context.Orders.Where(o => o.OrderID == -1).Max(o => (int?)o.OrderID));
-            }
+            using var context = CreateContext();
+            Assert.Null(context.Orders.Where(o => o.OrderID == -1).Max(o => (int?)o.OrderID));
         }
 
         [ConditionalFact]
         public virtual void Max_no_data_subquery()
         {
-            using (var context = CreateContext())
-            {
-                // Verify that it does not throw
-                context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList();
-            }
+            using var context = CreateContext();
+            // Verify that it does not throw
+            context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Max(o => o.OrderID)).ToList();
         }
 
         [ConditionalFact]
         public virtual void Average_no_data()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID));
-            }
+            using var context = CreateContext();
+            Assert.Throws<InvalidOperationException>(() => context.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID));
         }
 
         [ConditionalFact]
         public virtual void Average_no_data_nullable()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(context.Products.Where(o => o.SupplierID == -1).Average(o => o.SupplierID));
-            }
+            using var context = CreateContext();
+            Assert.Null(context.Products.Where(o => o.SupplierID == -1).Average(o => o.SupplierID));
         }
 
         [ConditionalFact]
         public virtual void Average_no_data_cast_to_nullable()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Null(context.Orders.Where(o => o.OrderID == -1).Average(o => (int?)o.OrderID));
-            }
+            using var context = CreateContext();
+            Assert.Null(context.Orders.Where(o => o.OrderID == -1).Average(o => (int?)o.OrderID));
         }
 
         [ConditionalFact]
         public virtual void Average_no_data_subquery()
         {
-            using (var context = CreateContext())
-            {
-                // Verify that it does not throw
-                context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList();
-            }
+            using var context = CreateContext();
+            // Verify that it does not throw
+            context.Customers.Select(c => c.Orders.Where(o => o.OrderID == -1).Average(o => o.OrderID)).ToList();
         }
 
         [ConditionalTheory]
@@ -1401,33 +1375,29 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void OfType_Select()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    "Reims",
-                    context.Set<Order>()
-                        .OfType<Order>()
-                        .OrderBy(o => o.OrderID)
-                        .Select(o => o.Customer.City)
-                        .First());
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                "Reims",
+                context.Set<Order>()
+                    .OfType<Order>()
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.Customer.City)
+                    .First());
         }
 
         [ConditionalFact]
         public virtual void OfType_Select_OfType_Select()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    "Reims",
-                    context.Set<Order>()
-                        .OfType<Order>()
-                        .Select(o => o)
-                        .OfType<Order>()
-                        .OrderBy(o => o.OrderID)
-                        .Select(o => o.Customer.City)
-                        .First());
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                "Reims",
+                context.Set<Order>()
+                    .OfType<Order>()
+                    .Select(o => o)
+                    .OfType<Order>()
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.Customer.City)
+                    .First());
         }
 
         [ConditionalTheory]
@@ -1488,14 +1458,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
-            using (var context = CreateContext())
-            {
-                var query
-                    = context.Orders.Where(o => o.CustomerID == "VINET")
-                        .Contains(context.Orders.Single(o => o.OrderID == 10248));
+            using var context = CreateContext();
+            var query
+                = context.Orders.Where(o => o.CustomerID == "VINET")
+                    .Contains(context.Orders.Single(o => o.OrderID == 10248));
 
-                Assert.True(query);
-            }
+            Assert.True(query);
         }
 
         [ConditionalTheory]
@@ -1595,36 +1563,30 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Contains_over_keyless_entity_throws()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerView()));
-            }
+            using var context = CreateContext();
+            Assert.Throws<InvalidOperationException>(() => context.CustomerQueries.Contains(new CustomerView()));
         }
 
         [ConditionalFact]
         public virtual void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
-            using (var context = CreateContext())
-            {
-                var query
-                    = context.Orders.Where(o => o.CustomerID == "VINET")
-                        .Contains(null);
+            using var context = CreateContext();
+            var query
+                = context.Orders.Where(o => o.CustomerID == "VINET")
+                    .Contains(null);
 
-                Assert.False(query);
-            }
+            Assert.False(query);
         }
 
         [ConditionalFact]
         public virtual void Contains_over_entityType_should_materialize_when_composite()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    "Cannot translate a Contains() operator on entity 'OrderDetail' because it has a composite key.",
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.OrderDetails.Where(o => o.ProductID == 42)
-                            .Contains(context.OrderDetails.First(o => o.OrderID == 10248 && o.ProductID == 42))).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                "Cannot translate a Contains() operator on entity 'OrderDetail' because it has a composite key.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.OrderDetails.Where(o => o.ProductID == 42)
+                        .Contains(context.OrderDetails.First(o => o.OrderID == 10248 && o.ProductID == 42))).Message);
         }
 
         [ConditionalTheory]

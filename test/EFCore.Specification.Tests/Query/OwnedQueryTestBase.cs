@@ -370,54 +370,50 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Throw_for_owned_entities_without_owner_in_tracking_query(bool isAsync)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress);
+            var noTrackingQuery = query.AsNoTracking();
+            var asTrackingQuery = query.AsTracking();
+
+            var result = isAsync
+                ? await noTrackingQuery.ToListAsync()
+                : query.AsNoTracking().ToList();
+
+            Assert.Equal(4, result.Count);
+            Assert.Empty(context.ChangeTracker.Entries());
+
+            if (isAsync)
             {
-                var query = context.Set<OwnedPerson>().Select(e => e.PersonAddress);
-                var noTrackingQuery = query.AsNoTracking();
-                var asTrackingQuery = query.AsTracking();
-
-                var result = isAsync
-                    ? await noTrackingQuery.ToListAsync()
-                    : query.AsNoTracking().ToList();
-
-                Assert.Equal(4, result.Count);
-                Assert.Empty(context.ChangeTracker.Entries());
-
-                if (isAsync)
-                {
-                    await Assert.ThrowsAsync<InvalidOperationException>(() => asTrackingQuery.ToListAsync());
-                }
-                else
-                {
-                    Assert.Throws<InvalidOperationException>(() => asTrackingQuery.ToList());
-                }
-
-                Assert.Empty(context.ChangeTracker.Entries());
+                await Assert.ThrowsAsync<InvalidOperationException>(() => asTrackingQuery.ToListAsync());
             }
+            else
+            {
+                Assert.Throws<InvalidOperationException>(() => asTrackingQuery.ToList());
+            }
+
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool isAsync)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var expectedQuery = Fixture.QueryAsserter.ExpectedData.Set<OwnedPerson>().OrderBy(p => p.Id);
+            var expectedResult = expectedQuery.Select(q => new { Query = q, Count = expectedQuery.Count() }).Skip(0).Take(100).ToList();
+
+            var baseQuery = context.Set<OwnedPerson>().OrderBy(p => p.Id);
+            var query = baseQuery.Select(q => new { Query = q, Count = baseQuery.Count() }).Skip(0).Take(100);
+
+            var result = isAsync
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(expectedResult.Count, result.Count);
+            for (var i = 0; i < result.Count; i++)
             {
-                var expectedQuery = Fixture.QueryAsserter.ExpectedData.Set<OwnedPerson>().OrderBy(p => p.Id);
-                var expectedResult = expectedQuery.Select(q => new { Query = q, Count = expectedQuery.Count() }).Skip(0).Take(100).ToList();
-
-                var baseQuery = context.Set<OwnedPerson>().OrderBy(p => p.Id);
-                var query = baseQuery.Select(q => new { Query = q, Count = baseQuery.Count() }).Skip(0).Take(100);
-
-                var result = isAsync
-                    ? await query.ToListAsync()
-                    : query.ToList();
-
-                Assert.Equal(expectedResult.Count, result.Count);
-                for (var i = 0; i < result.Count; i++)
-                {
-                    AssertEqual(expectedResult[i].Query, result[i].Query);
-                    Assert.Equal(expectedResult[i].Count, result[i].Count);
-                }
+                AssertEqual(expectedResult[i].Query, result[i].Query);
+                Assert.Equal(expectedResult[i].Count, result[i].Count);
             }
         }
 

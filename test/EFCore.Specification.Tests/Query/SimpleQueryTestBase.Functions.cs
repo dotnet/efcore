@@ -1273,29 +1273,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void IsNullOrEmpty_in_projection()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Customer>()
-                    .Select(
-                        c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Set<Customer>()
+                .Select(
+                    c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
+                .ToList();
 
-                Assert.Equal(91, query.Count);
-            }
+            Assert.Equal(91, query.Count);
         }
 
         [ConditionalFact]
         public virtual void IsNullOrEmpty_negated_in_projection()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Customer>()
-                    .Select(
-                        c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Set<Customer>()
+                .Select(
+                    c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
+                .ToList();
 
-                Assert.Equal(91, query.Count);
-            }
+            Assert.Equal(91, query.Count);
         }
 
         [ConditionalTheory]

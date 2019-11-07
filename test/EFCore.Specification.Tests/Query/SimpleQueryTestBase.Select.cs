@@ -395,147 +395,135 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Select_nested_collection_multi_level()
         {
-            using (var context = CreateContext())
-            {
-                var customers = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new
-                        {
-                            OrderDates = c.Orders
-                                .Where(o => o.OrderID < 10500)
-                                .Take(3)
-                                .Select(
-                                    o => new { Date = o.OrderDate })
-                        })
-                    .ToList();
+            using var context = CreateContext();
+            var customers = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new
+                    {
+                        OrderDates = c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Take(3)
+                            .Select(
+                                o => new { Date = o.OrderDate })
+                    })
+                .ToList();
 
-                Assert.Equal(4, customers.Count);
-                Assert.All(customers, t => Assert.True(t.OrderDates.Count() <= 3));
-            }
+            Assert.Equal(4, customers.Count);
+            Assert.All(customers, t => Assert.True(t.OrderDates.Count() <= 3));
         }
 
         [ConditionalFact]
         public virtual void Select_nested_collection_multi_level2()
         {
-            using (var context = CreateContext())
-            {
-                var customers = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new
-                        {
-                            OrderDates = c.Orders
-                                .Where(o => o.OrderID < 10500)
-                                .Select(o => o.OrderDate)
-                                .FirstOrDefault()
-                        })
-                    .ToList();
+            using var context = CreateContext();
+            var customers = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new
+                    {
+                        OrderDates = c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(o => o.OrderDate)
+                            .FirstOrDefault()
+                    })
+                .ToList();
 
-                Assert.Equal(4, customers.Count);
-                Assert.Equal(3, customers.Count(c => c.OrderDates != null));
-            }
+            Assert.Equal(4, customers.Count);
+            Assert.Equal(3, customers.Count(c => c.OrderDates != null));
         }
 
         [ConditionalFact]
         public virtual void Select_nested_collection_multi_level3()
         {
-            using (var context = CreateContext())
-            {
-                var customers = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new
-                        {
-                            OrderDates = context.Orders
-                                .Where(o => o.OrderID < 10500)
-                                .Where(o => c.CustomerID == o.CustomerID)
-                                .Select(o => o.OrderDate)
-                                .FirstOrDefault()
-                        })
-                    .ToList();
+            using var context = CreateContext();
+            var customers = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new
+                    {
+                        OrderDates = context.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Where(o => c.CustomerID == o.CustomerID)
+                            .Select(o => o.OrderDate)
+                            .FirstOrDefault()
+                    })
+                .ToList();
 
-                Assert.Equal(4, customers.Count);
-                Assert.Equal(3, customers.Count(c => c.OrderDates != null));
-            }
+            Assert.Equal(4, customers.Count);
+            Assert.Equal(3, customers.Count(c => c.OrderDates != null));
         }
 
         [ConditionalFact]
         public virtual void Select_nested_collection_multi_level4()
         {
-            using (var context = CreateContext())
-            {
-                var customers = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new
-                        {
-                            Order = (int?)c.Orders
-                                .Where(o => o.OrderID < 10500)
-                                .Select(
-                                    o => o.OrderDetails
-                                        .Where(od => od.OrderID > 10)
-                                        .Select(od => od.ProductID)
-                                        .Count())
-                                .FirstOrDefault()
-                        })
-                    .ToList();
+            using var context = CreateContext();
+            var customers = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new
+                    {
+                        Order = (int?)c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(
+                                o => o.OrderDetails
+                                    .Where(od => od.OrderID > 10)
+                                    .Select(od => od.ProductID)
+                                    .Count())
+                            .FirstOrDefault()
+                    })
+                .ToList();
 
-                Assert.Equal(4, customers.Count);
-                Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
-            }
+            Assert.Equal(4, customers.Count);
+            Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
         }
 
         [ConditionalFact]
         public virtual void Select_nested_collection_multi_level5()
         {
-            using (var context = CreateContext())
-            {
-                var customers = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new
-                        {
-                            Order = (int?)c.Orders
-                                .Where(o => o.OrderID < 10500)
-                                .Select(
-                                    o => o.OrderDetails
-                                        .Where(od => od.OrderID != c.Orders.Count)
-                                        .Select(od => od.ProductID)
-                                        .FirstOrDefault())
-                                .FirstOrDefault()
-                        })
-                    .ToList();
+            using var context = CreateContext();
+            var customers = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new
+                    {
+                        Order = (int?)c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(
+                                o => o.OrderDetails
+                                    .Where(od => od.OrderID != c.Orders.Count)
+                                    .Select(od => od.ProductID)
+                                    .FirstOrDefault())
+                            .FirstOrDefault()
+                    })
+                .ToList();
 
-                Assert.Equal(4, customers.Count);
-                Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
-            }
+            Assert.Equal(4, customers.Count);
+            Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
         }
 
         [ConditionalFact]
         public virtual void Select_nested_collection_multi_level6()
         {
-            using (var context = CreateContext())
-            {
-                var customers = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c => new
-                        {
-                            Order = (int?)c.Orders
-                                .Where(o => o.OrderID < 10500)
-                                .Select(
-                                    o => o.OrderDetails
-                                        .Where(od => od.OrderID != c.CustomerID.Length)
-                                        .Select(od => od.ProductID)
-                                        .FirstOrDefault())
-                                .FirstOrDefault()
-                        })
-                    .ToList();
+            using var context = CreateContext();
+            var customers = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c => new
+                    {
+                        Order = (int?)c.Orders
+                            .Where(o => o.OrderID < 10500)
+                            .Select(
+                                o => o.OrderDetails
+                                    .Where(od => od.OrderID != c.CustomerID.Length)
+                                    .Select(od => od.ProductID)
+                                    .FirstOrDefault())
+                            .FirstOrDefault()
+                    })
+                .ToList();
 
-                Assert.Equal(4, customers.Count);
-                Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
-            }
+            Assert.Equal(4, customers.Count);
+            Assert.Equal(3, customers.Count(c => c.Order != null && c.Order != 0));
         }
 
         [ConditionalTheory]
@@ -1291,44 +1279,40 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Filtered_collection_projection_is_tracked(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c =>
-                            new { Customer = c, FilteredOrders = c.Orders.Where(o => o.OrderID > 11000) });
+            using var context = CreateContext();
+            var query = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c =>
+                        new { Customer = c, FilteredOrders = c.Orders.Where(o => o.OrderID > 11000) });
 
-                var result = isAsync
-                    ? (await query.ToListAsync())
-                    : query.ToList();
+            var result = isAsync
+                ? (await query.ToListAsync())
+                : query.ToList();
 
-                Assert.Equal(4, result.Count);
-                Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count()));
-                Assert.Equal(6, context.ChangeTracker.Entries().Count());
-            }
+            Assert.Equal(4, result.Count);
+            Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count()));
+            Assert.Equal(6, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Filtered_collection_projection_with_to_list_is_tracked(bool isAsync)
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Customers
-                    .Where(c => c.CustomerID.StartsWith("A"))
-                    .Select(
-                        c =>
-                            new { Customer = c, FilteredOrders = c.Orders.Where(o => o.OrderID > 11000).ToList() });
+            using var context = CreateContext();
+            var query = context.Customers
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .Select(
+                    c =>
+                        new { Customer = c, FilteredOrders = c.Orders.Where(o => o.OrderID > 11000).ToList() });
 
-                var result = isAsync
-                    ? (await query.ToListAsync())
-                    : query.ToList();
+            var result = isAsync
+                ? (await query.ToListAsync())
+                : query.ToList();
 
-                Assert.Equal(4, result.Count);
-                Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count));
-                Assert.Equal(6, context.ChangeTracker.Entries().Count());
-            }
+            Assert.Equal(4, result.Count);
+            Assert.True(result.All(r => (r.Customer.Orders?.Count ?? 0) == r.FilteredOrders.Count));
+            Assert.Equal(6, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalTheory]

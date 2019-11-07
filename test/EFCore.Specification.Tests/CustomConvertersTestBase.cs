@@ -402,90 +402,82 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Field_on_derived_type_retrieved_via_cast_applies_value_converter()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Blog>()
-                    .Where(b => b.BlogId == 2)
-                    .Select(
-                        x => new
-                        {
-                            x.BlogId,
-                            x.Url,
-                            RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
-                        }).ToList();
+            using var context = CreateContext();
+            var query = context.Set<Blog>()
+                .Where(b => b.BlogId == 2)
+                .Select(
+                    x => new
+                    {
+                        x.BlogId,
+                        x.Url,
+                        RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
+                    }).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://rssblog.com/rss", result.RssUrl);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://rssblog.com/rss", result.RssUrl);
         }
 
         [ConditionalFact]
         public virtual void Value_conversion_is_appropriately_used_for_join_condition()
         {
-            using (var context = CreateContext())
-            {
-                var blogId = 1;
-                var query = (from b in context.Set<Blog>()
-                             join p in context.Set<Post>()
-                                 on new
-                                 {
-                                     BlogId = (int?)b.BlogId,
-                                     b.IsVisible,
-                                     AnotherId = b.BlogId
-                                 }
-                                 equals new
-                                 {
-                                     p.BlogId,
-                                     IsVisible = true,
-                                     AnotherId = blogId
-                                 }
-                             where b.IsVisible
-                             select b.Url).ToList();
+            using var context = CreateContext();
+            var blogId = 1;
+            var query = (from b in context.Set<Blog>()
+                         join p in context.Set<Post>()
+                             on new
+                             {
+                                 BlogId = (int?)b.BlogId,
+                                 b.IsVisible,
+                                 AnotherId = b.BlogId
+                             }
+                             equals new
+                             {
+                                 p.BlogId,
+                                 IsVisible = true,
+                                 AnotherId = blogId
+                             }
+                         where b.IsVisible
+                         select b.Url).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result);
         }
 
         [ConditionalFact]
         public virtual void Value_conversion_is_appropriately_used_for_left_join_condition()
         {
-            using (var context = CreateContext())
-            {
-                var blogId = 1;
-                var query = (from b in context.Set<Blog>()
-                             join p in context.Set<Post>()
-                                 on new
-                                 {
-                                     BlogId = (int?)b.BlogId,
-                                     b.IsVisible,
-                                     AnotherId = b.BlogId
-                                 }
-                                 equals new
-                                 {
-                                     p.BlogId,
-                                     IsVisible = true,
-                                     AnotherId = blogId
-                                 } into g
-                             from p in g.DefaultIfEmpty()
-                             where b.IsVisible
-                             select b.Url).ToList();
+            using var context = CreateContext();
+            var blogId = 1;
+            var query = (from b in context.Set<Blog>()
+                         join p in context.Set<Post>()
+                             on new
+                             {
+                                 BlogId = (int?)b.BlogId,
+                                 b.IsVisible,
+                                 AnotherId = b.BlogId
+                             }
+                             equals new
+                             {
+                                 p.BlogId,
+                                 IsVisible = true,
+                                 AnotherId = blogId
+                             } into g
+                         from p in g.DefaultIfEmpty()
+                         where b.IsVisible
+                         select b.Url).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result);
         }
 
         [ConditionalFact]
         public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result.Url);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
         }
 
         [ConditionalFact]

@@ -304,13 +304,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var city = new City();
 
-            using (var context = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Set<Customer>()
-                        .Where(c => c.City == city.Nested.InstanceFieldValue)
-                        .ToList());
-            }
+            using var context = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () => context.Set<Customer>()
+                    .Where(c => c.City == city.Nested.InstanceFieldValue)
+                    .ToList());
         }
 
         [ConditionalFact]
@@ -318,14 +316,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var city = new City();
 
-            using (var context = CreateContext())
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () =>
-                        await context.Set<Customer>()
-                            .Where(c => c.City == city.Nested.InstanceFieldValue)
-                            .ToListAsync());
-            }
+            using var context = CreateContext();
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                async () =>
+                    await context.Set<Customer>()
+                        .Where(c => c.City == city.Nested.InstanceFieldValue)
+                        .ToListAsync());
         }
 
         [ConditionalFact]
@@ -333,13 +329,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var city = new City();
 
-            using (var context = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () => context.Set<Customer>()
-                        .Where(c => c.City == city.Throw().InstanceFieldValue)
-                        .ToList());
-            }
+            using var context = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () => context.Set<Customer>()
+                    .Where(c => c.City == city.Throw().InstanceFieldValue)
+                    .ToList());
         }
 
         [ConditionalFact]
@@ -347,14 +341,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var city = new City();
 
-            using (var context = CreateContext())
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(
-                    async () =>
-                        await context.Set<Customer>()
-                            .Where(c => c.City == city.Throw().InstanceFieldValue)
-                            .ToListAsync());
-            }
+            using var context = CreateContext();
+            await Assert.ThrowsAsync<InvalidOperationException>(
+                async () =>
+                    await context.Set<Customer>()
+                        .Where(c => c.City == city.Throw().InstanceFieldValue)
+                        .ToListAsync());
         }
 
         [ConditionalTheory]
@@ -473,24 +465,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_subquery_closure_via_query_cache()
         {
-            using (var context = CreateContext())
-            {
-                string customerID = null;
+            using var context = CreateContext();
+            string customerID = null;
 
-                var orders = context.Orders.Where(o => o.CustomerID == customerID);
+            var orders = context.Orders.Where(o => o.CustomerID == customerID);
 
-                customerID = "ALFKI";
+            customerID = "ALFKI";
 
-                var customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
+            var customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
 
-                Assert.Single(customers);
+            Assert.Single(customers);
 
-                customerID = "ANATR";
+            customerID = "ANATR";
 
-                customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
+            customers = context.Customers.Where(c => orders.Any(o => o.CustomerID == c.CustomerID)).ToList();
 
-                Assert.Equal("ANATR", customers.Single().CustomerID);
-            }
+            Assert.Equal("ANATR", customers.Single().CustomerID);
         }
 
         [ConditionalTheory]
@@ -1780,13 +1770,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_navigation_contains()
         {
-            using (var context = CreateContext())
-            {
-                var customer = context.Customers.Include(c => c.Orders).Single(c => c.CustomerID == "ALFKI");
-                var orderDetails = context.OrderDetails.Where(od => customer.Orders.Contains(od.Order)).ToList();
+            using var context = CreateContext();
+            var customer = context.Customers.Include(c => c.Orders).Single(c => c.CustomerID == "ALFKI");
+            var orderDetails = context.OrderDetails.Where(od => customer.Orders.Contains(od.Order)).ToList();
 
-                Assert.Equal(12, orderDetails.Count);
-            }
+            Assert.Equal(12, orderDetails.Count);
         }
 
         [ConditionalTheory]

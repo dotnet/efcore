@@ -383,45 +383,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Include_Union_only_on_one_side_throws()
         {
-            using (var ctx = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Include(c => c.Orders)
-                            .Union(ctx.Customers.Where(c => c.City == "London"))
-                            .ToList());
+            using var ctx = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(ctx.Customers.Where(c => c.City == "London"))
+                        .ToList());
 
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Union(
-                                ctx.Customers
-                                    .Where(c => c.City == "London")
-                                    .Include(c => c.Orders))
-                            .ToList());
-            }
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Union(
+                            ctx.Customers
+                                .Where(c => c.City == "London")
+                                .Include(c => c.Orders))
+                        .ToList());
         }
 
         [ConditionalFact]
         public virtual void Include_Union_different_includes_throws()
         {
-            using (var ctx = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Include(c => c.Orders)
-                            .Union(
-                                ctx.Customers
-                                    .Where(c => c.City == "London")
-                                    .Include(c => c.Orders)
-                                    .ThenInclude(o => o.OrderDetails))
-                            .ToList());
-            }
+            using var ctx = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(
+                            ctx.Customers
+                                .Where(c => c.City == "London")
+                                .Include(c => c.Orders)
+                                .ThenInclude(o => o.OrderDetails))
+                        .ToList());
         }
 
         [ConditionalTheory]

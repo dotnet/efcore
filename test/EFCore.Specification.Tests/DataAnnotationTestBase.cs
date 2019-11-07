@@ -1432,17 +1432,15 @@ namespace Microsoft.EntityFrameworkCore
                     clientRow.RowVersion = new Guid("00000000-0000-0000-0002-000000000001");
                     clientRow.RequiredColumn = "ChangedData";
 
-                    using (var innerContext = CreateContext())
-                    {
-                        UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
-                        var storeRow = innerContext.Set<One>().First(r => r.UniqueNo == 1);
-                        storeRow.RowVersion = new Guid("00000000-0000-0000-0003-000000000001");
-                        storeRow.RequiredColumn = "ModifiedData";
+                    using var innerContext = CreateContext();
+                    UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
+                    var storeRow = innerContext.Set<One>().First(r => r.UniqueNo == 1);
+                    storeRow.RowVersion = new Guid("00000000-0000-0000-0003-000000000001");
+                    storeRow.RequiredColumn = "ModifiedData";
 
-                        innerContext.SaveChanges();
+                    innerContext.SaveChanges();
 
-                        Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
-                    }
+                    Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
                 });
         }
 
@@ -2249,16 +2247,14 @@ namespace Microsoft.EntityFrameworkCore
                     var clientRow = context.Set<Two>().First(r => r.Id == 1);
                     clientRow.Data = "ChangedData";
 
-                    using (var innerContext = CreateContext())
-                    {
-                        UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
-                        var storeRow = innerContext.Set<Two>().First(r => r.Id == 1);
-                        storeRow.Data = "ModifiedData";
+                    using var innerContext = CreateContext();
+                    UseTransaction(innerContext.Database, context.Database.CurrentTransaction);
+                    var storeRow = innerContext.Set<Two>().First(r => r.Id == 1);
+                    storeRow.Data = "ModifiedData";
 
-                        innerContext.SaveChanges();
+                    innerContext.SaveChanges();
 
-                        Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
-                    }
+                    Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
                 });
         }
 

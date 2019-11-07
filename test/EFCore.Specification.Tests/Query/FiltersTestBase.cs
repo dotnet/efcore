@@ -76,12 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(7, _context.Customers.ToList().Count);
 
-            using (var context = CreateContext())
-            {
-                context.TenantPrefix = "T";
+            using var context = CreateContext();
+            context.TenantPrefix = "T";
 
-                Assert.Equal(6, context.Customers.ToList().Count);
-            }
+            Assert.Equal(6, context.Customers.ToList().Count);
         }
 
         [ConditionalFact]
@@ -164,10 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal("BERGS", query(_context, "BERGS").First().CustomerID);
 
-            using (var context = CreateContext())
-            {
-                Assert.Equal("BLAUS", query(context, "BLAUS").First().CustomerID);
-            }
+            using var context = CreateContext();
+            Assert.Equal("BLAUS", query(context, "BLAUS").First().CustomerID);
         }
 
         [ConditionalFact]
