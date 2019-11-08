@@ -118,38 +118,36 @@ namespace Microsoft.EntityFrameworkCore
             var olives = new Olive[4];
             var toasts = new Toast[4];
 
-            using (var context = new PetsContext("Wercs"))
-            {
-                olives[0] = context.Add(new Olive { Id = 10 }).Entity;
-                toasts[0] = context.Add(new Toast { Id = 100 }).Entity;
+            using var context = new PetsContext("Wercs");
+            olives[0] = context.Add(new Olive { Id = 10 }).Entity;
+            toasts[0] = context.Add(new Toast { Id = 100 }).Entity;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                olives[1] = context.Add(new Olive()).Entity;
-                toasts[1] = context.Add(new Toast()).Entity;
+            olives[1] = context.Add(new Olive()).Entity;
+            toasts[1] = context.Add(new Toast()).Entity;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.Equal(10, olives[0].Id);
-                Assert.Equal(100, toasts[0].Id);
-                Assert.Equal(11, olives[1].Id);
-                Assert.Equal(101, toasts[1].Id);
+            Assert.Equal(10, olives[0].Id);
+            Assert.Equal(100, toasts[0].Id);
+            Assert.Equal(11, olives[1].Id);
+            Assert.Equal(101, toasts[1].Id);
 
-                olives[2] = context.Add(new Olive { Id = 20 }).Entity;
-                toasts[2] = context.Add(new Toast { Id = 200 }).Entity;
+            olives[2] = context.Add(new Olive { Id = 20 }).Entity;
+            toasts[2] = context.Add(new Toast { Id = 200 }).Entity;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                olives[3] = context.Add(new Olive()).Entity;
-                toasts[3] = context.Add(new Toast()).Entity;
+            olives[3] = context.Add(new Olive()).Entity;
+            toasts[3] = context.Add(new Toast()).Entity;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.Equal(20, olives[2].Id);
-                Assert.Equal(200, toasts[2].Id);
-                Assert.Equal(21, olives[3].Id);
-                Assert.Equal(201, toasts[3].Id);
-            }
+            Assert.Equal(20, olives[2].Id);
+            Assert.Equal(200, toasts[2].Id);
+            Assert.Equal(21, olives[3].Id);
+            Assert.Equal(201, toasts[3].Id);
         }
 
         [ConditionalFact]

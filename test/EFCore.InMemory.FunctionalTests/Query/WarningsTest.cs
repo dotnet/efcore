@@ -30,16 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
-            using (var context = new DbContext(optionsBuilder.Options))
-            {
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        InMemoryEventId.TransactionIgnoredWarning,
-                        InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
-                        "InMemoryEventId.TransactionIgnoredWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Database.BeginTransaction()).Message);
-            }
+            using var context = new DbContext(optionsBuilder.Options);
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    InMemoryEventId.TransactionIgnoredWarning,
+                    InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
+                    "InMemoryEventId.TransactionIgnoredWarning"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Database.BeginTransaction()).Message);
         }
 
         [ConditionalFact]
@@ -50,16 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
-            using (var context = new DbContext(optionsBuilder.Options))
-            {
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        InMemoryEventId.TransactionIgnoredWarning,
-                        InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
-                        "InMemoryEventId.TransactionIgnoredWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
-            }
+            using var context = new DbContext(optionsBuilder.Options);
+            Assert.Equal(
+                CoreStrings.WarningAsErrorTemplate(
+                    InMemoryEventId.TransactionIgnoredWarning,
+                    InMemoryResources.LogTransactionsNotSupported(new TestLogger<InMemoryLoggingDefinitions>()).GenerateMessage(),
+                    "InMemoryEventId.TransactionIgnoredWarning"),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Database.EnlistTransaction(new CommittableTransaction())).Message);
         }
 
         [ConditionalFact]
@@ -71,10 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .EnableServiceProviderCaching(false)
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
-            using (var context = new DbContext(optionsBuilder.Options))
-            {
-                context.Database.BeginTransaction();
-            }
+            using var context = new DbContext(optionsBuilder.Options);
+            context.Database.BeginTransaction();
         }
 
         [ConditionalFact]
@@ -238,11 +232,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .AddEntityFrameworkInMemoryDatabase()
                 .BuildServiceProvider();
 
-            using (var context = new WarningAsErrorContext(serviceProvider, toThrow: CoreEventId.SensitiveDataLoggingEnabledWarning))
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                context.WarningAsErrorEntities.FirstOrDefault();
-            }
+            using var context = new WarningAsErrorContext(serviceProvider, toThrow: CoreEventId.SensitiveDataLoggingEnabledWarning);
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            context.WarningAsErrorEntities.FirstOrDefault();
         }
 
         private class WarningAsErrorContext : DbContext

@@ -277,14 +277,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual async Task Can_query_just_embedded_reference()
         {
             var options = Fixture.CreateOptions();
-            using (var context = new EmbeddedTransportationContext(options))
-            {
-                var firstOperator = await context.Set<Vehicle>().OrderBy(o => o.Name).Select(v => v.Operator)
-                    .AsNoTracking().FirstAsync();
+            using var context = new EmbeddedTransportationContext(options);
+            var firstOperator = await context.Set<Vehicle>().OrderBy(o => o.Name).Select(v => v.Operator)
+                .AsNoTracking().FirstAsync();
 
-                Assert.Equal("Albert Williams", firstOperator.Name);
-                Assert.Null(firstOperator.Vehicle);
-            }
+            Assert.Equal("Albert Williams", firstOperator.Name);
+            Assert.Null(firstOperator.Vehicle);
         }
 
         [ConditionalFact]
@@ -319,21 +317,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public virtual async Task Inserting_dependent_without_principal_throws()
         {
             var options = Fixture.CreateOptions(seed: false);
-            using (var context = new EmbeddedTransportationContext(options))
-            {
-                context.Add(
-                    new LicensedOperator
-                    {
-                        Name = "Jack Jackson",
-                        LicenseType = "Class A CDC",
-                        VehicleName = "Fuel transport"
-                    });
+            using var context = new EmbeddedTransportationContext(options);
+            context.Add(
+                new LicensedOperator
+                {
+                    Name = "Jack Jackson",
+                    LicenseType = "Class A CDC",
+                    VehicleName = "Fuel transport"
+                });
 
-                Assert.Equal(
-                    CosmosStrings.OrphanedNestedDocumentSensitive(
-                        nameof(Operator), nameof(Vehicle), "{VehicleName: Fuel transport}"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
-            }
+            Assert.Equal(
+                CosmosStrings.OrphanedNestedDocumentSensitive(
+                    nameof(Operator), nameof(Vehicle), "{VehicleName: Fuel transport}"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
         }
 
         [ConditionalFact]
