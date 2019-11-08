@@ -18,10 +18,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public async Task CanConnect_returns_true(bool async)
         {
-            using (var context = new SimpleContext())
-            {
-                Assert.True(async ? await context.Database.CanConnectAsync() : context.Database.CanConnect());
-            }
+            using var context = new SimpleContext();
+            Assert.True(async ? await context.Database.CanConnectAsync() : context.Database.CanConnect());
         }
 
         [ConditionalFact]

@@ -281,20 +281,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Join_uses_database_semantics()
         {
-            using (var context = CreateContext())
-            {
-                var query = from e1 in context.Entities1
-                            join e2 in context.Entities2 on e1.NullableIntA equals e2.NullableIntB
-                            select new
-                            {
-                                Id1 = e1.Id,
-                                Id2 = e2.Id,
-                                e1.NullableIntA,
-                                e2.NullableIntB
-                            };
+            using var context = CreateContext();
+            var query = from e1 in context.Entities1
+                        join e2 in context.Entities2 on e1.NullableIntA equals e2.NullableIntB
+                        select new
+                        {
+                            Id1 = e1.Id,
+                            Id2 = e2.Id,
+                            e1.NullableIntA,
+                            e2.NullableIntB
+                        };
 
-                query.ToList();
-            }
+            query.ToList();
         }
 
         [ConditionalFact]
@@ -518,39 +516,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Null_comparison_in_selector_with_relational_nulls()
         {
-            using (var ctx = CreateContext(useRelationalNulls: true))
-            {
-                var query = ctx.Entities1.Select(e => e.NullableStringA != "Foo");
-                var result = query.ToList();
+            using var ctx = CreateContext(useRelationalNulls: true);
+            var query = ctx.Entities1.Select(e => e.NullableStringA != "Foo");
+            var result = query.ToList();
 
-                Assert.Equal(27, result.Count);
-                Assert.Equal(9, result.Where(r => r).Count());
-            }
+            Assert.Equal(27, result.Count);
+            Assert.Equal(9, result.Where(r => r).Count());
         }
 
         [ConditionalFact]
         public virtual void Null_comparison_in_order_by_with_relational_nulls()
         {
-            using (var ctx = CreateContext(useRelationalNulls: true))
-            {
-                var query = ctx.Entities1.OrderBy(e => e.NullableStringA != "Foo").ThenBy(e => e.NullableIntB != 10);
-                var result = query.ToList();
+            using var ctx = CreateContext(useRelationalNulls: true);
+            var query = ctx.Entities1.OrderBy(e => e.NullableStringA != "Foo").ThenBy(e => e.NullableIntB != 10);
+            var result = query.ToList();
 
-                Assert.Equal(27, result.Count);
-            }
+            Assert.Equal(27, result.Count);
         }
 
         [ConditionalFact(Skip = "issue #15743")]
         public virtual void Null_comparison_in_join_key_with_relational_nulls()
         {
-            using (var ctx = CreateContext(useRelationalNulls: true))
-            {
-                var query = ctx.Entities1.Join(
-                    ctx.Entities2, e1 => e1.NullableStringA != "Foo", e2 => e2.NullableBoolB != true, (o, i) => new { o, i });
+            using var ctx = CreateContext(useRelationalNulls: true);
+            var query = ctx.Entities1.Join(
+                ctx.Entities2, e1 => e1.NullableStringA != "Foo", e2 => e2.NullableBoolB != true, (o, i) => new { o, i });
 
-                var result = query.ToList();
-                Assert.Equal(162, result.Count);
-            }
+            var result = query.ToList();
+            Assert.Equal(162, result.Count);
         }
 
         protected void AssertQuery<TItem>(
@@ -562,104 +554,86 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Where_equal_using_relational_null_semantics()
         {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                context.Entities1
-                    .Where(e => e.NullableBoolA == e.NullableBoolB)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext(useRelationalNulls: true);
+            context.Entities1
+                .Where(e => e.NullableBoolA == e.NullableBoolB)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_nullable_bool()
         {
-            using (var context = CreateContext())
-            {
-                context.Entities1
-                    .Where(e => e.NullableBoolA.Value)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext();
+            context.Entities1
+                .Where(e => e.NullableBoolA.Value)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_nullable_bool_equal_with_constant()
         {
-            using (var context = CreateContext())
-            {
-                context.Entities1
-                    .Where(e => e.NullableBoolA == true)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext();
+            context.Entities1
+                .Where(e => e.NullableBoolA == true)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_nullable_bool_with_null_check()
         {
-            using (var context = CreateContext())
-            {
-                context.Entities1
-                    .Where(e => e.NullableBoolA != null && e.NullableBoolA.Value)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext();
+            context.Entities1
+                .Where(e => e.NullableBoolA != null && e.NullableBoolA.Value)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_equal_using_relational_null_semantics_with_parameter()
         {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                bool? prm = null;
-                context.Entities1
-                    .Where(e => e.NullableBoolA == prm)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext(useRelationalNulls: true);
+            bool? prm = null;
+            context.Entities1
+                .Where(e => e.NullableBoolA == prm)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_equal_using_relational_null_semantics_complex_with_parameter()
         {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                var prm = false;
-                context.Entities1
-                    .Where(e => e.NullableBoolA == e.NullableBoolB || prm)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext(useRelationalNulls: true);
+            var prm = false;
+            context.Entities1
+                .Where(e => e.NullableBoolA == e.NullableBoolB || prm)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_not_equal_using_relational_null_semantics()
         {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                context.Entities1
-                    .Where(e => e.NullableBoolA != e.NullableBoolB)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext(useRelationalNulls: true);
+            context.Entities1
+                .Where(e => e.NullableBoolA != e.NullableBoolB)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_not_equal_using_relational_null_semantics_with_parameter()
         {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                bool? prm = null;
-                context.Entities1
-                    .Where(e => e.NullableBoolA != prm)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext(useRelationalNulls: true);
+            bool? prm = null;
+            context.Entities1
+                .Where(e => e.NullableBoolA != prm)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
         public virtual void Where_not_equal_using_relational_null_semantics_complex_with_parameter()
         {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                var prm = false;
-                context.Entities1
-                    .Where(e => e.NullableBoolA != e.NullableBoolB || prm)
-                    .Select(e => e.Id).ToList();
-            }
+            using var context = CreateContext(useRelationalNulls: true);
+            var prm = false;
+            context.Entities1
+                .Where(e => e.NullableBoolA != e.NullableBoolB || prm)
+                .Select(e => e.Id).ToList();
         }
 
         [ConditionalFact]
@@ -722,82 +696,74 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Switching_parameter_value_to_null_produces_different_cache_entry()
         {
-            using (var context = CreateContext())
-            {
-                var prm = "Foo";
-                var query = context.Entities1
-                    .Where(e => prm == "Foo")
-                    .Select(e => e.Id);
+            using var context = CreateContext();
+            var prm = "Foo";
+            var query = context.Entities1
+                .Where(e => prm == "Foo")
+                .Select(e => e.Id);
 
-                var results1 = query.ToList();
+            var results1 = query.ToList();
 
-                prm = null;
+            prm = null;
 
-                var results2 = query.ToList();
+            var results2 = query.ToList();
 
-                Assert.True(results1.Count != results2.Count);
-            }
+            Assert.True(results1.Count != results2.Count);
         }
 
         [ConditionalFact]
         public virtual void From_sql_composed_with_relational_null_comparison()
         {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                var actual = context.Entities1
-                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Entities1]"))
-                    .Where(c => c.StringA == c.StringB)
-                    .ToArray();
+            using var context = CreateContext(useRelationalNulls: true);
+            var actual = context.Entities1
+                .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Entities1]"))
+                .Where(c => c.StringA == c.StringB)
+                .ToArray();
 
-                Assert.Equal(15, actual.Length);
-            }
+            Assert.Equal(15, actual.Length);
         }
 
         [ConditionalFact]
         public virtual void Projecting_nullable_bool_with_coalesce()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var expected = context.Entities1.ToList()
+                .Select(
+                    e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+
+            ClearLog();
+
+            var query = context.Entities1
+                .Select(
+                    e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
+
+            var results = query.ToList();
+            Assert.Equal(expected.Count(), results.Count);
+            foreach (var result in results)
             {
-                var expected = context.Entities1.ToList()
-                    .Select(
-                        e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
-
-                ClearLog();
-
-                var query = context.Entities1
-                    .Select(
-                        e => new { e.Id, Coalesce = e.NullableBoolA ?? false });
-
-                var results = query.ToList();
-                Assert.Equal(expected.Count(), results.Count);
-                foreach (var result in results)
-                {
-                    expected.Contains(result);
-                }
+                expected.Contains(result);
             }
         }
 
         [ConditionalFact]
         public virtual void Projecting_nullable_bool_with_coalesce_nested()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var expected = context.Entities1.ToList()
+                .Select(
+                    e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+
+            ClearLog();
+
+            var query = context.Entities1
+                .Select(
+                    e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
+
+            var results = query.ToList();
+            Assert.Equal(expected.Count(), results.Count);
+            foreach (var result in results)
             {
-                var expected = context.Entities1.ToList()
-                    .Select(
-                        e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
-
-                ClearLog();
-
-                var query = context.Entities1
-                    .Select(
-                        e => new { e.Id, Coalesce = e.NullableBoolA ?? (e.NullableBoolB ?? false) });
-
-                var results = query.ToList();
-                Assert.Equal(expected.Count(), results.Count);
-                foreach (var result in results)
-                {
-                    expected.Contains(result);
-                }
+                expected.Contains(result);
             }
         }
 
@@ -838,15 +804,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact(Skip = "issue #18772")]
         public virtual void Select_IndexOf()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = ctx.Entities1.OrderBy(e => e.Id).Select(e => e.NullableStringA.IndexOf("oo")).ToList();
-                var expected = _clientData._entities1.OrderBy(e => e.Id).Select(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo"))).ToList();
+            using var ctx = CreateContext();
+            var query = ctx.Entities1.OrderBy(e => e.Id).Select(e => e.NullableStringA.IndexOf("oo")).ToList();
+            var expected = _clientData._entities1.OrderBy(e => e.Id).Select(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo"))).ToList();
 
-                for (var i = 0; i < query.Count; i++)
-                {
-                    Assert.Equal(expected[i], query[i]);
-                }
+            for (var i = 0; i < query.Count; i++)
+            {
+                Assert.Equal(expected[i], query[i]);
             }
         }
 
@@ -937,10 +901,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Null_semantics_join_with_composite_key()
         {
-            using (var ctx = CreateContext())
-            {
-                var query = from e1 in ctx.Entities1
-                            join e2 in ctx.Entities2
+            using var ctx = CreateContext();
+            var query = from e1 in ctx.Entities1
+                        join e2 in ctx.Entities2
+                            on new
+                            {
+                                one = e1.NullableStringA,
+                                two = e1.NullableStringB != e1.NullableStringC,
+                                three = true
+                            }
+                            equals new
+                            {
+                                one = e2.NullableStringB,
+                                two = e2.NullableBoolA ?? e2.BoolC,
+                                three = true
+                            }
+                        select new { e1, e2 };
+
+            var result = query.ToList();
+
+            var expected = (from e1 in _clientData._entities1
+                            join e2 in _clientData._entities2
                                 on new
                                 {
                                     one = e1.NullableStringA,
@@ -953,135 +934,108 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     two = e2.NullableBoolA ?? e2.BoolC,
                                     three = true
                                 }
-                            select new { e1, e2 };
+                            select new { e1, e2 }).ToList();
 
-                var result = query.ToList();
-
-                var expected = (from e1 in _clientData._entities1
-                                join e2 in _clientData._entities2
-                                    on new
-                                    {
-                                        one = e1.NullableStringA,
-                                        two = e1.NullableStringB != e1.NullableStringC,
-                                        three = true
-                                    }
-                                    equals new
-                                    {
-                                        one = e2.NullableStringB,
-                                        two = e2.NullableBoolA ?? e2.BoolC,
-                                        three = true
-                                    }
-                                select new { e1, e2 }).ToList();
-
-                Assert.Equal(result.Count, expected.Count);
-                var orderedResult = result.OrderBy(x => x.e1.Id).ThenBy(x => x.e2.Id).ToList();
-                var orderedExpected = expected.OrderBy(x => x.e1.Id).ThenBy(x => x.e2.Id).ToList();
-                for (var i = 0; i < orderedExpected.Count; i++)
-                {
-                    Assert.Equal(orderedExpected[i].e1.Id, orderedResult[i].e1.Id);
-                    Assert.Equal(orderedExpected[i].e2.Id, orderedResult[i].e2.Id);
-                }
+            Assert.Equal(result.Count, expected.Count);
+            var orderedResult = result.OrderBy(x => x.e1.Id).ThenBy(x => x.e2.Id).ToList();
+            var orderedExpected = expected.OrderBy(x => x.e1.Id).ThenBy(x => x.e2.Id).ToList();
+            for (var i = 0; i < orderedExpected.Count; i++)
+            {
+                Assert.Equal(orderedExpected[i].e1.Id, orderedResult[i].e1.Id);
+                Assert.Equal(orderedExpected[i].e2.Id, orderedResult[i].e2.Id);
             }
         }
 
         [ConditionalFact(Skip = "issue #14171")]
         public virtual void Null_semantics_contains()
         {
-            using (var ctx = CreateContext())
+            using var ctx = CreateContext();
+            var ids = new List<int?> { 1, 2 };
+            var query1 = ctx.Entities1.Where(e => ids.Contains(e.NullableIntA));
+            var result1 = query1.ToList();
+
+            var query2 = ctx.Entities1.Where(e => !ids.Contains(e.NullableIntA));
+            var result2 = query2.ToList();
+
+            var ids2 = new List<int?>
             {
-                var ids = new List<int?> { 1, 2 };
-                var query1 = ctx.Entities1.Where(e => ids.Contains(e.NullableIntA));
-                var result1 = query1.ToList();
+                1,
+                2,
+                null
+            };
+            var query3 = ctx.Entities1.Where(e => ids.Contains(e.NullableIntA));
+            var result3 = query3.ToList();
 
-                var query2 = ctx.Entities1.Where(e => !ids.Contains(e.NullableIntA));
-                var result2 = query2.ToList();
+            var query4 = ctx.Entities1.Where(e => !ids.Contains(e.NullableIntA));
+            var result4 = query4.ToList();
 
-                var ids2 = new List<int?>
+            var query5 = ctx.Entities1.Where(e => !new List<int?> { 1, 2 }.Contains(e.NullableIntA));
+            var result5 = query5.ToList();
+
+            var query6 = ctx.Entities1.Where(
+                e => !new List<int?>
                 {
                     1,
                     2,
                     null
-                };
-                var query3 = ctx.Entities1.Where(e => ids.Contains(e.NullableIntA));
-                var result3 = query3.ToList();
-
-                var query4 = ctx.Entities1.Where(e => !ids.Contains(e.NullableIntA));
-                var result4 = query4.ToList();
-
-                var query5 = ctx.Entities1.Where(e => !new List<int?> { 1, 2 }.Contains(e.NullableIntA));
-                var result5 = query5.ToList();
-
-                var query6 = ctx.Entities1.Where(
-                    e => !new List<int?>
-                    {
-                        1,
-                        2,
-                        null
-                    }.Contains(e.NullableIntA));
-                var result6 = query6.ToList();
-            }
+                }.Contains(e.NullableIntA));
+            var result6 = query6.ToList();
         }
 
         [ConditionalFact]
         public virtual void Null_semantics_with_null_check_simple()
         {
-            using (var ctx = CreateContext())
-            {
-                var query1 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA == e.NullableIntB);
-                var result1 = query1.ToList();
+            using var ctx = CreateContext();
+            var query1 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA == e.NullableIntB);
+            var result1 = query1.ToList();
 
-                var query2 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA != e.NullableIntB);
-                var result2 = query2.ToList();
+            var query2 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA != e.NullableIntB);
+            var result2 = query2.ToList();
 
-                var query3 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA == e.IntC);
-                var result3 = query3.ToList();
+            var query3 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntA == e.IntC);
+            var result3 = query3.ToList();
 
-                var query4 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntB != null && e.NullableIntA == e.NullableIntB);
-                var result4 = query4.ToList();
+            var query4 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntB != null && e.NullableIntA == e.NullableIntB);
+            var result4 = query4.ToList();
 
-                var query5 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntB != null && e.NullableIntA != e.NullableIntB);
-                var result5 = query5.ToList();
-            }
+            var query5 = ctx.Entities1.Where(e => e.NullableIntA != null && e.NullableIntB != null && e.NullableIntA != e.NullableIntB);
+            var result5 = query5.ToList();
         }
 
         [ConditionalFact]
         public virtual void Null_semantics_with_null_check_complex()
         {
-            using (var ctx = CreateContext())
-            {
-                var query1 = ctx.Entities1.Where(
-                    e => e.NullableIntA != null
-                        && ((e.NullableIntC != e.NullableIntA)
-                            || (e.NullableIntB != null && e.NullableIntA != e.NullableIntB)));
-                var result1 = query1.ToList();
+            using var ctx = CreateContext();
+            var query1 = ctx.Entities1.Where(
+                e => e.NullableIntA != null
+                    && ((e.NullableIntC != e.NullableIntA)
+                        || (e.NullableIntB != null && e.NullableIntA != e.NullableIntB)));
+            var result1 = query1.ToList();
 
-                var query2 = ctx.Entities1.Where(
-                    e => e.NullableIntA != null && ((e.NullableIntC != e.NullableIntA) || (e.NullableIntA != e.NullableIntB)));
-                var result2 = query2.ToList();
+            var query2 = ctx.Entities1.Where(
+                e => e.NullableIntA != null && ((e.NullableIntC != e.NullableIntA) || (e.NullableIntA != e.NullableIntB)));
+            var result2 = query2.ToList();
 
-                var query3 = ctx.Entities1.Where(
-                    e => (e.NullableIntA != null || e.NullableIntB != null) && e.NullableIntA == e.NullableIntC);
-                var result3 = query3.ToList();
-            }
+            var query3 = ctx.Entities1.Where(
+                e => (e.NullableIntA != null || e.NullableIntB != null) && e.NullableIntA == e.NullableIntC);
+            var result3 = query3.ToList();
         }
 
         [ConditionalFact]
         public virtual void IsNull_on_complex_expression()
         {
-            using (var ctx = CreateContext())
-            {
-                var query1 = ctx.Entities1.Where(e => -e.NullableIntA != null).ToList();
-                Assert.Equal(18, query1.Count);
+            using var ctx = CreateContext();
+            var query1 = ctx.Entities1.Where(e => -e.NullableIntA != null).ToList();
+            Assert.Equal(18, query1.Count);
 
-                var query2 = ctx.Entities1.Where(e => (e.NullableIntA + e.NullableIntB) == null).ToList();
-                Assert.Equal(15, query2.Count);
+            var query2 = ctx.Entities1.Where(e => (e.NullableIntA + e.NullableIntB) == null).ToList();
+            Assert.Equal(15, query2.Count);
 
-                var query3 = ctx.Entities1.Where(e => (e.NullableIntA ?? e.NullableIntB) == null).ToList();
-                Assert.Equal(3, query3.Count);
+            var query3 = ctx.Entities1.Where(e => (e.NullableIntA ?? e.NullableIntB) == null).ToList();
+            Assert.Equal(3, query3.Count);
 
-                var query4 = ctx.Entities1.Where(e => (e.NullableIntA ?? e.NullableIntB) != null).ToList();
-                Assert.Equal(24, query4.Count);
-            }
+            var query4 = ctx.Entities1.Where(e => (e.NullableIntA ?? e.NullableIntB) != null).ToList();
+            Assert.Equal(24, query4.Count);
         }
 
         [ConditionalFact]

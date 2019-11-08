@@ -16,10 +16,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             = new Lazy<bool>(
                 () =>
                 {
-                    using (var connection = new SqliteConnection("Data Source=:memory:"))
-                    {
-                        return SpatialiteLoader.TryLoad(connection);
-                    }
+                    using var connection = new SqliteConnection("Data Source=:memory:");
+                    return SpatialiteLoader.TryLoad(connection);
                 });
 
         public ValueTask<bool> IsMetAsync() => new ValueTask<bool>(_loaded.Value);

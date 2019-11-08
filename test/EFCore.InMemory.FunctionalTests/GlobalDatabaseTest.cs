@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore
                     b => b.UseInMemoryDatabase(nameof(BooFooContext)))
                 .BuildServiceProvider();
 
-            using (var scope = serviceProvider.CreateScope())
+            using var scope = serviceProvider.CreateScope();
             {
                 var context = scope.ServiceProvider.GetService<BooFooContext>();
                 Assert.NotEmpty(context.Foos.ToList());
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore
                             .EnableServiceProviderCaching(false))
                 .BuildServiceProvider();
 
-            using (var scope = serviceProvider.CreateScope())
+            using var scope = serviceProvider.CreateScope();
             {
                 var context = scope.ServiceProvider.GetService<BooFooContext>();
                 Assert.Equal(1, context.Boos.Count());

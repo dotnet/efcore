@@ -56,22 +56,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 tasks[i] = Task.Run(
                     () =>
                     {
-                        using (var context = CreateContext())
+                        using var context = CreateContext();
+                        using ((from c in context.Customers
+                                where c.City == "London"
+                                orderby c.CustomerID
+                                select (from o1 in context.Orders
+                                        where o1.CustomerID == c.CustomerID
+                                            && o1.OrderDate.Value.Year == 1997
+                                        orderby o1.OrderID
+                                        select (from o2 in context.Orders
+                                                where o1.CustomerID == c.CustomerID
+                                                orderby o2.OrderID
+                                                select o1.OrderID)))
+                            .GetEnumerator())
                         {
-                            using ((from c in context.Customers
-                                    where c.City == "London"
-                                    orderby c.CustomerID
-                                    select (from o1 in context.Orders
-                                            where o1.CustomerID == c.CustomerID
-                                                && o1.OrderDate.Value.Year == 1997
-                                            orderby o1.OrderID
-                                            select (from o2 in context.Orders
-                                                    where o1.CustomerID == c.CustomerID
-                                                    orderby o2.OrderID
-                                                    select o1.OrderID)))
-                                .GetEnumerator())
-                            {
-                            }
                         }
                     });
             }
@@ -102,34 +100,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Concurrent_async_queries_are_serialized2()
         {
-            using (var context = CreateContext())
-            {
-                await context.OrderDetails
-                    .Where(od => od.OrderID > 0)
-                    .Intersect(
-                        context.OrderDetails
-                            .Where(od => od.OrderID > 0))
-                    .Intersect(
-                        context.OrderDetails
-                            .Where(od => od.OrderID > 0)).ToListAsync();
-            }
+            using var context = CreateContext();
+            await context.OrderDetails
+                .Where(od => od.OrderID > 0)
+                .Intersect(
+                    context.OrderDetails
+                        .Where(od => od.OrderID > 0))
+                .Intersect(
+                    context.OrderDetails
+                        .Where(od => od.OrderID > 0)).ToListAsync();
         }
 
         [ConditionalFact]
         public async Task Concurrent_async_queries_when_raw_query()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            await using var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetAsyncEnumerator();
+            while (await asyncEnumerator.MoveNextAsync())
             {
-                await using (var asyncEnumerator = context.Customers.AsAsyncEnumerable().GetAsyncEnumerator())
-                {
-                    while (await asyncEnumerator.MoveNextAsync())
-                    {
-                        // Outer query is buffered by default
-                        await context.Database.ExecuteSqlRawAsync(
-                            "[dbo].[CustOrderHist] @CustomerID = {0}",
-                            asyncEnumerator.Current.CustomerID);
-                    }
-                }
+                // Outer query is buffered by default
+                await context.Database.ExecuteSqlRawAsync(
+                    "[dbo].[CustOrderHist] @CustomerID = {0}",
+                    asyncEnumerator.Current.CustomerID);
             }
         }
 
