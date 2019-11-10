@@ -434,25 +434,52 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "Issue#16298")]
-        public virtual void Union_siblings_with_duplicate_property_in_subquery()
+        [ConditionalFact]
+        public virtual void Union_of_supertype_with_itself_with_properties_mapped_to_same_column()
+        {
+            // Both Tea and Coffee define properties called CaffeineGrams mapped to the same database column.
+            // The column should only be selected once (asserted in SQL in SqlServer override).
+            using var context = CreateContext();
+            var drinks = context.Set<Drink>()
+                .Union(context.Set<Drink>())
+                .ToList();
+
+            Assert.Equal(3, drinks.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Except_parent_with_child()
+        {
+            using var context = CreateContext();
+            var drinks = context.Set<Drink>()
+                .Except(context.Set<Coke>())
+                .ToList();
+
+            Assert.Collection(
+                drinks,
+                d => Assert.IsType<Tea>(d),
+                d => Assert.IsType<Lilt>(d));
+
+            Assert.Equal(2, drinks.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Concat_siblings_with_two_properties_mapped_to_same_column()
         {
             // Coke and Tea both have CaffeineGrams, which both need to be projected out on each side and so
             // requiring alias uniquification. They also have a different number of properties.
             using var context = CreateContext();
-            var cokes = context.Set<Coke>();
-
-            var teas = context.Set<Tea>();
-
-            var concat = cokes.Cast<Drink>()
-                .Union(teas)
-                .Where(d => d.Id > 0)
+            var drinks = context.Set<Coke>()
+                .Concat(context.Set<Tea>().Cast<Drink>())
                 .ToList();
 
-            Assert.Equal(2, concat.Count);
+            Assert.Collection(
+                drinks,
+                d => Assert.Equal(6, Assert.IsType<Coke>(d).SugarGrams),
+                d => Assert.True(Assert.IsType<Tea>(d).HasMilk));
         }
 
-        [ConditionalFact(Skip = "Issue#16298")]
+        [ConditionalFact]
         public virtual void OfType_Union_subquery()
         {
             using var context = CreateContext();
@@ -465,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .ToList();
         }
 
-        [ConditionalFact(Skip = "Issue#16298")]
+        [ConditionalFact]
         public virtual void OfType_Union_OfType()
         {
             using var context = CreateContext();
@@ -487,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .ToList();
         }
 
-        [ConditionalFact(Skip = "Issue#16298")]
+        [ConditionalFact]
         public virtual void Union_entity_equality()
         {
             using var context = CreateContext();

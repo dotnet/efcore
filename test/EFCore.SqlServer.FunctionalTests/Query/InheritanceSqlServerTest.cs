@@ -423,22 +423,49 @@ FROM [Animal] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'");
         }
 
-        public override void Union_siblings_with_duplicate_property_in_subquery()
+        public override void Union_of_supertype_with_itself_with_properties_mapped_to_same_column()
         {
-            base.Union_siblings_with_duplicate_property_in_subquery();
+            base.Union_of_supertype_with_itself_with_properties_mapped_to_same_column();
 
             AssertSql(
-                @"SELECT [t].[Id], [t].[Discriminator], [t].[CaffeineGrams], [t].[CokeCO2], [t].[SugarGrams], [t].[Carbonation], [t].[SugarGrams0], [t].[CaffeineGrams0], [t].[HasMilk]
+                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk]
+FROM [Drink] AS [d]
+WHERE [d].[Discriminator] IN (N'Drink', N'Coke', N'Lilt', N'Tea')
+UNION
+SELECT [d0].[Id], [d0].[Discriminator], [d0].[CaffeineGrams], [d0].[CokeCO2], [d0].[SugarGrams], [d0].[LiltCO2], [d0].[HasMilk]
+FROM [Drink] AS [d0]
+WHERE [d0].[Discriminator] IN (N'Drink', N'Coke', N'Lilt', N'Tea')");
+        }
+
+        public override void Except_parent_with_child()
+        {
+            base.Except_parent_with_child();
+
+            AssertSql(
+                @"SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk]
+FROM [Drink] AS [d]
+WHERE [d].[Discriminator] IN (N'Drink', N'Coke', N'Lilt', N'Tea')
+EXCEPT
+SELECT [d0].[Id], [d0].[Discriminator], [d0].[CaffeineGrams], [d0].[CokeCO2], [d0].[SugarGrams], NULL AS [LiltCO2], NULL AS [HasMilk]
+FROM [Drink] AS [d0]
+WHERE [d0].[Discriminator] = N'Coke'");
+        }
+
+        public override void Concat_siblings_with_two_properties_mapped_to_same_column()
+        {
+            base.Concat_siblings_with_two_properties_mapped_to_same_column();
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[Discriminator], [t].[CaffeineGrams], [t].[CokeCO2], [t].[SugarGrams], [t].[LiltCO2], [t].[HasMilk]
 FROM (
-    SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], NULL AS [CaffeineGrams0], NULL AS [HasMilk], NULL AS [Carbonation], NULL AS [SugarGrams0]
+    SELECT [d].[Id], [d].[Discriminator], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], NULL AS [HasMilk], NULL AS [LiltCO2]
     FROM [Drink] AS [d]
     WHERE [d].[Discriminator] = N'Coke'
-    UNION
-    SELECT [d0].[Id], [d0].[Discriminator], NULL AS [CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], [d0].[CaffeineGrams] AS [CaffeineGrams0], [d0].[HasMilk], NULL AS [Carbonation], NULL AS [SugarGrams0]
+    UNION ALL
+    SELECT [d0].[Id], [d0].[Discriminator], [d0].[CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], [d0].[HasMilk], NULL AS [LiltCO2]
     FROM [Drink] AS [d0]
     WHERE [d0].[Discriminator] = N'Tea'
-) AS [t]
-WHERE [t].[Id] > 0");
+) AS [t]");
         }
 
         public override void OfType_Union_subquery()
@@ -456,14 +483,24 @@ FROM (
     FROM [Animal] AS [a0]
     WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a0].[Discriminator] = N'Kiwi')
 ) AS [t]
-WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL");
+WHERE [t].[FoundOn] = CAST(0 AS tinyint)");
         }
 
         public override void OfType_Union_OfType()
         {
             base.OfType_Union_OfType();
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn]
+FROM (
+    SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn], NULL AS [Group]
+    FROM [Animal] AS [a]
+    WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a].[Discriminator] = N'Kiwi')
+    UNION
+    SELECT [a0].[Species], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], [a0].[FoundOn], [a0].[Group]
+    FROM [Animal] AS [a0]
+    WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi')
+) AS [t]");
         }
 
         public override void Subquery_OfType()

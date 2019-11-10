@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
             ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
-
+            ModifyShaperForSetOperation(source1, source2);
             return source1;
         }
 
@@ -263,6 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
             ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
+            ModifyShaperForSetOperation(source1, source2);
             return source1;
         }
 
@@ -440,6 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
             ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
+            ModifyShaperForSetOperation(source1, source2);
             return source1;
         }
 
@@ -929,6 +931,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
             ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
+            ModifyShaperForSetOperation(source1, source2);
             return source1;
         }
 
@@ -1179,6 +1182,34 @@ namespace Microsoft.EntityFrameworkCore.Query
             source.ShaperExpression = shaper;
 
             return source;
+        }
+
+        /// <summary>
+        /// If a set operation is between different entity types, the query will return their closest common ancestor.
+        /// Modify the shaper accordingly.
+        /// </summary>
+        private void ModifyShaperForSetOperation(ShapedQueryExpression source1, ShapedQueryExpression source2)
+        {
+            if (RemoveConvert(source1.ShaperExpression) is EntityShaperExpression shaper1
+                && RemoveConvert(source2.ShaperExpression) is EntityShaperExpression shaper2
+                && shaper1.EntityType != shaper2.EntityType)
+            {
+                source1.ShaperExpression = new EntityShaperExpression(
+                    shaper1.EntityType.GetClosestCommonParent(shaper2.EntityType),
+                    shaper1.ValueBufferExpression,
+                    shaper1.IsNullable);
+            }
+
+            static Expression RemoveConvert(Expression expression)
+            {
+                if (expression is UnaryExpression unaryExpression
+                    && expression.NodeType == ExpressionType.Convert)
+                {
+                    return RemoveConvert(unaryExpression.Operand);
+                }
+
+                return expression;
+            }
         }
     }
 }

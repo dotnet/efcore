@@ -111,6 +111,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
             {
+                if (_innerTable == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Could not bind property '{property.Name}' on entity type '{EntityType.DisplayName()}': "
+                        + "projection was initialized with an expression cache but the property isn't in it.");
+                }
                 expression = new ColumnExpression(property, _innerTable, _nullable);
                 _propertyExpressionsCache[property] = expression;
             }

@@ -364,12 +364,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Union(
                         ss.Set<Customer>()
                             .Where(c => c.City == "London")
-                            .Select(c => new { Foo = c.Region, Customer = c })) // Foo is Region
-                    .OrderBy(x => x.Foo)
-                    .Skip(1)
-                    .Take(10)
-                    .Where(x => x.Foo == "Berlin"),
-                entryCount: 1);
+                            .Select(c => new { Foo = c.PostalCode, Customer = c })), // Foo is PostalCode
+                entryCount: 7);
         }
 
         [ConditionalTheory]

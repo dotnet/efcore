@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -525,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (joinedMapping.Value1 is EntityProjectionExpression entityProjection1
                     && joinedMapping.Value2 is EntityProjectionExpression entityProjection2)
                 {
-                    HandleEntityMapping(joinedMapping.Key, select1, entityProjection1, select2, entityProjection2);
+                    HandleEntityMapping(joinedMapping.Key, entityProjection1, entityProjection2);
                     continue;
                 }
 
@@ -574,50 +575,152 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _tables.Clear();
             _tables.Add(setExpression);
 
-            void HandleEntityMapping(
-                ProjectionMember projectionMember,
-                SelectExpression select1, EntityProjectionExpression projection1,
-                SelectExpression select2, EntityProjectionExpression projection2)
+            void HandleEntityMapping(ProjectionMember projectionMember, EntityProjectionExpression projection1, EntityProjectionExpression projection2)
             {
-                if (projection1.EntityType != projection2.EntityType)
-                {
-                    throw new InvalidOperationException(
-                        "Set operations over different entity types are currently unsupported (see Issue#16298)");
-                }
+                var (entityType1, entityType2) = (projection1.EntityType, projection2.EntityType);
 
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                foreach (var property in GetAllPropertiesInHierarchy(projection1.EntityType))
+                var expressionsByColumnName = new Dictionary<string, ColumnExpression>();
+
+                if (entityType1 == entityType2)
+                {
+                    foreach (var property in GetAllPropertiesInHierarchy(entityType1))
+                    {
+                        propertyExpressions[property] = AddSetOperationColumnProjections(
+                            property.GetColumnName(),
+                            projection1.BindProperty(property),
+                            projection2.BindProperty(property));
+                    }
+
+                    _projectionMapping[projectionMember] = new EntityProjectionExpression(entityType1, propertyExpressions);
+                    return;
+                }
+
+                // We're doing a set operation over two different entity types (within the same hierarchy).
+                // Since both sides of the set operations must produce the same result shape, find the
+                // closest common ancestor and load all the columns for that, adding null projections where
+                // necessary. Note this means we add null projections for properties which neither sibling
+                // actually needs, since the shaper doesn't know that only those sibling types will be coming
+                // back.
+                var commonParentEntityType = entityType1.GetClosestCommonParent(entityType2);
+
+                if (commonParentEntityType == null)
+                {
+                    throw new InvalidOperationException(RelationalStrings.SetOperationNotWithinEntityTypeHierarchy);
+                }
+
+                var properties1 = GetAllPropertiesInHierarchy(entityType1).ToList();
+                var properties2 = GetAllPropertiesInHierarchy(entityType2).ToList();
+
+                // First handle shared properties that come from common base entity types
+                foreach (var property in properties1.Intersect(properties2).ToArray())
                 {
                     propertyExpressions[property] = AddSetOperationColumnProjections(
-                        select1, projection1.BindProperty(property),
-                        select2, projection2.BindProperty(property));
+                        property.GetColumnName(),
+                        projection1.BindProperty(property),
+                        projection2.BindProperty(property));
+
+                    properties1.Remove(property);
+                    properties2.Remove(property);
                 }
 
-                _projectionMapping[projectionMember] = new EntityProjectionExpression(projection1.EntityType, propertyExpressions);
-            }
-
-            ColumnExpression AddSetOperationColumnProjections(
-                SelectExpression select1, ColumnExpression column1,
-                SelectExpression select2, ColumnExpression column2)
-            {
-                var alias = GenerateUniqueAlias(column1.Name);
-                var innerProjection1 = new ProjectionExpression(column1, alias);
-                var innerProjection2 = new ProjectionExpression(column2, alias);
-                select1._projection.Add(innerProjection1);
-                select2._projection.Add(innerProjection2);
-                var outerProjection = new ColumnExpression(innerProjection1, setExpression);
-                if (IsNullableProjection(innerProjection1)
-                    || IsNullableProjection(innerProjection2))
+                // Next, find different model property pairs which are mapped to the same database column
+                foreach (var (group1, group2) in properties1
+                    .GroupBy(p => p.GetColumnName())
+                    .Join(
+                        properties2.GroupBy(p => p.GetColumnName()),
+                        g => g.Key,
+                        g => g.Key,
+                        (p1, p2) => (p1, p2))
+                    .ToArray())
                 {
-                    outerProjection = outerProjection.MakeNullable();
+                    var outerProjection = AddSetOperationColumnProjections(
+                        group1.Key,
+                        projection1.BindProperty(group1.First()),
+                        projection2.BindProperty(group2.First()));
+
+                    foreach (var property in group1)
+                    {
+                        propertyExpressions[property] = outerProjection;
+                        properties1.Remove(property);
+                    }
+
+                    foreach (var property in group2)
+                    {
+                        propertyExpressions[property] = outerProjection;
+                        properties2.Remove(property);
+                    }
                 }
 
-                if (select1._identifier.Contains(column1))
+                // Remaining properties exist only on one side, so inject a null constant projection on the other side.
+                foreach (var property in properties1)
                 {
-                    _identifier.Add(outerProjection);
+                    propertyExpressions[property] = AddSetOperationColumnProjections(
+                        property.GetColumnName(),
+                        projection1.BindProperty(property),
+                        new SqlConstantExpression(
+                            Constant(null, property.ClrType.MakeNullable()),
+                            property.GetRelationalTypeMapping()));
                 }
 
-                return outerProjection;
+                foreach (var property in properties2)
+                {
+                    propertyExpressions[property] = AddSetOperationColumnProjections(
+                        property.GetColumnName(),
+                        new SqlConstantExpression(
+                            Constant(null, property.ClrType.MakeNullable()),
+                            property.GetRelationalTypeMapping()),
+                        projection2.BindProperty(property));
+                }
+
+                // Finally, the shaper will expect to read properties from unrelated siblings, since the set operations
+                // return type is the common ancestor. Add appropriate null constant projections for both sides.
+                // See #16215 for a possible optimization.
+                var unrelatedSiblingProperties = GetAllPropertiesInHierarchy(commonParentEntityType)
+                    .Except(GetAllPropertiesInHierarchy(entityType1))
+                    .Except(GetAllPropertiesInHierarchy(entityType2));
+                foreach (var property in unrelatedSiblingProperties)
+                {
+                    propertyExpressions[property] = AddSetOperationColumnProjections(
+                        property.GetColumnName(),
+                        new SqlConstantExpression(
+                            Constant(null, property.ClrType.MakeNullable()),
+                            property.GetRelationalTypeMapping()),
+                        new SqlConstantExpression(
+                            Constant(null, property.ClrType.MakeNullable()),
+                            property.GetRelationalTypeMapping()));
+                }
+
+                _projectionMapping[projectionMember] = new EntityProjectionExpression(commonParentEntityType, propertyExpressions);
+
+                ColumnExpression AddSetOperationColumnProjections(string columnName, SqlExpression innerExpression1, SqlExpression innerExpression2)
+                {
+                    if (expressionsByColumnName.TryGetValue(columnName, out var outerProjection))
+                    {
+                        return outerProjection;
+                    }
+
+                    var alias = GenerateUniqueAlias(columnName);
+                    var innerProjection1 = new ProjectionExpression(innerExpression1, alias);
+                    var innerProjection2 = new ProjectionExpression(innerExpression2, alias);
+                    select1._projection.Add(innerProjection1);
+                    select2._projection.Add(innerProjection2);
+
+                    outerProjection = new ColumnExpression(innerProjection1, setExpression);
+
+                    if (IsNullableProjection(innerProjection1)
+                        || IsNullableProjection(innerProjection2))
+                    {
+                        outerProjection = outerProjection.MakeNullable();
+                    }
+
+                    if (select1._identifier.Contains(innerExpression1))
+                    {
+                        _identifier.Add(outerProjection);
+                    }
+
+                    return expressionsByColumnName[columnName] = outerProjection;
+                }
             }
 
             string GenerateUniqueAlias(string baseAlias)
