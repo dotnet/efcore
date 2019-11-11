@@ -893,14 +893,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (memberExpression.Expression == null)
                     {
                         builder
-                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true))
-                            .Append('.')
-                            .Append(memberExpression.Member.Name);
-
-                        return true;
+                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true));
+                    }
+                    else
+                    {
+                        if (!HandleExpression(memberExpression.Expression, builder))
+                        {
+                            return false;
+                        }
                     }
 
-                    return false;
+                    builder
+                        .Append('.')
+                        .Append(memberExpression.Member.Name);
+
+                    return true;
                 }
             }
 

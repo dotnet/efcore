@@ -9,6 +9,9 @@ using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     A class that provides reflection metadata for translatable LINQ methods.
+    /// </summary>
     public static class QueryableMethods
     {
         public static MethodInfo AsQueryable { get; }
@@ -79,14 +82,14 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public static bool IsSumWithSelector(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
-               && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+                && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
 
         public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
             => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
 
         public static bool IsAverageWithSelector(MethodInfo methodInfo)
             => methodInfo.IsGenericMethod
-               && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+                && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
 
         public static MethodInfo GetSumWithoutSelector(Type type) => SumWithoutSelectorMethods[type];
         public static MethodInfo GetSumWithSelector(Type type) => SumWithSelectorMethods[type];
@@ -97,12 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
         private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
         private static Dictionary<Type, MethodInfo> AverageWithSelectorMethods { get; }
-
-        private static bool IsExpressionOfFunc(Type type, int funcGenericArgs = 2)
-            => type.IsGenericType
-               && type.GetGenericTypeDefinition() == typeof(Expression<>)
-               && type.GetGenericArguments()[0].IsGenericType
-               && type.GetGenericArguments()[0].GetGenericArguments().Length == funcGenericArgs;
 
         static QueryableMethods()
         {
@@ -117,13 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 mi => mi.Name == nameof(Queryable.OfType) && mi.GetParameters().Length == 1);
 
             All = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.All) && mi.GetParameters().Length == 2
-                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.All)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             AnyWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Any) && mi.GetParameters().Length == 1);
             AnyWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Any) && mi.GetParameters().Length == 2
-                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Any)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             Contains = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Contains) && mi.GetParameters().Length == 2);
 
@@ -139,21 +138,25 @@ namespace Microsoft.EntityFrameworkCore.Query
             CountWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Count) && mi.GetParameters().Length == 1);
             CountWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Count) && mi.GetParameters().Length == 2
-                                                         && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Count)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             LongCountWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.LongCount) && mi.GetParameters().Length == 1);
             LongCountWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.LongCount) && mi.GetParameters().Length == 2
-                                                             && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.LongCount)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             MinWithSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Min) && mi.GetParameters().Length == 2
-                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Min)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             MinWithoutSelector = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Min) && mi.GetParameters().Length == 1);
             MaxWithSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Max) && mi.GetParameters().Length == 2
-                                                       && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Max)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             MaxWithoutSelector = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Max) && mi.GetParameters().Length == 1);
 
@@ -164,66 +167,80 @@ namespace Microsoft.EntityFrameworkCore.Query
             FirstWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.First) && mi.GetParameters().Length == 1);
             FirstWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.First) && mi.GetParameters().Length == 2
-                                                         && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.First)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             FirstOrDefaultWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.FirstOrDefault) && mi.GetParameters().Length == 1);
             FirstOrDefaultWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.FirstOrDefault) && mi.GetParameters().Length == 2
-                                                                  && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.FirstOrDefault)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             SingleWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Single) && mi.GetParameters().Length == 1);
             SingleWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Single) && mi.GetParameters().Length == 2
-                                                          && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Single)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             SingleOrDefaultWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.SingleOrDefault) && mi.GetParameters().Length == 1);
             SingleOrDefaultWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SingleOrDefault) && mi.GetParameters().Length == 2
-                                                                   && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SingleOrDefault)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             LastWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Last) && mi.GetParameters().Length == 1);
             LastWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Last) && mi.GetParameters().Length == 2
-                                                        && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Last)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             LastOrDefaultWithoutPredicate = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.LastOrDefault) && mi.GetParameters().Length == 1);
             LastOrDefaultWithPredicate = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.LastOrDefault) && mi.GetParameters().Length == 2
-                                                                 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.LastOrDefault)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
 
             Distinct = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Distinct) && mi.GetParameters().Length == 1);
             Reverse = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Reverse) && mi.GetParameters().Length == 1);
             Where = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Where) && mi.GetParameters().Length == 2
-                                                         && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Where)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             Select = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.Select) && mi.GetParameters().Length == 2
-                                                          && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.Select)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             Skip = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Skip) && mi.GetParameters().Length == 2);
             Take = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.Take) && mi.GetParameters().Length == 2);
             SkipWhile = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SkipWhile) && mi.GetParameters().Length == 2
-                                                             && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SkipWhile)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             TakeWhile = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.TakeWhile) && mi.GetParameters().Length == 2
-                                                             && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.TakeWhile)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             OrderBy = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.OrderBy) && mi.GetParameters().Length == 2
-                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.OrderBy)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             OrderByDescending = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.OrderByDescending) && mi.GetParameters().Length == 2
-                                                                     && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.OrderByDescending)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             ThenBy = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.ThenBy) && mi.GetParameters().Length == 2
-                                                          && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.ThenBy)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             ThenByDescending = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.ThenByDescending) && mi.GetParameters().Length == 2
-                                                                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.ThenByDescending)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             DefaultIfEmptyWithoutArgument = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.DefaultIfEmpty) && mi.GetParameters().Length == 1);
             DefaultIfEmptyWithArgument = queryableMethods.Single(
@@ -234,103 +251,117 @@ namespace Microsoft.EntityFrameworkCore.Query
             GroupJoin = queryableMethods.Single(
                 mi => mi.Name == nameof(Queryable.GroupJoin) && mi.GetParameters().Length == 5);
             SelectManyWithCollectionSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SelectMany) && mi.GetParameters().Length == 3
-                                                              && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SelectMany)
+                    && mi.GetParameters().Length == 3
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             SelectManyWithoutCollectionSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.SelectMany) && mi.GetParameters().Length == 2
-                                                              && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.SelectMany)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
 
             GroupByWithKeySelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 2
-                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.GroupBy)
+                    && mi.GetParameters().Length == 2
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
             GroupByWithKeyElementSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 3
-                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType)
-                                                           && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType));
+                mi => mi.Name == nameof(Queryable.GroupBy)
+                    && mi.GetParameters().Length == 3
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType)
+                    && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType));
             GroupByWithKeyElementResultSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 4
-                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType)
-                                                           && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType) && IsExpressionOfFunc(
-                                                               mi.GetParameters()[3].ParameterType, 3));
+                mi => mi.Name == nameof(Queryable.GroupBy)
+                    && mi.GetParameters().Length == 4
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType)
+                    && IsExpressionOfFunc(mi.GetParameters()[2].ParameterType)
+                    && IsExpressionOfFunc(
+                        mi.GetParameters()[3].ParameterType, 3));
             GroupByWithKeyResultSelector = queryableMethods.Single(
-                mi => mi.Name == nameof(Queryable.GroupBy) && mi.GetParameters().Length == 3
-                                                           && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType) && IsExpressionOfFunc(
-                                                               mi.GetParameters()[2].ParameterType, 3));
-
-            MethodInfo GetSumOrAverageWithoutSelector<T>(string methodName)
-                => queryableMethods.Single(
-                    mi => mi.Name == methodName
-                          && mi.GetParameters().Length == 1
-                          && mi.GetParameters()[0].ParameterType.GetGenericArguments()[0] == typeof(T));
-
-            bool HasSelector<T>(Type type)
-                => type.IsGenericType
-                   && type.GetGenericTypeDefinition() == typeof(Expression<>)
-                   && type.GetGenericArguments()[0].IsGenericType
-                   && type.GetGenericArguments()[0].GetGenericArguments().Length == 2
-                   && type.GetGenericArguments()[0].GetGenericArguments()[1] == typeof(T);
-
-            MethodInfo GetSumOrAverageWithSelector<T>(string methodName)
-                => queryableMethods.Single(
-                    mi => mi.Name == methodName
-                          && mi.GetParameters().Length == 2
-                          && HasSelector<T>(mi.GetParameters()[1].ParameterType));
+                mi => mi.Name == nameof(Queryable.GroupBy)
+                    && mi.GetParameters().Length == 3
+                    && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType)
+                    && IsExpressionOfFunc(
+                        mi.GetParameters()[2].ParameterType, 3));
 
             SumWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(nameof(Queryable.Sum)) },
-                { typeof(long), GetSumOrAverageWithoutSelector<long>(nameof(Queryable.Sum)) },
-                { typeof(int), GetSumOrAverageWithoutSelector<int>(nameof(Queryable.Sum)) },
-                { typeof(double), GetSumOrAverageWithoutSelector<double>(nameof(Queryable.Sum)) },
-                { typeof(float), GetSumOrAverageWithoutSelector<float>(nameof(Queryable.Sum)) },
-                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(nameof(Queryable.Sum)) },
-                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(nameof(Queryable.Sum)) },
-                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(nameof(Queryable.Sum)) },
-                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(nameof(Queryable.Sum)) },
-                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(nameof(Queryable.Sum)) }
+                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(long), GetSumOrAverageWithoutSelector<long>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(int), GetSumOrAverageWithoutSelector<int>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(double), GetSumOrAverageWithoutSelector<double>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(float), GetSumOrAverageWithoutSelector<float>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(queryableMethods, nameof(Queryable.Sum)) }
             };
 
             SumWithSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(nameof(Queryable.Sum)) },
-                { typeof(long), GetSumOrAverageWithSelector<long>(nameof(Queryable.Sum)) },
-                { typeof(int), GetSumOrAverageWithSelector<int>(nameof(Queryable.Sum)) },
-                { typeof(double), GetSumOrAverageWithSelector<double>(nameof(Queryable.Sum)) },
-                { typeof(float), GetSumOrAverageWithSelector<float>(nameof(Queryable.Sum)) },
-                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(nameof(Queryable.Sum)) },
-                { typeof(long?), GetSumOrAverageWithSelector<long?>(nameof(Queryable.Sum)) },
-                { typeof(int?), GetSumOrAverageWithSelector<int?>(nameof(Queryable.Sum)) },
-                { typeof(double?), GetSumOrAverageWithSelector<double?>(nameof(Queryable.Sum)) },
-                { typeof(float?), GetSumOrAverageWithSelector<float?>(nameof(Queryable.Sum)) }
+                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(long), GetSumOrAverageWithSelector<long>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(int), GetSumOrAverageWithSelector<int>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(double), GetSumOrAverageWithSelector<double>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(float), GetSumOrAverageWithSelector<float>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(long?), GetSumOrAverageWithSelector<long?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(int?), GetSumOrAverageWithSelector<int?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(double?), GetSumOrAverageWithSelector<double?>(queryableMethods, nameof(Queryable.Sum)) },
+                { typeof(float?), GetSumOrAverageWithSelector<float?>(queryableMethods, nameof(Queryable.Sum)) }
             };
 
             AverageWithoutSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(nameof(Queryable.Average)) },
-                { typeof(long), GetSumOrAverageWithoutSelector<long>(nameof(Queryable.Average)) },
-                { typeof(int), GetSumOrAverageWithoutSelector<int>(nameof(Queryable.Average)) },
-                { typeof(double), GetSumOrAverageWithoutSelector<double>(nameof(Queryable.Average)) },
-                { typeof(float), GetSumOrAverageWithoutSelector<float>(nameof(Queryable.Average)) },
-                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(nameof(Queryable.Average)) },
-                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(nameof(Queryable.Average)) },
-                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(nameof(Queryable.Average)) },
-                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(nameof(Queryable.Average)) },
-                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(nameof(Queryable.Average)) }
+                { typeof(decimal), GetSumOrAverageWithoutSelector<decimal>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(long), GetSumOrAverageWithoutSelector<long>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(int), GetSumOrAverageWithoutSelector<int>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(double), GetSumOrAverageWithoutSelector<double>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(float), GetSumOrAverageWithoutSelector<float>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(decimal?), GetSumOrAverageWithoutSelector<decimal?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(long?), GetSumOrAverageWithoutSelector<long?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(int?), GetSumOrAverageWithoutSelector<int?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(double?), GetSumOrAverageWithoutSelector<double?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(float?), GetSumOrAverageWithoutSelector<float?>(queryableMethods, nameof(Queryable.Average)) }
             };
 
             AverageWithSelectorMethods = new Dictionary<Type, MethodInfo>
             {
-                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(nameof(Queryable.Average)) },
-                { typeof(long), GetSumOrAverageWithSelector<long>(nameof(Queryable.Average)) },
-                { typeof(int), GetSumOrAverageWithSelector<int>(nameof(Queryable.Average)) },
-                { typeof(double), GetSumOrAverageWithSelector<double>(nameof(Queryable.Average)) },
-                { typeof(float), GetSumOrAverageWithSelector<float>(nameof(Queryable.Average)) },
-                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(nameof(Queryable.Average)) },
-                { typeof(long?), GetSumOrAverageWithSelector<long?>(nameof(Queryable.Average)) },
-                { typeof(int?), GetSumOrAverageWithSelector<int?>(nameof(Queryable.Average)) },
-                { typeof(double?), GetSumOrAverageWithSelector<double?>(nameof(Queryable.Average)) },
-                { typeof(float?), GetSumOrAverageWithSelector<float?>(nameof(Queryable.Average)) }
+                { typeof(decimal), GetSumOrAverageWithSelector<decimal>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(long), GetSumOrAverageWithSelector<long>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(int), GetSumOrAverageWithSelector<int>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(double), GetSumOrAverageWithSelector<double>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(float), GetSumOrAverageWithSelector<float>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(decimal?), GetSumOrAverageWithSelector<decimal?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(long?), GetSumOrAverageWithSelector<long?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(int?), GetSumOrAverageWithSelector<int?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(double?), GetSumOrAverageWithSelector<double?>(queryableMethods, nameof(Queryable.Average)) },
+                { typeof(float?), GetSumOrAverageWithSelector<float?>(queryableMethods, nameof(Queryable.Average)) }
             };
+
+            static MethodInfo GetSumOrAverageWithoutSelector<T>(List<MethodInfo> queryableMethods, string methodName)
+                => queryableMethods.Single(
+                    mi => mi.Name == methodName
+                        && mi.GetParameters().Length == 1
+                        && mi.GetParameters()[0].ParameterType.GetGenericArguments()[0] == typeof(T));
+
+            static MethodInfo GetSumOrAverageWithSelector<T>(List<MethodInfo> queryableMethods, string methodName)
+                => queryableMethods.Single(
+                    mi => mi.Name == methodName
+                        && mi.GetParameters().Length == 2
+                        && IsSelector<T>(mi.GetParameters()[1].ParameterType));
+
+            static bool IsExpressionOfFunc(Type type, int funcGenericArgs = 2)
+                => type.IsGenericType
+                    && type.GetGenericTypeDefinition() == typeof(Expression<>)
+                    && type.GetGenericArguments()[0].IsGenericType
+                    && type.GetGenericArguments()[0].GetGenericArguments().Length == funcGenericArgs;
+
+            static bool IsSelector<T>(Type type)
+                => type.IsGenericType
+                    && type.GetGenericTypeDefinition() == typeof(Expression<>)
+                    && type.GetGenericArguments()[0].IsGenericType
+                    && type.GetGenericArguments()[0].GetGenericArguments().Length == 2
+                    && type.GetGenericArguments()[0].GetGenericArguments()[1] == typeof(T);
         }
     }
 }

@@ -47,5 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Optional_navigation_propagates_nullability_to_manually_created_left_join2(isAsync);
         }
+
+        [ConditionalTheory(Skip = "issue #17620")]
+        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
+        {
+            return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
+        }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -130,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
 
                 sqlBuilder.Build(batches[i])
-                    .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null));
+                    .ExecuteNonQuery(new RelationalCommandParameterObject(connection, null, null, null, null));
             }
         }
 
@@ -141,9 +140,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => new DropTableOperation { Name = table.Name, Schema = table.Schema };
 
         protected virtual MigrationOperation Drop(DatabaseForeignKey foreignKey)
-            => new DropForeignKeyOperation { Name = foreignKey.Name, Table = foreignKey.Table.Name, Schema = foreignKey.Table.Schema };
+            => new DropForeignKeyOperation
+            {
+                Name = foreignKey.Name,
+                Table = foreignKey.Table.Name,
+                Schema = foreignKey.Table.Schema
+            };
 
         protected virtual MigrationOperation Drop(DatabaseIndex index)
-            => new DropIndexOperation { Name = index.Name, Table = index.Table.Name, Schema = index.Table.Schema };
+            => new DropIndexOperation
+            {
+                Name = index.Name,
+                Table = index.Table.Name,
+                Schema = index.Table.Schema
+            };
     }
 }

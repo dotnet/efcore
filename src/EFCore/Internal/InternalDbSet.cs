@@ -25,10 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class InternalDbSet<TEntity> :
-#pragma warning disable CS0618 // Type or member is obsolete
-        DbQuery<TEntity>,
-#pragma warning restore CS0618 // Type or member is obsolete
-        IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IResettableService
+        DbSet<TEntity>,
+        IQueryable<TEntity>,
+        IAsyncEnumerable<TEntity>,
+        IInfrastructure<IServiceProvider>,
+        IResettableService
         where TEntity : class
     {
         private readonly DbContext _context;

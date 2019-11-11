@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -33,6 +32,35 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _ => { },
                 modelBuilder => modelBuilder.Entity<TestQueryType>().HasNoKey().ToView("Vista", "dbo"),
                 result => Assert.Equal(0, result.Count));
+        }
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_views_with_owned_types()
+        {
+            Execute(
+                _ => { },
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.ToView("Orders");
+                        x.OwnsOne(y => y.Shipping);
+                    }),
+                upOperations => Assert.Equal(0, upOperations.Count));
+        }
+
+        [ConditionalFact]
+        public void Model_differ_does_not_detect_views_with_weak_types()
+        {
+            Execute(
+                _ => { },
+                target => target.Entity<Order>(
+                    x =>
+                    {
+                        x.ToView("Orders");
+                        x.OwnsOne(y => y.Billing);
+                        x.OwnsOne(y => y.Shipping);
+                    }),
+                upOperations => Assert.Equal(0, upOperations.Count));
         }
 
         [ConditionalFact]
@@ -121,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
-        public void Model_differ_detects_changing_store_type_to_conversions()
+        public void Model_differ_detects_changing_store_type_with_conversions()
         {
             Execute(
                 _ => { },
@@ -992,7 +1020,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.Property<string>("MouseId");
                             x.Property<string>("BoneId");
                             x.HasData(
-                                new { Id = 42, MouseId = "1", BoneId = "2" });
+                                new
+                                {
+                                    Id = 42,
+                                    MouseId = "1",
+                                    BoneId = "2"
+                                });
                         });
                 },
                 modelBuilder =>
@@ -1050,7 +1083,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     s.Property<string>("Street");
                                     s.Property<string>("City");
                                     s.HasData(
-                                        new { OrderId = 42, Street = "Lombard", City = "San Francisco" });
+                                        new
+                                        {
+                                            OrderId = 42,
+                                            Street = "Lombard",
+                                            City = "San Francisco"
+                                        });
                                 });
                             x.OwnsOne(
                                 "Address", "BillingAddress", s =>
@@ -1058,7 +1096,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                     s.Property<string>("Street");
                                     s.Property<string>("City");
                                     s.HasData(
-                                        new { OrderId = 42, Street = "Abbey Road", City = "London" });
+                                        new
+                                        {
+                                            OrderId = 42,
+                                            Street = "Abbey Road",
+                                            City = "London"
+                                        });
                                 });
                         });
                 },
@@ -1374,6 +1417,92 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     }));
         }
 
+        [ConditionalFact]
+        public void Add_seed_data_with_non_writable_column_insert_operations_with_batching()
+        {
+            Execute(
+                _ => { },
+                source => source.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.Property<byte[]>("Version").IsRowVersion();
+                    }),
+                target => target.Entity(
+                    "Firefly",
+                    x =>
+                    {
+                        x.ToTable("Firefly", "dbo");
+                        x.Property<int>("Id");
+                        x.Property<string>("Name").HasColumnType("nvarchar(30)");
+                        x.Property<byte[]>("Version").IsRowVersion();
+                        x.HasData(
+                            new { Id = 42, Name = "Firefly 1" },
+                            new { Id = 43, Name = "Firefly 2" },
+                            new { Id = 44, Name = "Firefly 3" },
+                            new { Id = 45, Name = "Firefly 4" });
+                    }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Collection(
+                            ToJaggedArray(m.Values),
+                            r => Assert.Collection(
+                                r,
+                                v => Assert.Equal(42, v),
+                                v => Assert.Equal("Firefly 1", v)),
+                            r => Assert.Collection(
+                                r,
+                                v => Assert.Equal(43, v),
+                                v => Assert.Equal("Firefly 2", v)),
+                            r => Assert.Collection(
+                                r,
+                                v => Assert.Equal(44, v),
+                                v => Assert.Equal("Firefly 3", v)),
+                            r => Assert.Collection(
+                                r,
+                                v => Assert.Equal(45, v),
+                                v => Assert.Equal("Firefly 4", v))
+                        );
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(42, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(43, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(44, v));
+                    },
+                    o =>
+                    {
+                        var m = Assert.IsType<DeleteDataOperation>(o);
+                        AssertMultidimensionalArray(
+                            m.KeyValues,
+                            v => Assert.Equal(45, v));
+                    }),
+                builderOptions => builderOptions.UseFakeRelational(a => a.MaxBatchSize(4)));
+        }
+
         private enum SomeEnum
         {
             Default,
@@ -1426,8 +1555,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { IdBeforeRename = 42, Value1 = 32, Value2 = "equal" },
-                            new { IdBeforeRename = 24, Value1 = 72, Value2 = "not equal1" });
+                            new
+                            {
+                                IdBeforeRename = 42,
+                                Value1 = 32,
+                                Value2 = "equal"
+                            },
+                            new
+                            {
+                                IdBeforeRename = 24,
+                                Value1 = 72,
+                                Value2 = "not equal1"
+                            });
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -1437,8 +1576,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
-                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 27,
+                                Value2 = "equal"
+                            }, // modified
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 99,
+                                Value2 = "not equal2"
+                            }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -1576,35 +1725,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         [ConditionalFact]
         public void Rename_property_and_column_when_snapshot()
         {
-            // NB: No conventions to simulate the snapshot.
-            var sourceModelBuilder = new ModelBuilder(new ConventionSet());
-            sourceModelBuilder.Entity(
-                // ReSharper disable once AssignNullToNotNullAttribute
-                typeof(Crab).FullName,
-                x =>
+            Execute(
+                source => source.Entity(
+                    typeof(Crab).FullName,
+                    x =>
+                    {
+                        x.ToTable("Crab");
+
+                        x.Property<string>("CrabId");
+
+                        x.HasKey("CrabId");
+                    }),
+                target => target.Entity<Crab>(),
+                operations =>
                 {
-                    x.ToTable("Crab");
+                    Assert.Equal(1, operations.Count);
 
-                    x.Property<string>("CrabId");
-
-                    x.HasKey("CrabId");
-                });
-
-            var targetModelBuilder = CreateModelBuilder();
-            targetModelBuilder.Entity<Crab>();
-
-            targetModelBuilder.FinalizeModel();
-
-            var modelDiffer = RelationalTestHelpers.Instance.CreateContextServices()
-                .GetRequiredService<IMigrationsModelDiffer>();
-            var operations = modelDiffer.GetDifferences(sourceModelBuilder.Model, targetModelBuilder.Model);
-
-            Assert.Equal(1, operations.Count);
-
-            var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
-            Assert.Equal("Crab", operation.Table);
-            Assert.Equal("CrabId", operation.Name);
-            Assert.Equal("Id", operation.NewName);
+                    var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                    Assert.Equal("Crab", operation.Table);
+                    Assert.Equal("CrabId", operation.Name);
+                    Assert.Equal("Id", operation.NewName);
+                },
+                skipSourceConventions: true);
         }
 
         private class Crab
@@ -2459,7 +2601,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Puffin", operation.Table);
                     Assert.Equal("PK_Puffin", operation.Name);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -2528,7 +2671,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Raven", addOperation.Table);
                     Assert.Equal("PK_Raven", addOperation.Name);
                     Assert.Equal(new[] { "RavenId" }, addOperation.Columns);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -2565,7 +2709,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("Raven", addOperation.Table);
                     Assert.Equal("PK_Raven", addOperation.Name);
                     Assert.Equal(new[] { "RavenId", "Id" }, addOperation.Columns);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3421,7 +3566,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operation.MinValue);
                     Assert.Equal(4, operation.MaxValue);
                     Assert.True(operation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3451,7 +3597,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operation.MinValue);
                     Assert.Equal(5, operation.MaxValue);
                     Assert.True(operation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3511,7 +3658,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, operation.MinValue);
                     Assert.Equal(4, operation.MaxValue);
                     Assert.False(operation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3547,7 +3695,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal(1, createOperation.MinValue);
                     Assert.Equal(4, createOperation.MaxValue);
                     Assert.True(createOperation.IsCyclic);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3575,7 +3724,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Golf", operation.Name);
                     Assert.Equal(5, operation.StartValue);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -3597,7 +3747,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 operations => Assert.Collection(
                     operations,
                     o => Assert.IsType<AlterSequenceOperation>(o),
-                    o => Assert.IsType<RestartSequenceOperation>(o)));
+                    o => Assert.IsType<RestartSequenceOperation>(o)),
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -5754,7 +5905,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var alterSequenceOperation = Assert.IsType<AlterSequenceOperation>(operations[2]);
                     Assert.Equal("new", alterSequenceOperation.Schema);
                     Assert.Equal("Sequence", alterSequenceOperation.Name);
-                });
+                },
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -6484,8 +6636,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 42, Value1 = 32, Value2 = "equal" }, // modified
-                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 32,
+                                Value2 = "equal"
+                            }, // modified
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 72,
+                                Value2 = "not equal1"
+                            }); // modified
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -6497,8 +6659,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 42, Value1 = 27, Value2 = "equal" }, // modified
-                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 27,
+                                Value2 = "equal"
+                            }, // modified
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 99,
+                                Value2 = "not equal2"
+                            }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -6595,6 +6767,68 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             .HasConversion(e => e.ToString(), e => int.Parse(e));
                         x.HasData(
                             new { Id = 42, Value1 = 32 });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [ConditionalFact]
+        public void SeedData_nonkey_refactoring_value_conversion_to_value_type()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithOneProperty",
+                    x => x.Property<int>("Id")),
+                source => source.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<DateTime>("Value1");
+                        x.HasData(
+                            new { Id = 42 });
+                    }),
+                target => target.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<byte[]>("Value1")
+                            .IsRequired()
+                            .HasConversion(e => new DateTime(), e => new byte[0]);
+                        x.HasData(
+                            new { Id = 42 });
+                    }),
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        [ConditionalFact]
+        public void SeedData_nonkey_refactoring_value_conversion_to_value_type_store_generated()
+        {
+            Execute(
+                common => common.Entity(
+                    "EntityWithOneProperty",
+                    x => x.Property<int>("Id")),
+                source => source.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<DateTime>("Value1")
+                            .ValueGeneratedOnAddOrUpdate()
+                            .IsConcurrencyToken();
+                        x.HasData(
+                            new { Id = 42, Value1 = DateTime.Now });
+                    }),
+                target => target.Entity(
+                    "EntityWithOneProperty",
+                    x =>
+                    {
+                        x.Property<byte[]>("Value1")
+                            .IsRequired()
+                            .ValueGeneratedOnAddOrUpdate()
+                            .IsConcurrencyToken()
+                            .HasConversion(e => new DateTime(), e => new byte[0]);
+                        x.HasData(
+                            new { Id = 42, Value1 = new byte[0] });
                     }),
                 Assert.Empty,
                 Assert.Empty);
@@ -6772,10 +7006,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 99999, Value1 = 0, Value2 = "" }, // deleted
-                            new { Id = 42, Value1 = 32, Value2 = "equal", InvalidProperty = "is ignored" }, // modified
-                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
-                            new { Id = 24, Value1 = 72, Value2 = "not equal1" }); // modified
+                            new
+                            {
+                                Id = 99999,
+                                Value1 = 0,
+                                Value2 = ""
+                            }, // deleted
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 32,
+                                Value2 = "equal",
+                                InvalidProperty = "is ignored"
+                            }, // modified
+                            new
+                            {
+                                Id = 8,
+                                Value1 = 100,
+                                Value2 = "equal"
+                            }, // unchanged
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 72,
+                                Value2 = "not equal1"
+                            }); // modified
                     }),
                 target => target.Entity(
                     "EntityWithTwoProperties",
@@ -6785,11 +7040,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.Property<int>("Value1");
                         x.Property<string>("Value2");
                         x.HasData(
-                            new { Id = 11111, Value1 = 0, Value2 = "" }, // added
-                            new { Id = 11112, Value1 = 1, Value2 = "new" }, // added
-                            new { Id = 42, Value1 = 27, Value2 = "equal", InvalidProperty = "is ignored here too" }, // modified
-                            new { Id = 8, Value1 = 100, Value2 = "equal" }, // unchanged
-                            new { Id = 24, Value1 = 99, Value2 = "not equal2" }); // modified
+                            new
+                            {
+                                Id = 11111,
+                                Value1 = 0,
+                                Value2 = ""
+                            }, // added
+                            new
+                            {
+                                Id = 11112,
+                                Value1 = 1,
+                                Value2 = "new"
+                            }, // added
+                            new
+                            {
+                                Id = 42,
+                                Value1 = 27,
+                                Value2 = "equal",
+                                InvalidProperty = "is ignored here too"
+                            }, // modified
+                            new
+                            {
+                                Id = 8,
+                                Value1 = 100,
+                                Value2 = "equal"
+                            }, // unchanged
+                            new
+                            {
+                                Id = 24,
+                                Value1 = 99,
+                                Value2 = "not equal2"
+                            }); // modified
                     }),
                 upOps => Assert.Collection(
                     upOps,
@@ -7075,9 +7356,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
                             x.HasData(
-                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
-                                new { PostId = 545, Title = "Updated Title", BlogId = 38 },
-                                new { PostId = 546, Title = "New Post", BlogId = 32 });
+                                new
+                                {
+                                    PostId = 416,
+                                    Title = "Post To Non-existent BlogId",
+                                    BlogId = 316
+                                },
+                                new
+                                {
+                                    PostId = 545,
+                                    Title = "Updated Title",
+                                    BlogId = 38
+                                },
+                                new
+                                {
+                                    PostId = 546,
+                                    Title = "New Post",
+                                    BlogId = 32
+                                });
                         });
                 });
         }
@@ -7108,9 +7404,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
                             x.HasData(
-                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
-                                new { PostId = 545, Title = "Updated Title", BlogId = 38 },
-                                new { PostId = 546, Title = "New Post", BlogId = 32 });
+                                new
+                                {
+                                    PostId = 416,
+                                    Title = "Post To Non-existent BlogId",
+                                    BlogId = 316
+                                },
+                                new
+                                {
+                                    PostId = 545,
+                                    Title = "Updated Title",
+                                    BlogId = 38
+                                },
+                                new
+                                {
+                                    PostId = 546,
+                                    Title = "New Post",
+                                    BlogId = 32
+                                });
                         });
                 });
         }
@@ -7141,9 +7452,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                                 .HasForeignKey("BlogId")
                                 .OnDelete(DeleteBehavior.Cascade);
                             x.HasData(
-                                new { PostId = 545, Title = "Original Title", BlogId = 32 },
-                                new { PostId = 416, Title = "Post To Non-existent BlogId", BlogId = 316 },
-                                new { PostId = 390, Title = "Post To Be Removed", BlogId = 32 });
+                                new
+                                {
+                                    PostId = 545,
+                                    Title = "Original Title",
+                                    BlogId = 32
+                                },
+                                new
+                                {
+                                    PostId = 416,
+                                    Title = "Post To Non-existent BlogId",
+                                    BlogId = 316
+                                },
+                                new
+                                {
+                                    PostId = 390,
+                                    Title = "Post To Be Removed",
+                                    BlogId = 32
+                                });
                         });
                 },
                 buildTargetAction,
@@ -7327,6 +7653,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public int Id { get; set; }
 
             public Address Mailing { get; set; }
+            public ICollection<Order> Orders { get; set; }
         }
 
         private class Address
@@ -7405,7 +7732,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         {
             Execute(
                 source => source
-                    .Entity<Customer>().OwnsOne(y => y.Mailing),
+                    .Entity<Customer>()
+                    .Ignore(c => c.Orders)
+                    .OwnsOne(y => y.Mailing),
                 target => target
                     .Entity<Order>(
                         x =>
@@ -7413,7 +7742,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             x.OwnsOne(y => y.Billing);
                             x.OwnsOne(y => y.Shipping);
                         })
-                    .Entity<Customer>().OwnsOne(y => y.Mailing),
+                    .Entity<Customer>()
+                    .Ignore(c => c.Orders)
+                    .OwnsOne(y => y.Mailing),
                 operations =>
                 {
                     var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
@@ -7465,7 +7796,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var m = Assert.IsType<DropTableOperation>(o);
                         Assert.Equal("Order", m.Name);
-                    }));
+                    }),
+                skipSourceConventions: true);
         }
 
         [ConditionalFact]
@@ -7494,6 +7826,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void SeedData_type_with_owned_collection_no_changes()
+        {
+            Execute(
+                common =>
+                {
+                    common.Entity<Customer>(
+                        c =>
+                        {
+                            c.Ignore(x => x.Mailing);
+
+                            c.HasKey(x => x.Id);
+                            c.HasData(new Customer { Id = 1 });
+
+                            c.OwnsMany(
+                                y => y.Orders, x =>
+                                {
+                                    x.Ignore(o => o.Billing);
+                                    x.Ignore(o => o.Shipping);
+
+                                    x.WithOwner()
+                                        .HasForeignKey("CustomerId");
+
+                                    x.HasKey("CustomerId", "Id");
+                                    x.HasData(new { Id = 2, CustomerId = 1 });
+                                });
+                        });
+                },
+                _ => { },
+                _ => { },
+                Assert.Empty,
+                Assert.Empty,
+                skipSourceConventions: true);
+        }
+
+        [ConditionalFact]
         public void Old_style_ownership_to_new_style()
         {
             Execute(
@@ -7512,6 +7879,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 source =>
                 {
+                    source.HasAnnotation("ProductVersion", "2.2.6-servicing-10079");
                     source.Entity(
                         "Order", b =>
                         {
@@ -7525,10 +7893,42 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                                     b1.ToTable("Order");
 
-                                    b1.HasOne("Order")
+                                    b1.HasOne("Order", "Order")
                                         .WithOne("OrderInfo")
                                         .HasForeignKey("OrderInfo", "OrderId")
                                         .OnDelete(DeleteBehavior.Cascade);
+
+                                    b1.OwnsOne(
+                                        "Address", "ShippingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
+
+                                            b2.HasKey("OrderId");
+
+                                            b2.ToTable("Order");
+
+                                            b2.HasOne("OrderInfo")
+                                                .WithOne("ShippingAddress")
+                                                .HasForeignKey("Address", "OrderId")
+                                                .OnDelete(DeleteBehavior.Cascade);
+                                        });
+
+                                    b1.OwnsOne(
+                                        "Address", "BillingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
+
+                                            b2.HasKey("OrderId");
+
+                                            b2.ToTable("Order");
+
+                                            b2.HasOne("OrderInfo")
+                                                .WithOne("BillingAddress")
+                                                .HasForeignKey("Address", "OrderId")
+                                                .OnDelete(DeleteBehavior.Cascade);
+                                        });
                                 });
                         });
                 },
@@ -7547,8 +7947,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                                     b1.ToTable("Order");
 
-                                    b1.WithOwner()
+                                    b1.WithOwner("Order")
                                         .HasForeignKey("OrderId");
+
+                                    b1.OwnsOne(
+                                        "Address", "ShippingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
+
+                                            b2.HasKey("OrderId");
+
+                                            b2.ToTable("Order");
+
+                                            b2.WithOwner()
+                                                .HasForeignKey("OrderId");
+                                        });
+
+                                    b1.OwnsOne(
+                                        "Address", "BillingAddress", b2 =>
+                                        {
+                                            b2.Property<int>("OrderId")
+                                                .ValueGeneratedOnAdd();
+
+                                            b2.HasKey("OrderId");
+
+                                            b2.ToTable("Order");
+
+                                            b2.WithOwner()
+                                                .HasForeignKey("OrderId");
+                                        });
                                 });
                         });
                 },
@@ -7896,6 +8324,226 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 get => _loader.Load(this, ref _blog);
                 set => _blog = value;
             }
+        }
+
+        [ConditionalFact]
+        public void Create_table_handles_same_name_but_different_schemas_and_identifying_relationship()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Entity1",
+                        x =>
+                        {
+                            x.ToTable("Entity");
+
+                            x.Property<int>("Id");
+                            x.Property<string>("Property1");
+                        })
+                    .Entity(
+                        "Entity2",
+                        x =>
+                        {
+                            x.ToTable("Entity", "other");
+
+                            x.Property<int>("Id");
+                            x.Property<string>("Property2");
+
+                            x.HasOne("Entity1", null).WithMany().HasForeignKey("Id");
+                        }),
+                operations =>
+                {
+                    Assert.Equal(3, operations.Count);
+
+                    Assert.IsType<EnsureSchemaOperation>(operations[0]);
+
+                    var operation1 = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("Entity", operation1.Name);
+                    Assert.Null(operation1.Schema);
+                    Assert.Collection(
+                        operation1.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("Property1", x.Name));
+
+                    var operation2 = Assert.IsType<CreateTableOperation>(operations[2]);
+                    Assert.Equal("Entity", operation2.Name);
+                    Assert.Equal("other", operation2.Schema);
+                    Assert.Collection(
+                        operation2.Columns,
+                        x => Assert.Equal("Id", x.Name),
+                        x => Assert.Equal("Property2", x.Name));
+                });
+        }
+
+        [ConditionalFact]
+        public void Construction_of_shadow_values_buffer_account_for_shadow_navigations_1()
+        {
+            Execute(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("LevelId");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    LevelId = 1
+                                });
+                        })
+                    .Entity("BaseType")
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("LevelId");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    LevelId = 1
+                                });
+                        })
+                    .Entity("BaseType")
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
+                ops => { });
+        }
+
+        [ConditionalFact]
+        public void Construction_of_shadow_values_buffer_account_for_shadow_navigations_2()
+        {
+            Execute(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("Level1Id");
+                            b.Property<double>("Level2Id");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    Level1Id = 1,
+                                    Level2Id = 1.0
+                                });
+                        })
+                    .Entity("BaseType")
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "User",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.ToTable("Users");
+                            b.HasData(new { Id = 1 });
+                        })
+                    .Entity(
+                        "BaseType",
+                        b =>
+                        {
+                            b.Property<int>("Id");
+                            b.Property<string>("Discriminator");
+                            b.Property<int>("UserId");
+                            b.ToTable("Type");
+                            b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
+                        })
+                    .Entity(
+                        "DerivedType",
+                        b =>
+                        {
+                            b.HasBaseType("BaseType");
+                            b.Property<int>("Level1Id");
+                            b.Property<double>("Level2Id");
+                            b.HasDiscriminator().HasValue("DerivedType");
+                            b.HasData(
+                                new
+                                {
+                                    Id = 1,
+                                    UserId = 1,
+                                    Level1Id = 1,
+                                    Level2Id = 1.0
+                                });
+                        })
+                    .Entity("BaseType")
+                    .HasOne("User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId"),
+                ops => { });
         }
 
         protected override TestHelpers TestHelpers => RelationalTestHelpers.Instance;

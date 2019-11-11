@@ -8,13 +8,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class SqlFragmentExpression : SqlExpression
     {
-        internal SqlFragmentExpression(string sql)
+        public SqlFragmentExpression(string sql)
             : base(typeof(string), null)
         {
             Sql = sql;
         }
 
-        public string Sql { get; }
+        public virtual string Sql { get; }
+
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
         public override void Print(ExpressionPrinter expressionPrinter)
@@ -22,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlFragmentExpression sqlFragmentExpression
-                   && Equals(sqlFragmentExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlFragmentExpression sqlFragmentExpression
+                    && Equals(sqlFragmentExpression));
 
         private bool Equals(SqlFragmentExpression sqlFragmentExpression)
             => base.Equals(sqlFragmentExpression)
-               && string.Equals(Sql, sqlFragmentExpression.Sql);
+                && string.Equals(Sql, sqlFragmentExpression.Sql);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Sql);
     }

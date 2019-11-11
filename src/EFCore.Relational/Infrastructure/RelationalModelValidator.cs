@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsNotNullAndFalse(object value)
             => value != null
-               && (!(value is bool asBool) || asBool);
+                && (!(value is bool asBool) || asBool);
 
         /// <summary>
         ///     Validates the mapping/configuration of default values in the model.
@@ -200,11 +200,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             foreach (var mappedType in mappedTypes)
             {
                 if (mappedType.BaseType != null
-                    || (mappedType.FindPrimaryKey() != null && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
+                    || (mappedType.FindPrimaryKey() != null
+                        && mappedType.FindForeignKeys(mappedType.FindPrimaryKey().Properties)
                             .Any(
                                 fk => fk.PrincipalKey.IsPrimaryKey()
-                                      && fk.PrincipalEntityType.GetRootType() != mappedType
-                                      && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
+                                    && fk.PrincipalEntityType.GetRootType() != mappedType
+                                    && unvalidatedTypes.Contains(fk.PrincipalEntityType))))
                 {
                     continue;
                 }
@@ -301,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey().Properties)
                 .Any(
                     fk => fk.PrincipalKey.IsPrimaryKey()
-                          && fk.PrincipalEntityType == principalEntityType);
+                        && fk.PrincipalEntityType == principalEntityType);
 
         /// <summary>
         ///     Validates the compatibility of properties sharing columns in a given table.
@@ -361,9 +362,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
                     var currentTypeString = property.GetColumnType()
-                                            ?? property.GetRelationalTypeMapping().StoreType;
+                        ?? property.GetRelationalTypeMapping().StoreType;
                     var previousTypeString = duplicateProperty.GetColumnType()
-                                             ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
+                        ?? duplicateProperty.GetRelationalTypeMapping().StoreType;
                     if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
                     {
                         throw new InvalidOperationException(

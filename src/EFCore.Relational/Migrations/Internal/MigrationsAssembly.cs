@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var items
                         = from t in Assembly.GetConstructibleTypes()
                           where t.IsSubclassOf(typeof(Migration))
-                                && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
+                              && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
                           let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
                           orderby id
                           select (id, t);
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => _modelSnapshot
                 ??= (from t in Assembly.GetConstructibleTypes()
                      where t.IsSubclassOf(typeof(ModelSnapshot))
-                           && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
+                         && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == _contextType
                      select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
                 .FirstOrDefault();
 

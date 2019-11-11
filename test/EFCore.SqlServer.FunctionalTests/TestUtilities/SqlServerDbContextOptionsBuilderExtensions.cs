@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public static class DbContextOptionsBuilderExtensions
+    public static class SqlServerDbContextOptionsBuilderExtensions
     {
         public static SqlServerDbContextOptionsBuilder ApplyConfiguration(this SqlServerDbContextOptionsBuilder optionsBuilder)
         {
@@ -15,13 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 optionsBuilder.MaxBatchSize(maxBatch.Value);
             }
 
-            var offsetSupport = TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-            if (!offsetSupport)
-            {
-                optionsBuilder.UseRowNumberForPaging();
-            }
-
-            optionsBuilder.ExecutionStrategy(c => new TestSqlServerRetryingExecutionStrategy(c));
+            optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
 
             optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
 

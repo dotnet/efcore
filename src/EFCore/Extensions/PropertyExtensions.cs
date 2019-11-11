@@ -50,15 +50,6 @@ namespace Microsoft.EntityFrameworkCore
             => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
 
         /// <summary>
-        ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        [Obsolete("Use FindTypeMapping instead")]
-        public static CoreTypeMapping FindMapping([NotNull] this IProperty property)
-            => property.FindTypeMapping();
-
-        /// <summary>
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
@@ -157,18 +148,6 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
         /// </returns>
-        [Obsolete("Use FindContainingPrimaryKey()")]
-        public static IKey GetContainingPrimaryKey([NotNull] this IProperty property)
-            => property.FindContainingPrimaryKey();
-
-        /// <summary>
-        ///     Gets the primary key that uses this property (including a composite primary key in which this property
-        ///     is included).
-        /// </summary>
-        /// <param name="property"> The property to get primary key for. </param>
-        /// <returns>
-        ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
-        /// </returns>
         public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().PrimaryKey;
 
@@ -226,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         public static PropertySaveBehavior GetBeforeSaveBehavior([NotNull] this IProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.BeforeSaveBehavior]
-               ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                   ? PropertySaveBehavior.Ignore
-                   : PropertySaveBehavior.Save);
+                ?? (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
+                    ? PropertySaveBehavior.Ignore
+                    : PropertySaveBehavior.Save);
 
         /// <summary>
         ///     <para>
@@ -247,11 +226,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         public static PropertySaveBehavior GetAfterSaveBehavior([NotNull] this IProperty property)
             => (PropertySaveBehavior?)Check.NotNull(property, nameof(property))[CoreAnnotationNames.AfterSaveBehavior]
-               ?? (property.IsKey()
-                   ? PropertySaveBehavior.Throw
-                   : property.ValueGenerated.ForUpdate()
-                       ? PropertySaveBehavior.Ignore
-                       : PropertySaveBehavior.Save);
+                ?? (property.IsKey()
+                    ? PropertySaveBehavior.Throw
+                    : property.ValueGenerated.ForUpdate()
+                        ? PropertySaveBehavior.Ignore
+                        : PropertySaveBehavior.Save);
 
         /// <summary>
         ///     Gets the factory that has been set to generate values for this property, if any.
@@ -311,10 +290,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The string representation. </returns>
         public static string Format([NotNull] this IEnumerable<IPropertyBase> properties, bool includeTypes = false)
             => "{"
-               + string.Join(
-                   ", ",
-                   properties.Select(
-                       p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
-               + "}";
+                + string.Join(
+                    ", ",
+                    properties.Select(
+                        p => "'" + p.Name + "'" + (includeTypes ? " : " + p.ClrType.DisplayName(fullName: false) : "")))
+                + "}";
     }
 }

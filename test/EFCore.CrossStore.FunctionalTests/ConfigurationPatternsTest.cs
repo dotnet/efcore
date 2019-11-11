@@ -14,7 +14,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerConfiguredCondition]
-    public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>
+    public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisposable
     {
         public ConfigurationPatternsTest(CrossStoreFixture fixture)
         {
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_register_multiple_context_types_with_default_service_provider()
         {
             using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
             using (var context = new MultipleProvidersContext())
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore
 #pragma warning restore xUnit1013 // Public method should be marked as test
 
         [SqlServerConfiguredCondition]
-        public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>
+        public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IDisposable
         {
             public NestedContextDifferentStores(CrossStoreFixture fixture)
             {
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => new ExternalProviderContext(sqlServerServiceProvider));
             }
 
-            [ConditionalFact]
+            [ConditionalFact(Skip = "#18682")]
             public Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
                 => NestedContextTest(() => new BlogContext(), () => new ExternalProviderContext());
 

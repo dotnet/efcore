@@ -23,7 +23,7 @@ dotnet ef database update
     <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     <!--
-      This keeps ef.exe targeting the default version of .NET Core for netcoreapp3.1,
+      This keeps ef.exe targeting the default version of .NET Core for netcoreapp5.0,
       which maximizes the machines on which this tool will be compatible.
     -->
     <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
@@ -96,6 +96,7 @@ dotnet ef database update
       <NuspecProperty Include="OutputExeSymbol=..\..\artifacts\bin\ef\$(Configuration)\net461\ef.pdb" />
       <NuspecProperty Include="OutputX86Exe=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.exe" />
       <NuspecProperty Include="OutputX86ExeSymbol=..\..\artifacts\bin\ef\x86\$(Configuration)\net461\ef.pdb" />
+      <NuspecProperty Include="PackageIcon=$(PackageIconFullPath)" />
     </ItemGroup>
   </Target>
 </Project>

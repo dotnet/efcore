@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
             => obj is Operator other
-               && VehicleName == other.VehicleName
-               && Name == other.Name
-               && Equals(Details, other.Details);
+                && VehicleName == other.VehicleName
+                && Name == other.Name
+                && Equals(Details, other.Details);
 
         public override int GetHashCode()
             => HashCode.Combine(VehicleName, Name, Details);

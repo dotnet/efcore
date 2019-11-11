@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = context.Set<Weapon>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             "SELECT [Id], [Name], [IsAutomatic], [AmmunitionType], [OwnerFullName], [SynergyWithId] FROM [Weapons] ORDER BY [Name]"))
                     .ToArray();
 
@@ -35,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private string NormalizeDelimetersInRawString(string sql)
-            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
+        private string NormalizeDelimitersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
-        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
+        private FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 

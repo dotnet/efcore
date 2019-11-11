@@ -157,16 +157,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         private static void WaitForExists(SqlConnection connection)
-        {
-            if (TestEnvironment.IsSqlAzure)
-            {
-                new TestSqlServerRetryingExecutionStrategy().Execute(connection, WaitForExistsImplementation);
-            }
-            else
-            {
-                WaitForExistsImplementation(connection);
-            }
-        }
+            => new TestSqlServerRetryingExecutionStrategy().Execute(connection, WaitForExistsImplementation);
 
         private static void WaitForExistsImplementation(SqlConnection connection)
         {
@@ -206,19 +197,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             if (TestEnvironment.IsSqlAzure)
             {
                 var elasticGroupName = TestEnvironment.ElasticPoolName;
-                result += Environment.NewLine +
-                          (string.IsNullOrEmpty(elasticGroupName)
-                              ? " ( Edition = 'basic' )"
-                              : $" ( SERVICE_OBJECTIVE = ELASTIC_POOL ( name = {elasticGroupName} ) )");
+                result += Environment.NewLine
+                    + (string.IsNullOrEmpty(elasticGroupName)
+                        ? " ( Edition = 'basic' )"
+                        : $" ( SERVICE_OBJECTIVE = ELASTIC_POOL ( name = {elasticGroupName} ) )");
             }
             else
             {
                 if (!string.IsNullOrEmpty(fileName))
                 {
                     var logFileName = Path.ChangeExtension(fileName, ".ldf");
-                    result += Environment.NewLine +
-                              $" ON (NAME = '{name}', FILENAME = '{fileName}')" +
-                              $" LOG ON (NAME = '{name}_log', FILENAME = '{logFileName}')";
+                    result += Environment.NewLine
+                        + $" ON (NAME = '{name}', FILENAME = '{fileName}')"
+                        + $" LOG ON (NAME = '{name}_log', FILENAME = '{logFileName}')";
                 }
             }
 
@@ -242,21 +233,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public override void OpenConnection()
-        {
-            if (TestEnvironment.IsSqlAzure)
-            {
-                new TestSqlServerRetryingExecutionStrategy().Execute(Connection, connection => connection.Open());
-            }
-            else
-            {
-                Connection.Open();
-            }
-        }
+            => new TestSqlServerRetryingExecutionStrategy().Execute(Connection, connection => connection.Open());
 
         public override Task OpenConnectionAsync()
-            => TestEnvironment.IsSqlAzure
-                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(Connection, connection => connection.OpenAsync())
-                : Connection.OpenAsync();
+            => new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(Connection, connection => connection.OpenAsync());
 
         public T ExecuteScalar<T>(string sql, params object[] parameters)
             => ExecuteScalar<T>(Connection, sql, parameters);
@@ -371,18 +351,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private static Task<T> ExecuteAsync<T>(
             DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql,
             bool useTransaction = false, IReadOnlyList<object> parameters = null)
-            => TestEnvironment.IsSqlAzure
-                ? new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
-                    new
-                    {
-                        connection,
-                        executeAsync,
-                        sql,
-                        useTransaction,
-                        parameters
-                    },
-                    state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters))
-                : ExecuteCommandAsync(connection, executeAsync, sql, useTransaction, parameters);
+            => new TestSqlServerRetryingExecutionStrategy().ExecuteAsync(
+                new
+                {
+                    connection,
+                    executeAsync,
+                    sql,
+                    useTransaction,
+                    parameters
+                },
+                state => ExecuteCommandAsync(state.connection, state.executeAsync, state.sql, state.useTransaction, state.parameters));
 
         private static async Task<T> ExecuteCommandAsync<T>(
             DbConnection connection, Func<DbCommand, Task<T>> executeAsync, string sql, bool useTransaction,
@@ -444,9 +422,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             base.Dispose();
 
-            if (_fileName != null)
+            if (_fileName != null // Clean up the database using a local file, as it might get deleted later
+                || (TestEnvironment.IsSqlAzure && !Shared))
             {
-                // Clean up the database using a local file, as it might get deleted later
                 DeleteDatabase();
             }
         }

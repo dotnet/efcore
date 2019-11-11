@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -1097,11 +1098,11 @@ GROUP BY [o0].[CustomerID], [p].[ProductName]");
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE ([c].[ContactTitle] = N'Owner') AND [c].[ContactTitle] IS NOT NULL
+    WHERE [c].[ContactTitle] = N'Owner'
     UNION
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE ([c0].[City] = N'México D.F.') AND [c0].[City] IS NOT NULL
+    WHERE [c0].[City] = N'México D.F.'
 ) AS [t]
 GROUP BY [t].[City]");
         }
@@ -1254,7 +1255,7 @@ ORDER BY [o].[CustomerID]");
                 @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [c]
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
-HAVING ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+HAVING [o].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task GroupBy_filter_count(bool isAsync)
@@ -2018,6 +2019,191 @@ END");
             await base.LongCount_after_GroupBy_without_aggregate(isAsync);
 
             AssertSql(" ");
+        }
+
+        public override async Task GroupBy_based_on_renamed_property_simple(bool isAsync)
+        {
+            await base.GroupBy_based_on_renamed_property_simple(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[City] AS [Renamed], COUNT(*) AS [Count]
+FROM [Customers] AS [c]
+GROUP BY [c].[City]");
+        }
+
+        public override async Task GroupBy_based_on_renamed_property_complex(bool isAsync)
+        {
+            await base.GroupBy_based_on_renamed_property_complex(isAsync);
+
+            AssertSql(
+                @"SELECT [t].[City] AS [Key], COUNT(*) AS [Count]
+FROM (
+    SELECT DISTINCT [c].[City], [c].[CustomerID]
+    FROM [Customers] AS [c]
+) AS [t]
+GROUP BY [t].[City]");
+        }
+
+        public override async Task GroupBy_with_group_key_access_thru_navigation(bool isAsync)
+        {
+            await base.GroupBy_with_group_key_access_thru_navigation(isAsync);
+
+            AssertSql(
+                @"SELECT [o0].[CustomerID] AS [Key], SUM([o].[OrderID]) AS [Aggregate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+GROUP BY [o0].[CustomerID]");
+        }
+
+        public override async Task GroupBy_with_group_key_access_thru_nested_navigation(bool isAsync)
+        {
+            await base.GroupBy_with_group_key_access_thru_nested_navigation(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Country] AS [Key], SUM([o].[OrderID]) AS [Aggregate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[Country]");
+        }
+
+        public override async Task GroupBy_with_group_key_being_navigation(bool isAsync)
+        {
+            await base.GroupBy_with_group_key_being_navigation(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task GroupBy_with_group_key_being_nested_navigation(bool isAsync)
+        {
+            await base.GroupBy_with_group_key_being_nested_navigation(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool isAsync)
+        {
+            await base.GroupBy_with_group_key_being_navigation_with_entity_key_projection(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool isAsync)
+        {
+            await base.GroupBy_with_group_key_being_navigation_with_complex_projection(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task GroupBy_with_order_by_skip_and_another_order_by(bool isAsync)
+        {
+            await base.GroupBy_with_order_by_skip_and_another_order_by(isAsync);
+
+            AssertSql(
+                @"@__p_0='80'
+
+SELECT SUM([t].[OrderID])
+FROM (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[CustomerID], [o].[OrderID]
+    OFFSET @__p_0 ROWS
+) AS [t]
+GROUP BY [t].[CustomerID]");
+        }
+
+        public override Task GroupBy_Property_Select_Count_with_predicate(bool isAsync)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupBy_Property_Select_Count_with_predicate(isAsync));
+        }
+
+        public override Task GroupBy_Property_Select_LongCount_with_predicate(bool isAsync)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupBy_Property_Select_LongCount_with_predicate(isAsync));
+        }
+
+        public override async Task GroupBy_with_grouping_key_using_Like(bool isAsync)
+        {
+            await base.GroupBy_with_grouping_key_using_Like(isAsync);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [o].[CustomerID] LIKE N'A%' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [Key], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+GROUP BY CASE
+    WHEN [o].[CustomerID] LIKE N'A%' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
+        public override async Task GroupBy_with_grouping_key_DateTime_Day(bool isAsync)
+        {
+            await base.GroupBy_with_grouping_key_DateTime_Day(isAsync);
+
+            AssertSql(
+                @"SELECT DATEPART(day, [o].[OrderDate]) AS [Key], COUNT(*) AS [Count]
+FROM [Orders] AS [o]
+GROUP BY DATEPART(day, [o].[OrderDate])");
+        }
+
+        public override async Task GroupBy_with_cast_inside_grouping_aggregate(bool isAsync)
+        {
+            await base.GroupBy_with_cast_inside_grouping_aggregate(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], COUNT(*) AS [Count], SUM(CAST([o].[OrderID] AS bigint)) AS [Sum]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
+        }
+
+        public override async Task Complex_query_with_groupBy_in_subquery1(bool isAsync)
+        {
+            await base.Complex_query_with_groupBy_in_subquery1(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Complex_query_with_groupBy_in_subquery2(bool isAsync)
+        {
+            await base.Complex_query_with_groupBy_in_subquery2(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Complex_query_with_groupBy_in_subquery3(bool isAsync)
+        {
+            await base.Complex_query_with_groupBy_in_subquery3(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Complex_query_with_groupBy_in_subquery4(bool isAsync)
+        {
+            await base.Complex_query_with_groupBy_in_subquery4(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
+        public override async Task Group_by_with_arithmetic_operation_inside_aggregate(bool isAsync)
+        {
+            await base.Group_by_with_arithmetic_operation_inside_aggregate(isAsync);
+
+            AssertSql(
+                @"SELECT [o].[CustomerID] AS [Key], SUM([o].[OrderID] + CAST(LEN([o].[CustomerID]) AS int)) AS [Sum]
+FROM [Orders] AS [o]
+GROUP BY [o].[CustomerID]");
         }
 
         private void AssertSql(params string[] expected)

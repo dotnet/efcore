@@ -26,13 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is SqlExpression sqlExpression
-                   && Equals(sqlExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlExpression sqlExpression
+                    && Equals(sqlExpression));
 
         private bool Equals(SqlExpression sqlExpression)
             => Type == sqlExpression.Type
-               && TypeMapping?.Equals(sqlExpression.TypeMapping) == true;
+               && ((TypeMapping == null && sqlExpression.TypeMapping == null)
+                || TypeMapping?.Equals(sqlExpression.TypeMapping) == true);
 
         public override int GetHashCode() => HashCode.Combine(Type, TypeMapping);
     }

@@ -153,9 +153,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 string storeType,
                 string storeTypeNameBase)
                 => storeTypeNameBase == "some_string"
-                   && parameters.Size != null
-                    ? $"({parameters.Size})some_string"
-                    : storeType;
+                    && parameters.Size != null
+                        ? $"({parameters.Size})some_string"
+                        : storeType;
         }
 
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
@@ -198,17 +198,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 if (_simpleMappings.TryGetValue(clrType, out var mapping))
                 {
                     return storeTypeName != null
-                           && !mapping.StoreType.Equals(storeTypeName, StringComparison.Ordinal)
-                        ? mapping.Clone(storeTypeName, mapping.Size)
-                        : mapping;
+                        && !mapping.StoreType.Equals(storeTypeName, StringComparison.Ordinal)
+                            ? mapping.Clone(storeTypeName, mapping.Size)
+                            : mapping;
                 }
             }
 
             return storeTypeName != null
-                   && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
-                   && (clrType == null || mappingFromName.ClrType == clrType)
-                ? mappingFromName
-                : null;
+                && _simpleNameMappings.TryGetValue(storeTypeName, out var mappingFromName)
+                && (clrType == null || mappingFromName.ClrType == clrType)
+                    ? mappingFromName
+                    : null;
         }
     }
 }

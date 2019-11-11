@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -84,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            public virtual Expression Inject(Expression expression)
+            public Expression Inject(Expression expression)
             {
                 _containsCollectionMaterialization = new CollectionShaperFindingExpressionVisitor()
                     .ContainsCollectionMaterialization(expression);
@@ -194,34 +195,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     case ProjectionBindingExpression projectionBindingExpression:
                     {
                         var key = GenerateKey(projectionBindingExpression);
-                        if (!_mapping.TryGetValue(key, out var accessor))
+                        if (_mapping.TryGetValue(key, out var accessor))
                         {
-                            var valueParameter = Expression.Parameter(projectionBindingExpression.Type);
-                            _variables.Add(valueParameter);
-                            _expressions.Add(Expression.Assign(valueParameter, projectionBindingExpression));
-
-                            if (_containsCollectionMaterialization)
-                            {
-                                var expressionToAdd = (Expression)valueParameter;
-                                if (expressionToAdd.Type.IsValueType)
-                                {
-                                    expressionToAdd = Expression.Convert(expressionToAdd, typeof(object));
-                                }
-
-                                _valuesArrayInitializers.Add(expressionToAdd);
-                                accessor = Expression.Convert(
-                                    Expression.ArrayIndex(
-                                        _valuesArrayExpression,
-                                        Expression.Constant(_valuesArrayInitializers.Count - 1)),
-                                    projectionBindingExpression.Type);
-                            }
-                            else
-                            {
-                                accessor = valueParameter;
-                            }
-
-                            _mapping[key] = accessor;
+                            return accessor;
                         }
+
+                        var valueParameter = Expression.Parameter(projectionBindingExpression.Type);
+                        _variables.Add(valueParameter);
+                        _expressions.Add(Expression.Assign(valueParameter, projectionBindingExpression));
+
+                        if (_containsCollectionMaterialization)
+                        {
+                            var expressionToAdd = (Expression)valueParameter;
+                            if (expressionToAdd.Type.IsValueType)
+                            {
+                                expressionToAdd = Expression.Convert(expressionToAdd, typeof(object));
+                            }
+
+                            _valuesArrayInitializers.Add(expressionToAdd);
+                            accessor = Expression.Convert(
+                                Expression.ArrayIndex(
+                                    _valuesArrayExpression,
+                                    Expression.Constant(_valuesArrayInitializers.Count - 1)),
+                                projectionBindingExpression.Type);
+                        }
+                        else
+                        {
+                            accessor = valueParameter;
+                        }
+
+                        _mapping[key] = accessor;
 
                         return accessor;
                     }
@@ -266,44 +269,44 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return entity;
                     }
 
-                    case RelationalCollectionShaperExpression relationalCollectionShaperExpression2:
+                    case RelationalCollectionShaperExpression relationalCollectionShaperExpression:
                     {
-                        var key = GenerateKey(relationalCollectionShaperExpression2);
+                        var key = GenerateKey(relationalCollectionShaperExpression);
                         if (!_mapping.TryGetValue(key, out var accessor))
                         {
                             var innerShaper = new ShaperExpressionProcessingExpressionVisitor(
                                     _selectExpression, _dataReaderParameter, _resultCoordinatorParameter, null)
-                                .Inject(relationalCollectionShaperExpression2.InnerShaper);
+                                .Inject(relationalCollectionShaperExpression.InnerShaper);
 
                             _collectionPopulatingExpressions.Add(
                                 new CollectionPopulatingExpression(
-                                    relationalCollectionShaperExpression2.Update(
-                                        relationalCollectionShaperExpression2.ParentIdentifier,
-                                        relationalCollectionShaperExpression2.OuterIdentifier,
-                                        relationalCollectionShaperExpression2.SelfIdentifier,
+                                    relationalCollectionShaperExpression.Update(
+                                        relationalCollectionShaperExpression.ParentIdentifier,
+                                        relationalCollectionShaperExpression.OuterIdentifier,
+                                        relationalCollectionShaperExpression.SelfIdentifier,
                                         innerShaper),
-                                    relationalCollectionShaperExpression2.Type,
+                                    relationalCollectionShaperExpression.Type,
                                     false));
 
-                            var collectionParameter = Expression.Parameter(relationalCollectionShaperExpression2.Type);
+                            var collectionParameter = Expression.Parameter(relationalCollectionShaperExpression.Type);
                             _variables.Add(collectionParameter);
                             _expressions.Add(
                                 Expression.Assign(
                                     collectionParameter,
                                     new CollectionInitializingExpression(
-                                        relationalCollectionShaperExpression2.CollectionId,
+                                        relationalCollectionShaperExpression.CollectionId,
                                         null,
-                                        relationalCollectionShaperExpression2.ParentIdentifier,
-                                        relationalCollectionShaperExpression2.OuterIdentifier,
-                                        relationalCollectionShaperExpression2.Navigation,
-                                        relationalCollectionShaperExpression2.Type)));
+                                        relationalCollectionShaperExpression.ParentIdentifier,
+                                        relationalCollectionShaperExpression.OuterIdentifier,
+                                        relationalCollectionShaperExpression.Navigation,
+                                        relationalCollectionShaperExpression.Type)));
 
                             _valuesArrayInitializers.Add(collectionParameter);
                             accessor = Expression.Convert(
                                 Expression.ArrayIndex(
                                     _valuesArrayExpression,
                                     Expression.Constant(_valuesArrayInitializers.Count - 1)),
-                                relationalCollectionShaperExpression2.Type);
+                                relationalCollectionShaperExpression.Type);
 
                             _mapping[key] = accessor;
                         }
@@ -317,9 +320,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private Expression GenerateKey(Expression expression)
                 => expression is ProjectionBindingExpression projectionBindingExpression
-                   && projectionBindingExpression.ProjectionMember != null
-                    ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
-                    : expression;
+                    && projectionBindingExpression.ProjectionMember != null
+                        ? _selectExpression.GetMappedProjection(projectionBindingExpression.ProjectionMember)
+                        : expression;
         }
     }
 }

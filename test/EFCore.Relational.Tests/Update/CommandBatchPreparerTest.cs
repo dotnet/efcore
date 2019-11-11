@@ -347,7 +347,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             relatedFakeEntry.SetEntityState(EntityState.Added);
 
             var fakeEntry2 = stateManager.GetOrCreateEntry(
-                new FakeEntity { Id = 2, RelatedId = 1, Value = "Test2" });
+                new FakeEntity
+                {
+                    Id = 2,
+                    RelatedId = 1,
+                    Value = "Test2"
+                });
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.Value)), "Test");
 
@@ -426,7 +431,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             relatedFakeEntry.SetEntityState(EntityState.Added);
 
             var fakeEntry2 = stateManager.GetOrCreateEntry(
-                new FakeEntity { Id = 2, RelatedId = 1, UniqueValue = "Test2" });
+                new FakeEntity
+                {
+                    Id = 2,
+                    RelatedId = 1,
+                    UniqueValue = "Test2"
+                });
             fakeEntry2.SetEntityState(EntityState.Modified);
             fakeEntry2.SetOriginalValue(fakeEntry2.EntityType.FindProperty(nameof(FakeEntity.UniqueValue)), "Test");
 
@@ -796,7 +806,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
-                            .BatchCommands(new[] { firstEntry }, modelData).ToArray();
+                .BatchCommands(new[] { firstEntry }, modelData).ToArray();
 
             Assert.Single(commandBatches);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);
@@ -890,7 +900,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modelData = new UpdateAdapter(stateManager);
 
             var commandBatches = CreateCommandBatchPreparer(updateAdapter: modelData, sensitiveLogging: true)
-                                    .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
+                .BatchCommands(new[] { firstEntry, secondEntry }, modelData).ToArray();
 
             Assert.Equal(2, commandBatches.Length);
             Assert.Equal(1, commandBatches.First().ModificationCommands.Count);

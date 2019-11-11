@@ -26,7 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Update
         public static string BuildCurrentValuesString(
             [NotNull] this IUpdateEntry entry,
             [NotNull] IEnumerable<IPropertyBase> properties)
-            => "{" + string.Join(", ", properties.Select(p => p.Name + ": " + Convert.ToString(entry.GetCurrentValue(p), CultureInfo.InvariantCulture))) + "}";
+            => "{"
+                + string.Join(
+                    ", ", properties.Select(p => p.Name + ": " + Convert.ToString(entry.GetCurrentValue(p), CultureInfo.InvariantCulture)))
+                + "}";
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties and their original
@@ -39,6 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         public static string BuildOriginalValuesString(
             [NotNull] this IUpdateEntry entry,
             [NotNull] IEnumerable<IPropertyBase> properties)
-            => "{" + string.Join(", ", properties.Select(p => p.Name + ": " + Convert.ToString(entry.GetOriginalValue(p), CultureInfo.InvariantCulture))) + "}";
+            => "{"
+                + string.Join(
+                    ", ", properties.Select(p => p.Name + ": " + Convert.ToString(entry.GetOriginalValue(p), CultureInfo.InvariantCulture)))
+                + "}";
     }
 }

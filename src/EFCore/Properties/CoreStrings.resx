@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -517,18 +517,6 @@
   <data name="IncludeBadNavigation" xml:space="preserve">
     <value>The property '{property}' is not a navigation property of entity type '{entityType}'. The 'Include(string)' method can only be used with a '.' separated list of navigation property names.</value>
   </data>
-  <data name="LogCompilingQueryModel" xml:space="preserve">
-    <value>Compiling query model: {newline}'{queryModel}'</value>
-    <comment>Obsolete Debug CoreEventId.QueryModelCompiling string string</comment>
-  </data>
-  <data name="LogOptimizedQueryModel" xml:space="preserve">
-    <value>Optimized query model: {newline}'{queryModel}'</value>
-    <comment>Obsolete Debug CoreEventId.QueryModelOptimized string string</comment>
-  </data>
-  <data name="LogIncludingNavigation" xml:space="preserve">
-    <value>Including navigation: '{navigation}'</value>
-    <comment>Obsolete Debug CoreEventId.NavigationIncluded string</comment>
-  </data>
   <data name="LogQueryExecutionPlanned" xml:space="preserve">
     <value>{plan}</value>
     <comment>Debug CoreEventId.QueryExecutionPlanned string</comment>
@@ -774,10 +762,6 @@
   <data name="NoParameterlessConstructor" xml:space="preserve">
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
   </data>
-  <data name="LogIgnoredInclude" xml:space="preserve">
-    <value>The Include operation for navigation '{include}' is unnecessary and was ignored because the navigation is not reachable in the final query results. See https://go.microsoft.com/fwlink/?linkid=850303 for more information.</value>
-    <comment>Obsolete Warning CoreEventId.IncludeIgnoredWarning string</comment>
-  </data>
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
     <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>
   </data>
@@ -820,19 +804,11 @@
   <data name="PropertyCalledOnNavigation" xml:space="preserve">
     <value>'{property}' cannot be used as a property on entity type '{entityType}' because it is configured as a navigation.</value>
   </data>
-  <data name="LogRowLimitingOperationWithoutOrderBy" xml:space="preserve">
-    <value>Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.</value>
-    <comment>Obsolete Warning CoreEventId.RowLimitingOperationWithoutOrderByWarning string</comment>
-  </data>
   <data name="PropertyInUseForeignKey" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the foreign key {foreignKey} on '{foreignKeyType}'. All containing foreign keys must be removed or redefined before the property can be removed.</value>
   </data>
   <data name="PropertyInUseIndex" xml:space="preserve">
     <value>The property '{property}' cannot be removed from entity type '{entityType}' because it is being used in the index {index} on '{indexType}'. All containing indexes must be removed or redefined before the property can be removed.</value>
-  </data>
-  <data name="LogFirstWithoutOrderByAndFilter" xml:space="preserve">
-    <value>Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.</value>
-    <comment>Obsolete Warning CoreEventId.FirstWithoutOrderByAndFilterWarning string</comment>
   </data>
   <data name="InvalidPoolSize" xml:space="preserve">
     <value>The specified poolSize must be greater than 0.</value>
@@ -978,6 +954,10 @@
   <data name="LogShadowPropertyCreated" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
     <comment>Debug CoreEventId.ShadowPropertyCreated string string</comment>
+  </data>
+  <data name="LogCollectionWithoutComparer" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.</value>
+    <comment>Warning CoreEventId.CollectionWithoutComparer string string</comment>
   </data>
   <data name="LogExecutionStrategyRetrying" xml:space="preserve">
     <value>A transient exception has been encountered during execution and the operation will be retried after {delay}ms.{newline}{error}</value>

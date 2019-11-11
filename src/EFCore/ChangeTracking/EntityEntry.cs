@@ -388,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             {
                 if (State != EntityState.Added)
                 {
+                    State = EntityState.Deleted;
                     State = EntityState.Detached;
                 }
             }

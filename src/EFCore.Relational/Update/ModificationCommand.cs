@@ -141,14 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Adds an <see cref="IUpdateEntry" /> to this command representing an entity to be inserted, updated, or deleted.
         /// </summary>
         /// <param name="entry"> The entry representing the entity to add. </param>
-        [Obsolete("Use AddEntry with most parameters")]
-        public virtual void AddEntry([NotNull] IUpdateEntry entry)
-            => AddEntry(entry, mainEntry: false);
-
-        /// <summary>
-        ///     Adds an <see cref="IUpdateEntry" /> to this command representing an entity to be inserted, updated, or deleted.
-        /// </summary>
-        /// <param name="entry"> The entry representing the entity to add. </param>
         /// <param name="mainEntry"> A value indicating whether this is the main entry for the row. </param>
         public virtual void AddEntry([NotNull] IUpdateEntry entry, bool mainEntry)
         {
@@ -192,16 +184,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         private void ValidateState(IUpdateEntry mainEntry, IUpdateEntry entry)
         {
             var mainEntryState = mainEntry.SharedIdentityEntry == null
-                                ? mainEntry.EntityState
-                                : EntityState.Modified;
+                ? mainEntry.EntityState
+                : EntityState.Modified;
             if (mainEntryState == EntityState.Modified)
             {
                 return;
             }
 
             var entryState = entry.SharedIdentityEntry == null
-                                ? entry.EntityState
-                                : EntityState.Modified;
+                ? entry.EntityState
+                : EntityState.Modified;
             if (mainEntryState != entryState)
             {
                 if (_sensitiveLoggingEnabled)
@@ -277,10 +269,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                             writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
                         }
                         else if ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
-                                  || (!isKey && nonMainEntry))
+                            || (!isKey && nonMainEntry))
                         {
                             writeValue = columnPropagator?.TryPropagate(property, (InternalEntityEntry)entry)
-                                         ?? entry.IsModified(property);
+                                ?? entry.IsModified(property);
                         }
                     }
 
@@ -404,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             _write = true;
                             _currentValue = null;
                         }
+
                         break;
                 }
             }

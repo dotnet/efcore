@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var valueBufferExpression = (ProjectionBindingExpression)visitor.Visit(ValueBufferExpression);
+            var valueBufferExpression = visitor.Visit(ValueBufferExpression);
 
             return Update(valueBufferExpression);
         }

@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -19,6 +21,84 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     public class ModelValidatorTest : ModelValidatorTestBase
     {
+        [ConditionalFact]
+        public virtual void Detects_custom_converter_for_collection_type_without_comparer()
+        {
+            var convertedProperty = CreateConvertedCollectionProperty();
+
+            VerifyWarning(
+                 CoreResources.LogCollectionWithoutComparer(
+                     new TestLogger<TestLoggingDefinitions>()).GenerateMessage("SomeStrings", "WithCollectionConversion"),
+                 convertedProperty.DeclaringEntityType.Model);
+        }
+
+        [ConditionalFact]
+        public virtual void Ignores_custom_converter_for_collection_type_with_comparer()
+        {
+            var convertedProperty = CreateConvertedCollectionProperty();
+
+            convertedProperty.SetValueComparer(
+                new ValueComparer<string[]>(
+                    (v1, v2) => v1.SequenceEqual(v2),
+                    v => v.GetHashCode()));
+
+            Validate(convertedProperty.DeclaringEntityType.Model);
+
+            Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        }
+
+        private IMutableProperty CreateConvertedCollectionProperty()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithCollectionConversion));
+            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithCollectionConversion.Id), typeof(int)));
+
+            var convertedProperty = entityType.AddProperty(
+                nameof(WithCollectionConversion.SomeStrings), typeof(string[]));
+
+            convertedProperty.SetValueConverter(
+                new ValueConverter<string[], string>(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.None)));
+
+            return convertedProperty;
+        }
+
+        private class WithCollectionConversion
+        {
+            public int Id { get; set; }
+            public string[] SomeStrings { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Ignores_binary_keys_and_strings_without_custom__comparer()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithStringAndBinaryKey));
+
+            var keyProperty = entityType.AddProperty(nameof(WithStringAndBinaryKey.Id), typeof(byte[]));
+            keyProperty.IsNullable = false;
+            entityType.SetPrimaryKey(keyProperty);
+            keyProperty.SetValueConverter(
+                new ValueConverter<byte[], byte[]>(v => v, v => v));
+
+            var stringProperty = entityType.AddProperty(nameof(WithStringAndBinaryKey.AString), typeof(string));
+            stringProperty.SetValueConverter(
+                new ValueConverter<string, string>(v => v, v => v));
+
+            Validate(model);
+
+            Assert.Empty(LoggerFactory.Log.Where(l => l.Level == LogLevel.Warning));
+        }
+
+        private class WithStringAndBinaryKey
+        {
+            public byte[] Id { get; set; }
+            public string AString { get; set; }
+        }
+
         [ConditionalFact]
         public virtual void Detects_filter_on_derived_type()
         {

@@ -58,7 +58,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, Category = principal };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Category = principal
+                    };
                     principal.Products.Add(dependent);
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -77,7 +82,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -95,7 +106,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
                     principal.Products.Add(dependent);
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -158,7 +175,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, Category = principal };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Category = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -202,7 +224,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, Category = principal };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Category = principal
+                    };
                     principal.Products.Add(dependent);
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -221,7 +248,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -239,7 +272,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
                     principal.Products.Add(dependent);
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -302,7 +341,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Product { Id1 = -78, Id2 = Guid78, Category = principal };
+                    var dependent = new Product
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Category = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -349,7 +393,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductPN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -367,7 +417,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductPN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -385,7 +441,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductPN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
                     principal.Products.Add(dependent);
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -423,7 +485,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductPN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
                     principal.Products.Add(dependent);
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -488,7 +556,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductDN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -531,7 +605,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductDN { Id1 = -78, Id2 = Guid78, Category = principal };
+                    var dependent = new ProductDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Category = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -549,7 +628,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductDN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -592,7 +677,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductDN { Id1 = -78, Id2 = Guid78, Category = principal };
+                    var dependent = new ProductDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Category = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -637,7 +727,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryNN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductNN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductNN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -655,7 +751,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new CategoryNN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ProductNN { Id1 = -78, Id2 = Guid78, CategoryId1 = principal.Id1, CategoryId2 = principal.Id2 };
+                    var dependent = new ProductNN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        CategoryId1 = principal.Id1,
+                        CategoryId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -724,7 +826,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, Parent = principal };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Parent = principal
+                    };
                     principal.Child = dependent;
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -743,7 +850,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -761,7 +874,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
                     principal.Child = dependent;
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -824,7 +943,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, Parent = principal };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Parent = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -868,7 +992,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, Parent = principal };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Parent = principal
+                    };
                     principal.Child = dependent;
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -887,7 +1016,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -905,7 +1040,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
                     principal.Child = dependent;
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -968,7 +1109,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new Child { Id1 = -78, Id2 = Guid78, Parent = principal };
+                    var dependent = new Child
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Parent = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1015,7 +1161,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildPN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1033,7 +1185,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildPN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1051,7 +1209,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildPN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
                     principal.Child = dependent;
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -1089,7 +1253,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildPN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildPN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
                     principal.Child = dependent;
 
                     MarkIdsTemporary(context, dependent, principal);
@@ -1154,7 +1324,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildDN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1197,7 +1373,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildDN { Id1 = -78, Id2 = Guid78, Parent = principal };
+                    var dependent = new ChildDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Parent = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1215,7 +1396,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildDN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1258,7 +1445,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildDN { Id1 = -78, Id2 = Guid78, Parent = principal };
+                    var dependent = new ChildDN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        Parent = principal
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1303,7 +1495,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentNN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildNN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildNN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -1321,7 +1519,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var principal = new ParentNN { Id1 = -77, Id2 = Guid77 };
-                    var dependent = new ChildNN { Id1 = -78, Id2 = Guid78, ParentId1 = principal.Id1, ParentId2 = principal.Id2 };
+                    var dependent = new ChildNN
+                    {
+                        Id1 = -78,
+                        Id2 = Guid78,
+                        ParentId1 = principal.Id1,
+                        ParentId2 = principal.Id2
+                    };
 
                     MarkIdsTemporary(context, dependent, principal);
 
@@ -4011,17 +4215,15 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Temporary_value_equals_database_generated_value()
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new Game { Id = Guid77 });
-                entry.Property(g => g.Id).IsTemporary = true;
-                var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
-                internalEntry.PrepareToSave();
-                internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
-                internalEntry.AcceptChanges();
+            using var context = CreateContext();
+            var entry = context.Add(new Game { Id = Guid77 });
+            entry.Property(g => g.Id).IsTemporary = true;
+            var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
+            internalEntry.PrepareToSave();
+            internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
+            internalEntry.AcceptChanges();
 
-                Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
-            }
+            Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
         }
 
         private void AssertFixupAndSave(DbContext context, Game game, Level level, Item item)
@@ -4074,24 +4276,22 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Remove_overlapping_principal()
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+            using var context = CreateContext();
+            context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
 
-                var game = new Game { Id = Guid77 };
-                var level = new Level { Game = game };
-                var item = new Item { Level = level };
+            var game = new Game { Id = Guid77 };
+            var level = new Level { Game = game };
+            var item = new Item { Level = level };
 
-                context.Add(item);
+            context.Add(item);
 
-                level.Items.Remove(item);
+            level.Items.Remove(item);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Null(item.Level);
-                Assert.Empty(level.Items);
-                Assert.Empty(level.Actors);
-            }
+            Assert.Null(item.Level);
+            Assert.Empty(level.Items);
+            Assert.Empty(level.Actors);
         }
 
         [ConditionalFact]

@@ -55,14 +55,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalQueryContextDependencies(
-            [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            [NotNull] IRelationalConnection relationalConnection)
         {
             Check.NotNull(relationalConnection, nameof(relationalConnection));
-            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
 
             RelationalConnection = relationalConnection;
-            ExecutionStrategyFactory = executionStrategyFactory;
         }
 
         /// <summary>
@@ -71,24 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IRelationalConnection RelationalConnection { get; }
 
         /// <summary>
-        ///     The execution strategy.
-        /// </summary>
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
-
-        /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
         /// <param name="relationalConnection"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
         public RelationalQueryContextDependencies With([NotNull] IRelationalConnection relationalConnection)
-            => new RelationalQueryContextDependencies(relationalConnection, ExecutionStrategyFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryContextDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            => new RelationalQueryContextDependencies(RelationalConnection, executionStrategyFactory);
+            => new RelationalQueryContextDependencies(relationalConnection);
     }
 }

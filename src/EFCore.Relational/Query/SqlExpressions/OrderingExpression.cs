@@ -37,13 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is OrderingExpression orderingExpression
-                   && Equals(orderingExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is OrderingExpression orderingExpression
+                    && Equals(orderingExpression));
 
         private bool Equals(OrderingExpression orderingExpression)
             => Expression.Equals(orderingExpression.Expression)
-               && IsAscending == orderingExpression.IsAscending;
+                && IsAscending == orderingExpression.IsAscending;
 
         public override int GetHashCode() => HashCode.Combine(Expression, IsAscending);
     }

@@ -368,15 +368,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 var principalProperty = property.FindFirstPrincipal();
 
                 typeName = principalProperty?.GetColumnType()
-                           ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
+                    ?? Dependencies.TypeMappingSource.FindMapping(property.ClrType)?.StoreType;
             }
 
             return property.ClrType == typeof(byte[])
-                   && typeName != null
-                   && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
-                       || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
-                ? property.IsNullable ? "varbinary(8)" : "binary(8)"
-                : typeName;
+                && typeName != null
+                && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
+                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
+                    ? property.IsNullable ? "varbinary(8)" : "binary(8)"
+                    : typeName;
         }
 
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local

@@ -38,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                     ob =>
                         ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
                             .EnableServiceProviderCaching(false),
-                    poolSize)
-                .BuildServiceProvider();
+                    poolSize).BuildServiceProvider();
 
         private static IServiceProvider BuildServiceProvider<TContext>(int poolSize = 32)
             where TContext : DbContext

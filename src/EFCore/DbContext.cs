@@ -259,16 +259,6 @@ namespace Microsoft.EntityFrameworkCore
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
 
-        /// <summary>
-        ///     Creates a <see cref="DbSet{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
-        /// </summary>
-        /// <typeparam name="TQuery"> The type of query for which a DbQuery should be returned. </typeparam>
-        /// <returns> A DbQuery for the given keyless entity type. </returns>
-        [Obsolete("Use Set() for entity types without keys")]
-        public virtual DbQuery<TQuery> Query<TQuery>()
-            where TQuery : class
-            => (DbQuery<TQuery>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TQuery));
-
         private IEntityFinder Finder(Type type)
         {
             var entityType = Model.FindEntityType(type);
@@ -651,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 _database.AutoTransactionsEnabled
                     = configurationSnapshot.AutoTransactionsEnabled == null
-                      || configurationSnapshot.AutoTransactionsEnabled.Value;
+                    || configurationSnapshot.AutoTransactionsEnabled.Value;
             }
         }
 

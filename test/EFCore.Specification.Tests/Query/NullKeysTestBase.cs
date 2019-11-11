@@ -21,134 +21,124 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact] // Issue #1093
         public virtual void Include_with_null_FKs_and_nullable_PK()
         {
-            using (var context = CreateContext())
-            {
-                var results = context.Set<WithStringFk>()
-                    .OrderBy(e => e.Id)
-                    .Include(e => e.Principal)
-                    .ToList();
+            using var context = CreateContext();
+            var results = context.Set<WithStringFk>()
+                .OrderBy(e => e.Id)
+                .Include(e => e.Principal)
+                .ToList();
 
-                Assert.Equal(
-                    new[] { "And", "By", "George", "Me", "Rodrigue", "Wendy" },
-                    results.Select(e => e.Id).ToArray());
+            Assert.Equal(
+                new[] { "And", "By", "George", "Me", "Rodrigue", "Wendy" },
+                results.Select(e => e.Id).ToArray());
 
-                Assert.Equal(
-                    new[] { null, null, "Empire", "Fire", "Stereo", "Stereo" },
-                    results.Select(e => e.Fk).ToArray());
+            Assert.Equal(
+                new[] { null, null, "Empire", "Fire", "Stereo", "Stereo" },
+                results.Select(e => e.Fk).ToArray());
 
-                Assert.Equal(
-                    new WithStringKey[] { null, null },
-                    results.Take(2).Select(e => e.Principal));
+            Assert.Equal(
+                new WithStringKey[] { null, null },
+                results.Take(2).Select(e => e.Principal));
 
-                Assert.Equal(
-                    new[] { "Empire", "Fire", "Stereo", "Stereo" },
-                    results.Skip(2).Select(e => e.Principal.Id));
-            }
+            Assert.Equal(
+                new[] { "Empire", "Fire", "Stereo", "Stereo" },
+                results.Skip(2).Select(e => e.Principal.Id));
         }
 
         [ConditionalFact]
         public virtual void Include_with_non_nullable_FKs_and_nullable_PK()
         {
-            using (var context = CreateContext())
-            {
-                var results = context.Set<WithIntFk>()
-                    .OrderBy(e => e.Id)
-                    .Include(e => e.Principal)
-                    .ToList();
+            using var context = CreateContext();
+            var results = context.Set<WithIntFk>()
+                .OrderBy(e => e.Id)
+                .Include(e => e.Principal)
+                .ToList();
 
-                Assert.Equal(
-                    new[] { 1, 2, 3 },
-                    results.Select(e => e.Id).ToArray());
+            Assert.Equal(
+                new[] { 1, 2, 3 },
+                results.Select(e => e.Id).ToArray());
 
-                Assert.Equal(
-                    new[] { 1, 1, 3 },
-                    results.Select(e => e.Fk).ToArray());
+            Assert.Equal(
+                new[] { 1, 1, 3 },
+                results.Select(e => e.Fk).ToArray());
 
-                Assert.Equal(
-                    new int?[] { 1, 1, 3 },
-                    results.Select(e => e.Principal.Id).ToArray());
-            }
+            Assert.Equal(
+                new int?[] { 1, 1, 3 },
+                results.Select(e => e.Principal.Id).ToArray());
         }
 
         [ConditionalFact] // Issue #1093
         public virtual void Include_with_null_fKs_and_non_nullable_PK()
         {
-            using (var context = CreateContext())
-            {
-                var results = context.Set<WithNullableIntFk>()
-                    .OrderBy(e => e.Id)
-                    .Include(e => e.Principal)
-                    .ToList();
+            using var context = CreateContext();
+            var results = context.Set<WithNullableIntFk>()
+                .OrderBy(e => e.Id)
+                .Include(e => e.Principal)
+                .ToList();
 
-                Assert.Equal(
-                    new[] { 1, 2, 3, 4, 5, 6 },
-                    results.Select(e => e.Id).ToArray());
+            Assert.Equal(
+                new[] { 1, 2, 3, 4, 5, 6 },
+                results.Select(e => e.Id).ToArray());
 
-                Assert.Equal(
-                    new int?[] { null, 1, null, 2, null, null },
-                    results.Select(e => e.Fk));
+            Assert.Equal(
+                new int?[] { null, 1, null, 2, null, null },
+                results.Select(e => e.Fk));
 
-                Assert.Null(results[0].Principal);
-                Assert.Equal(1, results[1].Principal.Id);
-                Assert.Null(results[2].Principal);
-                Assert.Equal(2, results[3].Principal.Id);
-                Assert.Null(results[4].Principal);
-                Assert.Null(results[5].Principal);
-            }
+            Assert.Null(results[0].Principal);
+            Assert.Equal(1, results[1].Principal.Id);
+            Assert.Null(results[2].Principal);
+            Assert.Equal(2, results[3].Principal.Id);
+            Assert.Null(results[4].Principal);
+            Assert.Null(results[5].Principal);
         }
 
         [ConditionalFact] // Issue #1093
         public virtual void Include_with_null_fKs_and_nullable_PK()
         {
-            using (var context = CreateContext())
-            {
-                var results = context.Set<WithAllNullableIntFk>()
-                    .OrderBy(e => e.Id)
-                    .Include(e => e.Principal)
-                    .ToList();
+            using var context = CreateContext();
+            var results = context.Set<WithAllNullableIntFk>()
+                .OrderBy(e => e.Id)
+                .Include(e => e.Principal)
+                .ToList();
 
-                Assert.Equal(
-                    new[] { 1, 2, 3, 4, 5, 6 },
-                    results.Select(e => e.Id));
+            Assert.Equal(
+                new[] { 1, 2, 3, 4, 5, 6 },
+                results.Select(e => e.Id));
 
-                Assert.Equal(
-                    new int?[] { null, 1, null, 2, null, null },
-                    results.Select(e => e.Fk));
+            Assert.Equal(
+                new int?[] { null, 1, null, 2, null, null },
+                results.Select(e => e.Fk));
 
-                Assert.Null(results[0].Principal);
-                Assert.Equal(1, results[1].Principal.Id);
-                Assert.Null(results[2].Principal);
-                Assert.Equal(2, results[3].Principal.Id);
-                Assert.Null(results[4].Principal);
-                Assert.Null(results[5].Principal);
-            }
+            Assert.Null(results[0].Principal);
+            Assert.Equal(1, results[1].Principal.Id);
+            Assert.Null(results[2].Principal);
+            Assert.Equal(2, results[3].Principal.Id);
+            Assert.Null(results[4].Principal);
+            Assert.Null(results[5].Principal);
         }
 
         [ConditionalFact] // Issue #1292
         public virtual void One_to_one_self_ref_Include()
         {
-            using (var context = CreateContext())
-            {
-                var results = context.Set<WithStringFk>()
-                    .OrderBy(e => e.Id)
-                    .Include(e => e.Self)
-                    .ToList();
+            using var context = CreateContext();
+            var results = context.Set<WithStringFk>()
+                .OrderBy(e => e.Id)
+                .Include(e => e.Self)
+                .ToList();
 
-                Assert.Equal(
-                    new[] { "And", "By", "George", "Me", "Rodrigue", "Wendy" },
-                    results.Select(e => e.Id).ToArray());
+            Assert.Equal(
+                new[] { "And", "By", "George", "Me", "Rodrigue", "Wendy" },
+                results.Select(e => e.Id).ToArray());
 
-                Assert.Equal(
-                    new[] { "By", null, null, null, null, "Rodrigue" },
-                    results.Select(e => e.SelfFk).ToArray());
+            Assert.Equal(
+                new[] { "By", null, null, null, null, "Rodrigue" },
+                results.Select(e => e.SelfFk).ToArray());
 
-                Assert.Null(results[0].Self);
-                Assert.Equal("And", results[1].Self.Id);
-                Assert.Null(results[2].Self);
-                Assert.Null(results[3].Self);
-                Assert.Equal("Wendy", results[4].Self.Id);
-                Assert.Null(results[5].Self);
-            }
+            Assert.Null(results[0].Self);
+            Assert.Equal("And", results[1].Self.Id);
+            Assert.Null(results[2].Self);
+            Assert.Null(results[3].Self);
+            Assert.Equal("Wendy", results[4].Self.Id);
+            Assert.Null(results[5].Self);
         }
 
         protected class WithStringKey
@@ -276,7 +266,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new WithStringKey { Id = "Empire" });
 
                 context.Add(
-                    new WithStringFk { Id = "Wendy", Fk = "Stereo", SelfFk = "Rodrigue" });
+                    new WithStringFk
+                    {
+                        Id = "Wendy",
+                        Fk = "Stereo",
+                        SelfFk = "Rodrigue"
+                    });
                 context.Add(
                     new WithStringFk { Id = "And", SelfFk = "By" });
                 context.Add(

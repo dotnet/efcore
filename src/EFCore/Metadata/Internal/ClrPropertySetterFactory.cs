@@ -75,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var propertyType = propertyBase?.ClrType ?? memberInfo.GetMemberType();
 
             return propertyType.IsNullableType()
-                   && propertyType.UnwrapNullableType().GetTypeInfo().IsEnum
-                ? new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setter)
-                : (IClrPropertySetter)new ClrPropertySetter<TEntity, TValue>(setter);
+                && propertyType.UnwrapNullableType().GetTypeInfo().IsEnum
+                    ? new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setter)
+                    : (IClrPropertySetter)new ClrPropertySetter<TEntity, TValue>(setter);
         }
     }
 }

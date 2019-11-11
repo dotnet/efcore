@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -77,10 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
                         || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
                     && memberExpression.Type.IsGenericType
-                    && (memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
-#pragma warning disable CS0618 // Type or member is obsolete
-                        || memberExpression.Type.GetGenericTypeDefinition() == typeof(DbQuery<>)))
-#pragma warning restore CS0618 // Type or member is obsolete
+                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
                 {
                     return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(memberExpression.Type.GetGenericArguments()[0]);
                 }

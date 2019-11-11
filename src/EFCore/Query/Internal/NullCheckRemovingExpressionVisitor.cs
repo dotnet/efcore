@@ -11,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly NullSafeAccessVerifyingExpressionVisitor _nullSafeAccessVerifyingExpressionVisitor
             = new NullSafeAccessVerifyingExpressionVisitor();
 
-        private readonly NullConditionalRemovingExpressionVisitor _nullConditionalRemovingExpressionVisitor
-            = new NullConditionalRemovingExpressionVisitor();
-
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
             var test = Visit(conditionalExpression.Test);
@@ -39,35 +36,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     ? conditionalExpression.IfFalse
                     : conditionalExpression.IfTrue;
 
-                // Unwrap nested nullConditional
-                if (caller is NullConditionalExpression nullConditionalCaller)
-                {
-                    accessOperation = ReplacingExpressionVisitor.Replace(
-                        _nullConditionalRemovingExpressionVisitor.Visit(nullConditionalCaller.AccessOperation),
-                        nullConditionalCaller,
-                        accessOperation);
-                }
-
                 if (_nullSafeAccessVerifyingExpressionVisitor.Verify(caller, accessOperation))
                 {
-                    return new NullConditionalExpression(caller, accessOperation);
+                    return accessOperation;
                 }
             }
 
             return base.VisitConditional(conditionalExpression);
-        }
-
-        private class NullConditionalRemovingExpressionVisitor : ExpressionVisitor
-        {
-            public override Expression Visit(Expression expression)
-            {
-                if (expression is NullConditionalExpression nullConditionalExpression)
-                {
-                    return Visit(nullConditionalExpression.AccessOperation);
-                }
-
-                return base.Visit(expression);
-            }
         }
 
         private class NullSafeAccessVerifyingExpressionVisitor : ExpressionVisitor
@@ -103,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var operand = Visit(unaryExpression.Operand);
                 if ((unaryExpression.NodeType == ExpressionType.Convert
-                     || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                        || unaryExpression.NodeType == ExpressionType.ConvertChecked)
                     && _nullSafeAccesses.Contains(operand))
                 {
                     _nullSafeAccesses.Add(unaryExpression);
@@ -115,6 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool IsNullConstant(Expression expression)
             => expression is ConstantExpression constantExpression
-               && constantExpression.Value == null;
+                && constantExpression.Value == null;
     }
 }

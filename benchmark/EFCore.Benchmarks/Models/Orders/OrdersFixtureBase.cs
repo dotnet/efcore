@@ -75,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders
             }
 
             return (_productCount == context.Products.Count())
-                   && (_customerCount == context.Customers.Count())
-                   && (_customerCount * _ordersPerCustomer == context.Orders.Count())
-                   && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
+                && (_customerCount == context.Customers.Count())
+                && (_customerCount * _ordersPerCustomer == context.Orders.Count())
+                && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
         }
 
         private void InsertSeedData()

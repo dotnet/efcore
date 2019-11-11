@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -13,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
+        private static readonly Regex _composableSql
+            = new Regex(@"^\s*?SELECT\b", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(value: 1000.0));
+
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
@@ -50,14 +56,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
+            GenerateTagsHeaderComment(selectExpression);
+
             if (selectExpression.IsNonComposedFromSql())
             {
                 GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
             }
             else
             {
-                GenerateTagsHeaderComment(selectExpression);
-
                 VisitSelect(selectExpression);
             }
 
@@ -102,9 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectExpression.Tables.Count == 1
                 && selectExpression.Tables[0] is SetOperationBase setOperation
                 && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
-                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
-                    && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
+                && selectExpression.Projection.Select(
+                        (pe, index) => pe.Expression is ColumnExpression column
+                            && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(
+                                column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
                     .All(e => e);
 
         protected override Expression VisitSelect(SelectExpression selectExpression)
@@ -191,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!string.Equals(string.Empty, projectionExpression.Alias)
                 && !(projectionExpression.Expression is ColumnExpression column
-                     && string.Equals(column.Name, projectionExpression.Alias)))
+                    && string.Equals(column.Name, projectionExpression.Alias)))
             {
                 _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
@@ -312,6 +320,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             _relationalCommandBuilder.AppendLine("(");
 
+            if (!_composableSql.IsMatch(fromSqlExpression.Sql))
+            {
+                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            }
+
             using (_relationalCommandBuilder.Indent())
             {
                 GenerateFromSql(fromSqlExpression);
@@ -373,8 +386,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private bool RequiresBrackets(SqlExpression expression)
         {
             return expression is SqlBinaryExpression sqlBinary
-                   && sqlBinary.OperatorType != ExpressionType.Coalesce
-                   || expression is LikeExpression;
+                && sqlBinary.OperatorType != ExpressionType.Coalesce
+                || expression is LikeExpression;
         }
 
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
@@ -503,11 +516,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
                 }
 
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when sqlUnaryExpression.IsLogicalNot():
                 {
                     _relationalCommandBuilder.Append("NOT (");
                     Visit(sqlUnaryExpression.Operand);
                     _relationalCommandBuilder.Append(")");
+                    break;
+                }
+
+                case ExpressionType.Not:
+                {
+                    _relationalCommandBuilder.Append("~");
+                    Visit(sqlUnaryExpression.Operand);
                     break;
                 }
 

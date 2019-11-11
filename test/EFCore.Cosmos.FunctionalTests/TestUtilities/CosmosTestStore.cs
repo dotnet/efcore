@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         private readonly TestStoreContext _storeContext;
         private readonly string _dataFilePath;
         private readonly Action<CosmosDbContextOptionsBuilder> _configureCosmos;
+        private bool _initialized;
+
         private static readonly Guid _runId = Guid.NewGuid();
 
         public static CosmosTestStore Create(string name, Action<CosmosDbContextOptionsBuilder> extensionConfiguration = null)
@@ -41,7 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         {
             ConnectionUri = TestEnvironment.DefaultConnection;
             AuthToken = TestEnvironment.AuthToken;
-            _configureCosmos = extensionConfiguration;
+            _configureCosmos = extensionConfiguration == null
+                ? (Action<CosmosDbContextOptionsBuilder>)(b => b.ApplyConfiguration())
+                : (b =>
+                {
+                    b.ApplyConfiguration();
+                    extensionConfiguration(b);
+                });
 
             _storeContext = new TestStoreContext(this);
 
@@ -59,7 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         public string ConnectionUri { get; }
         public string AuthToken { get; }
-        public Action<CosmosDbContextOptionsBuilder> ConfigureCosmos => _configureCosmos ?? (_ => { });
 
         protected override DbContext CreateDefaultContext() => new TestStoreContext(this);
 
@@ -68,10 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 ConnectionUri,
                 AuthToken,
                 Name,
-                ConfigureCosmos);
+                _configureCosmos);
 
         protected override void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
+            _initialized = true;
             if (_dataFilePath == null)
             {
                 base.Initialize(createContext ?? (() => _storeContext), seed, clean);
@@ -146,9 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         }
 
         public override void Clean(DbContext context)
-        {
-            CleanAsync(context).GetAwaiter().GetResult();
-        }
+            => CleanAsync(context).GetAwaiter().GetResult();
 
         public override async Task CleanAsync(DbContext context)
         {
@@ -219,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
         public override async Task DisposeAsync()
         {
-            if (_dataFilePath == null)
+            if (_initialized
+                && _dataFilePath == null)
             {
                 await _storeContext.Database.EnsureDeletedAsync();
             }
@@ -238,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore.ConfigureCosmos);
+                optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);
             }
         }
     }

@@ -245,8 +245,7 @@ namespace Microsoft.Data.Sqlite
                 connection1.Open();
 
                 connection1.ExecuteNonQuery(
-                    "CREATE TABLE Person (Name TEXT);" +
-                    "INSERT INTO Person VALUES ('Waldo');");
+                    "CREATE TABLE Person (Name TEXT);" + "INSERT INTO Person VALUES ('Waldo');");
 
                 using (var connection2 = new SqliteConnection(connectionString))
                 {
@@ -348,8 +347,7 @@ namespace Microsoft.Data.Sqlite
                 connection1.Open();
 
                 connection1.ExecuteNonQuery(
-                    "CREATE TABLE Person (Name TEXT);" +
-                    "INSERT INTO Person VALUES ('Waldo');");
+                    "CREATE TABLE Person (Name TEXT);" + "INSERT INTO Person VALUES ('Waldo');");
 
                 using (var connection2 = new SqliteConnection("Data Source=:memory:"))
                 {

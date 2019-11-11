@@ -283,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation)
-            => strategy.Execute(operation, verifySucceeded: null, state: state);
+            => strategy.Execute(state, operation,  verifySucceeded: null);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
@@ -330,9 +330,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static TResult Execute<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
+            [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation,
-            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded,
-            [CanBeNull] TState state)
+            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded)
             => Check.NotNull(strategy, nameof(strategy)).Execute(
                 state,
                 (c, s) => operation(s),

@@ -310,12 +310,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => string.Compare(c.CustomerID, "ALFKI") > -1).Where(c => string.Compare(c.CustomerID, "CACTU") == -1),
+                ss => ss.Set<Customer>().Where(c => string.Compare(c.CustomerID, "ALFKI") > -1)
+                    .Where(c => string.Compare(c.CustomerID, "CACTU") == -1),
                 entryCount: 11);
 
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => string.Compare(c.ContactTitle, "Owner") == 0).Where(c => string.Compare(c.Country, "USA") != 0),
+                ss => ss.Set<Customer>().Where(c => string.Compare(c.ContactTitle, "Owner") == 0)
+                    .Where(c => string.Compare(c.Country, "USA") != 0),
                 entryCount: 15);
         }
 
@@ -964,7 +966,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Min(od.OrderID, od.ProductID) == od.ProductID),
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077)
+                    .Where(od => Math.Min(od.OrderID, od.ProductID) == od.ProductID),
                 entryCount: 25);
         }
 
@@ -1253,7 +1256,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(c.ContactName.IndexOf("a"), 3)));
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                    .Select(c => c.ContactName.Substring(c.ContactName.IndexOf("a"), 3)));
         }
 
         [ConditionalTheory]
@@ -1269,29 +1273,25 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void IsNullOrEmpty_in_projection()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Customer>()
-                    .Select(
-                        c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Set<Customer>()
+                .Select(
+                    c => new { Id = c.CustomerID, Value = string.IsNullOrEmpty(c.Region) })
+                .ToList();
 
-                Assert.Equal(91, query.Count);
-            }
+            Assert.Equal(91, query.Count);
         }
 
         [ConditionalFact]
         public virtual void IsNullOrEmpty_negated_in_projection()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Customer>()
-                    .Select(
-                        c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
-                    .ToList();
+            using var context = CreateContext();
+            var query = context.Set<Customer>()
+                .Select(
+                    c => new { Id = c.CustomerID, Value = !string.IsNullOrEmpty(c.Region) })
+                .ToList();
 
-                Assert.Equal(91, query.Count);
-            }
+            Assert.Equal(91, query.Count);
         }
 
         [ConditionalTheory]
@@ -1302,6 +1302,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Customer>().Where(c => string.IsNullOrWhiteSpace(c.Region)),
                 entryCount: 60);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Customer>().Where(c => string.IsNullOrWhiteSpace(c.CustomerID)));
         }
 
         [ConditionalTheory]
@@ -1411,7 +1420,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID).Select(c => c.Orders),
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID.Length).ThenBy(c => c.CustomerID)
+                    .Select(c => c.Orders),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertCollection(e, a),
                 entryCount: 830);
@@ -1456,7 +1466,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A)
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) })
+                    .OrderBy(r => r.A)
                     .OrderBy(r => r.A),
                 assertOrder: true);
         }
@@ -1467,7 +1478,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderBy(r => r.A)
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) })
+                    .OrderBy(r => r.A)
                     .OrderByDescending(r => r.A),
                 assertOrder: true);
         }
@@ -1478,7 +1490,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 isAsync,
-                ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) }).OrderByDescending(r => r.A)
+                ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Select(o => new { A = Math.Truncate((double)o.OrderID) })
+                    .OrderByDescending(r => r.A)
                     .ThenBy(r => r.A),
                 assertOrder: true);
         }

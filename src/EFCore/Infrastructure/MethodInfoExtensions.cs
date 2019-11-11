@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> True if the method is <see cref="EF.Property{TProperty}" />; false otherwise. </returns>
         public static bool IsEFPropertyMethod([CanBeNull] this MethodInfo methodInfo)
             => Equals(methodInfo, EF.PropertyMethod)
-               // fallback to string comparison because MethodInfo.Equals is not
-               // always true in .NET Native even if methods are the same
-               || methodInfo?.IsGenericMethod == true
-               && methodInfo.Name == nameof(EF.Property)
-               && methodInfo.DeclaringType?.FullName == _efTypeName;
+                // fallback to string comparison because MethodInfo.Equals is not
+                // always true in .NET Native even if methods are the same
+                || methodInfo?.IsGenericMethod == true
+                && methodInfo.Name == nameof(EF.Property)
+                && methodInfo.DeclaringType?.FullName == _efTypeName;
     }
 }

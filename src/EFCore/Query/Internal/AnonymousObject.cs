@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => obj is null
                 ? false
                 : obj is AnonymousObject anonymousObject
-                  && _values.SequenceEqual(anonymousObject._values);
+                && _values.SequenceEqual(anonymousObject._values);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

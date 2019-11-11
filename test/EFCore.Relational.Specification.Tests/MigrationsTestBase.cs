@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -366,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected virtual void DiffSnapshot(ModelSnapshot snapshot, DbContext context)
         {
-            var sourceModel = snapshot.Model;
+            var sourceModel = ((IMutableModel)snapshot.Model).FinalizeModel();
             var targetModel = context.Model;
 
             var typeMapper = context.GetService<IRelationalTypeMappingSource>();

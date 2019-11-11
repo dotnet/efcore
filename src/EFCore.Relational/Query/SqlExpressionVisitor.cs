@@ -18,14 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ColumnExpression columnExpression:
                     return VisitColumn(columnExpression);
 
-                case CrossJoinExpression crossJoinExpression:
-                    return VisitCrossJoin(crossJoinExpression);
-
                 case CrossApplyExpression crossApplyExpression:
                     return VisitCrossApply(crossApplyExpression);
 
-                case OuterApplyExpression outerApplyExpression:
-                    return VisitOuterApply(outerApplyExpression);
+                case CrossJoinExpression crossJoinExpression:
+                    return VisitCrossJoin(crossJoinExpression);
+
+                case ExceptExpression exceptExpression:
+                    return VisitExcept(exceptExpression);
 
                 case ExistsExpression existsExpression:
                     return VisitExists(existsExpression);
@@ -35,6 +35,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case InExpression inExpression:
                     return VisitIn(inExpression);
+
+                case IntersectExpression intersectExpression:
+                    return VisitIntersect(intersectExpression);
 
                 case InnerJoinExpression innerJoinExpression:
                     return VisitInnerJoin(innerJoinExpression);
@@ -47,6 +50,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 case OrderingExpression orderingExpression:
                     return VisitOrdering(orderingExpression);
+
+                case OuterApplyExpression outerApplyExpression:
+                    return VisitOuterApply(outerApplyExpression);
 
                 case ProjectionExpression projectionExpression:
                     return VisitProjection(projectionExpression);
@@ -81,12 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case TableExpression tableExpression:
                     return VisitTable(tableExpression);
 
-                case ExceptExpression exceptExpression:
-                    return VisitExcept(exceptExpression);
-
-                case IntersectExpression intersectExpression:
-                    return VisitIntersect(intersectExpression);
-
                 case UnionExpression unionExpression:
                     return VisitUnion(unionExpression);
             }
@@ -94,31 +94,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.VisitExtension(extensionExpression);
         }
 
-        protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
-        protected abstract Expression VisitExcept(ExceptExpression exceptExpression);
-        protected abstract Expression VisitIntersect(IntersectExpression intersectExpression);
-        protected abstract Expression VisitUnion(UnionExpression unionExpression);
-        protected abstract Expression VisitExists(ExistsExpression existsExpression);
-        protected abstract Expression VisitIn(InExpression inExpression);
-        protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
+        protected abstract Expression VisitCase(CaseExpression caseExpression);
+        protected abstract Expression VisitColumn(ColumnExpression columnExpression);
         protected abstract Expression VisitCrossApply(CrossApplyExpression crossApplyExpression);
-        protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
+        protected abstract Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression);
+        protected abstract Expression VisitExcept(ExceptExpression exceptExpression);
+        protected abstract Expression VisitExists(ExistsExpression existsExpression);
         protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
+        protected abstract Expression VisitIn(InExpression inExpression);
+        protected abstract Expression VisitIntersect(IntersectExpression intersectExpression);
+        protected abstract Expression VisitLike(LikeExpression likeExpression);
         protected abstract Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression);
         protected abstract Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression);
-        protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
-        protected abstract Expression VisitCase(CaseExpression caseExpression);
-        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlCastExpression);
-        protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
-        protected abstract Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression);
         protected abstract Expression VisitOrdering(OrderingExpression orderingExpression);
-        protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
-        protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
-        protected abstract Expression VisitColumn(ColumnExpression columnExpression);
+        protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
+        protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
+        protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
         protected abstract Expression VisitSelect(SelectExpression selectExpression);
-        protected abstract Expression VisitTable(TableExpression tableExpression);
+        protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
         protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
-        protected abstract Expression VisitLike(LikeExpression likeExpression);
+        protected abstract Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression);
+        protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
+        protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
+        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlCastExpression);
         protected abstract Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression);
+        protected abstract Expression VisitTable(TableExpression tableExpression);
+        protected abstract Expression VisitUnion(UnionExpression unionExpression);
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The name to use for the default hi-lo sequence. </returns>
         public static string GetHiLoSequenceName([NotNull] this IModel model)
             => (string)model[SqlServerAnnotationNames.HiLoSequenceName]
-               ?? DefaultHiLoSequenceName;
+                ?? DefaultHiLoSequenceName;
 
         /// <summary>
         ///     Sets the name to use for the default hi-lo sequence.
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
             => (SqlServerValueGenerationStrategy?)model[SqlServerAnnotationNames.ValueGenerationStrategy];
 
         /// <summary>
-        ///     Attempts to set the <see cref="SqlServerValueGenerationStrategy" /> to use for properties
+        ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for properties
         ///     of keys in the model that don't have a strategy explicitly set.
         /// </summary>
         /// <param name="model"> The model. </param>
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
             => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
 
         /// <summary>
-        ///     Attempts to set the <see cref="SqlServerValueGenerationStrategy" /> to use for properties
+        ///     Sets the <see cref="SqlServerValueGenerationStrategy" /> to use for properties
         ///     of keys in the model that don't have a strategy explicitly set.
         /// </summary>
         /// <param name="model"> The model. </param>
@@ -218,5 +218,107 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The <see cref="ConfigurationSource" /> for the default <see cref="SqlServerValueGenerationStrategy" />. </returns>
         public static ConfigurationSource? GetValueGenerationStrategyConfigurationSource([NotNull] this IConventionModel model)
             => model.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the maximum size of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The maximum size of the database. </returns>
+        public static string GetDatabaseMaxSize([NotNull] this IModel model)
+            => (string)model[SqlServerAnnotationNames.MaxDatabaseSize];
+
+        /// <summary>
+        ///     Sets the maximum size of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetDatabaseMaxSize([NotNull] this IMutableModel model, [CanBeNull] string value)
+            => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.MaxDatabaseSize, value);
+
+        /// <summary>
+        ///     Sets the maximum size of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetDatabaseMaxSize(
+            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.MaxDatabaseSize, value, fromDataAnnotation);
+
+        /// <summary>
+        ///     Returns the <see cref="ConfigurationSource" /> for the maximum size of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the maximum size of the database. </returns>
+        public static ConfigurationSource? GetDatabaseMaxSizeConfigurationSource([NotNull] this IConventionModel model)
+            => model.FindAnnotation(SqlServerAnnotationNames.MaxDatabaseSize)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the service tier of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The service tier of the database. </returns>
+        public static string GetServiceTierSql([NotNull] this IModel model)
+            => (string)model[SqlServerAnnotationNames.ServiceTierSql];
+
+        /// <summary>
+        ///     Sets the service tier of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetServiceTierSql([NotNull] this IMutableModel model, [CanBeNull] string value)
+            => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.ServiceTierSql, value);
+
+        /// <summary>
+        ///     Sets the service tier of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetServiceTierSql(
+            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.ServiceTierSql, value, fromDataAnnotation);
+
+        /// <summary>
+        ///     Returns the <see cref="ConfigurationSource" /> for the service tier of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the service tier of the database. </returns>
+        public static ConfigurationSource? GetServiceTierSqlConfigurationSource([NotNull] this IConventionModel model)
+            => model.FindAnnotation(SqlServerAnnotationNames.ServiceTierSql)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the performance level of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The performance level of the database. </returns>
+        public static string GetPerformanceLevelSql([NotNull] this IModel model)
+            => (string)model[SqlServerAnnotationNames.PerformanceLevelSql];
+
+        /// <summary>
+        ///     Sets the performance level of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="value"> The value to set. </param>
+        public static void SetPerformanceLevelSql([NotNull] this IMutableModel model, [CanBeNull] string value)
+            => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.PerformanceLevelSql, value);
+
+        /// <summary>
+        ///     Sets the performance level of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="value"> The value to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetPerformanceLevelSql(
+            [NotNull] this IConventionModel model, [CanBeNull] string value, bool fromDataAnnotation = false)
+            => model.SetOrRemoveAnnotation(SqlServerAnnotationNames.PerformanceLevelSql, value, fromDataAnnotation);
+
+        /// <summary>
+        ///     Returns the <see cref="ConfigurationSource" /> for the performance level of the database.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the performance level of the database. </returns>
+        public static ConfigurationSource? GetPerformanceLevelSqlConfigurationSource([NotNull] this IConventionModel model)
+            => model.FindAnnotation(SqlServerAnnotationNames.PerformanceLevelSql)?.GetConfigurationSource();
     }
 }

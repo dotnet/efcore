@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Browse_ReturnsViewWithGenre()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -41,15 +41,14 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(3, result.Albums.Count);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
         public async Task Index_CreatesViewWithGenres()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -62,15 +61,14 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(10, result.Count);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
         public async Task Details_ReturnsAlbumDetail()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -89,7 +87,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.NotEqual(0, result.ArtistId);
                     }
                 });
-            }
         }
 
         private static Genre[] CreateTestGenres(int numberOfGenres, int numberOfAlbums, DbContext context)
@@ -115,9 +112,9 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Index_GetsSixTopAlbums()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -137,21 +134,28 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(6, result.Count);
                     }
                 });
-            }
         }
 
         private static class TestAlbumDataProvider
         {
             public static Album[] GetAlbums()
             {
-                var genres = Enumerable.Range(1, 10).Select(n =>
-                    new Genre { Name = "Genre Name " + n }).ToArray();
+                var genres = Enumerable.Range(1, 10).Select(
+                    n =>
+                        new Genre { Name = "Genre Name " + n }).ToArray();
 
-                var artists = Enumerable.Range(1, 10).Select(n =>
-                    new Artist { Name = "Artist Name " + n }).ToArray();
+                var artists = Enumerable.Range(1, 10).Select(
+                    n =>
+                        new Artist { Name = "Artist Name " + n }).ToArray();
 
-                var albums = Enumerable.Range(1, 10).Select(n =>
-                    new Album { Artist = artists[n - 1], Genre = genres[n - 1], Title = "Greatest Hits" }).ToArray();
+                var albums = Enumerable.Range(1, 10).Select(
+                    n =>
+                        new Album
+                        {
+                            Artist = artists[n - 1],
+                            Genre = genres[n - 1],
+                            Title = "Greatest Hits"
+                        }).ToArray();
 
                 return albums;
             }
@@ -160,9 +164,9 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task GenreMenuComponent_Returns_NineGenres()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -179,7 +183,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(9, result.Count);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
@@ -191,9 +194,9 @@ namespace Microsoft.EntityFrameworkCore
 
             var formCollection = new Dictionary<string, StringValues> { { "PromoCode", new[] { "FREE" } } };
 
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -209,7 +212,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(order.OrderId, result);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
@@ -217,9 +219,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             const string cartId = "CartId_A";
 
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -231,7 +233,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Null(result);
                     }
                 });
-            }
         }
 
         protected Order CreateOrder(string userName = "RainbowDash")
@@ -252,9 +253,9 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Complete_ReturnsOrderIdIfValid()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -268,15 +269,14 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(order.OrderId, result);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
         public async Task Complete_ReturnsErrorIfInvalidOrder()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -287,7 +287,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal("Error", result);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
@@ -297,9 +296,9 @@ namespace Microsoft.EntityFrameworkCore
             const string albumTitle = "Good goat, M.A.A.D Village";
             const int itemCount = 10;
 
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -312,7 +311,12 @@ namespace Microsoft.EntityFrameworkCore
 
                         var cartItems = Enumerable.Range(1, itemCount).Select(
                             n =>
-                                new CartItem { Album = album, Count = 1, CartId = cartId }).ToArray();
+                                new CartItem
+                                {
+                                    Album = album,
+                                    Count = 1,
+                                    CartId = cartId
+                                }).ToArray();
 
                         context.AddRange(cartItems);
                         context.SaveChanges();
@@ -323,15 +327,14 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(albumTitle, result.CartSummary);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
         public async void Music_store_project_to_mapped_entity()
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -362,7 +365,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(10, foundAlbums.Count);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
@@ -372,9 +374,9 @@ namespace Microsoft.EntityFrameworkCore
             const int numberOfItems = 5;
             const int unitPrice = 10;
 
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -396,7 +398,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.DoesNotContain((await cart.GetCartItems()), c => c.CartItemId == cartItemId);
                     }
                 });
-            }
         }
 
         [ConditionalTheory]
@@ -404,9 +405,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("CartId_A")]
         public async Task Cart_is_empty_when_no_items_have_been_added(string cartId)
         {
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -417,7 +418,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(0, viewModel.CartTotal);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
@@ -425,9 +425,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             const string cartId = "CartId_A";
 
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -447,7 +447,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(5 * 10, viewModel.CartTotal);
                     }
                 });
-            }
         }
 
         [ConditionalFact]
@@ -455,9 +454,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             const string cartId = "CartId_A";
 
-            using (var context = CreateContext())
-            {
-                await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+            using var context = CreateContext();
+            await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                async () =>
                 {
                     using (Fixture.BeginTransaction(context))
                     {
@@ -477,7 +476,6 @@ namespace Microsoft.EntityFrameworkCore
                         Assert.Equal(albumId, (await cart.GetCartItems()).Single().AlbumId);
                     }
                 });
-            }
         }
 
         private static CartItem[] CreateTestCartItems(string cartId, decimal itemPrice, int numberOfItems)
@@ -487,7 +485,12 @@ namespace Microsoft.EntityFrameworkCore
                 new Artist { Name = "Kung Fu Kenny" }, new Genre { Name = "Rap" });
 
             var cartItems = Enumerable.Range(1, numberOfItems).Select(
-                n => new CartItem { Count = 1, CartId = cartId, Album = albums[n % albums.Length] }).ToArray();
+                n => new CartItem
+                {
+                    Count = 1,
+                    CartId = cartId,
+                    Album = albums[n % albums.Length]
+                }).ToArray();
 
             return cartItems;
         }
@@ -496,7 +499,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             return Enumerable.Range(1, 10).Select(
                 n =>
-                    new Album { Title = "Greatest Hits", Price = itemPrice, Artist = artist, Genre = genre }).ToArray();
+                    new Album
+                    {
+                        Title = "Greatest Hits",
+                        Price = itemPrice,
+                        Artist = artist,
+                        Genre = genre
+                    }).ToArray();
         }
 
         protected class CartSummaryComponent
@@ -643,8 +652,7 @@ namespace Microsoft.EntityFrameworkCore
                 var userName = "RainbowDash";
 
                 var isValid = await context.Orders.AnyAsync(
-                    o => o.OrderId == id &&
-                         o.Username == userName);
+                    o => o.OrderId == id && o.Username == userName);
 
                 if (isValid)
                 {

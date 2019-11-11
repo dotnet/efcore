@@ -19,34 +19,28 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Like_literal()
         {
-            using (var context = CreateContext())
-            {
-                var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "%M%"));
+            using var context = CreateContext();
+            var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "%M%"));
 
-                Assert.Equal(34, count);
-            }
+            Assert.Equal(34, count);
         }
 
         [ConditionalFact]
         public virtual void Like_identity()
         {
-            using (var context = CreateContext())
-            {
-                var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, c.ContactName));
+            using var context = CreateContext();
+            var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, c.ContactName));
 
-                Assert.Equal(91, count);
-            }
+            Assert.Equal(91, count);
         }
 
         [ConditionalFact]
         public virtual void Like_literal_with_escape()
         {
-            using (var context = CreateContext())
-            {
-                var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "!%", "!"));
+            using var context = CreateContext();
+            var count = context.Customers.Count(c => EF.Functions.Like(c.ContactName, "!%", "!"));
 
-                Assert.Equal(0, count);
-            }
+            Assert.Equal(0, count);
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();

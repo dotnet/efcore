@@ -757,11 +757,11 @@ namespace Microsoft.EntityFrameworkCore
             await Assert.ThrowsAsync<ObjectDisposedException>(() => context.FindAsync(typeof(Random), 77).AsTask());
 
             var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
-            var expectedMethodCount = 43;
+            var expectedMethodCount = 42;
             Assert.True(
                 methodCount == expectedMethodCount,
-                userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
-                             "Update test to ensure all methods throw ObjectDisposedException after dispose.");
+                userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. "
+                + "Update test to ensure all methods throw ObjectDisposedException after dispose.");
 
             // getters
             Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker);
@@ -782,8 +782,8 @@ namespace Microsoft.EntityFrameworkCore
                         .Select(p => p.Name)
                         .OrderBy(s => s)
                         .ToList()),
-                userMessage: "Unexpected properties on DbContext. " +
-                             "Update test to ensure all getters throw ObjectDisposedException after dispose.");
+                userMessage: "Unexpected properties on DbContext. "
+                + "Update test to ensure all getters throw ObjectDisposedException after dispose.");
 
             Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance);
         }

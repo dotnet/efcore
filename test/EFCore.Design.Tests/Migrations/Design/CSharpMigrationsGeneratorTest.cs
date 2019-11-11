@@ -82,23 +82,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     RelationalAnnotationNames.Schema, ("MySchema",
-                        _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
-                        + @"(""WithAnnotations"",""MySchema"");" + _nl)
+                        _nl
+                        + "modelBuilder."
+                        + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
+                        + @"(""WithAnnotations"",""MySchema"");"
+                        + _nl)
                 },
                 {
                     CoreAnnotationNames.DiscriminatorProperty, ("Id",
-                        _toTable + _nl + "modelBuilder.HasDiscriminator"
-                        + @"<int>(""Id"");" + _nl)
+                        _toTable
+                        + _nl
+                        + "modelBuilder.HasDiscriminator"
+                        + @"<int>(""Id"");"
+                        + _nl)
                 },
                 {
                     CoreAnnotationNames.DiscriminatorValue, ("MyDiscriminatorValue",
-                        _toTable + _nl + "modelBuilder.HasDiscriminator"
-                        + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
+                        _toTable
+                        + _nl
+                        + "modelBuilder.HasDiscriminator"
+                        + "()."
+                        + nameof(DiscriminatorBuilder.HasValue)
+                        + @"(""MyDiscriminatorValue"");"
+                        + _nl)
                 },
                 {
                     RelationalAnnotationNames.Comment, ("My Comment",
-                        _toTable + _nl + "modelBuilder.HasComment"
-                        + @"(""My Comment"");" + _nl)
+                        _toTable
+                        + _nl
+                        + "modelBuilder.HasComment"
+                        + @"(""My Comment"");"
+                        + _nl)
                 }
             };
 
@@ -376,7 +390,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         ClrType = typeof(Database),
                         OldColumn = new ColumnOperation { ClrType = typeof(Property) }
                     },
-                    new AddColumnOperation { Name = "C3", Table = "T1", ClrType = typeof(PropertyEntry) }
+                    new AddColumnOperation
+                    {
+                        Name = "C3",
+                        Table = "T1",
+                        ClrType = typeof(PropertyEntry)
+                    }
                 },
                 Array.Empty<MigrationOperation>());
             Assert.Equal(
@@ -846,7 +865,9 @@ namespace MyNamespace
                 {
                     new DeleteDataOperation
                     {
-                        Table = "MyTable", KeyColumns = new[] { "Id" }, KeyValues = new object[,] { { RegexOptions.Multiline } }
+                        Table = "MyTable",
+                        KeyColumns = new[] { "Id" },
+                        KeyValues = new object[,] { { RegexOptions.Multiline } }
                     }
                 },
                 Array.Empty<MigrationOperation>());

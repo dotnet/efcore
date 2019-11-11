@@ -23,6 +23,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class OwnedFixupTest
     {
         [ConditionalFact]
+        public void Can_detach_Added_owner_referencing_detached_weak_owned_entity()
+        {
+            using (var context = new FixupContext())
+            {
+                var owner = new Parent { Child1 = new Child() };
+
+                context.Entry(owner).State = EntityState.Added;
+
+                Assert.Equal(EntityState.Added, context.Entry(owner).State);
+                Assert.Equal(EntityState.Detached, context.Entry(owner).Reference(e => e.Child1).TargetEntry.State);
+
+                context.Entry(owner).State = EntityState.Detached;
+
+                Assert.Equal(EntityState.Detached, context.Entry(owner).State);
+                Assert.Equal(EntityState.Detached, context.Entry(owner).Reference(e => e.Child1).TargetEntry.State);
+            }
+        }
+
+        [ConditionalFact]
         public void Can_get_owned_entity_entry()
         {
             using (var context = new FixupContext())
@@ -3346,7 +3365,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var newDetails = new ProductDetails { Color = "C2", Size = "S2" };
 
-                var newProduct = new Product { Id = product.Id, Name = "Product1NewName", Details = newDetails };
+                var newProduct = new Product
+                {
+                    Id = product.Id,
+                    Name = "Product1NewName",
+                    Details = newDetails
+                };
 
                 context.Update(newProduct);
 
@@ -3491,7 +3515,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var info = new Info { Title = "MyBook" };
 
-            var book = new Book { BookId = MyBookId, Pages = 99, EnglishInfo = info };
+            var book = new Book
+            {
+                BookId = MyBookId,
+                Pages = 99,
+                EnglishInfo = info
+            };
 
             using (var context = new BooksContext(nameof(BooksContext)))
             {
@@ -3515,7 +3544,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 var newInfo = new Info { Title = "MyBook Rev 2" };
 
-                var newBook = new Book { BookId = MyBookId, Pages = 100, EnglishInfo = newInfo };
+                var newBook = new Book
+                {
+                    BookId = MyBookId,
+                    Pages = 100,
+                    EnglishInfo = newInfo
+                };
 
                 context.Remove(book);
                 context.Add(newBook);

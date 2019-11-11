@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             }
 
             return annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy
-                   && (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
+                && (SqlServerValueGenerationStrategy)annotation.Value == SqlServerValueGenerationStrategy.IdentityColumn;
         }
 
         /// <summary>

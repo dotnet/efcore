@@ -51,11 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void DbQuery_query()
+        public virtual void Keyless_query()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var query = EF.CompileQuery((NorthwindContext context) => context.CustomerQueries);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var context = CreateContext())
             {
@@ -69,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void DbQuery_query_first()
+        public virtual void Keyless_query_first()
         {
             var query = EF.CompileQuery(
                 (NorthwindContext context) => context.CustomerQueries.OrderBy(c => c.CompanyName).First());
@@ -252,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = EF.CompileQuery(
                 (NorthwindContext context)
                     => context.Customers.OrderBy(c => c.CustomerID).Select(c => c.CustomerID).FirstOrDefault()
-                       + context.Orders.OrderBy(o => o.CustomerID).Select(o => o.CustomerID).FirstOrDefault());
+                    + context.Orders.OrderBy(o => o.CustomerID).Select(o => o.CustomerID).FirstOrDefault());
 
             using (var context = CreateContext())
             {
@@ -332,11 +330,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual async Task DbQuery_query_async()
+        public virtual async Task Keyless_query_async()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             var query = EF.CompileAsyncQuery((NorthwindContext context) => context.CustomerQueries);
-#pragma warning restore CS0618 // Type or member is obsolete
 
             using (var context = CreateContext())
             {
@@ -350,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual async Task DbQuery_query_first_async()
+        public virtual async Task Keyless_query_first_async()
         {
             var query = EF.CompileAsyncQuery(
                 (NorthwindContext context)

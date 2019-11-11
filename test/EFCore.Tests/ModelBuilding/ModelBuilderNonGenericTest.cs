@@ -222,7 +222,45 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return new DataBuilder<TEntity>();
             }
 
+            public override TestDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
+                Expression<Func<TEntity, TDiscriminator>> propertyExpression)
+                => new NonGenericTestDiscriminatorBuilder<TDiscriminator>(
+                    EntityTypeBuilder.HasDiscriminator(
+                        propertyExpression?.GetPropertyAccess().GetSimpleMemberName(), typeof(TDiscriminator)));
+
+            public override TestDiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(string propertyName)
+                => new NonGenericTestDiscriminatorBuilder<TDiscriminator>(
+                    EntityTypeBuilder.HasDiscriminator(propertyName, typeof(TDiscriminator)));
+
+            public override TestEntityTypeBuilder<TEntity> HasNoDiscriminator()
+                => Wrap(EntityTypeBuilder.HasNoDiscriminator());
+
             public EntityTypeBuilder Instance => EntityTypeBuilder;
+        }
+
+        protected class NonGenericTestDiscriminatorBuilder<TDiscriminator> : TestDiscriminatorBuilder<TDiscriminator>
+        {
+            public NonGenericTestDiscriminatorBuilder(DiscriminatorBuilder discriminatorBuilder)
+            {
+                DiscriminatorBuilder = discriminatorBuilder;
+            }
+
+            protected DiscriminatorBuilder DiscriminatorBuilder { get; }
+
+            protected virtual TestDiscriminatorBuilder<TDiscriminator> Wrap(DiscriminatorBuilder discriminatorBuilder)
+                => new NonGenericTestDiscriminatorBuilder<TDiscriminator>(discriminatorBuilder);
+
+            public override TestDiscriminatorBuilder<TDiscriminator> HasValue(TDiscriminator value)
+                => Wrap(DiscriminatorBuilder.HasValue(value));
+
+            public override TestDiscriminatorBuilder<TDiscriminator> HasValue<TEntity>(TDiscriminator value)
+                => Wrap(DiscriminatorBuilder.HasValue<TEntity>(value));
+
+            public override TestDiscriminatorBuilder<TDiscriminator> HasValue(Type entityType, TDiscriminator value)
+                => Wrap(DiscriminatorBuilder.HasValue(entityType, value));
+
+            public override TestDiscriminatorBuilder<TDiscriminator> HasValue(string entityTypeName, TDiscriminator value)
+                => Wrap(DiscriminatorBuilder.HasValue(entityTypeName, value));
         }
 
         protected class NonGenericTestOwnedEntityTypeBuilder<TEntity> : TestOwnedEntityTypeBuilder<TEntity>,

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 {
@@ -75,7 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            return model;
+            return model is IMutableModel mutableModel
+                ? mutableModel.FinalizeModel()
+                : model;
         }
 
         private void ProcessCollection(IEnumerable<IAnnotatable> metadata, string version)
@@ -93,14 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             if ((version.StartsWith("2.0", StringComparison.Ordinal)
                  || version.StartsWith("2.1", StringComparison.Ordinal))
                 && entityType is IMutableEntityType mutableEntityType
-                && entityType.FindPrimaryKey() == null)
+                && !entityType.IsOwned())
             {
-                var ownership = mutableEntityType.FindOwnership();
-                if (ownership is IMutableForeignKey mutableOwnership
-                    && ownership.IsUnique)
-                {
-                    mutableEntityType.SetPrimaryKey(mutableOwnership.Properties);
-                }
+                UpdateOwnedTypes(mutableEntityType);
             }
         }
 
@@ -133,6 +131,54 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         }
                     }
                 }
+            }
+        }
+
+        private void UpdateOwnedTypes(IMutableEntityType entityType)
+        {
+            var ownerships = entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership && fk.IsUnique)
+                .ToList();
+            foreach (var ownership in ownerships)
+            {
+                var ownedType = ownership.DeclaringEntityType;
+
+                var oldPrincipalKey = ownership.PrincipalKey;
+                if (!oldPrincipalKey.IsPrimaryKey())
+                {
+                    ownership.SetProperties(
+                        (IReadOnlyList<Property>)ownership.Properties,
+                        ownership.PrincipalEntityType.FindPrimaryKey());
+
+                    if (oldPrincipalKey is IConventionKey conventionKey
+                        && conventionKey.GetConfigurationSource() == ConfigurationSource.Convention)
+                    {
+                        oldPrincipalKey.DeclaringEntityType.RemoveKey(oldPrincipalKey);
+                    }
+
+                    foreach (var oldProperty in oldPrincipalKey.Properties)
+                    {
+                        if (oldProperty is IConventionProperty conventionProperty
+                            && conventionProperty.GetConfigurationSource() == ConfigurationSource.Convention)
+                        {
+                            oldProperty.DeclaringEntityType.RemoveProperty(oldProperty);
+                        }
+                    }
+                }
+
+                if (ownedType.FindPrimaryKey() == null)
+                {
+                    foreach (var mutableProperty in ownership.Properties)
+                    {
+                        if (mutableProperty.IsNullable)
+                        {
+                            mutableProperty.IsNullable = false;
+                        }
+                    }
+
+                    ownedType.SetPrimaryKey(ownership.Properties);
+                }
+
+                UpdateOwnedTypes(ownedType);
             }
         }
     }

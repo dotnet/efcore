@@ -54,20 +54,21 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var creator = GetDatabaseCreator(context);
 
-                    await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                    {
-                        using (CreateTransactionScope(ambientTransaction))
+                    await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                        async () =>
                         {
-                            if (useCanConnect)
+                            using (CreateTransactionScope(ambientTransaction))
                             {
-                                Assert.False(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                                if (useCanConnect)
+                                {
+                                    Assert.False(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                                }
+                                else
+                                {
+                                    Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
+                                }
                             }
-                            else
-                            {
-                                Assert.False(async ? await creator.ExistsAsync() : creator.Exists());
-                            }
-                        }
-                    });
+                        });
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
@@ -105,20 +106,21 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var creator = GetDatabaseCreator(context);
 
-                    await context.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
-                    {
-                        using (CreateTransactionScope(ambientTransaction))
+                    await context.Database.CreateExecutionStrategy().ExecuteAsync(
+                        async () =>
                         {
-                            if (useCanConnect)
+                            using (CreateTransactionScope(ambientTransaction))
                             {
-                                Assert.True(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                                if (useCanConnect)
+                                {
+                                    Assert.True(async ? await creator.CanConnectAsync() : creator.CanConnect());
+                                }
+                                else
+                                {
+                                    Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
+                                }
                             }
-                            else
-                            {
-                                Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
-                            }
-                        }
-                    });
+                        });
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
                 }
@@ -165,20 +167,21 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(async ? await creator.ExistsAsync() : creator.Exists());
 
-                    await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
-                    {
-                        using (CreateTransactionScope(ambientTransaction))
+                    await GetExecutionStrategy(testDatabase).ExecuteAsync(
+                        async () =>
                         {
-                            if (async)
+                            using (CreateTransactionScope(ambientTransaction))
                             {
-                                Assert.True(await context.Database.EnsureDeletedAsync());
+                                if (async)
+                                {
+                                    Assert.True(await context.Database.EnsureDeletedAsync());
+                                }
+                                else
+                                {
+                                    Assert.True(context.Database.EnsureDeleted());
+                                }
                             }
-                            else
-                            {
-                                Assert.True(context.Database.EnsureDeleted());
-                            }
-                        }
-                    });
+                        });
 
                     Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
 
@@ -440,13 +443,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
-                await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
-                {
-                    using (CreateTransactionScope(ambientTransaction))
+                await GetExecutionStrategy(testDatabase).ExecuteAsync(
+                    async () =>
                     {
-                        Assert.False(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
-                    }
-                });
+                        using (CreateTransactionScope(ambientTransaction))
+                        {
+                            Assert.False(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                        }
+                    });
             }
         }
 
@@ -460,13 +464,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
-                await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
-                {
-                    using (CreateTransactionScope(ambientTransaction))
+                await GetExecutionStrategy(testDatabase).ExecuteAsync(
+                    async () =>
                     {
-                        Assert.True(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
-                    }
-                });
+                        using (CreateTransactionScope(ambientTransaction))
+                        {
+                            Assert.True(async ? await creator.HasTablesAsyncBase() : creator.HasTablesBase());
+                        }
+                    });
             }
         }
     }
@@ -624,24 +629,44 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var script = context.Database.GenerateCreateScript();
                 Assert.Equal(
-                    "CREATE TABLE [Blogs] (" + _eol +
-                    "    [Key1] nvarchar(450) NOT NULL," + _eol +
-                    "    [Key2] varbinary(900) NOT NULL," + _eol +
-                    "    [Cheese] nvarchar(max) NULL," + _eol +
-                    "    [ErMilan] int NOT NULL," + _eol +
-                    "    [George] bit NOT NULL," + _eol +
-                    "    [TheGu] uniqueidentifier NOT NULL," + _eol +
-                    "    [NotFigTime] datetime2 NOT NULL," + _eol +
-                    "    [ToEat] tinyint NOT NULL," + _eol +
-                    "    [OrNothing] float NOT NULL," + _eol +
-                    "    [Fuse] smallint NOT NULL," + _eol +
-                    "    [WayRound] bigint NOT NULL," + _eol +
-                    "    [On] real NOT NULL," + _eol +
-                    "    [AndChew] varbinary(max) NULL," + _eol +
-                    "    [AndRow] rowversion NULL," + _eol +
-                    "    CONSTRAINT [PK_Blogs] PRIMARY KEY ([Key1], [Key2])" + _eol +
-                    ");" + _eol +
-                    "GO" + _eol + _eol + _eol,
+                    "CREATE TABLE [Blogs] ("
+                    + _eol
+                    + "    [Key1] nvarchar(450) NOT NULL,"
+                    + _eol
+                    + "    [Key2] varbinary(900) NOT NULL,"
+                    + _eol
+                    + "    [Cheese] nvarchar(max) NULL,"
+                    + _eol
+                    + "    [ErMilan] int NOT NULL,"
+                    + _eol
+                    + "    [George] bit NOT NULL,"
+                    + _eol
+                    + "    [TheGu] uniqueidentifier NOT NULL,"
+                    + _eol
+                    + "    [NotFigTime] datetime2 NOT NULL,"
+                    + _eol
+                    + "    [ToEat] tinyint NOT NULL,"
+                    + _eol
+                    + "    [OrNothing] float NOT NULL,"
+                    + _eol
+                    + "    [Fuse] smallint NOT NULL,"
+                    + _eol
+                    + "    [WayRound] bigint NOT NULL,"
+                    + _eol
+                    + "    [On] real NOT NULL,"
+                    + _eol
+                    + "    [AndChew] varbinary(max) NULL,"
+                    + _eol
+                    + "    [AndRow] rowversion NULL,"
+                    + _eol
+                    + "    CONSTRAINT [PK_Blogs] PRIMARY KEY ([Key1], [Key2])"
+                    + _eol
+                    + ");"
+                    + _eol
+                    + "GO"
+                    + _eol
+                    + _eol
+                    + _eol,
                     script);
             }
         }
@@ -663,20 +688,21 @@ namespace Microsoft.EntityFrameworkCore
 
                 creator.EnsureDeleted();
 
-                await GetExecutionStrategy(testDatabase).ExecuteAsync(async () =>
-                {
-                    using (CreateTransactionScope(ambientTransaction))
+                await GetExecutionStrategy(testDatabase).ExecuteAsync(
+                    async () =>
                     {
-                        if (async)
+                        using (CreateTransactionScope(ambientTransaction))
                         {
-                            await creator.CreateAsync();
+                            if (async)
+                            {
+                                await creator.CreateAsync();
+                            }
+                            else
+                            {
+                                creator.Create();
+                            }
                         }
-                        else
-                        {
-                            creator.Create();
-                        }
-                    }
-                });
+                    });
 
                 Assert.True(creator.Exists());
 
@@ -686,7 +712,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 Assert.Empty(
-(await testDatabase.QueryAsync<string>(
+                    (await testDatabase.QueryAsync<string>(
                         "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'")));
 
                 Assert.True(
@@ -759,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore
                 .BuildServiceProvider();
         }
 
-        public class BloggingContext : DbContext
+        protected class BloggingContext : DbContext
         {
             private readonly string _connectionString;
 

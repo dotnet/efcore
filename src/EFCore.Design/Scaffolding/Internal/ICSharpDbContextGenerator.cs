@@ -22,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         string WriteCode(
             [NotNull] IModel model,
-            [NotNull] string @namespace,
             [NotNull] string contextName,
             [NotNull] string connectionString,
+            string contextNamespace,
+            string modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning);
     }

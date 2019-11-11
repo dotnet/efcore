@@ -120,7 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 
             var operation = new AddPrimaryKeyOperation
             {
-                Schema = Operation.Schema, Table = Operation.Name, Name = name, Columns = Map(columns)
+                Schema = Operation.Schema,
+                Table = Operation.Name,
+                Name = name,
+                Columns = Map(columns)
             };
             // TODO: Throw if already set?
             Operation.PrimaryKey = operation;
@@ -143,7 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 
             var operation = new AddUniqueConstraintOperation
             {
-                Schema = Operation.Schema, Table = Operation.Name, Name = name, Columns = Map(columns)
+                Schema = Operation.Schema,
+                Table = Operation.Name,
+                Name = name,
+                Columns = Map(columns)
             };
             Operation.UniqueConstraints.Add(operation);
 
@@ -165,7 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
 
             var operation = new CreateCheckConstraintOperation
             {
-                Schema = Operation.Schema, Table = Operation.Name, Name = name, Sql = sql
+                Schema = Operation.Schema,
+                Table = Operation.Name,
+                Name = name,
+                Sql = sql
             };
             Operation.CheckConstraints.Add(operation);
 

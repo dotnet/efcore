@@ -20,13 +20,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             var concreteTests = TargetAssembly.GetTypes().Where(
                     c =>
-                        c.BaseType != typeof(object) && !c.IsAbstract
-                                                     && (c.IsPublic || c.IsNestedPublic))
+                        c.BaseType != typeof(object)
+                        && !c.IsAbstract
+                        && (c.IsPublic || c.IsNestedPublic))
                 .ToList();
             var nonImplementedBases
                 = (from baseType in GetBaseTestClasses()
                    where !IgnoredTestBases.Contains(baseType)
-                         && !concreteTests.Any(c => Implements(c, baseType))
+                       && !concreteTests.Any(c => Implements(c, baseType))
                    select baseType.FullName)
                 .ToList();
 
@@ -39,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             => typeof(ComplianceTestBase).Assembly.ExportedTypes.Where(t => t.Name.Contains("TestBase"));
 
         private static bool Implements(Type type, Type interfaceOrBaseType)
-            => (type.IsPublic || type.IsNestedPublic) &&
-               interfaceOrBaseType.IsGenericTypeDefinition
+            => (type.IsPublic || type.IsNestedPublic) && interfaceOrBaseType.IsGenericTypeDefinition
                 ? GetGenericTypeImplementations(type, interfaceOrBaseType).Any()
                 : interfaceOrBaseType.IsAssignableFrom(type);
 

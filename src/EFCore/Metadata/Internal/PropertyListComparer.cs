@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var index = 0;
             while ((result == 0)
-                   && (index < x.Count))
+                && (index < x.Count))
             {
                 result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
                 index++;

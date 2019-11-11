@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.Data.Sqlite;
 
+using static SQLitePCL.raw;
+
 namespace InteropSample
 {
     class Program
@@ -13,7 +15,7 @@ namespace InteropSample
 
                 // Get the underlying sqlite3 object
                 var db = connection.Handle;
-                SQLitePCL.raw.sqlite3_trace(
+                sqlite3_trace(
                     db,
                     (_, statement) => Console.WriteLine(statement),
                     null);
@@ -29,9 +31,9 @@ namespace InteropSample
                 {
                     // Get the underlying sqlite3_stmt object
                     var stmt = reader.Handle;
-                    var steps = SQLitePCL.raw.sqlite3_stmt_status(
+                    var steps = sqlite3_stmt_status(
                         stmt,
-                        SQLitePCL.raw.SQLITE_STMTSTATUS_VM_STEP,
+                        SQLITE_STMTSTATUS_VM_STEP,
                         resetFlg: 0);
                     Console.WriteLine($"VM operations: {steps}");
 

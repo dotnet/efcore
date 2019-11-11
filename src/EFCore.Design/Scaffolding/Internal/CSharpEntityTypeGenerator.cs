@@ -365,7 +365,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
 
                     inversePropertyAttribute.AddParameter(
-                        navigation.Name != inverseNavigation.DeclaringEntityType.Name
+                        !navigation.DeclaringEntityType.GetPropertiesAndNavigations().Any(
+                                m => m.Name == inverseNavigation.DeclaringEntityType.Name)
                             ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
                             : _code.Literal(inverseNavigation.Name));
 

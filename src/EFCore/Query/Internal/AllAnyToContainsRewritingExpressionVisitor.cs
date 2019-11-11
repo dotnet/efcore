@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -12,25 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static bool IsExpressionOfFunc(Type type, int funcGenericArgs = 2)
             => type.IsGenericType
-               && type.GetGenericArguments().Length == funcGenericArgs;
-
-        private static readonly MethodInfo _allMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.All))
-            .Single(mi => mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
-
-        private static readonly MethodInfo _anyWithPredicateMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.Any))
-            .Single(mi => mi.GetParameters().Length == 2 && IsExpressionOfFunc(mi.GetParameters()[1].ParameterType));
-
-        private static readonly MethodInfo _containsMethodInfo = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.Contains))
-            .Single(mi => mi.GetParameters().Length == 2);
+                && type.GetGenericArguments().Length == funcGenericArgs;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo methodInfo
-                && (methodInfo.Equals(_anyWithPredicateMethodInfo) || methodInfo.Equals(_allMethodInfo))
+                && (methodInfo.Equals(EnumerableMethods.AnyWithPredicate) || methodInfo.Equals(EnumerableMethods.All))
                 && methodCallExpression.Arguments[0].NodeType is ExpressionType nodeType
                 && (nodeType == ExpressionType.Parameter || nodeType == ExpressionType.Constant)
                 && methodCallExpression.Arguments[1] is LambdaExpression lambda
@@ -39,16 +27,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var nonParameterExpression = left is ParameterExpression ? right : left;
 
-                if (methodInfo.Equals(_anyWithPredicateMethodInfo)
+                if (methodInfo.Equals(EnumerableMethods.AnyWithPredicate)
                     && !negated)
                 {
-                    var containsMethod = _containsMethodInfo.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
+                    var containsMethod = EnumerableMethods.Contains.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
                     return Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], nonParameterExpression);
                 }
 
-                if (methodInfo.Equals(_allMethodInfo) && negated)
+                if (methodInfo.Equals(EnumerableMethods.All) && negated)
                 {
-                    var containsMethod = _containsMethodInfo.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
+                    var containsMethod = EnumerableMethods.Contains.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
                     return Expression.Not(Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], nonParameterExpression));
                 }
             }
@@ -80,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case MethodCallExpression methodCallExpression
                     when methodCallExpression.Method.Name == nameof(object.Equals):
+                {
                     negated = false;
                     if (methodCallExpression.Arguments.Count == 1
                         && methodCallExpression.Object.Type == methodCallExpression.Arguments[0].Type)
@@ -87,18 +76,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         (left, right) = (methodCallExpression.Object, methodCallExpression.Arguments[0]);
                     }
                     else if (methodCallExpression.Arguments.Count == 2
-                             && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
+                        && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
                     {
                         (left, right) = (methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]);
                     }
 
                     return true;
+                }
 
                 case UnaryExpression unaryExpression
-                    when unaryExpression.NodeType == ExpressionType.Not:
+                    when unaryExpression.IsLogicalNot():
+                {
                     var result = TryExtractEqualityOperands(unaryExpression.Operand, out left, out right, out negated);
                     negated = !negated;
                     return result;
+                }
             }
 
             return false;

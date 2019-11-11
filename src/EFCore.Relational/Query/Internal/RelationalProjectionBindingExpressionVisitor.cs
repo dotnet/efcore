@@ -70,9 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             if (!(expression is NewExpression
-                  || expression is MemberInitExpression
-                  || expression is EntityShaperExpression
-                  || expression is IncludeExpression))
+                || expression is MemberInitExpression
+                || expression is EntityShaperExpression
+                || expression is IncludeExpression))
             {
                 // This skips the group parameter from GroupJoin
                 if (expression is ParameterExpression parameter
@@ -132,17 +132,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     }
 
                                     return QueryableMethods.IsAverageWithoutSelector(method)
-                                           || QueryableMethods.IsAverageWithSelector(method)
-                                           || method == QueryableMethods.MaxWithoutSelector
-                                           || method == QueryableMethods.MaxWithSelector
-                                           || method == QueryableMethods.MinWithoutSelector
-                                           || method == QueryableMethods.MinWithSelector
-                                           || QueryableMethods.IsSumWithoutSelector(method)
-                                           || QueryableMethods.IsSumWithSelector(method);
+                                        || QueryableMethods.IsAverageWithSelector(method)
+                                        || method == QueryableMethods.MaxWithoutSelector
+                                        || method == QueryableMethods.MaxWithSelector
+                                        || method == QueryableMethods.MinWithoutSelector
+                                        || method == QueryableMethods.MinWithSelector
+                                        || QueryableMethods.IsSumWithoutSelector(method)
+                                        || QueryableMethods.IsSumWithSelector(method);
                                 }
 
                                 if (!(subquery.ShaperExpression is ProjectionBindingExpression
-                                      || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
+                                    || IsAggregateResultWithCustomShaper(methodCallExpression.Method)))
                                 {
                                     return _selectExpression.AddSingleProjection(subquery);
                                 }

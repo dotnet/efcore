@@ -196,31 +196,5 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             return propertyPaths;
         }
-
-        /// <summary>
-        ///     <para>
-        ///         Returns a new expression with any see <see cref="ExpressionType.Convert" /> or
-        ///         <see cref="ExpressionType.ConvertChecked" /> nodes removed from the head of the
-        ///         given expression tree/
-        ///     </para>
-        ///     <para>
-        ///         This method is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <returns> A new expression with converts at the head removed. </returns>
-        [Obsolete("Unwrap each convert manually by evaluating how they are used.")]
-        public static Expression RemoveConvert([CanBeNull] this Expression expression)
-        {
-            while (expression != null
-                   && (expression.NodeType == ExpressionType.Convert
-                       || expression.NodeType == ExpressionType.ConvertChecked))
-            {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
-            }
-
-            return expression;
-        }
     }
 }

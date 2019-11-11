@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
 
         public override bool Equals(object obj)
             => obj is Engine other
-               && VehicleName == other.VehicleName
-               && Description == other.Description;
+                && VehicleName == other.VehicleName
+                && Description == other.Description;
 
         public override int GetHashCode() => HashCode.Combine(VehicleName, Description);
     }

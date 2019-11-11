@@ -245,8 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public bool Equals(RelationalTypeMappingInfo other)
             => _coreTypeMappingInfo.Equals(other._coreTypeMappingInfo)
-               && IsFixedLength == other.IsFixedLength
-               && StoreTypeName == other.StoreTypeName;
+                && IsFixedLength == other.IsFixedLength
+                && StoreTypeName == other.StoreTypeName;
 
         /// <summary>
         ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.
@@ -255,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <c>True</c> if they represent the same mapping; <c>false</c> otherwise. </returns>
         public override bool Equals(object obj)
             => obj != null
-               && obj.GetType() == GetType()
-               && Equals((RelationalTypeMappingInfo)obj);
+                && obj.GetType() == GetType()
+                && Equals((RelationalTypeMappingInfo)obj);
 
         /// <summary>
         ///     Returns a hash code for this object.

@@ -94,10 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(isAsync);
         }
 
-        [ConditionalFact(Skip = "issue #13560")]
-        public override void SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany()
+        [ConditionalTheory(Skip = "issue #13560")]
+        public override Task SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(bool isAsync)
         {
-            base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany();
+            return base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(isAsync);
         }
 
         [ConditionalTheory(Skip = "issue #13560")]
@@ -165,12 +165,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        public override void Member_pushdown_chain_3_levels_deep_entity()
+        {
+        }
+
         public override void Member_pushdown_with_collection_navigation_in_the_middle()
         {
         }
 
-        public override void Include_inside_subquery()
+        public override Task Union_over_entities_with_different_nullability(bool isAsync) => Task.CompletedTask;
+
+        [ConditionalTheory(Skip = "Issue#16752")]
+        public override Task Include_inside_subquery(bool isAsync)
         {
+            return base.Include_inside_subquery(isAsync);
         }
     }
 }

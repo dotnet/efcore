@@ -189,7 +189,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             get => Entry == null
                 ? _value
-                : Entry.EntityState == EntityState.Deleted ? null : Entry.GetCurrentValue(Property);
+                : Entry.EntityState == EntityState.Deleted
+                    ? null
+                    : Entry.GetCurrentValue(Property);
             [param: CanBeNull]
             set
             {

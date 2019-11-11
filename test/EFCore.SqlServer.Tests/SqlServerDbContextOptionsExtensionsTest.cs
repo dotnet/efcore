@@ -84,18 +84,5 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
         }
-
-        [ConditionalFact]
-        public void Can_add_extension_with_legacy_paging()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-
-            optionsBuilder.UseSqlServer("Database=Kilimanjaro", b => b.UseRowNumberForPaging());
-
-            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
-
-            Assert.True(extension.RowNumberPaging.HasValue);
-            Assert.True(extension.RowNumberPaging.Value);
-        }
     }
 }

@@ -245,11 +245,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             AddExpectedFailure(
                 "Join_navigation_translated_to_subquery_non_key_join", "Index was outside the bounds of the array."); // 12804
 
-            AddExpectedFailure("OrderBy_Skip_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("OrderBy_Skip_Take_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("GroupJoin_complex_GroupBy_Aggregate", "Value does not fall within the expected range."); // 12805
-            AddExpectedFailure("OrderBy_GroupBy_SelectMany", "Value does not fall within the expected range."); // 12805
-
             AddExpectedFailure(
                 "Select_expression_references_are_updated_correctly_with_subquery",
                 "The conversion of a varchar data type to a datetime data type resulted in an out-of-range value."); // 12819
@@ -406,14 +401,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
                 {
                 }
                 else if (exception.Message.Contains(
-                             @"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
-                         || exception.Message.Contains(
-                             @"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")
+                        @"The expected type was 'System.UInt32' but the actual value was of type 'System.Int32'")
+                    || exception.Message.Contains(
+                        @"The expected type was 'System.Nullable`1[System.UInt32]' but the actual value was of type 'System.Int32'.")
                 ) // 13753
                 {
                 }
                 else if (exception.Message
-                         == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
+                    == @"The binary operator NotEqual is not defined for the types 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer' and 'Microsoft.EntityFrameworkCore.Storage.ValueBuffer'."
                 ) // 12788
                 {
                 }

@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public static bool operator ==(JustAStructWithEqualityOperators left, JustAStructWithEqualityOperators right)
                 => left.A == right.A
-                   && left.B == right.B;
+                    && left.B == right.B;
 
             public static bool operator !=(JustAStructWithEqualityOperators left, JustAStructWithEqualityOperators right)
                 => !(left == right);
@@ -189,9 +189,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public override bool Equals(object obj)
                 => !(obj is null)
-                   && (ReferenceEquals(this, obj)
-                       || obj is JustAClassWithEquality o
-                       && Equals(o));
+                    && (ReferenceEquals(this, obj)
+                        || obj is JustAClassWithEquality o
+                        && Equals(o));
 
             public override int GetHashCode() => A;
         }
@@ -218,9 +218,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             private static bool InternalEquals(JustAClassWithEqualityOperators left, JustAClassWithEqualityOperators right)
                 => left is null
-                   || right is null
-                    ? left is null && right is null
-                    : left.A == right.A;
+                    || right is null
+                        ? left is null && right is null
+                        : left.A == right.A;
 
             public static bool operator ==(JustAClassWithEqualityOperators left, JustAClassWithEqualityOperators right)
                 => InternalEquals(left, right);

@@ -53,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             {
                 using (var scope = internalServiceProvider.CreateScope())
                 {
-                    if (scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>()
-                            ?.Any(s => s is SqlServerNetTopologySuiteTypeMappingSourcePlugin) != true)
+                    var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
+                    if (plugins?.Any(s => s is SqlServerNetTopologySuiteTypeMappingSourcePlugin) != true)
                     {
                         throw new InvalidOperationException(SqlServerNTSStrings.NTSServicesMissing);
                     }

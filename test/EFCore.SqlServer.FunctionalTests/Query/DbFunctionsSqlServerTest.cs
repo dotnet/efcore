@@ -66,9 +66,9 @@ WHERE [c].[ContactName] LIKE N'!%' ESCAPE N'!'");
                 Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative')");
             }
         }
 
@@ -93,8 +93,8 @@ WHERE FREETEXT([c].[Title], N'Representative')");
 
                 AssertSql(
                     @"SELECT COUNT(*)
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative Sales')");
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative Sales')");
             }
         }
 
@@ -109,9 +109,9 @@ WHERE FREETEXT([c].[Title], N'Representative Sales')");
                 Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'President', LANGUAGE 1033)");
             }
         }
 
@@ -128,9 +128,9 @@ WHERE FREETEXT([c].[Title], N'President', LANGUAGE 1033)");
                 Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[Title], N'Representative President', LANGUAGE 1033)");
             }
         }
 
@@ -143,15 +143,15 @@ WHERE FREETEXT([c].[Title], N'Representative President', LANGUAGE 1033)");
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.City, "London")
-                             && EF.Functions.FreeText(c.Title, "Manager", 1033))
+                            && EF.Functions.FreeText(c.Title, "Manager", 1033))
                     .FirstOrDefault();
 
                 Assert.Equal(5u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(1) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', LANGUAGE 1033))");
+                    @"SELECT TOP(1) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE FREETEXT([e].[City], N'London')) AND (FREETEXT([e].[Title], N'Manager', LANGUAGE 1033)");
             }
         }
 
@@ -166,7 +166,7 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation()
         {
@@ -175,21 +175,21 @@ WHERE (FREETEXT([c].[City], N'London')) AND (FREETEXT([c].[Title], N'Manager', L
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.Manager.Title, "President")
-                             && EF.Functions.FreeText(c.Title, "Inside")
-                             && c.FirstName.Contains("Lau"))
+                            && EF.Functions.FreeText(c.Title, "Inside")
+                            && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([e].[Title], N'Inside'))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void FreeText_through_navigation_with_language_terms()
         {
@@ -198,17 +198,17 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President')) AND (FREETEXT([c].[Title], 
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.FreeText(c.Manager.Title, "President", 1033)
-                             && EF.Functions.FreeText(c.Title, "Inside", 1031)
-                             && c.FirstName.Contains("Lau"))
+                            && EF.Functions.FreeText(c.Title, "Inside", 1031)
+                            && c.FirstName.Contains("Lau"))
                     .LastOrDefault();
 
                 Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([c].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [c].[FirstName]) > 0)");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEXT([e].[Title], N'Inside', LANGUAGE 1031))) AND (CHARINDEX(N'Lau', [e].[FirstName]) > 0)");
             }
         }
 
@@ -313,9 +313,9 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                 Assert.Equal(1u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'Representative')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'Representative')");
             }
         }
 
@@ -330,9 +330,9 @@ WHERE CONTAINS([c].[Title], N'Representative')");
                 Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'President', LANGUAGE 1033)");
             }
         }
 
@@ -350,9 +350,9 @@ WHERE CONTAINS([c].[Title], N'President', LANGUAGE 1033)");
                 Assert.Equal(2u, result.First().EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'Vice OR Inside')");
             }
         }
 
@@ -368,9 +368,9 @@ WHERE CONTAINS([c].[Title], N'Vice OR Inside')");
                 Assert.Equal(5u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'""Mana*""', LANGUAGE 1033)");
             }
         }
 
@@ -386,13 +386,13 @@ WHERE CONTAINS([c].[Title], N'""Mana*""', LANGUAGE 1033)");
                 Assert.Equal(2u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT TOP(2) [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
+                    @"SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE CONTAINS([e].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #18199")]
         [SqlServerCondition(SqlServerCondition.SupportsFullTextSearch)]
         public void Contains_through_navigation()
         {
@@ -401,17 +401,17 @@ WHERE CONTAINS([c].[Title], N'NEAR((Sales, President), 1)', LANGUAGE 1033)");
                 var result = context.Employees
                     .Where(
                         c => EF.Functions.Contains(c.Manager.Title, "President")
-                             && EF.Functions.Contains(c.Title, "\"Ins*\""))
+                            && EF.Functions.Contains(c.Title, "\"Ins*\""))
                     .LastOrDefault();
 
                 Assert.NotNull(result);
                 Assert.Equal(8u, result.EmployeeID);
 
                 AssertSql(
-                    @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
-FROM [Employees] AS [c]
-LEFT JOIN [Employees] AS [c.Manager] ON [c].[ReportsTo] = [c.Manager].[EmployeeID]
-WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([c].[Title], N'""Ins*""'))");
+                    @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [c.Manager] ON [e].[ReportsTo] = [c.Manager].[EmployeeID]
+WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([e].[Title], N'""Ins*""'))");
             }
         }
 
@@ -428,7 +428,7 @@ WHERE (CONTAINS([c.Manager].[Title], N'President')) AND (CONTAINS([c].[Title], N
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -444,7 +444,7 @@ WHERE (DATEDIFF(YEAR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(YEAR, [o].[O
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -460,7 +460,7 @@ WHERE (DATEDIFF(MONTH, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MONTH, [o].
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(DAY, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -476,7 +476,7 @@ WHERE (DATEDIFF(DAY, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(DAY, [o].[Ord
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -492,7 +492,7 @@ WHERE (DATEDIFF(HOUR, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(HOUR, [o].[O
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -508,7 +508,7 @@ WHERE (DATEDIFF(MINUTE, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(MINUTE, [o
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE (DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0) AND DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) IS NOT NULL");
+WHERE DATEDIFF(SECOND, [o].[OrderDate], GETDATE()) = 0");
             }
         }
 
@@ -560,6 +560,130 @@ WHERE DATEDIFF(NANOSECOND, GETDATE(), DATEADD(second, CAST(1.0E0 AS int), GETDAT
             }
         }
 
+        [ConditionalFact]
+        public virtual void DateDiff_Week_datetime()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffWeek(
+                        c.OrderDate,
+                        new DateTime(1998, 5, 6, 0, 0, 0)) == 5);
+
+                Assert.Equal(16, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE DATEDIFF(WEEK, [o].[OrderDate], '1998-05-06T00:00:00.000') = 5");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateDiff_Week_datetimeoffset()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffWeek(
+                        c.OrderDate,
+                        new DateTimeOffset(1998, 5, 6, 0, 0, 0, TimeSpan.Zero)) == 5);
+
+                Assert.Equal(16, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), '1998-05-06T00:00:00.0000000+00:00') = 5");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateDiff_Week_parameters_null()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => EF.Functions.DateDiffWeek(
+                        null,
+                        new DateTimeOffset(1998, 5, 6, 0, 0, 0, TimeSpan.Zero)) == 5);
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"@__p_0='False'
+
+SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE @__p_0 = CAST(1 AS bit)");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateDiff_Week_server_vs_client_eval_datetime()
+        {
+            using (var context = CreateContext())
+            {
+                var endDate = new DateTime(1998, 5, 6, 0, 0, 0);
+
+                var orders = context.Orders
+                    .OrderBy(p => p.OrderID)
+                    .Take(200)
+                    .Select(c => new
+                    {
+                        Weeks = EF.Functions.DateDiffWeek(c.OrderDate, endDate),
+                        c.OrderDate
+                    });
+
+                foreach (var order in orders)
+                {
+                    var weeks = EF.Functions.DateDiffWeek(order.OrderDate, endDate);
+
+                    Assert.Equal(weeks, order.Weeks);
+                }
+
+                AssertSql(
+                    @"@__p_0='200'
+@__endDate_2='1998-05-06T00:00:00' (Nullable = true) (DbType = DateTime)
+
+SELECT TOP(@__p_0) DATEDIFF(WEEK, [o].[OrderDate], @__endDate_2) AS [Weeks], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[OrderID]");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateDiff_Week_server_vs_client_eval_datetimeoffset()
+        {
+            using (var context = CreateContext())
+            {
+                var endDate = new DateTimeOffset(1998, 5, 6, 0, 0, 0, TimeSpan.Zero);
+
+                var orders = context.Orders
+                    .OrderBy(p => p.OrderID)
+                    .Take(200)
+                    .Select(c => new
+                    {
+                        Weeks = EF.Functions.DateDiffWeek(c.OrderDate, endDate),
+                        c.OrderDate
+                    });
+
+                foreach (var order in orders)
+                {
+                    var weeks = EF.Functions.DateDiffWeek(order.OrderDate, endDate);
+
+                    Assert.Equal(weeks, order.Weeks);
+                }
+
+                AssertSql(
+                    @"@__p_0='200'
+@__endDate_2='1998-05-06T00:00:00.0000000+00:00' (Nullable = true)
+
+SELECT TOP(@__p_0) DATEDIFF(WEEK, CAST([o].[OrderDate] AS datetimeoffset), @__endDate_2) AS [Weeks], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[OrderID]");
+            }
+        }
         [ConditionalFact]
         public virtual void IsDate_not_valid()
         {

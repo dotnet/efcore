@@ -39,11 +39,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO [dbo].[Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
-                "VALUES (@p0, @p1, @p2, @p3);" + Environment.NewLine +
-                "SELECT [Computed]" + Environment.NewLine +
-                "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] = @p0;" + Environment.NewLine + Environment.NewLine,
+                "INSERT INTO [dbo].[Ducks] ([Id], [Name], [Quacks], [ConcurrencyToken])"
+                + Environment.NewLine
+                + "VALUES (@p0, @p1, @p2, @p3);"
+                + Environment.NewLine
+                + "SELECT [Computed]"
+                + Environment.NewLine
+                + "FROM [dbo].[Ducks]"
+                + Environment.NewLine
+                + "WHERE @@ROWCOUNT = 1 AND [Id] = @p0;"
+                + Environment.NewLine
+                + Environment.NewLine,
                 stringBuilder.ToString());
         }
 
@@ -51,11 +57,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             StringBuilder stringBuilder)
         {
             Assert.Equal(
-                "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])" + Environment.NewLine +
-                "VALUES (@p0, @p1, @p2);" + Environment.NewLine +
-                "SELECT [Id], [Computed]" + Environment.NewLine +
-                "FROM [dbo].[Ducks]" + Environment.NewLine +
-                "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();" + Environment.NewLine + Environment.NewLine,
+                "INSERT INTO [dbo].[Ducks] ([Name], [Quacks], [ConcurrencyToken])"
+                + Environment.NewLine
+                + "VALUES (@p0, @p1, @p2);"
+                + Environment.NewLine
+                + "SELECT [Id], [Computed]"
+                + Environment.NewLine
+                + "FROM [dbo].[Ducks]"
+                + Environment.NewLine
+                + "WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();"
+                + Environment.NewLine
+                + Environment.NewLine,
                 stringBuilder.ToString());
         }
 

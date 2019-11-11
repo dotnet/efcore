@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
@@ -27,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] this INavigation navigation,
             bool singleLine = true,
             bool includeIndexes = false,
-            [NotNull] string indent = "")
+            [NotNull] string indent = "",
+            bool detailed = true)
         {
             var builder = new StringBuilder();
 
@@ -35,18 +37,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (singleLine)
             {
-                builder.Append("Navigation: ").Append(navigation.DeclaringEntityType.DisplayName()).Append(".");
+                builder.Append($"Navigation: {navigation.DeclaringEntityType.DisplayName()}.");
             }
 
             builder.Append(navigation.Name);
 
-            if (navigation.GetFieldName() == null)
+            if (!detailed)
+            {
+                return builder.ToString();
+            }
+
+            var field = navigation.GetFieldName();
+            if (field == null)
             {
                 builder.Append(" (no field, ");
             }
+            else if (!field.EndsWith(">k__BackingField", StringComparison.Ordinal))
+            {
+                builder.Append($" ({field}, ");
+            }
             else
             {
-                builder.Append(" (").Append(navigation.GetFieldName()).Append(", ");
+                builder.Append(" (");
             }
 
             builder.Append(navigation.ClrType?.ShortDisplayName()).Append(")");

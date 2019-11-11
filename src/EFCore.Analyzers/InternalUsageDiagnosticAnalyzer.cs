@@ -45,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                 SyntaxKind.SimpleMemberAccessExpression,
                 SyntaxKind.ObjectCreationExpression,
                 SyntaxKind.ClassDeclaration);
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         }
 
         private void AnalyzeNode(SyntaxNodeAnalysisContext context)
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
                 case MemberAccessExpressionSyntax memberAccessSyntax:
                 {
                     if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol
-                        && symbol.ContainingAssembly != context.Compilation.Assembly)
+                        && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
                     {
                         var containingType = symbol.ContainingType;
 
@@ -79,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
                 case ObjectCreationExpressionSyntax creationSyntax:
                 {
                     if (context.SemanticModel.GetSymbolInfo(context.Node, context.CancellationToken).Symbol is ISymbol symbol
-                        && symbol.ContainingAssembly != context.Compilation.Assembly)
+                        && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly))
                     {
                         var containingType = symbol.ContainingType;
 
@@ -103,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore
                 case ClassDeclarationSyntax declarationSyntax:
                 {
                     if (context.SemanticModel.GetDeclaredSymbol(declarationSyntax)?.BaseType is ISymbol symbol
-                        && symbol.ContainingAssembly != context.Compilation.Assembly
+                        && !Equals(symbol.ContainingAssembly, context.Compilation.Assembly)
                         && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol))
                         && declarationSyntax.BaseList?.Types.Count > 0)
                     {

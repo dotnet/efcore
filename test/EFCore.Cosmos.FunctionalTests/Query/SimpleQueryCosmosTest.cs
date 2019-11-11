@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -283,14 +282,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > 0))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
+        public override Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
         {
-            await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+            return base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
@@ -748,27 +742,6 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""FRANK""))");
         }
 
-        public override async Task Null_conditional_simple(bool isAsync)
-        {
-            await base.Null_conditional_simple(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
-        }
-
-        [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task Null_conditional_deep(bool isAsync)
-        {
-            await base.Null_conditional_deep(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
         public override async Task Queryable_simple(bool isAsync)
         {
             await base.Queryable_simple(isAsync);
@@ -1030,9 +1003,13 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertSingleResult(
                 isAsync,
                 syncQuery: ss => ss.Set<Customer>()
-                    .All(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))),
+                    .All(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))),
                 asyncQuery: ss => ss.Set<Customer>()
-                    .AllAsync(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
+                    .AllAsync(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1046,13 +1023,19 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await AssertSingleResult(
                 isAsync,
                 syncQuery: ss => ss.Set<Customer>()
-                    .All(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>()
-                        .Any(c2 => ss.Set<Customer>()
-                            .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
+                    .All(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>()
+                                .Any(
+                                    c2 => ss.Set<Customer>()
+                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
                 asyncQuery: ss => ss.Set<Customer>()
-                    .AllAsync(c1 => c1.CustomerID == "ALFKI" && ss.Set<Customer>()
-                        .Any(c2 => ss.Set<Customer>()
-                            .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+                    .AllAsync(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>()
+                                .Any(
+                                    c2 => ss.Set<Customer>()
+                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1168,7 +1151,12 @@ WHERE (c[""Discriminator""] = ""Employee"")");
                     from e1 in ss.Set<Employee>().Where(ct => ct.City == "London")
                     from c in ss.Set<Customer>().Where(ct => ct.City == "London")
                     from e2 in ss.Set<Employee>().Where(ct => ct.City == "London")
-                    select new { e1, c, e2.FirstName },
+                    select new
+                    {
+                        e1,
+                        c,
+                        e2.FirstName
+                    },
                 e => (e.e1.EmployeeID, e.c.CustomerID, e.FirstName),
                 entryCount: 10);
 
@@ -1187,7 +1175,13 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""City""] = ""London""))");
                       from e2 in ss.Set<Employee>()
                       from e3 in ss.Set<Employee>()
                       from e4 in ss.Set<Employee>()
-                      select new { e2, e3, e1, e4 },
+                      select new
+                      {
+                          e2,
+                          e3,
+                          e1,
+                          e4
+                      },
                 e => (e.e2.EmployeeID, e.e3.EmployeeID, e.e1.EmployeeID, e.e4.EmployeeID),
                 entryCount: 9);
 
@@ -1441,7 +1435,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                     from c in ss.Set<Customer>().Where(cst => cst.CustomerID == "ALFKI")
                     from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                     select new { c.ContactName, o },
-                e => (e.ContactName, + e.o?.OrderID),
+                e => (e.ContactName, +e.o?.OrderID),
                 entryCount: 6);
 
             AssertSql(
@@ -1522,8 +1516,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                        from o in ss.Set<Order>().Where(or => or.OrderID < 10300)
                        orderby c.CustomerID, o.OrderID
                        select new { c, o })
-                        .Take(1)
-                        .Cast<object>(),
+                    .Take(1)
+                    .Cast<object>(),
                 entryCount: 2);
 
             AssertSql(
@@ -1857,7 +1851,8 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 {
                     var firstOrder = ss.Set<Order>().OrderBy(o => o.OrderID).First();
                     Expression<Func<Order, bool>> expr = x => x.OrderID == firstOrder.OrderID;
-                    return ss.Set<Order>().Where(o => o.OrderID < 10250).Where(x => ss.Set<Order>().Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
+                    return ss.Set<Order>().Where(o => o.OrderID < 10250)
+                        .Where(x => ss.Set<Order>().Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
                 },
                 entryCount: 1);
 
@@ -1980,9 +1975,10 @@ WHERE (c[""Discriminator""] = ""Product"")");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Product>().Where(p => p.ProductID == 72)
-                    .Where(p => ss.Set<OrderDetail>()
-                        .Where(o => o.ProductID == p.ProductID)
-                        .Select(odd => odd.Quantity).Contains<short>(5)),
+                    .Where(
+                        p => ss.Set<OrderDetail>()
+                            .Where(o => o.ProductID == p.ProductID)
+                            .Select(odd => odd.Quantity).Contains<short>(5)),
                 entryCount: 1);
 
             AssertSql(
@@ -2046,7 +2042,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
-ORDER BY (@__p_0 ? ""ZZ"" : c[""City""])");
+ORDER BY c[""City""]");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -2197,70 +2193,40 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__p_0))");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_1()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_1(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_1();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_1(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_2()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_2(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_2();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_2(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_3()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_3(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_3();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_3(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_4()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_4(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_4();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_4(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_5()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_5(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_5();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_5(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_6()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_6(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_6();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_6(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -2374,6 +2340,38 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"
                 @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")) OR (c[""CustomerID""] = ""ANTON"")))");
+        }
+
+        public override async Task Where_bitwise_binary_not(bool isAsync)
+        {
+            await base.Where_bitwise_binary_not(isAsync);
+
+            AssertSql(
+                @"@__negatedId_0='-10249'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (~c[""CustomerID""] = @__negatedId_0)");
+        }
+
+        public override async Task Where_bitwise_binary_and(bool isAsync)
+        {
+            await base.Where_bitwise_binary_and(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] & 10248) = 10248)");
+        }
+
+        public override async Task Where_bitwise_binary_or(bool isAsync)
+        {
+            await base.Where_bitwise_binary_or(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] | 10248) = 10248)");
         }
 
         [ConditionalFact(Skip = "Issue #17246")]
@@ -2637,7 +2635,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                       from o2 in ss.Set<Order>().Where(o => o.OrderID < 10250).Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                       where o1 != null && o2 != null
                       orderby o1.OrderID, o2.OrderDate
-                      select new { c.CustomerID, o1.OrderID, o2.OrderDate },
+                      select new
+                      {
+                          c.CustomerID,
+                          o1.OrderID,
+                          o2.OrderDate
+                      },
                 elementSorter: e => (e.CustomerID, e.OrderID));
 
             AssertSql(
@@ -2826,10 +2829,12 @@ WHERE (c[""Discriminator""] = ""Order"")");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Order>().Where(
-                    o => o.OrderID > 11002 && o.OrderID < 11004 && ss.Set<OrderDetail>()
-                        .Where(od => od.Product.ProductName == "Chai")
-                        .Select(od => od.OrderID)
-                        .Contains(o.OrderID)),
+                    o => o.OrderID > 11002
+                        && o.OrderID < 11004
+                        && ss.Set<OrderDetail>()
+                            .Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)),
                 entryCount: 1);
 
             AssertSql(
@@ -3581,10 +3586,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
                 isAsync,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
                     .Select(
-                        c => new
-                        {
-                            c.CustomerID, OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0)
-                        }));
+                        c => new { c.CustomerID, OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0) }));
 
             AssertSql(
                 @"SELECT c
@@ -3760,8 +3762,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         {
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
-                ss => ss.Set<Customer>().Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault() == null),
                 entryCount: 89);
 
             AssertSql(
@@ -3770,11 +3774,13 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17314")]
         public override async Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool isAsync)
         {
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
                 ss => ss.Set<Customer>().Where(
                     c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
                 entryCount: 89);
@@ -4108,13 +4114,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override Task Where_query_composition3(bool isAsync) => base.Where_query_composition3(isAsync);
 
-        public override async Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
         {
-            Assert.Equal(
-                CoreStrings.TranslationFailed("OrderBy<Customer, string>(    source: DbSet<Customer>,     keySelector: (c) => new CustomerListItem(        c.CustomerID,         c.City    ).City)"),
-                RemoveNewLines(
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync))).Message));
+            return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync));
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -4179,6 +4181,12 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
         public override Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool isAsync)
         {
             return base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool isAsync)
+        {
+            return base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(isAsync);
         }
 
         private void AssertSql(params string[] expected)

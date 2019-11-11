@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract partial class SimpleQueryTestBase<TFixture>
@@ -43,9 +44,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync, ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Select(c => c.CustomerID)
-                    .Concat(ss.Set<Customer>()
-                        .Where(s => s.ContactTitle == "Owner")
-                        .Select(c => c.CustomerID)));
+                    .Concat(
+                        ss.Set<Customer>()
+                            .Where(s => s.ContactTitle == "Owner")
+                            .Select(c => c.CustomerID)));
         }
 
         [ConditionalTheory]
@@ -89,9 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync, ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Select(c => c.CustomerID)
-                    .Except(ss.Set<Customer>()
-                        .Where(c => c.City == "México D.F.")
-                        .Select(c => c.CustomerID)));
+                    .Except(
+                        ss.Set<Customer>()
+                            .Where(c => c.City == "México D.F.")
+                            .Select(c => c.CustomerID)));
         }
 
         [ConditionalTheory]
@@ -125,9 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync, ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Select(c => c.CustomerID)
-                    .Intersect(ss.Set<Customer>()
-                        .Where(s => s.ContactTitle == "Owner")
-                        .Select(c => c.CustomerID)));
+                    .Intersect(
+                        ss.Set<Customer>()
+                            .Where(s => s.ContactTitle == "Owner")
+                            .Select(c => c.CustomerID)));
         }
 
         [ConditionalTheory]
@@ -161,9 +165,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync, ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Select(c => c.CustomerID)
-                    .Union(ss.Set<Customer>()
-                        .Where(c => c.City == "México D.F.")
-                        .Select(c => c.CustomerID)));
+                    .Union(
+                        ss.Set<Customer>()
+                            .Where(c => c.City == "México D.F.")
+                            .Select(c => c.CustomerID)));
         }
 
         // OrderBy, Skip and Take are typically supported on the set operation itself (no need for query pushdown)
@@ -262,9 +267,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Select(c => c.Address)
-                    .Union(ss.Set<Customer>()
-                        .Where(c => c.City == "London")
-                        .Select(c => c.Address)));
+                    .Union(
+                        ss.Set<Customer>()
+                            .Where(c => c.City == "London")
+                            .Select(c => c.Address)));
         }
 
         [ConditionalTheory]
@@ -277,6 +283,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Select(c => c.Address)
                     .Where(a => a.Contains("Hanover")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_Select_scalar(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync, ss => ss.Set<Customer>()
+                    .Except(ss.Set<Customer>())
+                    .Select(c => (object)1));
         }
 
         [ConditionalTheory]
@@ -312,9 +328,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Select(c => new { Foo = c.City, Customer = c }) // Foo is City
-                    .Union(ss.Set<Customer>()
-                        .Where(c => c.City == "London")
-                        .Select(c => new { Foo = c.Region, Customer = c })) // Foo is Region
+                    .Union(
+                        ss.Set<Customer>()
+                            .Where(c => c.City == "London")
+                            .Select(c => new { Foo = c.Region, Customer = c })) // Foo is Region
                     .OrderBy(x => x.Foo)
                     .Skip(1)
                     .Take(10)
@@ -342,9 +359,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Include(c => c.Orders)
-                    .Union(ss.Set<Customer>()
-                        .Where(c => c.City == "London")
-                        .Include(c => c.Orders)),
+                    .Union(
+                        ss.Set<Customer>()
+                            .Where(c => c.City == "London")
+                            .Include(c => c.Orders)),
                 entryCount: 59);
         }
 
@@ -355,54 +373,51 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 isAsync, ss => ss.Set<Order>()
                     .Select(o => o.Customer)
-                    .Except(ss.Set<Order>()
-                        .Where(o => o.CustomerID == "ALFKI")
-                        .Select(o => o.Customer)),
+                    .Except(
+                        ss.Set<Order>()
+                            .Where(o => o.CustomerID == "ALFKI")
+                            .Select(o => o.Customer)),
                 entryCount: 88);
         }
 
         [ConditionalFact]
         public virtual void Include_Union_only_on_one_side_throws()
         {
-            using (var ctx = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Include(c => c.Orders)
-                            .Union(ctx.Customers.Where(c => c.City == "London"))
-                            .ToList());
+            using var ctx = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(ctx.Customers.Where(c => c.City == "London"))
+                        .ToList());
 
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Union(
-                                ctx.Customers
-                                    .Where(c => c.City == "London")
-                                    .Include(c => c.Orders))
-                            .ToList());
-            }
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Union(
+                            ctx.Customers
+                                .Where(c => c.City == "London")
+                                .Include(c => c.Orders))
+                        .ToList());
         }
 
         [ConditionalFact]
         public virtual void Include_Union_different_includes_throws()
         {
-            using (var ctx = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Include(c => c.Orders)
-                            .Union(
-                                ctx.Customers
-                                    .Where(c => c.City == "London")
-                                    .Include(c => c.Orders)
-                                    .ThenInclude(o => o.OrderDetails))
-                            .ToList());
-            }
+            using var ctx = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(
+                            ctx.Customers
+                                .Where(c => c.City == "London")
+                                .Include(c => c.Orders)
+                                .ThenInclude(o => o.OrderDetails))
+                        .ToList());
         }
 
         [ConditionalTheory]
@@ -413,8 +428,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 isAsync,
                 ss => ss.Set<Customer>()
                     .Select(c => new { Customer = c, Orders = c.Orders.Count })
-                    .Union(ss.Set<Customer>()
-                        .Select(c => new { Customer = c, Orders = c.Orders.Count })),
+                    .Union(
+                        ss.Set<Customer>()
+                            .Select(c => new { Customer = c, Orders = c.Orders.Count })),
                 entryCount: 91);
         }
 
@@ -438,13 +454,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(c => c.City == "Berlin")
                     .GroupBy(c => c.CustomerID)
                     .Select(g => new { CustomerID = g.Key, Count = g.Count() })
-                    .Union(ss.Set<Customer>()
-                        .Where(c => c.City == "London")
-                        .GroupBy(c => c.CustomerID)
-                        .Select(g => new { CustomerID = g.Key, Count = g.Count() })));
+                    .Union(
+                        ss.Set<Customer>()
+                            .Where(c => c.City == "London")
+                            .GroupBy(c => c.CustomerID)
+                            .Select(g => new { CustomerID = g.Key, Count = g.Count() })));
         }
 
-        [ConditionalTheory(Skip = "Issue#17339")]
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_columns_with_different_nullability(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync, ss => ss.Set<Customer>()
+                    .Select(c => "NonNullableConstant")
+                    .Concat(
+                        ss.Set<Customer>()
+                            .Select(c => (string)null)));
+        }
+
+        [ConditionalTheory]
 #pragma warning disable xUnit1016 // MemberData must reference a public member
         [MemberData(nameof(GetSetOperandTestCases))]
 #pragma warning restore xUnit1016 // MemberData must reference a public member
@@ -488,5 +517,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             "Column", "Function", "Constant", "Unary", "Binary", "ScalarSubquery"
         };
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Take_Union(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync, ss => ss.Set<Customer>()
+                    .OrderBy(c => c.ContactName)
+                    .Take(1)
+                    .Union(
+                        ss.Set<Customer>()
+                            .OrderBy(c => c.ContactName)
+                            .Take(1)),
+                entryCount: 1,
+                assertOrder: true);
+        }
     }
 }

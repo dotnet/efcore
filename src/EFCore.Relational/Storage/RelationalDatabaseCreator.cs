@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Create();
 
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Delete();
 
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
 
         /// <summary>

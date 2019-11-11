@@ -81,27 +81,25 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void No_fixup_to_Deleted_entities()
         {
-            using (var context = CreateContext())
-            {
-                var root = LoadRoot(context);
-                var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
+            using var context = CreateContext();
+            var root = LoadRoot(context);
+            var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
 
-                existing.Parent = null;
-                existing.ParentId = null;
-                ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
+            existing.Parent = null;
+            existing.ParentId = null;
+            ((ICollection<Optional1>)root.OptionalChildren).Remove(existing);
 
-                context.Entry(existing).State = EntityState.Deleted;
+            context.Entry(existing).State = EntityState.Deleted;
 
-                var queried = context.Set<Optional1>().ToList();
+            var queried = context.Set<Optional1>().ToList();
 
-                Assert.Null(existing.Parent);
-                Assert.Null(existing.ParentId);
-                Assert.Single(root.OptionalChildren);
-                Assert.DoesNotContain(existing, root.OptionalChildren);
+            Assert.Null(existing.Parent);
+            Assert.Null(existing.ParentId);
+            Assert.Single(root.OptionalChildren);
+            Assert.DoesNotContain(existing, root.OptionalChildren);
 
-                Assert.Equal(2, queried.Count);
-                Assert.Contains(existing, queried);
-            }
+            Assert.Equal(2, queried.Count);
+            Assert.Contains(existing, queried);
         }
 
         [ConditionalTheory]
@@ -682,7 +680,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(root, new1.Root);
                     Assert.Same(new1, new2.Back);
 
-                    Assert.Null(old1.Root);
+                    Assert.NotNull(old1.Root);
                     Assert.Null(old2.Back);
                     Assert.Equal(old1.Id, old2.Id);
                 });
@@ -710,10 +708,17 @@ namespace Microsoft.EntityFrameworkCore
             var new2dd = new RequiredNonPkSingle2MoreDerived();
             var new1 = new RequiredNonPkSingle1 { Single = new2 };
             var new1d = new RequiredNonPkSingle1Derived { Single = new2d, Root = new Root() };
-            var new1dd = new RequiredNonPkSingle1MoreDerived { Single = new2dd, Root = new Root(), DerivedRoot = new Root() };
+            var new1dd = new RequiredNonPkSingle1MoreDerived
+            {
+                Single = new2dd,
+                Root = new Root(),
+                DerivedRoot = new Root()
+            };
             var newRoot = new Root
             {
-                RequiredNonPkSingle = new1, RequiredNonPkSingleDerived = new1d, RequiredNonPkSingleMoreDerived = new1dd
+                RequiredNonPkSingle = new1,
+                RequiredNonPkSingleDerived = new1d,
+                RequiredNonPkSingleMoreDerived = new1dd
             };
             RequiredNonPkSingle1 old1 = null;
             RequiredNonPkSingle1Derived old1d = null;
@@ -1932,7 +1937,12 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new OptionalSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
             var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
             OptionalSingleAk1 old1 = null;
@@ -2075,7 +2085,12 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new OptionalSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
             var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
             OptionalSingleAk1 old1 = null;
@@ -2235,7 +2250,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var new2 = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() };
             var new2c = new RequiredSingleComposite2();
-            var new1 = new RequiredSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new RequiredSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var newRoot = new Root { AlternateId = Guid.NewGuid(), RequiredSingleAk = new1 };
             RequiredSingleAk1 old1 = null;
             RequiredSingleAk2 old2 = null;
@@ -2337,10 +2357,18 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new RequiredNonPkSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new1 = new RequiredNonPkSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2 };
-            var new1d = new RequiredNonPkSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d, Root = new Root() };
+            var new1d = new RequiredNonPkSingleAk1Derived
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2d,
+                Root = new Root()
+            };
             var new1dd = new RequiredNonPkSingleAk1MoreDerived
             {
-                AlternateId = Guid.NewGuid(), Single = new2dd, Root = new Root(), DerivedRoot = new Root()
+                AlternateId = Guid.NewGuid(),
+                Single = new2dd,
+                Root = new Root(),
+                DerivedRoot = new Root()
             };
             var newRoot = new Root
             {

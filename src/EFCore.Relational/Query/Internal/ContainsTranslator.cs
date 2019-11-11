@@ -11,11 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class ContainsTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _containsMethod = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.Contains))
-            .Single(mi => mi.GetParameters().Length == 2)
-            .GetGenericMethodDefinition();
-
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public ContainsTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -26,17 +21,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition().Equals(_containsMethod))
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
             {
-                return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
+                return _sqlExpressionFactory.In(arguments[1], arguments[0], negated: false);
             }
 
-            if ((method.DeclaringType.GetInterfaces().Contains(typeof(IList))
-                || method.DeclaringType.IsGenericType
-                    && method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>))
-                && string.Equals(method.Name, nameof(IList.Contains)))
+            if (method.Name == nameof(IList.Contains)
+                && arguments.Count == 1
+                && method.DeclaringType.GetInterfaces().Append(method.DeclaringType).Any(
+                    t => t == typeof(IList)
+                        || (t.IsGenericType
+                            && t.GetGenericTypeDefinition() == typeof(ICollection<>))))
             {
-                return _sqlExpressionFactory.In(arguments[0], instance, false);
+                return _sqlExpressionFactory.In(arguments[0], instance, negated: false);
             }
 
             return null;

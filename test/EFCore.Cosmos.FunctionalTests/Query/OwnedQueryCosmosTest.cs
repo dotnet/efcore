@@ -60,7 +60,6 @@ WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"")
             AssertSql(" ");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
         public override async Task Navigation_rewrite_on_owned_reference_projecting_entity(bool isAsync)
         {
             await base.Navigation_rewrite_on_owned_reference_projecting_entity(isAsync);
@@ -81,7 +80,6 @@ FROM root c
 WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
         public override async Task Query_for_base_type_loads_all_owned_navs(bool isAsync)
         {
             await base.Query_for_base_type_loads_all_owned_navs(isAsync);
@@ -92,7 +90,6 @@ FROM root c
 WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
         public override async Task Query_for_branch_type_loads_all_owned_navs(bool isAsync)
         {
             await base.Query_for_branch_type_loads_all_owned_navs(isAsync);
@@ -103,7 +100,16 @@ FROM root c
 WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
         }
 
-        [ConditionalTheory(Skip = "issue #17733")]
+        public override async Task Query_for_branch_type_loads_all_owned_navs_tracking(bool isAsync)
+        {
+            await base.Query_for_branch_type_loads_all_owned_navs_tracking(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
+        }
+
         public override async Task Query_for_leaf_type_loads_all_owned_navs(bool isAsync)
         {
             await base.Query_for_leaf_type_loads_all_owned_navs(isAsync);
@@ -163,9 +169,11 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
         }
 
         [ConditionalTheory(Skip = "LeftJoin #12086")]
-        public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
+        public override Task
+            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
         {
-            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(isAsync);
+            return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
+                isAsync);
         }
 
         [ConditionalTheory(Skip = "LeftJoin #12086")]
@@ -260,10 +268,30 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new { OwnedAddressOwnedPersonId = 1, PlanetId = 1, Name = "USA" },
-                                            new { OwnedAddressOwnedPersonId = 2, PlanetId = 1, Name = "USA" },
-                                            new { OwnedAddressOwnedPersonId = 3, PlanetId = 1, Name = "USA" },
-                                            new { OwnedAddressOwnedPersonId = 4, PlanetId = 1, Name = "USA" });
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 1,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 2,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 3,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressOwnedPersonId = 4,
+                                                PlanetId = 1,
+                                                Name = "USA"
+                                            });
 
                                         cb.HasOne(cc => cc.Planet).WithMany().HasForeignKey(ee => ee.PlanetId)
                                             .OnDelete(DeleteBehavior.Restrict);
@@ -300,8 +328,18 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new { OwnedAddressBranchId = 2, PlanetId = 1, Name = "Canada" },
-                                            new { OwnedAddressBranchId = 3, PlanetId = 1, Name = "Canada" });
+                                            new
+                                            {
+                                                OwnedAddressBranchId = 2,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            },
+                                            new
+                                            {
+                                                OwnedAddressBranchId = 3,
+                                                PlanetId = 1,
+                                                Name = "Canada"
+                                            });
                                     });
                             });
                     });
@@ -322,7 +360,12 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new { OwnedAddressLeafAId = 3, PlanetId = 1, Name = "Mexico" });
+                                            new
+                                            {
+                                                OwnedAddressLeafAId = 3,
+                                                PlanetId = 1,
+                                                Name = "Mexico"
+                                            });
                                     });
                             });
                     });
@@ -343,7 +386,12 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                                     a => a.Country, cb =>
                                     {
                                         cb.HasData(
-                                            new { OwnedAddressLeafBId = 4, PlanetId = 1, Name = "Panama" });
+                                            new
+                                            {
+                                                OwnedAddressLeafBId = 4,
+                                                PlanetId = 1,
+                                                Name = "Panama"
+                                            });
                                     });
                             });
                     });
@@ -352,29 +400,55 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                     pb =>
                     {
                         pb.HasData(
-                            new { Id = 1, id = Guid.NewGuid().ToString(), StarId = 1 });
+                            new
+                            {
+                                Id = 1,
+                                id = Guid.NewGuid().ToString(),
+                                StarId = 1
+                            });
                     });
 
                 modelBuilder.Entity<Moon>(
                     mb =>
                     {
                         mb.HasData(
-                            new { Id = 1, id = Guid.NewGuid().ToString(), PlanetId = 1, Diameter = 3474 });
+                            new
+                            {
+                                Id = 1,
+                                id = Guid.NewGuid().ToString(),
+                                PlanetId = 1,
+                                Diameter = 3474
+                            });
                     });
 
                 modelBuilder.Entity<Star>(
                     sb =>
                     {
                         sb.HasData(
-                            new { Id = 1, id = Guid.NewGuid().ToString(), Name = "Sol" });
+                            new
+                            {
+                                Id = 1,
+                                id = Guid.NewGuid().ToString(),
+                                Name = "Sol"
+                            });
 
                         sb.OwnsMany(
                             s => s.Composition, ob =>
                             {
                                 ob.HasKey(o => o.Id);
                                 ob.HasData(
-                                    new { Id = "H", Name = "Hydrogen", StarId = 1 },
-                                    new { Id = "He", Name = "Helium", StarId = 1 });
+                                    new
+                                    {
+                                        Id = "H",
+                                        Name = "Hydrogen",
+                                        StarId = 1
+                                    },
+                                    new
+                                    {
+                                        Id = "He",
+                                        Name = "Helium",
+                                        StarId = 1
+                                    });
                             });
                     });
 

@@ -53,8 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             {
                 using (var scope = internalServiceProvider.CreateScope())
                 {
-                    if (scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>()
-                            ?.Any(s => s is SqliteNetTopologySuiteTypeMappingSourcePlugin) != true)
+                    var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
+                    if (plugins?.Any(s => s is SqliteNetTopologySuiteTypeMappingSourcePlugin) != true)
                     {
                         throw new InvalidOperationException(SqliteNTSStrings.NTSServicesMissing);
                     }

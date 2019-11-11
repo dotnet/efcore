@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var cancellationTokenPresent
                     = (_expectedMethodCall.Arguments[_expectedMethodCall.Arguments.Count - 1] is MemberExpression lastArgument)
-                      && (lastArgument.Type == typeof(CancellationToken));
+                    && (lastArgument.Type == typeof(CancellationToken));
 
                 if (cancellationTokenPresent)
                 {

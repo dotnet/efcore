@@ -147,7 +147,12 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
             modelBuilder.Entity<BusinessEntity>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<BusinessEntityAddress>().HasKey(
-                e => new { e.BusinessEntityID, e.AddressID, e.AddressTypeID });
+                e => new
+                {
+                    e.BusinessEntityID,
+                    e.AddressID,
+                    e.AddressTypeID
+                });
 
             modelBuilder.Entity<BusinessEntityAddress>().ToTable("BusinessEntityAddress", "Person");
 
@@ -172,7 +177,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
                 .WithMany(p => p.BusinessEntityAddress)
                 .HasForeignKey(d => d.BusinessEntityID);
 
-            modelBuilder.Entity<BusinessEntityContact>().HasKey(e => new { e.BusinessEntityID, e.PersonID, e.ContactTypeID });
+            modelBuilder.Entity<BusinessEntityContact>().HasKey(
+                e => new
+                {
+                    e.BusinessEntityID,
+                    e.PersonID,
+                    e.ContactTypeID
+                });
 
             modelBuilder.Entity<BusinessEntityContact>().ToTable("BusinessEntityContact", "Person");
 
@@ -341,7 +352,14 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
                 .WithOptional(p => p.Employee);
 
             modelBuilder.Entity<EmployeeDepartmentHistory>()
-                .HasKey(e => new { e.BusinessEntityID, e.StartDate, e.DepartmentID, e.ShiftID });
+                .HasKey(
+                    e => new
+                    {
+                        e.BusinessEntityID,
+                        e.StartDate,
+                        e.DepartmentID,
+                        e.ShiftID
+                    });
 
             modelBuilder.Entity<EmployeeDepartmentHistory>().ToTable("EmployeeDepartmentHistory", "HumanResources");
 
@@ -447,7 +465,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
                 .WithMany(p => p.PersonCreditCard)
                 .HasForeignKey(d => d.CreditCardID);
 
-            modelBuilder.Entity<PersonPhone>().HasKey(e => new { e.BusinessEntityID, e.PhoneNumber, e.PhoneNumberTypeID });
+            modelBuilder.Entity<PersonPhone>().HasKey(
+                e => new
+                {
+                    e.BusinessEntityID,
+                    e.PhoneNumber,
+                    e.PhoneNumberTypeID
+                });
 
             modelBuilder.Entity<PersonPhone>().ToTable("PersonPhone", "Person");
 
@@ -602,7 +626,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
                 .HasForeignKey(d => d.ProductModelID);
 
             modelBuilder.Entity<ProductModelProductDescriptionCulture>()
-                .HasKey(e => new { e.ProductModelID, e.ProductDescriptionID, e.CultureID });
+                .HasKey(
+                    e => new
+                    {
+                        e.ProductModelID,
+                        e.ProductDescriptionID,
+                        e.CultureID
+                    });
 
             modelBuilder.Entity<ProductModelProductDescriptionCulture>().ToTable("ProductModelProductDescriptionCulture", "Production");
 
@@ -921,7 +951,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
                 .WithMany(p => p.SalesTerritory)
                 .HasForeignKey(d => d.CountryRegionCode);
 
-            modelBuilder.Entity<SalesTerritoryHistory>().HasKey(e => new { e.BusinessEntityID, e.StartDate, e.TerritoryID });
+            modelBuilder.Entity<SalesTerritoryHistory>().HasKey(
+                e => new
+                {
+                    e.BusinessEntityID,
+                    e.StartDate,
+                    e.TerritoryID
+                });
 
             modelBuilder.Entity<SalesTerritoryHistory>().ToTable("SalesTerritoryHistory", "Sales");
 
@@ -1114,7 +1150,13 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
                 .WithMany(p => p.WorkOrder)
                 .HasForeignKey(d => d.ScrapReasonID);
 
-            modelBuilder.Entity<WorkOrderRouting>().HasKey(e => new { e.WorkOrderID, e.ProductID, e.OperationSequence });
+            modelBuilder.Entity<WorkOrderRouting>().HasKey(
+                e => new
+                {
+                    e.WorkOrderID,
+                    e.ProductID,
+                    e.OperationSequence
+                });
 
             modelBuilder.Entity<WorkOrderRouting>().ToTable("WorkOrderRouting", "Production");
 

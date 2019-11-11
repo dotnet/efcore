@@ -220,7 +220,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 var dropColumnOperation = new DropColumnOperation
                 {
-                    Schema = operation.Schema, Table = operation.Table, Name = operation.Name
+                    Schema = operation.Schema,
+                    Table = operation.Table,
+                    Name = operation.Name
                 };
                 if (property != null)
                 {
@@ -267,19 +269,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
 
                 var type = operation.ColumnType
-                           ?? GetColumnType(
-                               operation.Schema,
-                               operation.Table,
-                               operation.Name,
-                               operation,
-                               model);
+                    ?? GetColumnType(
+                        operation.Schema,
+                        operation.Table,
+                        operation.Name,
+                        operation,
+                        model);
                 var oldType = operation.OldColumn.ColumnType
-                              ?? GetColumnType(
-                                  operation.Schema,
-                                  operation.Table,
-                                  operation.Name,
-                                  operation.OldColumn,
-                                  model);
+                    ?? GetColumnType(
+                        operation.Schema,
+                        operation.Table,
+                        operation.Name,
+                        operation.OldColumn,
+                        model);
                 narrowed = type != oldType || !operation.IsNullable && operation.OldColumn.IsNullable;
             }
 
@@ -315,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             definitionOperation.AddAnnotations(
                 operation.GetAnnotations().Where(
                     a => a.Name != SqlServerAnnotationNames.ValueGenerationStrategy
-                         && a.Name != SqlServerAnnotationNames.Identity));
+                        && a.Name != SqlServerAnnotationNames.Identity));
 
             ColumnDefinition(
                 operation.Schema,
@@ -393,9 +395,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             }
 
             Rename(
-                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
-                "." +
-                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)
+                + "."
+                + Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
                 operation.NewName,
                 "INDEX",
                 builder);
@@ -718,9 +720,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(") IS NULL EXEC(")
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
-                        "CREATE SCHEMA " +
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name) +
-                        Dependencies.SqlGenerationHelper.StatementTerminator))
+                        "CREATE SCHEMA "
+                        + Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name)
+                        + Dependencies.SqlGenerationHelper.StatementTerminator))
                 .Append(")")
                 .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
                 .EndCommand();
@@ -904,8 +906,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            if (operation[SqlServerAnnotationNames.EditionOptions] is string editionOptions)
+            {
+                builder
+                    .AppendLine("BEGIN")
+                    .AppendLine("DECLARE @db_name NVARCHAR(MAX) = DB_NAME();")
+                    .AppendLine("EXEC(N'ALTER DATABASE ' + @db_name + ' MODIFY ( ")
+                    .Append(editionOptions.Replace("'", "''"))
+                    .AppendLine(" );');")
+                    .AppendLine("END")
+                    .AppendLine();
+            }
+
             if (!IsMemoryOptimized(operation))
             {
+                builder.EndCommand();
                 return;
             }
 
@@ -1134,9 +1149,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(builder, nameof(builder));
 
             Rename(
-                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema) +
-                "." +
-                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
+                Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema)
+                + "."
+                + Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name),
                 operation.NewName,
                 "COLUMN",
                 builder);
@@ -1582,9 +1597,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(" IS NOT NULL EXEC(")
                 .Append(
                     stringTypeMapping.GenerateSqlLiteral(
-                        "ALTER TABLE " +
-                        Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
-                        " DROP CONSTRAINT ["))
+                        "ALTER TABLE " + Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) + " DROP CONSTRAINT ["))
                 .Append(" + ")
                 .Append(variable)
                 .Append(" + ']")
@@ -1824,14 +1837,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         private bool IsMemoryOptimized(Annotatable annotatable, IModel model, string schema, string tableName)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
-               ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.IsMemoryOptimized()) == true;
+                ?? FindEntityTypes(model, schema, tableName)?.Any(t => t.IsMemoryOptimized()) == true;
 
         private static bool IsMemoryOptimized(Annotatable annotatable)
             => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
 
         private static bool IsIdentity(ColumnOperation operation)
             => operation[SqlServerAnnotationNames.Identity] != null
-               || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
-               == SqlServerValueGenerationStrategy.IdentityColumn;
+                || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
+                == SqlServerValueGenerationStrategy.IdentityColumn;
     }
 }

@@ -1,14 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.IO;
-using Microsoft.Extensions.Configuration;
-
 #if RELEASE20 || RELEASE21 || RELEASE22 || DEBUG20 || DEBUG21 || DEBUG22
 using System.Data.SqlClient;
 #else
 using Microsoft.Data.SqlClient;
 #endif
+using System.IO;
+using Microsoft.Extensions.Configuration;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Benchmarks

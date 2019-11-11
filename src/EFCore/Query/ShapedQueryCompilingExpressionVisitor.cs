@@ -20,14 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
     {
-        private static readonly MethodInfo _singleMethodInfo
-            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(nameof(Enumerable.Single))
-                .Single(mi => mi.GetParameters().Length == 1);
-
-        private static readonly MethodInfo _singleOrDefaultMethodInfo
-            = typeof(Enumerable).GetTypeInfo().GetDeclaredMethods(nameof(Enumerable.SingleOrDefault))
-                .Single(mi => mi.GetParameters().Length == 1);
-
         private static readonly PropertyInfo _cancellationTokenMemberInfo
             = typeof(QueryContext).GetProperty(nameof(QueryContext.CancellationToken));
 
@@ -49,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
 
+            IsBuffering = queryCompilationContext.IsBuffering;
             IsAsync = queryCompilationContext.IsAsync;
 
             if (queryCompilationContext.IsAsync)
@@ -62,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual ShapedQueryCompilingExpressionVisitorDependencies Dependencies { get; }
 
         protected virtual bool IsTracking { get; }
+
+        public virtual bool IsBuffering { get; internal set; }
 
         protected virtual bool IsAsync { get; }
 
@@ -82,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 serverEnumerable,
                                 _cancellationTokenParameter)
                             : Expression.Call(
-                                _singleMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
+                                EnumerableMethods.SingleWithoutPredicate.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
                                 serverEnumerable);
 
                     case ResultCardinality.SingleOrDefault:
@@ -92,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 serverEnumerable,
                                 _cancellationTokenParameter)
                             : Expression.Call(
-                                _singleOrDefaultMethodInfo.MakeGenericMethod(serverEnumerable.Type.TryGetSequenceType()),
+                                EnumerableMethods.SingleOrDefaultWithoutPredicate.MakeGenericMethod(
+                                    serverEnumerable.Type.TryGetSequenceType()),
                                 serverEnumerable);
                 }
             }
@@ -218,16 +214,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             protected override Expression VisitExtension(Expression extensionExpression)
             {
                 return extensionExpression is EntityShaperExpression
-                       || extensionExpression is ProjectionBindingExpression
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+                    || extensionExpression is ProjectionBindingExpression
+                        ? extensionExpression
+                        : base.VisitExtension(extensionExpression);
             }
 
             private static Expression RemoveConvert(Expression expression)
             {
                 while (expression != null
-                       && (expression.NodeType == ExpressionType.Convert
-                           || expression.NodeType == ExpressionType.ConvertChecked))
+                    && (expression.NodeType == ExpressionType.Convert
+                        || expression.NodeType == ExpressionType.ConvertChecked))
                 {
                     expression = RemoveConvert(((UnaryExpression)expression).Operand);
                 }
@@ -281,20 +277,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var result = Visit(expression);
                 if (_trackQueryResults)
                 {
-                    bool containsOwner(IEntityType owner)
-                        => owner != null && (_visitedEntityTypes.Contains(owner) || containsOwner(owner.BaseType));
-
                     foreach (var entityType in _visitedEntityTypes)
                     {
                         if (entityType.FindOwnership() is IForeignKey ownership
-                            && !containsOwner(ownership.PrincipalEntityType))
+                            && !ContainsOwner(ownership.PrincipalEntityType))
                         {
                             throw new InvalidOperationException(
-                                "A tracking query projects owned entity without corresponding owner in result. " +
-                                "Owned entities cannot be tracked without their owner. " +
-                                "Either include the owner entity in the result or make query non-tracking using AsNoTracking().");
+                                "A tracking query projects owned entity without corresponding owner in result. "
+                                + "Owned entities cannot be tracked without their owner. "
+                                + "Either include the owner entity in the result or make query non-tracking using AsNoTracking().");
                         }
                     }
+
+                    bool ContainsOwner(IEntityType owner)
+                        => owner != null && (_visitedEntityTypes.Contains(owner) || ContainsOwner(owner.BaseType));
                 }
 
                 return result;
@@ -498,7 +494,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (_trackQueryResults
                     && entityType.FindPrimaryKey() != null)
                 {
-                    _visitedEntityTypes.Add(entityType);
+                    foreach (var et in entityType.GetTypesInHierarchy())
+                    {
+                        _visitedEntityTypes.Add(et);
+                    }
 
                     expressions.Add(
                         Expression.Assign(

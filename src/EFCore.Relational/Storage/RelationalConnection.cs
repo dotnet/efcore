@@ -723,14 +723,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private bool ShouldClose()
             => (_openedCount == 0
-                || _openedCount > 0
-                && --_openedCount == 0)
-               && _openedInternally;
-
-        /// <summary>
-        ///     Gets a value indicating whether the multiple active result sets feature is enabled.
-        /// </summary>
-        public virtual bool IsMultipleActiveResultSetsEnabled => false;
+                    || _openedCount > 0
+                    && --_openedCount == 0)
+                && _openedInternally;
 
         void IResettableService.ResetState() => Dispose();
 

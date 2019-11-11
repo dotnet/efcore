@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             expressionPrinter.Visit(Expression);
             if (!string.Equals(string.Empty, Alias)
                 && !(Expression is ColumnExpression column
-                     && string.Equals(column.Name, Alias)))
+                    && string.Equals(column.Name, Alias)))
             {
                 expressionPrinter.Append(" AS " + Alias);
             }
@@ -41,13 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override bool Equals(object obj)
             => obj != null
-               && (ReferenceEquals(this, obj)
-                   || obj is ProjectionExpression projectionExpression
-                   && Equals(projectionExpression));
+                && (ReferenceEquals(this, obj)
+                    || obj is ProjectionExpression projectionExpression
+                    && Equals(projectionExpression));
 
         private bool Equals(ProjectionExpression projectionExpression)
             => string.Equals(Alias, projectionExpression.Alias)
-               && Expression.Equals(projectionExpression.Expression);
+                && Expression.Equals(projectionExpression.Expression);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Alias, Expression);
     }

@@ -77,6 +77,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Dependencies.QueryProvider;
 
         /// <summary>
+        ///     The execution strategy factory.
+        /// </summary>
+        /// <value>
+        ///     The execution strategy factory.
+        /// </value>
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory
+            => Dependencies.ExecutionStrategyFactory;
+
+        /// <summary>
         ///     Gets the concurrency detector.
         /// </summary>
         /// <value>

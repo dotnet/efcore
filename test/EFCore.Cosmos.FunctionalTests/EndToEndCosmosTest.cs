@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -207,14 +207,25 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var options = Fixture.CreateOptions();
 
-            var customer = new Customer { Id = 42, Name = "Theon", PartitionKey = 1 };
+            var customer = new Customer
+            {
+                Id = 42,
+                Name = "Theon",
+                PartitionKey = 1
+            };
 
             using (var context = new PartitionKeyContext(options))
             {
                 await context.Database.EnsureCreatedAsync();
 
                 context.Add(customer);
-                context.Add(new Customer { Id = 42, Name = "Theon Twin", PartitionKey = 2 });
+                context.Add(
+                    new Customer
+                    {
+                        Id = 42,
+                        Name = "Theon Twin",
+                        PartitionKey = 2
+                    });
 
                 await context.SaveChangesAsync();
             }
@@ -237,7 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 var customerFromStore = await context.Set<Customer>().OrderBy(c => c.PartitionKey).FirstAsync();
                 customerFromStore.PartitionKey = 2;
 
-                Assert.Equal(CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly(nameof(Customer.PartitionKey), nameof(Customer)),
                     Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
             }
 
@@ -271,12 +283,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Customer>(cb =>
-                {
-                    cb.HasPartitionKey(c => c.PartitionKey);
-                    cb.Property(c => c.PartitionKey).HasConversion<string>();
-                    cb.HasKey(c => new { c.Id, c.PartitionKey });
-                });
+                modelBuilder.Entity<Customer>(
+                    cb =>
+                    {
+                        cb.HasPartitionKey(c => c.PartitionKey);
+                        cb.Property(c => c.PartitionKey).HasConversion<string>();
+                        cb.HasKey(c => new { c.Id, c.PartitionKey });
+                    });
             }
         }
 
@@ -449,7 +462,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Add_update_delete_query_throws_if_no_container()
         {
-            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName+"Empty");
+            await using var testDatabase = CosmosTestStore.CreateInitialized(DatabaseName + "Empty");
             var options = Fixture.CreateOptions(testDatabase);
 
             var customer = new Customer { Id = 42, Name = "Theon" };
@@ -457,30 +470,34 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             {
                 context.Add(customer);
 
-                Assert.StartsWith(CosmosStrings.CreateItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+                Assert.StartsWith(
+                    "Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
                 context.Add(customer).State = EntityState.Modified;
 
-                Assert.StartsWith(CosmosStrings.ReplaceItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+                Assert.StartsWith(
+                    "Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
                 context.Add(customer).State = EntityState.Deleted;
 
-                Assert.StartsWith(CosmosStrings.DeleteItemFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.SaveChangesAsync())).Message);
+                Assert.StartsWith(
+                    "Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
             }
 
             using (var context = new CustomerContext(options))
             {
-                Assert.StartsWith(CosmosStrings.QueryFailed("NotFound", "Message: {\"Errors\":[\"Resource Not Found\"]}")[..^1],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.Set<Customer>().SingleAsync())).Message);
+                Assert.StartsWith(
+                    "Response status code does not indicate success: 404 Substatus: 0",
+                    (await Assert.ThrowsAsync<CosmosException>(() => context.Set<Customer>().SingleAsync())).Message);
             }
         }
 

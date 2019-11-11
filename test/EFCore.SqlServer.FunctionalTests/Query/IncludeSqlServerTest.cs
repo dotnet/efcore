@@ -261,14 +261,14 @@ FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'W%'
     ORDER BY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) DESC
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
@@ -360,14 +360,14 @@ FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[EmployeeID]) AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
     ORDER BY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[EmployeeID])
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
@@ -853,7 +853,7 @@ FROM [Orders] AS [o]");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
         public override void Include_reference_with_filter(bool useString)
@@ -864,7 +864,7 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
         public override void Include_collection_dependent_already_tracked_as_no_tracking(bool useString)
@@ -874,7 +874,7 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL",
+WHERE [o].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -893,7 +893,7 @@ ORDER BY [t].[CustomerID], [o].[OrderID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL",
+WHERE [o].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -912,7 +912,7 @@ ORDER BY [t].[CustomerID], [o].[OrderID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL",
+WHERE [o].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
@@ -964,12 +964,12 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
                 @"SELECT [c].[CustomerID] AS [Id], (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AS [TotalOrders]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [TotalOrders]
 FROM [Customers] AS [c]
-WHERE (([c].[ContactTitle] = N'Owner') AND [c].[ContactTitle] IS NOT NULL) AND ((
+WHERE ([c].[ContactTitle] = N'Owner') AND ((
     SELECT COUNT(*)
     FROM [Orders] AS [o0]
-    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) > 2)
+    WHERE [c].[CustomerID] = [o0].[CustomerID]) > 2)
 ORDER BY [c].[CustomerID]");
         }
 
@@ -1051,14 +1051,14 @@ FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'W%'
     ORDER BY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) DESC
 ) AS [t]
 LEFT JOIN (
@@ -1228,7 +1228,8 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(bool useString, bool async)
+        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(
+            bool useString, bool async)
         {
             await base.Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(useString, async);
 

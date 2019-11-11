@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -60,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var query = context.Dates.Where(
                         d => d.DateTime2_2 == DateTime.Now
-                             || d.DateTime2_7 == DateTime.Now
-                             || d.DateTime == DateTime.Now
-                             || d.SmallDateTime == DateTime.Now);
+                            || d.DateTime2_7 == DateTime.Now
+                            || d.DateTime == DateTime.Now
+                            || d.SmallDateTime == DateTime.Now);
 
                     var results = async
                         ? await query.ToListAsync()
@@ -91,9 +90,9 @@ WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR (
                 {
                     var query = context.Dates.Where(
                         d => d.DateTime2_2 != DateTime.Now
-                             && d.DateTime2_7 != DateTime.Now
-                             && d.DateTime != DateTime.Now
-                             && d.SmallDateTime != DateTime.Now);
+                            && d.DateTime2_7 != DateTime.Now
+                            && d.DateTime != DateTime.Now
+                            && d.SmallDateTime != DateTime.Now);
 
                     var results = async
                         ? await query.ToListAsync()
@@ -104,7 +103,7 @@ WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR (
                     AssertSql(
                         @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) AND ([d].[DateTime] <> GETDATE())) AND ([d].[SmallDateTime] <> GETDATE())");
+WHERE (((([d].[DateTime2_2] <> GETDATE()) OR GETDATE() IS NULL) AND (([d].[DateTime2_7] <> GETDATE()) OR GETDATE() IS NULL)) AND (([d].[DateTime] <> GETDATE()) OR GETDATE() IS NULL)) AND (([d].[SmallDateTime] <> GETDATE()) OR GETDATE() IS NULL)");
                 }
             }
         }
@@ -122,16 +121,16 @@ WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) A
                 {
                     var query = context.Dates.Where(
                         d => d.SmallDateTime == new DateTime(1970, 9, 3, 12, 0, 0)
-                             && d.DateTime == new DateTime(1971, 9, 3, 12, 0, 10, 220)
-                             && d.DateTime2 == new DateTime(1972, 9, 3, 12, 0, 10, 333)
-                             && d.DateTime2_0 == new DateTime(1973, 9, 3, 12, 0, 10)
-                             && d.DateTime2_1 == new DateTime(1974, 9, 3, 12, 0, 10, 500)
-                             && d.DateTime2_2 == new DateTime(1975, 9, 3, 12, 0, 10, 660)
-                             && d.DateTime2_3 == new DateTime(1976, 9, 3, 12, 0, 10, 777)
-                             && d.DateTime2_4 == new DateTime(1977, 9, 3, 12, 0, 10, 888)
-                             && d.DateTime2_5 == new DateTime(1978, 9, 3, 12, 0, 10, 999)
-                             && d.DateTime2_6 == new DateTime(1979, 9, 3, 12, 0, 10, 111)
-                             && d.DateTime2_7 == new DateTime(1980, 9, 3, 12, 0, 10, 222));
+                            && d.DateTime == new DateTime(1971, 9, 3, 12, 0, 10, 220)
+                            && d.DateTime2 == new DateTime(1972, 9, 3, 12, 0, 10, 333)
+                            && d.DateTime2_0 == new DateTime(1973, 9, 3, 12, 0, 10)
+                            && d.DateTime2_1 == new DateTime(1974, 9, 3, 12, 0, 10, 500)
+                            && d.DateTime2_2 == new DateTime(1975, 9, 3, 12, 0, 10, 660)
+                            && d.DateTime2_3 == new DateTime(1976, 9, 3, 12, 0, 10, 777)
+                            && d.DateTime2_4 == new DateTime(1977, 9, 3, 12, 0, 10, 888)
+                            && d.DateTime2_5 == new DateTime(1978, 9, 3, 12, 0, 10, 999)
+                            && d.DateTime2_6 == new DateTime(1979, 9, 3, 12, 0, 10, 111)
+                            && d.DateTime2_7 == new DateTime(1980, 9, 3, 12, 0, 10, 222));
 
                     var results = async
                         ? await query.ToListAsync()
@@ -175,16 +174,16 @@ WHERE (((((((((([d].[SmallDateTime] = '1970-09-03T12:00:00') AND ([d].[DateTime]
                 {
                     var query = context.Dates.Where(
                         d => dateTimes.Contains(d.SmallDateTime)
-                             && dateTimes.Contains(d.DateTime)
-                             && dateTimes.Contains(d.DateTime2)
-                             && dateTimes.Contains(d.DateTime2_0)
-                             && dateTimes.Contains(d.DateTime2_1)
-                             && dateTimes.Contains(d.DateTime2_2)
-                             && dateTimes.Contains(d.DateTime2_3)
-                             && dateTimes.Contains(d.DateTime2_4)
-                             && dateTimes.Contains(d.DateTime2_5)
-                             && dateTimes.Contains(d.DateTime2_6)
-                             && dateTimes.Contains(d.DateTime2_7));
+                            && dateTimes.Contains(d.DateTime)
+                            && dateTimes.Contains(d.DateTime2)
+                            && dateTimes.Contains(d.DateTime2_0)
+                            && dateTimes.Contains(d.DateTime2_1)
+                            && dateTimes.Contains(d.DateTime2_2)
+                            && dateTimes.Contains(d.DateTime2_3)
+                            && dateTimes.Contains(d.DateTime2_4)
+                            && dateTimes.Contains(d.DateTime2_5)
+                            && dateTimes.Contains(d.DateTime2_6)
+                            && dateTimes.Contains(d.DateTime2_7));
 
                     var results = async
                         ? await query.ToListAsync()
@@ -375,7 +374,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                         = await context.Persons
                             .Where(
                                 p => p.AddressOne != null && p.AddressOne.Street.Contains("Low Street")
-                                     || p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street"))
+                                    || p.AddressTwo != null && p.AddressTwo.Street.Contains("Low Street"))
                             .CountAsync();
 
                     Assert.Equal(0, count);
@@ -589,7 +588,7 @@ INSERT [dbo].[Postcodes] ([PostcodeID], [PostcodeValue], [TownName]) VALUES (5, 
                     AssertSql(
                         @"SELECT [c].[FirstName], [c].[LastName], [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Customer] AS [c]
-LEFT JOIN [Order] AS [o] ON (([c].[FirstName] = [o].[CustomerFirstName]) AND [o].[CustomerFirstName] IS NOT NULL) AND (([c].[LastName] = [o].[CustomerLastName]) AND [o].[CustomerLastName] IS NOT NULL)
+LEFT JOIN [Order] AS [o] ON ([c].[FirstName] = [o].[CustomerFirstName]) AND ([c].[LastName] = [o].[CustomerLastName])
 ORDER BY [c].[FirstName], [c].[LastName], [o].[Id]");
                 }
             }
@@ -615,7 +614,7 @@ ORDER BY [c].[FirstName], [c].[LastName], [o].[Id]");
                     AssertSql(
                         @"SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
-LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND [o].[CustomerFirstName] IS NOT NULL) AND (([o].[CustomerLastName] = [c].[LastName]) AND [o].[CustomerLastName] IS NOT NULL)");
+LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND ([o].[CustomerLastName] = [c].[LastName])");
                 }
             }
         }
@@ -642,7 +641,12 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
                     {
                         FirstName = "Customer",
                         LastName = "Two",
-                        Orders = new List<Order> { order21, order22, order23 }
+                        Orders = new List<Order>
+                        {
+                            order21,
+                            order22,
+                            order23
+                        }
                     };
 
                     context.Customers.AddRange(customer1, customer2);
@@ -794,7 +798,13 @@ LEFT JOIN [Customer] AS [c] ON (([o].[CustomerFirstName] = [c].[FirstName]) AND 
 
                     var permissions = (from project in projects
                                        from user in users
-                                       select new ProjectUser { ProjectId = project.Id, Project = project, UserId = user.Id, User = user })
+                                       select new ProjectUser
+                                       {
+                                           ProjectId = project.Id,
+                                           Project = project,
+                                           UserId = user.Id,
+                                           User = user
+                                       })
                         .ToList();
 
                     context.ProjectUsers.AddRange(permissions);
@@ -890,7 +900,12 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                     {
                         Name = "Daenerys",
                         Details = details,
-                        Dragons = new List<Dragon> { drogon, rhaegal, viserion }
+                        Dragons = new List<Dragon>
+                        {
+                            drogon,
+                            rhaegal,
+                            viserion
+                        }
                     };
                     context.Targaryens.AddRange(daenerys, aerys);
                     context.Dragons.AddRange(drogon, rhaegal, viserion, balerion);
@@ -1445,7 +1460,12 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
                                     // ReSharper disable once ConstantNullCoalescingCondition
-                                select new { One = eRootJoined, Two = 2, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
+                                select new
+                                {
+                                    One = eRootJoined,
+                                    Two = 2,
+                                    Coalesce = eRootJoined ?? (eVersion ?? eRootJoined)
+                                };
 
                     var result = query.ToList();
                     Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
@@ -1488,7 +1508,12 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                     on eVersion.RootEntityId equals eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                select new { eRootJoined, eVersion, foo = eRootJoined ?? eVersion };
+                                select new
+                                {
+                                    eRootJoined,
+                                    eVersion,
+                                    foo = eRootJoined ?? eVersion
+                                };
 
                     query.ToList();
 
@@ -2042,7 +2067,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 Id = entity.Id;
             }
 
-            public int Id { get; set; }
+            public int Id { get; }
         }
 
         private class MyContext8282 : DbContext
@@ -2243,24 +2268,24 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
 
                     var id = 1;
                     context.Entities.Where(c => c.Id == id).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     id = 2;
                     context.Entities.Where(c => c.Id == id).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     AssertSql(
                         @"@__id_0='1'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL",
+WHERE [e].[Id] = @__id_0",
                         //
                         @"@__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
+WHERE [e].[Id] = @__id_0");
                 }
             }
         }
@@ -2280,24 +2305,24 @@ WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
 
                     id = 1;
                     context.Entities.Where(whereExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     id = 2;
                     context.Entities.Where(whereExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     AssertSql(
                         @"@__id_0='1'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL",
+WHERE [e].[Id] = @__id_0",
                         //
                         @"@__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
+WHERE [e].[Id] = @__id_0");
                 }
             }
         }
@@ -2319,11 +2344,11 @@ WHERE ([e].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
 
                     id = 1;
                     context.Entities.Where(containsExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     id = 2;
                     context.Entities.Where(containsExpression).ToList();
-                    Assert.Equal(1, context.Cache.Count);
+                    Assert.Equal(2, context.Cache.Count);
 
                     AssertSql(
                         @"@__id_0='1'
@@ -2333,7 +2358,7 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] IN (
     SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE ([e0].[Id] = @__id_0) AND @__id_0 IS NOT NULL
+    WHERE [e0].[Id] = @__id_0
 )",
                         //
                         @"@__id_0='2'
@@ -2343,8 +2368,40 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] IN (
     SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE ([e0].[Id] = @__id_0) AND @__id_0 IS NOT NULL
+    WHERE [e0].[Id] = @__id_0
 )");
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Relational_command_cache_creates_new_entry_when_parameter_nullability_changes()
+        {
+            using (CreateDatabase8909())
+            {
+                using (var context = new MyContext8909(_options))
+                {
+                    context.Cache.Compact(1);
+
+                    var name = "A";
+
+                    context.Entities.Where(e => e.Name == name).ToList();
+                    Assert.Equal(2, context.Cache.Count);
+
+                    name = null;
+                    context.Entities.Where(e => e.Name == name).ToList();
+                    Assert.Equal(3, context.Cache.Count);
+
+                    AssertSql(
+                        @"@__name_0='A' (Size = 4000)
+
+SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Name] = @__name_0",
+                        //
+                        @"SELECT [e].[Id], [e].[Name]
+FROM [Entities] AS [e]
+WHERE [e].[Name] IS NULL");
                 }
             }
         }
@@ -2506,7 +2563,12 @@ ORDER BY [m].[Id], [t1].[Id]");
                     var em = new Movie9202
                     {
                         Title = "Ex Machina",
-                        Cast = new List<Actor9202> { av, oi, dg },
+                        Cast = new List<Actor9202>
+                        {
+                            av,
+                            oi,
+                            dg
+                        },
                         Details = new Details9202 { Info = "Best movie ever made" }
                     };
                     context.Actors.AddRange(av, oi, dg);
@@ -2882,8 +2944,19 @@ BEGIN
                     };
                     var students = new List<PersonKid9038>
                     {
-                        new PersonKid9038 { Name = "Arnold", Grade = 2, Teacher = teachers[0] },
-                        new PersonKid9038 { Name = "Eric", Grade = 4, Teacher = teachers[1], Family = famalies[1] }
+                        new PersonKid9038
+                        {
+                            Name = "Arnold",
+                            Grade = 2,
+                            Teacher = teachers[0]
+                        },
+                        new PersonKid9038
+                        {
+                            Name = "Eric",
+                            Grade = 4,
+                            Teacher = teachers[1],
+                            Family = famalies[1]
+                        }
                     };
 
                     context.People.AddRange(teachers);
@@ -3017,7 +3090,12 @@ ORDER BY [t].[c], [t].[c0], [t].[Id], [t].[Id0], [o].[Id]");
                                 from x in context.Children
                                 select new { x.ParentId, OtherParent = x.OtherParent.Name })
                             on p.Id equals c.ParentId into child
-                        select new { ParentId = p.Id, ParentName = p.Name, Children = child.Select(c => c.OtherParent) }).ToList();
+                        select new
+                        {
+                            ParentId = p.Id,
+                            ParentName = p.Name,
+                            Children = child.Select(c => c.OtherParent)
+                        }).ToList();
 
                     Assert.Equal(3, results.Count);
                     Assert.Single(results.Where(t => !t.Children.Any()));
@@ -3178,7 +3256,7 @@ LEFT JOIN [Configuration9468] AS [c0] ON [c].[ConfigurationId] = [c0].[Id]");
             {
                 using (var context = new MyContext10635(_options))
                 {
-                    var query = context.Parents.Include(p => p.Children).OrderBy(p => ((IEntity10635)p).Id).ToList();
+                    var query = context.Parents.Include(p => p.Children).OrderBy(p => p.Id).ToList();
 
                     AssertSql(
                         @"SELECT [p].[Id], [p].[Name], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
@@ -3196,7 +3274,7 @@ ORDER BY [p].[Id], [c].[Id]");
             {
                 using (var context = new MyContext10635(_options))
                 {
-                    var query = context.Parents.OrderBy(p => ((IEntity10635)p).Id).Select(p => p.Children.ToList()).ToList();
+                    var query = context.Parents.OrderBy(p => p.Id).Select(p => p.Children.ToList()).ToList();
 
                     AssertSql(
                         @"SELECT [p].[Id], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
@@ -3256,96 +3334,6 @@ ORDER BY [p].[Id], [c].[Id]");
             public int Id { get; set; }
             public string Name { get; set; }
             public int ParentId { get; set; }
-        }
-
-        #endregion
-
-        #region Bug10168
-
-        [ConditionalFact(Skip = "issue #16400")]
-        public void Row_number_paging_with_owned_type()
-        {
-            using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
-            {
-                context.Database.EnsureClean();
-                context.Add(
-                    new Note { Text = "Foo Bar", User = new User10168 { Fullname = "Full1", Email = "abc@def.com" } });
-
-                context.SaveChanges();
-                ClearLog();
-            }
-
-            using (var context = new MyContext10168(Fixture.TestSqlLoggerFactory))
-            {
-                var query = context.Note.Where(x => x.Text == "Foo Bar")
-                    .Skip(0)
-                    .Take(100)
-                    .ToList();
-
-                var result = Assert.Single(query);
-                Assert.NotNull(result.User);
-                Assert.Equal("Full1", result.User.Fullname);
-
-                AssertSql(
-                    @"@__p_0='?' (DbType = Int32)
-@__p_1='?' (DbType = Int32)
-
-SELECT [t0].[Id], [t0].[Text], [t0].[Id0], [t0].[User_Email], [t0].[User_Fullname]
-FROM (
-    SELECT [x].[Id], [x].[Text], [t].[Id] AS [Id0], [t].[User_Email], [t].[User_Fullname], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
-    FROM [Note] AS [x]
-    LEFT JOIN (
-        SELECT [x.User].*
-        FROM [Note] AS [x.User]
-        WHERE [x.User].[User_Fullname] IS NOT NULL OR [x.User].[User_Email] IS NOT NULL
-    ) AS [t] ON [x].[Id] = [t].[Id]
-    WHERE [x].[Text] = N'Foo Bar'
-) AS [t0]
-WHERE ([t0].[__RowNumber__] > @__p_0) AND ([t0].[__RowNumber__] <= (@__p_0 + @__p_1))");
-            }
-        }
-
-        private class MyContext10168 : DbContext
-        {
-            private readonly ILoggerFactory _loggerFactory;
-
-            public MyContext10168(ILoggerFactory loggerFactory)
-            {
-                _loggerFactory = loggerFactory;
-            }
-
-            public DbSet<Note> Note { get; set; }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder
-                    .UseLoggerFactory(_loggerFactory)
-                    .EnableServiceProviderCaching(false)
-                    .UseSqlServer(
-                        SqlServerTestStore.CreateConnectionString("RowNumberPaging_Owned"),
-                        b => b.UseRowNumberForPaging());
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Note>().OwnsOne(n => n.User).WithOwner().HasForeignKey(u => u.Id);
-            }
-        }
-
-        private class Note
-        {
-            [Key]
-            public Guid Id { get; set; }
-
-            public string Text { get; set; }
-            public User10168 User { get; set; }
-        }
-
-        private class User10168
-        {
-            public Guid Id { get; set; }
-            public string Fullname { get; set; }
-            public string Email { get; set; }
         }
 
         #endregion
@@ -3824,7 +3812,12 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                 {
                     var query1 = context.Blogs
                         .Select(
-                            b => new { Collection1 = b.Posts1, Collection2 = b.Posts2, Collection3 = b.Posts3 }).ToList();
+                            b => new
+                            {
+                                Collection1 = b.Posts1,
+                                Collection2 = b.Posts2,
+                                Collection3 = b.Posts3
+                            }).ToList();
 
                     var query2 = context.Blogs
                         .Select(
@@ -3847,7 +3840,12 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL");
                     var query4 = context.Blogs
                         .Where(b => ClientMethod11923(b.Id))
                         .Select(
-                            b => new { Collection1 = b.Posts1, Collection2 = b.Posts2, Collection3 = b.Posts3 }).ToList();
+                            b => new
+                            {
+                                Collection1 = b.Posts1,
+                                Collection2 = b.Posts2,
+                                Collection3 = b.Posts3
+                            }).ToList();
 
                     var query5 = context.Blogs
                         .Where(b => ClientMethod11923(b.Id))
@@ -5348,7 +5346,7 @@ FROM [BuildingSet] AS [b]
 INNER JOIN [Builder] AS [b0] ON [b].[BuilderId] = [b0].[Id]
 INNER JOIN [City] AS [c] ON [b0].[CityId] = [c].[Id]
 INNER JOIN [MandatorSet] AS [m] ON [b].[MandatorId] = [m].[Id]
-WHERE ([c].[Name] = N'Leeds') AND [c].[Name] IS NOT NULL");
+WHERE [c].[Name] = N'Leeds'");
                 }
             }
         }
@@ -5368,8 +5366,18 @@ WHERE ([c].[Name] = N'Leeds') AND [c].[Name] IS NOT NULL");
                             Name = "One",
                             Buildings = new List<TBuilding15204>
                             {
-                                new TBuilding15204 { Identity = Guid.NewGuid(), LongName = "One L1", Builder = sam },
-                                new TBuilding15204 { Identity = Guid.NewGuid(), LongName = "One L2", Builder = sam }
+                                new TBuilding15204
+                                {
+                                    Identity = Guid.NewGuid(),
+                                    LongName = "One L1",
+                                    Builder = sam
+                                },
+                                new TBuilding15204
+                                {
+                                    Identity = Guid.NewGuid(),
+                                    LongName = "One L2",
+                                    Builder = sam
+                                }
                             }
                         });
                     context.MandatorSet.Add(
@@ -5810,8 +5818,14 @@ WHERE EXISTS (
                     var query = List17276(context.RemovableEntities);
 
                     AssertSql(
-                        @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser]
+                        @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
+LEFT JOIN (
+    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue], [r1].[Id] AS [Id0]
+    FROM [RemovableEntities] AS [r0]
+    INNER JOIN [RemovableEntities] AS [r1] ON [r0].[Id] = [r1].[Id]
+    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
+) AS [t] ON [r].[Id] = [t].[Id]
 WHERE [r].[IsRemoved] <> CAST(1 AS bit)");
                 }
             }
@@ -5838,6 +5852,31 @@ WHERE [r].[IsRemoved] = CAST(1 AS bit)");
         }
 
         [ConditionalFact]
+        public virtual void Expression_tree_constructed_via_interface_for_owned_navigation_works_17505()
+        {
+            using (CreateDatabase17276())
+            {
+                using (var context = new MyContext17276(_options))
+                {
+                    var query = context.RemovableEntities
+                        .Where(p => EF.Property<string>(EF.Property<IOwned>(p, "OwnedEntity"), "OwnedValue") == "Abc")
+                        .ToList();
+
+                    AssertSql(
+                        @"SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [t].[Id], [t].[OwnedEntity_OwnedValue]
+FROM [RemovableEntities] AS [r]
+LEFT JOIN (
+    SELECT [r0].[Id], [r0].[OwnedEntity_OwnedValue], [r1].[Id] AS [Id0]
+    FROM [RemovableEntities] AS [r0]
+    INNER JOIN [RemovableEntities] AS [r1] ON [r0].[Id] = [r1].[Id]
+    WHERE [r0].[OwnedEntity_OwnedValue] IS NOT NULL
+) AS [t] ON [r].[Id] = [t].[Id]
+WHERE [t].[OwnedEntity_OwnedValue] = N'Abc'");
+                }
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Expression_tree_constructed_via_interface_works_16759()
         {
             using (CreateDatabase17276())
@@ -5852,7 +5891,7 @@ WHERE [r].[IsRemoved] = CAST(1 AS bit)");
 
 SELECT [p].[Id], [p].[RemovableEntityId]
 FROM [Parents] AS [p]
-WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
+WHERE [p].[Id] = @__id_0");
                 }
             }
         }
@@ -5861,7 +5900,9 @@ WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
         {
             public DbSet<RemovableEntity17276> RemovableEntities { get; set; }
             public DbSet<Parent17276> Parents { get; set; }
-            public MyContext17276(DbContextOptions options) : base(options)
+
+            public MyContext17276(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -5880,7 +5921,8 @@ WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
                     ClearLog();
                 });
 
-        private static List<T> List17276<T>(IQueryable<T> query) where T : IRemovable17276
+        private static List<T> List17276<T>(IQueryable<T> query)
+            where T : IRemovable17276
         {
             return query.Where(x => !x.IsRemoved).ToList();
         }
@@ -5900,6 +5942,7 @@ WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
             public bool IsRemoved { get; set; }
             public string RemovedByUser { get; set; }
             public DateTime? Removed { get; set; }
+            public OwnedEntity OwnedEntity { get; set; }
         }
 
         private class Parent17276 : IHasId17276<int>
@@ -5908,9 +5951,20 @@ WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
             public RemovableEntity17276 RemovableEntity { get; set; }
         }
 
+        [Owned]
+        private class OwnedEntity : IOwned
+        {
+            public string OwnedValue { get; set; }
+        }
+
         private interface IHasId17276<out T>
         {
             T Id { get; }
+        }
+
+        private interface IOwned
+        {
+            public string OwnedValue { get; }
         }
 
         private class Specification17276<T>
@@ -5941,7 +5995,7 @@ WHERE ([p].[Id] = @__id_0) AND @__id_0 IS NOT NULL");
                     AssertSql(
                         @"SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
+WHERE [f].[String] = N'1337'");
                 }
             }
         }
@@ -5962,7 +6016,7 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE (([f].[String] = @__bar_Value_0) AND ([f].[String] IS NOT NULL AND @__bar_Value_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__bar_Value_0 IS NULL)");
+WHERE [f].[String] = @__bar_Value_0");
                 }
             }
         }
@@ -5983,7 +6037,7 @@ WHERE (([f].[String] = @__bar_Value_0) AND ([f].[String] IS NOT NULL AND @__bar_
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE (([f].[String] = @__ToString_0) AND ([f].[String] IS NOT NULL AND @__ToString_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__ToString_0 IS NULL)");
+WHERE [f].[String] = @__ToString_0");
                 }
             }
         }
@@ -6004,7 +6058,7 @@ WHERE (([f].[String] = @__ToString_0) AND ([f].[String] IS NOT NULL AND @__ToStr
 
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE (([f].[String] = @__p_0) AND ([f].[String] IS NOT NULL AND @__p_0 IS NOT NULL)) OR ([f].[String] IS NULL AND @__p_0 IS NULL)");
+WHERE [f].[String] = @__p_0");
                 }
             }
         }
@@ -6022,7 +6076,7 @@ WHERE (([f].[String] = @__p_0) AND ([f].[String] IS NOT NULL AND @__p_0 IS NOT N
                     AssertSql(
                         @"SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
-WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
+WHERE [f].[String] = N'1337'");
                 }
             }
         }
@@ -6030,7 +6084,9 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
         private class MyContext6864 : DbContext
         {
             public DbSet<FooEntity6864> Foos { get; set; }
-            public MyContext6864(DbContextOptions options) : base(options)
+
+            public MyContext6864(DbContextOptions options)
+                : base(options)
             {
             }
         }
@@ -6064,7 +6120,6 @@ WHERE ([f].[String] = N'1337') AND [f].[String] IS NOT NULL");
             public override string ToString() => Value;
             public static implicit operator string(Bar6864 bar) => bar.Value;
             public Bar6864 Clone() => new Bar6864(_value);
-
         }
 
         #endregion
@@ -6091,7 +6146,8 @@ WHERE CHARINDEX('lla', [t].[Nombre]) > 0");
 
         private class MyContext9582 : DbContext
         {
-            public MyContext9582(DbContextOptions options) : base(options)
+            public MyContext9582(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -6126,7 +6182,6 @@ WHERE CHARINDEX('lla', [t].[Nombre]) > 0");
 
         private class TipoServicio9582
         {
-
             public int Id { get; set; }
             public string Nombre { get; set; }
         }
@@ -6166,11 +6221,13 @@ FROM [Blogs] AS [b]");
         private class MyContext7222 : DbContext
         {
             public DbSet<Blog7222> Blogs { get; set; }
+
             public MyContext7222()
             {
             }
 
-            public MyContext7222(DbContextOptions options) : base(options)
+            public MyContext7222(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -6178,7 +6235,6 @@ FROM [Blogs] AS [b]");
             {
                 Blogs.Select(b => ClientMethod(b)).ToList();
             }
-
 
             public int ClientMethod(Blog7222 blog) => blog.Id;
         }
@@ -6210,7 +6266,7 @@ FROM [Blogs] AS [b]");
                 using (var context = new MyContext17644(_options))
                 {
                     var personsToFind = await context.Persons.Where(p => p.Age >= 21)
-                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .Select(p => new PersonDetailView17644 { Name = p.Name, Age = p.Age })
                         .FirstAsync<PersonView17644>();
 
                     AssertSql(
@@ -6229,7 +6285,7 @@ WHERE [p].[Age] >= 21");
                 using (var context = new MyContext17644(_options))
                 {
                     var personsToFind = await context.Persons.Where(p => p.Age >= 21)
-                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .Select(p => new PersonDetailView17644 { Name = p.Name, Age = p.Age })
                         .FirstOrDefaultAsync<PersonView17644>();
 
                     AssertSql(
@@ -6248,7 +6304,7 @@ WHERE [p].[Age] >= 21");
                 using (var context = new MyContext17644(_options))
                 {
                     var personsToFind = await context.Persons.Where(p => p.Age >= 21)
-                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .Select(p => new PersonDetailView17644 { Name = p.Name, Age = p.Age })
                         .SingleAsync<PersonView17644>();
 
                     AssertSql(
@@ -6267,7 +6323,7 @@ WHERE [p].[Age] >= 21");
                 using (var context = new MyContext17644(_options))
                 {
                     var personsToFind = await context.Persons.Where(p => p.Age >= 21)
-                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .Select(p => new PersonDetailView17644 { Name = p.Name, Age = p.Age })
                         .SingleOrDefaultAsync<PersonView17644>();
 
                     AssertSql(
@@ -6278,7 +6334,6 @@ WHERE [p].[Age] >= 21");
             }
         }
 
-
         [ConditionalFact]
         public virtual async Task Return_type_of_Last_is_preserved()
         {
@@ -6288,7 +6343,7 @@ WHERE [p].[Age] >= 21");
                 {
                     var personsToFind = await context.Persons.Where(p => p.Age >= 21)
                         .OrderBy(p => p.Id)
-                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .Select(p => new PersonDetailView17644 { Name = p.Name, Age = p.Age })
                         .LastAsync<PersonView17644>();
 
                     AssertSql(
@@ -6309,7 +6364,7 @@ ORDER BY [p].[Id] DESC");
                 {
                     var personsToFind = await context.Persons.Where(p => p.Age >= 21)
                         .OrderBy(p => p.Id)
-                        .Select(p => new PersonDetailView17644() { Name = p.Name, Age = p.Age })
+                        .Select(p => new PersonDetailView17644 { Name = p.Name, Age = p.Age })
                         .LastOrDefaultAsync<PersonView17644>();
 
                     AssertSql(
@@ -6324,11 +6379,13 @@ ORDER BY [p].[Id] DESC");
         private class MyContext17644 : DbContext
         {
             public DbSet<Person17644> Persons { get; set; }
+
             public MyContext17644()
             {
             }
 
-            public MyContext17644(DbContextOptions options) : base(options)
+            public MyContext17644(DbContextOptions options)
+                : base(options)
             {
             }
         }
@@ -6374,10 +6431,7 @@ ORDER BY [p].[Id] DESC");
                 using (var context = new MyContext11023(_options))
                 {
                     var query = await context.Entities
-                        .Select(e => new
-                        {
-                            ThingIds = e.Values.First().Things.Select(t => t.Subthing.ThingId).ToList()
-                        })
+                        .Select(e => new { ThingIds = e.Values.First().Things.Select(t => t.Subthing.ThingId).ToList() })
                         .ToListAsync();
 
                     var result = Assert.Single(query);
@@ -6393,16 +6447,13 @@ OUTER APPLY (
     WHERE (
         SELECT TOP(1) [v].[Id]
         FROM [Values] AS [v]
-        WHERE ([e].[Id] = [v].[Entity11023Id]) AND [v].[Entity11023Id] IS NOT NULL) IS NOT NULL AND ((((
+        WHERE [e].[Id] = [v].[Entity11023Id]) IS NOT NULL AND (((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
-        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) = [t].[Value11023Id]) AND ((
+        WHERE [e].[Id] = [v0].[Entity11023Id]) = [t].[Value11023Id]) OR ((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
-        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) IS NOT NULL AND [t].[Value11023Id] IS NOT NULL)) OR ((
-        SELECT TOP(1) [v0].[Id]
-        FROM [Values] AS [v0]
-        WHERE ([e].[Id] = [v0].[Entity11023Id]) AND [v0].[Entity11023Id] IS NOT NULL) IS NULL AND [t].[Value11023Id] IS NULL))
+        WHERE [e].[Id] = [v0].[Entity11023Id]) IS NULL AND [t].[Value11023Id] IS NULL))
 ) AS [t0]
 ORDER BY [e].[Id], [t0].[Id]");
                 }
@@ -6416,7 +6467,8 @@ ORDER BY [e].[Id], [t0].[Id]");
             public DbSet<Thing11023> Things { get; set; }
             public DbSet<Subthing11023> Subthings { get; set; }
 
-            public MyContext11023(DbContextOptions options) : base(options)
+            public MyContext11023(DbContextOptions options)
+                : base(options)
             {
             }
         }
@@ -6426,26 +6478,21 @@ ORDER BY [e].[Id], [t0].[Id]");
                 () => new MyContext11023(_options),
                 context =>
                 {
-                    context.Add(new Entity11023
-                    {
-                        Values = new List<Value11023>
+                    context.Add(
+                        new Entity11023
                         {
-                            new Value11023
+                            Values = new List<Value11023>
                             {
-                                Things = new List<Thing11023>
+                                new Value11023
                                 {
-                                    new Thing11023
+                                    Things = new List<Thing11023>
                                     {
-                                        Subthing = new Subthing11023()
-                                    },
-                                    new Thing11023
-                                    {
-                                        Subthing = new Subthing11023()
+                                        new Thing11023 { Subthing = new Subthing11023() },
+                                        new Thing11023 { Subthing = new Subthing11023() }
                                     }
                                 }
                             }
-                        }
-                    });
+                        });
 
                     context.SaveChanges();
 
@@ -6520,15 +6567,18 @@ CROSS JOIN (
             public DbSet<User7973> Users { get; set; }
             public DbSet<Organisation7973> Organisations { get; set; }
 
-            public MyContext7973(DbContextOptions options) : base(options)
+            public MyContext7973(DbContextOptions options)
+                : base(options)
             {
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<OrganisationUser7973>().HasKey(ou => new { ou.OrganisationId, ou.UserId });
-                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.Organisation).WithMany(o => o.OrganisationUsers).HasForeignKey(ou => ou.OrganisationId);
-                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.User).WithMany(u => u.OrganisationUsers).HasForeignKey(ou => ou.UserId);
+                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.Organisation).WithMany(o => o.OrganisationUsers)
+                    .HasForeignKey(ou => ou.OrganisationId);
+                modelBuilder.Entity<OrganisationUser7973>().HasOne(ou => ou.User).WithMany(u => u.OrganisationUsers)
+                    .HasForeignKey(ou => ou.UserId);
             }
         }
 
@@ -6538,11 +6588,7 @@ CROSS JOIN (
                 context =>
                 {
                     context.AddRange(
-                        new OrganisationUser7973
-                        {
-                            Organisation = new Organisation7973(),
-                            User = new User7973()
-                        },
+                        new OrganisationUser7973 { Organisation = new Organisation7973(), User = new User7973() },
                         new Organisation7973(),
                         new User7973());
 
@@ -6589,7 +6635,8 @@ CROSS JOIN (
                         query.ToList();
                     }
 
-                    Assert.Collection(query,
+                    Assert.Collection(
+                        query,
                         b => Assert.Equal(3, b.Posts.Count),
                         b => Assert.Equal(2, b.Posts.Count),
                         b => Assert.Single(b.Posts));
@@ -6601,7 +6648,8 @@ CROSS JOIN (
         {
             public DbSet<Blog10447> Blogs { get; set; }
 
-            public MyContext10447(DbContextOptions options) : base(options)
+            public MyContext10447(DbContextOptions options)
+                : base(options)
             {
             }
 
@@ -6622,24 +6670,11 @@ CROSS JOIN (
                             {
                                 new Post10447(),
                                 new Post10447(),
-                                new Post10447(),
+                                new Post10447()
                             }
                         },
-                        new Blog10447
-                        {
-                            Posts = new List<Post10447>
-                            {
-                                new Post10447(),
-                                new Post10447(),
-                            }
-                        },
-                        new Blog10447
-                        {
-                            Posts = new List<Post10447>
-                            {
-                                new Post10447(),
-                            }
-                        });
+                        new Blog10447 { Posts = new List<Post10447> { new Post10447(), new Post10447() } },
+                        new Blog10447 { Posts = new List<Post10447> { new Post10447() } });
 
                     context.SaveChanges();
                     ClearLog();
@@ -6671,12 +6706,8 @@ CROSS JOIN (
                 {
                     var users = (from a in context.Activities
                                  let cs = context.CompetitionSeasons
-                                            .First(s => s.StartDate <= a.DateTime && a.DateTime < s.EndDate)
-                                 select new
-                                 {
-                                     cs.Id,
-                                     Points = a.ActivityType.Points.Where(p => p.CompetitionSeason == cs)
-                                 }).ToList();
+                                     .First(s => s.StartDate <= a.DateTime && a.DateTime < s.EndDate)
+                                 select new { cs.Id, Points = a.ActivityType.Points.Where(p => p.CompetitionSeason == cs) }).ToList();
 
                     AssertSql(
                         @"SELECT (
@@ -6689,13 +6720,10 @@ OUTER APPLY (
     SELECT [a1].[Id], [a1].[ActivityTypeId], [a1].[CompetitionSeasonId], [a1].[Points], [c0].[Id] AS [Id0]
     FROM [ActivityTypePoints12456] AS [a1]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a1].[CompetitionSeasonId] = [c0].[Id]
-    WHERE (([c0].[Id] = (
+    WHERE ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND (
-        SELECT TOP(1) [c1].[Id]
-        FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate])) IS NOT NULL) AND ([a0].[Id] = [a1].[ActivityTypeId])
+        WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND ([a0].[Id] = [a1].[ActivityTypeId])
 ) AS [t]
 ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
                 }
@@ -6710,20 +6738,23 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
                 using (var context = new MyContext12456(_options))
                 {
                     var users = context.Activities
-                                    .Select(a => new
-                                    {
-                                        Activity = a,
-                                        CompetitionSeason = context.CompetitionSeasons
-                                            .First(s => s.StartDate <= a.DateTime && a.DateTime < s.EndDate)
-                                    })
-                                    .Select(a => new
-                                    {
-                                        a.Activity,
-                                        CompetitionSeasonId = a.CompetitionSeason.Id,
-                                        Points = a.Activity.Points ?? a.Activity.ActivityType.Points
-                                            .Where(p => p.CompetitionSeason == a.CompetitionSeason)
-                                            .Select(p => p.Points).SingleOrDefault()
-                                    }).ToList();
+                        .Select(
+                            a => new
+                            {
+                                Activity = a,
+                                CompetitionSeason = context.CompetitionSeasons
+                                    .First(s => s.StartDate <= a.DateTime && a.DateTime < s.EndDate)
+                            })
+                        .Select(
+                            a => new
+                            {
+                                a.Activity,
+                                CompetitionSeasonId = a.CompetitionSeason.Id,
+                                Points = a.Activity.Points
+                                    ?? a.Activity.ActivityType.Points
+                                        .Where(p => p.CompetitionSeason == a.CompetitionSeason)
+                                        .Select(p => p.Points).SingleOrDefault()
+                            }).ToList();
 
                     AssertSql(
                         @"SELECT [a0].[Id], [a0].[ActivityTypeId], [a0].[DateTime], [a0].[Points], (
@@ -6733,13 +6764,10 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
     SELECT TOP(1) [a].[Points]
     FROM [ActivityTypePoints12456] AS [a]
     INNER JOIN [CompetitionSeasons] AS [c0] ON [a].[CompetitionSeasonId] = [c0].[Id]
-    WHERE ([a1].[Id] = [a].[ActivityTypeId]) AND (([c0].[Id] = (
+    WHERE ([a1].[Id] = [a].[ActivityTypeId]) AND ([c0].[Id] = (
         SELECT TOP(1) [c1].[Id]
         FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate]))) AND (
-        SELECT TOP(1) [c1].[Id]
-        FROM [CompetitionSeasons] AS [c1]
-        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate])) IS NOT NULL))) AS [Points]
+        WHERE ([c1].[StartDate] <= [a0].[DateTime]) AND ([a0].[DateTime] < [c1].[EndDate]))))) AS [Points]
 FROM [Activities] AS [a0]
 INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                 }
@@ -6751,7 +6779,8 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
             public DbSet<Activity12456> Activities { get; set; }
             public DbSet<CompetitionSeason12456> CompetitionSeasons { get; set; }
 
-            public MyContext12456(DbContextOptions options) : base(options)
+            public MyContext12456(DbContextOptions options)
+                : base(options)
             {
             }
         }
@@ -6817,26 +6846,29 @@ INNER JOIN [ActivityType12456] AS [a1] ON [a0].[ActivityTypeId] = [a1].[Id]");
                 using (var context = new MyContext15137(_options))
                 {
                     var container = await context.Trades
-                            .Select(x => new
+                        .Select(
+                            x => new
                             {
-                                Id = x.Id,
+                                x.Id,
                                 Assets = x.Assets.AsQueryable()
-                                    .Select(y => new
-                                    {
-                                        Id = y.Id,
-                                        Contract = new
+                                    .Select(
+                                        y => new
                                         {
-                                            Id = y.Contract.Id,
-                                            Season = new
+                                            y.Id,
+                                            Contract = new
                                             {
-                                                Id = y.Contract.Season.Id,
-                                                IsPastTradeDeadline = (y.Contract.Season.Games.Max(z => (int?)z.GameNumber) ?? 0) > 10
+                                                y.Contract.Id,
+                                                Season = new
+                                                {
+                                                    y.Contract.Season.Id,
+                                                    IsPastTradeDeadline =
+                                                        (y.Contract.Season.Games.Max(z => (int?)z.GameNumber) ?? 0) > 10
+                                                }
                                             }
-                                        }
-                                    })
+                                        })
                                     .ToList()
                             })
-                            .SingleAsync();
+                        .SingleAsync();
 
                     AssertSql(
                         @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[c]
@@ -6849,7 +6881,7 @@ LEFT JOIN (
         WHEN COALESCE((
             SELECT MAX([d].[GameNumber])
             FROM [DbGame] AS [d]
-            WHERE [d2].[Id] IS NOT NULL AND (([d2].[Id] = [d].[SeasonId]) AND [d].[SeasonId] IS NOT NULL)), 0) > 10 THEN CAST(1 AS bit)
+            WHERE [d2].[Id] IS NOT NULL AND ([d2].[Id] = [d].[SeasonId])), 0) > 10 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c], [d0].[DbTradeId]
     FROM [DbTradeAsset] AS [d0]
@@ -6865,7 +6897,8 @@ ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
         {
             public DbSet<DbTrade> Trades { get; set; }
 
-            public MyContext15137(DbContextOptions options) : base(options)
+            public MyContext15137(DbContextOptions options)
+                : base(options)
             {
             }
         }
@@ -6883,16 +6916,7 @@ ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
                             {
                                 Contract = new DbContract
                                 {
-                                    Season = new DbSeason
-                                    {
-                                        Games = new List<DbGame>
-                                        {
-                                            new DbGame
-                                            {
-                                                GameNumber = 1
-                                            }
-                                        }
-                                    }
+                                    Season = new DbSeason { Games = new List<DbGame> { new DbGame { GameNumber = 1 } } }
                                 }
                             }
                         }
@@ -6941,6 +6965,359 @@ ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]");
         }
 
         #endregion
+
+        #region Issue13517
+
+        [ConditionalFact]
+        public void Query_filter_with_pk_fk_optimization_bug_13517()
+        {
+            using var _ = CreateDatabase13517();
+            using var context = new BugContext13517(_options);
+
+            context.Entities.Select(
+                s =>
+                    new BugEntityDto13517
+                    {
+                        Id = s.Id,
+                        RefEntity = s.RefEntity == null
+                            ? null
+                            : new BugRefEntityDto13517 { Id = s.RefEntity.Id, Public = s.RefEntity.Public },
+                        RefEntityId = s.RefEntityId
+                    }).Single(p => p.Id == 1);
+
+            AssertSql(
+                @"SELECT TOP(2) [e].[Id], CASE
+    WHEN [t].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [t].[Id], [t].[Public], [e].[RefEntityId]
+FROM [Entities] AS [e]
+LEFT JOIN (
+    SELECT [r].[Id], [r].[Public]
+    FROM [RefEntities] AS [r]
+    WHERE [r].[Public] = CAST(1 AS bit)
+) AS [t] ON [e].[RefEntityId] = [t].[Id]
+WHERE [e].[Id] = 1");
+        }
+
+        private SqlServerTestStore CreateDatabase13517()
+            => CreateTestStore(
+                () => new BugContext13517(_options),
+                context =>
+                {
+                    var refEntity = new BugRefEntity13517 { Public = false };
+                    context.RefEntities.Add(refEntity);
+                    context.Entities.Add(new BugEntity13517 { RefEntity = refEntity });
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private class BugEntity13517
+        {
+            public int Id { get; set; }
+            public int? RefEntityId { get; set; }
+            public BugRefEntity13517 RefEntity { get; set; }
+        }
+
+        private class BugRefEntity13517
+        {
+            public int Id { get; set; }
+            public bool Public { get; set; }
+        }
+
+        private class BugEntityDto13517
+        {
+            public int Id { get; set; }
+            public int? RefEntityId { get; set; }
+            public BugRefEntityDto13517 RefEntity { get; set; }
+        }
+
+        private class BugRefEntityDto13517
+        {
+            public int Id { get; set; }
+            public bool Public { get; set; }
+        }
+
+        private class BugContext13517 : DbContext
+        {
+            public DbSet<BugEntity13517> Entities { get; set; }
+            public DbSet<BugRefEntity13517> RefEntities { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<BugRefEntity13517>().HasQueryFilter(f => f.Public);
+            }
+
+            public BugContext13517(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        #endregion
+
+        #region Issue17794
+
+        [ConditionalFact]
+        public void Double_convert_interface_created_expression_tree()
+        {
+            using var _ = CreateDatabase17794();
+            using var context = new BugContext17794(_options);
+
+            var expression = HasAction17794<Offer17794>(OfferActions17794.Accepted);
+            var query = context.Offers.Where(expression).Count();
+
+            Assert.Equal(1, query);
+
+            AssertSql(
+                @"@__action_0='1'
+
+SELECT COUNT(*)
+FROM [Offers] AS [o]
+WHERE EXISTS (
+    SELECT 1
+    FROM [OfferActions] AS [o0]
+    WHERE ([o].[Id] = [o0].[OfferId]) AND ([o0].[Action] = @__action_0))");
+        }
+
+        private SqlServerTestStore CreateDatabase17794()
+            => CreateTestStore(
+                () => new BugContext17794(_options),
+                context =>
+                {
+                    context.Add(new Offer17794
+                    {
+                        Actions = new List<OfferAction17794>
+                        {
+                            new OfferAction17794
+                            {
+                                Action = OfferActions17794.Accepted
+                            }
+                        }
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private static Expression<Func<T, bool>> HasAction17794<T>(OfferActions17794 action)
+            where T : IOffer17794
+        {
+            Expression<Func<OfferAction17794, bool>> predicate = oa => oa.Action == action;
+
+            return v => v.Actions.AsQueryable().Any(predicate);
+        }
+
+        private interface IOffer17794
+        {
+            ICollection<OfferAction17794> Actions { get; set; }
+        }
+
+        private class Offer17794 : IOffer17794
+        {
+            public int Id { get; set; }
+
+            public ICollection<OfferAction17794> Actions { get; set; }
+        }
+
+        private enum OfferActions17794 : int
+        {
+            Accepted = 1,
+            Declined = 2
+        }
+
+        private class OfferAction17794
+        {
+            public int Id { get; set; }
+
+            [Required]
+            public Offer17794 Offer { get; set; }
+            public int OfferId { get; set; }
+
+            [Required]
+            public OfferActions17794 Action { get; set; }
+        }
+
+        private class BugContext17794 : DbContext
+        {
+            public DbSet<Offer17794> Offers { get; set; }
+            public DbSet<OfferAction17794> OfferActions { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+
+            }
+
+            public BugContext17794(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        #endregion
+
+        #region Issue18087
+
+        [ConditionalFact]
+        public void Cast_to_implemented_interface_is_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var id = 1;
+            var query = queryBase.Cast<IDomainEntity>().FirstOrDefault(x => x.Id == id);
+
+            Assert.Equal(1, query.Id);
+
+            AssertSql(
+                @"@__id_0='1'
+
+SELECT TOP(1) [m].[Id], [m].[Name], [m].[NavigationEntityId]
+FROM [MockEntities] AS [m]
+WHERE [m].[Id] = @__id_0");
+        }
+
+        [ConditionalFact]
+        public void Cast_to_object_is_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var query = queryBase.Cast<object>().Count();
+
+            Assert.Equal(3, query);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [MockEntities] AS [m]");
+        }
+
+        [ConditionalFact]
+        public void Cast_to_non_implemented_interface_is_not_removed_from_expression_tree()
+        {
+            using var _ = CreateDatabase18087();
+            using var context = new BugContext18087(_options);
+
+            var queryBase = (IQueryable)context.MockEntities;
+            var id = 1;
+
+            var message = Assert.Throws<InvalidOperationException>(
+                () => queryBase.Cast<IDummyEntity>().FirstOrDefault(x => x.Id == id)).Message;
+
+            Assert.Equal(
+                CoreStrings.TranslationFailed(@"DbSet<MockEntity>    .Cast<IDummyEntity>()    .Where(e => e.Id == __id_0)"),
+                message.Replace("\r", "").Replace("\n", ""));
+        }
+
+        private SqlServerTestStore CreateDatabase18087()
+            => CreateTestStore(
+                () => new BugContext18087(_options),
+                context =>
+                {
+                    context.AddRange(new MockEntity()
+                    {
+                        Name = "Entity1",
+                        NavigationEntity = null
+                    },
+                    new MockEntity()
+                    {
+                        Name = "Entity2",
+                        NavigationEntity = null
+                    },
+                    new MockEntity()
+                    {
+                        Name = "NewEntity",
+                        NavigationEntity = null
+                    });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private interface IDomainEntity
+        {
+            int Id { get; set; }
+        }
+
+        private interface IDummyEntity
+        {
+            int Id { get; set; }
+        }
+
+        private class MockEntity : IDomainEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public MockEntity NavigationEntity { get; set; }
+        }
+
+        private class BugContext18087 : DbContext
+        {
+            public BugContext18087(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<MockEntity> MockEntities { get; set; }
+        }
+
+        #endregion
+
+        #region Issue18759
+
+        [ConditionalFact]
+        public void Query_filter_with_null_constant()
+        {
+            using var _ = CreateDatabase18759();
+            using var context = new BugContext18759(_options);
+
+            var people = context.People.ToList();
+
+            AssertSql(
+                @"SELECT [p].[Id], [p].[UserDeleteId]
+FROM [People] AS [p]
+LEFT JOIN [User18759] AS [u] ON [p].[UserDeleteId] = [u].[Id]
+WHERE [u].[Id] IS NOT NULL");
+        }
+
+        private SqlServerTestStore CreateDatabase18759()
+            => CreateTestStore(
+                () => new BugContext18759(_options),
+                context =>
+                {
+                    ClearLog();
+                });
+
+        public class Person18759
+        {
+            public int Id { get; set; }
+            public User18759 UserDelete { get; set; }
+        }
+
+        public class User18759
+        {
+            public int Id { get; set; }
+        }
+
+        private class BugContext18759 : DbContext
+        {
+            public DbSet<Person18759> People { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Person18759>().HasQueryFilter(p => p.UserDelete != null);
+
+            public BugContext18759(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        #endregion Issue18759
 
         private DbContextOptions _options;
 

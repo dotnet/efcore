@@ -1,9 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.TestUtilities;
+
 namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
 {
-    public class AdventureWorksContext : DbContext
+    public class AdventureWorksContext : PoolableDbContext
     {
         public AdventureWorksContext(DbContextOptions options)
             : base(options)
@@ -170,7 +172,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure.Model
                 entity =>
                 {
                     entity.HasKey(
-                            e => new { e.ProductModelID, e.ProductDescriptionID, e.Culture })
+                            e => new
+                            {
+                                e.ProductModelID,
+                                e.ProductDescriptionID,
+                                e.Culture
+                            })
                         .HasName("PK_ProductModelProductDescription_ProductModelID_ProductDescriptionID_Culture");
 
                     entity.HasIndex(e => e.rowguid)

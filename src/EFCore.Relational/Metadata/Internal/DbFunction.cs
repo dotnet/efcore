@@ -121,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private static string BuildAnnotationName(MethodBase methodBase)
             =>
                 // ReSharper disable once AssignNullToNotNullAttribute
-                $"{RelationalAnnotationNames.DbFunction}{methodBase.DeclaringType.ShortDisplayName()}{methodBase.Name}({string.Join(",", methodBase.GetParameters().Select(p => p.ParameterType.Name))})";
+                // ReSharper disable once PossibleNullReferenceException
+                $"{RelationalAnnotationNames.DbFunction}{methodBase.DeclaringType.FullName}{methodBase.Name}({string.Join(",", methodBase.GetParameters().Select(p => p.ParameterType.FullName))})";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

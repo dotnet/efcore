@@ -42,19 +42,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
             {
                 return !datePart.Equals("year")
-                       && !datePart.Equals("month")
-                       && arguments[0] is SqlConstantExpression sqlConstant
-                       && ((double)sqlConstant.Value >= int.MaxValue
-                           || (double)sqlConstant.Value <= int.MinValue)
-                    ? null
-                    : _sqlExpressionFactory.Function(
-                        "DATEADD",
-                        new[]
-                        {
-                            _sqlExpressionFactory.Fragment(datePart), _sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance
-                        },
-                        instance.Type,
-                        instance.TypeMapping);
+                    && !datePart.Equals("month")
+                    && arguments[0] is SqlConstantExpression sqlConstant
+                    && ((double)sqlConstant.Value >= int.MaxValue
+                        || (double)sqlConstant.Value <= int.MinValue)
+                        ? null
+                        : _sqlExpressionFactory.Function(
+                            "DATEADD",
+                            new[]
+                            {
+                                _sqlExpressionFactory.Fragment(datePart),
+                                _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
+                                instance
+                            },
+                            instance.Type,
+                            instance.TypeMapping);
             }
 
             return null;

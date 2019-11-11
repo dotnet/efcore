@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
                 ?.GetService<IConfiguration>();
 
             var resolved = configuration?[connectionName]
-                           ?? configuration?[DefaultSection + connectionName];
+                ?? configuration?[DefaultSection + connectionName];
 
             if (resolved == null)
             {

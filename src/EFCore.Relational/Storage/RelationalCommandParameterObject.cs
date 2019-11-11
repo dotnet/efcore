@@ -30,18 +30,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="connection"> The connection on which the command will execute. </param>
         /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
+        /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
         /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
         /// <param name="logger"> A logger, or null if no logger is available. </param>
         public RelationalCommandParameterObject(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            [CanBeNull] DbContext context,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+        [NotNull] IRelationalConnection connection,
+        [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
+        [CanBeNull] IReadOnlyList<ReaderColumn> readerColumns,
+        [CanBeNull] DbContext context,
+        [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
         {
             Check.NotNull(connection, nameof(connection));
 
             Connection = connection;
             ParameterValues = parameterValues;
+            ReaderColumns = readerColumns;
             Context = context;
             Logger = logger;
         }
@@ -55,6 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The SQL parameter values to use, or null if none.
         /// </summary>
         public IReadOnlyDictionary<string, object> ParameterValues { get; }
+
+        /// <summary>
+        ///     The expected columns if the reader needs to be buffered, or null otherwise.
+        /// </summary>
+        public IReadOnlyList<ReaderColumn> ReaderColumns { get; }
 
         /// <summary>
         ///     The current <see cref="DbContext" /> instance, or null if it is not known.

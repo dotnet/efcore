@@ -276,9 +276,9 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                         || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
                     {
                         return clrType == null
-                               || mapping.ClrType == clrType
-                            ? mapping
-                            : null;
+                            || mapping.ClrType == clrType
+                                ? mapping
+                                : null;
                     }
                 }
 

@@ -58,9 +58,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory(Skip = "issue #17540")]
-        public override Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool isAsync)
+        public override Task
+            Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool isAsync)
         {
-            return base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(isAsync);
+            return base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                isAsync);
+        }
+
+        [ConditionalTheory(Skip = "issue #18284")]
+        public override Task GroupBy_with_boolean_groupin_key_thru_navigation_access(bool isAsync)
+        {
+            return GroupBy_with_boolean_groupin_key_thru_navigation_access(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "issue #17260")]
+        public override Task Select_subquery_projecting_single_constant_inside_anonymous(bool isAsync)
+        {
+            return base.Select_subquery_projecting_single_constant_inside_anonymous(isAsync);
         }
     }
 }

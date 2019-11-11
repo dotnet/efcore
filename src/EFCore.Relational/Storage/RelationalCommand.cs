@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -84,28 +85,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandNonQueryExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var nonQueryResult = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : command.ExecuteNonQuery();
 
                 return logger?.CommandNonQueryExecuted(
-                           connection,
-                           command,
-                           context,
-                           commandId,
-                           connection.ConnectionId,
-                           nonQueryResult,
-                           startTime,
-                           stopwatch.Elapsed)
-                       ?? nonQueryResult;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        nonQueryResult,
+                        startTime,
+                        stopwatch.Elapsed)
+                    ?? nonQueryResult;
             }
             catch (Exception exception)
             {
@@ -244,28 +245,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandScalarExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var result = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : command.ExecuteScalar();
 
                 return logger?.CommandScalarExecuted(
-                           connection,
-                           command,
-                           context,
-                           commandId,
-                           connection.ConnectionId,
-                           result,
-                           startTime,
-                           stopwatch.Elapsed)
-                       ?? result;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        result,
+                        startTime,
+                        stopwatch.Elapsed)
+                    ?? result;
             }
             catch (Exception exception)
             {
@@ -375,7 +376,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The result of the command. </returns>
         public virtual RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
         {
-            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+            var connection = parameterObject.Connection;
+            var context = parameterObject.Context;
+            var readerColumns = parameterObject.ReaderColumns;
+            var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
             var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -389,13 +393,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandReaderExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var reader = interceptionResult.HasResult
                     ? interceptionResult.Result
@@ -414,7 +418,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         stopwatch.Elapsed);
                 }
 
-                var result = new RelationalDataReader(
+                if (readerColumns != null)
+                {
+                    reader = new BufferedDataReader(reader).Initialize(readerColumns);
+                }
+
+                var result = CreateRelationalDataReader(
                     connection,
                     command,
                     reader,
@@ -461,7 +470,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
         {
-            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+            var connection = parameterObject.Connection;
+            var context = parameterObject.Context;
+            var readerColumns = parameterObject.ReaderColumns;
+            var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
             var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -503,7 +515,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         cancellationToken);
                 }
 
-                var result = new RelationalDataReader(
+                if (readerColumns != null)
+                {
+                    reader = await new BufferedDataReader(reader).InitializeAsync(readerColumns, cancellationToken);
+                }
+
+                var result = CreateRelationalDataReader(
                     connection,
                     command,
                     reader,
@@ -569,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stopwatch = Stopwatch.StartNew();
 
             var interceptionResult = logger?.CommandCreating(connection, commandMethod, context, commandId, connectionId, startTime)
-                                     ?? default;
+                ?? default;
 
             var command = interceptionResult.HasResult
                 ? interceptionResult.Result
@@ -612,5 +629,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             return command;
         }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a new <see cref="RelationalDataReader" /> to be used by <see cref="ExecuteReader" /> and <see cref="ExecuteReaderAsync" />.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="connection">The connection, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="command">The command that was executed, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="reader">The underlying reader for the result set, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="commandId">A correlation ID that identifies the <see cref="DbCommand" /> instance being used, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <param name="logger">The diagnostic source, to pass to the <see cref="RelationalDataReader" /> constructor.</param>
+        /// <returns>The created <see cref="RelationalDataReader" />.</returns>
+        protected virtual RelationalDataReader CreateRelationalDataReader([NotNull] IRelationalConnection connection,
+            [NotNull] DbCommand command,
+            [NotNull] DbDataReader reader,
+            Guid commandId,
+            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            => new RelationalDataReader(
+                connection,
+                command,
+                reader,
+                commandId,
+                logger);
     }
 }

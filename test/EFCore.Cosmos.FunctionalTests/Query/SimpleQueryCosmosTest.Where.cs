@@ -1515,9 +1515,20 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Fax""] = null))");
         }
 
-        public override async Task Where_expression_invoke(bool isAsync)
+        public override async Task Where_expression_invoke_1(bool isAsync)
         {
-            await base.Where_expression_invoke(isAsync);
+            await base.Where_expression_invoke_1(isAsync);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_expression_invoke_2(bool isAsync)
+        {
+            await base.Where_expression_invoke_2(isAsync);
 
             AssertSql(
                 @"SELECT c
@@ -1570,11 +1581,9 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND ((((@__p_0 + c[""CustomerID""])
             await base.Where_ternary_boolean_condition_true(isAsync);
 
             AssertSql(
-                @"@__flag_0='true'
-
-SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : (c[""UnitsInStock""] < 20)))");
+WHERE ((c[""Discriminator""] = ""Product"") AND (c[""UnitsInStock""] >= 20))");
         }
 
         public override async Task Where_ternary_boolean_condition_false(bool isAsync)
@@ -1582,11 +1591,9 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
             await base.Where_ternary_boolean_condition_false(isAsync);
 
             AssertSql(
-                @"@__flag_0='false'
-
-SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : (c[""UnitsInStock""] < 20)))");
+WHERE ((c[""Discriminator""] = ""Product"") AND (c[""UnitsInStock""] < 20))");
         }
 
         public override async Task Where_ternary_boolean_condition_with_another_condition(bool isAsync)
@@ -1595,11 +1602,10 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
 
             AssertSql(
                 @"@__productId_0='15'
-@__flag_1='true'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND ((c[""ProductID""] < @__productId_0) AND (@__flag_1 ? (c[""UnitsInStock""] >= 20) : (c[""UnitsInStock""] < 20))))");
+WHERE ((c[""Discriminator""] = ""Product"") AND ((c[""ProductID""] < @__productId_0) AND (c[""UnitsInStock""] >= 20)))");
         }
 
         public override async Task Where_ternary_boolean_condition_with_false_as_result_true(bool isAsync)
@@ -1607,11 +1613,9 @@ WHERE ((c[""Discriminator""] = ""Product"") AND ((c[""ProductID""] < @__productI
             await base.Where_ternary_boolean_condition_with_false_as_result_true(isAsync);
 
             AssertSql(
-                @"@__flag_0='true'
-
-SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : false))");
+WHERE ((c[""Discriminator""] = ""Product"") AND (c[""UnitsInStock""] >= 20))");
         }
 
         public override async Task Where_ternary_boolean_condition_with_false_as_result_false(bool isAsync)
@@ -1619,11 +1623,9 @@ WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""
             await base.Where_ternary_boolean_condition_with_false_as_result_false(isAsync);
 
             AssertSql(
-                @"@__flag_0='false'
-
-SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Product"") AND (@__flag_0 ? (c[""UnitsInStock""] >= 20) : false))");
+WHERE ((c[""Discriminator""] = ""Product"") AND false)");
         }
 
         public override async Task Where_compare_constructed_equal(bool isAsync)
@@ -1808,8 +1810,9 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] < 10260))");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<Order>().Where(o => o.OrderID > 10354 && o.OrderID < 10360)
-                    .Where(o => ss.Set<Customer>().Where(c => c.City == "London")
-                        .Any(c => c.Orders.Contains(o))),
+                    .Where(
+                        o => ss.Set<Customer>().Where(c => c.City == "London")
+                            .Any(c => c.Orders.Contains(o))),
                 entryCount: 2);
 
             AssertSql(
@@ -1823,7 +1826,8 @@ WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] > 10354) AND (c["
         {
             await AssertQuery(
                 isAsync,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "PARIS").Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "PARIS")
+                    .Where(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault() == null),
                 entryCount: 1);
 
             AssertSql(

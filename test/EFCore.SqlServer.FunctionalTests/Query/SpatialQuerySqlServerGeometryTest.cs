@@ -233,11 +233,7 @@ FROM [GeoPointEntity] AS [g]");
             await AssertQuery(
                 isAsync,
                 ss => ss.Set<PointEntity>().Select(
-                    e => new
-                    {
-                        e.Id,
-                        Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 })
-                    }),
+                    e => new { e.Id, Distance = e.Point == null ? (double?)null : e.Point.Distance(new Point(1, 1) { SRID = 4326 }) }),
                 elementSorter: e => e.Id,
                 elementAsserter: (e, a) =>
                 {
@@ -370,7 +366,7 @@ FROM [PointEntity] AS [p]");
 
             AssertSql(
                 @"SELECT [p].[Id], CASE
-    WHEN [p].[Polygon] IS NULL OR (([p].[Polygon].STNumInteriorRing() = 0) AND [p].[Polygon].STNumInteriorRing() IS NOT NULL) THEN NULL
+    WHEN [p].[Polygon] IS NULL OR ([p].[Polygon].STNumInteriorRing() = 0) THEN NULL
     ELSE [p].[Polygon].STInteriorRingN(0 + 1)
 END AS [InteriorRing0]
 FROM [PolygonEntity] AS [p]");

@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext))
                 .Single(
                     mi => mi.GetParameters().Length == 4
-                          && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
-                          && mi.GetGenericArguments().Length == 1);
+                        && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
+                        && mi.GetGenericArguments().Length == 1);
 
         public static IServiceCollection AddDbContext(
             this IServiceCollection serviceCollection,
@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddDbContextPool))
                 .Single(
                     mi => mi.GetParameters().Length == 3
-                          && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
-                          && mi.GetGenericArguments().Length == 1);
+                        && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
+                        && mi.GetGenericArguments().Length == 1);
 
         public static IServiceCollection AddDbContextPool(
             this IServiceCollection serviceCollection,

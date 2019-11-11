@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Union_Take_Union_Take(bool isAsync) => Task.CompletedTask;
         public override Task Select_Union(bool isAsync) => Task.CompletedTask;
         public override Task Union_Select(bool isAsync) => Task.CompletedTask;
+        public override Task Union_Select_scalar(bool isAsync) => Task.CompletedTask;
         public override Task Union_with_anonymous_type_projection(bool isAsync) => Task.CompletedTask;
         public override Task Select_Union_unrelated(bool isAsync) => Task.CompletedTask;
         public override Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync) => Task.CompletedTask;
@@ -40,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task SubSelect_Union(bool isAsync) => Task.CompletedTask;
         public override Task Client_eval_Union_FirstOrDefault(bool isAsync) => Task.CompletedTask;
         public override Task GroupBy_Select_Union(bool isAsync) => Task.CompletedTask;
+        public override Task Union_over_columns_with_different_nullability(bool isAsync) => Task.CompletedTask;
         public override Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType) => Task.CompletedTask;
+        public override Task OrderBy_Take_Union(bool isAsync) => Task.CompletedTask;
     }
 }

@@ -165,7 +165,7 @@ FROM (
 CROSS JOIN (
     SELECT * FROM ""Orders""
 ) AS [o]
-WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL");
+WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override void FromSqlRaw_queryable_multiple_composed_with_closure_parameters()
@@ -183,7 +183,7 @@ FROM (
 CROSS JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p0 AND @p1
 ) AS [o]
-WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL");
+WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override void FromSqlRaw_queryable_multiple_composed_with_parameters_and_closure_parameters()
@@ -202,7 +202,7 @@ FROM (
 CROSS JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
-WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL",
+WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
                 @"p0='Berlin' (Size = 4000)
 p1='1998-04-01T00:00:00'
@@ -215,7 +215,7 @@ FROM (
 CROSS JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
-WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL");
+WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override void FromSqlRaw_queryable_multiple_line_query()
@@ -238,7 +238,7 @@ FROM (
     SELECT *
     FROM ""Customers""
 ) AS [c]
-WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL");
+WHERE [c].[City] = N'London'");
         }
 
         public override void FromSqlRaw_queryable_with_parameters()
@@ -301,7 +301,7 @@ FROM (
 CROSS JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
-WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL",
+WHERE [c].[CustomerID] = [o].[CustomerID]",
                 //
                 @"p0='Berlin' (Size = 4000)
 p1='1998-04-01T00:00:00'
@@ -314,7 +314,7 @@ FROM (
 CROSS JOIN (
     SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
-WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL");
+WHERE [c].[CustomerID] = [o].[CustomerID]");
         }
 
         public override void FromSqlRaw_queryable_with_null_parameter()
@@ -322,7 +322,7 @@ WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL");
             base.FromSqlRaw_queryable_with_null_parameter();
 
             AssertSql(
-                @"p0='' (Nullable = false)
+                @"p0=NULL (Nullable = false)
 
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }
@@ -339,7 +339,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
-WHERE (([c].[ContactTitle] = @__contactTitle_1) AND ([c].[ContactTitle] IS NOT NULL AND @__contactTitle_1 IS NOT NULL)) OR ([c].[ContactTitle] IS NULL AND @__contactTitle_1 IS NULL)");
+WHERE [c].[ContactTitle] = @__contactTitle_1");
         }
 
         public override void FromSqlRaw_queryable_simple_cache_key_includes_query_string()
@@ -414,7 +414,7 @@ FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE ([c].[City] = N'London') AND [c].[City] IS NOT NULL
+WHERE [c].[City] = N'London'
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -438,7 +438,7 @@ FROM [Customers] AS [c]");
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE (([c].[ContactName] = [c].[CompanyName]) AND ([c].[ContactName] IS NOT NULL AND [c].[CompanyName] IS NOT NULL)) OR ([c].[ContactName] IS NULL AND [c].[CompanyName] IS NULL)");
+WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND [c].[CompanyName] IS NULL)");
             ;
         }
 
@@ -744,6 +744,35 @@ WHERE ([o].[OrderID] <= @__max_0) AND [o].[OrderID] IN (
                 @"p0='10250'
 
 SELECT * FROM ""Orders"" WHERE ""OrderID"" < @p0");
+        }
+
+        public override void Entity_equality_through_fromsql()
+        {
+            base.Entity_equality_through_fromsql();
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM (
+    SELECT * FROM ""Orders""
+) AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [c].[CustomerID] = N'VINET'");
+        }
+
+        public override void FromSqlRaw_with_set_operation()
+        {
+            base.FromSqlRaw_with_set_operation();
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'London'
+) AS [c]
+UNION ALL
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = 'Berlin'
+) AS [c0]");
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)
