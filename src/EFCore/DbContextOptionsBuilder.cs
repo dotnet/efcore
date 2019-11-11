@@ -108,6 +108,224 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
+        ///         Logs to the supplied sink. For example, use <c>optionsBuilder.LogTo(Console.WriteLine)</c> to
+        ///         log to the console.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows the minimum level of logging and the log formatting to be controlled.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         overload to log only specific events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},SimpleLoggerFormatOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///         Use the <see cref="LogTo(ISimpleLogger)" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="formatOptions">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="SimpleLoggerFormatOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder LogTo(
+            [NotNull] Action<string> sink,
+            LogLevel minimumLevel = LogLevel.Debug,
+            SimpleLoggerFormatOptions? formatOptions = null)
+            => LogTo(sink, (i, l) => l >= minimumLevel, formatOptions);
+
+        /// <summary>
+        ///     <para>
+        ///         Logs the specified events to the supplied sink. For example, use
+        ///         <c>optionsBuilder.LogTo(Console.WriteLine, new[] { CoreEventId.ContextInitialized })</c> to log the
+        ///         <see cref="CoreEventId.ContextInitialized" /> event to the console.
+        ///     </para>
+        ///     <para>
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},SimpleLoggerFormatOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///         Use the <see cref="LogTo(ISimpleLogger)" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="events"> The <see cref="EventId" /> of each event to log. </param>
+        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="formatOptions">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="SimpleLoggerFormatOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder LogTo(
+            [NotNull] Action<string> sink,
+            [NotNull] IEnumerable<EventId> events,
+            LogLevel minimumLevel = LogLevel.Debug,
+            SimpleLoggerFormatOptions? formatOptions = null)
+        {
+            Check.NotNull(events, nameof(events));
+
+            var eventsArray = events.ToArray();
+
+            if (eventsArray.Length == 0)
+            {
+                return this;
+            }
+
+            if (eventsArray.Length == 1)
+            {
+                var firstEvent = eventsArray[0];
+                return LogTo(
+                    sink,
+                    (eventId, level) => level >= minimumLevel
+                        && eventId == firstEvent,
+                    formatOptions);
+            }
+
+            if (eventsArray.Length < 6)
+            {
+                return LogTo(
+                    sink,
+                    (eventId, level) => level >= minimumLevel
+                        && eventsArray.Contains(eventId),
+                    formatOptions);
+            }
+
+            var eventsHash = eventsArray.ToHashSet();
+            return LogTo(
+                sink,
+                (eventId, level) => level >= minimumLevel
+                    && eventsHash.Contains(eventId),
+                formatOptions);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Logs all events in the specified categories to the supplied sink. For example, use
+        ///         <c>optionsBuilder.LogTo(Console.WriteLine, new[] { DbLoggerCategory.Infrastructure.Name })</c> to log all
+        ///         events in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         overload to log only specific events.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},SimpleLoggerFormatOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///         Use the <see cref="LogTo(ISimpleLogger)" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="categories"> The <see cref="DbLoggerCategory" /> of each event to log. </param>
+        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="formatOptions">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="SimpleLoggerFormatOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder LogTo(
+            [NotNull] Action<string> sink,
+            [NotNull] IEnumerable<string> categories,
+            LogLevel minimumLevel = LogLevel.Debug,
+            SimpleLoggerFormatOptions? formatOptions = null)
+        {
+            Check.NotNull(categories, nameof(categories));
+
+            var categoriesArray = categories.ToArray();
+
+            if (categoriesArray.Length == 0)
+            {
+                return this;
+            }
+
+            if (categoriesArray.Length != 1)
+            {
+                // One category is common, but even when there are more the number should be low because
+                // the number of available categories is low. So no HashSet here.
+                return LogTo(
+                    sink,
+                    (eventId, level) =>
+                    {
+                        if (level >= minimumLevel)
+                        {
+                            for (var i = 0; i < categoriesArray.Length; i++)
+                            {
+                                if (eventId.Name.StartsWith(categoriesArray[i], StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return true;
+                                }
+                            }
+                        }
+
+                        return false;
+                    },
+                    formatOptions);
+            }
+
+            var singleCategory = categoriesArray[0];
+            return LogTo(
+                sink,
+                (eventId, level) => level >= minimumLevel
+                    && eventId.Name.StartsWith(singleCategory, StringComparison.OrdinalIgnoreCase),
+                formatOptions);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Logs events filtered by a supplied custom filter delegate. The filter should return true to
+        ///         log a message, or false to filter it out of the log.
+        ///     </para>
+        ///     <para>
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(ISimpleLogger)" /> overload to log to a fully custom logger.
+        ///     </para>
+        /// </summary>
+        /// <param name="sink"> The sink to which log messages will be written. </param>
+        /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
+        /// <param name="formatOptions">
+        ///     Formatting options for log messages. Passing null (the default) means use <see cref="SimpleLoggerFormatOptions.DefaultWithLocalTime" />
+        /// </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder LogTo(
+            [NotNull] Action<string> sink,
+            [NotNull] Func<EventId, LogLevel, bool> filter,
+            SimpleLoggerFormatOptions? formatOptions = null)
+        {
+            Check.NotNull(sink, nameof(sink));
+            Check.NotNull(filter, nameof(filter));
+
+            return LogTo(new SimpleLogger(sink, filter, formatOptions ?? SimpleLoggerFormatOptions.DefaultWithLocalTime));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Logs to the supplied <see cref="ISimpleLogger" /> implementation.
+        ///     </para>
+        ///     <para>
+        ///         Use this method when the other overloads do not provide enough control over filtering and formatting of the output.
+        ///         Use the <see cref="LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" /> overload for default logging of
+        ///         all events.
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,SimpleLoggerFormatOptions?)" />
+        ///         overload to log only events in specific categories.
+        ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},SimpleLoggerFormatOptions?)" />
+        ///         overload to use a custom filter for events.
+        ///     </para>
+        /// </summary>
+        /// <param name="simpleLogger"> The <see cref="ISimpleLogger" /> to use. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public virtual DbContextOptionsBuilder LogTo([NotNull] ISimpleLogger simpleLogger)
+        {
+            Check.NotNull(simpleLogger, nameof(simpleLogger));
+
+            return WithOption(e => e.WithSimpleLogger(simpleLogger));
+        }
+
+        /// <summary>
+        ///     <para>
         ///         Enables detailed errors when handling of data value exceptions that occur during processing of store query results. Such errors
         ///         most often occur due to misconfiguration of entity properties. E.g. If a property is configured to be of type
         ///         'int', but the underlying data in the store is actually of type 'string', then an exception will be generated

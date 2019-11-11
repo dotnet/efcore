@@ -32,5 +32,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public ILogger Logger => this;
 
         public virtual LoggingDefinitions Definitions { get; } = new TDefinitions();
+
+        public IInterceptors Interceptors { get; }
     }
 }

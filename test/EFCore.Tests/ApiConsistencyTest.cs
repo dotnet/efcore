@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable InconsistentNaming
@@ -16,6 +19,18 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
+        public ApiConsistencyTest()
+            : base(
+                typeof(CompiledQueryCacheKeyGenerator).GetRuntimeMethods().Single(m => m.Name == "GenerateCacheKeyCore"),
+                typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == "get_Item"),
+                typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == "set_Item"),
+                typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == nameof(InternalEntityEntry.HasDefaultValue)),
+                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.Filter)).GetMethod,
+                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.Sink)).GetMethod,
+                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.FormatOptions)).GetMethod)
+        {
+        }
+
         private static readonly Type[] _fluentApiTypes =
         {
             typeof(ModelBuilder),
@@ -87,8 +102,6 @@ namespace Microsoft.EntityFrameworkCore
                 && method.Name != nameof(DbContext.OnModelCreating)
                 && !(type == typeof(IEntityTypeConfiguration<>)
                     && method.Name == nameof(IEntityTypeConfiguration<object>.Configure));
-
-        protected override bool ShouldHaveVirtualMethods(Type type) => type != typeof(InternalEntityEntry);
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
 

@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class SqlParameterExpression : SqlExpression
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class SqlParameterExpression : SqlExpression
     {
         private readonly ParameterExpression _parameterExpression;
 

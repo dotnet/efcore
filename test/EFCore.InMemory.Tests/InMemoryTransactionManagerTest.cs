@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
@@ -66,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore
                 new ListLoggerFactory(l => false),
                 options,
                 new DiagnosticListener("Fake"),
-                new InMemoryLoggingDefinitions());
+                new InMemoryLoggingDefinitions(),
+                new NullSimpleLogger());
             return logger;
         }
     }

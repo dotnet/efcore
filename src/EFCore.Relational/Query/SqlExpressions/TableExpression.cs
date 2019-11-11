@@ -6,7 +6,8 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class TableExpression : TableExpressionBase
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class TableExpression : TableExpressionBase
     {
         internal TableExpression(string name, string schema, [NotNull] string alias)
             : base(alias)

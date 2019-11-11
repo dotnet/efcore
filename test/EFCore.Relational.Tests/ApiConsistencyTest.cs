@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +16,16 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
+        public ApiConsistencyTest()
+            : base(
+                typeof(RelationalCompiledQueryCacheKeyGenerator)
+                    .GetRuntimeMethods()
+                    .Single(
+                        m => m.Name == "GenerateCacheKeyCore"
+                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator)))
+        {
+        }
+
         private static readonly Type[] _fluentApiTypes =
         {
             typeof(RelationalForeignKeyBuilderExtensions),
@@ -30,9 +42,6 @@ namespace Microsoft.EntityFrameworkCore
         };
 
         protected override IEnumerable<Type> FluentApiTypes => _fluentApiTypes;
-
-        protected override bool ShouldHaveVirtualMethods(Type type)
-            => type.Name != "EntityShaper";
 
         protected override void AddServices(ServiceCollection serviceCollection)
         {

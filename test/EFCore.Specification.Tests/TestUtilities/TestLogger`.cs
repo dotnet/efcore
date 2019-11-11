@@ -9,6 +9,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         where TCategory : LoggerCategory<TCategory>, new()
         where TDefinitions : LoggingDefinitions, new()
     {
-        public IInterceptors Interceptors { get; }
     }
 }

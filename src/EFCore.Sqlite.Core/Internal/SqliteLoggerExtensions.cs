@@ -28,24 +28,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogSchemaConfigured(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    entityType.DisplayName(), schema);
+                definition.Log(diagnostics, entityType.DisplayName(), schema);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new EntityTypeSchemaEventData(
-                        definition,
-                        SchemaConfiguredWarning,
-                        entityType,
-                        schema));
+                var eventData = new EntityTypeSchemaEventData(
+                    definition,
+                    SchemaConfiguredWarning,
+                    entityType,
+                    schema);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -70,23 +66,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogSequenceConfigured(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    sequence.Name);
+                definition.Log(diagnostics, sequence.Name);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new SequenceEventData(
-                        definition,
-                        SequenceConfiguredWarning,
-                        sequence));
+                var eventData = new SequenceEventData(
+                    definition,
+                    SequenceConfiguredWarning,
+                    sequence);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -113,13 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogFoundColumn(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    tableName, columnName, dataTypeName, notNull, defaultValue);
+                definition.Log(diagnostics, tableName, columnName, dataTypeName, notNull, defaultValue);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -136,10 +124,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogUsingSchemaSelectionsWarning(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -157,13 +144,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogForeignKeyScaffoldErrorPrincipalTableNotFound(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    foreignKeyName);
+                definition.Log(diagnostics, foreignKeyName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -181,13 +164,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogFoundTable(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    tableName);
+                definition.Log(diagnostics, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -205,13 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogMissingTable(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    tableName);
+                definition.Log(diagnostics, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -232,13 +207,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogPrincipalColumnNotFound(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    foreignKeyName, tableName, principalColumnName, principalTableName);
+                definition.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -258,13 +229,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogFoundIndex(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    indexName, tableName, unique);
+                definition.Log(diagnostics, indexName, tableName, unique);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -285,13 +252,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogFoundForeignKey(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    tableName, id, principalTableName, deleteAction);
+                definition.Log(diagnostics, tableName, id, principalTableName, deleteAction);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -310,13 +273,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogFoundPrimaryKey(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    primaryKeyName, tableName);
+                definition.Log(diagnostics, primaryKeyName, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -335,13 +294,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         {
             var definition = SqliteResources.LogFoundUniqueConstraint(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    uniqueConstraintName, tableName);
+                definition.Log(diagnostics, uniqueConstraintName, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages

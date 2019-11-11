@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class SelectExpression : TableExpressionBase
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class SelectExpression : TableExpressionBase
     {
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
