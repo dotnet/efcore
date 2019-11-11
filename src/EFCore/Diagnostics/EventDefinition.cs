@@ -56,18 +56,16 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
         /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="warningBehavior"> Whether the event should be logged, thrown as an exception or ignored. </param>
         /// <param name="exception"> Optional exception associated with the event. </param>
         public virtual void Log<TLoggerCategory>(
             [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            WarningBehavior warningBehavior,
             [CanBeNull] Exception exception = null)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
-            switch (warningBehavior)
+            switch (WarningBehavior)
             {
                 case WarningBehavior.Log:
-                    _logAction(logger.Logger, null);
+                    _logAction(logger.Logger, exception);
                     break;
                 case WarningBehavior.Throw:
                     throw WarningAsError(GenerateMessage());

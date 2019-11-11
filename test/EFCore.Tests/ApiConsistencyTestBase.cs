@@ -24,10 +24,12 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract class ApiConsistencyTestBase
     {
+        private readonly HashSet<MethodInfo> _nonVirtual;
         private readonly Dictionary<Type, Type> _mutableMetadataTypes = new Dictionary<Type, Type>();
 
-        public ApiConsistencyTestBase()
+        protected ApiConsistencyTestBase(params MethodInfo[] nonVirtual)
         {
+            _nonVirtual = nonVirtual.ToHashSet();
             foreach (var typeTuple in MetadataTypes)
             {
                 _mutableMetadataTypes[typeTuple.Value.Mutable] = typeTuple.Value.Convention;
@@ -275,17 +277,15 @@ namespace Microsoft.EntityFrameworkCore
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.GetTypeInfo().IsVisible
                        && !type.GetTypeInfo().IsSealed
-                       && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
-                       && type.Namespace?.EndsWith(".Compiled", StringComparison.Ordinal) == false
-                       && ShouldHaveVirtualMethods(type)
                    from method in type.GetMethods(AnyInstance)
+                   let mustBeVirtual = !_nonVirtual.Contains(method)
+                   let isVirtual = method.IsVirtual && !method.IsFinal
                    where method.DeclaringType == type
-                       && !(method.IsVirtual && !method.IsFinal)
+                       && mustBeVirtual != isVirtual
                        && !method.Name.StartsWith("add_", StringComparison.Ordinal)
                        && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
                        && !method.Name.Equals("get_NodeType", StringComparison.Ordinal)
                        && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                       && method.Name != "GenerateCacheKeyCore"
                    select type.FullName + "." + method.Name)
                 .ToList();
 
@@ -293,9 +293,6 @@ namespace Microsoft.EntityFrameworkCore
                 nonVirtualMethods.Count > 0,
                 "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
         }
-
-        protected virtual bool ShouldHaveVirtualMethods(Type type)
-            => true;
 
         [ConditionalFact]
         public virtual void Public_api_arguments_should_have_not_null_annotation()

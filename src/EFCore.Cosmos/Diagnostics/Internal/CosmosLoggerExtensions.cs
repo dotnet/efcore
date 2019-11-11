@@ -44,11 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                     CoreEventId.ProviderBaseId,
                     "Executing Sql Query [Parameters=[{parameters}]]{newLine}{commandText}"));
 
-            var warningBehavior = definition.GetLogBehavior(diagnosticsLogger);
-
             definition.Log(
                 diagnosticsLogger,
-                warningBehavior,
                 FormatParameters(cosmosSqlQuery.Parameters),
                 Environment.NewLine,
                 cosmosSqlQuery.Query);

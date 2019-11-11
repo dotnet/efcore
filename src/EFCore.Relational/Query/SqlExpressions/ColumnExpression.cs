@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
-    public class ColumnExpression : SqlExpression
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class ColumnExpression : SqlExpression
     {
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
             : this(

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -220,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                TestHelpers.LoggingDefinitions);
+                TestHelpers.LoggingDefinitions,
+                new NullSimpleLogger());
         }
 
         protected DiagnosticsLogger<DbLoggerCategory.Model> CreateModelLogger(bool sensitiveDataLoggingEnabled = false)
@@ -231,7 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 LoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                TestHelpers.LoggingDefinitions);
+                TestHelpers.LoggingDefinitions,
+                new NullSimpleLogger());
         }
 
         protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)
