@@ -14,19 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_simple(bool isAsync)
+        public virtual Task KeylessEntity_simple(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<CustomerView>());
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_where_simple(bool isAsync)
+        public virtual Task KeylessEntity_where_simple(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<CustomerView>().Where(c => c.City == "London"));
         }
 
@@ -62,19 +62,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_with_defining_query(bool isAsync)
+        public virtual Task KeylessEntity_with_defining_query(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderQuery>().Where(ov => ov.CustomerID == "ALFKI"));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
+        public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderQuery>().Where(ov => ov.CustomerID == "ALFKI").Select(ov => ov.Customer)
                     .OrderBy(c => c.CustomerID)
                     .Select(cv => cv.Orders.Where(cc => true).ToList()),
@@ -85,10 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_with_mixed_tracking(bool isAsync)
+        public virtual Task KeylessEntity_with_mixed_tracking(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => from c in ss.Set<Customer>()
                       from o in ss.Set<OrderQuery>().Where(ov => ov.CustomerID == c.CustomerID)
                       select new { c, o },
@@ -98,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task KeylessEntity_with_included_nav(bool isAsync)
+        public virtual async Task KeylessEntity_with_included_nav(bool async)
         {
             using var ctx = CreateContext();
-            if (isAsync)
+            if (async)
             {
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     () => (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer)
@@ -120,10 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task KeylessEntity_with_included_navs_multi_level(bool isAsync)
+        public virtual async Task KeylessEntity_with_included_navs_multi_level(bool async)
         {
             using var ctx = CreateContext();
-            if (isAsync)
+            if (async)
             {
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     () => (from ov in ctx.Set<OrderQuery>().Include(ov => ov.Customer.Orders)
@@ -142,10 +142,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_select_where_navigation(bool isAsync)
+        public virtual Task KeylessEntity_select_where_navigation(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => from ov in ss.Set<OrderQuery>()
                       where ov.Customer.City == "Seattle"
                       select ov);
@@ -153,10 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
+        public virtual Task KeylessEntity_select_where_navigation_multi_level(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => from ov in ss.Set<OrderQuery>()
                       where ov.Customer.Orders.Any()
                       select ov);
@@ -164,10 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task KeylesEntity_groupby(bool isAsync)
+        public virtual Task KeylesEntity_groupby(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<CustomerView>()
                     .GroupBy(cv => cv.City)
                     .Select(g => new { g.Key, Count = g.Count(), Sum = g.Sum(e => e.Address.Length) }),

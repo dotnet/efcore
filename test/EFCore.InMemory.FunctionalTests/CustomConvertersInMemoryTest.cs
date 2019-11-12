@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory(Skip = "Issue#14042")]
-        public override Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
+        public override Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
         {
-            return base.Can_query_custom_type_not_mapped_by_default_equality(isAsync);
+            return base.Can_query_custom_type_not_mapped_by_default_equality(async);
         }
 
         [ConditionalFact(Skip = "Issue#17050")]

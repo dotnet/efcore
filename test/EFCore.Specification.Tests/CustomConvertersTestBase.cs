@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
+        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
         {
             using (var context = CreateContext())
             {
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore
                             && c.IsTest == false
                             && c.Discriminator == new Dictionary<string, string>());
 
-                var result = isAsync ? await query.SingleAsync() : query.Single();
+                var result = async ? await query.SingleAsync() : query.Single();
                 Assert.NotNull(result);
                 context.Remove(result);
                 context.SaveChanges();
