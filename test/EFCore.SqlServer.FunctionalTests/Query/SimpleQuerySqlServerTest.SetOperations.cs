@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class SimpleQuerySqlServerTest
     {
-        public override async Task Union(bool isAsync)
+        public override async Task Union(bool async)
         {
-            await base.Union(isAsync);
+            await base.Union(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -23,9 +23,9 @@ FROM [Customers] AS [c0]
 WHERE [c0].[City] = N'London'");
         }
 
-        public override async Task Concat(bool isAsync)
+        public override async Task Concat(bool async)
         {
-            await base.Concat(isAsync);
+            await base.Concat(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -37,9 +37,9 @@ FROM [Customers] AS [c0]
 WHERE [c0].[City] = N'London'");
         }
 
-        public override async Task Intersect(bool isAsync)
+        public override async Task Intersect(bool async)
         {
-            await base.Intersect(isAsync);
+            await base.Intersect(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -51,9 +51,9 @@ FROM [Customers] AS [c0]
 WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");
         }
 
-        public override async Task Except(bool isAsync)
+        public override async Task Except(bool async)
         {
-            await base.Except(isAsync);
+            await base.Except(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -65,9 +65,9 @@ FROM [Customers] AS [c0]
 WHERE CHARINDEX(N'Thomas', [c0].[ContactName]) > 0");
         }
 
-        public override async Task Union_OrderBy_Skip_Take(bool isAsync)
+        public override async Task Union_OrderBy_Skip_Take(bool async)
         {
-            await base.Union_OrderBy_Skip_Take(isAsync);
+            await base.Union_OrderBy_Skip_Take(async);
 
             AssertSql(
                 @"@__p_0='1'
@@ -86,9 +86,9 @@ ORDER BY [t].[ContactName]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY");
         }
 
-        public override async Task Union_Where(bool isAsync)
+        public override async Task Union_Where(bool async)
         {
-            await base.Union_Where(isAsync);
+            await base.Union_Where(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
@@ -104,9 +104,9 @@ FROM (
 WHERE CHARINDEX(N'Thomas', [t].[ContactName]) > 0");
         }
 
-        public override async Task Union_Skip_Take_OrderBy_ThenBy_Where(bool isAsync)
+        public override async Task Union_Skip_Take_OrderBy_ThenBy_Where(bool async)
         {
-            await base.Union_Skip_Take_OrderBy_ThenBy_Where(isAsync);
+            await base.Union_Skip_Take_OrderBy_ThenBy_Where(async);
 
             AssertSql(
                 @"@__p_0='0'
@@ -130,9 +130,9 @@ WHERE CHARINDEX(N'Thomas', [t0].[ContactName]) > 0
 ORDER BY [t0].[Region], [t0].[City]");
         }
 
-        public override async Task Union_Union(bool isAsync)
+        public override async Task Union_Union(bool async)
         {
-            await base.Union_Union(isAsync);
+            await base.Union_Union(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -148,9 +148,9 @@ FROM [Customers] AS [c1]
 WHERE [c1].[City] = N'Mannheim'");
         }
 
-        public override async Task Union_Intersect(bool isAsync)
+        public override async Task Union_Intersect(bool async)
         {
-            await base.Union_Intersect(isAsync);
+            await base.Union_Intersect(async);
 
             AssertSql(
                 @"(
@@ -169,9 +169,9 @@ WHERE CHARINDEX(N'Thomas', [c1].[ContactName]) > 0");
         }
 
         [ConditionalTheory]
-        public override async Task Union_Take_Union_Take(bool isAsync)
+        public override async Task Union_Take_Union_Take(bool async)
         {
-            await base.Union_Take_Union_Take(isAsync);
+            await base.Union_Take_Union_Take(async);
 
             AssertSql(
                 @"@__p_0='1'
@@ -203,9 +203,9 @@ FROM (
 ORDER BY [t2].[CustomerID]");
         }
 
-        public override async Task Select_Union(bool isAsync)
+        public override async Task Select_Union(bool async)
         {
-            await base.Select_Union(isAsync);
+            await base.Select_Union(async);
 
             AssertSql(
                 @"SELECT [c].[Address]
@@ -217,9 +217,9 @@ FROM [Customers] AS [c0]
 WHERE [c0].[City] = N'London'");
         }
 
-        public override async Task Union_Select(bool isAsync)
+        public override async Task Union_Select(bool async)
         {
-            await base.Union_Select(isAsync);
+            await base.Union_Select(async);
 
             AssertSql(
                 @"SELECT [t].[Address]
@@ -235,9 +235,9 @@ FROM (
 WHERE CHARINDEX(N'Hanover', [t].[Address]) > 0");
         }
 
-        public override async Task Union_Select_scalar(bool isAsync)
+        public override async Task Union_Select_scalar(bool async)
         {
-            await base.Union_Select_scalar(isAsync);
+            await base.Union_Select_scalar(async);
 
             AssertSql(
                 @"SELECT 1
@@ -250,9 +250,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task Union_with_anonymous_type_projection(bool isAsync)
+        public override async Task Union_with_anonymous_type_projection(bool async)
         {
-            await base.Union_with_anonymous_type_projection(isAsync);
+            await base.Union_with_anonymous_type_projection(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID] AS [Id]
@@ -267,9 +267,9 @@ FROM (
 ) AS [t]");
         }
 
-        public override async Task Select_Union_unrelated(bool isAsync)
+        public override async Task Select_Union_unrelated(bool async)
         {
-            await base.Select_Union_unrelated(isAsync);
+            await base.Select_Union_unrelated(async);
 
             AssertSql(
                 @"SELECT [t].[ContactName]
@@ -284,9 +284,9 @@ WHERE [t].[ContactName] IS NOT NULL AND ([t].[ContactName] LIKE N'C%')
 ORDER BY [t].[ContactName]");
         }
 
-        public override async Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync)
+        public override async Task Select_Union_different_fields_in_anonymous_with_subquery(bool async)
         {
-            await base.Select_Union_different_fields_in_anonymous_with_subquery(isAsync);
+            await base.Select_Union_different_fields_in_anonymous_with_subquery(async);
 
             AssertSql(
                 @"@__p_0='1'
@@ -311,9 +311,9 @@ WHERE [t0].[Foo] = N'Berlin'
 ORDER BY [t0].[Foo]");
         }
 
-        public override async Task Union_Include(bool isAsync)
+        public override async Task Union_Include(bool async)
         {
-            await base.Union_Include(isAsync);
+            await base.Union_Include(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -330,9 +330,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override async Task Include_Union(bool isAsync)
+        public override async Task Include_Union(bool async)
         {
-            await base.Include_Union(isAsync);
+            await base.Include_Union(async);
 
             AssertSql(
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -349,9 +349,9 @@ LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
-        public override async Task Select_Except_reference_projection(bool isAsync)
+        public override async Task Select_Except_reference_projection(bool async)
         {
-            await base.Select_Except_reference_projection(isAsync);
+            await base.Select_Except_reference_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -364,9 +364,9 @@ LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
 WHERE [o0].[CustomerID] = N'ALFKI'");
         }
 
-        public override async Task SubSelect_Union(bool isAsync)
+        public override async Task SubSelect_Union(bool async)
         {
-            await base.SubSelect_Union(isAsync);
+            await base.SubSelect_Union(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
@@ -382,9 +382,9 @@ SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].
 FROM [Customers] AS [c0]");
         }
 
-        public override async Task GroupBy_Select_Union(bool isAsync)
+        public override async Task GroupBy_Select_Union(bool async)
         {
-            await base.GroupBy_Select_Union(isAsync);
+            await base.GroupBy_Select_Union(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], COUNT(*) AS [Count]
@@ -398,9 +398,9 @@ WHERE [c0].[City] = N'London'
 GROUP BY [c0].[CustomerID]");
         }
 
-        public override async Task Union_over_columns_with_different_nullability(bool isAsync)
+        public override async Task Union_over_columns_with_different_nullability(bool async)
         {
-            await base.Union_over_columns_with_different_nullability(isAsync);
+            await base.Union_over_columns_with_different_nullability(async);
 
             AssertSql(
                 @"SELECT N'NonNullableConstant' AS [c]
@@ -410,9 +410,9 @@ SELECT NULL AS [c]
 FROM [Customers] AS [c0]");
         }
 
-        public override async Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
+        public override async Task Union_over_different_projection_types(bool async, string leftType, string rightType)
         {
-            await base.Union_over_different_projection_types(isAsync, leftType, rightType);
+            await base.Union_over_different_projection_types(async, leftType, rightType);
 
             var leftSql = GenerateSql(leftType);
             var rightSql = GenerateSql(rightType);
@@ -491,9 +491,9 @@ FROM [Orders] AS [o0]";
             }
         }
 
-        public override async Task OrderBy_Take_Union(bool isAsync)
+        public override async Task OrderBy_Take_Union(bool async)
         {
-            await base.OrderBy_Take_Union(isAsync);
+            await base.OrderBy_Take_Union(async);
 
             AssertSql(
                 @"@__p_0='1'

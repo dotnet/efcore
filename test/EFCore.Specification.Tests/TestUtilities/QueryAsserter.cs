@@ -42,13 +42,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, TResult> expectedQuery,
             Action<TResult, TResult> asserter,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName)
         {
             using var context = _contextCreator();
             TResult actual;
 
-            if (isAsync)
+            if (async)
             {
                 actual = await actualAsyncQuery(SetSourceCreator(context));
             }
@@ -70,12 +70,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Action<TResult, TResult> elementAsserter,
             bool assertOrder,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName)
         {
             using var context = _contextCreator();
             var query = actualQuery(SetSourceCreator(context));
-            if (ProceduralQueryGeneration && !isAsync)
+            if (ProceduralQueryGeneration && !async)
             {
                 new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
 
-            var actual = isAsync
+            var actual = async
                 ? await query.ToArrayAsync()
                 : query.ToArray();
 
@@ -137,13 +137,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             bool assertOrder,
-            bool isAsync,
+            bool async,
             string testMethodName)
             where TResult : struct
         {
             using var context = _contextCreator();
             var query = actualQuery(SetSourceCreator(context));
-            if (ProceduralQueryGeneration && !isAsync)
+            if (ProceduralQueryGeneration && !async)
             {
                 new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
@@ -152,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             OrderingSettingsVerifier(assertOrder, query.Expression.Type);
 
-            var actual = isAsync
+            var actual = async
                 ? await query.ToArrayAsync()
                 : query.ToArray();
 
@@ -170,13 +170,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult?>> actualQuery,
             Func<ISetSource, IQueryable<TResult?>> expectedQuery,
             bool assertOrder,
-            bool isAsync,
+            bool async,
             string testMethodName)
             where TResult : struct
         {
             using var context = _contextCreator();
             var query = actualQuery(SetSourceCreator(context));
-            if (ProceduralQueryGeneration && !isAsync)
+            if (ProceduralQueryGeneration && !async)
             {
                 new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             OrderingSettingsVerifier(assertOrder, query.Expression.Type);
 
-            var actual = isAsync
+            var actual = async
                 ? await query.ToArrayAsync()
                 : query.ToArray();
 
@@ -207,12 +207,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             List<Func<TResult, object>> clientProjections,
             bool assertOrder,
             int entryCount,
-            bool isAsync,
+            bool async,
             string testMethodName)
         {
             using var context = _contextCreator();
             var query = actualQuery(SetSourceCreator(context));
-            if (ProceduralQueryGeneration && !isAsync)
+            if (ProceduralQueryGeneration && !async)
             {
                 new ProcedurallyGeneratedQueryExecutor().Execute(query, context, testMethodName);
 
@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             OrderingSettingsVerifier(assertOrder, query.Expression.Type, elementSorter);
 
-            var actual = isAsync
+            var actual = async
                 ? await query.ToListAsync()
                 : query.ToList();
 
@@ -265,10 +265,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertAny<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AnyAsync()
                 : actualQuery(SetSourceCreator(context)).Any();
 
@@ -282,11 +282,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
             using (var context = _contextCreator())
             {
-                var actual = isAsync
+                var actual = async
                     ? await actualQuery(SetSourceCreator(context)).AnyAsync(actualPredicate)
                     : actualQuery(SetSourceCreator(context)).Any(actualPredicate);
 
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             using (var context = _contextCreator())
             {
-                var actual = isAsync
+                var actual = async
                     ? await actualQuery(SetSourceCreator(context)).AnyAsync()
                     : actualQuery(SetSourceCreator(context)).Any();
 
@@ -312,10 +312,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AllAsync(actualPredicate)
                 : actualQuery(SetSourceCreator(context)).All(actualPredicate);
 
@@ -329,10 +329,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).FirstAsync()
                 : actualQuery(SetSourceCreator(context)).First();
 
@@ -349,10 +349,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedFirstPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).FirstAsync(actualFirstPredicate)
                 : actualQuery(SetSourceCreator(context)).First(actualFirstPredicate);
 
@@ -367,10 +367,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).FirstOrDefaultAsync()
                 : actualQuery(SetSourceCreator(context)).FirstOrDefault();
 
@@ -387,10 +387,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).FirstOrDefaultAsync(actualPredicate)
                 : actualQuery(SetSourceCreator(context)).FirstOrDefault(actualPredicate);
 
@@ -405,10 +405,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SingleAsync()
                 : actualQuery(SetSourceCreator(context)).Single();
 
@@ -425,10 +425,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedFirstPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SingleAsync(actualFirstPredicate)
                 : actualQuery(SetSourceCreator(context)).Single(actualFirstPredicate);
 
@@ -443,10 +443,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SingleOrDefaultAsync()
                 : actualQuery(SetSourceCreator(context)).SingleOrDefault();
 
@@ -463,10 +463,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SingleOrDefaultAsync(actualPredicate)
                 : actualQuery(SetSourceCreator(context)).SingleOrDefault(actualPredicate);
 
@@ -481,10 +481,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).LastAsync()
                 : actualQuery(SetSourceCreator(context)).Last();
 
@@ -501,10 +501,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).LastAsync(actualPredicate)
                 : actualQuery(SetSourceCreator(context)).Last(actualPredicate);
 
@@ -519,10 +519,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).LastOrDefaultAsync()
                 : actualQuery(SetSourceCreator(context)).LastOrDefault();
 
@@ -539,10 +539,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, bool>> expectedPredicate,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).LastOrDefaultAsync(actualPredicate)
                 : actualQuery(SetSourceCreator(context)).LastOrDefault(actualPredicate);
 
@@ -555,10 +555,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).CountAsync()
                 : actualQuery(SetSourceCreator(context)).Count();
 
@@ -573,10 +573,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).CountAsync(actualPredicate)
                 : actualQuery(SetSourceCreator(context)).Count(actualPredicate);
 
@@ -589,10 +589,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task AssertLongCount<TResult>(
             Func<ISetSource, IQueryable<TResult>> actualQuery,
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).LongCountAsync()
                 : actualQuery(SetSourceCreator(context)).LongCount();
 
@@ -607,10 +607,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Expression<Func<TResult, bool>> actualPredicate,
             Expression<Func<TResult, bool>> expectedPredicate,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).LongCountAsync(actualPredicate)
                 : actualQuery(SetSourceCreator(context)).LongCount(actualPredicate);
 
@@ -625,10 +625,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).MinAsync()
                 : actualQuery(SetSourceCreator(context)).Min();
 
@@ -645,10 +645,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).MinAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Min(actualSelector);
 
@@ -663,10 +663,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<TResult>> expectedQuery,
             Action<TResult, TResult> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).MaxAsync()
                 : actualQuery(SetSourceCreator(context)).Max();
 
@@ -683,10 +683,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, TSelector>> expectedSelector,
             Action<TSelector, TSelector> asserter = null,
             int entryCount = 0,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).MaxAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Max(actualSelector);
 
@@ -700,10 +700,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<int, int> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -717,10 +717,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<int?, int?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -734,10 +734,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<long, long> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -751,10 +751,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<long?, long?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -768,10 +768,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -785,10 +785,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -802,10 +802,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -819,10 +819,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -836,10 +836,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -853,10 +853,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync()
                 : actualQuery(SetSourceCreator(context)).Sum();
 
@@ -872,10 +872,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<int, int> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -891,10 +891,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<int?, int?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -910,10 +910,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<long, long> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -929,10 +929,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<long?, long?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -948,10 +948,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -967,10 +967,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -986,10 +986,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -1005,10 +1005,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -1024,10 +1024,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -1043,10 +1043,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).SumAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Sum(actualSelector);
 
@@ -1060,10 +1060,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<int>> actualQuery,
             Func<ISetSource, IQueryable<int>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1077,10 +1077,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<int?>> actualQuery,
             Func<ISetSource, IQueryable<int?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1094,10 +1094,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<long>> actualQuery,
             Func<ISetSource, IQueryable<long>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1111,10 +1111,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<long?>> actualQuery,
             Func<ISetSource, IQueryable<long?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1128,10 +1128,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<decimal>> actualQuery,
             Func<ISetSource, IQueryable<decimal>> expectedQuery,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1145,10 +1145,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<decimal?>> actualQuery,
             Func<ISetSource, IQueryable<decimal?>> expectedQuery,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1162,10 +1162,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<float>> actualQuery,
             Func<ISetSource, IQueryable<float>> expectedQuery,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1179,10 +1179,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<float?>> actualQuery,
             Func<ISetSource, IQueryable<float?>> expectedQuery,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1196,10 +1196,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<double>> actualQuery,
             Func<ISetSource, IQueryable<double>> expectedQuery,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1213,10 +1213,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Func<ISetSource, IQueryable<double?>> actualQuery,
             Func<ISetSource, IQueryable<double?>> expectedQuery,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync()
                 : actualQuery(SetSourceCreator(context)).Average();
 
@@ -1232,10 +1232,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int>> actualSelector,
             Expression<Func<TResult, int>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1251,10 +1251,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, int?>> actualSelector,
             Expression<Func<TResult, int?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1270,10 +1270,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long>> actualSelector,
             Expression<Func<TResult, long>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1289,10 +1289,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, long?>> actualSelector,
             Expression<Func<TResult, long?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1308,10 +1308,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal>> actualSelector,
             Expression<Func<TResult, decimal>> expectedSelector,
             Action<decimal, decimal> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1327,10 +1327,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, decimal?>> actualSelector,
             Expression<Func<TResult, decimal?>> expectedSelector,
             Action<decimal?, decimal?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1346,10 +1346,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float>> actualSelector,
             Expression<Func<TResult, float>> expectedSelector,
             Action<float, float> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1365,10 +1365,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, float?>> actualSelector,
             Expression<Func<TResult, float?>> expectedSelector,
             Action<float?, float?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1384,10 +1384,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double>> actualSelector,
             Expression<Func<TResult, double>> expectedSelector,
             Action<double, double> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
@@ -1403,10 +1403,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Expression<Func<TResult, double?>> actualSelector,
             Expression<Func<TResult, double?>> expectedSelector,
             Action<double?, double?> asserter = null,
-            bool isAsync = false)
+            bool async = false)
         {
             using var context = _contextCreator();
-            var actual = isAsync
+            var actual = async
                 ? await actualQuery(SetSourceCreator(context)).AverageAsync(actualSelector)
                 : actualQuery(SetSourceCreator(context)).Average(actualSelector);
 
