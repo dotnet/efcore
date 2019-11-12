@@ -1970,5 +1970,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().Where(o => EF.Functions.Like(o.OrderID.ToString(), "%20%")),
                 entryCount: 8);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
+        {
+            var i = 10;
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => i + c.CustomerID + i == c.CompanyName)
+                    .Select(c => c.CustomerID));
+        }
     }
 }

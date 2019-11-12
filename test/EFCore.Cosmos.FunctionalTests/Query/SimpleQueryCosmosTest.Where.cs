@@ -1895,5 +1895,13 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
         {
             return base.Like_with_non_string_column_using_double_cast(async);
         }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
+        {
+            await base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async);
+
+            AssertSql(" ");
+        }
     }
 }

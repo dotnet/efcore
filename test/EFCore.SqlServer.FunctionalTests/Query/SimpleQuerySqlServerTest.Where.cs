@@ -1792,5 +1792,17 @@ WHERE CONVERT(VARCHAR(11), [o].[OrderID]) LIKE N'%20%'");
 FROM [Orders] AS [o]
 WHERE CAST([o].[OrderID] AS nvarchar(max)) LIKE N'%20%'");
         }
+
+        public override async Task Using_same_parameter_twice_in_query_generates_one_sql_parameter(bool async)
+        {
+            await base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async);
+
+            AssertSql(
+                @"@__i_0='10'
+
+SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+WHERE ((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]");
+        }
     }
 }
