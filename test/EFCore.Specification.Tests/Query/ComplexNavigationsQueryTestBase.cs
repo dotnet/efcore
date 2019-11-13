@@ -5559,5 +5559,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         () => l1.OneToOne_Required_FK1.OneToOne_Required_FK2.Name)),
                 assertOrder: true);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Null_conditional_is_not_applied_explicitly_for_optional_navigation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1 != null && l1.OneToOne_Optional_FK1.Name == "L2 01"));
+        }
     }
 }
