@@ -466,11 +466,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     entry.SetIsLoaded(navigation);
                     if (relatedEntities != null)
                     {
-                        using (var enumerator = relatedEntities.GetEnumerator())
+                        using var enumerator = relatedEntities.GetEnumerator();
+                        while (enumerator.MoveNext())
                         {
-                            while (enumerator.MoveNext())
-                            {
-                            }
                         }
                     }
                     else

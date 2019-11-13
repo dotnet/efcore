@@ -80,18 +80,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual void DropDatabase([CanBeNull] string contextType)
         {
-            using (var context = CreateContext(contextType))
+            using var context = CreateContext(contextType);
+            var connection = context.Database.GetDbConnection();
+            _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database));
+            if (context.Database.EnsureDeleted())
             {
-                var connection = context.Database.GetDbConnection();
-                _reporter.WriteInformation(DesignStrings.DroppingDatabase(connection.Database));
-                if (context.Database.EnsureDeleted())
-                {
-                    _reporter.WriteInformation(DesignStrings.DatabaseDropped(connection.Database));
-                }
-                else
-                {
-                    _reporter.WriteInformation(DesignStrings.NotExistDatabase(connection.Database));
-                }
+                _reporter.WriteInformation(DesignStrings.DatabaseDropped(connection.Database));
+            }
+            else
+            {
+                _reporter.WriteInformation(DesignStrings.NotExistDatabase(connection.Database));
             }
         }
 
@@ -103,10 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string ScriptDbContext([CanBeNull] string contextType)
         {
-            using (var context = CreateContext(contextType))
-            {
-                return context.Database.GenerateCreateScript();
-            }
+            using var context = CreateContext(contextType);
+            return context.Database.GenerateCreateScript();
         }
 
         /// <summary>
@@ -228,22 +224,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual ContextInfo GetContextInfo([CanBeNull] string contextType)
         {
-            using (var context = CreateContext(contextType))
-            {
-                var info = new ContextInfo();
+            using var context = CreateContext(contextType);
+            var info = new ContextInfo();
 
-                var provider = context.GetService<IDatabaseProvider>();
-                info.ProviderName = provider.Name;
+            var provider = context.GetService<IDatabaseProvider>();
+            info.ProviderName = provider.Name;
 
-                var connection = context.Database.GetDbConnection();
-                info.DataSource = connection.DataSource;
-                info.DatabaseName = connection.Database;
+            var connection = context.Database.GetDbConnection();
+            info.DataSource = connection.DataSource;
+            info.DatabaseName = connection.Database;
 
-                var options = context.GetService<IDbContextOptions>();
-                info.Options = options.BuildOptionsFragment().Trim();
+            var options = context.GetService<IDbContextOptions>();
+            info.Options = options.BuildOptionsFragment().Trim();
 
-                return info;
-            }
+            return info;
         }
 
         private Func<DbContext> FindContextFactory(Type contextType)
