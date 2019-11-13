@@ -821,6 +821,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_over_10_nested_ternary_condition(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                os => from c in os.Set<Customer>()
+                      select
+                      c.CustomerID == "1" ? "01" :
+                      c.CustomerID == "2" ? "02" :
+                      c.CustomerID == "3" ? "03" :
+                      c.CustomerID == "4" ? "04" :
+                      c.CustomerID == "5" ? "05" :
+                      c.CustomerID == "6" ? "06" :
+                      c.CustomerID == "7" ? "07" :
+                      c.CustomerID == "8" ? "08" :
+                      c.CustomerID == "9" ? "09" :
+                      c.CustomerID == "10" ? "10" :
+                      c.CustomerID == "11" ? "11" :
+                      null);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_in_a_subquery_should_be_liftable(bool async)
         {
             return AssertQuery(
