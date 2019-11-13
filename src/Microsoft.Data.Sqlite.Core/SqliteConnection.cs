@@ -587,18 +587,16 @@ namespace Microsoft.Data.Sqlite
 
             try
             {
-                using (var backup = sqlite3_backup_init(destination._db, destinationName, _db, sourceName))
+                using var backup = sqlite3_backup_init(destination._db, destinationName, _db, sourceName);
+                int rc;
+                if (backup.IsInvalid)
                 {
-                    int rc;
-                    if (backup.IsInvalid)
-                    {
-                        rc = sqlite3_errcode(destination._db);
-                        SqliteException.ThrowExceptionForRC(rc, destination._db);
-                    }
-
-                    rc = sqlite3_backup_step(backup, -1);
+                    rc = sqlite3_errcode(destination._db);
                     SqliteException.ThrowExceptionForRC(rc, destination._db);
                 }
+
+                rc = sqlite3_backup_step(backup, -1);
+                SqliteException.ThrowExceptionForRC(rc, destination._db);
             }
             finally
             {

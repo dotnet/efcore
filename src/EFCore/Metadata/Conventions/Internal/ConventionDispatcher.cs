@@ -462,13 +462,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         public virtual T Run<T>(Func<T> func, ref ForeignKey foreignKey)
         {
             var batch = DelayConventions();
-            using (var foreignKeyReference = Tracker.Track(foreignKey))
-            {
-                var result = func();
-                batch.Dispose();
-                foreignKey = foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
-                return result;
-            }
+            using var foreignKeyReference = Tracker.Track(foreignKey);
+            var result = func();
+            batch.Dispose();
+            foreignKey = foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
+            return result;
         }
 
         private class ConventionBatch : IConventionBatch
@@ -534,11 +532,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return foreignKey;
                 }
 
-                using (var foreignKeyReference = _dispatcher.Tracker.Track(foreignKey))
-                {
-                    Run();
-                    return foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
-                }
+                using var foreignKeyReference = _dispatcher.Tracker.Track(foreignKey);
+                Run();
+                return foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
             }
 
             public void Dispose()
