@@ -3764,13 +3764,9 @@ namespace RootNamespace
                             .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return new ModelBuilder(ConventionSet.CreateConventionSet(context));
-                }
-            }
+            using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            return new ModelBuilder(ConventionSet.CreateConventionSet(context));
         }
     }
 }

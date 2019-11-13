@@ -183,44 +183,42 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(false, false, false)]
         public void Can_insert_with_array_comparer(bool useTypeMapping, bool useStateChange, bool nullValue)
         {
-            using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
+            using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
+            var value = nullValue ? null : new[] { 1, 2, 3, 4 };
+
+            var baxter = new Baxter { Id = Guid.NewGuid(), Demands = value };
+
+            var entityEntry = context.Entry(baxter);
+
+            if (useStateChange)
             {
-                var value = nullValue ? null : new[] { 1, 2, 3, 4 };
-
-                var baxter = new Baxter { Id = Guid.NewGuid(), Demands = value };
-
-                var entityEntry = context.Entry(baxter);
-
-                if (useStateChange)
-                {
-                    entityEntry.State = EntityState.Added;
-                }
-                else
-                {
-                    context.Add(baxter);
-                }
-
-                Assert.Equal(EntityState.Added, entityEntry.State);
-                Assert.Equal(value, entityEntry.Property(e => e.Demands).CurrentValue);
-
-                context.SaveChanges();
-
-                Assert.Equal(EntityState.Unchanged, entityEntry.State);
-
-                if (nullValue)
-                {
-                    baxter.Demands = new[] { 1, 767, 3, 4 };
-                }
-                else
-                {
-                    baxter.Demands[1] = 767;
-                }
-
-                context.ChangeTracker.DetectChanges();
-
-                Assert.Equal(EntityState.Modified, entityEntry.State);
-                Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
+                entityEntry.State = EntityState.Added;
             }
+            else
+            {
+                context.Add(baxter);
+            }
+
+            Assert.Equal(EntityState.Added, entityEntry.State);
+            Assert.Equal(value, entityEntry.Property(e => e.Demands).CurrentValue);
+
+            context.SaveChanges();
+
+            Assert.Equal(EntityState.Unchanged, entityEntry.State);
+
+            if (nullValue)
+            {
+                baxter.Demands = new[] { 1, 767, 3, 4 };
+            }
+            else
+            {
+                baxter.Demands[1] = 767;
+            }
+
+            context.ChangeTracker.DetectChanges();
+
+            Assert.Equal(EntityState.Modified, entityEntry.State);
+            Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
         }
 
         [ConditionalTheory]
@@ -228,27 +226,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(false)]
         public void Detects_scalar_property_change_with_custom_comparer(bool useTypeMapping)
         {
-            using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
-            {
-                var baxter = context.Attach(
-                    new Baxter { Id = Guid.NewGuid(), Demands = new[] { 1, 2, 3, 4 } }).Entity;
+            using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
+            var baxter = context.Attach(
+                new Baxter { Id = Guid.NewGuid(), Demands = new[] { 1, 2, 3, 4 } }).Entity;
 
-                baxter.Demands[2] = 33;
+            baxter.Demands[2] = 33;
 
-                var entityEntry = context.Entry(baxter);
-                AssertDetected(entityEntry, entityEntry.Property(e => e.Demands));
+            var entityEntry = context.Entry(baxter);
+            AssertDetected(entityEntry, entityEntry.Property(e => e.Demands));
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.Equal(EntityState.Unchanged, entityEntry.State);
+            Assert.Equal(EntityState.Unchanged, entityEntry.State);
 
-                baxter.Demands[1] = 767;
+            baxter.Demands[1] = 767;
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Equal(EntityState.Modified, entityEntry.State);
-                Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
-            }
+            Assert.Equal(EntityState.Modified, entityEntry.State);
+            Assert.Equal(new[] { 1, 767, 3, 4 }, entityEntry.Property(e => e.Demands).CurrentValue);
         }
 
         [ConditionalTheory]
@@ -256,32 +252,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(false)]
         public void Detects_scalar_shadow_property_change_with_custom_comparer(bool useTypeMapping)
         {
-            using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
-            {
-                var entityEntry = context.Entry(
-                    new Baxter { Id = Guid.NewGuid() });
-                entityEntry.Property("ShadyDemands").CurrentValue = new[] { 1, 2, 3, 4 };
-                entityEntry.State = EntityState.Unchanged;
+            using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
+            var entityEntry = context.Entry(
+                new Baxter { Id = Guid.NewGuid() });
+            entityEntry.Property("ShadyDemands").CurrentValue = new[] { 1, 2, 3, 4 };
+            entityEntry.State = EntityState.Unchanged;
 
-                var propertyEntry = entityEntry.Property<int[]>("ShadyDemands");
+            var propertyEntry = entityEntry.Property<int[]>("ShadyDemands");
 
-                propertyEntry.CurrentValue[2] = 33;
+            propertyEntry.CurrentValue[2] = 33;
 
-                context.ChangeTracker.DetectChanges(); // Needed because array is being mutated
+            context.ChangeTracker.DetectChanges(); // Needed because array is being mutated
 
-                AssertDetected(entityEntry, propertyEntry);
+            AssertDetected(entityEntry, propertyEntry);
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.Equal(EntityState.Unchanged, entityEntry.State);
+            Assert.Equal(EntityState.Unchanged, entityEntry.State);
 
-                propertyEntry.CurrentValue[1] = 767;
+            propertyEntry.CurrentValue[1] = 767;
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Equal(EntityState.Modified, entityEntry.State);
-                Assert.Equal(new[] { 1, 767, 3, 4 }, propertyEntry.CurrentValue);
-            }
+            Assert.Equal(EntityState.Modified, entityEntry.State);
+            Assert.Equal(new[] { 1, 767, 3, 4 }, propertyEntry.CurrentValue);
         }
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local

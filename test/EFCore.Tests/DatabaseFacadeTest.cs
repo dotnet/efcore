@@ -100,32 +100,26 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_get_IServiceProvider()
         {
-            using (var context = InMemoryTestHelpers.Instance.CreateContext())
-            {
-                Assert.Same(
-                    ((IInfrastructure<IServiceProvider>)context).Instance,
-                    ((IInfrastructure<IServiceProvider>)context.Database).Instance);
-            }
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.Same(
+                ((IInfrastructure<IServiceProvider>)context).Instance,
+                ((IInfrastructure<IServiceProvider>)context.Database).Instance);
         }
 
         [ConditionalFact]
         public void Can_get_DatabaseCreator()
         {
-            using (var context = InMemoryTestHelpers.Instance.CreateContext())
-            {
-                Assert.Same(
-                    context.GetService<IDatabaseCreator>(),
-                    context.Database.GetService<IDatabaseCreator>());
-            }
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.Same(
+                context.GetService<IDatabaseCreator>(),
+                context.Database.GetService<IDatabaseCreator>());
         }
 
         [ConditionalFact]
         public void Can_get_Model()
         {
-            using (var context = InMemoryTestHelpers.Instance.CreateContext())
-            {
-                Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
-            }
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
         }
 
         [ConditionalTheory]
