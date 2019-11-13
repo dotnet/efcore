@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return leftJoinExpression.Update(table, joinPredicate);
         }
 
-        protected override Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression)
+        protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
         {
             var parentSearchCondition = _isSearchCondition;
             var subquery = (SelectExpression)Visit(scalarSubqueryExpression.Subquery);

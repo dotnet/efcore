@@ -249,6 +249,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return rowNumberExpression.Update(partitions, orderings);
         }
 
+        protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
+        {
+            var canOptimize = _canOptimize;
+            _canOptimize = false;
+            var subquery = (SelectExpression)Visit(scalarSubqueryExpression.Subquery);
+            _canOptimize = canOptimize;
+
+            return scalarSubqueryExpression.Update(subquery);
+        }
+
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {
             var changed = false;
@@ -582,16 +592,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _canOptimize = canOptimize;
 
             return sqlCastExpression.Update(newOperand);
-        }
-
-        protected override Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression)
-        {
-            var canOptimize = _canOptimize;
-            _canOptimize = false;
-            var subquery = (SelectExpression)Visit(scalarSubqueryExpression.Subquery);
-            _canOptimize = canOptimize;
-
-            return scalarSubqueryExpression.Update(subquery);
         }
 
         protected override Expression VisitTable(TableExpression tableExpression)

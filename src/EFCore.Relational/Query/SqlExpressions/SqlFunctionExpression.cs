@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             => new SqlFunctionExpression(instance: null, schema, name, niladic: false, arguments, builtIn: false, type, typeMapping);
 
         public SqlFunctionExpression(
-            Expression instance,
+            SqlExpression instance,
             string schema,
             string name,
             bool niladic,
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual bool IsNiladic { get; }
         public virtual bool IsBuiltIn { get; }
         public virtual IReadOnlyList<SqlExpression> Arguments { get; }
-        public virtual Expression Instance { get; }
+        public virtual SqlExpression Instance { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

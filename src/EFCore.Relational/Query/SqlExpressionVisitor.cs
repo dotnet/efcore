@@ -81,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case SqlParameterExpression sqlParameterExpression:
                     return VisitSqlParameter(sqlParameterExpression);
 
-                case ScalarSubqueryExpression subSelectExpression:
-                    return VisitSubSelect(subSelectExpression);
+                case ScalarSubqueryExpression scalarSubqueryExpression:
+                    return VisitScalarSubquery(scalarSubqueryExpression);
 
                 case TableExpression tableExpression:
                     return VisitTable(tableExpression);
@@ -110,14 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract Expression VisitOuterApply(OuterApplyExpression outerApplyExpression);
         protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
         protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
+        protected abstract Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression);
         protected abstract Expression VisitSelect(SelectExpression selectExpression);
         protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
         protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
         protected abstract Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression);
         protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
         protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
-        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlCastExpression);
-        protected abstract Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression);
+        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression);
         protected abstract Expression VisitTable(TableExpression tableExpression);
         protected abstract Expression VisitUnion(UnionExpression unionExpression);
     }

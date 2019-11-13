@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public override bool Equals(object obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
-                    || obj is ScalarSubqueryExpression subSelectExpression
-                    && Equals(subSelectExpression));
+                    || obj is ScalarSubqueryExpression scalarSubqueryExpression
+                    && Equals(scalarSubqueryExpression));
 
         private bool Equals(ScalarSubqueryExpression scalarSubqueryExpression)
             => base.Equals(scalarSubqueryExpression)

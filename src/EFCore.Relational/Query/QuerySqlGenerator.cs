@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return leftJoinExpression;
         }
 
-        protected override Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression)
+        protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
         {
             _relationalCommandBuilder.AppendLine("(");
             using (_relationalCommandBuilder.Indent())
