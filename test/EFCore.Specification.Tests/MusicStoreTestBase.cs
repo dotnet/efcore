@@ -478,6 +478,30 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Custom_projection_FirstOrDefault_works(bool async)
+        {
+            using var context = CreateContext();
+            var shoppingCartId = "CartId_A";
+            var id = 1;
+            var query = context.CartItems
+                .Select(ci => new CartItem
+                {
+                    CartId = ci.CartId,
+                    CartItemId = ci.CartItemId,
+                    Count = ci.Count,
+                    Album = new Album { Title = ci.Album.Title }
+                });
+
+            var cartItem = async
+                ? await query.FirstOrDefaultAsync(ci => ci.CartId == shoppingCartId && ci.CartItemId == id)
+                : query.FirstOrDefault(ci => ci.CartId == shoppingCartId && ci.CartItemId == id);
+
+            Assert.Null(cartItem);
+        }
+
         private static CartItem[] CreateTestCartItems(string cartId, decimal itemPrice, int numberOfItems)
         {
             var albums = CreateTestAlbums(
