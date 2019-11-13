@@ -34,9 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// Invoked just before execution the <see cref="DbContext.SaveChanges()" />.
         /// </summary>
         /// <param name="eventData">Event data.</param>
-        /// <param name="result">Result.</param>
-        /// <returns>Result</returns>
-        InterceptionResult<int> SavingChanges([NotNull] DbContextEventData eventData, InterceptionResult<int> result);
+        void SavingChanges([NotNull] DbContextEventData eventData);
 
         /// <summary>
         /// Invoked just before the execution of <see cref="DbContext.SaveChangesAsync(CancellationToken)" />.

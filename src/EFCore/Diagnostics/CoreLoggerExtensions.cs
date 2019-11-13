@@ -2967,7 +2967,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition.EventId.Name,
                     eventData);
                 if(interceptor != null){
-                    interceptor.SavingChanges(eventData, default);
+                    interceptor.SavingChanges(eventData);
                 }
             }
         }

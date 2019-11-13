@@ -36,13 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 _interceptors = interceptors.ToArray();
             }
 
-            public InterceptionResult<int> SavingChanges([NotNull] DbContextEventData eventData, InterceptionResult<int> result)
+            public void SavingChanges([NotNull] DbContextEventData eventData)
             {
                 for(var i =0; i < _interceptors.Count(); i++)
                 {
-                    result = _interceptors[i].SavingChanges(eventData, result);
+                    _interceptors[i].SavingChanges(eventData);
                 }
-                return result;
             }
 
             public Task<InterceptionResult<int>> SavingChangesAsync([NotNull] DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)

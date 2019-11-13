@@ -35,10 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData">Event data.</param>
         /// <param name="result">Result.</param>
         /// <returns>Result</returns>
-        public virtual int SavedChanges(SaveChangesCompletedEventData eventData, int result)
-        {
-            throw new System.NotImplementedException();
-        }
+        public virtual int SavedChanges(SaveChangesCompletedEventData eventData, int result) => result;
 
         /// <summary>
         /// Invoked just before the execution of <see cref="DbContext.SaveChangesAsync(CancellationToken)" />.
@@ -48,22 +45,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Result</returns>
 
-        public virtual Task<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
-        {
-            throw new System.NotImplementedException();
-        }
+        public virtual Task<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default) => Task.FromResult(result);
 
         /// <summary>
         /// Invoked just after the execution of <see cref="DbContext.SaveChanges()" />
         /// </summary>
         /// <param name="eventData">Event data</param>
-        /// <param name="result">Result</param>
-        /// <returns>Entities saved.</returns>
 
-        public virtual InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
-        {
-            throw new System.NotImplementedException();
-        }
+        public virtual void SavingChanges(DbContextEventData eventData){}
 
         /// <summary>
         /// Invoked just after the execution of <see cref="DbContext.SaveChangesAsync(CancellationToken)" />.
@@ -73,10 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Entities Saved</returns>
 
-        public virtual Task<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
-        {
-            throw new System.NotImplementedException();
-        }
+        public virtual Task<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default) => Task.FromResult(result);
 
         /// <summary>
         /// Invoked if <see cref="DbContext.SaveChanges()" /> or <see cref="DbContext.SaveChangesAsync(CancellationToken)" /> failed.
@@ -85,7 +71,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         public virtual void SavingChangesFailed(DbContextErrorEventData eventData)
         {
-            throw new System.NotImplementedException();
         }
     }
 }
