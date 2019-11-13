@@ -144,17 +144,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private void Execute_throws_for_an_enlisted_transaction(Action<ExecutionStrategy> execute)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (var t = new CommittableTransaction())
-            {
-                Context.Database.EnlistTransaction(t);
+            using var t = new CommittableTransaction();
+            Context.Database.EnlistTransaction(t);
 
-                Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(
-                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                    Assert.Throws<InvalidOperationException>(
-                            () => execute(mockExecutionStrategy))
-                        .Message);
-            }
+            Assert.Equal(
+                CoreStrings.ExecutionStrategyExistingTransaction(
+                    mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                Assert.Throws<InvalidOperationException>(
+                        () => execute(mockExecutionStrategy))
+                    .Message);
         }
 
         [ConditionalFact]
@@ -424,17 +422,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private async Task ExecuteAsync_throws_for_an_enlisted_transaction(Func<ExecutionStrategy, Task> executeAsync)
         {
             var mockExecutionStrategy = new TestExecutionStrategy(Context);
-            using (var t = new CommittableTransaction())
-            {
-                Context.Database.EnlistTransaction(t);
+            using var t = new CommittableTransaction();
+            Context.Database.EnlistTransaction(t);
 
-                Assert.Equal(
-                    CoreStrings.ExecutionStrategyExistingTransaction(
-                        mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => executeAsync(mockExecutionStrategy)))
-                    .Message);
-            }
+            Assert.Equal(
+                CoreStrings.ExecutionStrategyExistingTransaction(
+                    mockExecutionStrategy.GetType().Name, "DbContext.Database.CreateExecutionStrategy()"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => executeAsync(mockExecutionStrategy)))
+                .Message);
         }
 
         [ConditionalFact]
