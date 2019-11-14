@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -389,8 +390,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var leftUnary = newLeft as SqlUnaryExpression;
                 var rightUnary = newRight as SqlUnaryExpression;
 
-                var leftNegated = leftUnary?.OperatorType == ExpressionType.Not;
-                var rightNegated = rightUnary?.OperatorType == ExpressionType.Not;
+                var leftNegated = leftUnary?.IsLogicalNot() == true;
+                var rightNegated = rightUnary?.IsLogicalNot() == true;
 
                 if (leftNegated)
                 {

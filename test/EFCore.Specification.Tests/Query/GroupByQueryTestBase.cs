@@ -28,19 +28,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Average(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Average(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Average(o => o.OrderID)));
         }
 
         [ConditionalTheory(Skip = "issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Average_with_navigation_expansion(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Average_with_navigation_expansion(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Where(o => o.Customer.City != "London")
                     .GroupBy(o => o.CustomerID, (k, es) => new { k, es })
                     .Select(g => g.es.Average(o => o.OrderID)));
@@ -48,56 +48,56 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Count(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Count(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_LongCount(bool isAsync)
+        public virtual Task GroupBy_Property_Select_LongCount(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.LongCount()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Max(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Max(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Max(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Min(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Min(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Min(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Sum(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Sum(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => EF.Property<string>(o, "CustomerID")).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Sum_Min_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Sum_Min_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new
@@ -112,10 +112,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_Average(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_Average(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new { g.Key, Average = g.Average(o => o.OrderID) }),
@@ -124,10 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_Count(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_Count(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => EF.Property<string>(o, "CustomerID")).Select(
                     g =>
                         new { g.Key, Count = g.Count() }),
@@ -136,10 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_LongCount(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_LongCount(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new { g.Key, LongCount = g.LongCount() }),
@@ -148,10 +148,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_Max(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_Max(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new { g.Key, Max = g.Max(o => o.OrderID) }),
@@ -160,10 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_Min(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_Min(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new { g.Key, Min = g.Min(o => o.OrderID) }),
@@ -172,10 +172,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_Sum(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_Sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new { g.Key, Sum = g.Sum(o => o.OrderID) }),
@@ -184,10 +184,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_Sum_Min_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_Sum_Min_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new
@@ -203,10 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Sum_Min_Key_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => EF.Property<string>(o, "CustomerID")).Select(
                     g =>
                         new
@@ -222,10 +222,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_key_multiple_times_and_aggregate(bool isAsync)
+        public virtual Task GroupBy_Property_Select_key_multiple_times_and_aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(
                     g =>
                         new
@@ -239,10 +239,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Key_with_constant(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Key_with_constant(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => new { Name = "CustomerID", Value = o.CustomerID }).Select(
                     g =>
                         new { g.Key, Count = g.Count() }),
@@ -251,10 +251,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_aggregate_projecting_conditional_expression(bool isAsync)
+        public virtual Task GroupBy_aggregate_projecting_conditional_expression(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.OrderDate).Select(
                     g =>
                         new { g.Key, SomeValue = g.Count() == 0 ? 1 : g.Sum(o => o.OrderID % 2 == 0 ? 1 : 0) / g.Count() }),
@@ -263,10 +263,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(bool isAsync)
+        public virtual Task GroupBy_aggregate_projecting_conditional_expression_based_on_group_key(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.OrderDate).Select(
                     g =>
                         new { Key = g.Key == null ? "is null" : "is not null", Sum = g.Sum(o => o.OrderID) }),
@@ -275,10 +275,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_group_key_access_thru_navigation(bool isAsync)
+        public virtual Task GroupBy_with_group_key_access_thru_navigation(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>()
                     .GroupBy(od => od.Order.CustomerID)
                     .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
@@ -287,10 +287,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_group_key_access_thru_nested_navigation(bool isAsync)
+        public virtual Task GroupBy_with_group_key_access_thru_nested_navigation(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>()
                     .GroupBy(od => od.Order.Customer.Country)
                     .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
@@ -299,10 +299,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_grouping_key_using_Like(bool isAsync)
+        public virtual Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>()
                     .GroupBy(o => EF.Functions.Like(o.CustomerID, "A%"))
                     .Select(g => new { g.Key, Count = g.Count() }),
@@ -311,10 +311,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_grouping_key_DateTime_Day(bool isAsync)
+        public virtual Task GroupBy_with_grouping_key_DateTime_Day(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>()
                     .GroupBy(o => o.OrderDate.Value.Day)
                     .Select(g => new { g.Key, Count = g.Count() }),
@@ -323,10 +323,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_cast_inside_grouping_aggregate(bool isAsync)
+        public virtual Task GroupBy_with_cast_inside_grouping_aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>()
                     .GroupBy(o => o.CustomerID)
                     .Select(
@@ -341,10 +341,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Group_by_with_arithmetic_operation_inside_aggregate(bool isAsync)
+        public virtual Task Group_by_with_arithmetic_operation_inside_aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>()
                     .GroupBy(o => o.CustomerID)
                     .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID + o.CustomerID.Length) }),
@@ -362,70 +362,70 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_Select_Average(bool isAsync)
+        public virtual Task GroupBy_anonymous_Select_Average(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID }).Select(g => g.Average(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_Select_Count(bool isAsync)
+        public virtual Task GroupBy_anonymous_Select_Count(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID }).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_Select_LongCount(bool isAsync)
+        public virtual Task GroupBy_anonymous_Select_LongCount(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID }).Select(g => g.LongCount()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_Select_Max(bool isAsync)
+        public virtual Task GroupBy_anonymous_Select_Max(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID }).Select(g => g.Max(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_Select_Min(bool isAsync)
+        public virtual Task GroupBy_anonymous_Select_Min(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID }).Select(g => g.Min(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_Select_Sum(bool isAsync)
+        public virtual Task GroupBy_anonymous_Select_Sum(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID }).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_Select_Sum_Min_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_anonymous_Select_Sum_Min_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID }).Select(
                     g =>
@@ -441,10 +441,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_with_alias_Select_Key_Sum(bool isAsync)
+        public virtual Task GroupBy_anonymous_with_alias_Select_Key_Sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { Id = o.CustomerID }).Select(
                     g =>
@@ -453,70 +453,70 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Average(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Average(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(g => g.Average(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Count(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Count(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_LongCount(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_LongCount(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(g => g.LongCount()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Max(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Max(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(g => g.Max(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Min(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Min(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(g => g.Min(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Sum(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Sum(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Sum_Min_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Sum_Min_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -532,10 +532,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Key_Average(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Key_Average(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -545,10 +545,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Key_Count(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Key_Count(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -558,10 +558,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Key_LongCount(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Key_LongCount(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -571,10 +571,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Key_Max(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Key_Max(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -584,10 +584,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Key_Min(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Key_Min(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -597,10 +597,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Key_Sum(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Key_Sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -610,10 +610,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Key_Sum_Min_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Key_Sum_Min_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -630,10 +630,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Sum_Min_Key_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -650,10 +650,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Sum_Min_Key_flattened_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Sum_Min_Key_flattened_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -671,10 +671,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Dto_as_key_Select_Sum(bool isAsync)
+        public virtual Task GroupBy_Dto_as_key_Select_Sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new NominalType { CustomerID = o.CustomerID, EmployeeID = o.EmployeeID }).Select(
                     g =>
@@ -683,10 +683,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Dto_as_element_selector_Select_Sum(bool isAsync)
+        public virtual Task GroupBy_Dto_as_element_selector_Select_Sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                         o => o.CustomerID,
                         o => new NominalType { CustomerID = o.CustomerID, EmployeeID = o.EmployeeID })
@@ -716,10 +716,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Dto_Sum_Min_Key_flattened_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Dto_Sum_Min_Key_flattened_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -760,10 +760,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Composite_Select_Sum_Min_part_Key_flattened_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Composite_Select_Sum_Min_part_Key_flattened_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => new { o.CustomerID, o.EmployeeID }).Select(
                     g =>
@@ -780,10 +780,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Constant_Select_Sum_Min_Key_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Constant_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => 2).Select(
                     g =>
                         new
@@ -799,10 +799,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum(bool isAsync)
+        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => 2, o => new { o.OrderID, o.OrderDate }).Select(
                     g =>
                         new { Sum = g.Sum(o => o.OrderID) }),
@@ -811,10 +811,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum2(bool isAsync)
+        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum2(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => 2, o => new { o.OrderID }).Select(
                     g =>
                         new { Sum = g.Sum(o => o.OrderID) }),
@@ -823,10 +823,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum3(bool isAsync)
+        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum3(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => 2, o => new
                     {
@@ -841,10 +841,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_after_predicate_Constant_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Where(o => o.OrderID > 10500).GroupBy(o => 2).Select(
                     g =>
                         new
@@ -860,10 +860,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Constant_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => 2, o => o.OrderID).Select(
                     g =>
                         new { Sum = g.Sum(), g.Key }),
@@ -872,12 +872,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_param_Select_Sum_Min_Key_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_param_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             var a = 2;
 
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => a).Select(
                     g =>
                         new
@@ -893,12 +893,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_param_with_element_selector_Select_Sum(bool isAsync)
+        public virtual Task GroupBy_param_with_element_selector_Select_Sum(bool async)
         {
             var a = 2;
 
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => a, o => new { o.OrderID, o.OrderDate }).Select(
                     g =>
                         new { Sum = g.Sum(o => o.OrderID) }),
@@ -907,12 +907,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_param_with_element_selector_Select_Sum2(bool isAsync)
+        public virtual Task GroupBy_param_with_element_selector_Select_Sum2(bool async)
         {
             var a = 2;
 
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => a, o => new { o.OrderID }).Select(
                     g =>
                         new { Sum = g.Sum(o => o.OrderID) }),
@@ -921,12 +921,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_param_with_element_selector_Select_Sum3(bool isAsync)
+        public virtual Task GroupBy_param_with_element_selector_Select_Sum3(bool async)
         {
             var a = 2;
 
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => a, o => new
                     {
@@ -941,12 +941,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_param_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_param_with_element_selector_Select_Sum_Min_Key_Max_Avg(bool async)
         {
             var a = 2;
 
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => a, o => o.OrderID).Select(
                     g =>
                         new { Sum = g.Sum(), g.Key }),
@@ -955,10 +955,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_key_type_mismatch_with_aggregate(bool isAsync)
+        public virtual Task GroupBy_anonymous_key_type_mismatch_with_aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => new { I0 = (int?)o.OrderDate.Value.Year })
                     .OrderBy(g => g.Key.I0)
                     .Select(g => new { I0 = g.Count(), I1 = g.Key.I0 }),
@@ -967,10 +967,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_based_on_renamed_property_simple(bool isAsync)
+        public virtual Task GroupBy_based_on_renamed_property_simple(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .GroupBy(g => new { Renamed = g.City })
                     .Select(x => new { x.Key, Count = x.Count() }),
@@ -979,10 +979,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_based_on_renamed_property_complex(bool isAsync)
+        public virtual Task GroupBy_based_on_renamed_property_complex(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(x => new { Renamed = x.City, x.CustomerID })
                     .Distinct()
@@ -997,64 +997,64 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_scalar_element_selector_Average(bool isAsync)
+        public virtual Task GroupBy_Property_scalar_element_selector_Average(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Average()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_scalar_element_selector_Count(bool isAsync)
+        public virtual Task GroupBy_Property_scalar_element_selector_Count(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_scalar_element_selector_LongCount(bool isAsync)
+        public virtual Task GroupBy_Property_scalar_element_selector_LongCount(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.LongCount()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_scalar_element_selector_Max(bool isAsync)
+        public virtual Task GroupBy_Property_scalar_element_selector_Max(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Max()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_scalar_element_selector_Min(bool isAsync)
+        public virtual Task GroupBy_Property_scalar_element_selector_Min(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Min()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_scalar_element_selector_Sum(bool isAsync)
+        public virtual Task GroupBy_Property_scalar_element_selector_Sum(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(g => g.Sum()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_scalar_element_selector_Sum_Min_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Property_scalar_element_selector_Sum_Min_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID).Select(
                     g =>
                         new
@@ -1069,70 +1069,70 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_anonymous_element_selector_Average(bool isAsync)
+        public virtual Task GroupBy_Property_anonymous_element_selector_Average(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, o => new { o.OrderID, o.EmployeeID }).Select(g => g.Average(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_anonymous_element_selector_Count(bool isAsync)
+        public virtual Task GroupBy_Property_anonymous_element_selector_Count(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, o => new { o.OrderID, o.EmployeeID }).Select(g => g.Count()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_anonymous_element_selector_LongCount(bool isAsync)
+        public virtual Task GroupBy_Property_anonymous_element_selector_LongCount(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, o => new { o.OrderID, o.EmployeeID }).Select(g => g.LongCount()));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_anonymous_element_selector_Max(bool isAsync)
+        public virtual Task GroupBy_Property_anonymous_element_selector_Max(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, o => new { o.OrderID, o.EmployeeID }).Select(g => g.Max(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_anonymous_element_selector_Min(bool isAsync)
+        public virtual Task GroupBy_Property_anonymous_element_selector_Min(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, o => new { o.OrderID, o.EmployeeID }).Select(g => g.Min(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_anonymous_element_selector_Sum(bool isAsync)
+        public virtual Task GroupBy_Property_anonymous_element_selector_Sum(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, o => new { o.OrderID, o.EmployeeID }).Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_anonymous_element_selector_Sum_Min_Max_Avg(bool isAsync)
+        public virtual Task GroupBy_Property_anonymous_element_selector_Sum_Min_Max_Avg(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, o => new { o.OrderID, o.EmployeeID }).Select(
                     g =>
@@ -1148,40 +1148,40 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_element_selector_complex_aggregate(bool isAsync)
+        public virtual Task GroupBy_element_selector_complex_aggregate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => new { o.OrderID })
                     .Select(g => g.Sum(e => e.OrderID + 1)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_element_selector_complex_aggregate2(bool isAsync)
+        public virtual Task GroupBy_element_selector_complex_aggregate2(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => new { o.OrderID, o.OrderDate })
                     .Select(g => g.Sum(e => e.OrderID + 1)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_element_selector_complex_aggregate3(bool isAsync)
+        public virtual Task GroupBy_element_selector_complex_aggregate3(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID)
                     .Select(g => g.Sum(e => e + 1)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_element_selector_complex_aggregate4(bool isAsync)
+        public virtual Task GroupBy_element_selector_complex_aggregate4(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID + 1)
                     .Select(g => g.Sum(e => e)));
         }
@@ -1192,30 +1192,30 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_empty_key_Aggregate(bool isAsync)
+        public virtual Task GroupBy_empty_key_Aggregate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => new { })
                     .Select(g => g.Sum(o => o.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_empty_key_Aggregate_Key(bool isAsync)
+        public virtual Task GroupBy_empty_key_Aggregate_Key(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => new { })
                     .Select(g => new { g.Key, Sum = g.Sum(o => o.OrderID) }));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_GroupBy_Aggregate(bool isAsync)
+        public virtual Task OrderBy_GroupBy_Aggregate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID)
                     .GroupBy(o => o.CustomerID)
                     .Select(g => g.Sum(o => o.OrderID)));
@@ -1223,10 +1223,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_Skip_GroupBy_Aggregate(bool isAsync)
+        public virtual Task OrderBy_Skip_GroupBy_Aggregate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID)
                     .Skip(80)
                     .GroupBy(o => o.CustomerID)
@@ -1235,10 +1235,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_Take_GroupBy_Aggregate(bool isAsync)
+        public virtual Task OrderBy_Take_GroupBy_Aggregate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID)
                     .Take(500)
                     .GroupBy(o => o.CustomerID)
@@ -1247,10 +1247,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_Skip_Take_GroupBy_Aggregate(bool isAsync)
+        public virtual Task OrderBy_Skip_Take_GroupBy_Aggregate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID)
                     .Skip(80)
                     .Take(500)
@@ -1260,10 +1260,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Distinct_GroupBy_Aggregate(bool isAsync)
+        public virtual Task Distinct_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Distinct()
                     .GroupBy(o => o.CustomerID)
                     .Select(g => new { g.Key, c = g.Count() }),
@@ -1272,10 +1272,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Anonymous_projection_Distinct_GroupBy_Aggregate(bool isAsync)
+        public virtual Task Anonymous_projection_Distinct_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Select(o => new { o.OrderID, o.EmployeeID })
                     .Distinct()
                     .GroupBy(o => o.EmployeeID)
@@ -1285,10 +1285,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SelectMany_GroupBy_Aggregate(bool isAsync)
+        public virtual Task SelectMany_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().SelectMany(c => c.Orders)
                     .GroupBy(o => o.EmployeeID)
                     .Select(g => new { g.Key, c = g.Count() }),
@@ -1297,10 +1297,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_GroupBy_Aggregate(bool isAsync)
+        public virtual Task Join_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from o in ss.Set<Order>()
                      join c in ss.Set<Customer>() on o.CustomerID equals c.CustomerID
@@ -1311,10 +1311,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_required_navigation_member_Aggregate(bool isAsync)
+        public virtual Task GroupBy_required_navigation_member_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>().GroupBy(od => od.Order.CustomerID)
                     .Select(g => new { CustomerId = g.Key, Count = g.Count() }),
                 e => e.CustomerId);
@@ -1322,10 +1322,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_complex_GroupBy_Aggregate(bool isAsync)
+        public virtual Task Join_complex_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from o in ss.Set<Order>().Where(o => o.OrderID < 10400).OrderBy(o => o.OrderDate).Take(100)
                      join c in ss.Set<Customer>().Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO")
@@ -1339,10 +1339,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_GroupBy_Aggregate(bool isAsync)
+        public virtual Task GroupJoin_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from c in ss.Set<Customer>()
                      join o in ss.Set<Order>()
@@ -1358,10 +1358,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_GroupBy_Aggregate_2(bool isAsync)
+        public virtual Task GroupJoin_GroupBy_Aggregate_2(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from c in ss.Set<Customer>()
                      join o in ss.Set<Order>()
@@ -1376,10 +1376,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_GroupBy_Aggregate_3(bool isAsync)
+        public virtual Task GroupJoin_GroupBy_Aggregate_3(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from o in ss.Set<Order>()
                      join c in ss.Set<Customer>()
@@ -1394,10 +1394,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_GroupBy_Aggregate_4(bool isAsync)
+        public virtual Task GroupJoin_GroupBy_Aggregate_4(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from c in ss.Set<Customer>()
                      join o in ss.Set<Order>()
@@ -1412,10 +1412,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_GroupBy_Aggregate_5(bool isAsync)
+        public virtual Task GroupJoin_GroupBy_Aggregate_5(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from o in ss.Set<Order>()
                      join c in ss.Set<Customer>()
@@ -1430,10 +1430,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_optional_navigation_member_Aggregate(bool isAsync)
+        public virtual Task GroupBy_optional_navigation_member_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.Customer.Country)
                     .Select(g => new { Country = g.Key, Count = g.Count() }),
                 e => e.Country);
@@ -1441,10 +1441,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_complex_GroupBy_Aggregate(bool isAsync)
+        public virtual Task GroupJoin_complex_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from c in ss.Set<Customer>().Where(c => c.CustomerID != "DRACD" && c.CustomerID != "FOLKO")
                          .OrderBy(c => c.City).Skip(10).Take(50)
@@ -1461,10 +1461,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Self_join_GroupBy_Aggregate(bool isAsync)
+        public virtual Task Self_join_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => (from o1 in ss.Set<Order>().Where(o => o.OrderID < 10400)
                        join o2 in ss.Set<Order>() on o1.OrderID equals o2.OrderID
                        group o2 by o1.CustomerID)
@@ -1474,10 +1474,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_multi_navigation_members_Aggregate(bool isAsync)
+        public virtual Task GroupBy_multi_navigation_members_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>().GroupBy(od => new { od.Order.CustomerID, od.Product.ProductName })
                     .Select(g => new { CompositeKey = g.Key, Count = g.Count() }),
                 e => e.CompositeKey.CustomerID + " " + e.CompositeKey.ProductName);
@@ -1485,10 +1485,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_simple_groupby(bool isAsync)
+        public virtual Task Union_simple_groupby(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().Where(s => s.ContactTitle == "Owner")
                     .Union(ss.Set<Customer>().Where(c => c.City == "México D.F."))
                     .GroupBy(c => c.City)
@@ -1497,10 +1497,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_anonymous_GroupBy_Aggregate(bool isAsync)
+        public virtual Task Select_anonymous_GroupBy_Aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Where(o => o.OrderID < 10300)
                     .Select(
                         o => new
@@ -1522,10 +1522,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_principal_key_property_optimization(bool isAsync)
+        public virtual Task GroupBy_principal_key_property_optimization(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.Customer.CustomerID)
                     .Select(
                         g => new { g.Key, Count = g.Count() }));
@@ -1537,10 +1537,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_OrderBy_key(bool isAsync)
+        public virtual Task GroupBy_OrderBy_key(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .OrderBy(o => o.Key)
                     .Select(g => new { g.Key, c = g.Count() }),
@@ -1549,10 +1549,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_OrderBy_count(bool isAsync)
+        public virtual Task GroupBy_OrderBy_count(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .OrderBy(o => o.Count())
                     .ThenBy(o => o.Key)
@@ -1562,10 +1562,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_OrderBy_count_Select_sum(bool isAsync)
+        public virtual Task GroupBy_OrderBy_count_Select_sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .OrderBy(o => o.Count())
                     .ThenBy(o => o.Key)
@@ -1575,10 +1575,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_aggregate_Contains(bool isAsync)
+        public virtual Task GroupBy_aggregate_Contains(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Where(
                     o => ss.Set<Order>().GroupBy(e => e.CustomerID)
                         .Where(g => g.Count() > 30)
@@ -1589,10 +1589,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_aggregate_Pushdown(bool isAsync)
+        public virtual Task GroupBy_aggregate_Pushdown(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
                     .Where(g => g.Count() > 10)
                     .Select(g => g.Key)
@@ -1603,10 +1603,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_aggregate_Pushdown_followed_by_projecting_Length(bool isAsync)
+        public virtual Task GroupBy_aggregate_Pushdown_followed_by_projecting_Length(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
                     .Where(g => g.Count() > 10)
                     .Select(g => g.Key)
@@ -1618,10 +1618,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_aggregate_Pushdown_followed_by_projecting_constant(bool isAsync)
+        public virtual Task GroupBy_aggregate_Pushdown_followed_by_projecting_constant(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(e => e.CustomerID)
                     .Where(g => g.Count() > 10)
                     .Select(g => g.Key)
@@ -1633,20 +1633,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Select_sum_over_unmapped_property(bool isAsync)
+        public virtual Task GroupBy_Select_sum_over_unmapped_property(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .Select(g => new { g.Key, Sum = g.Sum(o => o.Freight) }));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_filter_key(bool isAsync)
+        public virtual Task GroupBy_filter_key(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .Where(o => o.Key == "ALFKI")
                     .Select(g => new { g.Key, c = g.Count() }));
@@ -1654,10 +1654,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_filter_count(bool isAsync)
+        public virtual Task GroupBy_filter_count(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .Where(o => o.Count() > 4)
                     .Select(g => new { g.Key, Count = g.Count() }));
@@ -1665,10 +1665,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_filter_count_OrderBy_count_Select_sum(bool isAsync)
+        public virtual Task GroupBy_filter_count_OrderBy_count_Select_sum(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .Where(o => o.Count() > 4)
                     .OrderBy(o => o.Count())
@@ -1684,10 +1684,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Aggregate_Join(bool isAsync)
+        public virtual Task GroupBy_Aggregate_Join(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     from a in ss.Set<Order>().GroupBy(o => o.CustomerID)
                         .Where(g => g.Count() > 5)
@@ -1700,10 +1700,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_GroupBy_Aggregate_multijoins(bool isAsync)
+        public virtual Task Join_GroupBy_Aggregate_multijoins(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     from c in ss.Set<Customer>()
                     join a in ss.Set<Order>().GroupBy(o => o.CustomerID)
@@ -1717,10 +1717,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_GroupBy_Aggregate_single_join(bool isAsync)
+        public virtual Task Join_GroupBy_Aggregate_single_join(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     from c in ss.Set<Customer>()
                     join a in ss.Set<Order>().GroupBy(o => o.CustomerID)
@@ -1733,10 +1733,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_GroupBy_Aggregate_with_another_join(bool isAsync)
+        public virtual Task Join_GroupBy_Aggregate_with_another_join(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     from c in ss.Set<Customer>()
                     join a in ss.Set<Order>().GroupBy(o => o.CustomerID)
@@ -1757,10 +1757,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_GroupBy_Aggregate_in_subquery(bool isAsync)
+        public virtual Task Join_GroupBy_Aggregate_in_subquery(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     from o in ss.Set<Order>().Where(o => o.OrderID < 10400)
                     join i in (from c in ss.Set<Customer>()
@@ -1782,10 +1782,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_GroupBy_Aggregate_on_key(bool isAsync)
+        public virtual Task Join_GroupBy_Aggregate_on_key(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from c in ss.Set<Customer>()
                      join a in ss.Set<Order>().GroupBy(o => o.CustomerID)
@@ -1800,10 +1800,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_result_selector(bool isAsync)
+        public virtual Task GroupBy_with_result_selector(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                     o => o.CustomerID, (k, g) =>
                         new
@@ -1822,28 +1822,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Sum_constant(bool isAsync)
+        public virtual Task GroupBy_Sum_constant(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(e => 1)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Sum_constant_cast(bool isAsync)
+        public virtual Task GroupBy_Sum_constant_cast(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(e => 1L)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Distinct_GroupBy_OrderBy_key(bool isAsync)
+        public virtual Task Distinct_GroupBy_OrderBy_key(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Distinct()
                     .GroupBy(o => o.CustomerID)
                     .OrderBy(o => o.Key)
@@ -1853,10 +1853,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_nested_collection_with_groupby(bool isAsync)
+        public virtual Task Select_nested_collection_with_groupby(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
                     .Select(
                         c => c.Orders.Any()
@@ -1866,10 +1866,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_GroupBy_All(bool isAsync)
+        public virtual Task Select_GroupBy_All(bool async)
         {
             return AssertAll(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Select(o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
                     .GroupBy(a => a.Customer),
                 a => a.Key == "ALFKI");
@@ -1896,10 +1896,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Where_in_aggregate(bool isAsync)
+        public virtual Task GroupBy_Where_in_aggregate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => from o in ss.Set<Order>()
                       group o by new { o.CustomerID }
                       into g
@@ -1908,10 +1908,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Key_as_part_of_element_selector(bool isAsync)
+        public virtual Task GroupBy_Key_as_part_of_element_selector(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                         o => o.OrderID, o => new { o.OrderID, o.OrderDate })
                     .Select(
@@ -1925,10 +1925,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_composite_Key_as_part_of_element_selector(bool isAsync)
+        public virtual Task GroupBy_composite_Key_as_part_of_element_selector(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                         o => new { o.OrderID, o.CustomerID }, o => new { o.OrderID, o.OrderDate })
                     .Select(
@@ -1942,10 +1942,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_order_by_skip_and_another_order_by(bool isAsync)
+        public virtual Task GroupBy_with_order_by_skip_and_another_order_by(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>()
                     .OrderBy(o => o.CustomerID)
                     .ThenBy(o => o.OrderID)
@@ -1959,19 +1959,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_Count_with_predicate(bool isAsync)
+        public virtual Task GroupBy_Property_Select_Count_with_predicate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Count(o => o.OrderID < 10300)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Property_Select_LongCount_with_predicate(bool isAsync)
+        public virtual Task GroupBy_Property_Select_LongCount_with_predicate(bool async)
         {
             return AssertQueryScalar(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.LongCount(o => o.OrderID < 10300)));
         }
 
@@ -1981,10 +1981,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous(bool isAsync)
+        public virtual Task GroupBy_anonymous(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().Select(c => new { c.City, c.CustomerID }).GroupBy(a => a.City),
                 elementSorter: e => e.Key,
                 elementAsserter: (e, a) => AssertGrouping(e, a));
@@ -1992,11 +1992,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_with_where(bool isAsync)
+        public virtual Task GroupBy_anonymous_with_where(bool async)
         {
             var countries = new[] { "Argentina", "Austria", "Brazil", "France", "Germany", "USA" };
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().Where(c => countries.Contains(c.Country))
                     .Select(c => new { c.City, c.CustomerID })
                     .GroupBy(a => a.City),
@@ -2006,10 +2006,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_subquery(bool isAsync)
+        public virtual Task GroupBy_anonymous_subquery(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().Select(c => new { c.City, c.CustomerID })
                     .GroupBy(a => from c2 in ss.Set<Customer>() select c2),
                 assertOrder: true);
@@ -2017,10 +2017,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_nested_order_by_enumerable(bool isAsync)
+        public virtual Task GroupBy_nested_order_by_enumerable(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().Select(c => new { c.Country, c.CustomerID })
                     .OrderBy(a => a.Country)
                     .GroupBy(a => a.Country)
@@ -2030,10 +2030,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_join_default_if_empty_anonymous(bool isAsync)
+        public virtual Task GroupBy_join_default_if_empty_anonymous(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from order in ss.Set<Order>()
                      join orderDetail in ss.Set<OrderDetail>() on order.OrderID equals orderDetail.OrderID into orderJoin
@@ -2049,20 +2049,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_SelectMany(bool isAsync)
+        public virtual Task GroupBy_SelectMany(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().GroupBy(c => c.City).SelectMany(g => g),
                 entryCount: 91);
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_simple(bool isAsync)
+        public virtual Task GroupBy_simple(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID),
                 elementSorter: e => e.Key,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2071,10 +2071,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_simple2(bool isAsync)
+        public virtual Task GroupBy_simple2(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g),
                 elementSorter: e => e.Key,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2083,10 +2083,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_first(bool isAsync)
+        public virtual Task GroupBy_first(bool async)
         {
             return AssertFirst(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI").GroupBy(o => o.CustomerID).Cast<object>(),
                 asserter: (e, a) => AssertGrouping((IGrouping<string, Order>)e, (IGrouping<string, Order>)a),
                 entryCount: 6);
@@ -2094,10 +2094,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_element_selector(bool isAsync)
+        public virtual Task GroupBy_with_element_selector(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID, o => o.OrderID)
                     .OrderBy(g => g.Key)
                     .Select(g => g.OrderBy(o => o)),
@@ -2107,10 +2107,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_element_selector2(bool isAsync)
+        public virtual Task GroupBy_with_element_selector2(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID)
                     .OrderBy(g => g.Key)
                     .Select(g => g.OrderBy(o => o.OrderID)),
@@ -2120,10 +2120,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_element_selector3(bool isAsync)
+        public virtual Task GroupBy_with_element_selector3(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Employee>().GroupBy(e => e.EmployeeID)
                     .OrderBy(g => g.Key)
                     .Select(
@@ -2134,10 +2134,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_DateTimeOffset_Property(bool isAsync)
+        public virtual Task GroupBy_DateTimeOffset_Property(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Where(o => o.OrderDate.HasValue).GroupBy(o => o.OrderDate.Value.Month),
                 e => e.Key,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2146,10 +2146,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_GroupBy_SelectMany(bool isAsync)
+        public virtual Task OrderBy_GroupBy_SelectMany(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID)
                     .GroupBy(o => o.CustomerID)
                     .SelectMany(g => g),
@@ -2158,10 +2158,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool isAsync)
+        public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
                     .GroupBy(e => e.EmployeeID)
                     .SelectMany(g => g)
@@ -2170,10 +2170,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_orderby(bool isAsync)
+        public virtual Task GroupBy_with_orderby(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID).GroupBy(o => o.CustomerID).OrderBy(g => g.Key),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2182,10 +2182,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_orderby_and_anonymous_projection(bool isAsync)
+        public virtual Task GroupBy_with_orderby_and_anonymous_projection(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Select(g => new { Foo = "Foo", Group = g }),
                 elementSorter: e => e.Group.Key,
                 elementAsserter: (e, a) =>
@@ -2198,10 +2198,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_orderby_take_skip_distinct(bool isAsync)
+        public virtual Task GroupBy_with_orderby_take_skip_distinct(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct(),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2210,10 +2210,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue#17761")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool isAsync)
+        public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct().Select(g => g.Key),
                 assertOrder: true,
                 entryCount: 31);
@@ -2221,10 +2221,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(bool isAsync)
+        public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_order_by_group_key(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct().OrderBy(g => g.Key),
                 assertOrder: true,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2233,10 +2233,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_join_anonymous(bool isAsync)
+        public virtual Task GroupBy_join_anonymous(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss =>
                     (from order in ss.Set<Order>()
                      join orderDetail in ss.Set<OrderDetail>() on order.OrderID equals orderDetail.OrderID into orderJoin
@@ -2253,19 +2253,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17761")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Distinct(bool isAsync)
+        public virtual Task GroupBy_Distinct(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_Skip_GroupBy(bool isAsync)
+        public virtual Task OrderBy_Skip_GroupBy(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderDate).ThenBy(o => o.OrderID).Skip(800).GroupBy(o => o.CustomerID),
                 elementSorter: e => e.Key,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2274,10 +2274,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_Take_GroupBy(bool isAsync)
+        public virtual Task OrderBy_Take_GroupBy(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderDate).Take(50).GroupBy(o => o.CustomerID),
                 elementSorter: e => e.Key,
                 elementAsserter: (e, a) => AssertGrouping(e, a),
@@ -2286,10 +2286,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_Skip_Take_GroupBy(bool isAsync)
+        public virtual Task OrderBy_Skip_Take_GroupBy(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Where(o => o.CustomerID != "SAVEA").OrderBy(o => o.OrderDate).Skip(450).Take(50)
                     .GroupBy(o => o.CustomerID),
                 elementSorter: e => e.Key,
@@ -2299,10 +2299,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_Distinct_GroupBy(bool isAsync)
+        public virtual Task Select_Distinct_GroupBy(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Select(
                     o => new { o.CustomerID, o.EmployeeID }).OrderBy(a => a.EmployeeID).Distinct().GroupBy(o => o.CustomerID),
                 elementSorter: e => e.Key,
@@ -2311,10 +2311,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_aggregate_through_navigation_property(bool isAsync)
+        public virtual Task GroupBy_with_aggregate_through_navigation_property(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(c => c.EmployeeID).Select(
                     g => new { max = g.Max(i => i.Customer.Region) }),
                 elementSorter: e => e.max);
@@ -2322,10 +2322,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_anonymous_key_without_aggregate(bool isAsync)
+        public virtual Task GroupBy_anonymous_key_without_aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                         o => new { o.CustomerID, o.OrderDate })
                     .Select(
@@ -2339,10 +2339,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Shadow(bool isAsync)
+        public virtual Task GroupBy_Shadow(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Employee>().Where(e => EF.Property<string>(e, "Title") == "Sales Representative" && e.EmployeeID == 1)
                     .GroupBy(e => EF.Property<string>(e, "Title"))
                     .Select(g => EF.Property<string>(g.First(), "Title")));
@@ -2350,10 +2350,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Shadow2(bool isAsync)
+        public virtual Task GroupBy_Shadow2(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Employee>().Where(e => EF.Property<string>(e, "Title") == "Sales Representative" && e.EmployeeID == 1)
                     .GroupBy(e => EF.Property<string>(e, "Title"))
                     .Select(g => g.First()));
@@ -2361,10 +2361,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Shadow3(bool isAsync)
+        public virtual Task GroupBy_Shadow3(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Employee>().Where(e => e.EmployeeID == 1)
                     .GroupBy(e => e.EmployeeID)
                     .Select(g => EF.Property<string>(g.First(), "Title")));
@@ -2372,10 +2372,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Select_First_GroupBy(bool isAsync)
+        public virtual Task GroupBy_Select_First_GroupBy(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().GroupBy(c => c.City)
                     .Select(g => g.OrderBy(c => c.CustomerID).First())
                     .GroupBy(c => c.ContactName),
@@ -2385,10 +2385,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Select_First_GroupBy_followed_by_identity_projection(bool isAsync)
+        public virtual Task GroupBy_Select_First_GroupBy_followed_by_identity_projection(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>().GroupBy(c => c.City)
                     .Select(g => g.OrderBy(c => c.CustomerID).First())
                     .GroupBy(c => c.ContactName)
@@ -2403,10 +2403,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_GroupBy(bool isAsync)
+        public virtual Task Select_GroupBy(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Select(
                         o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
                     .GroupBy(p => p.Customer),
@@ -2415,10 +2415,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_GroupBy_SelectMany(bool isAsync)
+        public virtual Task Select_GroupBy_SelectMany(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().Select(
                         o => new ProjectedType { Order = o.OrderID, Customer = o.CustomerID })
                     .GroupBy(p => p.Customer)
@@ -2428,10 +2428,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_GroupBy_entity_ToList(bool isAsync)
+        public virtual Task Join_GroupBy_entity_ToList(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                       join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(50)
                           on c.CustomerID equals o.CustomerID
@@ -2442,10 +2442,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15938")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_group_key_being_navigation(bool isAsync)
+        public virtual Task GroupBy_with_group_key_being_navigation(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>()
                     .GroupBy(od => od.Order)
                     .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
@@ -2454,10 +2454,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15938")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_group_key_being_nested_navigation(bool isAsync)
+        public virtual Task GroupBy_with_group_key_being_nested_navigation(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>()
                     .GroupBy(od => od.Order.Customer)
                     .Select(g => new { g.Key, Aggregate = g.Sum(od => od.OrderID) }),
@@ -2466,10 +2466,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15938")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool isAsync)
+        public virtual Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>()
                     .GroupBy(od => od.Order)
                     .Select(g => g.Key));
@@ -2477,10 +2477,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15938")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool isAsync)
+        public virtual Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<OrderDetail>()
                     .GroupBy(od => od.Order)
                     .Select(
@@ -2509,10 +2509,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Double_GroupBy_with_aggregate(bool isAsync)
+        public virtual Task Double_GroupBy_with_aggregate(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(
                         o => new { o.OrderID, o.OrderDate })
                     .GroupBy(g => g.Key.OrderDate)
@@ -2526,20 +2526,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Count_after_GroupBy_aggregate(bool isAsync)
+        public virtual Task Count_after_GroupBy_aggregate(bool async)
         {
             return AssertSingleResult(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).Count(),
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)).CountAsync());
         }
 
         [ConditionalTheory(Skip = "Issue #17068")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task LongCount_after_client_GroupBy(bool isAsync)
+        public virtual Task LongCount_after_client_GroupBy(bool async)
         {
             return AssertSingleResult(
-                isAsync,
+                async,
                 ss => (from o in ss.Set<Order>()
                        group o by new { o.CustomerID }
                        into g
@@ -2552,61 +2552,61 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task MinMax_after_GroupBy_aggregate(bool isAsync)
+        public virtual async Task MinMax_after_GroupBy_aggregate(bool async)
         {
             await AssertMin(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
 
             await AssertMax(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task All_after_GroupBy_aggregate(bool isAsync)
+        public virtual Task All_after_GroupBy_aggregate(bool async)
         {
             return AssertAll(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)),
                 predicate: ee => true);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task All_after_GroupBy_aggregate2(bool isAsync)
+        public virtual Task All_after_GroupBy_aggregate2(bool async)
         {
             return AssertAll(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)),
                 predicate: ee => ee >= 0);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Any_after_GroupBy_aggregate(bool isAsync)
+        public virtual Task Any_after_GroupBy_aggregate(bool async)
         {
             return AssertAny(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Select(g => g.Sum(gg => gg.OrderID)));
         }
 
         [ConditionalTheory(Skip = "Issue#15097")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Count_after_GroupBy_without_aggregate(bool isAsync)
+        public virtual Task Count_after_GroupBy_without_aggregate(bool async)
         {
             return AssertCount(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID));
         }
 
         [ConditionalTheory(Skip = "Issue#15097")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task LongCount_after_GroupBy_without_aggregate(bool isAsync)
+        public virtual Task LongCount_after_GroupBy_without_aggregate(bool async)
         {
             return AssertLongCount(
-                isAsync,
+                async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID));
         }
 
@@ -2616,10 +2616,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15279")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Complex_query_with_groupBy_in_subquery1(bool isAsync)
+        public virtual Task Complex_query_with_groupBy_in_subquery1(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(
                         c => new
@@ -2640,10 +2640,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15279")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Complex_query_with_groupBy_in_subquery2(bool isAsync)
+        public virtual Task Complex_query_with_groupBy_in_subquery2(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(
                         c => new
@@ -2664,10 +2664,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "issue #15279")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Complex_query_with_groupBy_in_subquery3(bool isAsync)
+        public virtual Task Complex_query_with_groupBy_in_subquery3(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(
                         c => new
@@ -2689,10 +2689,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         // also 15279
         [ConditionalTheory(Skip = "issue #11711")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Complex_query_with_groupBy_in_subquery4(bool isAsync)
+        public virtual Task Complex_query_with_groupBy_in_subquery4(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(
                         c => new

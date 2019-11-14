@@ -11,9 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public partial class SimpleQueryCosmosTest
     {
         [ConditionalTheory]
-        public override async Task KeylessEntity_simple(bool isAsync)
+        public override async Task KeylessEntity_simple(bool async)
         {
-            await base.KeylessEntity_simple(isAsync);
+            await base.KeylessEntity_simple(async);
 
             AssertSql(
                 @"SELECT c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""]
@@ -22,9 +22,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory]
-        public override async Task KeylessEntity_where_simple(bool isAsync)
+        public override async Task KeylessEntity_where_simple(bool async)
         {
-            await base.KeylessEntity_where_simple(isAsync);
+            await base.KeylessEntity_where_simple(async);
 
             AssertSql(
                 @"SELECT c[""Address""], c[""City""], c[""CompanyName""], c[""ContactName""], c[""ContactTitle""]
@@ -53,10 +53,10 @@ WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
+        public override async Task KeylessEntity_with_mixed_tracking(bool async)
         {
             await AssertQuery(
-                isAsync,
+                async,
                 ss => from c in ss.Set<Customer>().Where(ct => ct.City == "London")
                       from o in ss.Set<OrderQuery>().Where(ov => ov.CustomerID == c.CustomerID)
                       select new { c, o },
@@ -73,9 +73,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
-        public override async Task KeylessEntity_with_defining_query(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query(bool async)
         {
-            await base.KeylessEntity_with_defining_query(isAsync);
+            await base.KeylessEntity_with_defining_query(async);
 
             AssertSql(
                 @"SELECT c[""CustomerID""]
@@ -84,9 +84,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))")
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
         {
-            await base.KeylessEntity_with_defining_query_and_correlated_collection(isAsync);
+            await base.KeylessEntity_with_defining_query_and_correlated_collection(async);
 
             AssertSql(
                 @"SELECT c
@@ -95,21 +95,29 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "issue 12086")] // left join translation
-        public override async Task KeylessEntity_select_where_navigation(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation(bool async)
         {
-            await base.KeylessEntity_select_where_navigation(isAsync);
+            await base.KeylessEntity_select_where_navigation(async);
 
             AssertSql(@"");
         }
 
         [ConditionalTheory(Skip = "issue 12086")] // left join translation
-        public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation_multi_level(bool async)
         {
             await AssertQuery(
-                isAsync,
+                async,
                 ss => from ov in ss.Set<OrderQuery>().Where(o => o.CustomerID == "ALFKI")
                       where ov.Customer.Orders.Any()
                       select ov);
+
+            AssertSql(@"");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task KeylesEntity_groupby(bool async)
+        {
+            await base.KeylesEntity_groupby(async);
 
             AssertSql(@"");
         }

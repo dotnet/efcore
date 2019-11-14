@@ -22,32 +22,28 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact] // Issue #4020
         public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()
         {
-            using (var context = CreateContext())
-            {
-                var postA = context.Set<Post>().Single(e => e.Id == 1);
-                var postB = context.Set<Post>().Where(e => e.Id == 1).Include(e => e.Blog).ToArray().Single();
+            using var context = CreateContext();
+            var postA = context.Set<Post>().Single(e => e.Id == 1);
+            var postB = context.Set<Post>().Where(e => e.Id == 1).Include(e => e.Blog).ToArray().Single();
 
-                Assert.Same(postA, postB);
+            Assert.Same(postA, postB);
 
-                Assert.Equal(EntityState.Unchanged, context.Entry(postA).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(postA.Blog).State);
-            }
+            Assert.Equal(EntityState.Unchanged, context.Entry(postA).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(postA.Blog).State);
         }
 
         [ConditionalFact] // Issue #4020
         public virtual void Include_brings_collections_referenced_from_already_tracked_notification_entities_as_Unchanged()
         {
-            using (var context = CreateContext())
-            {
-                var blogA = context.Set<Blog>().Single(e => e.Id == 1);
-                var blogB = context.Set<Blog>().Where(e => e.Id == 1).Include(e => e.Posts).ToArray().Single();
+            using var context = CreateContext();
+            var blogA = context.Set<Blog>().Single(e => e.Id == 1);
+            var blogB = context.Set<Blog>().Where(e => e.Id == 1).Include(e => e.Posts).ToArray().Single();
 
-                Assert.Same(blogA, blogB);
+            Assert.Same(blogA, blogB);
 
-                Assert.Equal(EntityState.Unchanged, context.Entry(blogA).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.First()).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.Skip(1).First()).State);
-            }
+            Assert.Equal(EntityState.Unchanged, context.Entry(blogA).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.First()).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.Skip(1).First()).State);
         }
 
         protected class Blog : NotificationEntity

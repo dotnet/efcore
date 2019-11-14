@@ -19,16 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override Task GroupBy_Property_Select_Count_with_predicate(bool isAsync)
+        public override Task GroupBy_Property_Select_Count_with_predicate(bool async)
         {
             return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupBy_Property_Select_Count_with_predicate(isAsync));
+                () => base.GroupBy_Property_Select_Count_with_predicate(async));
         }
 
-        public override Task GroupBy_Property_Select_LongCount_with_predicate(bool isAsync)
+        public override Task GroupBy_Property_Select_LongCount_with_predicate(bool async)
         {
             return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.GroupBy_Property_Select_LongCount_with_predicate(isAsync));
+                () => base.GroupBy_Property_Select_LongCount_with_predicate(async));
         }
     }
 }

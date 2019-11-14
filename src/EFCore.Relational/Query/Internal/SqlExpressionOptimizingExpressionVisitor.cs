@@ -113,13 +113,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             switch (operatorType)
             {
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when type == typeof(bool)
+                    || type == typeof(bool?):
+                {
                     switch (operand)
                     {
                         // !(true) -> false
                         // !(false) -> true
                         case SqlConstantExpression constantOperand
-                        when constantOperand.Value is bool value:
+                            when constantOperand.Value is bool value:
                         {
                             return SqlExpressionFactory.Constant(!value, typeMapping);
                         }
@@ -142,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 case ExpressionType.NotEqual:
                                     return SqlExpressionFactory.IsNull(unaryOperand.Operand);
                             }
+
                             break;
 
                         case SqlBinaryExpression binaryOperand:
@@ -165,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             // those optimizations are only valid in 2-value logic
                             // they are safe to do here because if we apply null semantics
                             // because null semantics removes possibility of nulls in the tree when the comparison is wrapped around NOT
-                            if (!_useRelationalNulls && TryNegate(binaryOperand.OperatorType, out var negated))
+                            if (!_useRelationalNulls
+                                && TryNegate(binaryOperand.OperatorType, out var negated))
                             {
                                 return SimplifyBinaryExpression(
                                     negated,
@@ -177,6 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         break;
                     }
                     break;
+                }
 
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
@@ -241,13 +247,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             // for coalesce:
                             // (a ?? b) == null -> a == null && b == null
                             // (a ?? b) != null -> a != null || b != null
-                            // for AndAlso, OrElse, And, Or we can't do this optimization
+                            // for AndAlso, OrElse we can't do this optimization
                             // we could do something like this, but it seems too complicated:
                             // (a && b) == null -> a == null && b != 0 || a != 0 && b == null
                             if (sqlBinaryOperand.OperatorType != ExpressionType.AndAlso
-                                && sqlBinaryOperand.OperatorType != ExpressionType.OrElse
-                                && sqlBinaryOperand.OperatorType != ExpressionType.And
-                                && sqlBinaryOperand.OperatorType != ExpressionType.Or)
+                                && sqlBinaryOperand.OperatorType != ExpressionType.OrElse)
                             {
                                 var newLeft = SimplifyNullNotNullExpression(operatorType, sqlBinaryOperand.Left, typeof(bool), typeMapping);
                                 var newRight = SimplifyNullNotNullExpression(operatorType, sqlBinaryOperand.Right, typeof(bool), typeMapping);

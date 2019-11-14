@@ -77,10 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
                         || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
                     && memberExpression.Type.IsGenericType
-                    && (memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
-#pragma warning disable CS0618 // Type or member is obsolete
-                        || memberExpression.Type.GetGenericTypeDefinition() == typeof(DbQuery<>)))
-#pragma warning restore CS0618 // Type or member is obsolete
+                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
                 {
                     return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(memberExpression.Type.GetGenericArguments()[0]);
                 }

@@ -32,15 +32,13 @@ namespace Microsoft.EntityFrameworkCore
         private void ValueGenerationNegative<TKey, TEntity, TConverter>()
             where TEntity : WithConverter<TKey>, new()
         {
-            using (var context = CreateContext())
-            {
-                Assert.Equal(
-                    CoreStrings.ValueGenWithConversion(
-                        typeof(TEntity).ShortDisplayName(),
-                        nameof(WithConverter<int>.Id),
-                        typeof(TConverter).ShortDisplayName()),
-                    Assert.Throws<NotSupportedException>(() => context.Add(new TEntity())).Message);
-            }
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.ValueGenWithConversion(
+                    typeof(TEntity).ShortDisplayName(),
+                    nameof(WithConverter<int>.Id),
+                    typeof(TConverter).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => context.Add(new TEntity())).Message);
         }
 
         [ConditionalFact(Skip = "Issue#15589")]

@@ -650,18 +650,16 @@ namespace Microsoft.EntityFrameworkCore
             Parallel.For(
                 fromInclusive: 0, toExclusive: 100, body: s =>
                 {
-                    using (var scope = serviceProvider.CreateScope())
-                    {
-                        var scopedProvider = scope.ServiceProvider;
+                    using var scope = serviceProvider.CreateScope();
+                    var scopedProvider = scope.ServiceProvider;
 
-                        var context = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        var _ = context.Customers.ToList();
+                    var _ = context.Customers.ToList();
 
-                        context.Dispose();
-                    }
+                    context.Dispose();
                 });
         }
 
@@ -684,18 +682,16 @@ namespace Microsoft.EntityFrameworkCore
             {
                 while (_stopwatch.IsRunning)
                 {
-                    using (var serviceScope = serviceProvider.CreateScope())
-                    {
-                        var scopedProvider = serviceScope.ServiceProvider;
+                    using var serviceScope = serviceProvider.CreateScope();
+                    var scopedProvider = serviceScope.ServiceProvider;
 
-                        var context = useInterface
-                            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
-                            : scopedProvider.GetService<PooledContext>();
+                    var context = useInterface
+                        ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+                        : scopedProvider.GetService<PooledContext>();
 
-                        await context.Customers.AsNoTracking().FirstAsync(c => c.CustomerId == "ALFKI");
+                    await context.Customers.AsNoTracking().FirstAsync(c => c.CustomerId == "ALFKI");
 
-                        Interlocked.Increment(ref _requests);
-                    }
+                    Interlocked.Increment(ref _requests);
                 }
             }
 

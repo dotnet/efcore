@@ -50,15 +50,6 @@ namespace Microsoft.EntityFrameworkCore
             => (CoreTypeMapping)property[CoreAnnotationNames.TypeMapping];
 
         /// <summary>
-        ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
-        /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <c>null</c> if none was found. </returns>
-        [Obsolete("Use FindTypeMapping instead")]
-        public static CoreTypeMapping FindMapping([NotNull] this IProperty property)
-            => property.FindTypeMapping();
-
-        /// <summary>
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
@@ -148,18 +139,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IEnumerable<IIndex> GetContainingIndexes([NotNull] this IProperty property)
             => Check.NotNull(property, nameof(property)).AsProperty().GetContainingIndexes();
-
-        /// <summary>
-        ///     Gets the primary key that uses this property (including a composite primary key in which this property
-        ///     is included).
-        /// </summary>
-        /// <param name="property"> The property to get primary key for. </param>
-        /// <returns>
-        ///     The primary that use this property, or <c>null</c> if it is not part of the primary key.
-        /// </returns>
-        [Obsolete("Use FindContainingPrimaryKey()")]
-        public static IKey GetContainingPrimaryKey([NotNull] this IProperty property)
-            => property.FindContainingPrimaryKey();
 
         /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property

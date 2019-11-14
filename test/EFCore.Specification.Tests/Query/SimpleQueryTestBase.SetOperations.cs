@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Concat(bool isAsync)
+        public virtual Task Concat(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Concat(ss.Set<Customer>().Where(c => c.City == "London")),
                 entryCount: 7);
@@ -26,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Concat_nested(bool isAsync)
+        public virtual Task Concat_nested(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Concat(ss.Set<Customer>().Where(s => s.City == "Berlin"))
                     .Concat(ss.Set<Customer>().Where(e => e.City == "London")),
@@ -38,10 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Concat_non_entity(bool isAsync)
+        public virtual Task Concat_non_entity(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Select(c => c.CustomerID)
                     .Concat(
@@ -52,10 +52,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Except(bool isAsync)
+        public virtual Task Except(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "London")
                     .Except(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
                 entryCount: 5);
@@ -63,20 +63,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Except_simple_followed_by_projecting_constant(bool isAsync)
+        public virtual Task Except_simple_followed_by_projecting_constant(bool async)
         {
             return AssertQueryScalar(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Except(ss.Set<Customer>())
                     .Select(e => 1));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Except_nested(bool isAsync)
+        public virtual Task Except_nested(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Except(ss.Set<Customer>().Where(s => s.City == "México D.F."))
                     .Except(ss.Set<Customer>().Where(e => e.City == "Seattle")),
@@ -85,10 +85,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Except_non_entity(bool isAsync)
+        public virtual Task Except_non_entity(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Select(c => c.CustomerID)
                     .Except(
@@ -99,10 +99,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Intersect(bool isAsync)
+        public virtual Task Intersect(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "London")
                     .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
                 entryCount: 1);
@@ -110,10 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Intersect_nested(bool isAsync)
+        public virtual Task Intersect_nested(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Intersect(ss.Set<Customer>().Where(s => s.ContactTitle == "Owner"))
                     .Intersect(ss.Set<Customer>().Where(e => e.Fax != null)),
@@ -122,10 +122,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Intersect_non_entity(bool isAsync)
+        public virtual Task Intersect_non_entity(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "México D.F.")
                     .Select(c => c.CustomerID)
                     .Intersect(
@@ -136,10 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union(bool isAsync)
+        public virtual Task Union(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London")),
                 entryCount: 7);
@@ -147,10 +147,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_nested(bool isAsync)
+        public virtual Task Union_nested(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Union(ss.Set<Customer>().Where(s => s.City == "México D.F."))
                     .Union(ss.Set<Customer>().Where(e => e.City == "London")),
@@ -159,10 +159,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue#16365")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_non_entity(bool isAsync)
+        public virtual Task Union_non_entity(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(s => s.ContactTitle == "Owner")
                     .Select(c => c.CustomerID)
                     .Union(
@@ -174,10 +174,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         // OrderBy, Skip and Take are typically supported on the set operation itself (no need for query pushdown)
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_OrderBy_Skip_Take(bool isAsync)
+        public virtual Task Union_OrderBy_Skip_Take(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .OrderBy(c => c.ContactName)
@@ -190,10 +190,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Should cause pushdown into a subquery
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Where(bool isAsync)
+        public virtual Task Union_Where(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Where(c => c.ContactName.Contains("Thomas")), // pushdown
@@ -203,10 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Should cause pushdown into a subquery, keeping the ordering, offset and limit inside the subquery
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Skip_Take_OrderBy_ThenBy_Where(bool isAsync)
+        public virtual Task Union_Skip_Take_OrderBy_ThenBy_Where(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .OrderBy(c => c.Region)
@@ -219,10 +219,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Nested set operation with same operation type - no parentheses are needed.
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Union(bool isAsync)
+        public virtual Task Union_Union(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Union(ss.Set<Customer>().Where(c => c.City == "Mannheim")),
@@ -233,10 +233,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         // more tightly than UNION/EXCEPT, so parentheses are needed.
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Intersect(bool isAsync)
+        public virtual Task Union_Intersect(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
@@ -245,10 +245,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Take_Union_Take(bool isAsync)
+        public virtual Task Union_Take_Union_Take(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .OrderBy(c => c.CustomerID)
@@ -261,10 +261,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_Union(bool isAsync)
+        public virtual Task Select_Union(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Select(c => c.Address)
                     .Union(
@@ -275,10 +275,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Select(bool isAsync)
+        public virtual Task Union_Select(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Select(c => c.Address)
@@ -287,20 +287,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Select_scalar(bool isAsync)
+        public virtual Task Union_Select_scalar(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Except(ss.Set<Customer>())
                     .Select(c => (object)1));
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_with_anonymous_type_projection(bool isAsync)
+        public virtual Task Union_with_anonymous_type_projection(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.CompanyName.StartsWith("A"))
                     .Union(ss.Set<Customer>().Where(c => c.CompanyName.StartsWith("B")))
                     .Select(c => new CustomerDeets { Id = c.CustomerID }));
@@ -308,10 +308,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_Union_unrelated(bool isAsync)
+        public virtual Task Select_Union_unrelated(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(c => c.ContactName)
                     .Union(ss.Set<Product>().Select(p => p.ProductName))
@@ -322,10 +322,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_Union_different_fields_in_anonymous_with_subquery(bool isAsync)
+        public virtual Task Select_Union_different_fields_in_anonymous_with_subquery(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Select(c => new { Foo = c.City, Customer = c }) // Foo is City
                     .Union(
@@ -341,10 +341,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_Include(bool isAsync)
+        public virtual Task Union_Include(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Union(ss.Set<Customer>().Where(c => c.City == "London"))
                     .Include(c => c.Orders),
@@ -353,10 +353,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Include_Union(bool isAsync)
+        public virtual Task Include_Union(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .Include(c => c.Orders)
                     .Union(
@@ -368,10 +368,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_Except_reference_projection(bool isAsync)
+        public virtual Task Select_Except_reference_projection(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Order>()
+                async, ss => ss.Set<Order>()
                     .Select(o => o.Customer)
                     .Except(
                         ss.Set<Order>()
@@ -383,53 +383,49 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Include_Union_only_on_one_side_throws()
         {
-            using (var ctx = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Include(c => c.Orders)
-                            .Union(ctx.Customers.Where(c => c.City == "London"))
-                            .ToList());
+            using var ctx = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(ctx.Customers.Where(c => c.City == "London"))
+                        .ToList());
 
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Union(
-                                ctx.Customers
-                                    .Where(c => c.City == "London")
-                                    .Include(c => c.Orders))
-                            .ToList());
-            }
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Union(
+                            ctx.Customers
+                                .Where(c => c.City == "London")
+                                .Include(c => c.Orders))
+                        .ToList());
         }
 
         [ConditionalFact]
         public virtual void Include_Union_different_includes_throws()
         {
-            using (var ctx = CreateContext())
-            {
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        ctx.Customers
-                            .Where(c => c.City == "Berlin")
-                            .Include(c => c.Orders)
-                            .Union(
-                                ctx.Customers
-                                    .Where(c => c.City == "London")
-                                    .Include(c => c.Orders)
-                                    .ThenInclude(o => o.OrderDetails))
-                            .ToList());
-            }
+            using var ctx = CreateContext();
+            Assert.Throws<InvalidOperationException>(
+                () =>
+                    ctx.Customers
+                        .Where(c => c.City == "Berlin")
+                        .Include(c => c.Orders)
+                        .Union(
+                            ctx.Customers
+                                .Where(c => c.City == "London")
+                                .Include(c => c.Orders)
+                                .ThenInclude(o => o.OrderDetails))
+                        .ToList());
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SubSelect_Union(bool isAsync)
+        public virtual Task SubSelect_Union(bool async)
         {
             return AssertQuery(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(c => new { Customer = c, Orders = c.Orders.Count })
                     .Union(
@@ -440,9 +436,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "#16243")]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Client_eval_Union_FirstOrDefault(bool isAsync)
+        public virtual Task Client_eval_Union_FirstOrDefault(bool async)
             => AssertFirstOrDefault(
-                isAsync,
+                async,
                 ss => ss.Set<Customer>()
                     .Select(c => ClientSideMethod(c))
                     .Union(ss.Set<Customer>()));
@@ -451,10 +447,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_Select_Union(bool isAsync)
+        public virtual Task GroupBy_Select_Union(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Where(c => c.City == "Berlin")
                     .GroupBy(c => c.CustomerID)
                     .Select(g => new { CustomerID = g.Key, Count = g.Count() })
@@ -467,10 +463,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Union_over_columns_with_different_nullability(bool isAsync)
+        public virtual Task Union_over_columns_with_different_nullability(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .Select(c => "NonNullableConstant")
                     .Concat(
                         ss.Set<Customer>()
@@ -481,10 +477,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 #pragma warning disable xUnit1016 // MemberData must reference a public member
         [MemberData(nameof(GetSetOperandTestCases))]
 #pragma warning restore xUnit1016 // MemberData must reference a public member
-        public virtual Task Union_over_different_projection_types(bool isAsync, string leftType, string rightType)
+        public virtual Task Union_over_different_projection_types(bool async, string leftType, string rightType)
         {
             var (left, right) = (ExpressionGenerator(leftType), ExpressionGenerator(rightType));
-            return AssertQuery(isAsync, ss => left(ss.Set<Order>()).Union(right(ss.Set<Order>())));
+            return AssertQuery(async, ss => left(ss.Set<Order>()).Union(right(ss.Set<Order>())));
 
             static Func<IQueryable<Order>, IQueryable<object>> ExpressionGenerator(string expressionType)
             {
@@ -524,10 +520,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task OrderBy_Take_Union(bool isAsync)
+        public virtual Task OrderBy_Take_Union(bool async)
         {
             return AssertQuery(
-                isAsync, ss => ss.Set<Customer>()
+                async, ss => ss.Set<Customer>()
                     .OrderBy(c => c.ContactName)
                     .Take(1)
                     .Union(

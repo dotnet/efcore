@@ -9,18 +9,18 @@ namespace Microsoft.EntityFrameworkCore.Query
     public partial class SimpleQuerySqlServerTest
     {
         [ConditionalTheory]
-        public override async Task KeylessEntity_simple(bool isAsync)
+        public override async Task KeylessEntity_simple(bool async)
         {
-            await base.KeylessEntity_simple(isAsync);
+            await base.KeylessEntity_simple(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
         }
 
         [ConditionalTheory]
-        public override async Task KeylessEntity_where_simple(bool isAsync)
+        public override async Task KeylessEntity_where_simple(bool async)
         {
-            await base.KeylessEntity_where_simple(isAsync);
+            await base.KeylessEntity_where_simple(async);
 
             AssertSql(
                 @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
@@ -64,9 +64,9 @@ WHERE ((@__ef_filter___searchTerm_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND
     WHERE [c].[CustomerID] = [o].[CustomerID]) > 0)");
         }
 
-        public override async Task KeylessEntity_with_mixed_tracking(bool isAsync)
+        public override async Task KeylessEntity_with_mixed_tracking(bool async)
         {
-            await base.KeylessEntity_with_mixed_tracking(isAsync);
+            await base.KeylessEntity_with_mixed_tracking(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID]
@@ -76,9 +76,9 @@ INNER JOIN (
 ) AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
 
-        public override async Task KeylessEntity_with_defining_query(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query(bool async)
         {
-            await base.KeylessEntity_with_defining_query(isAsync);
+            await base.KeylessEntity_with_defining_query(async);
 
             AssertSql(
                 @"SELECT [o].[CustomerID]
@@ -88,9 +88,9 @@ FROM (
 WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
-        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool isAsync)
+        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
         {
-            await base.KeylessEntity_with_defining_query_and_correlated_collection(isAsync);
+            await base.KeylessEntity_with_defining_query_and_correlated_collection(async);
 
             AssertSql(
                 @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -103,9 +103,9 @@ WHERE [o].[CustomerID] = N'ALFKI'
 ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
         }
 
-        public override async Task KeylessEntity_select_where_navigation(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation(bool async)
         {
-            await base.KeylessEntity_select_where_navigation(isAsync);
+            await base.KeylessEntity_select_where_navigation(async);
 
             AssertSql(
                 @"SELECT [o].[CustomerID]
@@ -116,9 +116,9 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [c].[City] = N'Seattle'");
         }
 
-        public override async Task KeylessEntity_select_where_navigation_multi_level(bool isAsync)
+        public override async Task KeylessEntity_select_where_navigation_multi_level(bool async)
         {
-            await base.KeylessEntity_select_where_navigation_multi_level(isAsync);
+            await base.KeylessEntity_select_where_navigation_multi_level(async);
 
             AssertSql(
                 @"SELECT [o].[CustomerID]
@@ -139,6 +139,18 @@ WHERE EXISTS (
 
             AssertSql(
                 @"SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]");
+        }
+
+        public override async Task KeylesEntity_groupby(bool async)
+        {
+            await base.KeylesEntity_groupby(async);
+
+            AssertSql(
+                @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], SUM(CAST(LEN([c].[Address]) AS int)) AS [Sum]
+FROM (
+    SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+) AS [c]
+GROUP BY [c].[City]");
         }
     }
 }

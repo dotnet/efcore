@@ -70,12 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append("Key: ");
             }
 
-            builder.Append(
-                string.Join(
-                    ", ", key.Properties.Select(
-                        p => singleLine
-                            ? p.DeclaringEntityType.DisplayName() + "." + p.Name
-                            : p.Name)));
+            builder.AppendJoin(
+                ", ", key.Properties.Select(
+                    p => singleLine
+                        ? p.DeclaringEntityType.DisplayName() + "." + p.Name
+                        : p.Name));
 
             if (key.IsPrimaryKey())
             {

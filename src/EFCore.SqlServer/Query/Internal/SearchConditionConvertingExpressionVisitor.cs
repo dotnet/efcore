@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -220,9 +221,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             bool resultCondition;
             switch (sqlUnaryExpression.OperatorType)
             {
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when sqlUnaryExpression.IsLogicalNot():
+                {
                     _isSearchCondition = true;
                     resultCondition = true;
+                    break;
+                }
+
+                case ExpressionType.Not:
+                    _isSearchCondition = false;
+                    resultCondition = false;
                     break;
 
                 case ExpressionType.Convert:

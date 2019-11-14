@@ -4,7 +4,7 @@
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <PackageId>Microsoft.Data.Sqlite.Core</PackageId>
-    <Description>SQLite implementation of the System.Data.Common provider model.
+    <Description>Microsoft.Data.Sqlite is a lightweight ADO.NET provider for SQLite. This package does not include a copy of the native SQLite library.
 
 Commonly Used Types:
 Microsoft.Data.Sqlite.SqliteCommand

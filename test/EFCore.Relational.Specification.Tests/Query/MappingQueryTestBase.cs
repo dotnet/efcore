@@ -19,54 +19,46 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void All_customers()
         {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Set<MappedCustomer>()
-                        .ToList();
+            using var context = CreateContext();
+            var customers
+                = context.Set<MappedCustomer>()
+                    .ToList();
 
-                Assert.Equal(91, customers.Count);
-            }
+            Assert.Equal(91, customers.Count);
         }
 
         [ConditionalFact]
         public virtual void All_employees()
         {
-            using (var context = CreateContext())
-            {
-                var employees
-                    = context.Set<MappedEmployee>()
-                        .ToList();
+            using var context = CreateContext();
+            var employees
+                = context.Set<MappedEmployee>()
+                    .ToList();
 
-                Assert.Equal(9, employees.Count);
-            }
+            Assert.Equal(9, employees.Count);
         }
 
         [ConditionalFact]
         public virtual void All_orders()
         {
-            using (var context = CreateContext())
-            {
-                var orders
-                    = context.Set<MappedOrder>()
-                        .ToList();
+            using var context = CreateContext();
+            var orders
+                = context.Set<MappedOrder>()
+                    .ToList();
 
-                Assert.Equal(830, orders.Count);
-            }
+            Assert.Equal(830, orders.Count);
         }
 
         [ConditionalFact]
         public virtual void Project_nullable_enum()
         {
-            using (var context = CreateContext())
-            {
-                var orders
-                    = context.Set<MappedOrder>()
-                        .Select(o => o.ShipVia2)
-                        .ToList();
+            using var context = CreateContext();
+            var orders
+                = context.Set<MappedOrder>()
+                    .Select(o => o.ShipVia2)
+                    .ToList();
 
-                Assert.Equal(830, orders.Count);
-            }
+            Assert.Equal(830, orders.Count);
         }
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
