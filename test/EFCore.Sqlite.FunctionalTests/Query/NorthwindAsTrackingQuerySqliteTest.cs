@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class NorthwindCompiledQuerySqliteTest : NorthwindCompiledQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
+    public class NorthwindAsTrackingQuerySqliteTest : NorthwindAsTrackingQueryTestBase<NorthwindQuerySqliteFixture<NoopModelCustomizer>>
     {
-        public NorthwindCompiledQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
+        public NorthwindAsTrackingQuerySqliteTest(NorthwindQuerySqliteFixture<NoopModelCustomizer> fixture)
             : base(fixture)
         {
         }
