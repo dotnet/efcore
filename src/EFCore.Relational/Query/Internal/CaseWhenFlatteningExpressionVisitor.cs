@@ -21,13 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected override Expression VisitExtension(Expression node)
         {
             // Only applies to 'CASE WHEN condition...' not 'CASE operand WHEN...'
-            if (node is CaseExpression caseExpr && caseExpr.Operand == null)
+            if (node is CaseExpression caseExpression && caseExpression.Operand == null)
             {
-                if (caseExpr.ElseResult is CaseExpression nestedCaseExpr && nestedCaseExpr.Operand == null)
+                if (caseExpression.ElseResult is CaseExpression nestedCaseExpression && nestedCaseExpression.Operand == null)
                 {
                     return VisitExtension(_sqlExpressionFactory.Case(
-                        caseExpr.WhenClauses.Union(nestedCaseExpr.WhenClauses).ToList(),
-                        nestedCaseExpr.ElseResult));
+                        caseExpression.WhenClauses.Union(nestedCaseExpression.WhenClauses).ToList(),
+                        nestedCaseExpression.ElseResult));
                 }
             }
             return base.VisitExtension(node);
