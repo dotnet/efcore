@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
+            query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
 
             if (!UseRelationalNulls)
             {
