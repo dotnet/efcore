@@ -580,7 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                         else if (!_inLambda)
                         {
-                            // Force parameterization when not in lambada
+                            // Force parameterization when not in lambda
                             _evaluatableExpressions[methodCallExpression.Arguments[i]] = true;
                         }
                     }
