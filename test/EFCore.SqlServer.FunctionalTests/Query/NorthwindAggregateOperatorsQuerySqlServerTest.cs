@@ -941,7 +941,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ABC'')); GO; DROP TABLE Orders; GO; --') 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CAST(1 AS bit) = CAST(0 AS bit)");
+WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
         public override async Task Contains_with_local_collection_empty_inline(bool async)
@@ -950,8 +950,7 @@ WHERE CAST(1 AS bit) = CAST(0 AS bit)");
 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE CAST(1 AS bit) = CAST(1 AS bit)");
+FROM [Customers] AS [c]");
         }
 
         public override async Task Contains_top_level(bool async)

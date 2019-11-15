@@ -413,13 +413,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             if (leftBoolConstant != null && rightBoolConstant != null)
             {
-                // potential optimization:
-                // we can't do it on SqlServer because it reverts search conditions back to values
-                // and we run this visitor after search condition visitor
-                //return operatorType == ExpressionType.Equal
-                //    ? SqlExpressionFactory.Constant((bool)leftBoolConstant.Value == (bool)rightBoolConstant.Value, typeMapping)
-                //    : SqlExpressionFactory.Constant((bool)leftBoolConstant.Value != (bool)rightBoolConstant.Value, typeMapping);
-                return SqlExpressionFactory.MakeBinary(operatorType, left, right, typeMapping);
+                return operatorType == ExpressionType.Equal
+                    ? SqlExpressionFactory.Constant((bool)leftBoolConstant.Value == (bool)rightBoolConstant.Value, typeMapping)
+                    : SqlExpressionFactory.Constant((bool)leftBoolConstant.Value != (bool)rightBoolConstant.Value, typeMapping);
             }
 
             if (rightBoolConstant != null

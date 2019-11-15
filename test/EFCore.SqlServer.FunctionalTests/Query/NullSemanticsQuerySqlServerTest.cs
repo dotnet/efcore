@@ -1436,10 +1436,10 @@ WHERE ((SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) <> [e].[NullableStri
             AssertSql(
                 @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC], [e0].[Id], [e0].[BoolA], [e0].[BoolB], [e0].[BoolC], [e0].[IntA], [e0].[IntB], [e0].[IntC], [e0].[NullableBoolA], [e0].[NullableBoolB], [e0].[NullableBoolC], [e0].[NullableIntA], [e0].[NullableIntB], [e0].[NullableIntC], [e0].[NullableStringA], [e0].[NullableStringB], [e0].[NullableStringC], [e0].[StringA], [e0].[StringB], [e0].[StringC]
 FROM [Entities1] AS [e]
-INNER JOIN [Entities2] AS [e0] ON ((([e].[NullableStringA] = [e0].[NullableStringB]) OR ([e].[NullableStringA] IS NULL AND [e0].[NullableStringB] IS NULL)) AND (CASE
+INNER JOIN [Entities2] AS [e0] ON (([e].[NullableStringA] = [e0].[NullableStringB]) OR ([e].[NullableStringA] IS NULL AND [e0].[NullableStringB] IS NULL)) AND (CASE
     WHEN (([e].[NullableStringB] <> [e].[NullableStringC]) OR ([e].[NullableStringB] IS NULL OR [e].[NullableStringC] IS NULL)) AND ([e].[NullableStringB] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END = COALESCE([e0].[NullableBoolA], [e0].[BoolC]))) AND (CAST(1 AS bit) = CAST(1 AS bit))");
+END = COALESCE([e0].[NullableBoolA], [e0].[BoolC]))");
         }
 
         public override void Null_semantics_contains()

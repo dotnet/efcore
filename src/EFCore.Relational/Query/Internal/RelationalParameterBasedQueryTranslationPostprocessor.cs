@@ -1,11 +1,10 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -20,21 +19,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ParameterValueBasedSelectExpressionOptimizer
+    public class RelationalParameterBasedQueryTranslationPostprocessor
     {
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
-        private readonly bool _useRelationalNulls;
-
-        public ParameterValueBasedSelectExpressionOptimizer(
-            ISqlExpressionFactory sqlExpressionFactory,
-            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+        public RelationalParameterBasedQueryTranslationPostprocessor(
+            RelationalParameterBasedQueryTranslationPostprocessorDependencies dependencies,
             bool useRelationalNulls)
         {
-            _sqlExpressionFactory = sqlExpressionFactory;
-            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
-            _useRelationalNulls = useRelationalNulls;
+            Dependencies = dependencies;
+            UseRelationalNulls = useRelationalNulls;
         }
+
+        protected virtual RelationalParameterBasedQueryTranslationPostprocessorDependencies Dependencies { get; }
+
+        protected virtual bool UseRelationalNulls { get; }
 
         public virtual (SelectExpression selectExpression, bool canCache) Optimize(
             SelectExpression selectExpression, IReadOnlyDictionary<string, object> parametersValues)
@@ -42,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var canCache = true;
 
             var inExpressionOptimized = new InExpressionValuesExpandingExpressionVisitor(
-                _sqlExpressionFactory, parametersValues).Visit(selectExpression);
+                Dependencies.SqlExpressionFactory, parametersValues).Visit(selectExpression);
 
             if (!ReferenceEquals(selectExpression, inExpressionOptimized))
             {
@@ -50,11 +47,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             var nullParametersOptimized = new ParameterNullabilityBasedSqlExpressionOptimizingExpressionVisitor(
-                _sqlExpressionFactory, _useRelationalNulls, parametersValues).Visit(inExpressionOptimized);
+                Dependencies.SqlExpressionFactory, UseRelationalNulls, parametersValues).Visit(inExpressionOptimized);
 
             var fromSqlParameterOptimized = new FromSqlParameterApplyingExpressionVisitor(
-                _sqlExpressionFactory,
-                _parameterNameGeneratorFactory.Create(),
+                Dependencies.SqlExpressionFactory,
+                Dependencies.ParameterNameGeneratorFactory.Create(),
                 parametersValues).Visit(nullParametersOptimized);
 
             if (!ReferenceEquals(nullParametersOptimized, fromSqlParameterOptimized))
@@ -76,53 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : base(sqlExpressionFactory, useRelationalNulls)
             {
                 _parametersValues = parametersValues;
-            }
-
-            protected override Expression VisitExtension(Expression extensionExpression)
-            {
-                // workaround for issue #18492
-                var newExpression = base.VisitExtension(extensionExpression);
-                if (newExpression is SelectExpression newSelectExpression)
-                {
-                    var changed = false;
-                    var newPredicate = newSelectExpression.Predicate;
-                    var newHaving = newSelectExpression.Having;
-                    if (newSelectExpression.Predicate is SqlConstantExpression predicateConstantExpression
-                        && predicateConstantExpression.Value is bool predicateBoolValue
-                        && !predicateBoolValue)
-                    {
-                        changed = true;
-                        newPredicate = SqlExpressionFactory.Equal(
-                            predicateConstantExpression,
-                            SqlExpressionFactory.Constant(true, predicateConstantExpression.TypeMapping));
-                    }
-
-                    if (newSelectExpression.Having is SqlConstantExpression havingConstantExpression
-                        && havingConstantExpression.Value is bool havingBoolValue
-                        && !havingBoolValue)
-                    {
-                        changed = true;
-                        newHaving = SqlExpressionFactory.Equal(
-                            havingConstantExpression,
-                            SqlExpressionFactory.Constant(true, havingConstantExpression.TypeMapping));
-                    }
-
-                    return changed
-                        ? newSelectExpression.Update(
-                            newSelectExpression.Projection.ToList(),
-                            newSelectExpression.Tables.ToList(),
-                            newPredicate,
-                            newSelectExpression.GroupBy.ToList(),
-                            newHaving,
-                            newSelectExpression.Orderings.ToList(),
-                            newSelectExpression.Limit,
-                            newSelectExpression.Offset,
-                            newSelectExpression.IsDistinct,
-                            newSelectExpression.Alias)
-                        : newSelectExpression;
-                }
-
-                return newExpression;
             }
 
             protected override Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
