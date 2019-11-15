@@ -7547,6 +7547,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(f => f.Capital == ss.Set<Gear>().OrderBy(s => s.Nickname).FirstOrDefault().CityOfBirth));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool isAsync)
+        {
+            var prm = true;
+            var prm2 = (string)null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => g.HasSoulPatch == prm
+                    ? true
+                    : g.CityOfBirthName == prm2));
+        }
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_expression_with_test_being_simplified_to_constant_complex(bool isAsync)
+        {
+            var prm = true;
+            var prm2 = "Dom's Lancer";
+            var prm3 = (string)null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => g.HasSoulPatch == prm
+                    ? ss.Set<Weapon>().Where(w => w.Id == g.SquadId).Single().Name == prm2
+                    : g.CityOfBirthName == prm3));
+        }
+
         protected async Task AssertTranslationFailed(Func<Task> testCode)
         {
             Assert.Contains(

@@ -7504,6 +7504,52 @@ WHERE ([f].[Discriminator] = N'LocustHorde') AND (([c].[Name] = (
     ORDER BY [g].[Nickname]) IS NULL))");
         }
 
+        public override async Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool isAsync)
+        {
+            await base.Conditional_expression_with_test_being_simplified_to_constant_simple(isAsync);
+
+            AssertSql(
+                @"@__prm_0='True'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (CASE
+    WHEN [g].[HasSoulPatch] = @__prm_0 THEN CAST(1 AS bit)
+    ELSE CASE
+        WHEN CAST(0 AS bit) = CAST(1 AS bit) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit))");
+        }
+
+        public override async Task Conditional_expression_with_test_being_simplified_to_constant_complex(bool isAsync)
+        {
+            await base.Conditional_expression_with_test_being_simplified_to_constant_complex(isAsync);
+
+            AssertSql(
+                @"@__prm_0='True'
+@__prm2_1='Dom's Lancer' (Size = 4000)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (CASE
+    WHEN [g].[HasSoulPatch] = @__prm_0 THEN CASE
+        WHEN ((
+            SELECT TOP(1) [w].[Name]
+            FROM [Weapons] AS [w]
+            WHERE [w].[Id] = [g].[SquadId]) = @__prm2_1) AND (
+            SELECT TOP(1) [w].[Name]
+            FROM [Weapons] AS [w]
+            WHERE [w].[Id] = [g].[SquadId]) IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    ELSE CASE
+        WHEN CAST(0 AS bit) = CAST(1 AS bit) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

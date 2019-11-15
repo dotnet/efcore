@@ -88,23 +88,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var newPredicate = newSelectExpression.Predicate;
                     var newHaving = newSelectExpression.Having;
                     if (newSelectExpression.Predicate is SqlConstantExpression predicateConstantExpression
-                        && predicateConstantExpression.Value is bool predicateBoolValue
-                        && !predicateBoolValue)
+                        && predicateConstantExpression.Value is bool predicateBoolValue)
                     {
                         changed = true;
-                        newPredicate = SqlExpressionFactory.Equal(
-                            predicateConstantExpression,
-                            SqlExpressionFactory.Constant(true, predicateConstantExpression.TypeMapping));
+                        newPredicate = predicateBoolValue
+                            ? null
+                            : GenerateEqualTrueExpression(predicateConstantExpression);
                     }
 
                     if (newSelectExpression.Having is SqlConstantExpression havingConstantExpression
-                        && havingConstantExpression.Value is bool havingBoolValue
-                        && !havingBoolValue)
+                        && havingConstantExpression.Value is bool havingBoolValue)
                     {
                         changed = true;
-                        newHaving = SqlExpressionFactory.Equal(
-                            havingConstantExpression,
-                            SqlExpressionFactory.Constant(true, havingConstantExpression.TypeMapping));
+                        newHaving = havingBoolValue
+                            ? null
+                            : GenerateEqualTrueExpression(havingConstantExpression);
                     }
 
                     return changed
@@ -122,7 +120,42 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         : newSelectExpression;
                 }
 
+                if (newExpression is CaseExpression newCaseExpression
+                    && newCaseExpression.Operand == null)
+                {
+                    var changed = false;
+                    var newWhenClauses = new List<CaseWhenClause>();
+                    for (var i = 0; i < newCaseExpression.WhenClauses.Count; i++)
+                    {
+                        if (newCaseExpression.WhenClauses[i].Test is SqlConstantExpression whenConstantTestExpression
+                            && whenConstantTestExpression.Value is bool)
+                        {
+                            changed = true;
+                            newWhenClauses.Add(
+                                new CaseWhenClause(
+                                    GenerateEqualTrueExpression(whenConstantTestExpression),
+                                    newCaseExpression.WhenClauses[i].Result));
+                        }
+                        else
+                        {
+                            newWhenClauses.Add(newCaseExpression.WhenClauses[i]);
+                        }
+                    }
+
+                    return changed
+                        ? newCaseExpression.Update(
+                            newCaseExpression.Operand,
+                            newWhenClauses,
+                            newCaseExpression.ElseResult)
+                        : newCaseExpression;
+                }
+
                 return newExpression;
+
+                SqlExpression GenerateEqualTrueExpression(SqlExpression argument)
+                    => SqlExpressionFactory.Equal(
+                            argument,
+                            SqlExpressionFactory.Constant(true, argument.TypeMapping));
             }
 
             protected override Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
