@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var selector = sourceMethodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
                 var selectorBody = selector.Body;
-                var memberAccessExpression = createSelector(selectorBody, methodCallExpression.Method.Name.EndsWith("OrDefault"));
+                var memberAccessExpression = createSelector(selectorBody, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 var parameter = Expression.Parameter(queryableType, "s");
-                var memberAccessExpression = createSelector(parameter, methodCallExpression.Method.Name.EndsWith("OrDefault"));
+                var memberAccessExpression = createSelector(parameter, methodCallExpression.Method.Name.EndsWith("OrDefault", StringComparison.Ordinal));
 
                 source = Expression.Call(
                     QueryableMethods.Select.MakeGenericMethod(queryableType, memberAccessExpression.Type),

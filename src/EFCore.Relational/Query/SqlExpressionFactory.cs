@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -105,16 +106,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when sqlUnaryExpression.IsLogicalNot():
+                {
                     resultTypeMapping = _boolTypeMapping;
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
+                }
 
                 case ExpressionType.Convert:
                     resultTypeMapping = typeMapping;
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
 
+                case ExpressionType.Not:
                 case ExpressionType.Negate:
                     resultTypeMapping = typeMapping;
                     operand = ApplyTypeMapping(sqlUnaryExpression.Operand, typeMapping);
@@ -283,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => MakeUnary(ExpressionType.Convert, operand, type, typeMapping);
 
         public virtual SqlUnaryExpression Not(SqlExpression operand)
-            => MakeUnary(ExpressionType.Not, operand, typeof(bool));
+            => MakeUnary(ExpressionType.Not, operand, operand.Type, operand.TypeMapping);
 
         public virtual SqlUnaryExpression Negate(SqlExpression operand)
             => MakeUnary(ExpressionType.Negate, operand, operand.Type, operand.TypeMapping);

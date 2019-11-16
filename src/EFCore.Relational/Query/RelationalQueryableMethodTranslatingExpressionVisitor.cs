@@ -338,12 +338,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             switch (expression)
             {
                 case NewExpression newExpression:
-                    // For .NET Framework only. If ctor is null that means the type is struct and has no ctor args.
-                    if (newExpression.Constructor == null)
-                    {
-                        return newExpression;
-                    }
-
                     if (newExpression.Arguments.Count == 0)
                     {
                         return newExpression;
@@ -524,6 +518,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     result = result == null
                         ? joinPredicate
                         : _sqlExpressionFactory.AndAlso(result, joinPredicate);
+                }
+
+                if (outerNew.Arguments.Count == 1)
+                {
+                    result = _sqlExpressionFactory.AndAlso(
+                        result,
+                        CreateJoinPredicate(Expression.Constant(true), Expression.Constant(true)));
                 }
 
                 return result;

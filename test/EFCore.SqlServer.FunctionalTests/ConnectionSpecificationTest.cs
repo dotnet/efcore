@@ -28,10 +28,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = serviceProvider.GetRequiredService<StringInOnConfiguringContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                using var context = serviceProvider.GetRequiredService<StringInOnConfiguringContext>();
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -40,10 +38,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = new StringInOnConfiguringContext())
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                using var context = new StringInOnConfiguringContext();
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -65,10 +61,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = serviceProvider.GetRequiredService<ConnectionInOnConfiguringContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                using var context = serviceProvider.GetRequiredService<ConnectionInOnConfiguringContext>();
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -77,11 +71,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = new ConnectionInOnConfiguringContext(
-                    new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)))
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                using var context = new ConnectionInOnConfiguringContext(
+                    new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString));
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -120,12 +112,10 @@ namespace Microsoft.EntityFrameworkCore
                 = new ServiceCollection()
                     .AddDbContext<NoUseSqlServerContext>().BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
-            }
+            using var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>();
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
         }
 
         [ConditionalFact]
@@ -135,12 +125,10 @@ namespace Microsoft.EntityFrameworkCore
                 = new ServiceCollection()
                     .AddDbContext<NoUseSqlServerContext>().BuildServiceProvider();
 
-            using (var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>())
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
-            }
+            using var context = serviceProvider.GetRequiredService<NoUseSqlServerContext>();
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Customers.Any()).Message);
         }
 
         private class NoUseSqlServerContext : NorthwindContextBase
@@ -160,10 +148,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = serviceProvider.GetRequiredService<OptionsContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                using var context = serviceProvider.GetRequiredService<OptionsContext>();
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -172,12 +158,10 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = new OptionsContext(
+                using var context = new OptionsContext(
                     new DbContextOptions<OptionsContext>(),
-                    new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)))
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                    new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString));
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -221,10 +205,8 @@ namespace Microsoft.EntityFrameworkCore
 
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = serviceProvider.GetRequiredService<NonGenericOptionsContext>())
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                using var context = serviceProvider.GetRequiredService<NonGenericOptionsContext>();
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -233,10 +215,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>()))
-                {
-                    Assert.True(context.Customers.Any());
-                }
+                using var context = new NonGenericOptionsContext(new DbContextOptions<DbContext>());
+                Assert.True(context.Customers.Any());
             }
         }
 
@@ -281,13 +261,9 @@ namespace Microsoft.EntityFrameworkCore
 
             using (SqlServerTestStore.GetNorthwindStore())
             {
-                using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-                {
-                    using (var context = serviceScope.ServiceProvider.GetRequiredService<UseConfigurationContext>())
-                    {
-                        Assert.True(context.Customers.Any());
-                    }
-                }
+                using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                using var context = serviceScope.ServiceProvider.GetRequiredService<UseConfigurationContext>();
+                Assert.True(context.Customers.Any());
             }
         }
 

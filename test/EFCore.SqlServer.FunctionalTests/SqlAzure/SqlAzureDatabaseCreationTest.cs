@@ -20,14 +20,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         [ConditionalFact]
         public async Task Creates_database_in_elastic_pool()
         {
-            using (var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic"))
-            {
-                using var context = new ElasticPoolContext(testDatabase);
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+            using var testDatabase = SqlServerTestStore.Create(StoreName + "Elastic");
+            using var context = new ElasticPoolContext(testDatabase);
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
 
-                await AssertOptionsAsync(context.Database.GetDbConnection(), 1000 * (1L << 28), "Standard", "ElasticPool");
-            }
+            await AssertOptionsAsync(context.Database.GetDbConnection(), 1000 * (1L << 28), "Standard", "ElasticPool");
         }
 
         private class ElasticPoolContext : DbContext
@@ -56,14 +54,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         [ConditionalFact]
         public async Task Creates_basic_database()
         {
-            using (var testDatabase = SqlServerTestStore.Create(StoreName + "Basic"))
-            {
-                using var context = new BasicContext(testDatabase);
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+            using var testDatabase = SqlServerTestStore.Create(StoreName + "Basic");
+            using var context = new BasicContext(testDatabase);
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
 
-                await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 30, "Basic", "Basic");
-            }
+            await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 30, "Basic", "Basic");
         }
 
         private class BasicContext : DbContext
@@ -93,14 +89,12 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
         [ConditionalFact]
         public async Task Creates_business_critical_database()
         {
-            using (var testDatabase = SqlServerTestStore.Create(StoreName + "BusinessCritical"))
-            {
-                using var context = new BusinessCriticalContext(testDatabase);
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+            using var testDatabase = SqlServerTestStore.Create(StoreName + "BusinessCritical");
+            using var context = new BusinessCriticalContext(testDatabase);
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
 
-                await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 31, "BusinessCritical", "BC_Gen4_1");
-            }
+            await AssertOptionsAsync(context.Database.GetDbConnection(), 1L << 31, "BusinessCritical", "BC_Gen4_1");
         }
 
         private class BusinessCriticalContext : DbContext

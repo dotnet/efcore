@@ -251,11 +251,9 @@ namespace Microsoft.Data.Sqlite
 
             var timer = new Stopwatch();
 
-            using (var enumerator = PrepareAndEnumerateStatements(timer).GetEnumerator())
+            using var enumerator = PrepareAndEnumerateStatements(timer).GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                while (enumerator.MoveNext())
-                {
-                }
             }
         }
 
@@ -460,12 +458,10 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.CallRequiresSetCommandText(nameof(ExecuteScalar)));
             }
 
-            using (var reader = ExecuteReader())
-            {
-                return reader.Read()
-                    ? reader.GetValue(0)
-                    : null;
-            }
+            using var reader = ExecuteReader();
+            return reader.Read()
+                ? reader.GetValue(0)
+                : null;
         }
 
         /// <summary>

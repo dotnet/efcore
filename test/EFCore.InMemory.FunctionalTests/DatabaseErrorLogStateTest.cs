@@ -36,28 +36,26 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
-            using (var context = new BloggingContext(serviceProvider))
+            using var context = new BloggingContext(serviceProvider);
+            context.Blogs.Add(
+                new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
+            context.SaveChanges();
+            context.ChangeTracker.Entries().Single().State = EntityState.Added;
+
+            Exception ex;
+            if (async)
             {
-                context.Blogs.Add(
-                    new BloggingContext.Blog(jimSaysThrow: false) { Url = "http://sample.com" });
-                context.SaveChanges();
-                context.ChangeTracker.Entries().Single().State = EntityState.Added;
-
-                Exception ex;
-                if (async)
-                {
-                    ex = await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync());
-                }
-                else
-                {
-                    ex = Assert.Throws<ArgumentException>(() => context.SaveChanges());
-                }
-
-                Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
-                Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
-                Assert.EndsWith(
-                    ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+                ex = await Assert.ThrowsAsync<ArgumentException>(() => context.SaveChangesAsync());
             }
+            else
+            {
+                ex = Assert.Throws<ArgumentException>(() => context.SaveChanges());
+            }
+
+            Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
+            Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
+            Assert.EndsWith(
+                ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
         }
 
         [ConditionalFact]
@@ -108,26 +106,24 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
-            using (var context = new BloggingContext(serviceProvider))
+            using var context = new BloggingContext(serviceProvider);
+            context.Blogs.Add(
+                new BloggingContext.Blog(false) { Url = "http://sample.com" });
+            context.SaveChanges();
+            var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
+            context.GetService<IStateManager>().StopTracking(entry, entry.EntityState);
+
+            var ex = await Assert.ThrowsAnyAsync<Exception>(() => test(context));
+            while (ex.InnerException != null)
             {
-                context.Blogs.Add(
-                    new BloggingContext.Blog(false) { Url = "http://sample.com" });
-                context.SaveChanges();
-                var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
-                context.GetService<IStateManager>().StopTracking(entry, entry.EntityState);
-
-                var ex = await Assert.ThrowsAnyAsync<Exception>(() => test(context));
-                while (ex.InnerException != null)
-                {
-                    ex = ex.InnerException;
-                }
-
-                Assert.Equal("Jim said to throw from ctor!", ex.Message);
-                Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
-                Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
-                Assert.EndsWith(
-                    ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
+                ex = ex.InnerException;
             }
+
+            Assert.Equal("Jim said to throw from ctor!", ex.Message);
+            Assert.Same(ex, loggerFactory.Logger.LastDatabaseErrorException);
+            Assert.Same(typeof(BloggingContext), loggerFactory.Logger.LastDatabaseErrorState.Single(p => p.Key == "contextType").Value);
+            Assert.EndsWith(
+                ex.ToString(), loggerFactory.Logger.LastDatabaseErrorFormatter(loggerFactory.Logger.LastDatabaseErrorState, ex));
         }
 
         public class BloggingContext : DbContext

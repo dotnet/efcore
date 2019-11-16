@@ -30,17 +30,6 @@ namespace Microsoft.EntityFrameworkCore
             => (IConventionEntityType)((IEntityType)entityType).GetRootType();
 
         /// <summary>
-        ///     Gets the root base type for a given entity type.
-        /// </summary>
-        /// <param name="entityType"> The type to find the root of. </param>
-        /// <returns>
-        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        /// </returns>
-        [Obsolete("Use GetRootType")]
-        public static IConventionEntityType RootType([NotNull] this IConventionEntityType entityType)
-            => (IConventionEntityType)((IEntityType)entityType).GetRootType();
-
-        /// <summary>
         ///     Gets all types in the model that derive from a given entity type.
         /// </summary>
         /// <param name="entityType"> The base type to find types that derive from. </param>

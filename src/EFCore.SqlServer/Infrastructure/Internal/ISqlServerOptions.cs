@@ -21,9 +21,5 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     /// </summary>
     public interface ISqlServerOptions : ISingletonOptions
     {
-        /// <summary>
-        ///     Reflects the option set by <see cref="SqlServerDbContextOptionsBuilder.UseRowNumberForPaging" />.
-        /// </summary>
-        bool RowNumberPagingEnabled { get; }
     }
 }

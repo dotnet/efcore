@@ -239,64 +239,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 ThrowForConflictingNavigation(Builder.Metadata, referenceName, false);
             }
 
-            using (var batch = Builder.Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using var batch = Builder.Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
+            var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
+            var foreignKey = builder.Metadata;
+            if (foreignKey.IsSelfReferencing()
+                && referenceName != null
+                && ReferenceName == referenceName)
             {
-                var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
-                var foreignKey = builder.Metadata;
-                if (foreignKey.IsSelfReferencing()
-                    && referenceName != null
-                    && ReferenceName == referenceName)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ConflictingPropertyOrNavigation(
-                            referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
-                }
-
-                var pointsToPrincipal = !foreignKey.IsSelfReferencing()
-                    && (!foreignKey.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
-                        || !foreignKey.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
-                        || (foreignKey.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
-                            && foreignKey.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
-                            && foreignKey.PrincipalToDependent != null
-                            && foreignKey.PrincipalToDependent.Name == ReferenceName));
-
-                if (referenceName != null
-                    && ((pointsToPrincipal
-                            && foreignKey.DependentToPrincipal != null
-                            && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
-                            && foreignKey.DependentToPrincipal.Name != referenceName)
-                        || (!pointsToPrincipal
-                            && foreignKey.PrincipalToDependent != null
-                            && foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
-                            && foreignKey.PrincipalToDependent.Name != referenceName)))
-                {
-                    ThrowForConflictingNavigation(foreignKey, referenceName, pointsToPrincipal);
-                }
-
-                var referenceProperty = reference.MemberInfo;
-                if (pointsToPrincipal)
-                {
-                    builder = referenceProperty == null || ReferenceMember == null
-                        ? builder.HasNavigations(
-                            referenceName, ReferenceName,
-                            (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)
-                        : builder.HasNavigations(
-                            referenceProperty, ReferenceMember,
-                            (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit);
-                }
-                else
-                {
-                    builder = referenceProperty == null || ReferenceMember == null
-                        ? builder.HasNavigations(
-                            ReferenceName, referenceName,
-                            (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
-                        : builder.HasNavigations(
-                            ReferenceMember, referenceProperty,
-                            (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
-                }
-
-                return batch.Run(builder);
+                throw new InvalidOperationException(
+                    CoreStrings.ConflictingPropertyOrNavigation(
+                        referenceName, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
             }
+
+            var pointsToPrincipal = !foreignKey.IsSelfReferencing()
+                && (!foreignKey.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
+                    || !foreignKey.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
+                    || (foreignKey.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
+                        && foreignKey.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
+                        && foreignKey.PrincipalToDependent != null
+                        && foreignKey.PrincipalToDependent.Name == ReferenceName));
+
+            if (referenceName != null
+                && ((pointsToPrincipal
+                        && foreignKey.DependentToPrincipal != null
+                        && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
+                        && foreignKey.DependentToPrincipal.Name != referenceName)
+                    || (!pointsToPrincipal
+                        && foreignKey.PrincipalToDependent != null
+                        && foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                        && foreignKey.PrincipalToDependent.Name != referenceName)))
+            {
+                ThrowForConflictingNavigation(foreignKey, referenceName, pointsToPrincipal);
+            }
+
+            var referenceProperty = reference.MemberInfo;
+            if (pointsToPrincipal)
+            {
+                builder = referenceProperty == null || ReferenceMember == null
+                    ? builder.HasNavigations(
+                        referenceName, ReferenceName,
+                        (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit)
+                    : builder.HasNavigations(
+                        referenceProperty, ReferenceMember,
+                        (EntityType)DeclaringEntityType, (EntityType)RelatedEntityType, ConfigurationSource.Explicit);
+            }
+            else
+            {
+                builder = referenceProperty == null || ReferenceMember == null
+                    ? builder.HasNavigations(
+                        ReferenceName, referenceName,
+                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
+                    : builder.HasNavigations(
+                        ReferenceMember, referenceProperty,
+                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
+            }
+
+            return batch.Run(builder);
         }
 
         private static void ThrowForConflictingNavigation(ForeignKey foreignKey, string newInverseName, bool newToPrincipal)

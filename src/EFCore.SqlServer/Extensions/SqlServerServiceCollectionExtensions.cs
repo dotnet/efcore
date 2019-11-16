@@ -67,7 +67,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()
                 .TryAdd<IRelationalDatabaseCreator, SqlServerDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqlServerHistoryRepository>()
-                .TryAdd<ICompiledQueryCacheKeyGenerator, SqlServerCompiledQueryCacheKeyGenerator>()
                 .TryAdd<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
                 .TryAdd<ISingletonOptions, ISqlServerOptions>(p => p.GetService<ISqlServerOptions>())
 

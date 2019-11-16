@@ -8,13 +8,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
     [Flags]
     public enum MilitaryRank
     {
-        Private = 0,
-        Corporal = 1,
-        Sergeant = 2,
-        Lieutenant = 4,
-        Captain = 8,
-        Major = 16,
-        Colonel = 32,
-        General = 64
+        None = 0,
+        Private = 1,
+        Corporal = 2,
+        Sergeant = 4,
+        Lieutenant = 8,
+        Captain = 16,
+        Major = 32,
+        Colonel = 64,
+        General = 128
     }
 }

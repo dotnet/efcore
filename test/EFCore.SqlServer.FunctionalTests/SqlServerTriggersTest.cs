@@ -19,73 +19,69 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Triggers_run_on_insert_update_and_delete()
         {
-            using (var context = CreateContext())
-            {
-                var product = new Product { Name = "blah" };
-                context.Products.Add(product);
-                context.SaveChanges();
+            using var context = CreateContext();
+            var product = new Product { Name = "blah" };
+            context.Products.Add(product);
+            context.SaveChanges();
 
-                var firstVersion = product.Version;
-                var productBackup = context.ProductBackups.AsNoTracking().Single();
-                AssertEqual(product, productBackup);
+            var firstVersion = product.Version;
+            var productBackup = context.ProductBackups.AsNoTracking().Single();
+            AssertEqual(product, productBackup);
 
-                product.Name = "fooh";
-                context.SaveChanges();
+            product.Name = "fooh";
+            context.SaveChanges();
 
-                Assert.NotEqual(firstVersion, product.Version);
-                productBackup = context.ProductBackups.AsNoTracking().Single();
-                AssertEqual(product, productBackup);
+            Assert.NotEqual(firstVersion, product.Version);
+            productBackup = context.ProductBackups.AsNoTracking().Single();
+            AssertEqual(product, productBackup);
 
-                context.Products.Remove(product);
-                context.SaveChanges();
+            context.Products.Remove(product);
+            context.SaveChanges();
 
-                Assert.Empty(context.Products);
-                Assert.Empty(context.ProductBackups);
-            }
+            Assert.Empty(context.Products);
+            Assert.Empty(context.ProductBackups);
         }
 
         [ConditionalFact]
         public void Triggers_work_with_batch_operations()
         {
-            using (var context = CreateContext())
-            {
-                var productToBeUpdated1 = new Product { Name = "u1" };
-                var productToBeUpdated2 = new Product { Name = "u2" };
-                context.Products.Add(productToBeUpdated1);
-                context.Products.Add(productToBeUpdated2);
+            using var context = CreateContext();
+            var productToBeUpdated1 = new Product { Name = "u1" };
+            var productToBeUpdated2 = new Product { Name = "u2" };
+            context.Products.Add(productToBeUpdated1);
+            context.Products.Add(productToBeUpdated2);
 
-                var productToBeDeleted1 = new Product { Name = "d1" };
-                var productToBeDeleted2 = new Product { Name = "d2" };
-                context.Products.Add(productToBeDeleted1);
-                context.Products.Add(productToBeDeleted2);
+            var productToBeDeleted1 = new Product { Name = "d1" };
+            var productToBeDeleted2 = new Product { Name = "d2" };
+            context.Products.Add(productToBeDeleted1);
+            context.Products.Add(productToBeDeleted2);
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                var productToBeAdded1 = new Product { Name = "a1" };
-                var productToBeAdded2 = new Product { Name = "a2" };
-                context.Products.Add(productToBeAdded1);
-                context.Products.Add(productToBeAdded2);
+            var productToBeAdded1 = new Product { Name = "a1" };
+            var productToBeAdded2 = new Product { Name = "a2" };
+            context.Products.Add(productToBeAdded1);
+            context.Products.Add(productToBeAdded2);
 
-                productToBeUpdated1.Name = "n1";
-                productToBeUpdated2.Name = "n2";
+            productToBeUpdated1.Name = "n1";
+            productToBeUpdated2.Name = "n2";
 
-                context.Products.Remove(productToBeDeleted1);
-                context.Products.Remove(productToBeDeleted2);
+            context.Products.Remove(productToBeDeleted1);
+            context.Products.Remove(productToBeDeleted2);
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                var productBackups = context.ProductBackups.ToList();
-                Assert.Equal(4, productBackups.Count);
+            var productBackups = context.ProductBackups.ToList();
+            Assert.Equal(4, productBackups.Count);
 
-                AssertEqual(productToBeAdded1, productBackups.Single(p => p.Name == "a1"));
-                AssertEqual(productToBeAdded2, productBackups.Single(p => p.Name == "a2"));
-                AssertEqual(productToBeUpdated1, productBackups.Single(p => p.Name == "n1"));
-                AssertEqual(productToBeUpdated2, productBackups.Single(p => p.Name == "n2"));
+            AssertEqual(productToBeAdded1, productBackups.Single(p => p.Name == "a1"));
+            AssertEqual(productToBeAdded2, productBackups.Single(p => p.Name == "a2"));
+            AssertEqual(productToBeUpdated1, productBackups.Single(p => p.Name == "n1"));
+            AssertEqual(productToBeUpdated2, productBackups.Single(p => p.Name == "n2"));
 
-                context.Products.RemoveRange(context.Products);
+            context.Products.RemoveRange(context.Products);
 
-                context.SaveChanges();
-            }
+            context.SaveChanges();
         }
 
         private static void AssertEqual(Product product, ProductBackup productBackup)

@@ -110,44 +110,40 @@ namespace Microsoft.EntityFrameworkCore.Query
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
-            await using (var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken))
+            await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
+            if (!await enumerator.MoveNextAsync())
             {
-                if (!await enumerator.MoveNextAsync())
-                {
-                    throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
-                }
-
-                var result = enumerator.Current;
-
-                if (await enumerator.MoveNextAsync())
-                {
-                    throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
-                }
-
-                return result;
+                throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
             }
+
+            var result = enumerator.Current;
+
+            if (await enumerator.MoveNextAsync())
+            {
+                throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
+            }
+
+            return result;
         }
 
         private static async Task<TSource> SingleOrDefaultAsync<TSource>(
             IAsyncEnumerable<TSource> asyncEnumerable,
             CancellationToken cancellationToken = default)
         {
-            await using (var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken))
+            await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
+            if (!(await enumerator.MoveNextAsync()))
             {
-                if (!(await enumerator.MoveNextAsync()))
-                {
-                    return default;
-                }
-
-                var result = enumerator.Current;
-
-                if (await enumerator.MoveNextAsync())
-                {
-                    throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
-                }
-
-                return result;
+                return default;
             }
+
+            var result = enumerator.Current;
+
+            if (await enumerator.MoveNextAsync())
+            {
+                throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
+            }
+
+            return result;
         }
 
         protected abstract Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression);

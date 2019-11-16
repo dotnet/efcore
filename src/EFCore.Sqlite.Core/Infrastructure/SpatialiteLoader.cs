@@ -103,11 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
             else
             {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT load_extension('mod_spatialite');";
-                    command.ExecuteNonQuery();
-                }
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT load_extension('mod_spatialite');";
+                command.ExecuteNonQuery();
             }
         }
 

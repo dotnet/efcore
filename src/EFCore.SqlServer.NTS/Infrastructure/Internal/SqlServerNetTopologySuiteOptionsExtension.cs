@@ -51,13 +51,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
             if (internalServiceProvider != null)
             {
-                using (var scope = internalServiceProvider.CreateScope())
+                using var scope = internalServiceProvider.CreateScope();
+                var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
+                if (plugins?.Any(s => s is SqlServerNetTopologySuiteTypeMappingSourcePlugin) != true)
                 {
-                    var plugins = scope.ServiceProvider.GetService<IEnumerable<IRelationalTypeMappingSourcePlugin>>();
-                    if (plugins?.Any(s => s is SqlServerNetTopologySuiteTypeMappingSourcePlugin) != true)
-                    {
-                        throw new InvalidOperationException(SqlServerNTSStrings.NTSServicesMissing);
-                    }
+                    throw new InvalidOperationException(SqlServerNTSStrings.NTSServicesMissing);
                 }
             }
         }
