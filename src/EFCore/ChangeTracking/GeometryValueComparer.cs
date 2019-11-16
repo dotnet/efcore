@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             return Expression.Lambda<Func<TGeometry, TGeometry, bool>>(
                 Expression.Call(
                     left,
-                    typeof(TGeometry).GetRuntimeMethod("EqualsTopologically", new[] { typeof(TGeometry) }),
+                    typeof(TGeometry).GetRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) }),
                     right),
                 left,
                 right);
