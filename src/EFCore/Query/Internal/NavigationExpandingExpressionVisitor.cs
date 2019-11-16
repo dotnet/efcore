@@ -950,15 +950,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private Expression ProcessOrderByThenBy(
             NavigationExpansionExpression source, MethodInfo genericMethod, LambdaExpression keySelector, bool thenBy)
         {
-            var keySelectorBody = ExpandNavigationsInLambdaExpression(source, keySelector);
+            var lambdaBody = ReplacingExpressionVisitor.Replace(
+                keySelector.Parameters[0],
+                source.PendingSelector,
+                keySelector.Body);
+
+            lambdaBody = new ExpandingExpressionVisitor(this, source).Visit(lambdaBody);
+            lambdaBody = _subqueryMemberPushdownExpressionVisitor.Visit(lambdaBody);
 
             if (thenBy)
             {
-                source.AppendPendingOrdering(genericMethod, keySelectorBody);
+                source.AppendPendingOrdering(genericMethod, lambdaBody);
             }
             else
             {
-                source.AddPendingOrdering(genericMethod, keySelectorBody);
+                source.AddPendingOrdering(genericMethod, lambdaBody);
             }
 
             return source;
@@ -1142,7 +1148,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 foreach (var (orderingMethod, keySelector) in source.PendingOrderings)
                 {
-                    var keySelectorLambda = GenerateLambda(keySelector, source.CurrentParameter);
+                    var lambdaBody = Visit(keySelector);
+                    lambdaBody = _pendingSelectorExpandingExpressionVisitor.Visit(lambdaBody);
+
+                    var keySelectorLambda = GenerateLambda(lambdaBody, source.CurrentParameter);
 
                     source.UpdateSource(
                         Expression.Call(
@@ -1388,7 +1397,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return lambdaBody;
         }
 
-        private IEnumerable<INavigation> FindNavigations(IEntityType entityType, string navigationName)
+        private static IEnumerable<INavigation> FindNavigations(IEntityType entityType, string navigationName)
         {
             var navigation = entityType.FindNavigation(navigationName);
             if (navigation != null)
