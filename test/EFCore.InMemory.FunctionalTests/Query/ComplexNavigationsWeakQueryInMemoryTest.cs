@@ -53,5 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
         }
+
+        [ConditionalTheory(Skip = "issue #18912")]
+        public override Task OrderBy_collection_count_ThenBy_reference_navigation(bool async)
+        {
+            return base.OrderBy_collection_count_ThenBy_reference_navigation(async);
+        }
     }
 }
