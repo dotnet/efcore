@@ -4445,9 +4445,21 @@ LEFT JOIN [LevelTwo] AS [l2] ON [l].[Id] = [l2].[OneToMany_Required_Inverse2Id]
 ORDER BY [l].[Id], [l2].[Id]");
         }
 
-        private void AssertSql(params string[] expected)
+        public override async Task OrderBy_collection_count_ThenBy_reference_navigation(bool async)
         {
-            Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+            await base.OrderBy_collection_count_ThenBy_reference_navigation(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
+LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[Level2_Required_Id]
+ORDER BY (
+    SELECT COUNT(*)
+    FROM [LevelThree] AS [l2]
+    WHERE [l0].[Id] IS NOT NULL AND ([l0].[Id] = [l2].[OneToMany_Required_Inverse3Id])), [l1].[Name]");
         }
+
+        private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

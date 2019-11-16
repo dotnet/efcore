@@ -5941,5 +5941,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                         First = e.OneToMany_Required1.OrderByDescending(e => e.Id).FirstOrDefault()
                     }));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_collection_count_ThenBy_reference_navigation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .OrderBy(l1 => l1.OneToOne_Required_FK1.OneToMany_Required2.Count())
+                    .ThenBy(l1 => l1.OneToOne_Required_FK1.OneToOne_Required_FK2.Name),
+                ss => ss.Set<Level1>()
+                    .OrderBy(l1 => MaybeScalar<int>(Maybe(l1.OneToOne_Required_FK1, () => l1.OneToOne_Required_FK1.OneToMany_Required2),
+                        () => l1.OneToOne_Required_FK1.OneToMany_Required2.Count()) ?? 0)
+                    .ThenBy(l1 => Maybe(Maybe(l1.OneToOne_Required_FK1, () => l1.OneToOne_Required_FK1.OneToOne_Required_FK2),
+                        () => l1.OneToOne_Required_FK1.OneToOne_Required_FK2.Name)),
+                assertOrder: true);
+        }
     }
 }

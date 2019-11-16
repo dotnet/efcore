@@ -7386,13 +7386,13 @@ WHERE [u].[Id] IS NOT NULL");
                     ClearLog();
                 });
 
-        public class Person18759
+        private class Person18759
         {
             public int Id { get; set; }
             public User18759 UserDelete { get; set; }
         }
 
-        public class User18759
+        private class User18759
         {
             public int Id { get; set; }
         }
@@ -7410,7 +7410,7 @@ WHERE [u].[Id] IS NOT NULL");
             }
         }
 
-        #endregion Issue18759
+        #endregion
 
         private DbContextOptions _options;
 
