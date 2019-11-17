@@ -5462,13 +5462,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
         }
 
-        protected async Task AssertTranslationFailed(Func<Task> testCode)
-        {
-            Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
-                (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
-        }
-
         private static Expression<Func<Order, bool>> ValidYear => a => a.OrderDate.Value.Year == 1998;
     }
 }

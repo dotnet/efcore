@@ -204,11 +204,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
         private void AssertTranslationFailed(Action testCode)
-        {
-            Assert.Contains(
+            => Assert.Contains(
                 CoreStrings.TranslationFailed("").Substring(21),
                 Assert.Throws<InvalidOperationException>(testCode).Message);
-        }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }

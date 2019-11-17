@@ -1593,12 +1593,5 @@ namespace Microsoft.EntityFrameworkCore.Query
             public string City { get; set; }
             public Customer Customer { get; }
         }
-
-        protected async Task AssertTranslationFailed(Func<Task> testCode)
-        {
-            Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
-                (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
-        }
     }
 }

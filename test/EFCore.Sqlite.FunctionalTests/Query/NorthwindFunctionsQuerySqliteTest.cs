@@ -18,335 +18,104 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // SQLite client-eval
-        public override async Task Convert_ToByte(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Convert_ToByte(async)))
-                .Message);
-        }
+        public override Task Convert_ToByte(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToByte(async));
 
-        // SQLite client-eval
-        public override async Task Convert_ToDecimal(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Convert_ToDecimal(async)))
-                .Message);
-        }
+        public override Task Convert_ToDecimal(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToDecimal(async));
 
-        // SQLite client-eval
-        public override async Task Convert_ToDouble(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Convert_ToDouble(async)))
-                .Message);
-        }
+        public override Task Convert_ToDouble(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToDouble(async));
 
-        // SQLite client-eval
-        public override async Task Convert_ToInt16(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Convert_ToInt16(async)))
-                .Message);
-        }
+        public override Task Convert_ToInt16(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToInt16(async));
 
-        // SQLite client-eval
-        public override async Task Convert_ToInt32(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Convert_ToInt32(async)))
-                .Message);
-        }
+        public override Task Convert_ToInt32(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToInt32(async));
 
-        // SQLite client-eval
-        public override async Task Convert_ToInt64(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Convert_ToInt64(async)))
-                .Message);
-        }
+        public override Task Convert_ToInt64(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToInt64(async));
 
-        // SQLite client-eval
-        public override async Task Convert_ToString(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Convert_ToString(async)))
-                .Message);
-        }
+        public override Task Convert_ToString(bool async)
+            => AssertTranslationFailed(() => base.Convert_ToString(async));
 
-        // SQLite client-eval
-        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async)))
-                .Message);
-        }
+        public override Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
+            => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async));
 
-        // SQLite client-eval
-        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async)))
-                .Message);
-        }
+        public override Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
+            => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async));
 
-        // SQLite client-eval
-        public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async)))
-                .Message);
-        }
+        public override Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
+            => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async));
 
-        // SQLite client-eval
-        public override async Task Where_functions_nested(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_functions_nested(async)))
-                .Message);
-        }
+        public override Task Where_functions_nested(bool async)
+            => AssertTranslationFailed(() => base.Where_functions_nested(async));
 
-        // SQLite client-eval
-        public override async Task Where_guid_newguid(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_guid_newguid(async)))
-                .Message);
-        }
+        public override Task Where_guid_newguid(bool async)
+            => AssertTranslationFailed(() => base.Where_guid_newguid(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_abs3(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_abs3(async)))
-                .Message);
-        }
+        public override Task Where_math_abs3(bool async)
+            => AssertTranslationFailed(() => base.Where_math_abs3(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_acos(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_acos(async)))
-                .Message);
-        }
+        public override Task Where_math_acos(bool async)
+            => AssertTranslationFailed(() => base.Where_math_acos(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_asin(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_asin(async)))
-                .Message);
-        }
+        public override Task Where_math_asin(bool async)
+            => AssertTranslationFailed(() => base.Where_math_asin(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_atan(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_atan(async)))
-                .Message);
-        }
+        public override Task Where_math_atan(bool async)
+            => AssertTranslationFailed(() => base.Where_math_atan(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_atan2(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_atan2(async)))
-                .Message);
-        }
+        public override Task Where_math_atan2(bool async)
+            => AssertTranslationFailed(() => base.Where_math_atan2(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_ceiling1(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_ceiling1(async)))
-                .Message);
-        }
+        public override Task Where_math_ceiling1(bool async)
+            => AssertTranslationFailed(() => base.Where_math_ceiling1(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_ceiling2(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_ceiling2(async)))
-                .Message);
-        }
+        public override Task Where_math_ceiling2(bool async)
+            => AssertTranslationFailed(() => base.Where_math_ceiling2(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_cos(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_cos(async)))
-                .Message);
-        }
+        public override Task Where_math_cos(bool async)
+            => AssertTranslationFailed(() => base.Where_math_cos(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_exp(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_exp(async)))
-                .Message);
-        }
+        public override Task Where_math_exp(bool async)
+            => AssertTranslationFailed(() => base.Where_math_exp(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_floor(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_floor(async)))
-                .Message);
-        }
+        public override Task Where_math_floor(bool async)
+            => AssertTranslationFailed(() => base.Where_math_floor(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_log(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_log(async)))
-                .Message);
-        }
+        public override Task Where_math_log(bool async)
+            => AssertTranslationFailed(() => base.Where_math_log(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_log_new_base(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_log_new_base(async)))
-                .Message);
-        }
+        public override Task Where_math_log_new_base(bool async)
+            => AssertTranslationFailed(() => base.Where_math_log_new_base(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_log10(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_log10(async)))
-                .Message);
-        }
+        public override Task Where_math_log10(bool async)
+            => AssertTranslationFailed(() => base.Where_math_log10(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_power(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_power(async)))
-                .Message);
-        }
+        public override Task Where_math_power(bool async)
+            => AssertTranslationFailed(() => base.Where_math_power(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_round(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_round(async)))
-                .Message);
-        }
+        public override Task Where_math_round(bool async)
+            => AssertTranslationFailed(() => base.Where_math_round(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_round2(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_round2(async)))
-                .Message);
-        }
+        public override Task Where_math_round2(bool async)
+            => AssertTranslationFailed(() => base.Where_math_round2(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_sign(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_sign(async)))
-                .Message);
-        }
+        public override Task Where_math_sign(bool async)
+            => AssertTranslationFailed(() => base.Where_math_sign(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_sin(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_sin(async)))
-                .Message);
-        }
+        public override Task Where_math_sin(bool async)
+            => AssertTranslationFailed(() => base.Where_math_sin(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_sqrt(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_sqrt(async)))
-                .Message);
-        }
+        public override Task Where_math_sqrt(bool async)
+            => AssertTranslationFailed(() => base.Where_math_sqrt(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_tan(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_tan(async)))
-                .Message);
-        }
+        public override Task Where_math_tan(bool async)
+            => AssertTranslationFailed(() => base.Where_math_tan(async));
 
-        // SQLite client-eval
-        public override async Task Where_math_truncate(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_math_truncate(async)))
-                .Message);
-        }
+        public override Task Where_math_truncate(bool async)
+            => AssertTranslationFailed(() => base.Where_math_truncate(async));
 
         public override async Task String_StartsWith_Literal(bool async)
         {

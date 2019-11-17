@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -1148,6 +1149,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ? new List<TResult> { default }
                 : caller.DefaultIfEmpty();
         }
+
+        protected static async Task AssertTranslationFailed(Func<Task> query)
+            => Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                (await Assert.ThrowsAsync<InvalidOperationException>(query))
+                .Message);
 
         #endregion
     }

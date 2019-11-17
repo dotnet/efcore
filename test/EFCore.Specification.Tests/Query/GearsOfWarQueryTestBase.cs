@@ -7303,13 +7303,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Squad>().Where(s => s.Banner != null && s.Banner.Contains(someByte)));
         }
 
-        protected async Task AssertTranslationFailed(Func<Task> testCode)
-        {
-            Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
-                (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
-        }
-
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
