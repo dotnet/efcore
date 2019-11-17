@@ -39,7 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             { ExpressionType.Divide, " / " },
             { ExpressionType.Modulo, " % " },
             { ExpressionType.And, " & " },
-            { ExpressionType.Or, " | " }
+            { ExpressionType.Or, " | " },
+            { ExpressionType.ExclusiveOr, " ^ " },
+            { ExpressionType.LeftShift, " << " },
+            { ExpressionType.RightShift, " >> " }
         };
 
         public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)

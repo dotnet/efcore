@@ -2368,6 +2368,36 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] | 10248) = 10248))");
         }
 
+        public override async Task Where_bitwise_binary_xor(bool async)
+        {
+            await base.Where_bitwise_binary_xor(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] ^ 1) = 10249))");
+        }
+
+        public override async Task Where_shift_left(bool async)
+        {
+            await base.Where_shift_left(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] << 1) = 20496))");
+        }
+
+        public override async Task Where_shift_right(bool async)
+        {
+            await base.Where_shift_right(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] >> 1) = 5124))");
+        }
+
         [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or_with_logical_or()
         {

@@ -21,16 +21,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 "datetimeoffset"
             };
 
-        private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
-            = new HashSet<ExpressionType>
-            {
-                ExpressionType.Add,
-                ExpressionType.Subtract,
-                ExpressionType.Multiply,
-                ExpressionType.Divide,
-                ExpressionType.Modulo
-            };
-
         // TODO: Possibly make this protected in base
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -47,17 +37,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
 
-            if (visitedExpression == null)
+            if (visitedExpression is SqlBinaryExpression sqlBinary)
             {
-                return null;
+                switch (sqlBinary.OperatorType)
+                {
+                    case ExpressionType.LeftShift:
+                    case ExpressionType.RightShift:
+                        return null;
+
+                    case ExpressionType.Add:
+                    case ExpressionType.Subtract:
+                    case ExpressionType.Multiply:
+                    case ExpressionType.Divide:
+                    case ExpressionType.Modulo:
+                        if (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
+                            || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
+                        {
+                            return null;
+                        }
+                        break;
+                }
             }
 
-            return visitedExpression is SqlBinaryExpression sqlBinary
-                && _arithmeticOperatorTypes.Contains(sqlBinary.OperatorType)
-                && (_dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || _dateTimeDataTypes.Contains(GetProviderType(sqlBinary.Right)))
-                    ? null
-                    : visitedExpression;
+            return visitedExpression;
         }
 
         public override SqlExpression TranslateLongCount(Expression expression = null)

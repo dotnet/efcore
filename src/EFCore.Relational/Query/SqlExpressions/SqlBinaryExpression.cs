@@ -29,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ExpressionType.GreaterThanOrEqual,
             ExpressionType.Equal,
             ExpressionType.NotEqual,
-            //ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce
+            ExpressionType.ExclusiveOr,
+            ExpressionType.Coalesce,
             //ExpressionType.ArrayIndex,
-            //ExpressionType.RightShift,
-            //ExpressionType.LeftShift,
+            ExpressionType.RightShift,
+            ExpressionType.LeftShift
         };
 
         private static ExpressionType VerifyOperator(ExpressionType operatorType)

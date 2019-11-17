@@ -143,9 +143,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var left = sqlBinaryExpression.Left;
             var right = sqlBinaryExpression.Right;
 
-            Type resultType;
-            RelationalTypeMapping resultTypeMapping;
-            RelationalTypeMapping inferredTypeMapping;
             switch (sqlBinaryExpression.OperatorType)
             {
                 case ExpressionType.Equal:
@@ -155,21 +152,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
                 {
-                    inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
+                    var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                         ?? _typeMappingSource.FindMapping(left.Type);
-                    resultType = typeof(bool);
-                    resultTypeMapping = _boolTypeMapping;
-                    break;
+                    return new SqlBinaryExpression(
+                        sqlBinaryExpression.OperatorType,
+                        ApplyTypeMapping(left, inferredTypeMapping),
+                        ApplyTypeMapping(right, inferredTypeMapping),
+                        typeof(bool),
+                        _boolTypeMapping);
                 }
 
                 case ExpressionType.AndAlso:
                 case ExpressionType.OrElse:
-                {
-                    inferredTypeMapping = _boolTypeMapping;
-                    resultType = typeof(bool);
-                    resultTypeMapping = _boolTypeMapping;
-                    break;
-                }
+                    return new SqlBinaryExpression(
+                        sqlBinaryExpression.OperatorType,
+                        ApplyTypeMapping(left, _boolTypeMapping),
+                        ApplyTypeMapping(right, _boolTypeMapping),
+                        typeof(bool),
+                        _boolTypeMapping);
 
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
@@ -179,23 +179,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Coalesce:
                 case ExpressionType.And:
                 case ExpressionType.Or:
+                case ExpressionType.ExclusiveOr:
                 {
-                    inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                    resultType = left.Type;
-                    resultTypeMapping = inferredTypeMapping;
-                    break;
+                    var inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
+                    return new SqlBinaryExpression(
+                        sqlBinaryExpression.OperatorType,
+                        ApplyTypeMapping(left, inferredTypeMapping),
+                        ApplyTypeMapping(right, inferredTypeMapping),
+                        left.Type,
+                        inferredTypeMapping);
                 }
+
+                case ExpressionType.LeftShift:
+                case ExpressionType.RightShift:
+                    return new SqlBinaryExpression(
+                        sqlBinaryExpression.OperatorType,
+                        ApplyTypeMapping(left, typeMapping),
+                        ApplyDefaultTypeMapping(right),
+                        left.Type,
+                        typeMapping);
 
                 default:
                     throw new InvalidOperationException("Incorrect operatorType for SqlBinaryExpression");
             }
-
-            return new SqlBinaryExpression(
-                sqlBinaryExpression.OperatorType,
-                ApplyTypeMapping(left, inferredTypeMapping),
-                ApplyTypeMapping(right, inferredTypeMapping),
-                resultType,
-                resultTypeMapping);
         }
 
         public virtual RelationalTypeMapping GetTypeMappingForValue(object value)

@@ -107,17 +107,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
 
-            if (visitedExpression == null)
+            if (visitedExpression is SqlBinaryExpression sqlBinary)
             {
-                return null;
+                if (sqlBinary.OperatorType == ExpressionType.ExclusiveOr)
+                {
+                    return null;
+                }
+
+                if (_restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
+                    && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
+                        || restrictedTypes.Contains(GetProviderType(sqlBinary.Right))))
+                {
+                    return null;
+                }
             }
 
-            return visitedExpression is SqlBinaryExpression sqlBinary
-                && _restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
-                && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || restrictedTypes.Contains(GetProviderType(sqlBinary.Right)))
-                    ? null
-                    : visitedExpression;
+            return visitedExpression;
         }
 
         public override SqlExpression TranslateAverage(Expression expression)

@@ -55,6 +55,27 @@ CROSS JOIN (
 ORDER BY [t].[OrderID]");
         }
 
+        public override async Task Projection_when_arithmetic_mixed_subqueries(bool async)
+        {
+            await base.Projection_when_arithmetic_mixed_subqueries(async);
+
+            AssertSql(
+                @"@__p_0='3'
+
+SELECT CAST([t0].[EmployeeID] AS bigint) + CAST([t].[OrderID] AS bigint) AS [Add], [t0].[c] AS [Square], [t0].[EmployeeID], [t0].[City], [t0].[Country], [t0].[FirstName], [t0].[ReportsTo], [t0].[Title], 42 AS [Literal], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID] % 2 AS [Mod]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t]
+CROSS JOIN (
+    SELECT TOP(2) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [e].[EmployeeID] ^ 2 AS [c]
+    FROM [Employees] AS [e]
+    ORDER BY [e].[EmployeeID]
+) AS [t0]
+ORDER BY [t].[OrderID]");
+        }
+
         public override async Task Projection_when_null_value(bool async)
         {
             await base.Projection_when_null_value(async);

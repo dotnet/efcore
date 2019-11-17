@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-
         // SQLite client-eval
         public override async Task Query_expression_with_to_string_and_contains(bool async)
         {
@@ -31,7 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     () => base.Query_expression_with_to_string_and_contains(async)))
                 .Message);
         }
-
 
         public override async Task Take_Skip(bool async)
         {
@@ -243,6 +241,36 @@ FROM (
     FROM ""Customers"" AS ""c""
     LIMIT @__p_0
 ) AS ""t""");
+        }
+
+        public override async Task Where_bitwise_binary_xor(bool async)
+        {
+            // Not supported by Sqlite
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_bitwise_binary_xor(async)))
+                .Message);
+
+        }
+        public override async Task Where_shift_left(bool async)
+        {
+            await base.Where_shift_left(async);
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE (""o"".""OrderID"" << 1) = 20496");
+        }
+
+        public override async Task Where_shift_right(bool async)
+        {
+            await base.Where_shift_right(async);
+
+            AssertSql(
+                @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""
+WHERE (""o"".""OrderID"" >> 1) = 5124");
         }
 
         public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)

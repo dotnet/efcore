@@ -2937,6 +2937,36 @@ FROM [Orders] AS [o]
 WHERE ([o].[OrderID] | 10248) = 10248");
         }
 
+        public override async Task Where_bitwise_binary_xor(bool async)
+        {
+            await base.Where_bitwise_binary_xor(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[OrderID] ^ 1) = 10249");
+        }
+
+        public override async Task Where_shift_left(bool async)
+        {
+            // Not supported by SQL Server
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_shift_left(async)))
+                .Message);
+        }
+
+        public override async Task Where_shift_right(bool async)
+        {
+            // Not supported by SQL Server
+            Assert.StartsWith(
+                "The LINQ expression",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Where_shift_right(async)))
+                .Message);
+        }
+
         public override void Select_bitwise_or_with_logical_or()
         {
             base.Select_bitwise_or_with_logical_or();
