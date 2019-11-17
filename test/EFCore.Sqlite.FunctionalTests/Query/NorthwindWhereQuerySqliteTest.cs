@@ -18,25 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // SQLite client-eval
-        public override async Task Where_datetimeoffset_now_component(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_datetimeoffset_now_component(async)))
-                .Message);
-        }
+        public override Task Where_datetimeoffset_now_component(bool async)
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_now_component(async));
 
-        // SQLite client-eval
-        public override async Task Where_datetimeoffset_utcnow_component(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Where_datetimeoffset_utcnow_component(async)))
-                .Message);
-        }
+        public override Task Where_datetimeoffset_utcnow_component(bool async)
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
 
         public override async Task Where_datetime_now(bool async)
         {
@@ -217,9 +203,7 @@ WHERE CAST(""p"".""UnitPrice"" AS REAL) > 100.0");
 
         [ConditionalTheory(Skip = "Issue#17223")]
         public override Task Like_with_non_string_column_using_ToString(bool async)
-        {
-            return base.Like_with_non_string_column_using_ToString(async);
-        }
+            => base.Like_with_non_string_column_using_ToString(async);
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

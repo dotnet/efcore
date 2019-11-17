@@ -21,17 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-
-        // SQLite client-eval
-        public override async Task Query_expression_with_to_string_and_contains(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Query_expression_with_to_string_and_contains(async)))
-                .Message);
-        }
-
+        public override Task Query_expression_with_to_string_and_contains(bool async)
+            => AssertTranslationFailed(() => base.Query_expression_with_to_string_and_contains(async));
 
         public override async Task Take_Skip(bool async)
         {

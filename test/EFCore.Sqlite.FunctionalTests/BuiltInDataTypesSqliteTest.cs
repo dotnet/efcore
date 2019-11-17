@@ -1019,13 +1019,6 @@ LIMIT 1");
                     .Sum(e => e.TestDecimal));
         }
 
-        private void AssertTranslationFailed(Action testCode)
-        {
-            Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
-                Assert.Throws<InvalidOperationException>(testCode).Message);
-        }
-
         [ConditionalFact]
         public virtual void Can_query_negation_of_converted_types()
         {
@@ -1512,6 +1505,11 @@ LIMIT 1");
                     .First());
             Assert.Equal(SqliteStrings.OrderByNotSupported("ulong"), ex.Message);
         }
+
+        private void AssertTranslationFailed(Action testCode)
+            => Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                Assert.Throws<InvalidOperationException>(testCode).Message);
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

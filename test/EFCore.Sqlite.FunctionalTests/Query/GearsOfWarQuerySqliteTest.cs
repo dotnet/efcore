@@ -16,77 +16,41 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_date_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_date_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_date_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_day_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_date_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_date_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_dayofyear_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_dayofyear_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_dayofyear_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_hour_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_hour_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_hour_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_millisecond_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_millisecond_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_millisecond_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_minute_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_minute_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_minute_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_month_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_month_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_month_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_now(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_now(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_now(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_second_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_second_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_second_component(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_utcnow(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow(async));
 
-        // SQLite client-eval
         public override Task Where_datetimeoffset_year_component(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_datetimeoffset_year_component(async));
-        }
+            => AssertTranslationFailed(() => base.Where_datetimeoffset_year_component(async));
 
-        // SQLite client-eval
         public override Task DateTimeOffset_Contains_Less_than_Greater_than(bool async)
-        {
-            return AssertTranslationFailed(() => base.DateTimeOffset_Contains_Less_than_Greater_than(async));
-        }
+            => AssertTranslationFailed(() => base.DateTimeOffset_Contains_Less_than_Greater_than(async));
 
         // Sqlite does not support cross/outer apply
         public override Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool async) => null;
@@ -105,9 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory(Skip = "Issue #17230")]
         public override Task Project_collection_navigation_nested_with_take_composite_key(bool async)
-        {
-            return base.Project_collection_navigation_nested_with_take_composite_key(async);
-        }
+            => base.Project_collection_navigation_nested_with_take_composite_key(async);
 
         public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
         {

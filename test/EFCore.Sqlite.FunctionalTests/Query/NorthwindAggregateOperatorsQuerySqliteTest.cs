@@ -18,44 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        // SQLite client-eval
-        public override async Task Sum_with_division_on_decimal(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Sum_with_division_on_decimal(async)))
-                .Message);
-        }
+        public override Task Sum_with_division_on_decimal(bool async)
+            => AssertTranslationFailed(() => base.Sum_with_division_on_decimal(async));
 
-        // SQLite client-eval
-        public override async Task Sum_with_division_on_decimal_no_significant_digits(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Sum_with_division_on_decimal_no_significant_digits(async)))
-                .Message);
-        }
+        public override Task Sum_with_division_on_decimal_no_significant_digits(bool async)
+            => AssertTranslationFailed(() => base.Sum_with_division_on_decimal_no_significant_digits(async));
 
-        // SQLite client-eval
-        public override async Task Average_with_division_on_decimal(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Average_with_division_on_decimal(async)))
-                .Message);
-        }
+        public override Task Average_with_division_on_decimal(bool async)
+            => AssertTranslationFailed(() => base.Average_with_division_on_decimal(async));
 
-        // SQLite client-eval
-        public override async Task Average_with_division_on_decimal_no_significant_digits(bool async)
-        {
-            Assert.StartsWith(
-                "The LINQ expression",
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Average_with_division_on_decimal_no_significant_digits(async)))
-                .Message);
-        }
+        public override Task Average_with_division_on_decimal_no_significant_digits(bool async)
+            => AssertTranslationFailed(() => base.Average_with_division_on_decimal_no_significant_digits(async));
     }
 }
