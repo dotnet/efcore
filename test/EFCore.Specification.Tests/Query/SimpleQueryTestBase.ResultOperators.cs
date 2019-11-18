@@ -1885,9 +1885,46 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().Select(o => new { Id = CodeFormat(o.OrderID) }));
         }
 
-        private static string CodeFormat(int str)
+        private static string CodeFormat(int str) => str.ToString();
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_over_empty_returns_zero(bool isAsync)
         {
-            return str.ToString();
+            return AssertSum(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 42),
+                o => o.OrderID);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Average_over_default_returns_default(bool isAsync)
+        {
+            return AssertAverage(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10248),
+                o => o.OrderID - 10248);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Max_over_default_returns_default(bool isAsync)
+        {
+            return AssertMax(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10248),
+                o => o.OrderID - 10248);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Min_over_default_returns_default(bool isAsync)
+        {
+            return AssertMin(
+                isAsync,
+                ss => ss.Set<Order>().Where(o => o.OrderID == 10248),
+                o => o.OrderID - 10248);
         }
     }
 }

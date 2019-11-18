@@ -779,43 +779,33 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             selectExpression.ClearOrdering();
 
-            Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
+            var nullableResultType = resultType.MakeNullable();
+            Expression shaper = new ProjectionBindingExpression(
+                source.QueryExpression, new ProjectionMember(), throwOnNullResult ? nullableResultType : projection.Type);
 
-            if (throwOnNullResult
-                && resultType.IsNullableType())
+            if (throwOnNullResult)
             {
-                var resultVariable = Expression.Variable(projection.Type, "result");
+                var resultVariable = Expression.Variable(nullableResultType, "result");
+                var returnValueForNull = resultType.IsNullableType()
+                    ? (Expression)Expression.Constant(null, resultType)
+                    : Expression.Throw(
+                        Expression.New(
+                            typeof(InvalidOperationException).GetConstructors()
+                                .Single(ci => ci.GetParameters().Length == 1),
+                            Expression.Constant(CoreStrings.NoElements)),
+                        resultType);
 
                 shaper = Expression.Block(
                     new[] { resultVariable },
                     Expression.Assign(resultVariable, shaper),
                     Expression.Condition(
-                        Expression.Equal(resultVariable, Expression.Default(projection.Type)),
-                        Expression.Constant(null, resultType),
+                        Expression.Equal(resultVariable, Expression.Default(nullableResultType)),
+                        returnValueForNull,
                         resultType != resultVariable.Type
                             ? Expression.Convert(resultVariable, resultType)
                             : (Expression)resultVariable));
             }
-            else if (throwOnNullResult)
-            {
-                var resultVariable = Expression.Variable(projection.Type, "result");
-
-                shaper = Expression.Block(
-                    new[] { resultVariable },
-                    Expression.Assign(resultVariable, shaper),
-                    Expression.Condition(
-                        Expression.Equal(resultVariable, Expression.Default(projection.Type)),
-                        Expression.Throw(
-                            Expression.New(
-                                typeof(InvalidOperationException).GetConstructors()
-                                    .Single(ci => ci.GetParameters().Length == 1),
-                                Expression.Constant(CoreStrings.NoElements)),
-                            resultType),
-                        resultType != resultVariable.Type
-                            ? Expression.Convert(resultVariable, resultType)
-                            : (Expression)resultVariable));
-            }
-            else if (resultType.IsNullableType())
+            else if (resultType != shaper.Type)
             {
                 shaper = Expression.Convert(shaper, resultType);
             }

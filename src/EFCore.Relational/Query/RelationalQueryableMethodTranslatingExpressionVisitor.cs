@@ -1143,11 +1143,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             selectExpression.ClearOrdering();
 
-            Expression shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), projection.Type);
+            var nullableResultType = resultType.MakeNullable();
+            Expression shaper = new ProjectionBindingExpression(
+                source.QueryExpression, new ProjectionMember(), throwOnNullResult ? nullableResultType : projection.Type);
 
             if (throwOnNullResult)
             {
-                var resultVariable = Expression.Variable(projection.Type, "result");
+                var resultVariable = Expression.Variable(nullableResultType, "result");
                 var returnValueForNull = resultType.IsNullableType()
                     ? (Expression)Expression.Constant(null, resultType)
                     : Expression.Throw(
@@ -1161,18 +1163,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new[] { resultVariable },
                     Expression.Assign(resultVariable, shaper),
                     Expression.Condition(
-                        Expression.Equal(resultVariable, Expression.Default(projection.Type)),
+                        Expression.Equal(resultVariable, Expression.Default(nullableResultType)),
                         returnValueForNull,
                         resultType != resultVariable.Type
                             ? Expression.Convert(resultVariable, resultType)
                             : (Expression)resultVariable));
             }
-            else
+            else if (resultType != shaper.Type)
             {
-                if (resultType.IsNullableType())
-                {
-                    shaper = Expression.Convert(shaper, resultType);
-                }
+                shaper = Expression.Convert(shaper, resultType);
             }
 
             source.ShaperExpression = shaper;
