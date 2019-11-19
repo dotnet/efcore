@@ -55,9 +55,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 .First();
             var constructorParameters = constructor.GetParameters().Where(p => !obsoleteTypes.Contains(p.ParameterType)).ToList();
 
-            Assert.Equal(constructorParameters.Count, serviceProperties.Count);
-
-            foreach (var serviceType in constructorParameters.Where(p => !ignoreProperties.Contains(p.Name)).Select(p => p.ParameterType))
+            foreach (var serviceType in constructorParameters.Select(p => p.ParameterType))
             {
                 var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
                     .Single(
