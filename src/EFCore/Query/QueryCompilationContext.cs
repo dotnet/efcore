@@ -32,14 +32,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryCompilationContextDependencies dependencies,
             bool async)
         {
-            var context = dependencies.CurrentContext.Context;
-
             IsAsync = async;
-            IsTracking = context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            IsTracking = dependencies.IsTracking;
             IsBuffering = dependencies.IsRetryingExecutionStrategy;
             Model = dependencies.Model;
             ContextOptions = dependencies.ContextOptions;
-            ContextType = context.GetType();
+            ContextType = dependencies.ContextType;
             Logger = dependencies.Logger;
 
             _queryTranslationPreprocessorFactory = dependencies.QueryTranslationPreprocessorFactory;
