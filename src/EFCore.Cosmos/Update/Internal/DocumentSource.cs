@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
             {
-                var storeName = property.GetPropertyName();
+                var storeName = property.GetJsonPropertyName();
                 if (storeName.Length != 0)
                 {
                     document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 if (entry.EntityState == EntityState.Added
                     || entry.IsModified(property))
                 {
-                    var storeName = property.GetPropertyName();
+                    var storeName = property.GetJsonPropertyName();
                     if (storeName.Length != 0)
                     {
                         document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));

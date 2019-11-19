@@ -204,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetPropertyName();
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     {
                         document = documentSource.CreateDocument(entry);
 
-                        var propertyName = entityType.GetDiscriminatorProperty()?.GetPropertyName();
+                        var propertyName = entityType.GetDiscriminatorProperty()?.GetJsonPropertyName();
                         if (propertyName != null)
                         {
                             document[propertyName] =
