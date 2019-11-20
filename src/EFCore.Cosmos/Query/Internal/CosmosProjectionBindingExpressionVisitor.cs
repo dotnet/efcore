@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            var newExpression = VisitAndConvert(memberInitExpression.NewExpression, nameof(VisitMemberInit));
+            var newExpression = Visit(memberInitExpression.NewExpression);
             if (newExpression == null)
             {
                 return null;
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
             }
 
-            return memberInitExpression.Update(newExpression, newBindings);
+            return memberInitExpression.Update((NewExpression)newExpression, newBindings);
         }
 
         /// <summary>
