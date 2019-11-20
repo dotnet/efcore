@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _projectionBindings[jObjectExpression];
                 }
 
-                var storeName = property.GetPropertyName();
+                var storeName = property.GetJsonPropertyName();
                 if (storeName.Length == 0)
                 {
                     var entityType = property.DeclaringEntityType;
