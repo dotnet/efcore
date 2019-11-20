@@ -13,6 +13,7 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Provides methods to access the contents of a blob.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
     public class SqliteBlob : Stream
     {
         private sqlite3_blob _blob;
@@ -27,6 +28,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string tableName,
@@ -46,6 +48,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string databaseName,

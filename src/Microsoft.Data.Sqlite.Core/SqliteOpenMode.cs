@@ -26,6 +26,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Opens an in-memory database.
         /// </summary>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/in-memory-databases">In-Memory Databases</seealso>
         Memory
     }
 }

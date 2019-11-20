@@ -149,7 +149,7 @@ namespace Microsoft.Data.Sqlite.Properties
                 errorCode, message);
 
         /// <summary>
-        /// For more information on this error code see http://sqlite.org/rescode.html
+        /// For more information on this error code see https://www.sqlite.org/rescode.html
         /// </summary>
         public static string DefaultNativeError
             => GetString("DefaultNativeError");

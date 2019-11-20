@@ -17,6 +17,8 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Represents a connection to a SQLite database.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/async">Async Limitations</seealso>
     public partial class SqliteConnection : DbConnection
     {
         internal const string MainDatabaseName = "main";
@@ -57,6 +59,7 @@ namespace Microsoft.Data.Sqlite
         ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
         /// </summary>
         /// <param name="connectionString">The string used to open the connection.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
         /// <seealso cref="SqliteConnectionStringBuilder" />
         public SqliteConnection(string connectionString)
             => ConnectionString = connectionString;
@@ -65,7 +68,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a handle to underlying database connection.
         /// </summary>
         /// <value>A handle to underlying database connection.</value>
-        /// <seealso href="http://sqlite.org/c3ref/sqlite3.html">Database Connection Handle</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/interop">Interoperability</seealso>
         public virtual sqlite3 Handle
             => _db;
 
@@ -73,6 +76,7 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets a string used to open the connection.
         /// </summary>
         /// <value>A string used to open the connection.</value>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
         /// <seealso cref="SqliteConnectionStringBuilder" />
         public override string ConnectionString
         {
@@ -122,6 +126,7 @@ namespace Microsoft.Data.Sqlite
         ///     <see cref="BeginTransaction()" />.
         /// </summary>
         /// <value>The default <see cref="SqliteCommand.CommandTimeout" /> value.</value>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public virtual int DefaultTimeout { get; set; } = 30;
 
         /// <summary>
@@ -378,7 +383,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <returns>The new command.</returns>
         /// <remarks>
-        ///     The command's <seealso cref="SqliteCommand.Transaction" /> property will also be set to the current
+        ///     The command's <see cref="SqliteCommand.Transaction" /> property will also be set to the current
         ///     transaction.
         /// </remarks>
         public new virtual SqliteCommand CreateCommand()
@@ -416,6 +421,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="name">Name of the collation.</param>
         /// <param name="comparison">Method that compares two strings.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
         public virtual void CreateCollation(string name, Comparison<string> comparison)
             => CreateCollation(
                 name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
@@ -427,6 +433,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">Name of the collation.</param>
         /// <param name="state">State object passed to each invocation of the collation.</param>
         /// <param name="comparison">Method that compares two strings, using additional state.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/collation">Collation</seealso>
         public virtual void CreateCollation<T>(string name, T state, Func<T, string, string, int> comparison)
         {
             if (string.IsNullOrEmpty(name))
@@ -449,6 +456,9 @@ namespace Microsoft.Data.Sqlite
         ///     Begins a transaction on the connection.
         /// </summary>
         /// <returns>The transaction.</returns>
+        /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public new virtual SqliteTransaction BeginTransaction()
             => BeginTransaction(IsolationLevel.Unspecified);
 
@@ -465,6 +475,9 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="isolationLevel">The isolation level of the transaction.</param>
         /// <returns>The transaction.</returns>
+        /// <exception cref="SqliteException">A SQLite error occurs during execution.</exception>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
         public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
             if (State != ConnectionState.Open)
@@ -492,7 +505,7 @@ namespace Microsoft.Data.Sqlite
         ///     Enables extension loading on the connection.
         /// </summary>
         /// <param name="enable">true to enable; false to disable.</param>
-        /// <seealso href="http://sqlite.org/loadext.html">Run-Time Loadable Extensions</seealso>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
         public virtual void EnableExtensions(bool enable = true)
         {
             if (State == ConnectionState.Open)
@@ -509,6 +522,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="file">The shared library containing the extension.</param>
         /// <param name="proc">The entry point. If null, the default entry point is used.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/extensions">Extensions</seealso>
         public virtual void LoadExtension(string file, string proc = null)
         {
             if (State == ConnectionState.Open)
@@ -557,6 +571,7 @@ namespace Microsoft.Data.Sqlite
         ///     Backup of the connected database.
         /// </summary>
         /// <param name="destination">The destination of the backup.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/backup">Online Backup</seealso>
         public virtual void BackupDatabase(SqliteConnection destination)
             => BackupDatabase(destination, MainDatabaseName, MainDatabaseName);
 
@@ -566,6 +581,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="destination">The destination of the backup.</param>
         /// <param name="destinationName">The name of the destination database.</param>
         /// <param name="sourceName">The name of the source database.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/backup">Online Backup</seealso>
         public virtual void BackupDatabase(SqliteConnection destination, string destinationName, string sourceName)
         {
             if (State != ConnectionState.Open)

@@ -12,6 +12,7 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Represents a transaction made against a SQLite database.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/transactions">Transactions</seealso>
     public class SqliteTransaction : DbTransaction
     {
         private SqliteConnection _connection;

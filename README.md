@@ -82,7 +82,7 @@ Use the [daily builds](https://github.com/aspnet/AspNetCore/blob/master/docs/Dai
 
 ### Usage
 
-This library implements the common [ADO.NET](https://docs.microsoft.com/dotnet/framework/data/adonet/) abstractions for connections, commands, data readers, etc. See the [samples](samples/Microsoft.Data.Sqlite) directory for additional examples.
+This library implements the common [ADO.NET](https://docs.microsoft.com/dotnet/framework/data/adonet/) abstractions for connections, commands, data readers, and so on. For more information, see [Microsoft.Data.Sqlite](https://docs.microsoft.com/dotnet/standard/data/sqlite/) on Microsoft Docs.
 
 ```cs
 using (var connection = new SqliteConnection("Data Source=Blogs.db"))
