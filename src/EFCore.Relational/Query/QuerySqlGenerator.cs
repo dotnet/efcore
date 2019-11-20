@@ -157,6 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
             }
+            else
+            {
+                GeneratePseudoFromClause();
+            }
 
             if (selectExpression.Predicate != null)
             {
@@ -191,6 +195,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return selectExpression;
+        }
+
+        /// <summary>
+        ///     Generates a pseudo FROM clause. Required by some providers
+        ///     when a query has no actual FROM clause.
+        /// </summary>
+        protected virtual void GeneratePseudoFromClause()
+        {
         }
 
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
