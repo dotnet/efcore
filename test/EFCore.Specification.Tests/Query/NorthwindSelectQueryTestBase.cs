@@ -1559,6 +1559,41 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 4);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_with_parameterized_constructor(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => new CustomerWrapper(c)),
+                entryCount: 1,
+                elementSorter: e => e.Customer.CustomerID,
+                elementAsserter: (e, a) => Assert.Equal(e.Customer, a.Customer));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_with_parameterized_constructor_with_member_assignment(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => new CustomerWrapper(c) { City = c.City }),
+                entryCount: 1,
+                elementSorter: e => e.Customer.CustomerID,
+                elementAsserter: (e, a) => Assert.Equal(e.Customer, a.Customer));
+        }
+
+        private class CustomerWrapper
+        {
+            public CustomerWrapper(Customer customer)
+            {
+                Customer = customer;
+            }
+
+            public string City { get; set; }
+            public Customer Customer { get; }
+        }
+
         protected async Task AssertTranslationFailed(Func<Task> testCode)
         {
             Assert.Contains(

@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
-            var newExpression = VisitAndConvert(memberInitExpression.NewExpression, nameof(VisitMemberInit));
+            var newExpression = Visit(memberInitExpression.NewExpression);
             if (newExpression == null)
             {
                 return null;
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
             }
 
-            return memberInitExpression.Update(newExpression, newBindings);
+            return memberInitExpression.Update((NewExpression)newExpression, newBindings);
         }
 
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)

@@ -9,7 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindAggregateOperatorsQuerySqlServerTest : NorthwindAggregateOperatorsQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public NorthwindAggregateOperatorsQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindAggregateOperatorsQuerySqlServerTest(
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             ClearLog();
