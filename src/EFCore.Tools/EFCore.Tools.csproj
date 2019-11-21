@@ -43,7 +43,6 @@ Update-Database
       <NuspecProperty Include="version=$(PackageVersion)" />
       <NuspecProperty Include="configuration=$(Configuration)" />
       <NuspecProperty Include="intermediateOutputPath=$(IntermediateOutputPath)" />
-      <NuspecProperty Include="PackageIcon=$(PackageIconFullPath)" />
     </ItemGroup>
   </Target>
 
