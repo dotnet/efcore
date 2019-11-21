@@ -7259,6 +7259,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => (g.HasSoulPatch || prm) != prm));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Cast_OfType_works_correctly(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Cast<Gear>().OfType<Officer>().Select(o => o.FullName));
+        }
+
         protected async Task AssertTranslationFailed(Func<Task> testCode)
         {
             Assert.Contains(
