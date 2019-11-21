@@ -1538,17 +1538,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Concat(ss.Set<Gear>()).Select(g => g.Nickname));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Concat_with_groupings(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Gear>().GroupBy(g => g.LeaderNickname).Concat(ss.Set<Gear>().GroupBy(g => g.LeaderNickname)),
-                elementSorter: e => e.Key,
-                elementAsserter: (e, a) => AssertGrouping(e, a));
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_navigation_with_concat_and_count(bool async)
@@ -1590,17 +1579,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Value: (EntityReference: Gear)
                 Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
                 message, ignoreLineEndingDifferences: true);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_subquery_concat_order_by_firstordefault_boolean(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Gear>().GroupBy(g => g.LeaderNickname).Concat(ss.Set<Gear>().GroupBy(g => g.LeaderNickname)),
-                elementSorter: e => e.Key,
-                elementAsserter: (e, a) => AssertGrouping(e, a));
         }
 
         [ConditionalTheory]
@@ -2292,17 +2270,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").OrderBy(t => t.Gear.SquadId).Select(t => t));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Optional_navigation_type_compensation_works_with_groupby(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<CogTag>().Where(t => t.Note != "K.I.A.").GroupBy(t => t.Gear.SquadId),
-                elementSorter: e => e.Key,
-                elementAsserter: (e, a) => AssertGrouping(e, a));
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Optional_navigation_type_compensation_works_with_all(bool async)
@@ -2767,34 +2734,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                        select g.HasSoulPatch));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Distinct_with_unflattened_groupjoin_is_evaluated_on_client(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => ss.Set<Gear>().GroupJoin(
-                        ss.Set<CogTag>(),
-                        g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
-                        t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
-                        (g, t) => g.HasSoulPatch)
-                    .Distinct());
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Count_with_unflattened_groupjoin_is_evaluated_on_client(bool async)
-        {
-            return AssertCount(
-                async,
-                ss => ss.Set<Gear>()
-                    .GroupJoin(
-                        ss.Set<CogTag>(),
-                        g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
-                        t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
-                        (g, t) => g));
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task FirstOrDefault_with_manually_created_groupjoin_is_translated_to_sql(bool async)
@@ -2828,19 +2767,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => from g in ss.Set<Gear>()
                       select g,
                 predicate: g => g.Tag.Note != "Foo");
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Non_flattened_GroupJoin_with_result_operator_evaluates_on_the_client(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => ss.Set<CogTag>().GroupJoin(
-                    ss.Set<Gear>(),
-                    t => new { k1 = t.GearNickName, k2 = t.GearSquadId },
-                    g => new { k1 = g.Nickname, k2 = (int?)g.SquadId },
-                    (k, r) => r.Count()));
         }
 
         [ConditionalTheory]
@@ -4963,110 +4889,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 asserter: (e, a) => AssertCollection(e, a, ordered: true));
         }
 
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_and_last()
-        {
-            using var ctx = CreateContext();
-            var actual = ctx.Gears.OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons).Select(
-                g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
-            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderByDescending(g => g.HasSoulPatch).Include(g => g.Weapons)
-                .Select(
-                    g => new { g.Rank, g }).GroupBy(g => g.Rank).ToList().OrderBy(g => g.Key).ToList();
-
-            Assert.Equal(expected.Count, actual.Count);
-
-            for (var i = 0; i < expected.Count; i++)
-            {
-                Assert.Equal(expected[i].Key, actual[i].Key);
-                var expectedInners = expected[i].ToList();
-                var actualInners = actual[i].ToList();
-
-                Assert.Equal(expectedInners.Count, actualInners.Count);
-                for (var j = 0; j < expectedInners.Count; j++)
-                {
-                    Assert.Equal(expectedInners[j].g.Rank, actualInners[j].g.Rank);
-
-                    var expectedWeapons = expectedInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
-                    var actualWeapons = actualInners[j].g.Weapons.OrderBy(w => w.Id).ToList();
-
-                    Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
-                    for (var k = 0; k < expectedWeapons.Count; k++)
-                    {
-                        Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
-                        Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
-                    }
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_with_composite_group_key()
-        {
-            using var ctx = CreateContext();
-            var actual = ctx.Gears.OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
-                g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
-            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Include(g => g.Weapons).GroupBy(
-                g => new { g.Rank, g.HasSoulPatch }).ToList().OrderBy(g => g.Key.Rank).ThenBy(g => g.Key.HasSoulPatch).ToList();
-
-            Assert.Equal(expected.Count, actual.Count);
-
-            for (var i = 0; i < expected.Count; i++)
-            {
-                Assert.Equal(expected[i].Key, actual[i].Key);
-                var expectedInners = expected[i].ToList();
-                var actualInners = actual[i].ToList();
-
-                Assert.Equal(expectedInners.Count, actualInners.Count);
-                for (var j = 0; j < expectedInners.Count; j++)
-                {
-                    Assert.Equal(expectedInners[j].Rank, actualInners[j].Rank);
-                    Assert.Equal(expectedInners[j].HasSoulPatch, actualInners[j].HasSoulPatch);
-
-                    var expectedWeapons = expectedInners[j].Weapons.OrderBy(w => w.Id).ToList();
-                    var actualWeapons = actualInners[j].Weapons.OrderBy(w => w.Id).ToList();
-
-                    Assert.Equal(expectedWeapons.Count, actualWeapons.Count);
-                    for (var k = 0; k < expectedWeapons.Count; k++)
-                    {
-                        Assert.Equal(expectedWeapons[k].Id, actualWeapons[k].Id);
-                        Assert.Equal(expectedWeapons[k].Name, actualWeapons[k].Name);
-                    }
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_order_by_take()
-        {
-            using var ctx = CreateContext();
-            var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch).ToList();
-            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Take(3).GroupBy(g => g.HasSoulPatch)
-                .ToList();
-
-            Assert.Equal(expected.Count, actual.Count);
-            for (var i = 0; i < expected.Count; i++)
-            {
-                Assert.Equal(expected[i].Key, actual[i].Key);
-                Assert.Equal(expected[i].Count(), actual[i].Count());
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_distinct()
-        {
-            using var ctx = CreateContext();
-            var actual = ctx.Gears.Include(g => g.Weapons).OrderBy(g => g.Nickname).Distinct().GroupBy(g => g.HasSoulPatch).ToList();
-            var expected = Fixture.QueryAsserter.ExpectedData.Set<Gear>().OrderBy(g => g.Nickname).Distinct()
-                .GroupBy(g => g.HasSoulPatch).ToList();
-
-            Assert.Equal(expected.Count, actual.Count);
-            for (var i = 0; i < expected.Count; i++)
-            {
-                Assert.Equal(expected[i].Key, actual[i].Key);
-                Assert.Equal(expected[i].Count(), actual[i].Count());
-            }
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Null_semantics_on_nullable_bool_from_inner_join_subquery_is_fully_applied(bool async)
@@ -5100,16 +4922,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     from h in grouping.DefaultIfEmpty()
                     where MaybeScalar(h, () => h.Eradicated) != true
                     select h);
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_collection_group_by_reference()
-        {
-            using var context = CreateContext();
-            var query = context.Set<Gear>()
-                .Include(g => g.Weapons)
-                .GroupBy(g => g.Squad)
-                .ToList();
         }
 
         [ConditionalTheory]
@@ -5192,25 +5004,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         Collection = (from t in ss.Set<CogTag>()
                                       join g in ss.Set<Gear>() on o.FullName equals o.Nickname
-                                      select t.Note).ToList()
-                    },
-                assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection(e.Collection, a.Collection));
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Outer_parameter_in_group_join_key(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    from o in ss.Set<Gear>().OfType<Officer>()
-                    orderby o.Nickname
-                    select new
-                    {
-                        Collection = (from t in ss.Set<CogTag>()
-                                      join g in ss.Set<Gear>() on o.FullName equals g.FullName into grouping
                                       select t.Note).ToList()
                     },
                 assertOrder: true,
@@ -5463,70 +5256,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 message);
         }
 
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_on_entity_qsre()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Squads.Include(s => s.Members).GroupBy(s => s);
-            var results = query.ToList();
-
-            foreach (var result in results)
-            {
-                foreach (var grouping in result)
-                {
-                    Assert.True(grouping.Members.Count > 0);
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_on_entity_qsre_with_composite_key()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Gears.Include(g => g.Weapons).GroupBy(g => g);
-            var results = query.ToList();
-
-            foreach (var result in results)
-            {
-                foreach (var grouping in result)
-                {
-                    Assert.True(grouping.Weapons.Count > 0);
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_on_entity_navigation()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Gears.Include(g => g.Weapons).Where(g => !g.HasSoulPatch).GroupBy(g => g.Squad);
-            var results = query.ToList();
-
-            foreach (var result in results)
-            {
-                foreach (var grouping in result)
-                {
-                    Assert.True(grouping.Weapons.Count > 0);
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_with_group_by_on_entity_navigation_with_inheritance()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Factions.OfType<LocustHorde>().Include(lh => lh.Leaders).GroupBy(lh => lh.Commander.DefeatedBy);
-            var results = query.ToList();
-
-            foreach (var result in results)
-            {
-                foreach (var grouping in result)
-                {
-                    Assert.True(grouping.Leaders.Count > 0);
-                }
-            }
-        }
-
         [ConditionalTheory(Skip = "Issue#16314")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Streaming_correlated_collection_issue_11403(bool async)
@@ -5656,20 +5385,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new List<IExpectedInclude> { new ExpectedInclude<Squad>(s => s.Members, "Members") });
         }
 
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void Include_groupby_constant()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
-            var result = query.ToList();
-
-            Assert.Single(result);
-            var bucket = result[0].ToList();
-            Assert.Equal(2, bucket.Count);
-            Assert.NotNull(bucket[0].Members);
-            Assert.NotNull(bucket[1].Members);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Correlated_collection_order_by_constant(bool async)
@@ -5759,29 +5474,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Assert.Equal(e.Nickname, a.Nickname);
                         AssertCollection(e.Weapons, a.Weapons);
                     }));
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void GroupBy_composite_key_with_Include()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Gears.Include(o => o.Weapons).GroupBy(
-                o => new
-                {
-                    o.Rank,
-                    One = 1,
-                    o.Nickname
-                });
-            var result = query.ToList();
-
-            Assert.Equal(5, result.Count);
-            foreach (var bucket in result)
-            {
-                foreach (var gear in bucket)
-                {
-                    Assert.True(gear.Weapons.Count > 0);
-                }
-            }
         }
 
         [ConditionalTheory]
@@ -6333,7 +6025,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_with_include_with_entity_in_result_selector(bool async)
         {
@@ -6362,7 +6054,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_group_by_and_FirstOrDefault_gets_properly_applied(bool async)
         {

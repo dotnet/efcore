@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 message, ignoreLineEndingDifferences: true);
         }
 
-        [ConditionalFact(Skip = "Issue#17068")]
+        [ConditionalFact(Skip = "Issue#18923")]
         public virtual void Throws_when_group_by()
         {
             using var context = CreateContext();

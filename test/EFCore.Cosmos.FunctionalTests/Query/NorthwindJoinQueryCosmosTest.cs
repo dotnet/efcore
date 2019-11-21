@@ -211,17 +211,6 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task Join_client_new_expression(bool async)
-        {
-            await base.Join_client_new_expression(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Join_same_collection_multiple(bool async)
         {
             await base.Join_same_collection_multiple(async);
@@ -241,39 +230,6 @@ WHERE (c[""Discriminator""] = ""Customer"")");
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_customers_orders(bool async)
-        {
-            await base.GroupJoin_customers_orders(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_customers_orders_count(bool async)
-        {
-            await base.GroupJoin_customers_orders_count(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_customers_orders_count_preserves_ordering(bool async)
-        {
-            await base.GroupJoin_customers_orders_count_preserves_ordering(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""CustomerID""] != ""VAFFE"") AND (c[""CustomerID""] != ""DRACD"")))");
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
@@ -326,17 +282,6 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override async Task GroupJoin_simple3(bool async)
         {
             await base.GroupJoin_simple3(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_tracking_groups(bool async)
-        {
-            await base.GroupJoin_tracking_groups(async);
 
             AssertSql(
                 @"SELECT c
@@ -466,39 +411,6 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_with_different_outer_elements_with_same_key(bool async)
-        {
-            await base.GroupJoin_with_different_outer_elements_with_same_key(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_with_different_outer_elements_with_same_key_with_predicate(bool async)
-        {
-            await base.GroupJoin_with_different_outer_elements_with_same_key_with_predicate(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] > 11500))");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_with_different_outer_elements_with_same_key_projected_from_another_entity(bool async)
-        {
-            await base.GroupJoin_with_different_outer_elements_with_same_key_projected_from_another_entity(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""OrderDetail"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task GroupJoin_SelectMany_subquery_with_filter(bool async)
         {
             await base.GroupJoin_SelectMany_subquery_with_filter(async);
@@ -537,100 +449,6 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(async);
 
             AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_with_order_by_key_descending1(bool async)
-        {
-            await base.GroupJoin_with_order_by_key_descending1(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_with_order_by_key_descending2(bool async)
-        {
-            await base.GroupJoin_with_order_by_key_descending2(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_outer_projection(bool async)
-        {
-            await base.GroupJoin_outer_projection(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_outer_projection2(bool async)
-        {
-            await base.GroupJoin_outer_projection2(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_outer_projection3(bool async)
-        {
-            await base.GroupJoin_outer_projection3(async);
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_outer_projection4(bool async)
-        {
-            await base.GroupJoin_outer_projection4(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_outer_projection_reverse(bool async)
-        {
-            await base.GroupJoin_outer_projection_reverse(async);
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")",
-                //
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
-        }
-
-        [ConditionalTheory(Skip = "Issue#17246")]
-        public override async Task GroupJoin_outer_projection_reverse2(bool async)
-        {
-            await base.GroupJoin_outer_projection_reverse2(async);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")",
-                //
                 @"SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");

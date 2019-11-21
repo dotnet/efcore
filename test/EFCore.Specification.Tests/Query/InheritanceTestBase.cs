@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Single(context.ChangeTracker.Entries());
         }
 
-        [ConditionalFact(Skip = "17364")]
+        [ConditionalFact(Skip = "Issue#17364")]
         public virtual void Can_use_backwards_of_type_animal()
         {
             using var context = CreateContext();
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalFact(Skip = "#16298")]
+        [ConditionalFact(Skip = "Issue#16298")]
         public virtual void Union_siblings_with_duplicate_property_in_subquery()
         {
             // Coke and Tea both have CaffeineGrams, which both need to be projected out on each side and so
@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(2, concat.Count);
         }
 
-        [ConditionalFact(Skip = "#16298")]
+        [ConditionalFact(Skip = "Issue#16298")]
         public virtual void OfType_Union_subquery()
         {
             using var context = CreateContext();
@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .ToList();
         }
 
-        [ConditionalFact(Skip = "#16298")]
+        [ConditionalFact(Skip = "Issue#16298")]
         public virtual void OfType_Union_OfType()
         {
             using var context = CreateContext();
@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .ToList();
         }
 
-        [ConditionalFact(Skip = "#16298")]
+        [ConditionalFact(Skip = "Issue#16298")]
         public virtual void Union_entity_equality()
         {
             using var context = CreateContext();

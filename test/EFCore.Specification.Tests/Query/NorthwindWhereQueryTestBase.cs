@@ -1181,7 +1181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss =>
                     from c in ss.Set<Customer>()
                     from e in ss.Set<Employee>()
-                    // ReSharper disable ArrangeRedundantParentheses
+                        // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                     where (c.City == "London" && c.Country == "UK")
                         && (e.City == "London" && e.Country == "UK")
@@ -1648,7 +1648,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Product>().Where(p => flag ? p.UnitsInStock >= 20 : false));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new <>f__AnonymousType409`1(x = [c].City) == { x = London })'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_equal(bool async)
         {
@@ -1658,9 +1658,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => new { x = c.City } == new { x = "London" }));
         }
 
-        [ConditionalTheory(
-            Skip =
-                "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) == { x = London, y = UK })'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_multi_value_equal(bool async)
         {
@@ -1670,9 +1668,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => new { x = c.City, y = c.Country } == new { x = "London", y = "UK" }));
         }
 
-        [ConditionalTheory(
-            Skip =
-                "Issue #14672. Cannot eval 'where (new <>f__AnonymousType410`2(x = [c].City, y = [c].Country) != { x = London, y = UK })'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_constructed_multi_value_not_equal(bool async)
         {
@@ -1683,7 +1679,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new Tuple`1(Item1 = [c].City) == (London))'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_tuple_constructed_equal(bool async)
         {
@@ -1692,7 +1688,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => new Tuple<string>(c.City) == new Tuple<string>("London")));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new Tuple`2(Item1 = [c].City, Item2 = [c].Country) == (London, UK))'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_tuple_constructed_multi_value_equal(bool async)
         {
@@ -1702,7 +1698,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     c => new Tuple<string, string>(c.City, c.Country) == new Tuple<string, string>("London", "UK")));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (new Tuple`2(Item1 = [c].City, Item2 = [c].Country) != (London, UK))'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_tuple_constructed_multi_value_not_equal(bool async)
         {
@@ -1713,7 +1709,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 91);
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (Create([c].City) == (London))'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_tuple_create_constructed_equal(bool async)
         {
@@ -1722,7 +1718,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => Tuple.Create(c.City) == Tuple.Create("London")));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (Create([c].City, [c].Country) == (London, UK))'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_tuple_create_constructed_multi_value_equal(bool async)
         {
@@ -1731,7 +1727,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => Tuple.Create(c.City, c.Country) == Tuple.Create("London", "UK")));
         }
 
-        [ConditionalTheory(Skip = "Issue #14672. Cannot eval 'where (Create([c].City, [c].Country) != (London, UK))'")]
+        [ConditionalTheory(Skip = "Issue #14672")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool async)
         {

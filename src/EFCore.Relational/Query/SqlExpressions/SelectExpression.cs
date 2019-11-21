@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (projection1.EntityType != projection2.EntityType)
                 {
                     throw new InvalidOperationException(
-                        "Set operations over different entity types are currently unsupported (see #16298)");
+                        "Set operations over different entity types are currently unsupported (see Issue#16298)");
                 }
 
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();

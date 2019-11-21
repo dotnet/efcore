@@ -42,23 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     entryCount: 89));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_nav_projected_in_subquery_when_client_eval(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>().Select(o => ClientProjection(o, o.Customer)) on c.CustomerID equals o.CustomerID into
-                          grouping
-                      from o in grouping
-                      join od in ss.Set<OrderDetail>().Select(od => ClientProjection(od, od.Product)) on o.OrderID equals od.OrderID into
-                          grouping2
-                      from od in grouping2
-                      select c,
-                entryCount: 89);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_in_predicate_in_subquery_when_client_eval(bool async)
@@ -73,22 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     entryCount: 89));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_nav_in_predicate_in_subquery_when_client_eval(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>().Where(o => ClientPredicate(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
-                      from o in grouping
-                      join od in ss.Set<OrderDetail>().Where(od => ClientPredicate(od, od.Product)) on o.OrderID equals od.OrderID into
-                          grouping2
-                      from od in grouping2
-                      select c,
-                entryCount: 89);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_with_nav_in_orderby_in_subquery_when_client_eval(bool async)
@@ -101,22 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                           join od in ss.Set<OrderDetail>().OrderBy(od => ClientOrderBy(od, od.Product)) on o.OrderID equals od.OrderID
                           select c,
                     entryCount: 89));
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_nav_in_orderby_in_subquery_when_client_eval(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>().OrderBy(o => ClientOrderBy(o, o.Customer)) on c.CustomerID equals o.CustomerID into grouping
-                      from o in grouping
-                      join od in ss.Set<OrderDetail>().OrderBy(od => ClientOrderBy(od, od.Product)) on o.OrderID equals od.OrderID into
-                          grouping2
-                      from od in grouping2
-                      select c,
-                entryCount: 89);
         }
 
         private static readonly Random _randomGenerator = new Random();
@@ -1065,64 +1016,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(2, result.Count);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupBy_on_nav_prop(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from o in ss.Set<Order>()
-                      group o by o.Customer.City
-                      into og
-                      select og,
-                elementSorter: e => e.Key,
-                elementAsserter: (e, a) => AssertGrouping(e, a),
-                entryCount: 830);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_nav_prop_group_by(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from od in ss.Set<OrderDetail>()
-                      where od.Order.CustomerID == "ALFKI"
-                      group od by od.Quantity,
-                elementSorter: e => e.Key,
-                elementAsserter: (e, a) => AssertGrouping(e, a),
-                entryCount: 12);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Let_group_by_nav_prop(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from od in ss.Set<OrderDetail>()
-                      let customer = od.Order.CustomerID
-                      group od by customer
-                      into odg
-                      select odg,
-                elementSorter: e => e.Key,
-                elementAsserter: (e, a) => AssertGrouping(e, a),
-                entryCount: 2155);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Select_anonymous_type_order_by_field_group_by_same_field(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<OrderDetail>()
-                    .Select(od => new { od, customer = od.Order.CustomerID })
-                    .OrderBy(e => e.customer)
-                    .GroupBy(e => e.customer, elementSelector: e => e.od)
-                    .Select(e => e));
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Project_single_scalar_value_subquery_is_properly_inlined(bool async)
@@ -1211,132 +1104,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Order>().Where(o => o.Customer.Orders.Count(oo => oo.OrderID > 10260) > 30),
                 entryCount: 31);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Client_groupjoin_with_orderby_key_descending(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>()
-                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
-                    where c.CustomerID.StartsWith("A")
-                    orderby c.CustomerID descending
-                    select grouping.Count());
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Navigation_projection_on_groupjoin_qsre(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
-                      where c.CustomerID == "ALFKI"
-                      select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
-                elementSorter: e => e.c.CustomerID,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.c, a.c);
-                    AssertCollection(
-                        e.G,
-                        a.G,
-                        elementSorter: ee => ee.Count(),
-                        elementAsserter: (ee, aa) => AssertCollection(ee, aa));
-                },
-                entryCount: 1);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Navigation_projection_on_groupjoin_qsre_no_outer_in_final_result(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
-                      where c.CustomerID == "ALFKI"
-                      orderby c.CustomerID
-                      select grouping.Select(o => o.OrderDetails).ToList(),
-                assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection(e, a, elementAsserter: (ee, aa) => AssertCollection(ee, aa)));
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Navigation_projection_on_groupjoin_qsre_with_empty_grouping(bool async)
-        {
-            var anatrsOrders = new[] { 10308, 10625, 10759, 10926 };
-
-            return AssertQuery(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>().Where(oo => !anatrsOrders.Contains(oo.OrderID)) on c.CustomerID equals o.CustomerID into
-                          grouping
-                      where c.CustomerID.StartsWith("A")
-                      select new { c, G = grouping.Select(o => o.OrderDetails).ToList() },
-                elementSorter: e => e.c.CustomerID,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.c, a.c);
-                    AssertCollection(e.G, a.G);
-                },
-                entryCount: 4);
-        }
-
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual void Include_on_inner_projecting_groupjoin()
-        {
-            using var ctx = CreateContext();
-            var query = from c in ctx.Customers
-                        join o in ctx.Orders.Include(oo => oo.OrderDetails) on c.CustomerID equals o.CustomerID into grouping
-                        where c.CustomerID == "ALFKI"
-                        select grouping.ToList();
-
-            var result = query.ToList();
-            Assert.Single(result);
-            foreach (var order in result[0])
-            {
-                Assert.True(order.OrderDetails.Count > 0);
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual void Include_on_inner_projecting_groupjoin_complex()
-        {
-            using var ctx = CreateContext();
-            var query = from c in ctx.Customers
-                        join o in ctx.Orders.Include(oo => oo.OrderDetails).ThenInclude(od => od.Product) on c.CustomerID equals o
-                            .CustomerID into grouping
-                        where c.CustomerID == "ALFKI"
-                        select grouping.ToList();
-
-            var result = query.ToList();
-            Assert.Single(result);
-            foreach (var order in result[0])
-            {
-                Assert.True(order.OrderDetails.Count > 0);
-                foreach (var detail in order.OrderDetails)
-                {
-                    Assert.NotNull(detail.Product);
-                }
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Group_join_doesnt_get_bound_directly_to_group_join_qsre(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
-                      where c.CustomerID.StartsWith("A")
-                      select new { G = grouping.Count() },
-                elementSorter: e => e.G);
         }
 
         [ConditionalTheory]

@@ -66,19 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             public override int GetHashCode() => Order.GetHashCode();
         }
 
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual void GroupBy_tracking_after_dispose()
-        {
-            List<IGrouping<string, Order>> groups;
-
-            using (var context = CreateContext())
-            {
-                groups = context.Orders.GroupBy(o => o.CustomerID).ToList();
-            }
-
-            groups[0].First();
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_with_no_arg(bool async)
