@@ -20,68 +20,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual async Task Include_with_group_by_on_entity_qsre()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Squads.Include(s => s.Members).GroupBy(s => s);
-            var results = await query.ToListAsync();
-
-            foreach (var result in results)
-            {
-                foreach (var grouping in result)
-                {
-                    Assert.True(grouping.Members.Count > 0);
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual async Task Include_with_group_by_on_entity_qsre_with_composite_key()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Gears.Include(g => g.Weapons).GroupBy(g => g);
-            var results = await query.ToListAsync();
-
-            foreach (var result in results)
-            {
-                foreach (var grouping in result)
-                {
-                    Assert.True(grouping.Weapons.Count > 0);
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual async Task Include_with_group_by_on_entity_navigation()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Factions.OfType<LocustHorde>().Include(lh => lh.Leaders).GroupBy(lh => lh.Commander.DefeatedBy);
-            var results = await query.ToListAsync();
-
-            foreach (var result in results)
-            {
-                foreach (var grouping in result)
-                {
-                    Assert.True(grouping.Leaders.Count > 0);
-                }
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual async Task Include_groupby_constant()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.Squads.Include(s => s.Members).GroupBy(s => 1);
-            var result = await query.ToListAsync();
-
-            Assert.Single(result);
-            var bucket = result[0].ToList();
-            Assert.Equal(2, bucket.Count);
-            Assert.NotNull(bucket[0].Members);
-            Assert.NotNull(bucket[1].Members);
-        }
-
         [ConditionalFact]
         public virtual async Task Cast_to_derived_type_causes_client_eval()
         {

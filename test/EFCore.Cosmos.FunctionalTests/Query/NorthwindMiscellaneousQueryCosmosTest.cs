@@ -269,10 +269,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > 0))");
         }
 
+        [ConditionalTheory(Skip = "Issue #17783")]
         public override Task Default_if_empty_top_level_arg(bool async)
         {
-            // Issue #13409
-            return Task.CompletedTask;
+            return base.Default_if_empty_top_level_arg(async);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]

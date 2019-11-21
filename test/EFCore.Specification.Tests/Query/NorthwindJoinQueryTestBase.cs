@@ -254,25 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select c.CustomerID);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Join_client_new_expression(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>()
-                    join o in ss.Set<Order>() on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
-                    select new { c, o },
-                e => e.c.CustomerID);
-        }
-
-        private class Foo
-        {
-            public string Bar { get; set; }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #19016")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Join_local_collection_int_closure_is_cached_correctly(bool async)
         {
@@ -293,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select e.EmployeeID);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #19016")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Join_local_string_closure_is_cached_correctly(bool async)
         {
@@ -312,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select e.EmployeeID);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #19016")]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Join_local_bytes_closure_is_cached_correctly(bool async)
         {
@@ -354,53 +336,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ss.Set<Order>(), o => o.CustomerID, i => i.CustomerID, (_, o) => new { _, o }),
                 e => (e._.OrderID, e.o.OrderID),
                 entryCount: 830);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_customers_orders(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>()
-                    join o in ss.Set<Order>().OrderBy(o => o.OrderID) on c.CustomerID equals o.CustomerID into orders
-                    select new { customer = c, orders = orders.ToList() },
-                e => e.customer.CustomerID,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.customer, a.customer);
-                    AssertCollection(e.orders, a.orders);
-                },
-                entryCount: 91);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_customers_orders_count(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>()
-                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                    select new { cust = c, ords = orders.Count() },
-                e => e.cust.CustomerID,
-                entryCount: 91);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_customers_orders_count_preserves_ordering(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>().Where(c => c.CustomerID != "VAFFE" && c.CustomerID != "DRACD").OrderBy(c => c.City).Take(5)
-                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                    select new { cust = c, ords = orders.Count() },
-                assertOrder: true,
-                entryCount: 5);
         }
 
         [ConditionalTheory]
@@ -496,40 +431,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => e.OrderID);
         }
 
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_tracking_groups(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>()
-                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                    select orders,
-                elementSorter: e => e.Count(),
-                elementAsserter: (e, a) => AssertCollection(e, a),
-                entryCount: 830);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_tracking_groups2(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    from c in ss.Set<Customer>()
-                    join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                    select new { c, orders },
-                elementSorter: e => e.c.CustomerID,
-                elementAsserter: (e, a) =>
-                {
-                    AssertEqual(e.c, a.c);
-                    AssertCollection(e.orders, a.orders);
-                },
-                entryCount: 921);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_simple_ordering(bool async)
@@ -571,96 +472,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select new { c, o },
                 e => (e.c.CustomerID, e.o.OrderID),
                 entryCount: 919);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_outer_projection(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().GroupJoin(
-                    ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, o) => new { c.City, o }),
-                elementSorter: e => (e.City, e.o.Count()),
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.City, a.City);
-                    AssertCollection(e.o, a.o);
-                },
-                entryCount: 830);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_outer_projection2(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().GroupJoin(
-                    ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => new { c.City, g = g.Select(o => o.CustomerID) }),
-                elementSorter: e => (e.City, e.g.Count()),
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.City, a.City);
-                    AssertCollection(e.g, a.g);
-                });
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_outer_projection3(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().GroupJoin(
-                    ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => new { g = g.Select(o => o.CustomerID) }),
-                elementSorter: e => e.g.Count(),
-                elementAsserter: (e, a) => AssertCollection(e.g, a.g));
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_outer_projection4(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().GroupJoin(
-                    ss.Set<Order>(), c => c.CustomerID, o => o.CustomerID, (c, g) => g.Select(o => o.CustomerID)),
-                elementSorter: e => e.Count(),
-                elementAsserter: (e, a) => AssertCollection(e, a));
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_outer_projection_reverse(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Order>().GroupJoin(
-                    ss.Set<Customer>(), o => o.CustomerID, c => c.CustomerID, (o, c) => new { o.CustomerID, c }),
-                e => e.CustomerID,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.CustomerID, a.CustomerID);
-                    AssertCollection(e.c, a.c);
-                },
-                entryCount: 89);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_outer_projection_reverse2(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Order>().GroupJoin(
-                    ss.Set<Customer>(), o => o.CustomerID, c => c.CustomerID, (o, g) => new { o.CustomerID, g = g.Select(c => c.City) }),
-                elementSorter: e => e.CustomerID,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.CustomerID, a.CustomerID);
-                    AssertCollection(e.g, a.g);
-                });
         }
 
         [ConditionalTheory]
@@ -828,51 +639,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select o != null ? (object)o.OrderID : null);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_different_outer_elements_with_same_key(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    ss.Set<Order>().GroupJoin(
-                        ss.Set<Customer>(),
-                        o => o.CustomerID,
-                        c => c.CustomerID,
-                        (o, cg) => new { o.OrderID, Name = cg.Select(c => c.ContactName).FirstOrDefault() }),
-                e => (e.OrderID, e.Name));
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_different_outer_elements_with_same_key_with_predicate(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    ss.Set<Order>().Where(o => o.OrderID > 11500).GroupJoin(
-                        ss.Set<Customer>(),
-                        o => o.CustomerID,
-                        c => c.CustomerID,
-                        (o, cg) => new { o.OrderID, Name = cg.Select(c => c.ContactName).FirstOrDefault() }),
-                e => (e.OrderID, e.Name));
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_different_outer_elements_with_same_key_projected_from_another_entity(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    ss.Set<OrderDetail>().Select(od => od.Order).GroupJoin(
-                        ss.Set<Customer>(),
-                        o => o.CustomerID,
-                        c => c.CustomerID,
-                        (o, cg) => new { o.OrderID, Name = cg.Select(c => c.ContactName).FirstOrDefault() }),
-                e => (e.OrderID, e.Name));
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_SelectMany_subquery_with_filter(bool async)
@@ -887,7 +653,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 e => (e.ContactName, e.OrderID));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #19015")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_SelectMany_subquery_with_filter_orderby(bool async)
         {
@@ -916,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 830);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #19015")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(bool async)
         {
@@ -929,34 +695,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     select new { c.ContactName, o },
                 e => (e.ContactName, e.o?.OrderID),
                 entryCount: 830);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_order_by_key_descending1(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
-                      where c.CustomerID.StartsWith("A")
-                      orderby c.CustomerID descending
-                      select grouping.Count(),
-                assertOrder: true);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_order_by_key_descending2(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => from c in ss.Set<Customer>()
-                      orderby c.CustomerID descending
-                      join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into grouping
-                      where c.CustomerID.StartsWith("A")
-                      select grouping.Count(),
-                assertOrder: true);
         }
 
         [ConditionalTheory]

@@ -895,138 +895,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Include_collection_on_group_join_clause_with_filter(bool useString)
-        {
-            using var context = CreateContext();
-            var customers
-                = useString
-                    ? (from c in context.Set<Customer>().Include("Orders.Customer")
-                       join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
-                    .ToList()
-                    : (from c in context.Set<Customer>().Include(c => c.Orders).ThenInclude(o => o.Customer)
-                       join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
-                    .ToList();
-
-            Assert.Single(customers);
-            Assert.Equal(6, customers.SelectMany(c => c.c.Orders).Count());
-            Assert.True(customers.SelectMany(c => c.c.Orders).All(o => o.Customer != null));
-            Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
-
-            foreach (var customer in customers.Select(a => a.c))
-            {
-                CheckIsLoaded(
-                    context,
-                    customer,
-                    ordersLoaded: true,
-                    orderDetailsLoaded: false,
-                    productLoaded: false);
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Include_collection_on_inner_group_join_clause_with_filter(bool useString)
-        {
-            using var context = CreateContext();
-            var customers
-                = useString
-                    ? (from c in context.Set<Customer>()
-                       join o in context.Set<Order>().Include("OrderDetails").Include("Customer")
-                           on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
-                    .ToList()
-                    : (from c in context.Set<Customer>()
-                       join o in context.Set<Order>().Include(o => o.OrderDetails).Include(o => o.Customer)
-                           on c.CustomerID equals o.CustomerID into g
-                       where c.CustomerID == "ALFKI"
-                       select new { c, g })
-                    .ToList();
-
-            Assert.Single(customers);
-            Assert.Equal(6, customers.SelectMany(c => c.g).Count());
-            Assert.True(customers.SelectMany(c => c.g).SelectMany(o => o.OrderDetails).All(od => od.Order != null));
-            Assert.Equal(1 + 6 + 12, context.ChangeTracker.Entries().Count());
-
-            foreach (var order in customers.SelectMany(a => a.c.Orders))
-            {
-                CheckIsLoaded(
-                    context,
-                    order,
-                    orderDetailsLoaded: true,
-                    productLoaded: false,
-                    customerLoaded: true,
-                    ordersLoaded: false);
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Include_collection_when_groupby(bool useString)
-        {
-            using var context = CreateContext();
-            var customers
-                = useString
-                    ? (from c in context.Set<Customer>().Include("Orders")
-                       where c.CustomerID == "ALFKI"
-                       group c by c.City)
-                    .ToList()
-                    : (from c in context.Set<Customer>().Include(c => c.Orders)
-                       where c.CustomerID == "ALFKI"
-                       group c by c.City)
-                    .ToList();
-
-            Assert.Single(customers);
-            Assert.Equal(6, customers.SelectMany(c => c.Single().Orders).Count());
-            Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
-
-            foreach (var customer in customers.Select(e => e.Single()))
-            {
-                CheckIsLoaded(
-                    context,
-                    customer,
-                    ordersLoaded: true,
-                    orderDetailsLoaded: false,
-                    productLoaded: false);
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Include_collection_when_groupby_subquery(bool useString)
-        {
-            using var context = CreateContext();
-            var grouping
-                = useString
-                    ? (from c in context.Set<Customer>()
-                           .Include("Orders.OrderDetails.Product")
-                       where c.CustomerID == "ALFKI"
-                       group c by c.City)
-                    .SingleOrDefault()
-                    : (from c in context.Set<Customer>()
-                           .Include(c => c.Orders)
-                           .ThenInclude(o => o.OrderDetails)
-                           .ThenInclude(od => od.Product)
-                       where c.CustomerID == "ALFKI"
-                       group c by c.City)
-                    .SingleOrDefault();
-
-            Assert.NotNull(grouping);
-            Assert.Equal(6, grouping.SelectMany(c => c.Orders).Count());
-            Assert.True(grouping.SelectMany(c => c.Orders).SelectMany(o => o.OrderDetails).All(od => od.Product != null));
-            Assert.Equal(30, context.ChangeTracker.Entries().Count());
-        }
-
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
@@ -2993,7 +2861,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             .ToList()).Message);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_GroupBy_Select(bool useString)
@@ -3026,7 +2894,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_GroupBy_Select(bool useString)
@@ -3059,7 +2927,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_Join_GroupBy_Select(bool useString)
@@ -3102,7 +2970,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_Join_GroupBy_Select(bool useString)
@@ -3145,7 +3013,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Join_Include_collection_GroupBy_Select(bool useString)
@@ -3186,7 +3054,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Join_Include_reference_GroupBy_Select(bool useString)
@@ -3225,175 +3093,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Include_collection_GroupJoin_GroupBy_Select(bool useString)
-        {
-            using var context = CreateContext();
-            var orders
-                = useString
-                    ? context.Orders
-                        .Where(o => o.OrderID == 10248)
-                        .Include("OrderDetails")
-                        .GroupJoin(
-                            context.OrderDetails,
-                            o => o.OrderID,
-                            od => od.OrderID,
-                            (o, od) => o)
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList()
-                    : context.Orders
-                        .Where(o => o.OrderID == 10248)
-                        .Include(o => o.OrderDetails)
-                        .GroupJoin(
-                            context.OrderDetails,
-                            o => o.OrderID,
-                            od => od.OrderID,
-                            (o, od) => o)
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList();
-
-            foreach (var order in orders)
-            {
-                CheckIsLoaded(
-                    context,
-                    order,
-                    orderDetailsLoaded: true,
-                    productLoaded: false,
-                    customerLoaded: false,
-                    ordersLoaded: false);
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Include_reference_GroupJoin_GroupBy_Select(bool useString)
-        {
-            using var context = CreateContext();
-            var orders
-                = useString
-                    ? context.Orders
-                        .Where(o => o.OrderID == 10248)
-                        .Include("Customer")
-                        .GroupJoin(
-                            context.OrderDetails,
-                            o => o.OrderID,
-                            od => od.OrderID,
-                            (o, od) => o)
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList()
-                    : context.Orders
-                        .Where(o => o.OrderID == 10248)
-                        .Include(o => o.Customer)
-                        .GroupJoin(
-                            context.OrderDetails,
-                            o => o.OrderID,
-                            od => od.OrderID,
-                            (o, od) => o)
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList();
-
-            foreach (var order in orders)
-            {
-                CheckIsLoaded(
-                    context,
-                    order,
-                    orderDetailsLoaded: false,
-                    productLoaded: false,
-                    customerLoaded: true,
-                    ordersLoaded: false);
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void GroupJoin_Include_collection_GroupBy_Select(bool useString)
-        {
-            using var context = CreateContext();
-            var orders
-                = useString
-                    ? context.OrderDetails
-                        .Where(od => od.OrderID == 10248)
-                        .GroupJoin(
-                            context.Orders.Include("OrderDetails"),
-                            od => od.OrderID,
-                            o => o.OrderID,
-                            (od, o) => o.OrderBy(o1 => o1.OrderID).FirstOrDefault())
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList()
-                    : context.OrderDetails
-                        .Where(od => od.OrderID == 10248)
-                        .GroupJoin(
-                            context.Orders.Include(o => o.OrderDetails),
-                            od => od.OrderID,
-                            o => o.OrderID,
-                            (od, o) => o.OrderBy(o1 => o1.OrderID).FirstOrDefault())
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList();
-
-            foreach (var order in orders)
-            {
-                CheckIsLoaded(
-                    context,
-                    order,
-                    orderDetailsLoaded: true,
-                    productLoaded: false,
-                    customerLoaded: false,
-                    ordersLoaded: false);
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void GroupJoin_Include_reference_GroupBy_Select(bool useString)
-        {
-            using var context = CreateContext();
-            var orders
-                = useString
-                    ? context.OrderDetails
-                        .Where(od => od.OrderID == 10248)
-                        .GroupJoin(
-                            context.Orders.Include("Customer"),
-                            od => od.OrderID,
-                            o => o.OrderID,
-                            (od, o) => o.OrderBy(o1 => o1.OrderID).FirstOrDefault())
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList()
-                    : context.OrderDetails
-                        .Where(od => od.OrderID == 10248)
-                        .GroupJoin(
-                            context.Orders.Include(o => o.Customer),
-                            od => od.OrderID,
-                            o => o.OrderID,
-                            (od, o) => o.OrderBy(o1 => o1.OrderID).FirstOrDefault())
-                        .GroupBy(e => e.OrderID)
-                        .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault())
-                        .ToList();
-
-            foreach (var order in orders)
-            {
-                CheckIsLoaded(
-                    context,
-                    order,
-                    orderDetailsLoaded: false,
-                    productLoaded: false,
-                    customerLoaded: true,
-                    ordersLoaded: false);
-            }
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_collection_SelectMany_GroupBy_Select(bool useString)
@@ -3426,7 +3126,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void Include_reference_SelectMany_GroupBy_Select(bool useString)
@@ -3459,7 +3159,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void SelectMany_Include_collection_GroupBy_Select(bool useString)
@@ -3492,7 +3192,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #12088")]
         [InlineData(false)]
         [InlineData(true)]
         public virtual void SelectMany_Include_reference_GroupBy_Select(bool useString)
@@ -3816,68 +3516,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static string ClientMethod(Employee e)
             => e.FirstName + " reports to " + e.Manager.FirstName + e.Manager.LastName;
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Include_with_double_group_by(bool useString, bool async)
-        {
-            using var context = CreateContext();
-            var groups = (useString
-                    ? context.Orders.Include(nameof(Order.OrderDetails))
-                    : context.Orders.Include(e => e.OrderDetails))
-                .GroupBy(
-                    o => new { o.OrderID, o.OrderDate })
-                .GroupBy(g => g.Key.OrderDate);
-
-            var employee = async
-                ? await groups.ToListAsync()
-                : groups.ToList();
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Include_with_double_group_by_no_tracking(bool useString, bool async)
-        {
-            using var context = CreateContext();
-            var groups = (useString
-                    ? context.Orders.Include(nameof(Order.OrderDetails)).AsNoTracking()
-                    : context.Orders.Include(e => e.OrderDetails)).AsNoTracking()
-                .GroupBy(
-                    o => new { o.OrderID, o.OrderDate })
-                .GroupBy(g => g.Key.OrderDate);
-
-            var employee = async
-                ? await groups.ToListAsync()
-                : groups.ToList();
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public virtual async Task Include_with_double_group_by_and_aggregate(bool useString, bool async)
-        {
-            using var context = CreateContext();
-            var groups = (useString
-                    ? context.Orders.Include(nameof(Order.OrderDetails))
-                    : context.Orders.Include(e => e.OrderDetails))
-                .GroupBy(
-                    o => new { o.OrderID, o.OrderDate })
-                .GroupBy(g => g.Key.OrderDate)
-                .Select(
-                    g => new { g.Key, Lastest = g.OrderBy(e => e.Key.OrderID).FirstOrDefault() });
-
-            var query = async
-                ? await groups.ToListAsync()
-                : groups.ToList();
-        }
 
         private static void CheckIsLoaded(
             NorthwindContext context,

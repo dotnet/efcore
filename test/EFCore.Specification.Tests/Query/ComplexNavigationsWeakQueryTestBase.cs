@@ -32,12 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Task.CompletedTask;
         }
 
-        //#12583
-        public override Task Include_with_groupjoin_skip_and_take(bool async)
-        {
-            return Task.CompletedTask;
-        }
-
         // Self-ref not supported
         public override Task Join_navigation_self_ref(bool async)
         {
@@ -55,11 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
-        {
-            return Task.CompletedTask;
-        }
-
-        public override Task Navigation_filter_navigation_grouping_ordering_by_group_key(bool async)
         {
             return Task.CompletedTask;
         }

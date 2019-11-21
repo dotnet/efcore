@@ -267,56 +267,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
         }
 
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual async Task Include_collection_on_group_join_clause_with_filter()
-        {
-            using var context = CreateContext();
-            var customers
-                = await (from c in context.Set<Customer>().Include(c => c.Orders)
-                         join o in context.Set<Order>() on c.CustomerID equals o.CustomerID into g
-                         where c.CustomerID == "ALFKI"
-                         select new { c, g })
-                    .ToListAsync();
-
-            Assert.Single(customers);
-            Assert.Equal(6, customers.SelectMany(c => c.c.Orders).Count());
-            Assert.True(customers.SelectMany(c => c.c.Orders).All(o => o.Customer != null));
-            Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
-        }
-
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual async Task Include_collection_on_inner_group_join_clause_with_filter()
-        {
-            using var context = CreateContext();
-            var customers
-                = await (from c in context.Set<Customer>()
-                         join o in context.Set<Order>().Include(o => o.OrderDetails)
-                             on c.CustomerID equals o.CustomerID into g
-                         where c.CustomerID == "ALFKI"
-                         select new { c, g })
-                    .ToListAsync();
-
-            Assert.Single(customers);
-            Assert.Equal(6, customers.SelectMany(c => c.g).Count());
-            Assert.True(customers.SelectMany(c => c.g).SelectMany(o => o.OrderDetails).All(od => od.Order != null));
-            Assert.Equal(1 + 6 + 12, context.ChangeTracker.Entries().Count());
-        }
-
-        [ConditionalFact(Skip = "Issue #17068")]
-        public virtual async Task Include_collection_when_groupby()
-        {
-            using var context = CreateContext();
-            var customers
-                = await (from c in context.Set<Customer>().Include(c => c.Orders)
-                         where c.CustomerID == "ALFKI"
-                         group c by c.City)
-                    .ToListAsync();
-
-            Assert.Single(customers);
-            Assert.Equal(6, customers.SelectMany(c => c.Single().Orders).Count());
-            Assert.Equal(1 + 6, context.ChangeTracker.Entries().Count());
-        }
-
         [ConditionalFact]
         public virtual async Task Include_collection_order_by_key()
         {

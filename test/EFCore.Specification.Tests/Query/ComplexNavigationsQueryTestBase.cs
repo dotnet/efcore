@@ -1636,37 +1636,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expectedIncludes);
         }
 
-        [ConditionalTheory(Skip = "issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Include_with_groupjoin_skip_and_take(bool async)
-        {
-            var expectedIncludes = new List<IExpectedInclude>
-            {
-                new ExpectedInclude<Level1>(l1 => l1.OneToMany_Optional1, "OneToMany_Optional1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Optional_FK2, "OneToOne_Optional_FK2", "OneToMany_Optional1"),
-                new ExpectedInclude<Level2>(l2 => l2.OneToOne_Required_PK2, "OneToOne_Required_PK2")
-            };
-
-            return AssertIncludeQuery(
-                async,
-                ss =>
-                    (from l1 in ss.Set<Level1>()
-                         .Include(e => e.OneToMany_Optional1)
-                         .ThenInclude(e => e.OneToOne_Optional_FK2)
-                     join l2 in ss.Set<Level2>().Include(e => e.OneToOne_Required_PK2)
-#pragma warning disable IDE0031 // Use null propagation
-                         on (int?)l1.Id equals l2 != null ? l2.Level1_Optional_Id : null into grouping
-#pragma warning restore IDE0031 // Use null propagation
-                     where l1.Name != "L1 03"
-                     orderby l1.Id
-                     select new { l1, grouping }).Skip(1).Take(5),
-                expectedIncludes,
-                clientProjections: new List<Func<dynamic, object>>
-                {
-                    e => new KeyValuePair<Level1, IEnumerable<Level2>>(e.l1, ((IEnumerable<Level2>)e.grouping).ToList())
-                });
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_flattening_bug_4539(bool async)
@@ -1992,107 +1961,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                        where ss.Set<Level2>().Any(l2 => ss.Set<Level3>().Select(l3 => l1.Id).Any())
                        select l1.Name).Distinct()
             );
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_on_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    ss.Set<Level1>().GroupJoin(
-                            ss.Set<Level2>().Where(l2 => l2.Name != "L2 01"),
-                            l1 => l1.Id,
-                            l2 => l2.Level1_Optional_Id,
-                            (l1, l2g) => new { l1, l2g })
-                        .Where(r => r.l2g.Any())
-                        .Select(r => r.l1));
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_on_complex_subquery_and_set_operation_on_grouping_but_nothing_from_grouping_is_projected(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Level1>().GroupJoin(
-                        ss.Set<Level1>().Where(l1 => l1.Name != "L1 01").Select(l1 => l1.OneToOne_Required_FK1),
-                        l1 => l1.Id,
-                        l2 => l2 != null ? l2.Level1_Optional_Id : null,
-                        (l1, l2s) => new { l1, l2s })
-                    .Where(r => r.l2s.Any())
-                    .Select(r => r.l1));
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin1(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    ss.Set<Level1>().GroupJoin(
-                            ss.Set<Level1>().Select(l1 => l1.OneToOne_Required_FK1),
-                            l1 => l1.Id,
-                            l2 => MaybeScalar(l2, () => l2.Level1_Optional_Id),
-                            (l1, l2s) => new { l1, l2s })
-                        .Select(r => r.l1));
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Null_protection_logic_work_for_inner_key_access_of_manually_created_GroupJoin2(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss =>
-                    ss.Set<Level1>().GroupJoin(
-                            ss.Set<Level1>().Select(l1 => l1.OneToOne_Required_FK1),
-                            l1 => l1.Id,
-                            l2 => EF.Property<int?>(l2, "Level1_Optional_Id"),
-                            (l1, l2s) => new { l1, l2s })
-                        .Select(r => r.l1),
-                ss =>
-                    ss.Set<Level1>().GroupJoin(
-                            ss.Set<Level1>().Select(l1 => l1.OneToOne_Required_FK1),
-                            l1 => l1.Id,
-                            l2 => MaybeScalar(l2, () => l2.Level1_Optional_Id),
-                            (l1, l2s) => new { l1, l2s })
-                        .Select(r => r.l1));
-        }
-
-        [ConditionalTheory(Skip = "Issue#17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Null_protection_logic_work_for_outer_key_access_of_manually_created_GroupJoin(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Level1>().Select(l1 => l1.OneToOne_Required_FK1).GroupJoin(
-                        ss.Set<Level1>(),
-                        l2 => l2.Level1_Optional_Id,
-                        l1 => l1.Id,
-                        (l2, l1g) => new { l2, l1g })
-                    .Select(r => r.l2),
-                ss =>
-                    ss.Set<Level1>().Select(l1 => l1.OneToOne_Required_FK1).GroupJoin(
-                            ss.Set<Level1>(),
-                            l2 => MaybeScalar(l2, () => l2.Level1_Optional_Id),
-                            l1 => l1.Id,
-                            (l2, l1g) => new { l2, l1g })
-                        .Select(r => r.l2),
-                e => e?.Id,
-                (e, a) =>
-                {
-                    if (e == null)
-                    {
-                        Assert.Null(a);
-                    }
-                    else
-                    {
-                        Assert.Equal(e.Id, a.Id);
-                    }
-                });
         }
 
         [ConditionalTheory]
@@ -3426,40 +3294,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select MaybeScalar<int>(subquery, () => subquery.Id));
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping1(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => from l1_outer in ss.Set<Level1>()
-                      join subquery in
-                          from l2_inner in ss.Set<Level2>()
-                          join l1_inner in ss.Set<Level1>() on l2_inner.Level1_Required_Id equals l1_inner.Id
-                          select l2_inner
-                          on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
-                      where grouping.Any()
-                      from subquery in grouping.DefaultIfEmpty()
-                      select subquery.Id);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_with_complex_subquery_with_joins_with_reference_to_grouping2(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => from l1_outer in ss.Set<Level1>()
-                      join subquery in
-                          from l2_inner in ss.Set<Level2>()
-                          join l1_inner in ss.Set<Level1>() on l2_inner.Level1_Required_Id equals l1_inner.Id
-                          select l2_inner
-                          on l1_outer.Id equals subquery.Level1_Optional_Id into grouping
-                      from subquery in grouping.DefaultIfEmpty()
-                      where grouping.Any()
-                      select subquery.Id);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_on_a_subquery_containing_another_GroupJoin_projecting_outer(bool async)
@@ -3709,20 +3543,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return argument;
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task GroupJoin_reference_to_group_in_OrderBy(bool async)
-        {
-            return AssertQueryScalar(
-                async,
-                ss => from l1 in ss.Set<Level1>()
-                      join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                      from l2 in groupJoin.DefaultIfEmpty()
-                      orderby groupJoin.Count()
-                      select l1.Id,
-                assertOrder: true);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_client_method_on_outer(bool async)
@@ -3768,7 +3588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select l1.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #19015")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_subquery_on_inner(bool async)
         {
@@ -3780,7 +3600,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select l1.Id);
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
+        [ConditionalTheory(Skip = "Issue #19015")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(bool async)
         {
@@ -3973,29 +3793,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                             B = MaybeScalar<int>(l2.OneToMany_Optional_Self_Inverse2, () => l2.OneToMany_Optional_Self_Inverse2.Id)
                         }
                     select l1);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Navigation_filter_navigation_grouping_ordering_by_group_key(bool async)
-        {
-            var level1Id = 1;
-            return AssertQuery(
-                async,
-                ss => ss.Set<Level2>()
-                    .Where(l2 => l2.OneToMany_Required_Inverse2.Id == level1Id)
-                    .GroupBy(l2 => l2.OneToMany_Required_Self_Inverse2.Name)
-                    .OrderBy(g => g.Key),
-                elementAsserter: (l2oResults, efResults) =>
-                {
-                    Assert.Equal(l2oResults?.Key, efResults?.Key);
-
-                    // Since l2o query has all navigations loaded in memory.
-                    Assert.Equal(
-                        l2oResults?.OrderBy(o => o.Id).Select(o => o.Id),
-                        efResults?.OrderBy(o => o.Id).Select(o => o.Id));
-                },
-                assertOrder: true);
         }
 
         [ConditionalTheory]

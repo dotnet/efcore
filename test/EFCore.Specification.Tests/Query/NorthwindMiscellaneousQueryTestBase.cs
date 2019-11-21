@@ -5271,44 +5271,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             return c.CustomerID;
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Client_where_GroupBy_Group_ordering_works(bool async)
-        {
-            List<Order> orders = null;
-            using (var context = CreateContext())
-            {
-                orders = context.Orders.Where(o => o.OrderID < 10300).ToList();
-            }
-
-            return AssertQuery(
-                async,
-                ss => from o in ss.Set<Order>()
-                      where orders.Select(t => t.OrderID).Contains(o.OrderID)
-                      group o by o.CustomerID
-                      into g
-                      orderby g.Key
-                      select g.OrderByDescending(x => x.OrderID),
-                assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
-        }
-
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Client_where_GroupBy_Group_ordering_works_2(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => from o in ss.Set<Order>()
-                      where ClientEvalPredicate(o)
-                      group o by o.CustomerID
-                      into g
-                      orderby g.Key
-                      select g.OrderByDescending(x => x.OrderID),
-                assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Client_OrderBy_GroupBy_Group_ordering_works(bool async)

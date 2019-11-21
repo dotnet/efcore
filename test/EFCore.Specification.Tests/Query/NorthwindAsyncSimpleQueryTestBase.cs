@@ -29,19 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
-        [ConditionalFact(Skip = "Issue#17068")]
-        public virtual async Task GroupBy_tracking_after_dispose()
-        {
-            List<IGrouping<string, Order>> groups;
-
-            using (var context = CreateContext())
-            {
-                groups = await context.Orders.GroupBy(o => o.CustomerID).ToListAsync();
-            }
-
-            var _ = groups[0].First();
-        }
-
         [ConditionalFact]
         public virtual async Task Query_backed_by_database_view()
         {

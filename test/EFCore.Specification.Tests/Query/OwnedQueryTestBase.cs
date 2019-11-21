@@ -103,15 +103,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<LeafA>());
         }
 
-        [ConditionalTheory(Skip = "Issue #17068")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Query_when_group_by(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<OwnedPerson>().GroupBy(op => op.Id));
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Query_when_subquery(bool async)
