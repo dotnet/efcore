@@ -21,13 +21,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "Issue#12086")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Query_loads_reference_nav_automatically_in_projection(bool async)
         {
             return base.Query_loads_reference_nav_automatically_in_projection(async);
         }
 
-        [ConditionalTheory(Skip = "SelectMany #12086")]
+        [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task Query_with_owned_entity_equality_operator(bool async)
         {
             return base.Query_with_owned_entity_equality_operator(async);
@@ -120,55 +120,55 @@ FROM root c
 WHERE (c[""Discriminator""] = ""LeafA"")");
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
         {
             return base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
         {
             return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
         {
             return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
         {
             return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(bool async)
         {
             return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
         {
             return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(bool async)
         {
             return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_count(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
         {
             return base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task
             Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
         {
@@ -176,49 +176,49 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
                 async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Project_multiple_owned_navigations(bool async)
         {
             return base.Project_multiple_owned_navigations(async);
         }
 
-        [ConditionalTheory(Skip = "LeftJoin #12086")]
+        [ConditionalTheory(Skip = "LeftJoin #17314")]
         public override Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
         {
             return base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
         }
 
-        [ConditionalTheory(Skip = "SelectMany #12086")]
+        [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task SelectMany_on_owned_collection(bool async)
         {
             return base.SelectMany_on_owned_collection(async);
         }
 
-        [ConditionalTheory(Skip = "SelectMany #12086")]
+        [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
         {
             return base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async);
         }
 
-        [ConditionalTheory(Skip = "SelectMany #12086")]
+        [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
         {
             return base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async);
         }
 
-        [ConditionalTheory(Skip = "SelectMany #12086")]
+        [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task Query_with_owned_entity_equality_method(bool async)
         {
             return base.Query_with_owned_entity_equality_method(async);
         }
 
-        [ConditionalTheory(Skip = "SelectMany #12086")]
+        [ConditionalTheory(Skip = "SelectMany #17246")]
         public override Task Query_with_owned_entity_equality_object_method(bool async)
         {
             return base.Query_with_owned_entity_equality_object_method(async);
         }
 
-        [ConditionalTheory(Skip = "OfType #12086")]
+        [ConditionalTheory(Skip = "OfType #17246")]
         public override Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
         {
             return base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);

@@ -7086,7 +7086,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => new { g.Key, Aggregate = g.Max() })));
         }
 
-        [ConditionalTheory(Skip = "issue #18492")]
+        [ConditionalTheory(Skip = "issue #19020")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
         {
@@ -7109,7 +7109,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().GroupBy(g => g.FullName).Where(g => false).Select(g => g.Key));
         }
 
-        [ConditionalTheory(Skip = "issue #18492")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_StartsWith_with_null_parameter_as_argument(bool async)
         {
@@ -7145,7 +7145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => false));
         }
 
-        [ConditionalTheory(Skip = "issue #18492")]
+        [ConditionalTheory(Skip = "issue #19019")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_StartsWith_with_null_parameter_as_argument(bool async)
         {

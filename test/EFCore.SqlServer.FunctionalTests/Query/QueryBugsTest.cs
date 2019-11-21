@@ -2999,7 +2999,7 @@ ORDER BY [p].[Id], [c].[Id]");
 
         #region Bug10301
 
-        [ConditionalFact(Skip = "issue #15364")]
+        [ConditionalFact]
         public virtual void MultiContext_query_filter_test()
         {
             using (CreateDatabase10301())
@@ -3016,21 +3016,21 @@ ORDER BY [p].[Id], [c].[Id]");
                 AssertSql(
                     @"@__ef_filter__Tenant_0='0'
 
-SELECT [e].[Id], [e].[SomeValue]
-FROM [Blogs] AS [e]
-WHERE [e].[SomeValue] = @__ef_filter__Tenant_0",
+SELECT [b].[Id], [b].[SomeValue]
+FROM [Blogs] AS [b]
+WHERE [b].[SomeValue] = @__ef_filter__Tenant_0",
                     //
                     @"@__ef_filter__Tenant_0='1'
 
-SELECT [e].[Id], [e].[SomeValue]
-FROM [Blogs] AS [e]
-WHERE [e].[SomeValue] = @__ef_filter__Tenant_0",
+SELECT [b].[Id], [b].[SomeValue]
+FROM [Blogs] AS [b]
+WHERE [b].[SomeValue] = @__ef_filter__Tenant_0",
                     //
                     @"@__ef_filter__Tenant_0='2'
 
 SELECT COUNT(*)
-FROM [Blogs] AS [e]
-WHERE [e].[SomeValue] = @__ef_filter__Tenant_0");
+FROM [Blogs] AS [b]
+WHERE [b].[SomeValue] = @__ef_filter__Tenant_0");
             }
         }
 
@@ -3316,7 +3316,7 @@ GROUP BY [t2].[Name], [t5].[MaumarEntity11818_Name]");
 
         #region Bug11803_11791
 
-        [ConditionalFact(Skip = "Issue #15364")]
+        [ConditionalFact]
         public virtual void Query_filter_with_db_set_should_not_block_other_filters()
         {
             using (CreateDatabase11803())
@@ -3326,15 +3326,15 @@ GROUP BY [t2].[Name], [t5].[MaumarEntity11818_Name]");
 
                 AssertSql(
                     @"SELECT [f].[Id], [f].[Name]
-FROM [ConditionalFactions] AS [f]
+FROM [Factions] AS [f]
 WHERE EXISTS (
     SELECT 1
     FROM [Leaders] AS [l]
-    WHERE [l].[Name] = N'Crach an Craite')");
+    WHERE ([l].[Name] IS NOT NULL AND ([l].[Name] LIKE N'Bran%')) AND ([l].[Name] = N'Crach an Craite'))");
             }
         }
 
-        [ConditionalFact(Skip = "Issue#13361")]
+        [ConditionalFact(Skip = "Issue#18903")]
         public virtual void Keyless_type_used_inside_defining_query()
         {
             using (CreateDatabase11803())

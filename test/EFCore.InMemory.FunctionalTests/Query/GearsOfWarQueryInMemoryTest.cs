@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return GroupBy_with_boolean_groupin_key_thru_navigation_access(async);
         }
 
-        [ConditionalTheory(Skip = "issue #17260")]
+        [ConditionalTheory(Skip = "issue #17620")]
         public override Task Select_subquery_projecting_single_constant_inside_anonymous(bool async)
         {
             return base.Select_subquery_projecting_single_constant_inside_anonymous(async);

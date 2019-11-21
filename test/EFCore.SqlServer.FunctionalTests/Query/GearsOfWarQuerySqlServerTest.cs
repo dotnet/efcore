@@ -7063,7 +7063,12 @@ HAVING CAST(0 AS bit) = CAST(1 AS bit)");
             await base.Select_StartsWith_with_null_parameter_as_argument(async);
 
             AssertSql(
-                @"");
+                @"SELECT CASE
+    WHEN CAST(0 AS bit) = CAST(1 AS bit) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         }
 
         public override async Task Select_null_parameter_is_not_null(bool async)
