@@ -2342,6 +2342,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_scalar_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .GroupBy(o => ss.Set<Customer>()
+                        .Where(c => c.CustomerID == o.CustomerID)
+                        .Select(c => c.ContactName)
+                        .FirstOrDefault())
+                    .Select(
+                        g => new
+                        {
+                            g.Key,
+                            Count = g.Count()
+                        }),
+                elementSorter: e => e.Key);
+        }
+
         #endregion
     }
 }

@@ -5568,5 +5568,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level1>().Where(l1 => l1.OneToOne_Optional_FK1 != null && l1.OneToOne_Optional_FK1.Name == "L2 01"));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task LeftJoin_with_Any_on_outer_source_and_projecting_collection_from_inner(bool async)
+        {
+            var validIds = new List<string> { "L1 01", "L1 02" };
+
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>().Where(l1 => validIds.Any(e => e == l1.Name))
+                      join l2 in ss.Set<Level2>()
+                          on l1.Id equals l2.Level1_Required_Id into l2s
+                      from l2 in l2s.DefaultIfEmpty()
+                      select new Level2
+                      {
+                          Id = l2 == null ? 0 : l2.Id,
+                          OneToMany_Required2 = l2 == null ? null : l2.OneToMany_Required2
+                      });
+        }
     }
 }
