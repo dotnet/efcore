@@ -7241,6 +7241,30 @@ FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Discriminator] = N'Officer')");
         }
 
+        public override async Task Join_inner_source_custom_projection_followed_by_filter(bool async)
+        {
+            await base.Join_inner_source_custom_projection_followed_by_filter(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [t].[Name] = N'Locust' THEN CAST(1 AS bit)
+    ELSE NULL
+END AS [IsEradicated], [t].[CommanderName], [t].[Name]
+FROM [LocustLeaders] AS [l]
+INNER JOIN (
+    SELECT [f].[Id], [f].[CapitalName], [f].[Discriminator], [f].[Name], [f].[CommanderName], [f].[Eradicated]
+    FROM [Factions] AS [f]
+    WHERE ([f].[Discriminator] = N'LocustHorde') AND ([f].[Discriminator] = N'LocustHorde')
+) AS [t] ON [l].[Name] = [t].[CommanderName]
+WHERE [l].[Discriminator] IN (N'LocustLeader', N'LocustCommander') AND ((CASE
+    WHEN [t].[Name] = N'Locust' THEN CAST(1 AS bit)
+    ELSE NULL
+END <> CAST(1 AS bit)) OR CASE
+    WHEN [t].[Name] = N'Locust' THEN CAST(1 AS bit)
+    ELSE NULL
+END IS NULL)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
