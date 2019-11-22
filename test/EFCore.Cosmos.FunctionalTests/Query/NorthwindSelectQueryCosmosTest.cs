@@ -73,7 +73,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue$14935")]
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Projection_when_client_evald_subquery(bool async)
         {
             await base.Projection_when_client_evald_subquery(async);

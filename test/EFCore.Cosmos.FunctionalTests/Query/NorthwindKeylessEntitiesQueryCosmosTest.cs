@@ -54,13 +54,13 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Product"") AND NOT(c[""Discontinued""]))");
         }
 
-        [ConditionalFact(Skip = "See issue#13857")]
+        [ConditionalFact(Skip = "See issue#17246")]
         public override void Auto_initialized_view_set()
         {
             base.Auto_initialized_view_set();
         }
 
-        [ConditionalFact(Skip = "issue #12086")] // collection support
+        [ConditionalFact(Skip = "issue #17246")] // collection support
         public override void KeylessEntity_with_nav_defining_query()
         {
             base.KeylessEntity_with_nav_defining_query();
@@ -111,7 +111,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "issue 12086")] // left join translation
+        [ConditionalTheory(Skip = "issue#17314")] // left join translation
         public override async Task KeylessEntity_select_where_navigation(bool async)
         {
             await base.KeylessEntity_select_where_navigation(async);
@@ -119,7 +119,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(@"");
         }
 
-        [ConditionalTheory(Skip = "issue 12086")] // left join translation
+        [ConditionalTheory(Skip = "issue#17314")] // left join translation
         public override async Task KeylessEntity_select_where_navigation_multi_level(bool async)
         {
             await AssertQuery(

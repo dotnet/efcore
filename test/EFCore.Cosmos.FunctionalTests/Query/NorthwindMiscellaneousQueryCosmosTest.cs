@@ -498,7 +498,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #12086")]
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_anon(bool async)
         {
             await base.Where_subquery_anon(async);
