@@ -7268,6 +7268,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Cast<Gear>().OfType<Officer>().Select(o => o.FullName));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_inner_source_custom_projection_followed_by_filter(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from ll in ss.Set<LocustLeader>()
+                      join h in ss.Set<Faction>().OfType<LocustHorde>()
+                            .Select(f => new { IsEradicated = f.Name == "Locust" ? (bool?)true : null, f.CommanderName, f.Name })
+                        on ll.Name equals h.CommanderName
+                      where h.IsEradicated != true
+                      select h);
+        }
+
         protected async Task AssertTranslationFailed(Func<Task> testCode)
         {
             Assert.Contains(
