@@ -16,13 +16,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new Context4285())
             {
                 context.AddRange(
-                    new SubProduct
-                    {
-                        SomeName = "One"
-                    }, new SubProduct2
-                    {
-                        SomeName2 = "Two"
-                    });
+                    new SubProduct { SomeName = "One" }, new SubProduct2 { SomeName2 = "Two" });
                 context.SaveChanges();
             }
 
@@ -44,13 +38,7 @@ namespace Microsoft.EntityFrameworkCore
             using (var context = new Context4285())
             {
                 context.AddRange(
-                    new SubIntProduct
-                    {
-                        SomeName = "One"
-                    }, new SubIntProduct2
-                    {
-                        SomeName2 = "Two"
-                    });
+                    new SubIntProduct { SomeName = "One" }, new SubIntProduct2 { SomeName2 = "Two" });
                 context.SaveChanges();
             }
 

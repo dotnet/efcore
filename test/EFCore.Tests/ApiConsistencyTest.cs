@@ -83,9 +83,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override bool ShouldHaveNotNullAnnotation(MethodBase method, Type type)
             => base.ShouldHaveNotNullAnnotation(method, type)
-               && method.Name != nameof(DbContext.OnConfiguring)
-               && method.Name != nameof(DbContext.OnModelCreating)
-               && !(type == typeof(IEntityTypeConfiguration<>)
+                && method.Name != nameof(DbContext.OnConfiguring)
+                && method.Name != nameof(DbContext.OnModelCreating)
+                && !(type == typeof(IEntityTypeConfiguration<>)
                     && method.Name == nameof(IEntityTypeConfiguration<object>.Configure));
 
         protected override bool ShouldHaveVirtualMethods(Type type) => type != typeof(InternalEntityEntry);

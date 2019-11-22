@@ -56,25 +56,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalTheory]
         [InlineData(typeof(A), nameof(A.NonNullable), false)]
         [InlineData(typeof(A), nameof(A.Nullable), true)]
-
         [InlineData(typeof(A), nameof(A.NonNullablePropertyMaybeNull), true)]
         [InlineData(typeof(A), nameof(A.NonNullablePropertyAllowNull), false)]
         [InlineData(typeof(A), nameof(A.NullablePropertyNotNull), true)]
         [InlineData(typeof(A), nameof(A.NullablePropertyDisallowNull), true)]
-
         [InlineData(typeof(A), nameof(A.NonNullableFieldMaybeNull), true)]
         [InlineData(typeof(A), nameof(A.NonNullableFieldAllowNull), false)]
         [InlineData(typeof(A), nameof(A.NullableFieldNotNull), true)]
         [InlineData(typeof(A), nameof(A.NullableFieldDisallowNull), true)]
-
         [InlineData(typeof(A), nameof(A.RequiredAndNullable), false)]
         [InlineData(typeof(A), nameof(A.NullObliviousNonNullable), true)]
         [InlineData(typeof(A), nameof(A.NullObliviousNullable), true)]
-
         [InlineData(typeof(B), nameof(B.NonNullableValueType), false)]
         [InlineData(typeof(B), nameof(B.NullableValueType), true)]
         [InlineData(typeof(B), nameof(B.NonNullableRefType), false)]
         [InlineData(typeof(B), nameof(B.NullableRefType), true)]
+        [InlineData(typeof(DerivedClass), nameof(DerivedClass.NonNullable), false)]
+        [InlineData(typeof(DerivedClass), nameof(DerivedClass.Nullable), true)]
+        [InlineData(typeof(BaseClass), nameof(DerivedClass.Nullable), true)]
         public void Reference_nullability_sets_is_nullable_correctly(Type type, string propertyName, bool expectedNullable)
         {
             var modelBuilder = CreateModelBuilder();
@@ -111,24 +110,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public int Id { get; set; }
 
 #nullable enable
-            public string NonNullable { get; set; } = "";
+            public string NonNullable { get; } = "";
             public string? Nullable { get; set; }
 
             [MaybeNull]
-            public string NonNullablePropertyMaybeNull { get; set; } = "";
+            public string NonNullablePropertyMaybeNull { get; } = "";
+
             [AllowNull]
-            public string NonNullablePropertyAllowNull { get; set; } = "";
+            public string NonNullablePropertyAllowNull { get; } = "";
+
             [NotNull]
-            public string? NullablePropertyNotNull { get; set; } = "";
+            public string? NullablePropertyNotNull { get; } = "";
+
             [DisallowNull]
-            public string? NullablePropertyDisallowNull { get; set; } = "";
+            public string? NullablePropertyDisallowNull { get; } = "";
 
             [MaybeNull]
             public string NonNullableFieldMaybeNull = "";
+
             [AllowNull]
             public string NonNullableFieldAllowNull = "";
+
             [NotNull]
             public string? NullableFieldNotNull = "";
+
             [DisallowNull]
             public string? NullableFieldDisallowNull = "";
 
@@ -145,10 +150,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 #nullable enable
         public class B
         {
-            [Key] public Guid NonNullableValueType { get; set; }
+            [Key]
+            public Guid NonNullableValueType { get; set; }
+
             public Guid? NullableValueType { get; set; }
             public string NonNullableRefType { get; set; } = "";
             public string? NullableRefType { get; set; }
+        }
+
+        public class DerivedClass : BaseClass
+        {
+            public string NonNullable { get; set; } = default!;
+        }
+
+        public class BaseClass
+        {
+            public string? Nullable { get; set; }
         }
 #nullable disable
 

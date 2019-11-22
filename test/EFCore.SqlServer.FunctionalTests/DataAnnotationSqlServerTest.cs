@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.WarningAsErrorTemplate(
                     RelationalEventId.ModelValidationKeyDefaultValueWarning,
-                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
+                    RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
+                        .GenerateMessage(nameof(Login1.UserName), nameof(Login1)),
                     "RelationalEventId.ModelValidationKeyDefaultValueWarning"),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
 
@@ -205,7 +206,7 @@ SELECT @@ROWCOUNT;");
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
             AssertSql(
-                @"@p0='' (Size = 10)
+                @"@p0=NULL (Size = 10)
 @p1='Third' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000003'
 @p3='Third Additional Name' (Size = 4000)
@@ -256,7 +257,7 @@ WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();");
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
             AssertSql(
-                @"@p0='' (DbType = Int32)
+                @"@p0=NULL (DbType = Int32)
 @p1='1'
 
 SET NOCOUNT ON;
@@ -266,8 +267,8 @@ SELECT [Id]
 FROM [BookDetails]
 WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
                 //
-                @"@p0='' (DbType = Int32)
-@p1='' (Nullable = false) (DbType = Int32)
+                @"@p0=NULL (DbType = Int32)
+@p1=NULL (Nullable = false) (DbType = Int32)
 
 SET NOCOUNT ON;
 INSERT INTO [BookDetails] ([AdditionalBookDetailsId], [AnotherBookId])
@@ -282,7 +283,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
             AssertSql(
-                @"@p0='' (Size = 10)
+                @"@p0=NULL (Size = 10)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
 @p3='Two' (Size = 4000)
@@ -295,8 +296,8 @@ SELECT [UniqueNo]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
                 //
-                @"@p0='' (Size = 10)
-@p1='' (Nullable = false) (Size = 4000)
+                @"@p0=NULL (Size = 10)
+@p1=NULL (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000002'
 @p3='Two' (Size = 4000)
 @p4='One' (Size = 4000)
@@ -342,6 +343,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();");
         }
 
         private static readonly string _eol = Environment.NewLine;
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

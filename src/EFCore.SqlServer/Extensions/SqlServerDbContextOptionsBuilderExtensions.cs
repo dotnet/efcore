@@ -111,13 +111,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
-               ?? new SqlServerOptionsExtension();
+                ?? new SqlServerOptionsExtension();
 
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
             var coreOptionsExtension
                 = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
-                  ?? new CoreOptionsExtension();
+                ?? new CoreOptionsExtension();
 
             coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
                 coreOptionsExtension.WarningsConfiguration.TryWithExplicit(

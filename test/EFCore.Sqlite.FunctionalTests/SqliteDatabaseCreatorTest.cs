@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -109,6 +108,17 @@ namespace Microsoft.EntityFrameworkCore
                 var journalMode = testStore.ExecuteScalar<string>("PRAGMA journal_mode;");
                 Assert.Equal("wal", journalMode);
             }
+        }
+
+        [ConditionalTheory]
+        [InlineData("Data Source=:memory:")]
+        [InlineData("Data Source=exists-memory;Mode=Memory;Cache=Shared")]
+        public void Exists_returns_true_when_memory(string connectionString)
+        {
+            var context = CreateContext(connectionString);
+
+            var creator = context.GetService<IRelationalDatabaseCreator>();
+            Assert.True(creator.Exists());
         }
 
         private DbContext CreateContext(string connectionString)

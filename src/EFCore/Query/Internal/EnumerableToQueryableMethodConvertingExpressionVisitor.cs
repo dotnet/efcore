@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -35,33 +35,33 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var enumerableMethod = methodCallExpression.Method;
                 var enumerableParameters = enumerableMethod.GetParameters();
-                Type[] genericArguments = null;
+                Type[] genericTypeArguments = null;
                 if (enumerableMethod.Name == nameof(Enumerable.Min)
                     || enumerableMethod.Name == nameof(Enumerable.Max))
                 {
-                    genericArguments = new Type[methodCallExpression.Arguments.Count];
+                    genericTypeArguments = new Type[methodCallExpression.Arguments.Count];
 
                     if (!enumerableMethod.IsGenericMethod)
                     {
-                        genericArguments[0] = enumerableMethod.ReturnType;
+                        genericTypeArguments[0] = enumerableMethod.ReturnType;
                     }
                     else
                     {
                         var argumentTypes = enumerableMethod.GetGenericArguments();
-                        if (argumentTypes.Length == genericArguments.Length)
+                        if (argumentTypes.Length == genericTypeArguments.Length)
                         {
-                            genericArguments = argumentTypes;
+                            genericTypeArguments = argumentTypes;
                         }
                         else
                         {
-                            genericArguments[0] = argumentTypes[0];
-                            genericArguments[1] = enumerableMethod.ReturnType;
+                            genericTypeArguments[0] = argumentTypes[0];
+                            genericTypeArguments[1] = enumerableMethod.ReturnType;
                         }
                     }
                 }
                 else if (enumerableMethod.IsGenericMethod)
                 {
-                    genericArguments = enumerableMethod.GetGenericArguments();
+                    genericTypeArguments = enumerableMethod.GetGenericArguments();
                 }
 
                 foreach (var method in typeof(Queryable).GetTypeInfo().GetDeclaredMethods(methodCallExpression.Method.Name))
@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var queryableMethod = method;
                     if (queryableMethod.IsGenericMethod)
                     {
-                        if (genericArguments != null
-                            && queryableMethod.GetGenericArguments().Length == genericArguments.Length)
+                        if (genericTypeArguments != null
+                            && queryableMethod.GetGenericArguments().Length == genericTypeArguments.Length)
                         {
-                            queryableMethod = queryableMethod.MakeGenericMethod(genericArguments);
+                            queryableMethod = queryableMethod.MakeGenericMethod(genericTypeArguments);
                         }
                         else
                         {
@@ -99,12 +99,27 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (CanConvertEnumerableToQueryable(enumerableParameterType, queryableParameterType))
                         {
-                            if (arguments[i].Type.TryGetElementType(typeof(IQueryable<>)) == null)
+                            var innerArgument = arguments[i];
+                            var genericType = innerArgument.Type.TryGetSequenceType();
+
+                            // If innerArgument has ToList applied to it then unwrap it.
+                            // Also preserve generic argument of ToList is applied to different type
+                            if (arguments[i].Type.TryGetElementType(typeof(List<>)) != null
+                                && arguments[i] is MethodCallExpression toListMethodCallExpression
+                                && toListMethodCallExpression.Method.IsGenericMethod
+                                && toListMethodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToList)
+                            {
+                                genericType = toListMethodCallExpression.Method.GetGenericArguments()[0];
+                                innerArgument = toListMethodCallExpression.Arguments[0];
+                            }
+
+                            var innerQueryableElementType = innerArgument.Type.TryGetElementType(typeof(IQueryable<>));
+                            if (innerQueryableElementType == null
+                                || innerQueryableElementType != genericType)
                             {
                                 arguments[i] = Expression.Call(
-                                    QueryableMethods.AsQueryable.MakeGenericMethod(
-                                        arguments[i].Type.TryGetSequenceType()),
-                                    arguments[i]);
+                                    QueryableMethods.AsQueryable.MakeGenericMethod(genericType),
+                                    innerArgument);
                             }
 
                             continue;
@@ -132,7 +147,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
             }
-            else if (methodCallExpression.Method.DeclaringType.IsGenericType
+
+            if (methodCallExpression.Method.DeclaringType.IsGenericType
                 && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
                 && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
             {

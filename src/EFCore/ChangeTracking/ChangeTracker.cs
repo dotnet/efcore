@@ -48,12 +48,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             _defaultQueryTrackingBehavior
                 = context
-                      .GetService<IDbContextOptions>()
-                      .Extensions
-                      .OfType<CoreOptionsExtension>()
-                      .FirstOrDefault()
-                      ?.QueryTrackingBehavior
-                  ?? QueryTrackingBehavior.TrackAll;
+                    .GetService<IDbContextOptions>()
+                    .Extensions
+                    .OfType<CoreOptionsExtension>()
+                    .FirstOrDefault()
+                    ?.QueryTrackingBehavior
+                ?? QueryTrackingBehavior.TrackAll;
 
             _queryTrackingBehavior = _defaultQueryTrackingBehavior;
 
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     <para>
         ///         Typically traversal of the graph should stop whenever an already tracked entity is encountered or when
         ///         an entity is reached that should not be tracked. For this typical behavior, use the
-        ///         <see cref="TrackGraph"/> overload. This overload, on the other hand,
+        ///         <see cref="TrackGraph" /> overload. This overload, on the other hand,
         ///         allows the callback to decide when traversal will end, but the onus is then on the caller to ensure that
         ///         traversal will not enter an infinite loop.
         ///     </para>
@@ -365,8 +365,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         to manually force the deletes to have at a time controlled by the application.
         ///     </para>
         ///     <para>
-        ///         If <see cref="AutoDetectChangesEnabled"/> is <code>true</code> then this method
-        ///         will call <see cref="DetectChanges"/>.
+        ///         If <see cref="AutoDetectChangesEnabled" /> is <code>true</code> then this method
+        ///         will call <see cref="DetectChanges" />.
         ///     </para>
         /// </summary>
         public virtual void CascadeChanges()

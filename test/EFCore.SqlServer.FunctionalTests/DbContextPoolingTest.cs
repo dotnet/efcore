@@ -38,8 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                     ob =>
                         ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
                             .EnableServiceProviderCaching(false),
-                    poolSize)
-                .BuildServiceProvider();
+                    poolSize).BuildServiceProvider();
 
         private static IServiceProvider BuildServiceProvider<TContext>(int poolSize = 32)
             where TContext : DbContext
@@ -84,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
                 ChangeTracker.LazyLoadingEnabled = false;
                 Database.AutoTransactionsEnabled = false;
                 ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
-                ChangeTracker.DeleteOrphansTiming= CascadeTiming.Never;
+                ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -388,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.LazyLoadingEnabled = true;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
-            context1.ChangeTracker.DeleteOrphansTiming= CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
 
             serviceScope.Dispose();
@@ -425,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             context1.Database.AutoTransactionsEnabled = false;
             context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
-            context1.ChangeTracker.DeleteOrphansTiming= CascadeTiming.Immediate;
+            context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
 
             serviceScope.Dispose();
 
@@ -465,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
 
-                    Assert.Equal(expected: 1, actual: context1.ChangeTracker.Entries().Count());
+                    Assert.Single(context1.ChangeTracker.Entries());
 
                     serviceScope.Dispose();
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
@@ -16,11 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class ContainsTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _containsMethod = typeof(Enumerable).GetTypeInfo()
-            .GetDeclaredMethods(nameof(Enumerable.Contains))
-            .Single(mi => mi.GetParameters().Length == 2)
-            .GetGenericMethodDefinition();
-
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
@@ -43,12 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition().Equals(_containsMethod))
+                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
             {
                 return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
             }
 
-            if (method.DeclaringType.GetInterfaces().Contains(typeof(IList))
+            if ((method.DeclaringType.GetInterfaces().Contains(typeof(IList))
+                 || method.DeclaringType.IsGenericType
+                 && method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>))
                 && string.Equals(method.Name, nameof(IList.Contains)))
             {
                 return _sqlExpressionFactory.In(arguments[0], instance, false);

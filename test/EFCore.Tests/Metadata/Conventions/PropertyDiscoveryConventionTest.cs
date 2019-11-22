@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 var model = context.Model;
 
-                Assert.Equal(1, model.GetEntityTypes().Count());
+                Assert.Single(model.GetEntityTypes());
 
                 var entityType = model.FindEntityType(typeof(DerivedWithoutPrivates));
 

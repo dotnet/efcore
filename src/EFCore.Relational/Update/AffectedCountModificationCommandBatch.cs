@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 do
                 {
                     while (commandIndex < CommandResultSet.Count
-                           && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                        && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                     {
                         commandIndex++;
                     }
@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }
                 }
                 while (commandIndex < CommandResultSet.Count
-                       && reader.DbDataReader.NextResult());
+                    && reader.DbDataReader.NextResult());
 
 #if DEBUG
                 while (commandIndex < CommandResultSet.Count
-                       && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                    && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                 {
                     commandIndex++;
                 }
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 do
                 {
                     while (commandIndex < CommandResultSet.Count
-                           && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                        && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                     {
                         commandIndex++;
                     }
@@ -124,11 +124,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }
                 }
                 while (commandIndex < CommandResultSet.Count
-                       && await reader.DbDataReader.NextResultAsync(cancellationToken));
+                    && await reader.DbDataReader.NextResultAsync(cancellationToken));
 
 #if DEBUG
                 while (commandIndex < CommandResultSet.Count
-                       && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                    && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
                 {
                     commandIndex++;
                 }
@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     var expectedRowsAffected = rowsAffected + 1;
                     while (++commandIndex < CommandResultSet.Count
-                           && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                        && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
                     {
                         expectedRowsAffected++;
                     }
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 rowsAffected++;
             }
             while (++commandIndex < CommandResultSet.Count
-                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
+                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
 
             return commandIndex;
         }
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     var expectedRowsAffected = rowsAffected + 1;
                     while (++commandIndex < CommandResultSet.Count
-                           && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                        && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
                     {
                         expectedRowsAffected++;
                     }
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 rowsAffected++;
             }
             while (++commandIndex < CommandResultSet.Count
-                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
+                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet);
 
             return commandIndex;
         }
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < CommandResultSet.Count
-                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
                 Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
 
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < CommandResultSet.Count
-                   && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
             {
                 Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
 

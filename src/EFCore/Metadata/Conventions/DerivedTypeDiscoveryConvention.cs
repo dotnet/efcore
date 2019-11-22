@@ -44,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var model = entityType.Model;
             var directlyDerivedTypes = model.GetEntityTypes().Where(
                     t => t != entityType
-                         && t.HasClrType()
-                         && !t.HasDefiningNavigation()
-                         && t.FindDeclaredOwnership() == null
-                         && model.FindIsOwnedConfigurationSource(t.ClrType) == null
-                         && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
-                             || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
+                        && t.HasClrType()
+                        && !t.HasDefiningNavigation()
+                        && t.FindDeclaredOwnership() == null
+                        && model.FindIsOwnedConfigurationSource(t.ClrType) == null
+                        && ((t.BaseType == null && clrType.GetTypeInfo().IsAssignableFrom(t.ClrType.GetTypeInfo()))
+                            || (t.BaseType == entityType.BaseType && FindClosestBaseType(t) == entityType)))
                 .ToList();
 
             foreach (var directlyDerivedType in directlyDerivedTypes)

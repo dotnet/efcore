@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -373,19 +372,21 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder ApplyConfigurationsFromAssembly([NotNull] Assembly assembly, [CanBeNull] Func<Type, bool> predicate = null)
+        public virtual ModelBuilder ApplyConfigurationsFromAssembly(
+            [NotNull] Assembly assembly, [CanBeNull] Func<Type, bool> predicate = null)
         {
             var applyEntityConfigurationMethod = typeof(ModelBuilder)
                 .GetMethods()
                 .Single(
                     e => e.Name == nameof(ApplyConfiguration)
-                         && e.ContainsGenericParameters
-                         && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
+                        && e.ContainsGenericParameters
+                        && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
+                        == typeof(IEntityTypeConfiguration<>));
             var applyQueryConfigurationMethod = typeof(ModelBuilder).GetMethods().Single(
                 e => e.Name == nameof(ApplyConfiguration)
-                     && e.ContainsGenericParameters
+                    && e.ContainsGenericParameters
 #pragma warning disable CS0618 // Type or member is obsolete
-                     && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
+                    && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
 #pragma warning restore CS0618 // Type or member is obsolete
             foreach (var type in assembly.GetConstructibleTypes())
             {
@@ -487,7 +488,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Forces post-processing on the model such that it is ready for use by the runtime. This post
-        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating"/>; this method allows it to be run
+        ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <returns> The finalized <see cref="IModel" />. </returns>

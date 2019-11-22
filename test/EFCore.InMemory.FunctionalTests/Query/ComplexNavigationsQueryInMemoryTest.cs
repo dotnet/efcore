@@ -15,64 +15,22 @@ namespace Microsoft.EntityFrameworkCore.Query
             //TestLoggerFactory.TestOutputHelper = testOutputHelper;
         }
 
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_different_navs(bool isAsync)
-        {
-            return base.SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_followed_by_Select_required_navigation_using_different_navs(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty(bool isAsync)
-        {
-            return base.SelectMany_with_nested_navigation_and_explicit_DefaultIfEmpty(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty(bool isAsync)
-        {
-            return base.SelectMany_with_nested_navigation_filter_and_explicit_DefaultIfEmpty(isAsync);
-        }
-
         [ConditionalTheory(Skip = "issue #17386")]
         public override Task Complex_query_with_optional_navigations_and_client_side_evaluation(bool isAsync)
         {
             return base.Complex_query_with_optional_navigations_and_client_side_evaluation(isAsync);
         }
 
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Project_collection_navigation_nested(bool isAsync)
+        [ConditionalFact(Skip = "issue #18194")]
+        public override void Member_pushdown_chain_3_levels_deep_entity()
         {
-            return base.Project_collection_navigation_nested(isAsync);
+            base.Member_pushdown_chain_3_levels_deep_entity();
         }
 
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Project_collection_navigation_nested_anonymous(bool isAsync)
+        [ConditionalTheory(Skip = "issue #17620")]
+        public override Task Lift_projection_mapping_when_pushing_down_subquery(bool isAsync)
         {
-            return base.Project_collection_navigation_nested_anonymous(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Project_collection_navigation_using_ef_property(bool isAsync)
-        {
-            return base.Project_collection_navigation_using_ef_property(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task Project_navigation_and_collection(bool isAsync)
-        {
-            return base.Project_navigation_and_collection(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task SelectMany_nested_navigation_property_optional_and_projection(bool isAsync)
-        {
-            return base.SelectMany_nested_navigation_property_optional_and_projection(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17531")]
-        public override Task SelectMany_nested_navigation_property_required(bool isAsync)
-        {
-            return base.SelectMany_nested_navigation_property_required(isAsync);
+            return base.Lift_projection_mapping_when_pushing_down_subquery(isAsync);
         }
     }
 }

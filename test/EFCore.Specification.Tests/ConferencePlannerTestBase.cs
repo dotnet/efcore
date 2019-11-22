@@ -9,9 +9,13 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
+using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
-using ConferenceDTO = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO;
+using Attendee = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO.Attendee;
+using Session = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO.Session;
+using Speaker = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.Speaker;
+using Track = Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.Track;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -72,9 +76,12 @@ namespace Microsoft.EntityFrameworkCore
                     var controller = new AttendeesController(context);
 
                     var result = await controller.Post(
-                        new ConferenceDTO.Attendee
+                        new Attendee
                         {
-                            EmailAddress = "discord@sample.com", FirstName = "", LastName = "Discord", UserName = "Discord!"
+                            EmailAddress = "discord@sample.com",
+                            FirstName = "",
+                            LastName = "Discord",
+                            UserName = "Discord!"
                         });
 
                     Assert.NotEqual(default, result.Id);
@@ -95,9 +102,12 @@ namespace Microsoft.EntityFrameworkCore
                     var controller = new AttendeesController(context);
 
                     var result = await controller.Post(
-                        new ConferenceDTO.Attendee
+                        new Attendee
                         {
-                            EmailAddress = "pinkie@sample.com", FirstName = "Pinkie", LastName = "Pie", UserName = "Pinks"
+                            EmailAddress = "pinkie@sample.com",
+                            FirstName = "Pinkie",
+                            LastName = "Pie",
+                            UserName = "Pinks"
                         });
 
                     Assert.Null(result);
@@ -123,10 +133,10 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(21, pinkySessions.Count);
 
-                    var result = (ConferenceDTO.AttendeeResponse)await controller.AddSession("Pinks", session.Id);
+                    var result = (AttendeeResponse)await controller.AddSession("Pinks", session.Id);
 
                     Assert.Equal(22, result.Sessions.Count);
-                    Assert.Contains(session.Id, result.Sessions.Select(s =>s .Id));
+                    Assert.Contains(session.Id, result.Sessions.Select(s => s.Id));
 
                     Assert.Equal(pinky.Id, result.Id);
                     Assert.Equal(pinky.UserName, result.UserName);
@@ -222,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var controller = new AttendeesController(context);
 
-                    var result = (string)await controller.RemoveSession("Pinks", -777);
+                    var result = await controller.RemoveSession("Pinks", -777);
 
                     Assert.Equal("No session", result);
                 });
@@ -238,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var session = context.Sessions.AsNoTracking().Single(e => e.Title == "Hidden gems in .NET Core 3");
 
-                    var result = (string)await controller.RemoveSession("The Stig", session.Id);
+                    var result = await controller.RemoveSession("The Stig", session.Id);
 
                     Assert.Equal("No attendee", result);
                 });
@@ -253,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore
                 _db = db;
             }
 
-            public async Task<ConferenceDTO.AttendeeResponse> Get(string username)
+            public async Task<AttendeeResponse> Get(string username)
             {
                 var attendee = await _db.Attendees
                     .Include(a => a.SessionsAttendees)
@@ -263,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
                 return attendee?.MapAttendeeResponse();
             }
 
-            public async Task<List<ConferenceDTO.SessionResponse>> GetSessions(string username)
+            public async Task<List<SessionResponse>> GetSessions(string username)
             {
                 return await _db.Sessions.AsNoTracking()
                     .Include(s => s.Track)
@@ -274,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ToListAsync();
             }
 
-            public async Task<ConferenceDTO.AttendeeResponse> Post(ConferenceDTO.Attendee input)
+            public async Task<AttendeeResponse> Post(Attendee input)
             {
                 var existingAttendee = await _db.Attendees
                     .Where(a => a.UserName == input.UserName)
@@ -285,9 +295,12 @@ namespace Microsoft.EntityFrameworkCore
                     return null;
                 }
 
-                var attendee = new Attendee
+                var attendee = new TestModels.ConferencePlanner.Attendee
                 {
-                    FirstName = input.FirstName, LastName = input.LastName, UserName = input.UserName, EmailAddress = input.EmailAddress
+                    FirstName = input.FirstName,
+                    LastName = input.LastName,
+                    UserName = input.UserName,
+                    EmailAddress = input.EmailAddress
                 };
 
                 _db.Attendees.Add(attendee);
@@ -316,10 +329,7 @@ namespace Microsoft.EntityFrameworkCore
                 }
 
                 attendee.SessionsAttendees.Add(
-                    new SessionAttendee
-                    {
-                        AttendeeId = attendee.Id, SessionId = sessionId
-                    });
+                    new SessionAttendee { AttendeeId = attendee.Id, SessionId = sessionId });
 
                 await _db.SaveChangesAsync();
 
@@ -366,15 +376,12 @@ namespace Microsoft.EntityFrameworkCore
                     var controller = new SearchController(context);
 
                     var results = await controller.Search(
-                        new ConferenceDTO.SearchTerm
-                        {
-                            Query = searchTerm
-                        });
+                        new SearchTerm { Query = searchTerm });
 
                     Assert.Equal(totalCount, results.Count);
 
-                    var sessions = results.Where(r => r.Type == ConferenceDTO.SearchResultType.Session).Select(r => r.Session).ToList();
-                    var speakers = results.Where(r => r.Type == ConferenceDTO.SearchResultType.Speaker).Select(r => r.Speaker).ToList();
+                    var sessions = results.Where(r => r.Type == SearchResultType.Session).Select(r => r.Session).ToList();
+                    var speakers = results.Where(r => r.Type == SearchResultType.Speaker).Select(r => r.Speaker).ToList();
 
                     Assert.Equal(sessionCount, sessions.Count);
                     Assert.Equal(totalCount - sessionCount, speakers.Count);
@@ -397,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
                 _db = db;
             }
 
-            public async Task<List<ConferenceDTO.SearchResult>> Search(ConferenceDTO.SearchTerm term)
+            public async Task<List<SearchResult>> Search(SearchTerm term)
             {
                 var query = term.Query;
                 var sessionResults = await _db.Sessions
@@ -406,8 +413,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ThenInclude(ss => ss.Speaker)
                     .Where(
                         s =>
-                            s.Title.Contains(query) ||
-                            s.Track.Name.Contains(query)
+                            s.Title.Contains(query) || s.Track.Name.Contains(query)
                     )
                     .ToListAsync();
 
@@ -416,23 +422,15 @@ namespace Microsoft.EntityFrameworkCore
                     .ThenInclude(ss => ss.Session)
                     .Where(
                         s =>
-                            s.Name.Contains(query) ||
-                            s.Bio.Contains(query) ||
-                            s.WebSite.Contains(query)
+                            s.Name.Contains(query) || s.Bio.Contains(query) || s.WebSite.Contains(query)
                     )
                     .ToListAsync();
 
                 var results = sessionResults.Select(
-                        session => new ConferenceDTO.SearchResult
-                        {
-                            Type = ConferenceDTO.SearchResultType.Session, Session = session.MapSessionResponse()
-                        })
+                        session => new SearchResult { Type = SearchResultType.Session, Session = session.MapSessionResponse() })
                     .Concat(
                         speakerResults.Select(
-                            speaker => new ConferenceDTO.SearchResult
-                            {
-                                Type = ConferenceDTO.SearchResultType.Speaker, Speaker = speaker.MapSpeakerResponse()
-                            }));
+                            speaker => new SearchResult { Type = SearchResultType.Speaker, Speaker = speaker.MapSpeakerResponse() }));
 
                 return results.ToList();
             }
@@ -499,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore
                     var controller = new SessionsController(context);
 
                     var result = await controller.Post(
-                        new ConferenceDTO.Session
+                        new Session
                         {
                             Abstract = "Pandas eat bamboo all dat.",
                             Title = "Pandas!",
@@ -529,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     var result = await controller.Put(
                         session.Id,
-                        new ConferenceDTO.Session
+                        new Session
                         {
                             Id = session.Id,
                             Abstract = session.Abstract,
@@ -556,7 +554,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var controller = new SessionsController(context);
 
-                    var result = await controller.Put(-777, new ConferenceDTO.Session());
+                    var result = await controller.Put(-777, new Session());
 
                     Assert.Equal("Not found", result);
                 });
@@ -605,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore
                 _db = db;
             }
 
-            public async Task<List<ConferenceDTO.SessionResponse>> Get()
+            public async Task<List<SessionResponse>> Get()
             {
                 return await _db.Sessions.AsNoTracking()
                     .Include(s => s.Track)
@@ -615,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ToListAsync();
             }
 
-            public async Task<ConferenceDTO.SessionResponse> Get(int id)
+            public async Task<SessionResponse> Get(int id)
             {
                 var session = await _db.Sessions.AsNoTracking()
                     .Include(s => s.Track)
@@ -626,9 +624,9 @@ namespace Microsoft.EntityFrameworkCore
                 return session?.MapSessionResponse();
             }
 
-            public async Task<ConferenceDTO.SessionResponse> Post(ConferenceDTO.Session input)
+            public async Task<SessionResponse> Post(Session input)
             {
-                var session = new Session
+                var session = new TestModels.ConferencePlanner.Session
                 {
                     Title = input.Title,
                     StartTime = input.StartTime,
@@ -643,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore
                 return session.MapSessionResponse();
             }
 
-            public async Task<string> Put(int id, ConferenceDTO.Session input)
+            public async Task<string> Put(int id, Session input)
             {
                 var session = await _db.Sessions.FindAsync(id);
 
@@ -664,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore
                 return "Success";
             }
 
-            public async Task<ConferenceDTO.SessionResponse> Delete(int id)
+            public async Task<SessionResponse> Delete(int id)
             {
                 var session = await _db.Sessions.FindAsync(id);
 
@@ -737,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore
                 _db = db;
             }
 
-            public async Task<List<ConferenceDTO.SpeakerResponse>> GetSpeakers()
+            public async Task<List<SpeakerResponse>> GetSpeakers()
             {
                 return await _db.Speakers.AsNoTracking()
                     .Include(s => s.SessionSpeakers)
@@ -746,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore
                     .ToListAsync();
             }
 
-            public async Task<ConferenceDTO.SpeakerResponse> GetSpeaker(int id)
+            public async Task<SpeakerResponse> GetSpeaker(int id)
             {
                 var speaker = await _db.Speakers.AsNoTracking()
                     .Include(s => s.SessionSpeakers)
@@ -786,39 +784,57 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(ApplicationDbContext context)
             {
-                var attendees1 = new List<Attendee>
+                var attendees1 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new Attendee
+                    new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "sonicrainboom@sample.com", FirstName = "Rainbow", LastName = "Dash", UserName = "RainbowDash"
+                        EmailAddress = "sonicrainboom@sample.com",
+                        FirstName = "Rainbow",
+                        LastName = "Dash",
+                        UserName = "RainbowDash"
                     },
-                    new Attendee
+                    new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "solovely@sample.com", FirstName = "Flutter", LastName = "Shy", UserName = "Fluttershy"
+                        EmailAddress = "solovely@sample.com",
+                        FirstName = "Flutter",
+                        LastName = "Shy",
+                        UserName = "Fluttershy"
                     }
                 };
 
-                var attendees2 = new List<Attendee>
+                var attendees2 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new Attendee
+                    new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "applesforever@sample.com", FirstName = "Apple", LastName = "Jack", UserName = "Applejack"
+                        EmailAddress = "applesforever@sample.com",
+                        FirstName = "Apple",
+                        LastName = "Jack",
+                        UserName = "Applejack"
                     },
-                    new Attendee
+                    new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "precious@sample.com", FirstName = "Rarity", LastName = "", UserName = "Rarity"
+                        EmailAddress = "precious@sample.com",
+                        FirstName = "Rarity",
+                        LastName = "",
+                        UserName = "Rarity"
                     }
                 };
 
-                var attendees3 = new List<Attendee>
+                var attendees3 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new Attendee
+                    new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "princess@sample.com", FirstName = "Twilight", LastName = "Sparkle", UserName = "Princess"
+                        EmailAddress = "princess@sample.com",
+                        FirstName = "Twilight",
+                        LastName = "Sparkle",
+                        UserName = "Princess"
                     },
-                    new Attendee
+                    new TestModels.ConferencePlanner.Attendee
                     {
-                        EmailAddress = "pinkie@sample.com", FirstName = "Pinkie", LastName = "Pie", UserName = "Pinks"
+                        EmailAddress = "pinkie@sample.com",
+                        FirstName = "Pinkie",
+                        LastName = "Pie",
+                        UserName = "Pinks"
                     }
                 };
 
@@ -837,7 +853,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             track = new Track
                             {
-                                Name = roomJson.GetProperty("name").GetString(), Sessions = new List<Session>()
+                                Name = roomJson.GetProperty("name").GetString(),
+                                Sessions = new List<TestModels.ConferencePlanner.Session>()
                             };
 
                             tracks[roomId] = track;
@@ -851,10 +868,7 @@ namespace Microsoft.EntityFrameworkCore
                                 var speakerId = speakerJson.GetProperty("id").GetGuid();
                                 if (!speakers.TryGetValue(speakerId, out var speaker))
                                 {
-                                    speaker = new Speaker
-                                    {
-                                        Name = speakerJson.GetProperty("name").GetString()
-                                    };
+                                    speaker = new Speaker { Name = speakerJson.GetProperty("name").GetString() };
 
                                     speakers[speakerId] = speaker;
                                 }
@@ -862,19 +876,16 @@ namespace Microsoft.EntityFrameworkCore
                                 sessionSpeakers.Add(speaker);
                             }
 
-                            var session = new Session
+                            var session = new TestModels.ConferencePlanner.Session
                             {
                                 Title = sessionJson.GetProperty("title").GetString(),
                                 Abstract = sessionJson.GetProperty("description").GetString(),
                                 StartTime = sessionJson.GetProperty("startsAt").GetDateTime(),
-                                EndTime = sessionJson.GetProperty("endsAt").GetDateTime(),
+                                EndTime = sessionJson.GetProperty("endsAt").GetDateTime()
                             };
 
                             session.SessionSpeakers = sessionSpeakers.Select(
-                                s => new SessionSpeaker
-                                {
-                                    Session = session, Speaker = s
-                                }).ToList();
+                                s => new SessionSpeaker { Session = session, Speaker = s }).ToList();
 
                             var trackName = track.Name;
                             var attendees = trackName.Contains("1") ? attendees1
@@ -883,10 +894,7 @@ namespace Microsoft.EntityFrameworkCore
                                 : attendees1.Concat(attendees2).Concat(attendees3).ToList();
 
                             session.SessionAttendees = attendees.Select(
-                                a => new SessionAttendee
-                                {
-                                    Session = session, Attendee = a
-                                }).ToList();
+                                a => new SessionAttendee { Session = session, Attendee = a }).ToList();
 
                             track.Sessions.Add(session);
                         }

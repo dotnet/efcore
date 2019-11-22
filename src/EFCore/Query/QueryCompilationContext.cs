@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             IsAsync = async;
             IsTracking = context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
+            IsBuffering = dependencies.IsRetryingExecutionStrategy;
             Model = dependencies.Model;
             ContextOptions = dependencies.ContextOptions;
             ContextType = context.GetType();
@@ -51,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IModel Model { get; }
         public virtual IDbContextOptions ContextOptions { get; }
         public virtual bool IsTracking { get; internal set; }
+        public virtual bool IsBuffering { get; }
         public virtual bool IgnoreQueryFilters { get; internal set; }
         public virtual ISet<string> Tags { get; } = new HashSet<string>();
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
@@ -97,9 +99,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
         {
-            if (valueExtractor.Parameters.Count != 1 || valueExtractor.Parameters[0] != QueryContextParameter)
+            if (valueExtractor.Parameters.Count != 1
+                || valueExtractor.Parameters[0] != QueryContextParameter)
             {
-                throw new ArgumentException("Runtime parameter extraction lambda must have one QueryContext parameter",
+                throw new ArgumentException(
+                    "Runtime parameter extraction lambda must have one QueryContext parameter",
                     nameof(valueExtractor));
             }
 
@@ -115,14 +119,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         private Expression InsertRuntimeParameters(Expression query)
             => _runtimeParameters == null
                 ? query
-                : Expression.Block(_runtimeParameters
-                    .Select(kv =>
-                        Expression.Call(
-                            QueryContextParameter,
-                            _queryContextAddParameterMethodInfo,
-                            Expression.Constant(kv.Key),
-                            Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
-                    .Append(query));
+                : Expression.Block(
+                    _runtimeParameters
+                        .Select(
+                            kv =>
+                                Expression.Call(
+                                    QueryContextParameter,
+                                    _queryContextAddParameterMethodInfo,
+                                    Expression.Constant(kv.Key),
+                                    Expression.Convert(Expression.Invoke(kv.Value, QueryContextParameter), typeof(object))))
+                        .Append(query));
 
         private static readonly MethodInfo _queryContextAddParameterMethodInfo
             = typeof(QueryContext)

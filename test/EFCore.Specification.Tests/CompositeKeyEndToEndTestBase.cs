@@ -73,11 +73,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.EnsureCreatedResiliently();
 
                 var added = context.Add(
-                    new Unicorn
-                    {
-                        Id2 = id2,
-                        Name = "Rarity"
-                    }).Entity;
+                    new Unicorn { Id2 = id2, Name = "Rarity" }).Entity;
 
                 await context.SaveChangesAsync();
 
@@ -195,7 +191,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "CompositeKeyEndToEndTest";
 
-            //protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
             protected override Type ContextType { get; } = typeof(BronieContext);
         }
 
@@ -219,11 +214,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.Id1,
-                                e.Id2
-                            });
+                            e => new { e.Id1, e.Id2 });
                     });
 
                 modelBuilder.Entity<Unicorn>(
@@ -244,11 +235,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                     {
                         b.HasKey(
-                            e => new
-                            {
-                                e.Id1,
-                                e.Id2
-                            });
+                            e => new { e.Id1, e.Id2 });
                         b.Property(e => e.Id1);
                     });
             }

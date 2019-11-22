@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -57,11 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeof(TimeSpan),
                     typeof(ulong)
                 },
-                [ExpressionType.Modulo] = new HashSet<Type>
-                {
-                    typeof(decimal),
-                    typeof(ulong)
-                },
+                [ExpressionType.Modulo] = new HashSet<Type> { typeof(decimal), typeof(ulong) },
                 [ExpressionType.Multiply] = new HashSet<Type>
                 {
                     typeof(decimal),
@@ -96,7 +92,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             if (visitedExpression is SqlUnaryExpression sqlUnary
                 && sqlUnary.OperatorType == ExpressionType.Negate)
             {
-
                 var operandType = GetProviderType(sqlUnary.Operand);
                 if (operandType == typeof(decimal)
                     || operandType == typeof(TimeSpan))
@@ -121,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 && _restrictedBinaryExpressions.TryGetValue(sqlBinary.OperatorType, out var restrictedTypes)
                 && (restrictedTypes.Contains(GetProviderType(sqlBinary.Left))
                     || restrictedTypes.Contains(GetProviderType(sqlBinary.Right)))
-                ? null
-                : visitedExpression;
+                    ? null
+                    : visitedExpression;
         }
 
         public override SqlExpression TranslateAverage(Expression expression)
@@ -178,10 +173,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         }
 
         private static Type GetProviderType(SqlExpression expression)
-        {
-            return (expression.TypeMapping?.Converter?.ProviderClrType
-                ?? expression.TypeMapping?.ClrType
-                ?? expression.Type).UnwrapNullableType();
-        }
+            => expression == null
+                ? null
+                : (expression.TypeMapping?.Converter?.ProviderClrType
+                    ?? expression.TypeMapping?.ClrType
+                    ?? expression.Type).UnwrapNullableType();
     }
 }

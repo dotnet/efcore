@@ -4,7 +4,6 @@
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -42,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var modelBuilder = relationshipBuilder.ModelBuilder;
 
-            if (!IsNonNullable(modelBuilder, navigation) || navigation.IsCollection())
+            if (!IsNonNullable(modelBuilder, navigation)
+                || navigation.IsCollection())
             {
                 return;
             }
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
             => navigation.DeclaringEntityType.HasClrType()
-               && navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
-               && IsNonNullableReferenceType(modelBuilder, propertyInfo);
+                && navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
+                && IsNonNullableReferenceType(modelBuilder, propertyInfo);
     }
 }

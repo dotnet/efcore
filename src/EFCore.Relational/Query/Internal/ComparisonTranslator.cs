@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -39,17 +39,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     right = arguments[0];
                 }
 
-                if (left != null && right != null)
+                if (left != null
+                    && right != null)
                 {
                     return _sqlExpressionFactory.Case(
-                        new CaseWhenClause[]
+                        new[]
                         {
                             new CaseWhenClause(
                                 _sqlExpressionFactory.Equal(left, right), _sqlExpressionFactory.Constant(0)),
                             new CaseWhenClause(
                                 _sqlExpressionFactory.GreaterThan(left, right), _sqlExpressionFactory.Constant(1)),
                             new CaseWhenClause(
-                                _sqlExpressionFactory.LessThan(left, right), _sqlExpressionFactory.Constant(-1)),
+                                _sqlExpressionFactory.LessThan(left, right), _sqlExpressionFactory.Constant(-1))
                         },
                         null);
                 }

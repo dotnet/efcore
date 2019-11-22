@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string schema,
             bool fromDataAnnotation = false)
         {
-            if (!propertyBuilder.CanSetHiLoSequence(name, schema))
+            if (!propertyBuilder.CanSetHiLoSequence(name, schema, fromDataAnnotation))
             {
                 return null;
             }
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(schema, nameof(schema));
 
             return propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, name, fromDataAnnotation)
-                   && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
+                && propertyBuilder.CanSetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, schema, fromDataAnnotation);
         }
 
         /// <summary>
@@ -284,8 +284,8 @@ namespace Microsoft.EntityFrameworkCore
 
             return (valueGenerationStrategy == null
                     || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
-                   && propertyBuilder.CanSetAnnotation(
-                       SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
+                && propertyBuilder.CanSetAnnotation(
+                    SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
         }
 
         /// <summary>

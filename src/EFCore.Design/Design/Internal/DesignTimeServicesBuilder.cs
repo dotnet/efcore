@@ -112,9 +112,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.FindingReferencedServices(_startupAssembly.GetName().Name));
 
             var references = _startupAssembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>()
-                                .Concat(_assembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>())
-                                .Distinct()
-                                .ToList();
+                .Concat(_assembly.GetCustomAttributes<DesignTimeServicesReferenceAttribute>())
+                .Distinct()
+                .ToList();
 
             if (references.Count == 0)
             {

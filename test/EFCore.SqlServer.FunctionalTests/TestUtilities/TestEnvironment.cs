@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             .GetSection("Test:SqlServer");
 
         public static string DefaultConnection { get; } = Config["DefaultConnection"]
-            ?? "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30;ConnectRetryCount=0";
+            ?? "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=60;ConnectRetryCount=0";
 
         private static readonly string _dataSource = new SqlConnectionStringBuilder(DefaultConnection).DataSource;
 

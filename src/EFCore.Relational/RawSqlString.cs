@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     the regular and interpolated <see cref="RelationalQueryableExtensions.FromSql{TEntity}(IQueryable{TEntity},RawSqlString,object[])" />
     ///     and <see cref="RelationalDatabaseFacadeExtensions.ExecuteSqlCommand(Infrastructure.DatabaseFacade,RawSqlString,object[])" />
     /// </summary>
-    [Obsolete("For the execution of SQL queries using plain strings, use FromSqlRaw, ExecuteSqlRaw, or ExecuteSqlRawAsync instead. For the execution of SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated, ExecuteSqlInterpolated, or ExecuteSqlInterpolatedAsync instead.")]
+    [Obsolete(
+        "For the execution of SQL queries using plain strings, use FromSqlRaw, ExecuteSqlRaw, or ExecuteSqlRawAsync instead. For the execution of SQL queries using interpolated string syntax to create parameters, use FromSqlInterpolated, ExecuteSqlInterpolated, or ExecuteSqlInterpolatedAsync instead.")]
     public readonly struct RawSqlString
     {
         /// <summary>

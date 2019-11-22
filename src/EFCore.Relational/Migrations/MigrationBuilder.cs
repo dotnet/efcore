@@ -495,10 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 Schema = schema,
                 Name = name,
                 Comment = comment,
-                OldTable = new TableOperation
-                {
-                    Comment = oldComment
-                }
+                OldTable = new TableOperation { Comment = oldComment }
             };
             Operations.Add(operation);
 
@@ -576,10 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(name, nameof(name));
 
-            var operation = new EnsureSchemaOperation
-            {
-                Name = name
-            };
+            var operation = new EnsureSchemaOperation { Name = name };
             Operations.Add(operation);
 
             return new OperationBuilder<EnsureSchemaOperation>(operation);
@@ -839,10 +833,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(name, nameof(name));
 
-            var operation = new DropSchemaOperation
-            {
-                Name = name
-            };
+            var operation = new DropSchemaOperation { Name = name };
             Operations.Add(operation);
 
             return new OperationBuilder<DropSchemaOperation>(operation);
@@ -860,11 +851,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(name, nameof(name));
 
-            var operation = new DropSequenceOperation
-            {
-                Schema = schema,
-                Name = name
-            };
+            var operation = new DropSequenceOperation { Schema = schema, Name = name };
             Operations.Add(operation);
 
             return new OperationBuilder<DropSequenceOperation>(operation);
@@ -907,11 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(name, nameof(name));
 
-            var operation = new DropTableOperation
-            {
-                Schema = schema,
-                Name = name
-            };
+            var operation = new DropTableOperation { Schema = schema, Name = name };
             Operations.Add(operation);
 
             return new OperationBuilder<DropTableOperation>(operation);
@@ -1097,11 +1080,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(sql, nameof(sql));
 
-            var operation = new SqlOperation
-            {
-                Sql = sql,
-                SuppressTransaction = suppressTransaction
-            };
+            var operation = new SqlOperation { Sql = sql, SuppressTransaction = suppressTransaction };
             Operations.Add(operation);
 
             return new OperationBuilder<SqlOperation>(operation);

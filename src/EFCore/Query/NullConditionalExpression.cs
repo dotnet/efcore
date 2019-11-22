@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///     Expression representing null-conditional access.
     ///     Logic in this file is based on https://github.com/bartdesmet/ExpressionFutures
     /// </summary>
+    [Obsolete("Use ConditionalExpression with null check instead")]
     public class NullConditionalExpression : Expression, IPrintableExpression
     {
         /// <summary>
@@ -110,11 +111,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual Expression Update(Expression newCaller, Expression newAccessOperation)
-            => newCaller != Caller || newAccessOperation != AccessOperation
-               && !ExpressionEqualityComparer.Instance.Equals(
-                   (newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation)
-                ? new NullConditionalExpression(newCaller, newAccessOperation)
-                : this;
+            => newCaller != Caller
+                || newAccessOperation != AccessOperation
+                && !ExpressionEqualityComparer.Instance.Equals(
+                    (newAccessOperation as NullConditionalExpression)?.AccessOperation, AccessOperation)
+                    ? new NullConditionalExpression(newCaller, newAccessOperation)
+                    : this;
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
@@ -139,9 +141,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </returns>
         public override bool Equals(object obj)
             => obj != null
-               && (obj == this
-                   || obj.GetType() == GetType()
-                   && Equals((NullConditionalExpression)obj));
+                && (obj == this
+                    || obj.GetType() == GetType()
+                    && Equals((NullConditionalExpression)obj));
 
         /// <summary>
         ///     Serves as the default hash function.
@@ -222,15 +224,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (methodCallExpression.Object != null)
                 {
                     return Caller
-                           + "?." + methodCallExpression.Method.Name
-                           + "(" + string.Join(",", methodCallExpression.Arguments) + ")";
+                        + "?."
+                        + methodCallExpression.Method.Name
+                        + "("
+                        + string.Join(",", methodCallExpression.Arguments)
+                        + ")";
                 }
 
                 if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
                 {
                     var method = methodCallExpression.Method;
-                    return method.DeclaringType?.Name + "." + method.Name
-                           + "(?" + Caller + "?, " + propertyName + ")";
+                    return method.DeclaringType?.Name
+                        + "."
+                        + method.Name
+                        + "(?"
+                        + Caller
+                        + "?, "
+                        + propertyName
+                        + ")";
                 }
             }
 

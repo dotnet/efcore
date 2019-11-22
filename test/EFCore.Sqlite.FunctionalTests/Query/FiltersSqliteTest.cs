@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
 SELECT COUNT(*)
 FROM ""Customers"" AS ""c""
-WHERE ((@__ef_filter__TenantPrefix_0 = '') AND @__ef_filter__TenantPrefix_0 IS NOT NULL) OR (""c"".""CompanyName"" IS NOT NULL AND (@__ef_filter__TenantPrefix_0 IS NOT NULL AND (((""c"".""CompanyName"" LIKE ""c"".""CompanyName"" || '%') AND (((substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) AND (substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) IS NOT NULL AND @__ef_filter__TenantPrefix_0 IS NOT NULL)) OR (substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) IS NULL AND @__ef_filter__TenantPrefix_0 IS NULL))) OR ((@__ef_filter__TenantPrefix_0 = '') AND @__ef_filter__TenantPrefix_0 IS NOT NULL))))");
+WHERE (@__ef_filter__TenantPrefix_0 = '') OR (""c"".""CompanyName"" IS NOT NULL AND (((""c"".""CompanyName"" LIKE ""c"".""CompanyName"" || '%') AND (substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0)) OR (@__ef_filter__TenantPrefix_0 = '')))");
         }
 
         private void AssertSql(params string[] expected)

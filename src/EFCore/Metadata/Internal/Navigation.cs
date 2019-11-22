@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return navigationProperty == null
-                   || IsCompatible(navigationProperty, sourceType.ClrType, targetClrType, shouldBeCollection, shouldThrow);
+                || IsCompatible(navigationProperty, sourceType.ClrType, targetClrType, shouldBeCollection, shouldThrow);
         }
 
         /// <summary>

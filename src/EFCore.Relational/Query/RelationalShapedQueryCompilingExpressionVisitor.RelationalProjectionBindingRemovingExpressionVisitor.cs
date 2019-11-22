@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -23,14 +24,33 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private readonly SelectExpression _selectExpression;
             private readonly ParameterExpression _dbDataReaderParameter;
+            private readonly ParameterExpression _indexMapParameter;
+
             private readonly IDictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings
                 = new Dictionary<ParameterExpression, IDictionary<IProperty, int>>();
 
             public RelationalProjectionBindingRemovingExpressionVisitor(
-                SelectExpression selectExpression, ParameterExpression dbDataReaderParameter)
+                SelectExpression selectExpression,
+                ParameterExpression dbDataReaderParameter,
+                ParameterExpression indexMapParameter,
+                bool buffer)
             {
                 _selectExpression = selectExpression;
                 _dbDataReaderParameter = dbDataReaderParameter;
+                _indexMapParameter = indexMapParameter;
+                if (buffer)
+                {
+                    ProjectionColumns = new ReaderColumn[selectExpression.Projection.Count];
+                }
+            }
+
+            private ReaderColumn[] ProjectionColumns { get; }
+
+            public virtual Expression Visit(Expression node, out IReadOnlyList<ReaderColumn> projectionColumns)
+            {
+                var result = Visit(node);
+                projectionColumns = ProjectionColumns;
+                return result;
             }
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -45,7 +65,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     _materializationContextBindings[parameterExpression]
                         = (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression);
 
-                    var updatedExpression = Expression.New(newExpression.Constructor,
+                    var updatedExpression = Expression.New(
+                        newExpression.Constructor,
                         Expression.Constant(ValueBuffer.Empty),
                         newExpression.Arguments[1]);
 
@@ -60,7 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return memberExpression.Assign(Visit(binaryExpression.Right));
                 }
 
-
                 return base.VisitBinary(binaryExpression);
             }
 
@@ -72,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var property = (IProperty)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
                     var propertyProjectionMap = methodCallExpression.Arguments[0] is ProjectionBindingExpression projectionBindingExpression
                         ? (IDictionary<IProperty, int>)GetProjectionIndex(projectionBindingExpression)
-                        : _materializationContextBindings[(ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
+                        : _materializationContextBindings[
+                            (ParameterExpression)((MethodCallExpression)methodCallExpression.Arguments[0]).Object];
 
                     var projectionIndex = propertyProjectionMap[property];
                     var projection = _selectExpression.Projection[projectionIndex];
@@ -116,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             private static bool IsNullableProjection(ProjectionExpression projection)
                 => !(projection.Expression is ColumnExpression column) || column.IsNullable;
 
-            private static Expression CreateGetValueExpression(
-                Expression dbDataReader,
+            private Expression CreateGetValueExpression(
+                ParameterExpression dbDataReader,
                 int index,
                 bool nullable,
                 RelationalTypeMapping typeMapping,
@@ -125,15 +146,51 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var getMethod = typeMapping.GetDataReaderMethod();
 
-                var indexExpression = Expression.Constant(index);
+                Expression indexExpression = Expression.Constant(index);
+                if (_indexMapParameter != null)
+                {
+                    indexExpression = Expression.ArrayIndex(_indexMapParameter, indexExpression);
+                }
 
                 Expression valueExpression
                     = Expression.Call(
                         getMethod.DeclaringType != typeof(DbDataReader)
                             ? Expression.Convert(dbDataReader, getMethod.DeclaringType)
-                            : dbDataReader,
+                            : (Expression)dbDataReader,
                         getMethod,
                         indexExpression);
+
+                if (ProjectionColumns != null)
+                {
+                    var columnType = valueExpression.Type;
+                    if (!columnType.IsValueType
+                        || !BufferedDataReader.IsSupportedValueType(columnType))
+                    {
+                        columnType = typeof(object);
+                        valueExpression = Expression.Convert(valueExpression, typeof(object));
+                    }
+
+                    if (ProjectionColumns[index] == null)
+                    {
+                        ProjectionColumns[index] = ReaderColumn.Create(
+                            columnType,
+                            nullable,
+                            _indexMapParameter != null ? ((ColumnExpression)_selectExpression.Projection[index].Expression).Name : null,
+                            Expression.Lambda(
+                                valueExpression,
+                                dbDataReader,
+                                _indexMapParameter ?? Expression.Parameter(typeof(int[]))).Compile());
+                    }
+
+                    if (getMethod.DeclaringType != typeof(DbDataReader))
+                    {
+                        valueExpression
+                            = Expression.Call(
+                                dbDataReader,
+                                RelationalTypeMapping.GetDataReaderMethod(columnType),
+                                indexExpression);
+                    }
+                }
 
                 valueExpression = typeMapping.CustomizeDataReaderExpression(valueExpression);
 

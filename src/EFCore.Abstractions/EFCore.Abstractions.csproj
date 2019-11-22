@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Provides abstractions and attributes that are used to configure Entity Framework Core</Description>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Abstractions</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>

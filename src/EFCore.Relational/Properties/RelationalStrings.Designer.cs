@@ -580,6 +580,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string SetOperationNotWithinEntityTypeHierarchy
             => GetString("SetOperationNotWithinEntityTypeHierarchy");
 
+        /// <summary>
+        ///     FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.
+        /// </summary>
+        public static string FromSqlNonComposable
+            => GetString("FromSqlNonComposable");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
@@ -1315,7 +1321,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     () => new EventDefinition<string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandExecuting,
-                        LogLevel.Information,
+                        LogLevel.Debug,
                         "RelationalEventId.CommandExecuting",
                         level => LoggerMessage.Define<string, System.Data.CommandType, int, string, string>(
                             level,
@@ -1339,7 +1345,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     () => new EventDefinition<string, string, System.Data.CommandType, int, string, string>(
                         logger.Options,
                         RelationalEventId.CommandExecuted,
-                        LogLevel.Debug,
+                        LogLevel.Information,
                         "RelationalEventId.CommandExecuted",
                         level => LoggerMessage.Define<string, string, System.Data.CommandType, int, string, string>(
                             level,

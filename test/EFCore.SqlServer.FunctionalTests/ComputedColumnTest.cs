@@ -21,7 +21,13 @@ namespace Microsoft.EntityFrameworkCore
             {
                 context.Database.EnsureCreatedResiliently();
 
-                var entity = context.Add(new Entity { P1 = 20, P2 = 30, P3 = 80 }).Entity;
+                var entity = context.Add(
+                    new Entity
+                    {
+                        P1 = 20,
+                        P2 = 30,
+                        P3 = 80
+                    }).Entity;
 
                 context.SaveChanges();
 

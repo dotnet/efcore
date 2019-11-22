@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             BuildModel(modelBuilder);
 
-            return model.FinalizeModel();
+            return model;
         }
 
         /// <summary>

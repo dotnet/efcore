@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         {
             return instance?.Type == typeof(string)
                 && member.Name == nameof(string.Length)
-                ? _sqlExpressionFactory.Function("length", new[] { instance }, returnType)
-                : null;
+                    ? _sqlExpressionFactory.Function("length", new[] { instance }, returnType)
+                    : null;
         }
     }
 }

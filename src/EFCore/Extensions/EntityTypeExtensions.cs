@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType1"> An entity type.</param>
         /// <param name="entityType2"> Another entity type.</param>
         /// <returns>
-        ///     The closest common parent of <paramref name="entityType1"/> and <paramref name="entityType2"/>,
+        ///     The closest common parent of <paramref name="entityType1" /> and <paramref name="entityType2" />,
         ///     or null if they have not common parent.
         /// </returns>
         public static IEntityType GetClosestCommonParent([NotNull] this IEntityType entityType1, [NotNull] IEntityType entityType2)
@@ -453,10 +453,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] IEntityType principalEntityType)
             => Check.NotNull(entityType, nameof(entityType))
                 .FindForeignKey(
-                    new[]
-                    {
-                        property
-                    }, principalKey, principalEntityType);
+                    new[] { property }, principalKey, principalEntityType);
 
         /// <summary>
         ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
@@ -611,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
 
             return (ChangeTrackingStrategy?)entityType[CoreAnnotationNames.ChangeTrackingStrategy]
-                   ?? entityType.Model.GetChangeTrackingStrategy();
+                ?? entityType.Model.GetChangeTrackingStrategy();
         }
 
         /// <summary>

@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         /// <summary>
         ///     <para>
-        ///         Creates a new <see cref="QueryContext"/> instance.
+        ///         Creates a new <see cref="QueryContext" /> instance.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally
@@ -76,6 +75,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual IQueryProvider QueryProvider
             => Dependencies.QueryProvider;
+
+        /// <summary>
+        ///     The execution strategy factory.
+        /// </summary>
+        /// <value>
+        ///     The execution strategy factory.
+        /// </value>
+        public virtual IExecutionStrategyFactory ExecutionStrategyFactory
+            => Dependencies.ExecutionStrategyFactory;
 
         /// <summary>
         ///     Gets the concurrency detector.

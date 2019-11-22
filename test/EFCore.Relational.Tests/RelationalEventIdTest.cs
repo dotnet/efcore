@@ -24,6 +24,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using IsolationLevel = System.Data.IsolationLevel;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
@@ -43,13 +44,7 @@ namespace Microsoft.EntityFrameworkCore
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
                 { typeof(string), () => "Fake" },
-                {
-                    typeof(IList<string>), () => new List<string>
-                    {
-                        "Fake1",
-                        "Fake2"
-                    }
-                },
+                { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
                 {
                     typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry>
                     {
@@ -85,25 +80,27 @@ namespace Microsoft.EntityFrameworkCore
                 new Dictionary<string, IList<string>>
                 {
                     {
-                        nameof(RelationalEventId.CommandExecuting), new List<string>
+                        nameof(RelationalEventId.CommandExecuting),
+                        new List<string>
                         {
                             nameof(RelationalLoggerExtensions.CommandReaderExecuting),
                             nameof(RelationalLoggerExtensions.CommandScalarExecuting),
                             nameof(RelationalLoggerExtensions.CommandNonQueryExecuting),
                             nameof(RelationalLoggerExtensions.CommandReaderExecutingAsync),
                             nameof(RelationalLoggerExtensions.CommandScalarExecutingAsync),
-                            nameof(RelationalLoggerExtensions.CommandNonQueryExecutingAsync),
+                            nameof(RelationalLoggerExtensions.CommandNonQueryExecutingAsync)
                         }
                     },
                     {
-                        nameof(RelationalEventId.CommandExecuted), new List<string>
+                        nameof(RelationalEventId.CommandExecuted),
+                        new List<string>
                         {
                             nameof(RelationalLoggerExtensions.CommandReaderExecutedAsync),
                             nameof(RelationalLoggerExtensions.CommandScalarExecutedAsync),
                             nameof(RelationalLoggerExtensions.CommandNonQueryExecutedAsync),
                             nameof(RelationalLoggerExtensions.CommandReaderExecuted),
                             nameof(RelationalLoggerExtensions.CommandScalarExecuted),
-                            nameof(RelationalLoggerExtensions.CommandNonQueryExecuted),
+                            nameof(RelationalLoggerExtensions.CommandNonQueryExecuted)
                         }
                     }
                 });
@@ -149,11 +146,11 @@ namespace Microsoft.EntityFrameworkCore
             public bool IsMultipleActiveResultSetsEnabled => throw new NotImplementedException();
             public IDbContextTransaction CurrentTransaction => throw new NotImplementedException();
             public SemaphoreSlim Semaphore => throw new NotImplementedException();
-            public IDbContextTransaction BeginTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
+            public IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
             public IDbContextTransaction BeginTransaction() => throw new NotImplementedException();
 
             public Task<IDbContextTransaction> BeginTransactionAsync(
-                System.Data.IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
+                IsolationLevel isolationLevel, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
             public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default) =>
                 throw new NotImplementedException();
@@ -171,6 +168,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public void RollbackTransaction() => throw new NotImplementedException();
             public IDbContextTransaction UseTransaction(DbTransaction transaction) => throw new NotImplementedException();
+
             public Task<IDbContextTransaction> UseTransactionAsync(
                 DbTransaction transaction, CancellationToken cancellationToken = default) => throw new NotImplementedException();
 
@@ -187,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore
             public override void ChangeDatabase(string databaseName) => throw new NotImplementedException();
             public override void Close() => throw new NotImplementedException();
             public override void Open() => throw new NotImplementedException();
-            protected override DbTransaction BeginDbTransaction(System.Data.IsolationLevel isolationLevel) => throw new NotImplementedException();
+            protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
             protected override DbCommand CreateDbCommand() => throw new NotImplementedException();
         }
 
@@ -239,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeDbTransaction : DbTransaction
         {
-            public override System.Data.IsolationLevel IsolationLevel => System.Data.IsolationLevel.Chaos;
+            public override IsolationLevel IsolationLevel => IsolationLevel.Chaos;
             protected override DbConnection DbConnection => throw new NotImplementedException();
             public override void Commit() => throw new NotImplementedException();
             public override void Rollback() => throw new NotImplementedException();

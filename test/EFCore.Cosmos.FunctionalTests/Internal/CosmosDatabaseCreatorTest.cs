@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Cosmos.TestUtilities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
@@ -24,11 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             await using (var testDatabase = CosmosTestStore.Create("NonExisting"))
             {
-                using (var context = new BloggingContext(testDatabase))
+                try
                 {
-                    var creator = context.GetService<IDatabaseCreator>();
+                    using (var context = new BloggingContext(testDatabase))
+                    {
+                        var creator = context.GetService<IDatabaseCreator>();
 
-                    Assert.True(async ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+                        Assert.True(async ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+                    }
+                }
+                finally
+                {
+                    testDatabase.Initialize(testDatabase.ServiceProvider, () => new BloggingContext(testDatabase));
                 }
             }
         }
@@ -39,11 +47,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             await using (var testDatabase = CosmosTestStore.Create("EnsureCreatedTest"))
             {
-                using (var context = new BloggingContext(testDatabase))
+                try
                 {
-                    var creator = context.GetService<IDatabaseCreator>();
+                    using (var context = new BloggingContext(testDatabase))
+                    {
+                        var creator = context.GetService<IDatabaseCreator>();
 
-                    Assert.True(async ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+                        Assert.True(async ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+                    }
+                }
+                finally
+                {
+                    testDatabase.Initialize(testDatabase.ServiceProvider, () => new BloggingContext(testDatabase));
                 }
             }
         }
@@ -54,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             await using (var testDatabase = CosmosTestStore.Create("EnsureCreatedReady"))
             {
-                testDatabase.Initialize(null, testStore => new BloggingContext((CosmosTestStore)testStore));
+                testDatabase.Initialize(testDatabase.ServiceProvider, testStore => new BloggingContext((CosmosTestStore)testStore));
 
                 using (var context = new BloggingContext(testDatabase))
                 {
@@ -114,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     .UseCosmos(
                         _connectionUri,
                         _authToken,
-                        _name);
+                        _name,
+                        b => b.ApplyConfiguration());
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

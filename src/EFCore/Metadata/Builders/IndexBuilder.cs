@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             return this;
         }
 
-        private InternalIndexBuilder Builder => this.GetInfrastructure<InternalIndexBuilder>();
+        private InternalIndexBuilder Builder => this.GetInfrastructure();
 
         #region Hidden System.Object members
 

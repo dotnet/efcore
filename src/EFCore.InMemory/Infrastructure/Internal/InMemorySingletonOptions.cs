@@ -17,10 +17,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/> and multiple registrations
-    ///         are allowed. This means a single instance of each service is used by many <see cref="DbContext"/>
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations
+    ///         are allowed. This means a single instance of each service is used by many <see cref="DbContext" />
     ///         instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class InMemorySingletonOptions : IInMemorySingletonOptions

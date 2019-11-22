@@ -34,8 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     converter: null,
                     comparer,
                     keyComparer,
-                    structuralComparer,
-                    valueGeneratorFactory: null))
+                    structuralComparer))
         {
         }
 

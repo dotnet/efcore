@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -27,10 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var jObjectVariable = Expression.Variable(
                             typeof(JObject),
                             "jObject" + _currentEntityIndex);
-                        var variables = new List<ParameterExpression>
-                        {
-                            jObjectVariable
-                        };
+                        var variables = new List<ParameterExpression> { jObjectVariable };
 
                         var expressions = new List<Expression>
                         {
@@ -58,10 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var jArrayVariable = Expression.Variable(
                             typeof(JArray),
                             "jArray" + _currentEntityIndex);
-                        var variables = new List<ParameterExpression>
-                        {
-                            jArrayVariable
-                        };
+                        var variables = new List<ParameterExpression> { jArrayVariable };
 
                         var expressions = new List<Expression>
                         {
@@ -70,7 +64,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 Expression.TypeAs(
                                     collectionShaperExpression.Projection,
                                     typeof(JArray))),
-
                             Expression.Condition(
                                 Expression.Equal(jArrayVariable, Expression.Constant(null, jArrayVariable.Type)),
                                 Expression.Constant(null, collectionShaperExpression.Type),
@@ -81,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             collectionShaperExpression.Type,
                             variables,
                             expressions);
-                        }
+                    }
                 }
 
                 return base.VisitExtension(extensionExpression);

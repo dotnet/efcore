@@ -6,7 +6,6 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -16,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             private readonly ISnapshot _values;
 
-            public SidecarValues(InternalEntityEntry entry)
+            public SidecarValues(ISnapshot valuesFactory)
             {
-                _values = ((EntityType)entry.EntityType).SidecarValuesFactory(entry);
+                _values = valuesFactory;
             }
 
             public bool TryGetValue(int index, out object value)

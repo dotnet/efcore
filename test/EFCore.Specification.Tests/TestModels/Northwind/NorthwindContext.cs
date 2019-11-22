@@ -74,11 +74,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 e =>
                 {
                     e.HasKey(
-                        od => new
-                        {
-                            od.OrderID,
-                            od.ProductID
-                        });
+                        od => new { od.OrderID, od.ProductID });
                 });
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -101,10 +97,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 .ToQuery(
                     () => Orders
                         .Select(
-                            o => new OrderQuery
-                            {
-                                CustomerID = o.CustomerID
-                            }));
+                            o => new OrderQuery { CustomerID = o.CustomerID }));
 
             modelBuilder
                 .Query<ProductQuery>()
@@ -148,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             // so we can capture TenantPrefix in filter exprs (simulates OnModelCreating).
 
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));
-            modelBuilder.Entity<Order>().HasQueryFilter(o => o.Customer.CompanyName != null);
+            modelBuilder.Entity<Order>().HasQueryFilter(o => o.Customer != null && o.Customer.CompanyName != null);
             modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => EF.Property<short>(od, "Quantity") > _quantity);
             modelBuilder.Entity<Employee>().HasQueryFilter(e => e.Address.StartsWith("A"));
             modelBuilder.Entity<Product>().HasQueryFilter(p => ClientMethod(p));
@@ -156,5 +149,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         private static bool ClientMethod(Product product)
             => !product.Discontinued;
+
+        public bool ClientMethod(Customer customer)
+            => !customer.IsLondon;
     }
 }

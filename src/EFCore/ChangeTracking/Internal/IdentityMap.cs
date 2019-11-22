@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool Contains(IForeignKey foreignKey, in ValueBuffer valueBuffer)
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromBuffer(valueBuffer, out var key)
-               && _identityMap.ContainsKey(key);
+                && _identityMap.ContainsKey(key);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,27 +134,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 return null;
             }
-            else
-            {
-                hasNullKey = false;
 
-                try
-                {
-                    return _identityMap.TryGetValue((TKey)key, out var entry)
-                        ? entry
-                        : null;
-                }
-                catch (InvalidCastException e)
-                {
-                    throw new InvalidOperationException(
-                        // ReSharper disable once PossibleNullReferenceException
-                        CoreStrings.ErrorMaterializingPropertyInvalidCast(
-                            Key.DeclaringEntityType.DisplayName(),
-                            Key.Properties.First().Name,
-                            typeof(TKey),
-                            key.GetType()),
-                        e);
-                }
+            hasNullKey = false;
+
+            try
+            {
+                return _identityMap.TryGetValue((TKey)key, out var entry)
+                    ? entry
+                    : null;
+            }
+            catch (InvalidCastException e)
+            {
+                throw new InvalidOperationException(
+                    // ReSharper disable once PossibleNullReferenceException
+                    CoreStrings.ErrorMaterializingPropertyInvalidCast(
+                        Key.DeclaringEntityType.DisplayName(),
+                        Key.Properties.First().Name,
+                        typeof(TKey),
+                        key.GetType()),
+                    e);
             }
         }
 
@@ -166,9 +164,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry TryGetEntry(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromCurrentValues(dependentEntry, out var key)
-               && _identityMap.TryGetValue(key, out var entry)
-                ? entry
-                : null;
+                && _identityMap.TryGetValue(key, out var entry)
+                    ? entry
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,11 +174,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry TryGetEntryUsingPreStoreGeneratedValues(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
+        public virtual InternalEntityEntry TryGetEntryUsingPreStoreGeneratedValues(
+            IForeignKey foreignKey, InternalEntityEntry dependentEntry)
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromPreStoreGeneratedCurrentValues(dependentEntry, out var key)
-               && _identityMap.TryGetValue(key, out var entry)
-                ? entry
-                : null;
+                && _identityMap.TryGetValue(key, out var entry)
+                    ? entry
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -190,9 +189,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual InternalEntityEntry TryGetEntryUsingRelationshipSnapshot(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
             => foreignKey.GetDependentKeyValueFactory<TKey>().TryCreateFromRelationshipSnapshot(dependentEntry, out var key)
-               && _identityMap.TryGetValue(key, out var entry)
-                ? entry
-                : null;
+                && _identityMap.TryGetValue(key, out var entry)
+                    ? entry
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -357,9 +356,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual IDependentsMap FindDependentsMap(IForeignKey foreignKey)
             => _dependentMaps != null
-               && _dependentMaps.TryGetValue(foreignKey, out var map)
-                ? map
-                : null;
+                && _dependentMaps.TryGetValue(foreignKey, out var map)
+                    ? map
+                    : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

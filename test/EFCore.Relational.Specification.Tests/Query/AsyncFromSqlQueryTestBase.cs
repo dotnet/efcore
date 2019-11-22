@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>()
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
                     .ToArrayAsync();
 
                 Assert.Equal(14, actual.Length);
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             "SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
                     .ToArrayAsync();
 
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             "SELECT [Region], [PostalCode], [PostalCode] AS [Foo], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address] FROM [Customers]"))
                     .ToArrayAsync();
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Where(c => c.ContactName.Contains("z"))
                     .ToArrayAsync();
 
@@ -87,14 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = await (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
-                             from o in context.Set<Order>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Orders]"))
+                    = await (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
+                             from o in context.Set<Order>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
                              where c.CustomerID == o.CustomerID
-                             select new
-                             {
-                                 c,
-                                 o
-                             })
+                             select new { c, o })
                         .ToArrayAsync();
 
                 Assert.Equal(830, actual.Length);
@@ -110,15 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual
-                    = await (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                    = await (from c in context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                              from o in context.Set<Order>().FromSqlRaw(
-                                 NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate, endDate)
+                                 NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate,
+                                 endDate)
                              where c.CustomerID == o.CustomerID
-                             select new
-                             {
-                                 c,
-                                 o
-                             })
+                             select new { c, o })
                         .ToArrayAsync();
 
                 Assert.Equal(411, actual.Length);
@@ -136,15 +129,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 var actual
                     = await (from c in context.Set<Customer>().FromSqlRaw(
-                                 NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                                 NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                              from o in context.Set<Order>().FromSqlRaw(
-                                 NormalizeDelimetersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate, endDate)
+                                 NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"), startDate,
+                                 endDate)
                              where c.CustomerID == o.CustomerID
-                             select new
-                             {
-                                 c,
-                                 o
-                             })
+                             select new { c, o })
                         .ToArrayAsync();
 
                 Assert.Equal(25, actual.Length);
@@ -157,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             @"SELECT *
 FROM [Customers]
 WHERE [City] = 'London'"))
@@ -174,7 +164,7 @@ WHERE [City] = 'London'"))
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString(
+                        NormalizeDelimitersInRawString(
                             @"SELECT *
 FROM [Customers]"))
                     .Where(c => c.City == "London")
@@ -194,7 +184,8 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city, contactTitle)
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), city,
+                        contactTitle)
                     .ToArrayAsync();
 
                 Assert.Equal(3, actual.Length);
@@ -212,7 +203,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = await context.Set<Customer>().FromSqlRaw(
-                        NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                     .Where(c => c.ContactTitle == contactTitle)
                     .ToArrayAsync();
 
@@ -227,16 +218,18 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
+                var actual = await context.Set<Customer>()
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
                     .ToArrayAsync();
 
                 Assert.Equal(6, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));
 
-                actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
+                actual = await context.Set<Customer>()
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Seattle'"))
                     .ToArrayAsync();
 
-                Assert.Equal(1, actual.Length);
+                Assert.Single(actual);
                 Assert.True(actual.All(c => c.City == "Seattle"));
             }
         }
@@ -250,7 +243,7 @@ FROM [Customers]"))
 
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString(sql), city, contactTitle)
+                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString(sql), city, contactTitle)
                     .ToArrayAsync();
 
                 Assert.Equal(3, actual.Length);
@@ -260,7 +253,7 @@ FROM [Customers]"))
                 city = "Madrid";
                 contactTitle = "Accounting Manager";
 
-                actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString(sql), city, contactTitle)
+                actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString(sql), city, contactTitle)
                     .ToArrayAsync();
 
                 Assert.Equal(2, actual.Length);
@@ -274,12 +267,12 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .AsNoTracking()
                     .ToArrayAsync();
 
                 Assert.Equal(91, actual.Length);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -288,18 +281,14 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Select(
-                        c => new
-                        {
-                            c.CustomerID,
-                            c.City
-                        })
+                        c => new { c.CustomerID, c.City })
                     .AsNoTracking()
                     .ToArrayAsync();
 
                 Assert.Equal(91, actual.Length);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Empty(context.ChangeTracker.Entries());
             }
         }
 
@@ -308,7 +297,7 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Include(c => c.Orders)
                     .ToArrayAsync();
 
@@ -321,7 +310,7 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Include(c => c.Orders)
                     .Where(c => c.City == "London")
                     .ToArrayAsync();
@@ -336,7 +325,7 @@ FROM [Customers]"))
             using (var context = CreateContext())
             {
                 var actual = await context.Customers
-                    .FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
+                    .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'"))
                     .ToArrayAsync();
 
                 Assert.Equal(14, actual.Length);
@@ -353,11 +342,11 @@ FROM [Customers]"))
         {
             using (var context = CreateContext())
             {
-                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimetersInRawString("SELECT * FROM [Customers]"))
+                var actual = await context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArrayAsync();
 
-                Assert.Equal(0, actual.Length);
+                Assert.Empty(actual);
             }
         }
 
@@ -411,11 +400,11 @@ FROM [Customers]"))
             }
         }
 
-        private string NormalizeDelimetersInRawString(string sql)
-            => Fixture.TestStore.NormalizeDelimetersInRawString(sql);
+        private string NormalizeDelimitersInRawString(string sql)
+            => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
-        private FormattableString NormalizeDelimetersInInterpolatedString(FormattableString sql)
-            => Fixture.TestStore.NormalizeDelimetersInInterpolatedString(sql);
+        private FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
+            => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
     }

@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class RelationalSqlGenerationHelper : ISqlGenerationHelper
@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string DelimitIdentifier(string name, string schema)
             => (!string.IsNullOrEmpty(schema)
-                   ? DelimitIdentifier(schema) + "."
-                   : string.Empty)
-               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
+                    ? DelimitIdentifier(schema) + "."
+                    : string.Empty)
+                + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
 
         /// <summary>
         ///     Writes the delimited SQL representation of an identifier (column name, table name, etc.).

@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DatabaseFacade.EnsureCreated" /> method, then the behavior in the database is
         ///         the same as is described above for tracked entities. Keep in mind that some databases cannot easily
         ///         support this behavior, especially if there are cycles in relationships, in which case it may
-        ///         be better to use <see cref="ClientSetNull"/> which will allow EF to cascade null values
+        ///         be better to use <see cref="ClientSetNull" /> which will allow EF to cascade null values
         ///         on loaded entities even if the database does not support this.
         ///     </para>
         /// </summary>
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="DatabaseFacade.EnsureCreated" /> method, then the behavior in the database is
         ///         the same as is described above for tracked entities. Keep in mind that some databases cannot easily
         ///         support this behavior, especially if there are cycles in relationships, in which case it may
-        ///         be better to use <see cref="ClientCascade"/> which will allow EF to perform cascade deletes
+        ///         be better to use <see cref="ClientCascade" /> which will allow EF to perform cascade deletes
         ///         on loaded entities even if the database does not support this.
         ///     </para>
         ///     <para>
@@ -126,10 +126,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         NoAction,
 
-
         /// <summary>
         ///     <para>
-        ///         Note: it is unusual to use this value. Consider using <see cref="ClientSetNull"/> instead to match
+        ///         Note: it is unusual to use this value. Consider using <see cref="ClientSetNull" /> instead to match
         ///         the behavior of EF6 with cascading deletes disabled.
         ///     </para>
         ///     <para>

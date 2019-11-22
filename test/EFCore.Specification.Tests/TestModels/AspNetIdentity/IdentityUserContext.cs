@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
@@ -94,10 +93,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
                 b =>
                 {
                     b.HasKey(
-                        l => new
-                        {
-                            l.LoginProvider, l.ProviderKey
-                        });
+                        l => new { l.LoginProvider, l.ProviderKey });
 
                     if (maxKeyLength > 0)
                     {
@@ -112,7 +108,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
                     b.HasKey(
                         t => new
                         {
-                            t.UserId, t.LoginProvider, t.Name
+                            t.UserId,
+                            t.LoginProvider,
+                            t.Name
                         });
 
                     if (maxKeyLength > 0)

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -153,6 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
         }
+
         /// <summary>
         ///     Called after a navigation is added to the entity type.
         /// </summary>
@@ -215,9 +215,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
             return targetClrType == null
-                   || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
-                ? null
-                : targetClrType;
+                || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
+                    ? null
+                    : targetClrType;
         }
 
         /// <summary>

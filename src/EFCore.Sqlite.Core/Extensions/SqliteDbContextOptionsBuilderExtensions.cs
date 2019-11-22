@@ -109,13 +109,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private static SqliteOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder options)
             => options.Options.FindExtension<SqliteOptionsExtension>()
-               ?? new SqliteOptionsExtension();
+                ?? new SqliteOptionsExtension();
 
         private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
         {
             var coreOptionsExtension
                 = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
-                  ?? new CoreOptionsExtension();
+                ?? new CoreOptionsExtension();
 
             coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
                 coreOptionsExtension.WarningsConfiguration.TryWithExplicit(

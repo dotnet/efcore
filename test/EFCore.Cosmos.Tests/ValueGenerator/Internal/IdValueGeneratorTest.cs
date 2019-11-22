@@ -25,15 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGenerator.Internal
             var ids = new HashSet<string>
             {
                 (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, new Blog { Id = 1, OtherId = 1 })
-                [blogIdProperty],
+                    [blogIdProperty],
                 (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, new Blog { Id = 1, OtherId = 1 })
-                [blogIdProperty],
+                    [blogIdProperty],
                 (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, new Post { Id = "1", OtherId = "1" })
-                [postIdProperty],
+                    [postIdProperty],
                 (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, new Post { Id = "1", OtherId = "1|" })
-                [postIdProperty],
+                    [postIdProperty],
                 (string)CosmosTestHelpers.Instance.CreateInternalEntry(model, EntityState.Added, new Post { Id = "|1", OtherId = "1" })
-                [postIdProperty]
+                    [postIdProperty]
             };
 
             Assert.Equal(4, ids.Count);
