@@ -4312,6 +4312,22 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 WHERE [l0].[Id] IS NOT NULL AND ([l0].[Name] = N'L2 01')");
         }
 
+        public override async Task LeftJoin_with_Any_on_outer_source_and_projecting_collection_from_inner(bool async)
+        {
+            await base.LeftJoin_with_Any_on_outer_source_and_projecting_collection_from_inner(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [l0].[Id] IS NULL THEN 0
+    ELSE [l0].[Id]
+END, [l].[Id], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
+LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToMany_Required_Inverse3Id]
+WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+ORDER BY [l].[Id], [l1].[Id]");
+        }
+
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }

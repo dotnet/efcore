@@ -1892,6 +1892,14 @@ FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]");
         }
 
+        [ConditionalTheory(Skip = "Issue#19027")]
+        public override async Task GroupBy_scalar_subquery(bool async)
+        {
+            await base.GroupBy_scalar_subquery(async);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
