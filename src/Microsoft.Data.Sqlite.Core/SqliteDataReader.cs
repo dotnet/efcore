@@ -240,7 +240,7 @@ namespace Microsoft.Data.Sqlite
             {
                 try
                 {
-                    while (NextResult())
+                    while (!_closed && NextResult())
                     {
                         _record.Dispose();
                     }
