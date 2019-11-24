@@ -847,6 +847,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 && source.IsConcurrencyToken == target.IsConcurrencyToken
                 && source.ValueGenerated == target.ValueGenerated
                 && source.GetMaxLength() == target.GetMaxLength()
+                && source.GetPrecision() == target.GetPrecision()
+                && source.GetScale() == target.GetScale()
                 && source.IsColumnNullable() == target.IsColumnNullable()
                 && source.IsUnicode() == target.IsUnicode()
                 && source.IsFixedLength() == target.IsFixedLength()
@@ -1036,6 +1038,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             columnOperation.ColumnType = property.GetConfiguredColumnType();
             columnOperation.MaxLength = property.GetMaxLength();
+            columnOperation.Precision = property.GetPrecision();
+            columnOperation.Scale = property.GetScale();
             columnOperation.IsUnicode = property.IsUnicode();
             columnOperation.IsFixedLength = property.IsFixedLength();
             columnOperation.IsRowVersion = property.ClrType == typeof(byte[])

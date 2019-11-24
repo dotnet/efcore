@@ -1920,6 +1920,68 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Alter_column_precision()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<double>("Salary");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<double>("Salary")
+                            .HasPrecision(10);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Salary", operation.Name);
+                    Assert.Equal(10, operation.Precision);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_column_scale()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<double>("Salary");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<double>("Salary")
+                            .HasScale(5);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Salary", operation.Name);
+                    Assert.Equal(5, operation.Scale);
+                    Assert.True(operation.IsDestructiveChange);
+                });
+        }
+
+        [ConditionalFact]
         public void Alter_column_unicode()
         {
             Execute(

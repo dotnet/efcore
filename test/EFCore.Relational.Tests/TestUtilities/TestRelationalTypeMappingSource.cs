@@ -194,6 +194,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         DbType.Binary,
                         size);
                 }
+                
+                if (clrType == typeof(double))
+                {
+                     var baseName = "default_double_mapping";
+                     var precision =  mappingInfo.Precision;
+                     var scale =  mappingInfo.Scale;
+                    if(precision != null)
+                    {
+                        baseName = $"default_double_mapping_precision({precision})";
+                    }
+                    if(scale != null)
+                    {
+                        baseName = $"default_double_mapping_scale({scale})" ;
+                    }
+                    if(precision != null && scale != null)
+                    {
+                        baseName = $"default_double_mapping_precision_scale({precision}, {scale})"; 
+                    }
+                    return new DoubleTypeMapping(baseName);
+                }
 
                 if (_simpleMappings.TryGetValue(clrType, out var mapping))
                 {
