@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -50,11 +49,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<BuiltInNullableDataTypes>().Add(
-                    new BuiltInNullableDataTypes
-                    {
-                        Id = 14,
-                        TestNullableDecimal = 3m
-                    });
+                    new BuiltInNullableDataTypes { Id = 14, TestNullableDecimal = 3m });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -149,10 +144,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 78
-                    });
+                    new MappedNullableDataTypes { Id = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -213,10 +205,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 78
-                    });
+                    new MappedSizedDataTypes { Id = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -279,11 +268,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 77,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 77, Decimal = 101.1m });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -379,10 +364,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 78
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -444,10 +426,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 78
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 78 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -510,11 +489,7 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 77,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 77, Decimal = 101.1m });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -573,20 +548,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 278
-                    });
+                    new MappedNullableDataTypes { Id = 278 });
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 279
-                    });
+                    new MappedNullableDataTypes { Id = 279 });
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Id = 280
-                    });
+                    new MappedNullableDataTypes { Id = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -627,20 +593,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 278
-                    });
+                    new MappedSizedDataTypes { Id = 278 });
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 279
-                    });
+                    new MappedSizedDataTypes { Id = 279 });
                 context.Set<MappedSizedDataTypes>().Add(
-                    new MappedSizedDataTypes
-                    {
-                        Id = 280
-                    });
+                    new MappedSizedDataTypes { Id = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -683,23 +640,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 177,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 177, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 178,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 178, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
-                    new MappedPrecisionAndScaledDataTypes
-                    {
-                        Id = 179,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypes { Id = 179, Decimal = 101.1m });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -769,20 +714,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 278
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 278 });
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 279
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 279 });
                 context.Set<MappedNullableDataTypesWithIdentity>().Add(
-                    new MappedNullableDataTypesWithIdentity
-                    {
-                        AltId = 280
-                    });
+                    new MappedNullableDataTypesWithIdentity { AltId = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -826,20 +762,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 278
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 278 });
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 279
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 279 });
                 context.Set<MappedSizedDataTypesWithIdentity>().Add(
-                    new MappedSizedDataTypesWithIdentity
-                    {
-                        AltId = 280
-                    });
+                    new MappedSizedDataTypesWithIdentity { AltId = 280 });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -885,23 +812,11 @@ LIMIT 1");
             using (var context = CreateContext())
             {
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 177,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 177, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 178,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 178, Decimal = 101.1m });
                 context.Set<MappedPrecisionAndScaledDataTypesWithIdentity>().Add(
-                    new MappedPrecisionAndScaledDataTypesWithIdentity
-                    {
-                        AltId = 179,
-                        Decimal = 101.1m
-                    });
+                    new MappedPrecisionAndScaledDataTypesWithIdentity { AltId = 179, Decimal = 101.1m });
 
                 Assert.Equal(3, context.SaveChanges());
             }
@@ -961,7 +876,6 @@ LIMIT 1");
                 {
                     Id = 202,
                     PartitionId = 200,
-
                     TestNullableDecimal = 10.000000000000001m,
                     TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                     TestNullableTimeSpan = TimeSpan.FromDays(10),
@@ -980,40 +894,25 @@ LIMIT 1");
                         .Select(g => g.Min(e => e.TestNullableDecimal))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDecimal)"),
-                    RemoveNewLines(ex.Message));
+                AssertTranslationFailed(
+                    () => query
+                        .Select(g => g.Min(e => e.TestNullableDecimal))
+                        .ToList());
 
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Min(e => e.TestNullableDateTimeOffset))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDateTimeOffset)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Min(e => e.TestNullableTimeSpan))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<TimeSpan>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableTimeSpan)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Min(e => e.TestNullableUnsignedInt64))
                         .ToList());
-
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Min<BuiltInNullableDataTypes, Nullable<ulong>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableUnsignedInt64)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -1050,45 +949,25 @@ LIMIT 1");
                     .Where(e => e.PartitionId == 201)
                     .GroupBy(_ => true);
 
-                var ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableDecimal))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDecimal)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableDateTimeOffset))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<DateTimeOffset>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableDateTimeOffset)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableTimeSpan))
                         .ToList());
 
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<TimeSpan>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableTimeSpan)"),
-                    RemoveNewLines(ex.Message));
-
-                ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => query
                         .Select(g => g.Max(e => e.TestNullableUnsignedInt64))
                         .ToList());
-
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Max<BuiltInNullableDataTypes, Nullable<ulong>>(    source: GroupByShaperExpression:    KeySelector: 1,     ElementSelector:EntityShaperExpression:         EntityType: BuiltInNullableDataTypes        ValueBufferExpression:             ProjectionBindingExpression: EmptyProjectionMember        IsNullable: False    ,     selector: (e) => e.TestNullableUnsignedInt64)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -1115,14 +994,10 @@ LIMIT 1");
 
                 context.SaveChanges();
 
-                var ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => context.Set<BuiltInNullableDataTypes>()
                         .Where(e => e.PartitionId == 202)
                         .Average(e => e.TestNullableDecimal));
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Average<BuiltInNullableDataTypes>(    source: Where<BuiltInNullableDataTypes>(        source: DbSet<BuiltInNullableDataTypes>,         predicate: (b) => b.PartitionId == 202),     selector: (b) => b.TestNullableDecimal)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
@@ -1149,19 +1024,19 @@ LIMIT 1");
 
                 context.SaveChanges();
 
-                var ex = Assert.Throws<InvalidOperationException>(
+                AssertTranslationFailed(
                     () => context.Set<BuiltInDataTypes>()
                         .Where(e => e.PartitionId == 203)
                         .Sum(e => e.TestDecimal));
-                Assert.Equal(
-                    CoreStrings.TranslationFailed(
-                        "Sum<BuiltInDataTypes>(    source: Where<BuiltInDataTypes>(        source: DbSet<BuiltInDataTypes>,         predicate: (b) => b.PartitionId == 203),     selector: (b) => b.TestDecimal)"),
-                    RemoveNewLines(ex.Message));
             }
         }
 
-        private string RemoveNewLines(string message)
-            => message.Replace("\n", "").Replace("\r", "");
+        private void AssertTranslationFailed(Action testCode)
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                Assert.Throws<InvalidOperationException>(testCode).Message);
+        }
 
         [ConditionalFact]
         public virtual void Can_query_negation_of_converted_types()
@@ -1305,7 +1180,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal < 10m,
                             TestDateTime = e.TestDateTime < new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset < new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset < new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan < new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 < ulong.MaxValue,
                             TestCharacter = e.TestCharacter < 'B'
@@ -1348,7 +1224,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal <= 10m,
                             TestDateTime = e.TestDateTime <= new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset <= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset <= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan <= new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 <= ulong.MaxValue,
                             TestCharacter = e.TestCharacter <= 'B'
@@ -1391,7 +1268,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal > 10m,
                             TestDateTime = e.TestDateTime > new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset > new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset > new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan > new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 > ulong.MaxValue,
                             TestCharacter = e.TestCharacter > 'B'
@@ -1434,7 +1312,8 @@ LIMIT 1");
                             e.Id,
                             TestDecimal = e.TestDecimal >= 10m,
                             TestDateTime = e.TestDateTime >= new DateTime(2018, 10, 10, 0, 0, 0),
-                            TestDateTimeOffset = e.TestDateTimeOffset >= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
+                            TestDateTimeOffset =
+                                e.TestDateTimeOffset >= new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                             TestTimeSpan = e.TestTimeSpan >= new TimeSpan(10, 0, 0, 0),
                             TestUnsignedInt64 = e.TestUnsignedInt64 >= ulong.MaxValue,
                             TestCharacter = e.TestCharacter >= 'B'
@@ -1573,7 +1452,6 @@ LIMIT 1");
                 {
                     Id = 218,
                     PartitionId = 205,
-
                     TestNullableDecimal = 10.000000000000001m,
                     TestNullableDateTimeOffset = new DateTimeOffset(2018, 1, 1, 11, 0, 0, TimeSpan.FromHours(-2)),
                     TestNullableTimeSpan = TimeSpan.FromDays(10),

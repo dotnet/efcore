@@ -318,10 +318,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void ToString_builds_minimal_string()
         {
-            var builder = new SqliteConnectionStringBuilder
-            {
-                DataSource = "test.db"
-            };
+            var builder = new SqliteConnectionStringBuilder { DataSource = "test.db" };
 
             Assert.Equal("Data Source=test.db", builder.ToString());
         }

@@ -54,7 +54,8 @@ END";
             => _dropViewsSql;
 
         protected override string BuildCustomEndingSql(DatabaseModel databaseModel)
-            => _dropViewsSql + @"
+            => _dropViewsSql
+                + @"
 GO
 
 DECLARE @SQL VARCHAR(MAX) = '';

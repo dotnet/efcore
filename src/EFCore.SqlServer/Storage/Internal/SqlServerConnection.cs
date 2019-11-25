@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -57,10 +57,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public virtual ISqlServerConnection CreateMasterConnection()
         {
-            var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString)
-            {
-                InitialCatalog = "master"
-            };
+            var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString) { InitialCatalog = "master" };
             connectionStringBuilder.Remove("AttachDBFilename");
 
             var contextOptions = new DbContextOptionsBuilder()
@@ -80,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public override bool IsMultipleActiveResultSetsEnabled
             => (bool)(_multipleActiveResultSetsEnabled
-                      ?? (_multipleActiveResultSetsEnabled
-                          = new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets));
+                ?? (_multipleActiveResultSetsEnabled
+                    = new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets));
 
         /// <summary>
         ///     Indicates whether the store connection supports ambient transactions

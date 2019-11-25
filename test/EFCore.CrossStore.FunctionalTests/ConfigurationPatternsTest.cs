@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -15,7 +14,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     [SqlServerConfiguredCondition]
-    public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>
+    public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisposable
     {
         public ConfigurationPatternsTest(CrossStoreFixture fixture)
         {
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_register_multiple_context_types_with_default_service_provider()
         {
             using (var context = new MultipleContext1(new DbContextOptions<MultipleContext1>()))
@@ -147,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "#18682")]
         public void Can_select_appropriate_provider_when_multiple_registered_with_default_service_provider()
         {
             using (var context = new MultipleProvidersContext())
@@ -215,10 +214,12 @@ namespace Microsoft.EntityFrameworkCore
             context.SaveChanges();
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public void Dispose() => ExistingTestStore.Dispose();
+#pragma warning restore xUnit1013 // Public method should be marked as test
 
         [SqlServerConfiguredCondition]
-        public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>
+        public class NestedContextDifferentStores : IClassFixture<CrossStoreFixture>, IDisposable
         {
             public NestedContextDifferentStores(CrossStoreFixture fixture)
             {
@@ -237,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore
                     () => new ExternalProviderContext(sqlServerServiceProvider));
             }
 
-            [ConditionalFact]
+            [ConditionalFact(Skip = "#18682")]
             public Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
                 => NestedContextTest(() => new BlogContext(), () => new ExternalProviderContext());
 
@@ -245,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (var context0 = createBlogContext())
                 {
-                    Assert.Equal(0, context0.ChangeTracker.Entries().Count());
+                    Assert.Empty(context0.ChangeTracker.Entries());
                     var blog0 = context0.Add(new Blog { Id = 1, Name = "Giddyup" }).Entity;
                     Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
                     await context0.SaveChangesAsync();
@@ -253,13 +254,13 @@ namespace Microsoft.EntityFrameworkCore
                     using (var context1 = createSimpleContext())
                     {
                         var customers1 = await context1.SimpleEntities.ToListAsync();
-                        Assert.Equal(1, customers1.Count);
-                        Assert.Equal(1, context1.ChangeTracker.Entries().Count());
+                        Assert.Single(customers1);
+                        Assert.Single(context1.ChangeTracker.Entries());
                         Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
                         using (var context2 = createBlogContext())
                         {
-                            Assert.Equal(0, context2.ChangeTracker.Entries().Count());
+                            Assert.Empty(context2.ChangeTracker.Entries());
                             Assert.Same(blog0, context0.ChangeTracker.Entries().Select(e => e.Entity).Single());
 
                             var blog0Prime = (await context2.Blogs.ToArrayAsync()).Single();
@@ -283,7 +284,9 @@ namespace Microsoft.EntityFrameworkCore
                 context.SaveChanges();
             }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
             public void Dispose() => ExistingTestStore.Dispose();
+#pragma warning restore xUnit1013 // Public method should be marked as test
 
             private class BlogContext : DbContext
             {

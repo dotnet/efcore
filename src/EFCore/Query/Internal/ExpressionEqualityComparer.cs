@@ -315,6 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete("Use Equals instead")]
         public virtual bool SequenceEquals(IEnumerable<Expression> x, IEnumerable<Expression> y)
         {
             if (x == null
@@ -328,12 +329,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return false;
             }
 
-            var comparer = new ExpressionComparer();
-
-            return x.Zip(y, (l, r) => comparer.Compare(l, r)).All(r => r);
+            return x.Zip(y, (l, r) => new ExpressionComparer().Compare(l, r)).All(r => r);
         }
 
-        private sealed class ExpressionComparer
+        private struct ExpressionComparer
         {
             private ScopedDictionary<ParameterExpression, ParameterExpression> _parameterScope;
 
@@ -438,25 +437,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool CompareUnary(UnaryExpression a, UnaryExpression b)
                 => Equals(a.Method, b.Method)
-                   && a.IsLifted == b.IsLifted
-                   && a.IsLiftedToNull == b.IsLiftedToNull
-                   && Compare(a.Operand, b.Operand);
+                    && a.IsLifted == b.IsLifted
+                    && a.IsLiftedToNull == b.IsLiftedToNull
+                    && Compare(a.Operand, b.Operand);
 
             private bool CompareBinary(BinaryExpression a, BinaryExpression b)
                 => Equals(a.Method, b.Method)
-                   && a.IsLifted == b.IsLifted
-                   && a.IsLiftedToNull == b.IsLiftedToNull
-                   && Compare(a.Left, b.Left)
-                   && Compare(a.Right, b.Right);
+                    && a.IsLifted == b.IsLifted
+                    && a.IsLiftedToNull == b.IsLiftedToNull
+                    && Compare(a.Left, b.Left)
+                    && Compare(a.Right, b.Right);
 
             private bool CompareTypeIs(TypeBinaryExpression a, TypeBinaryExpression b)
                 => a.TypeOperand == b.TypeOperand
-                   && Compare(a.Expression, b.Expression);
+                    && Compare(a.Expression, b.Expression);
 
             private bool CompareConditional(ConditionalExpression a, ConditionalExpression b)
                 => Compare(a.Test, b.Test)
-                   && Compare(a.IfTrue, b.IfTrue)
-                   && Compare(a.IfFalse, b.IfFalse);
+                    && Compare(a.IfTrue, b.IfTrue)
+                    && Compare(a.IfFalse, b.IfFalse);
 
             private static bool CompareConstant(ConstantExpression a, ConstantExpression b)
             {
@@ -472,10 +471,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
 
                 return a.IsEntityQueryable()
-                       && b.IsEntityQueryable()
-                       && a.Value.GetType() == b.Value.GetType()
-                    ? true
-                    : Equals(a.Value, b.Value);
+                    && b.IsEntityQueryable()
+                    && a.Value.GetType() == b.Value.GetType()
+                        ? true
+                        : Equals(a.Value, b.Value);
             }
 
             private bool CompareParameter(ParameterExpression a, ParameterExpression b)
@@ -485,22 +484,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (_parameterScope.TryGetValue(a, out var mapped))
                     {
                         return mapped.Name == b.Name
-                               && mapped.Type == b.Type;
+                            && mapped.Type == b.Type;
                     }
                 }
 
                 return a.Name == b.Name
-                       && a.Type == b.Type;
+                    && a.Type == b.Type;
             }
 
             private bool CompareMemberAccess(MemberExpression a, MemberExpression b)
                 => Equals(a.Member, b.Member)
-                   && Compare(a.Expression, b.Expression);
+                    && Compare(a.Expression, b.Expression);
 
             private bool CompareMethodCall(MethodCallExpression a, MethodCallExpression b)
                 => Equals(a.Method, b.Method)
-                   && Compare(a.Object, b.Object)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
+                    && Compare(a.Object, b.Object)
+                    && CompareExpressionList(a.Arguments, b.Arguments);
 
             private bool CompareLambda(LambdaExpression a, LambdaExpression b)
             {
@@ -541,8 +540,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool CompareNew(NewExpression a, NewExpression b)
                 => Equals(a.Constructor, b.Constructor)
-                   && CompareExpressionList(a.Arguments, b.Arguments)
-                   && CompareMemberList(a.Members, b.Members);
+                    && CompareExpressionList(a.Arguments, b.Arguments)
+                    && CompareMemberList(a.Members, b.Members);
 
             private bool CompareExpressionList(IReadOnlyList<Expression> a, IReadOnlyList<Expression> b)
             {
@@ -610,11 +609,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool CompareInvocation(InvocationExpression a, InvocationExpression b)
                 => Compare(a.Expression, b.Expression)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
+                    && CompareExpressionList(a.Arguments, b.Arguments);
 
             private bool CompareMemberInit(MemberInitExpression a, MemberInitExpression b)
                 => Compare(a.NewExpression, b.NewExpression)
-                   && CompareBindingList(a.Bindings, b.Bindings);
+                    && CompareBindingList(a.Bindings, b.Bindings);
 
             private bool CompareBindingList(IReadOnlyList<MemberBinding> a, IReadOnlyList<MemberBinding> b)
             {
@@ -683,19 +682,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool CompareMemberAssignment(MemberAssignment a, MemberAssignment b)
                 => Equals(a.Member, b.Member)
-                   && Compare(a.Expression, b.Expression);
+                    && Compare(a.Expression, b.Expression);
 
             private bool CompareMemberListBinding(MemberListBinding a, MemberListBinding b)
                 => Equals(a.Member, b.Member)
-                   && CompareElementInitList(a.Initializers, b.Initializers);
+                    && CompareElementInitList(a.Initializers, b.Initializers);
 
             private bool CompareMemberMemberBinding(MemberMemberBinding a, MemberMemberBinding b)
                 => Equals(a.Member, b.Member)
-                   && CompareBindingList(a.Bindings, b.Bindings);
+                    && CompareBindingList(a.Bindings, b.Bindings);
 
             private bool CompareListInit(ListInitExpression a, ListInitExpression b)
                 => Compare(a.NewExpression, b.NewExpression)
-                   && CompareElementInitList(a.Initializers, b.Initializers);
+                    && CompareElementInitList(a.Initializers, b.Initializers);
 
             private bool CompareElementInitList(IReadOnlyList<ElementInit> a, IReadOnlyList<ElementInit> b)
             {
@@ -728,12 +727,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             private bool CompareElementInit(ElementInit a, ElementInit b)
                 => Equals(a.AddMethod, b.AddMethod)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
+                    && CompareExpressionList(a.Arguments, b.Arguments);
 
             private bool CompareIndex(IndexExpression a, IndexExpression b)
                 => Equals(a.Indexer, b.Indexer)
-                   && Compare(a.Object, b.Object)
-                   && CompareExpressionList(a.Arguments, b.Arguments);
+                    && Compare(a.Object, b.Object)
+                    && CompareExpressionList(a.Arguments, b.Arguments);
 
             private class ScopedDictionary<TKey, TValue>
             {

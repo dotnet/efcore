@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.All_customers();
 
             Assert.Contains(
-                @"SELECT ""c"".""CustomerID"", ""c"".""CompanyName""" + EOL +
-                @"FROM ""Customers"" AS ""c""",
+                @"SELECT ""c"".""CustomerID"", ""c"".""CompanyName""" + EOL + @"FROM ""Customers"" AS ""c""",
                 Sql);
         }
 
@@ -29,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.All_employees();
 
             Assert.Contains(
-                @"SELECT ""e"".""EmployeeID"", ""e"".""City""" + EOL +
-                @"FROM ""Employees"" AS ""e""",
+                @"SELECT ""e"".""EmployeeID"", ""e"".""City""" + EOL + @"FROM ""Employees"" AS ""e""",
                 Sql);
         }
 
@@ -39,8 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.All_orders();
 
             Assert.Contains(
-                @"SELECT ""o"".""OrderID"", ""o"".""ShipVia""" + EOL +
-                @"FROM ""Orders"" AS ""o""",
+                @"SELECT ""o"".""OrderID"", ""o"".""ShipVia""" + EOL + @"FROM ""Orders"" AS ""o""",
                 Sql);
         }
 
@@ -49,8 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.Project_nullable_enum();
 
             Assert.Contains(
-                @"SELECT ""o"".""ShipVia""" + EOL +
-                @"FROM ""Orders"" AS ""o""",
+                @"SELECT ""o"".""ShipVia""" + EOL + @"FROM ""Orders"" AS ""o""",
                 Sql);
         }
 

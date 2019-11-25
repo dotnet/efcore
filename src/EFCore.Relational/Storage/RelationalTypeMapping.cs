@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///    Processes the store type name to add appropriate postfix/prefix text as needed.
+        ///     Processes the store type name to add appropriate postfix/prefix text as needed.
         /// </summary>
         /// <param name="parameters"> The parameters for this mapping. </param>
         /// <param name="storeType"> The specified store type name. </param>
@@ -279,18 +279,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 storeType = storeTypeNameBase + "(" + size + ")";
             }
             else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                     || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+                || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
             {
                 var precision = parameters.Precision;
                 if (precision != null)
                 {
                     var scale = parameters.Scale;
                     storeType = storeTypeNameBase
-                                + "("
-                                + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
-                                    ? precision.ToString()
-                                    : precision + "," + scale)
-                                + ")";
+                        + "("
+                        + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
+                            ? precision.ToString()
+                            : precision + "," + scale)
+                        + ")";
                 }
             }
 
@@ -523,10 +523,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var type = (Converter?.ProviderClrType ?? ClrType).UnwrapNullableType();
 
-            return _getXMethods.TryGetValue(type, out var method)
+            return GetDataReaderMethod(type);
+        }
+
+        /// <summary>
+        ///     The method to use when reading values of the given type. The method must be defined
+        ///     on <see cref="DbDataReader" />.
+        /// </summary>
+        /// <returns> The method to use to read the value. </returns>
+        public static MethodInfo GetDataReaderMethod([NotNull] Type type)
+            => _getXMethods.TryGetValue(type, out var method)
                 ? method
                 : _getFieldValueMethod.MakeGenericMethod(type);
-        }
 
         /// <summary>
         ///     Gets a custom expression tree for reading the value from the input data reader

@@ -101,12 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return new ShapedQueryExpression(
                 selectExpression,
                 new EntityShaperExpression(
-                entityType,
-                new ProjectionBindingExpression(
-                    selectExpression,
-                    new ProjectionMember(),
-                    typeof(ValueBuffer)),
-                false));
+                    entityType,
+                    new ProjectionBindingExpression(
+                        selectExpression,
+                        new ProjectionMember(),
+                        typeof(ValueBuffer)),
+                    false));
         }
 
         /// <summary>
@@ -221,10 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Constant(1) }, typeof(int)));
 
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>
-            {
-                { new ProjectionMember(), translation }
-            };
+            var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
@@ -263,7 +260,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateElementAtOrDefault(ShapedQueryExpression source, Expression index, bool returnDefault)
+        protected override ShapedQueryExpression TranslateElementAtOrDefault(
+            ShapedQueryExpression source, Expression index, bool returnDefault)
         {
             return null;
         }
@@ -285,7 +283,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateFirstOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateFirstOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             if (predicate != null)
             {
@@ -313,7 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateGroupBy(ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateGroupBy(
+            ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
         {
             return null;
         }
@@ -324,7 +324,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateGroupJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateGroupJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
         {
             return null;
         }
@@ -346,7 +348,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
         {
             return null;
         }
@@ -357,7 +361,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateLastOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateLastOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             if (predicate != null)
             {
@@ -386,7 +391,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateLeftJoin(ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateLeftJoin(
+            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
+            LambdaExpression resultSelector)
         {
             return null;
         }
@@ -418,10 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             var translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(
                 _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Constant(1) }, typeof(long)));
-            var projectionMapping = new Dictionary<ProjectionMember, Expression>
-            {
-                { new ProjectionMember(), translation }
-            };
+            var projectionMapping = new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), translation } };
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
@@ -503,7 +507,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateOrderBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+        protected override ShapedQueryExpression TranslateOrderBy(
+            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
             var translation = TranslateLambdaExpression(source, keySelector);
             if (translation != null)
@@ -560,7 +565,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
+        protected override ShapedQueryExpression TranslateSelectMany(
+            ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector)
         {
             return null;
         }
@@ -582,7 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override ShapedQueryExpression TranslateSingleOrDefault(ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
+        protected override ShapedQueryExpression TranslateSingleOrDefault(
+            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault)
         {
             if (predicate != null)
             {
@@ -768,10 +775,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ReplaceProjectionMapping(
-                new Dictionary<ProjectionMember, Expression>
-                {
-                    { new ProjectionMember(), projection }
-                });
+                new Dictionary<ProjectionMember, Expression> { { new ProjectionMember(), projection } });
 
             selectExpression.ClearOrdering();
 

@@ -212,8 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                     // Iterate over the unsorted vertices
                     while ((candidateIndex < candidateVertices.Count)
-                           && !broken
-                           && (canBreakEdge != null))
+                        && !broken
+                        && (canBreakEdge != null))
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 
@@ -244,10 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     {
                         // Failed to break the cycle
                         var currentCycleVertex = _vertices.First(v => predecessorCounts.ContainsKey(v));
-                        var cycle = new List<TVertex>
-                        {
-                            currentCycleVertex
-                        };
+                        var cycle = new List<TVertex> { currentCycleVertex };
                         var finished = false;
                         while (!finished)
                         {
@@ -383,10 +380,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             {
                 var currentCycleVertex = _vertices.First(
                     v => predecessorCounts.TryGetValue(v, out var predecessorNumber) ? predecessorNumber != 0 : false);
-                var cyclicWalk = new List<TVertex>
-                {
-                    currentCycleVertex
-                };
+                var cyclicWalk = new List<TVertex> { currentCycleVertex };
                 var finished = false;
                 while (!finished)
                 {
@@ -448,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<TVertex> GetOutgoingNeighbors(TVertex @from)
+        public override IEnumerable<TVertex> GetOutgoingNeighbors(TVertex from)
             => _successorMap.TryGetValue(from, out var successorSet)
                 ? successorSet.Keys
                 : Enumerable.Empty<TVertex>();

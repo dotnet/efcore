@@ -644,7 +644,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource>>(QueryableMethods.SingleOrDefaultWithPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, Task<TSource>>(
+                QueryableMethods.SingleOrDefaultWithPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -836,7 +837,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<decimal?, Task<decimal?>>(QueryableMethods.GetSumWithoutSelector(typeof(decimal?)), source, cancellationToken);
+            return ExecuteAsync<decimal?, Task<decimal?>>(
+                QueryableMethods.GetSumWithoutSelector(typeof(decimal?)), source, cancellationToken);
         }
 
         /// <summary>
@@ -866,7 +868,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal>>(QueryableMethods.GetSumWithSelector(typeof(decimal)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<decimal>>(
+                QueryableMethods.GetSumWithSelector(typeof(decimal)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -896,7 +899,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal?>>(QueryableMethods.GetSumWithSelector(typeof(decimal?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<decimal?>>(
+                QueryableMethods.GetSumWithSelector(typeof(decimal?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1008,7 +1012,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<int?>>(QueryableMethods.GetSumWithSelector(typeof(int?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<int?>>(
+                QueryableMethods.GetSumWithSelector(typeof(int?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1090,7 +1095,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<long>>(QueryableMethods.GetSumWithSelector(typeof(long)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<long>>(
+                QueryableMethods.GetSumWithSelector(typeof(long)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1120,7 +1126,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<long?>>(QueryableMethods.GetSumWithSelector(typeof(long?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<long?>>(
+                QueryableMethods.GetSumWithSelector(typeof(long?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1202,7 +1209,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(QueryableMethods.GetSumWithSelector(typeof(double)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double>>(
+                QueryableMethods.GetSumWithSelector(typeof(double)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1232,7 +1240,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(QueryableMethods.GetSumWithSelector(typeof(double?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double?>>(
+                QueryableMethods.GetSumWithSelector(typeof(double?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1314,7 +1323,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float>>(QueryableMethods.GetSumWithSelector(typeof(float)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<float>>(
+                QueryableMethods.GetSumWithSelector(typeof(float)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1344,7 +1354,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float?>>(QueryableMethods.GetSumWithSelector(typeof(float?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<float?>>(
+                QueryableMethods.GetSumWithSelector(typeof(float?)), source, selector, cancellationToken);
         }
 
         #endregion
@@ -1374,7 +1385,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<decimal, Task<decimal>>(QueryableMethods.GetAverageWithoutSelector(typeof(decimal)), source, cancellationToken);
+            return ExecuteAsync<decimal, Task<decimal>>(
+                QueryableMethods.GetAverageWithoutSelector(typeof(decimal)), source, cancellationToken);
         }
 
         /// <summary>
@@ -1400,7 +1412,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<decimal?, Task<decimal?>>(QueryableMethods.GetAverageWithoutSelector(typeof(decimal?)), source, cancellationToken);
+            return ExecuteAsync<decimal?, Task<decimal?>>(
+                QueryableMethods.GetAverageWithoutSelector(typeof(decimal?)), source, cancellationToken);
         }
 
         /// <summary>
@@ -1431,7 +1444,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal>>(QueryableMethods.GetAverageWithSelector(typeof(decimal)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<decimal>>(
+                QueryableMethods.GetAverageWithSelector(typeof(decimal)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1462,7 +1476,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<decimal?>>(QueryableMethods.GetAverageWithSelector(typeof(decimal?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<decimal?>>(
+                QueryableMethods.GetAverageWithSelector(typeof(decimal?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1545,7 +1560,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(QueryableMethods.GetAverageWithSelector(typeof(int)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double>>(
+                QueryableMethods.GetAverageWithSelector(typeof(int)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1576,7 +1592,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(QueryableMethods.GetAverageWithSelector(typeof(int?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double?>>(
+                QueryableMethods.GetAverageWithSelector(typeof(int?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1659,7 +1676,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(QueryableMethods.GetAverageWithSelector(typeof(long)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double>>(
+                QueryableMethods.GetAverageWithSelector(typeof(long)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1690,7 +1708,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(QueryableMethods.GetAverageWithSelector(typeof(long?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double?>>(
+                QueryableMethods.GetAverageWithSelector(typeof(long?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1716,7 +1735,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<double, Task<double>>(QueryableMethods.GetAverageWithoutSelector(typeof(double)), source, cancellationToken);
+            return ExecuteAsync<double, Task<double>>(
+                QueryableMethods.GetAverageWithoutSelector(typeof(double)), source, cancellationToken);
         }
 
         /// <summary>
@@ -1742,7 +1762,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<double?, Task<double?>>(QueryableMethods.GetAverageWithoutSelector(typeof(double?)), source, cancellationToken);
+            return ExecuteAsync<double?, Task<double?>>(
+                QueryableMethods.GetAverageWithoutSelector(typeof(double?)), source, cancellationToken);
         }
 
         /// <summary>
@@ -1773,7 +1794,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double>>(QueryableMethods.GetAverageWithSelector(typeof(double)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double>>(
+                QueryableMethods.GetAverageWithSelector(typeof(double)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1804,7 +1826,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<double?>>(QueryableMethods.GetAverageWithSelector(typeof(double?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<double?>>(
+                QueryableMethods.GetAverageWithSelector(typeof(double?)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1856,7 +1879,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(source, nameof(source));
 
-            return ExecuteAsync<float?, Task<float?>>(QueryableMethods.GetAverageWithoutSelector(typeof(float?)), source, cancellationToken);
+            return ExecuteAsync<float?, Task<float?>>(
+                QueryableMethods.GetAverageWithoutSelector(typeof(float?)), source, cancellationToken);
         }
 
         /// <summary>
@@ -1887,7 +1911,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float>>(QueryableMethods.GetAverageWithSelector(typeof(float)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<float>>(
+                QueryableMethods.GetAverageWithSelector(typeof(float)), source, selector, cancellationToken);
         }
 
         /// <summary>
@@ -1918,7 +1943,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(selector, nameof(selector));
 
-            return ExecuteAsync<TSource, Task<float?>>(QueryableMethods.GetAverageWithSelector(typeof(float?)), source, selector, cancellationToken);
+            return ExecuteAsync<TSource, Task<float?>>(
+                QueryableMethods.GetAverageWithSelector(typeof(float?)), source, selector, cancellationToken);
         }
 
         #endregion
@@ -2118,7 +2144,7 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].GetTypeInfo();
                         return typeInfo.IsGenericType
-                               && typeInfo.GetGenericTypeDefinition() == navType;
+                            && typeInfo.GetGenericTypeDefinition() == navType;
                     });
 
         internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
@@ -2126,7 +2152,7 @@ namespace Microsoft.EntityFrameworkCore
                 .GetTypeInfo().GetDeclaredMethods(nameof(ThenInclude))
                 .Single(
                     mi => mi.GetGenericArguments().Count() == 3
-                          && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
+                        && mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
         /// <summary>
         ///     Specifies additional related data to be further included based on a related type that was just included.
@@ -2188,7 +2214,8 @@ namespace Microsoft.EntityFrameworkCore
                     ? source.Provider.CreateQuery<TEntity>(
                         Expression.Call(
                             instance: null,
-                            method: ThenIncludeAfterEnumerableMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                            method: ThenIncludeAfterEnumerableMethodInfo.MakeGenericMethod(
+                                typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
                             arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
                     : source);
 
@@ -2252,7 +2279,8 @@ namespace Microsoft.EntityFrameworkCore
                     ? source.Provider.CreateQuery<TEntity>(
                         Expression.Call(
                             instance: null,
-                            method: ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
+                            method: ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(
+                                typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
                             arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
                     : source);
 

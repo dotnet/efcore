@@ -91,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static void OnForeignKeyRemoved(IConventionEntityType declaringType, IReadOnlyList<IConventionProperty> foreignKeyProperties)
+        private static void OnForeignKeyRemoved(
+            IConventionEntityType declaringType, IReadOnlyList<IConventionProperty> foreignKeyProperties)
         {
             var index = declaringType.FindIndex(foreignKeyProperties);
             if (index == null)
@@ -351,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [NotNull] IReadOnlyList<IConventionProperty> coveringIndexProperties,
             bool coveringIndexUnique)
             => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
-               || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));
+                || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));
 
         private static void RemoveIndex(IConventionIndex index)
             => index.DeclaringEntityType.Builder.HasNoIndex(index);

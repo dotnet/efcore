@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public class SqlServerTypeMappingSource : RelationalTypeMappingSource
@@ -116,7 +116,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             = new GuidTypeMapping("uniqueidentifier", DbType.Guid);
 
         private readonly DecimalTypeMapping _decimal
-            = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
+            = new SqlServerDecimalTypeMapping(
+                "decimal(18, 2)", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.PrecisionAndScale);
 
         private readonly DecimalTypeMapping _money
             = new SqlServerDecimalTypeMapping("money");
@@ -265,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => FindRawMapping(mappingInfo)?.Clone(mappingInfo)
-               ?? base.FindMapping(mappingInfo);
+                ?? base.FindMapping(mappingInfo);
 
         private RelationalTypeMapping FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
@@ -288,9 +289,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
                 {
                     return clrType == null
-                           || mapping.ClrType == clrType
-                        ? mapping
-                        : null;
+                        || mapping.ClrType == clrType
+                            ? mapping
+                            : null;
                 }
             }
 

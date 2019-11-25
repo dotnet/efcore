@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 Assert.Null(existing.Parent);
                 Assert.Null(existing.ParentId);
-                Assert.Equal(1, root.OptionalChildren.Count());
+                Assert.Single(root.OptionalChildren);
                 Assert.DoesNotContain(existing, root.OptionalChildren);
 
                 Assert.Equal(2, queried.Count);
@@ -406,8 +405,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var loadedRoot = LoadRoot(context);
 
-                        Assert.Equal(1, loadedRoot.OptionalChildren.Count());
-                        Assert.Equal(1, loadedRoot.OptionalChildren.First().Children.Count());
+                        Assert.Single(loadedRoot.OptionalChildren);
+                        Assert.Single(loadedRoot.OptionalChildren.First().Children);
                     }
                 });
         }
@@ -467,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
-                    Assert.Equal(1, root.RequiredChildren.Count());
+                    Assert.Single(root.RequiredChildren);
                     Assert.DoesNotContain(removed1Id, root.RequiredChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Required1>().Where(e => e.Id == removed1Id));
@@ -683,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(root, new1.Root);
                     Assert.Same(new1, new2.Back);
 
-                    Assert.Null(old1.Root);
+                    Assert.NotNull(old1.Root);
                     Assert.Null(old2.Back);
                     Assert.Equal(old1.Id, old2.Id);
                 });
@@ -711,9 +710,18 @@ namespace Microsoft.EntityFrameworkCore
             var new2dd = new RequiredNonPkSingle2MoreDerived();
             var new1 = new RequiredNonPkSingle1 { Single = new2 };
             var new1d = new RequiredNonPkSingle1Derived { Single = new2d, Root = new Root() };
-            var new1dd = new RequiredNonPkSingle1MoreDerived { Single = new2dd, Root = new Root(), DerivedRoot = new Root() };
+            var new1dd = new RequiredNonPkSingle1MoreDerived
+            {
+                Single = new2dd,
+                Root = new Root(),
+                DerivedRoot = new Root()
+            };
             var newRoot = new Root
-                { RequiredNonPkSingle = new1, RequiredNonPkSingleDerived = new1d, RequiredNonPkSingleMoreDerived = new1dd };
+            {
+                RequiredNonPkSingle = new1,
+                RequiredNonPkSingleDerived = new1d,
+                RequiredNonPkSingleMoreDerived = new1dd
+            };
             RequiredNonPkSingle1 old1 = null;
             RequiredNonPkSingle1Derived old1d = null;
             RequiredNonPkSingle1MoreDerived old1dd = null;
@@ -1387,8 +1395,7 @@ namespace Microsoft.EntityFrameworkCore
                             Parent = context.Set<Root>().Single(IsTheRoot),
                             CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
-                                new OptionalOverlapping2 { Id = 5 },
-                                new OptionalOverlapping2 { Id = 6 }
+                                new OptionalOverlapping2 { Id = 5 }, new OptionalOverlapping2 { Id = 6 }
                             }
                         };
 
@@ -1836,8 +1843,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var loadedRoot = LoadRoot(context);
 
-                        Assert.Equal(1, loadedRoot.OptionalChildrenAk.Count());
-                        Assert.Equal(1, loadedRoot.OptionalChildrenAk.First().Children.Count());
+                        Assert.Single(loadedRoot.OptionalChildrenAk);
+                        Assert.Single(loadedRoot.OptionalChildrenAk.First().Children);
                     }
                 });
         }
@@ -1905,9 +1912,9 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(context.Set<RequiredAk2>().Any(e => e.Id == removed2.Id));
                     Assert.False(context.Set<RequiredComposite2>().Any(e => e.Id == removed2c.Id));
 
-                    Assert.Equal(1, loadedRoot.RequiredChildrenAk.Count());
-                    Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().Children.Count());
-                    Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().CompositeChildren.Count());
+                    Assert.Single(loadedRoot.RequiredChildrenAk);
+                    Assert.Single(loadedRoot.RequiredChildrenAk.First().Children);
+                    Assert.Single(loadedRoot.RequiredChildrenAk.First().CompositeChildren);
                 });
         }
 
@@ -1932,7 +1939,12 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new OptionalSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
             var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
             OptionalSingleAk1 old1 = null;
@@ -2075,7 +2087,12 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new OptionalSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
             var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
             OptionalSingleAk1 old1 = null;
@@ -2235,7 +2252,12 @@ namespace Microsoft.EntityFrameworkCore
         {
             var new2 = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() };
             var new2c = new RequiredSingleComposite2();
-            var new1 = new RequiredSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2, SingleComposite = new2c };
+            var new1 = new RequiredSingleAk1
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2,
+                SingleComposite = new2c
+            };
             var newRoot = new Root { AlternateId = Guid.NewGuid(), RequiredSingleAk = new1 };
             RequiredSingleAk1 old1 = null;
             RequiredSingleAk2 old2 = null;
@@ -2337,12 +2359,24 @@ namespace Microsoft.EntityFrameworkCore
             var new2d = new RequiredNonPkSingleAk2Derived { AlternateId = Guid.NewGuid() };
             var new2dd = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
             var new1 = new RequiredNonPkSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2 };
-            var new1d = new RequiredNonPkSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d, Root = new Root() };
+            var new1d = new RequiredNonPkSingleAk1Derived
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2d,
+                Root = new Root()
+            };
             var new1dd = new RequiredNonPkSingleAk1MoreDerived
-                { AlternateId = Guid.NewGuid(), Single = new2dd, Root = new Root(), DerivedRoot = new Root() };
+            {
+                AlternateId = Guid.NewGuid(),
+                Single = new2dd,
+                Root = new Root(),
+                DerivedRoot = new Root()
+            };
             var newRoot = new Root
             {
-                AlternateId = Guid.NewGuid(), RequiredNonPkSingleAk = new1, RequiredNonPkSingleAkDerived = new1d,
+                AlternateId = Guid.NewGuid(),
+                RequiredNonPkSingleAk = new1,
+                RequiredNonPkSingleAkDerived = new1d,
                 RequiredNonPkSingleAkMoreDerived = new1dd
             };
             RequiredNonPkSingleAk1 old1 = null;
@@ -2934,11 +2968,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     Assert.Equal(2, root.RequiredChildren.Count());
 
@@ -2954,42 +2988,42 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
-
-                            Assert.Equal(1, root.RequiredChildren.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
-
-                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
-
-                            Assert.Same(root, removed.Parent);
-                            Assert.Equal(2, removed.Children.Count());
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Equal(1, root.RequiredChildren.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+
+                        Assert.Single(root.RequiredChildren);
+                        Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
+
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Single(root.RequiredChildren);
+                        Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3011,11 +3045,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     Assert.Equal(2, root.OptionalChildren.Count());
 
@@ -3038,7 +3072,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                     Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                    Assert.Equal(1, root.OptionalChildren.Count());
+                    Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -3051,7 +3085,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
-                    Assert.Equal(1, root.OptionalChildren.Count());
+                    Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -3078,11 +3112,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.OptionalSingle;
 
@@ -3139,11 +3173,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredSingle;
 
@@ -3155,40 +3189,40 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Null(root.RequiredSingle);
-
-                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredSingle);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Null(root.RequiredSingle);
+
+                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredSingle);
+
+                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3210,11 +3244,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredNonPkSingle;
 
@@ -3226,40 +3260,40 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Null(root.RequiredNonPkSingle);
-
-                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingle);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Null(root.RequiredNonPkSingle);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingle);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3281,11 +3315,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     Assert.Equal(2, root.OptionalChildrenAk.Count());
 
@@ -3309,7 +3343,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
                     Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
 
-                    Assert.Equal(1, root.OptionalChildrenAk.Count());
+                    Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                     Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -3322,7 +3356,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
-                    Assert.Equal(1, root.OptionalChildrenAk.Count());
+                    Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                     Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -3350,11 +3384,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     Assert.Equal(2, root.RequiredChildrenAk.Count());
 
@@ -3373,44 +3407,44 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
-                            Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
-
-                            Assert.Equal(1, root.RequiredChildrenAk.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
-
-                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
-
-                            Assert.Same(root, removed.Parent);
-                            Assert.Equal(2, removed.Children.Count());
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Equal(1, root.RequiredChildrenAk.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+                        Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
+
+                        Assert.Single(root.RequiredChildrenAk);
+                        Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Single(root.RequiredChildrenAk);
+                        Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                        Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3433,11 +3467,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.OptionalSingleAk;
 
@@ -3500,11 +3534,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredSingleAk;
 
@@ -3518,43 +3552,43 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
-
-                            Assert.Null(root.RequiredSingleAk);
-
-                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
+
+                        Assert.Null(root.RequiredSingleAk);
+
+                        Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                        Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredSingleAk);
+
+                        Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                        Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3576,11 +3610,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredNonPkSingleAk;
 
@@ -3592,40 +3626,40 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Null(root.RequiredNonPkSingleAk);
-
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Null(root.RequiredNonPkSingleAk);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingleAk);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3656,11 +3690,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, orphanedIds.Count);
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.RequiredChildren).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredChildren).Single(IsTheRoot);
 
                     var removed = root.RequiredChildren.Single(e => e.Id == removedId);
 
@@ -3676,20 +3710,20 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                    Assert.Equal(1, root.RequiredChildren.Count());
+                    Assert.Single(root.RequiredChildren);
                     Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
                     Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
 
                     Assert.Same(root, removed.Parent);
-                    Assert.Equal(0, removed.Children.Count());
+                    Assert.Empty(removed.Children);
                 },
                 context =>
                 {
                     var root = LoadRoot(context);
 
-                    Assert.Equal(1, root.RequiredChildren.Count());
+                    Assert.Single(root.RequiredChildren);
                     Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
@@ -3723,11 +3757,11 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedId = removed.Single.Id;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.RequiredSingle).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredSingle).Single(IsTheRoot);
 
                     var removed = root.RequiredSingle;
                     var orphaned = removed.Single;
@@ -3736,39 +3770,39 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-
-                            Assert.Null(root.RequiredSingle);
-
-                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredSingle);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                        Assert.Null(root.RequiredSingle);
+
+                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredSingle);
+
+                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3797,11 +3831,11 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedId = removed.Single.Id;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.RequiredNonPkSingle).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredNonPkSingle).Single(IsTheRoot);
 
                     var removed = root.RequiredNonPkSingle;
                     var orphaned = removed.Single;
@@ -3810,39 +3844,39 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-
-                            Assert.Null(root.RequiredNonPkSingle);
-
-                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingle);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                        Assert.Null(root.RequiredNonPkSingle);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingle);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -3876,11 +3910,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, orphanedIdCs.Count);
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.RequiredChildrenAk).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredChildrenAk).Single(IsTheRoot);
 
                     var removed = root.RequiredChildrenAk.Single(e => e.Id == removedId);
 
@@ -3894,7 +3928,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                    Assert.Equal(1, root.RequiredChildrenAk.Count());
+                    Assert.Single(root.RequiredChildrenAk);
                     Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                     Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
@@ -3902,13 +3936,13 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
 
                     Assert.Same(root, removed.Parent);
-                    Assert.Equal(0, removed.Children.Count()); // Never loaded
+                    Assert.Empty(removed.Children); // Never loaded
                 },
                 context =>
                 {
                     var root = LoadRoot(context);
 
-                    Assert.Equal(1, root.RequiredChildrenAk.Count());
+                    Assert.Single(root.RequiredChildrenAk);
                     Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
                     Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
@@ -3945,11 +3979,11 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedIdC = removed.SingleComposite.Id;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.RequiredSingleAk).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredSingleAk).Single(IsTheRoot);
 
                     var removed = root.RequiredSingleAk;
                     var orphaned = removed.Single;
@@ -3958,41 +3992,41 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-
-                            Assert.Null(root.RequiredSingleAk);
-
-                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                        Assert.Null(root.RequiredSingleAk);
+
+                        Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                        Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredSingleAk);
+
+                        Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                        Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -4021,11 +4055,11 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedId = removed.Single.Id;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.RequiredNonPkSingleAk).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.RequiredNonPkSingleAk).Single(IsTheRoot);
 
                     var removed = root.RequiredNonPkSingleAk;
                     var orphaned = removed.Single;
@@ -4034,39 +4068,39 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-
-                            Assert.Null(root.RequiredNonPkSingleAk);
-
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                        Assert.Null(root.RequiredNonPkSingleAk);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingleAk);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -4097,11 +4131,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, orphanedIds.Count);
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.OptionalChildren).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.OptionalChildren).Single(IsTheRoot);
 
                     var removed = root.OptionalChildren.First(e => e.Id == removedId);
 
@@ -4117,7 +4151,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                    Assert.Equal(1, root.OptionalChildren.Count());
+                    Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -4127,13 +4161,13 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(orphaned.All(e => e.ParentId == null));
 
                     Assert.Same(root, removed.Parent);
-                    Assert.Equal(0, removed.Children.Count()); // Never loaded
+                    Assert.Empty(removed.Children); // Never loaded
                 },
                 context =>
                 {
                     var root = LoadRoot(context);
 
-                    Assert.Equal(1, root.OptionalChildren.Count());
+                    Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -4170,11 +4204,11 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedId = removed.Single.Id;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.OptionalSingle).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.OptionalSingle).Single(IsTheRoot);
 
                     var removed = root.OptionalSingle;
                     var orphaned = removed.Single;
@@ -4239,11 +4273,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, orphanedIdCs.Count);
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.OptionalChildrenAk).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.OptionalChildrenAk).Single(IsTheRoot);
 
                     var removed = root.OptionalChildrenAk.First(e => e.Id == removedId);
 
@@ -4262,7 +4296,7 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
-                    Assert.Equal(1, root.OptionalChildrenAk.Count());
+                    Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                     Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -4276,13 +4310,13 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(orphanedC.All(e => e.ParentId == null));
 
                     Assert.Same(root, removed.Parent);
-                    Assert.Equal(0, removed.Children.Count()); // Never loaded
+                    Assert.Empty(removed.Children); // Never loaded
                 },
                 context =>
                 {
                     var root = LoadRoot(context);
 
-                    Assert.Equal(1, root.OptionalChildrenAk.Count());
+                    Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                     Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -4325,11 +4359,11 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedIdC = removed.SingleComposite.Id;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = context.Set<Root>().Include(e => e.OptionalSingleAk).Single(IsTheRoot);
+                    var root = context.Set<Root>().Include(e => e.OptionalSingleAk).Single(IsTheRoot);
 
                     var removed = root.OptionalSingleAk;
                     var orphaned = removed.Single;
@@ -4399,57 +4433,57 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, root.RequiredChildren.Count());
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedIds = cascadeRemoved.Select(e => e.Id).ToList();
+                    removedId = removed.Id;
+                    orphanedIds = cascadeRemoved.Select(e => e.Id).ToList();
 
                     Assert.Equal(2, orphanedIds.Count);
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Deleted
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Deleted
+                        : EntityState.Unchanged;
 
-                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == expectedState));
+                    Assert.True(cascadeRemoved.All(e => context.Entry(e).State == expectedState));
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
-
-                            Assert.Same(root, removed.Parent);
-                            Assert.Equal(2, removed.Children.Count());
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Equal(1, root.RequiredChildren.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        root = LoadRoot(context);
+
+                        Assert.Single(root.RequiredChildren);
+                        Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -4482,24 +4516,24 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, root.OptionalChildren.Count());
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedIds = orphaned.Select(e => e.Id).ToList();
+                    removedId = removed.Id;
+                    orphanedIds = orphaned.Select(e => e.Id).ToList();
 
                     Assert.Equal(2, orphanedIds.Count);
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Modified
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Modified
+                        : EntityState.Unchanged;
 
-                        Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
+                    Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
@@ -4517,7 +4551,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
-                    Assert.Equal(1, root.OptionalChildren.Count());
+                    Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
                     Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
@@ -4553,22 +4587,22 @@ namespace Microsoft.EntityFrameworkCore
                     orphaned = removed.Single;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedId = orphaned.Id;
+                    removedId = removed.Id;
+                    orphanedId = orphaned.Id;
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Modified
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Modified
+                        : EntityState.Unchanged;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
@@ -4621,42 +4655,42 @@ namespace Microsoft.EntityFrameworkCore
                     orphaned = removed.Single;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedId = orphaned.Id;
+                    removedId = removed.Id;
+                    orphanedId = orphaned.Id;
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Deleted
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Deleted
+                        : EntityState.Unchanged;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
+                    {
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.False(context.ChangeTracker.HasChanges());
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
 
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
                 context =>
                 {
                     if (cascadeDeleteTiming != CascadeTiming.Never)
@@ -4698,54 +4732,54 @@ namespace Microsoft.EntityFrameworkCore
                     orphaned = removed.Single;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedId = orphaned.Id;
+                    removedId = removed.Id;
+                    orphanedId = orphaned.Id;
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Deleted
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Deleted
+                        : EntityState.Unchanged;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingle);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingle);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -4781,27 +4815,27 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, root.OptionalChildrenAk.Count());
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedIds = orphaned.Select(e => e.Id).ToList();
-                        orphanedIdCs = orphanedC.Select(e => e.Id).ToList();
+                    removedId = removed.Id;
+                    orphanedIds = orphaned.Select(e => e.Id).ToList();
+                    orphanedIdCs = orphanedC.Select(e => e.Id).ToList();
 
                     Assert.Equal(2, orphanedIds.Count);
                     Assert.Equal(2, orphanedIdCs.Count);
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Modified
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Modified
+                        : EntityState.Unchanged;
 
-                        Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
-                        Assert.True(orphanedC.All(e => context.Entry(e).State == expectedState));
+                    Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
+                    Assert.True(orphanedC.All(e => context.Entry(e).State == expectedState));
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
@@ -4820,7 +4854,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
-                    Assert.Equal(1, root.OptionalChildrenAk.Count());
+                    Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
                     Assert.Empty(context.Set<OptionalAk1>().Where(e => e.Id == removedId));
@@ -4862,61 +4896,61 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, root.RequiredChildrenAk.Count());
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedIds = cascadeRemoved.Select(e => e.Id).ToList();
-                        orphanedIdCs = cascadeRemovedC.Select(e => e.Id).ToList();
+                    removedId = removed.Id;
+                    orphanedIds = cascadeRemoved.Select(e => e.Id).ToList();
+                    orphanedIdCs = cascadeRemovedC.Select(e => e.Id).ToList();
 
                     Assert.Equal(2, orphanedIds.Count);
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Deleted
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Deleted
+                        : EntityState.Unchanged;
 
-                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == expectedState));
-                        Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == expectedState));
+                    Assert.True(cascadeRemoved.All(e => context.Entry(e).State == expectedState));
+                    Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == expectedState));
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
-                            Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
-
-                            Assert.Same(root, removed.Parent);
-                            Assert.Equal(2, removed.Children.Count());
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Equal(1, root.RequiredChildrenAk.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+                        Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
+
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(2, removed.Children.Count());
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        root = LoadRoot(context);
+
+                        Assert.Single(root.RequiredChildrenAk);
+                        Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                        Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -4950,24 +4984,24 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedC = removed.SingleComposite;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedId = orphaned.Id;
-                        orphanedIdC = orphanedC.Id;
+                    removedId = removed.Id;
+                    orphanedId = orphaned.Id;
+                    orphanedIdC = orphanedC.Id;
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Modified
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Modified
+                        : EntityState.Unchanged;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
-                        Assert.Equal(expectedState, context.Entry(orphanedC).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphanedC).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
@@ -5025,58 +5059,58 @@ namespace Microsoft.EntityFrameworkCore
                     orphanedC = removed.SingleComposite;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedId = orphaned.Id;
-                        orphanedIdC = orphanedC.Id;
+                    removedId = removed.Id;
+                    orphanedId = orphaned.Id;
+                    orphanedIdC = orphanedC.Id;
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Deleted
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Deleted
+                        : EntityState.Unchanged;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
-                        Assert.Equal(expectedState, context.Entry(orphanedC).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphanedC).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredSingleAk);
+
+                        Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                        Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -5107,54 +5141,54 @@ namespace Microsoft.EntityFrameworkCore
                     orphaned = removed.Single;
                 },
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        removedId = removed.Id;
-                        orphanedId = orphaned.Id;
+                    removedId = removed.Id;
+                    orphanedId = orphaned.Id;
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Deleted
-                            : EntityState.Unchanged;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Deleted
+                        : EntityState.Unchanged;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingleAk);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -5176,11 +5210,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     Assert.Equal(2, root.RequiredChildren.Count());
 
@@ -5200,59 +5234,59 @@ namespace Microsoft.EntityFrameworkCore
                         context.ChangeTracker.DetectChanges();
                     }
 
-                        Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Unchanged, context.Entry(removed).State);
 
-                        Assert.Equal(EntityState.Added, context.Entry(added).State);
-                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
+                    Assert.Equal(EntityState.Added, context.Entry(added).State);
+                    Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        if (cascadeDeleteTiming == CascadeTiming.Immediate)
-                        {
-                            Assert.Equal(EntityState.Detached, context.Entry(added).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Deleted));
-                        }
-                        else
-                        {
-                            Assert.Equal(EntityState.Added, context.Entry(added).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
-                        }
+                    if (cascadeDeleteTiming == CascadeTiming.Immediate)
+                    {
+                        Assert.Equal(EntityState.Detached, context.Entry(added).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Deleted));
+                    }
+                    else
+                    {
+                        Assert.Equal(EntityState.Added, context.Entry(added).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
+                    }
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(added).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
-
-                            Assert.Same(root, removed.Parent);
-                            Assert.Equal(3, removed.Children.Count());
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Equal(1, root.RequiredChildren.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(added).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(3, removed.Children.Count());
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Single(root.RequiredChildren);
+                        Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<Required1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<Required2>().Where(e => orphanedIds.Contains(e.Id)));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -5274,11 +5308,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredSingle;
 
@@ -5293,45 +5327,45 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Detached
-                            : EntityState.Added;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Detached
+                        : EntityState.Added;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredSingle);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredSingle);
+
+                        Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingle2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -5353,11 +5387,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredNonPkSingle;
 
@@ -5372,45 +5406,45 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Detached
-                            : EntityState.Added;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Detached
+                        : EntityState.Added;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingle);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingle);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingle2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -5433,11 +5467,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     Assert.Equal(2, root.RequiredChildrenAk.Count());
 
@@ -5470,59 +5504,59 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        if (cascadeDeleteTiming == CascadeTiming.Immediate)
-                        {
-                            Assert.Equal(EntityState.Detached, context.Entry(added).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(addedC).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Deleted));
-                            Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Deleted));
-                        }
-                        else
-                        {
-                            Assert.Equal(EntityState.Added, context.Entry(added).State);
-                            Assert.Equal(EntityState.Added, context.Entry(addedC).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
-                            Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Unchanged));
-                        }
+                    if (cascadeDeleteTiming == CascadeTiming.Immediate)
+                    {
+                        Assert.Equal(EntityState.Detached, context.Entry(added).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(addedC).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Deleted));
+                        Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Deleted));
+                    }
+                    else
+                    {
+                        Assert.Equal(EntityState.Added, context.Entry(added).State);
+                        Assert.Equal(EntityState.Added, context.Entry(addedC).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Unchanged));
+                        Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Unchanged));
+                    }
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(added).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(addedC).State);
-                            Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
-                            Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
-
-                            Assert.Same(root, removed.Parent);
-                            Assert.Equal(3, removed.Children.Count());
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Equal(1, root.RequiredChildrenAk.Count());
-                            Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
-                            Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(added).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(addedC).State);
+                        Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+                        Assert.True(cascadeRemovedC.All(e => context.Entry(e).State == EntityState.Detached));
+
+                        Assert.Same(root, removed.Parent);
+                        Assert.Equal(3, removed.Children.Count());
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Single(root.RequiredChildrenAk);
+                        Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                        Assert.Empty(context.Set<RequiredAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredAk2>().Where(e => orphanedIds.Contains(e.Id)));
+                        Assert.Empty(context.Set<RequiredComposite2>().Where(e => orphanedIdCs.Contains(e.Id)));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -5545,11 +5579,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredSingleAk;
 
@@ -5568,48 +5602,48 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Detached
-                            : EntityState.Added;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Detached
+                        : EntityState.Added;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
-                        Assert.Equal(expectedState, context.Entry(orphanedC).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphanedC).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
-                            Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphanedC).State);
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredSingleAk);
+
+                        Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredSingleAk2>().Where(e => e.Id == orphanedId));
+                        Assert.Empty(context.Set<RequiredSingleComposite2>().Where(e => e.Id == orphanedIdC));
+                    }
+                });
         }
 
         [ConditionalTheory]
@@ -5631,11 +5665,11 @@ namespace Microsoft.EntityFrameworkCore
 
             ExecuteWithStrategyInTransaction(
                 context =>
-                    {
-                        context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
-                        context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+                {
+                    context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
+                    context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
 
-                        var root = LoadRoot(context);
+                    var root = LoadRoot(context);
 
                     var removed = root.RequiredNonPkSingleAk;
 
@@ -5650,45 +5684,45 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Remove(removed);
 
-                        Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                        var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
-                            ? EntityState.Detached
-                            : EntityState.Added;
+                    var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                        ? EntityState.Detached
+                        : EntityState.Added;
 
-                        Assert.Equal(expectedState, context.Entry(orphaned).State);
+                    Assert.Equal(expectedState, context.Entry(orphaned).State);
 
                     Assert.True(context.ChangeTracker.HasChanges());
 
-                        if (cascadeDeleteTiming == CascadeTiming.Never)
-                        {
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
-                        }
-                        else
-                        {
-                            context.SaveChanges();
-
-                            Assert.False(context.ChangeTracker.HasChanges());
-
-                            Assert.Equal(EntityState.Detached, context.Entry(removed).State);
-                            Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
-
-                            Assert.Same(root, removed.Root);
-                            Assert.Same(orphaned, removed.Single);
-                        }
-                    },
-                context =>
+                    if (cascadeDeleteTiming == CascadeTiming.Never)
                     {
-                        if (cascadeDeleteTiming != CascadeTiming.Never)
-                        {
-                            var root = LoadRoot(context);
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
 
-                            Assert.Null(root.RequiredNonPkSingleAk);
+                        Assert.False(context.ChangeTracker.HasChanges());
 
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
-                            Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
-                        }
-                    });
+                        Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                        Assert.Same(root, removed.Root);
+                        Assert.Same(orphaned, removed.Single);
+                    }
+                },
+                context =>
+                {
+                    if (cascadeDeleteTiming != CascadeTiming.Never)
+                    {
+                        var root = LoadRoot(context);
+
+                        Assert.Null(root.RequiredNonPkSingleAk);
+
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
+                        Assert.Empty(context.Set<RequiredNonPkSingleAk2>().Where(e => e.Id == orphanedId));
+                    }
+                });
         }
 
         [ConditionalFact]

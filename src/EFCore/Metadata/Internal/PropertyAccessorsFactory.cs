@@ -29,10 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (PropertyAccessors)_genericCreate
                 .MakeGenericMethod(propertyBase.ClrType)
                 .Invoke(
-                    null, new object[]
-                    {
-                        propertyBase
-                    });
+                    null, new object[] { propertyBase });
 
         private static readonly MethodInfo _genericCreate
             = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric));

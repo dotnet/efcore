@@ -28,15 +28,15 @@ WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[BoolA] = [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
+WHERE [e].[BoolA] = [e].[NullableBoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
+WHERE [e].[NullableBoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
+WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
         public override void Compare_negated_bool_with_bool_equal()
@@ -380,15 +380,15 @@ WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[BoolA] = [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
+WHERE [e].[BoolA] = [e].[NullableBoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
+WHERE [e].[NullableBoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
+WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
         public override void Compare_equals_method_static()
@@ -402,15 +402,15 @@ WHERE [e].[BoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[BoolA] = [e].[NullableBoolB]) AND [e].[NullableBoolB] IS NOT NULL",
+WHERE [e].[BoolA] = [e].[NullableBoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = [e].[BoolB]) AND [e].[NullableBoolA] IS NOT NULL",
+WHERE [e].[NullableBoolA] = [e].[BoolB]",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
+WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)");
         }
 
         public override void Compare_equals_method_negated()
@@ -678,11 +678,9 @@ END");
             base.Compare_nullable_with_null_parameter_equal();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE [e].[NullableStringA] IS NULL");
         }
 
         public override void Compare_nullable_with_non_null_parameter_not_equal()
@@ -694,7 +692,7 @@ WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE [e].[NullableStringA] = @__prm_0");
         }
 
         public override void Join_uses_database_semantics()
@@ -752,7 +750,7 @@ WHERE [e].[NullableStringA] IN (N'Foo') OR [e].[NullableStringA] IS NULL");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL) OR (([e].[NullableStringA] = N'Blah') AND [e].[NullableStringA] IS NOT NULL)) OR [e].[NullableStringA] IS NULL");
+WHERE (([e].[NullableStringA] = N'Foo') OR ([e].[NullableStringA] = N'Blah')) OR [e].[NullableStringA] IS NULL");
         }
 
         public override void Where_multiple_ands_with_null()
@@ -770,11 +768,9 @@ WHERE ((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND 
             base.Where_multiple_ors_with_nullable_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL) OR ((([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL))");
+WHERE ([e].[NullableStringA] = N'Foo') OR [e].[NullableStringA] IS NULL");
         }
 
         public override void Where_multiple_ands_with_nullable_parameter_and_constant()
@@ -782,13 +778,11 @@ WHERE (([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL) O
             base.Where_multiple_ands_with_nullable_parameter_and_constant();
 
             AssertSql(
-                @"@__prm1_0='' (Size = 4000)
-@__prm2_1='' (Size = 4000)
-@__prm3_2='Blah' (Size = 4000)
+                @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND ((([e].[NullableStringA] <> @__prm1_0) OR ([e].[NullableStringA] IS NULL OR @__prm1_0 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm1_0 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm2_1) OR ([e].[NullableStringA] IS NULL OR @__prm2_1 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm2_1 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm3_2) OR ([e].[NullableStringA] IS NULL OR @__prm3_2 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm3_2 IS NOT NULL))");
+WHERE (((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND [e].[NullableStringA] IS NOT NULL) AND [e].[NullableStringA] IS NOT NULL) AND (([e].[NullableStringA] <> @__prm3_2) OR [e].[NullableStringA] IS NULL)");
         }
 
         public override void Where_multiple_ands_with_nullable_parameter_and_constant_not_optimized()
@@ -796,13 +790,11 @@ WHERE (((([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL) AND
             base.Where_multiple_ands_with_nullable_parameter_and_constant_not_optimized();
 
             AssertSql(
-                @"@__prm1_0='' (Size = 4000)
-@__prm2_1='' (Size = 4000)
-@__prm3_2='Blah' (Size = 4000)
+                @"@__prm3_2='Blah' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL)) AND ((([e].[NullableStringA] <> @__prm1_0) OR ([e].[NullableStringA] IS NULL OR @__prm1_0 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm1_0 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm2_1) OR ([e].[NullableStringA] IS NULL OR @__prm2_1 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm2_1 IS NOT NULL))) AND ((([e].[NullableStringA] <> @__prm3_2) OR ([e].[NullableStringA] IS NULL OR @__prm3_2 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm3_2 IS NOT NULL))");
+WHERE ((([e].[NullableStringB] IS NOT NULL AND (([e].[NullableStringA] <> N'Foo') OR [e].[NullableStringA] IS NULL)) AND [e].[NullableStringA] IS NOT NULL) AND [e].[NullableStringA] IS NOT NULL) AND (([e].[NullableStringA] <> @__prm3_2) OR [e].[NullableStringA] IS NULL)");
         }
 
         public override void Where_coalesce()
@@ -820,11 +812,9 @@ WHERE COALESCE([e].[NullableBoolA], CAST(1 AS bit)) = CAST(1 AS bit)");
             base.Where_equal_nullable_with_null_value_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE [e].[NullableStringA] IS NULL");
         }
 
         public override void Where_not_equal_nullable_with_null_value_parameter()
@@ -832,11 +822,9 @@ WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL
             base.Where_not_equal_nullable_with_null_value_parameter();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] <> @__prm_0) OR ([e].[NullableStringA] IS NULL OR @__prm_0 IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR @__prm_0 IS NOT NULL)");
+WHERE [e].[NullableStringA] IS NOT NULL");
         }
 
         public override void Where_equal_with_coalesce()
@@ -846,7 +834,7 @@ WHERE (([e].[NullableStringA] <> @__prm_0) OR ([e].[NullableStringA] IS NULL OR 
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStringC]) AND (COALESCE([e].[NullableStringA], [e].[NullableStringB]) IS NOT NULL AND [e].[NullableStringC] IS NOT NULL)) OR (COALESCE([e].[NullableStringA], [e].[NullableStringB]) IS NULL AND [e].[NullableStringC] IS NULL)");
+WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableStringC]) OR (([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) AND [e].[NullableStringC] IS NULL)");
         }
 
         public override void Where_not_equal_with_coalesce()
@@ -856,7 +844,7 @@ WHERE ((COALESCE([e].[NullableStringA], [e].[NullableStringB]) = [e].[NullableSt
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStringC]) OR (COALESCE([e].[NullableStringA], [e].[NullableStringB]) IS NULL OR [e].[NullableStringC] IS NULL)) AND (COALESCE([e].[NullableStringA], [e].[NullableStringB]) IS NOT NULL OR [e].[NullableStringC] IS NOT NULL)");
+WHERE ((COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableStringC]) OR (([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL)) AND (([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) OR [e].[NullableStringC] IS NOT NULL)");
         }
 
         public override void Where_equal_with_coalesce_both_sides()
@@ -866,7 +854,7 @@ WHERE ((COALESCE([e].[NullableStringA], [e].[NullableStringB]) <> [e].[NullableS
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[StringA], [e].[StringB])) AND COALESCE([e].[NullableStringA], [e].[NullableStringB]) IS NOT NULL");
+WHERE COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[StringA], [e].[StringB])");
         }
 
         public override void Where_not_equal_with_coalesce_both_sides()
@@ -876,7 +864,7 @@ WHERE (COALESCE([e].[NullableStringA], [e].[NullableStringB]) = COALESCE([e].[St
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((COALESCE([e].[NullableIntA], [e].[NullableIntB]) <> COALESCE([e].[NullableIntC], [e].[NullableIntB])) OR (COALESCE([e].[NullableIntA], [e].[NullableIntB]) IS NULL OR COALESCE([e].[NullableIntC], [e].[NullableIntB]) IS NULL)) AND (COALESCE([e].[NullableIntA], [e].[NullableIntB]) IS NOT NULL OR COALESCE([e].[NullableIntC], [e].[NullableIntB]) IS NOT NULL)");
+WHERE ((COALESCE([e].[NullableIntA], [e].[NullableIntB]) <> COALESCE([e].[NullableIntC], [e].[NullableIntB])) OR (([e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL) OR ([e].[NullableIntC] IS NULL AND [e].[NullableIntB] IS NULL))) AND (([e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL) OR ([e].[NullableIntC] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL))");
         }
 
         public override void Where_equal_with_conditional()
@@ -904,13 +892,13 @@ WHERE ((COALESCE([e].[NullableIntA], [e].[NullableIntB]) <> COALESCE([e].[Nullab
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE (([e].[NullableStringC] <> CASE
-    WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
+    WHEN ([e].[NullableStringA] = [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
     ELSE [e].[NullableStringB]
 END) OR ([e].[NullableStringC] IS NULL OR CASE
-    WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
+    WHEN ([e].[NullableStringA] = [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
     ELSE [e].[NullableStringB]
 END IS NULL)) AND ([e].[NullableStringC] IS NOT NULL OR CASE
-    WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
+    WHEN ([e].[NullableStringA] = [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[NullableStringA]
     ELSE [e].[NullableStringB]
 END IS NOT NULL)");
         }
@@ -923,7 +911,7 @@ END IS NOT NULL)");
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE ([e].[NullableStringC] <> CASE
-    WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[StringA]
+    WHEN ([e].[NullableStringA] = [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN [e].[StringA]
     ELSE [e].[StringB]
 END) OR [e].[NullableStringC] IS NULL");
         }
@@ -935,7 +923,7 @@ END) OR [e].[NullableStringC] IS NULL");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((([e].[NullableStringB] = N'') AND [e].[NullableStringB] IS NOT NULL) OR (CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0)) AND ([e].[BoolA] = CAST(1 AS bit))");
+WHERE (([e].[NullableStringB] = N'') OR (CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0)) AND ([e].[BoolA] = CAST(1 AS bit))");
         }
 
         public override void Null_comparison_in_selector_with_relational_nulls()
@@ -987,29 +975,13 @@ END");
             base.Where_conditional_search_condition_in_result();
 
             AssertSql(
-                @"@__prm_0='True'
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN @__prm_0 = CAST(1 AS bit) THEN CASE
-        WHEN [e].[StringA] IN (N'Foo', N'Bar') THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-    ELSE CAST(0 AS bit)
-END = CAST(1 AS bit)",
+WHERE [e].[StringA] IN (N'Foo', N'Bar')",
                 //
-                @"@__p_0='False'
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN @__p_0 = CAST(1 AS bit) THEN CAST(1 AS bit)
-    ELSE CASE
-        WHEN [e].[StringA] LIKE N'A%' THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
-END = CAST(1 AS bit)");
+WHERE [e].[StringA] LIKE N'A%'");
         }
 
         public override void Where_nested_conditional_search_condition_in_result()
@@ -1017,33 +989,8 @@ END = CAST(1 AS bit)");
             base.Where_nested_conditional_search_condition_in_result();
 
             AssertSql(
-                @"@__prm1_0='True'
-@__prm2_1='False'
-
-SELECT [e].[Id]
-FROM [Entities1] AS [e]
-WHERE CASE
-    WHEN @__prm1_0 = CAST(1 AS bit) THEN CASE
-        WHEN @__prm2_1 = CAST(1 AS bit) THEN CASE
-            WHEN [e].[BoolA] = CAST(1 AS bit) THEN CASE
-                WHEN [e].[StringA] LIKE N'A%' THEN CAST(1 AS bit)
-                ELSE CAST(0 AS bit)
-            END
-            ELSE CAST(0 AS bit)
-        END
-        ELSE CAST(1 AS bit)
-    END
-    ELSE CASE
-        WHEN [e].[BoolB] = CAST(1 AS bit) THEN CASE
-            WHEN [e].[StringA] IN (N'Foo', N'Bar') THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END
-        ELSE CASE
-            WHEN [e].[StringB] IN (N'Foo', N'Bar') THEN CAST(1 AS bit)
-            ELSE CAST(0 AS bit)
-        END
-    END
-END = CAST(1 AS bit)");
+                @"SELECT [e].[Id]
+FROM [Entities1] AS [e]");
         }
 
         public override void Where_equal_using_relational_null_semantics()
@@ -1073,7 +1020,7 @@ WHERE [e].[NullableBoolA] = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = CAST(1 AS bit)) AND [e].[NullableBoolA] IS NOT NULL");
+WHERE [e].[NullableBoolA] = CAST(1 AS bit)");
         }
 
         public override void Where_nullable_bool_with_null_check()
@@ -1091,11 +1038,9 @@ WHERE [e].[NullableBoolA] IS NOT NULL AND ([e].[NullableBoolA] = CAST(1 AS bit))
             base.Where_equal_using_relational_null_semantics_with_parameter();
 
             AssertSql(
-                @"@__prm_0=''
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] = @__prm_0");
+WHERE [e].[NullableBoolA] IS NULL");
         }
 
         public override void Where_equal_using_relational_null_semantics_complex_with_parameter()
@@ -1123,11 +1068,9 @@ WHERE [e].[NullableBoolA] <> [e].[NullableBoolB]");
             base.Where_not_equal_using_relational_null_semantics_with_parameter();
 
             AssertSql(
-                @"@__prm_0=''
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableBoolA] <> @__prm_0");
+WHERE [e].[NullableBoolA] IS NOT NULL");
         }
 
         public override void Where_not_equal_using_relational_null_semantics_complex_with_parameter()
@@ -1199,11 +1142,9 @@ WHERE @__p_0 = CAST(1 AS bit)");
             base.Where_comparison_null_semantics_optimization_works_with_complex_predicates();
 
             AssertSql(
-                @"@__prm_0='' (Size = 4000)
-
-SELECT [e].[Id]
+                @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL AND @__prm_0 IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND @__prm_0 IS NULL)");
+WHERE [e].[NullableStringA] IS NULL");
         }
 
         public override void Switching_null_semantics_produces_different_cache_entry()
@@ -1213,7 +1154,7 @@ WHERE (([e].[NullableStringA] = @__prm_0) AND ([e].[NullableStringA] IS NOT NULL
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableBoolA] = [e].[NullableBoolB]) AND ([e].[NullableBoolA] IS NOT NULL AND [e].[NullableBoolB] IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)",
+WHERE ([e].[NullableBoolA] = [e].[NullableBoolB]) OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL)",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -1313,7 +1254,7 @@ FROM [Entities1] AS [e]");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) = [e].[NullableStringA]) AND (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) IS NOT NULL AND [e].[NullableStringA] IS NOT NULL)) OR (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) IS NULL AND [e].[NullableStringA] IS NULL)",
+WHERE (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) = [e].[NullableStringA]) OR (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) IS NULL AND [e].[NullableStringA] IS NULL)",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -1327,11 +1268,11 @@ WHERE ((REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStrin
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableBoolA] = COALESCE([e].[NullableBoolB], [e].[BoolC])) AND [e].[NullableBoolA] IS NOT NULL",
+WHERE [e].[NullableBoolA] = COALESCE([e].[NullableBoolB], [e].[BoolC])",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (([e].[NullableBoolA] = COALESCE([e].[NullableBoolB], [e].[NullableBoolC])) AND ([e].[NullableBoolA] IS NOT NULL AND COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NOT NULL)) OR ([e].[NullableBoolA] IS NULL AND COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NULL)",
+WHERE ([e].[NullableBoolA] = COALESCE([e].[NullableBoolB], [e].[NullableBoolC])) OR ([e].[NullableBoolA] IS NULL AND ([e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL))",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -1339,7 +1280,7 @@ WHERE (COALESCE([e].[NullableBoolB], [e].[BoolC]) <> [e].[NullableBoolA]) OR [e]
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) <> [e].[NullableBoolA]) OR (COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NULL OR [e].[NullableBoolA] IS NULL)) AND (COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) IS NOT NULL OR [e].[NullableBoolA] IS NOT NULL)");
+WHERE ((COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) <> [e].[NullableBoolA]) OR (([e].[NullableBoolB] IS NULL AND [e].[NullableBoolC] IS NULL) OR [e].[NullableBoolA] IS NULL)) AND (([e].[NullableBoolB] IS NOT NULL OR [e].[NullableBoolC] IS NOT NULL) OR [e].[NullableBoolA] IS NOT NULL)");
         }
 
         public override void Null_semantics_conditional()
@@ -1349,13 +1290,10 @@ WHERE ((COALESCE([e].[NullableBoolB], [e].[NullableBoolC]) <> [e].[NullableBoolA
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[BoolA] = CASE
+WHERE [e].[BoolA] = CASE
     WHEN [e].[BoolB] = CAST(1 AS bit) THEN [e].[NullableBoolB]
     ELSE [e].[NullableBoolC]
-END) AND CASE
-    WHEN [e].[BoolB] = CAST(1 AS bit) THEN [e].[NullableBoolB]
-    ELSE [e].[NullableBoolC]
-END IS NOT NULL",
+END",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
@@ -1406,6 +1344,72 @@ WHERE ((SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) <> [e].[NullableStri
 
             AssertSql(
                 @"");
+        }
+
+        public override void Null_semantics_with_null_check_simple()
+        {
+            base.Null_semantics_with_null_check_simple();
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NOT NULL AND ([e].[NullableIntA] = [e].[NullableIntB])",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NOT NULL AND (([e].[NullableIntA] <> [e].[NullableIntB]) OR [e].[NullableIntB] IS NULL)",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NOT NULL AND ([e].[NullableIntA] = [e].[IntC])",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableIntA] IS NOT NULL AND [e].[NullableIntB] IS NOT NULL) AND ([e].[NullableIntA] = [e].[NullableIntB])",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableIntA] IS NOT NULL AND [e].[NullableIntB] IS NOT NULL) AND ([e].[NullableIntA] <> [e].[NullableIntB])");
+        }
+
+        public override void Null_semantics_with_null_check_complex()
+        {
+            base.Null_semantics_with_null_check_complex();
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NOT NULL AND ((([e].[NullableIntC] <> [e].[NullableIntA]) OR [e].[NullableIntC] IS NULL) OR ([e].[NullableIntB] IS NOT NULL AND ([e].[NullableIntA] <> [e].[NullableIntB])))",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NOT NULL AND ((([e].[NullableIntC] <> [e].[NullableIntA]) OR [e].[NullableIntC] IS NULL) OR (([e].[NullableIntA] <> [e].[NullableIntB]) OR [e].[NullableIntB] IS NULL))",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL) AND (([e].[NullableIntA] = [e].[NullableIntC]) OR ([e].[NullableIntA] IS NULL AND [e].[NullableIntC] IS NULL))");
+        }
+
+        public override void IsNull_on_complex_expression()
+        {
+            base.IsNull_on_complex_expression();
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NOT NULL",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NULL OR [e].[NullableIntB] IS NULL",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NULL AND [e].[NullableIntB] IS NULL",
+                //
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableIntA] IS NOT NULL OR [e].[NullableIntB] IS NOT NULL");
         }
 
         private void AssertSql(params string[] expected)

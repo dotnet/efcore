@@ -81,29 +81,39 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     ("MyTable", _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable) + @"(""MyTable"");" + _nl)
                 },
                 {
-                    RelationalAnnotationNames.Schema,
-                    ("MySchema",
-                        _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
-                        + @"(""WithAnnotations"",""MySchema"");" + _nl)
+                    RelationalAnnotationNames.Schema, ("MySchema",
+                        _nl
+                        + "modelBuilder."
+                        + nameof(RelationalEntityTypeBuilderExtensions.ToTable)
+                        + @"(""WithAnnotations"",""MySchema"");"
+                        + _nl)
                 },
                 {
-                    CoreAnnotationNames.DiscriminatorProperty,
-                    ("Id",
-                        _toTable + _nl + "modelBuilder.HasDiscriminator"
-                        + @"<int>(""Id"");" + _nl)
+                    CoreAnnotationNames.DiscriminatorProperty, ("Id",
+                        _toTable
+                        + _nl
+                        + "modelBuilder.HasDiscriminator"
+                        + @"<int>(""Id"");"
+                        + _nl)
                 },
                 {
-                    CoreAnnotationNames.DiscriminatorValue,
-                    ("MyDiscriminatorValue",
-                        _toTable + _nl + "modelBuilder.HasDiscriminator"
-                        + "()." + nameof(DiscriminatorBuilder.HasValue) + @"(""MyDiscriminatorValue"");" + _nl)
+                    CoreAnnotationNames.DiscriminatorValue, ("MyDiscriminatorValue",
+                        _toTable
+                        + _nl
+                        + "modelBuilder.HasDiscriminator"
+                        + "()."
+                        + nameof(DiscriminatorBuilder.HasValue)
+                        + @"(""MyDiscriminatorValue"");"
+                        + _nl)
                 },
                 {
-                    RelationalAnnotationNames.Comment,
-                    ("My Comment",
-                        _toTable + _nl + "modelBuilder.HasComment"
-                        + @"(""My Comment"");" + _nl)
-                },
+                    RelationalAnnotationNames.Comment, ("My Comment",
+                        _toTable
+                        + _nl
+                        + "modelBuilder.HasComment"
+                        + @"(""My Comment"");"
+                        + _nl)
+                }
             };
 
             MissingAnnotationCheck(
@@ -150,17 +160,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Note that other tests should be added to check code is generated correctly
             var forProperty = new Dictionary<string, (object, string)>
             {
+                { CoreAnnotationNames.MaxLength, (256, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256)") },
+                { CoreAnnotationNames.Unicode, (false, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false)") },
                 {
-                    CoreAnnotationNames.MaxLength,
-                    (256, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256)")
-                },
-                {
-                    CoreAnnotationNames.Unicode,
-                    (false, $@"{columnMapping}{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false)")
-                },
-                {
-                    CoreAnnotationNames.ValueConverter,
-                    (new ValueConverter<int, long>(v => v, v => (int)v),
+                    CoreAnnotationNames.ValueConverter, (new ValueConverter<int, long>(v => v, v => (int)v),
                         $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
                 },
                 {
@@ -231,7 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 var annotationName = (string)field.GetValue(null);
 
-                Assert.True(CoreAnnotationNames.AllNames.Contains(annotationName),
+                Assert.True(
+                    CoreAnnotationNames.AllNames.Contains(annotationName),
                     nameof(CoreAnnotationNames) + "." + nameof(CoreAnnotationNames.AllNames) + " doesn't contain " + annotationName);
             }
 
@@ -378,20 +382,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 "MyMigration",
                 new MigrationOperation[]
                 {
-                    new SqlOperation
-                    {
-                        Sql = "-- TEST",
-                        ["Some:EnumValue"] = RegexOptions.Multiline
-                    },
+                    new SqlOperation { Sql = "-- TEST", ["Some:EnumValue"] = RegexOptions.Multiline },
                     new AlterColumnOperation
                     {
                         Name = "C2",
                         Table = "T1",
                         ClrType = typeof(Database),
-                        OldColumn = new ColumnOperation
-                        {
-                            ClrType = typeof(Property)
-                        }
+                        OldColumn = new ColumnOperation { ClrType = typeof(Property) }
                     },
                     new AddColumnOperation
                     {
@@ -444,11 +441,7 @@ namespace MyNamespace
                 typeof(MyContext),
                 "MyMigration",
                 "20150511161616_MyMigration",
-                new Model
-                {
-                    ["Some:EnumValue"] = RegexOptions.Multiline,
-                    ["Relational:DbFunction:MyFunc"] = new object()
-                });
+                new Model { ["Some:EnumValue"] = RegexOptions.Multiline, ["Relational:DbFunction:MyFunc"] = new object() });
             Assert.Equal(
                 @"// <auto-generated />
 using System.Text.RegularExpressions;
@@ -485,11 +478,7 @@ namespace MyNamespace
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
-                Sources =
-                {
-                    migrationCode,
-                    migrationMetadataCode
-                }
+                Sources = { migrationCode, migrationMetadataCode }
             };
 
             var assembly = build.BuildInMemory();
@@ -776,10 +765,7 @@ namespace MyNamespace
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
-                Sources =
-                {
-                    modelSnapshotCode
-                }
+                Sources = { modelSnapshotCode }
             };
 
             var assembly = build.BuildInMemory();
@@ -811,11 +797,7 @@ namespace MyNamespace
                     {
                         Table = "MyTable",
                         Columns = new[] { "Id", "MyColumn" },
-                        Values = new object[,]
-                        {
-                            { 1, null },
-                            { 2, RegexOptions.Multiline }
-                        }
+                        Values = new object[,] { { 1, null }, { 2, RegexOptions.Multiline } }
                     }
                 },
                 Array.Empty<MigrationOperation>());

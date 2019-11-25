@@ -386,8 +386,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Existing_connection_can_be_opened_and_closed_externally()
         {
             var dbConnection = new FakeDbConnection(
-                "Database=FrodoLives",
-                state: ConnectionState.Closed);
+                "Database=FrodoLives");
 
             using (var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
@@ -468,8 +467,7 @@ namespace Microsoft.EntityFrameworkCore
         public async Task Existing_connection_can_be_opened_and_closed_externally_async()
         {
             var dbConnection = new FakeDbConnection(
-                "Database=FrodoLives",
-                state: ConnectionState.Closed);
+                "Database=FrodoLives");
 
             using (var connection = new FakeRelationalConnection(
                 CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))

@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         protected bool Equals(OrderDetail other)
             => OrderID == other.OrderID
-               && ProductID == other.ProductID;
+                && ProductID == other.ProductID;
 
         public override bool Equals(object obj)
         {
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
             return ReferenceEquals(this, obj)
                 ? true
                 : obj.GetType() == GetType()
-                  && Equals((OrderDetail)obj);
+                && Equals((OrderDetail)obj);
         }
 
         public override int GetHashCode() => HashCode.Combine(OrderID, ProductID);

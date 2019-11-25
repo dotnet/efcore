@@ -1,17 +1,18 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeSqlServerTest : IncludeTestBase<IncludeSqlServerFixture>
+    public class IncludeSqlServerTest : IncludeTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         private bool SupportsOffset => TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
 
         // ReSharper disable once UnusedParameter.Local
-        public IncludeSqlServerTest(IncludeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public IncludeSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -42,7 +43,6 @@ ORDER BY [p].[ProductID], [t].[OrderID], [t].[ProductID], [t].[OrderID0]");
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
         }
-
 
         public override void Include_when_result_operator(bool useString)
         {
@@ -261,14 +261,14 @@ FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'W%'
     ORDER BY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) DESC
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
@@ -360,14 +360,14 @@ FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[EmployeeID]) AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
     ORDER BY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[EmployeeID])
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
@@ -853,7 +853,7 @@ FROM [Orders] AS [o]");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
         public override void Include_reference_with_filter(bool useString)
@@ -864,7 +864,7 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
+WHERE [o].[CustomerID] = N'ALFKI'");
         }
 
         public override void Include_collection_dependent_already_tracked_as_no_tracking(bool useString)
@@ -874,7 +874,7 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL",
+WHERE [o].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -893,7 +893,7 @@ ORDER BY [t].[CustomerID], [o].[OrderID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL",
+WHERE [o].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
@@ -912,7 +912,7 @@ ORDER BY [t].[CustomerID], [o].[OrderID]");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND [o].[CustomerID] IS NOT NULL",
+WHERE [o].[CustomerID] = N'ALFKI'",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
@@ -964,12 +964,12 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]");
                 @"SELECT [c].[CustomerID] AS [Id], (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
-    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL) AS [TotalOrders]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [TotalOrders]
 FROM [Customers] AS [c]
-WHERE (([c].[ContactTitle] = N'Owner') AND [c].[ContactTitle] IS NOT NULL) AND ((
+WHERE ([c].[ContactTitle] = N'Owner') AND ((
     SELECT COUNT(*)
     FROM [Orders] AS [o0]
-    WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND [o0].[CustomerID] IS NOT NULL) > 2)
+    WHERE [c].[CustomerID] = [o0].[CustomerID]) > 2)
 ORDER BY [c].[CustomerID]");
         }
 
@@ -1011,6 +1011,36 @@ ORDER BY [t].[ContactName], [t].[CustomerID], [o].[OrderID]");
             }
         }
 
+        public override void Include_collection_with_multiple_conditional_order_by(bool useString)
+        {
+            base.Include_collection_with_multiple_conditional_order_by(useString);
+
+            AssertSql(
+                @"@__p_0='5'
+
+SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CASE
+        WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c], CASE
+        WHEN [c].[CustomerID] IS NOT NULL THEN [c].[City]
+        ELSE N''
+    END AS [c0]
+    FROM [Orders] AS [o]
+    LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+    ORDER BY CASE
+        WHEN [o].[OrderID] > 0 THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END, CASE
+        WHEN [c].[CustomerID] IS NOT NULL THEN [c].[City]
+        ELSE N''
+    END
+) AS [t]
+LEFT JOIN [Order Details] AS [o0] ON [t].[OrderID] = [o0].[OrderID]
+ORDER BY [t].[c], [t].[c0], [t].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
         public override void Then_include_collection_order_by_collection_column(bool useString)
         {
             base.Then_include_collection_order_by_collection_column(useString);
@@ -1021,14 +1051,14 @@ FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'W%'
     ORDER BY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate] DESC) DESC
 ) AS [t]
 LEFT JOIN (
@@ -1196,6 +1226,21 @@ FROM (
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
 ORDER BY [t].[c], [t].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(
+            bool useString, bool async)
+        {
+            await base.Include_is_not_ignored_when_projection_contains_client_method_and_complex_expression(useString, async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [e0].[EmployeeID] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title]
+FROM [Employees] AS [e]
+LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
+WHERE ([e].[EmployeeID] = 1) OR ([e].[EmployeeID] = 2)");
         }
 
         private void AssertSql(params string[] expected)

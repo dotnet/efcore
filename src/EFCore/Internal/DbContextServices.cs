@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual IModel Model
             => CoreOptions?.Model
-               ?? (_modelFromSource
-                   ?? (_modelFromSource = CreateModel()));
+                ?? (_modelFromSource
+                    ?? (_modelFromSource = CreateModel()));
 
         private CoreOptionsExtension CoreOptions
             => _contextOptions?.FindExtension<CoreOptionsExtension>();

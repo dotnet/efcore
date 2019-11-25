@@ -15,17 +15,17 @@ using Xunit;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class QueryLoggingSqlServerTest : IClassFixture<IncludeSqlServerFixture>
+    public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
         private static readonly string _eol = Environment.NewLine;
 
-        public QueryLoggingSqlServerTest(IncludeSqlServerFixture fixture)
+        public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         {
             Fixture = fixture;
             Fixture.TestSqlLoggerFactory.Clear();
         }
 
-        protected IncludeSqlServerFixture Fixture { get; }
+        protected NorthwindQuerySqlServerFixture<NoopModelCustomizer> Fixture { get; }
 
         [ConditionalFact]
         public virtual void Queryable_simple()
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.StartsWith(
-                    "(queryContext) => new QueryingEnumerable<Customer>(",
+                    "queryContext => new QueryingEnumerable<Customer>(",
                     Fixture.TestSqlLoggerFactory.Log[0].Message);
             }
         }
@@ -60,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 Assert.NotNull(customers);
                 Assert.Contains(
-                    CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
             }
         }
 
@@ -78,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customers);
                 Assert.Contains(
 #pragma warning disable CS0612 // Type or member is obsolete
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"), Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"),
+                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
 #pragma warning restore CS0612 // Type or member is obsolete
             }
         }
@@ -96,9 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Assert.NotNull(customers);
 
                 Assert.Equal(
-                    "Compiling query model: " + _eol +
-                    "'(from Customer c in DbSet<Customer>" + _eol +
-                    @"select [c]).Include(""Orders"")'"
+                    "Compiling query model: " + _eol + "'(from Customer c in DbSet<Customer>" + _eol + @"select [c]).Include(""Orders"")'"
                     ,
                     Fixture.TestSqlLoggerFactory.Log[0].Message);
                 Assert.Equal(
@@ -106,10 +106,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ,
                     Fixture.TestSqlLoggerFactory.Log[1].Message);
                 Assert.StartsWith(
-                    "Optimized query model: " + _eol +
-                    "'from Customer c in DbSet<Customer>" + _eol +
-                    @"order by EF.Property(?[c]?, ""CustomerID"") asc" + _eol +
-                    "select Customer _Include("
+                    "Optimized query model: "
+                    + _eol
+                    + "'from Customer c in DbSet<Customer>"
+                    + _eol
+                    + @"order by EF.Property(?[c]?, ""CustomerID"") asc"
+                    + _eol
+                    + "select Customer _Include("
                     ,
                     Fixture.TestSqlLoggerFactory.Log[2].Message);
             }

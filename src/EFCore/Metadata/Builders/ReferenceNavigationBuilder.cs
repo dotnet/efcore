@@ -179,12 +179,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             return collection.MemberInfo == null || ReferenceMember == null
-                    ? builder.HasNavigations(
-                        ReferenceName, collection.Name,
-                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
-                    : builder.HasNavigations(
-                        ReferenceMember, collection.MemberInfo,
-                        (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
+                ? builder.HasNavigations(
+                    ReferenceName, collection.Name,
+                    (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit)
+                : builder.HasNavigations(
+                    ReferenceMember, collection.MemberInfo,
+                    (EntityType)RelatedEntityType, (EntityType)DeclaringEntityType, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -253,18 +253,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
 
                 var pointsToPrincipal = !foreignKey.IsSelfReferencing()
-                                        && (!foreignKey.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
-                                            || !foreignKey.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
-                                            || (foreignKey.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
-                                                && foreignKey.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
-                                                && foreignKey.PrincipalToDependent != null
-                                                && foreignKey.PrincipalToDependent.Name == ReferenceName));
+                    && (!foreignKey.DeclaringEntityType.IsAssignableFrom(DeclaringEntityType)
+                        || !foreignKey.PrincipalEntityType.IsAssignableFrom(RelatedEntityType)
+                        || (foreignKey.DeclaringEntityType.IsAssignableFrom(RelatedEntityType)
+                            && foreignKey.PrincipalEntityType.IsAssignableFrom(DeclaringEntityType)
+                            && foreignKey.PrincipalToDependent != null
+                            && foreignKey.PrincipalToDependent.Name == ReferenceName));
 
                 if (referenceName != null
                     && ((pointsToPrincipal
-                         && foreignKey.DependentToPrincipal != null
-                         && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
-                         && foreignKey.DependentToPrincipal.Name != referenceName)
+                            && foreignKey.DependentToPrincipal != null
+                            && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit
+                            && foreignKey.DependentToPrincipal.Name != referenceName)
                         || (!pointsToPrincipal
                             && foreignKey.PrincipalToDependent != null
                             && foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit

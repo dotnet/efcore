@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -60,10 +59,7 @@ namespace Microsoft.EntityFrameworkCore.SqlAzure
                     {
                         using (contextScoped.Database.BeginTransaction())
                         {
-                            var product = new Product
-                            {
-                                ProductID = 999
-                            };
+                            var product = new Product { ProductID = 999 };
                             contextScoped.Products.Attach(product);
                             Assert.Equal(0, contextScoped.SaveChanges());
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,15 +14,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
     public class FakeDbDataReader : DbDataReader
     {
         private readonly string[] _columnNames;
-        private readonly IList<object[]> _results;
+        private IList<object[]> _results;
+        private readonly IList<IList<object[]>> _resultSets;
 
+        private int _currentResultSet;
         private object[] _currentRow;
         private int _rowIndex;
+        private bool _closed;
 
         public FakeDbDataReader(string[] columnNames = null, IList<object[]> results = null)
         {
             _columnNames = columnNames ?? Array.Empty<string>();
             _results = results ?? new List<object[]>();
+            _resultSets = new List<IList<object[]>> { _results };
+        }
+
+        public FakeDbDataReader(string[] columnNames, IList<IList<object[]>> resultSets)
+        {
+            _columnNames = columnNames ?? Array.Empty<string>();
+            _resultSets = resultSets ?? new List<IList<object[]>> { new List<object[]>() };
+            _results = _resultSets[0];
         }
 
         public override bool Read()
@@ -51,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         public override void Close()
         {
             CloseCount++;
+            _closed = true;
         }
 
         public int DisposeCount { get; private set; }
@@ -63,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
                 base.Dispose(true);
             }
+
+            _closed = true;
         }
 
         public override int FieldCount => _columnNames.Length;
@@ -88,11 +103,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override int Depth => throw new NotImplementedException();
 
-        public override bool HasRows => throw new NotImplementedException();
+        public override bool HasRows => _results.Count != 0;
 
-        public override bool IsClosed => throw new NotImplementedException();
+        public override bool IsClosed => _closed;
 
-        public override int RecordsAffected => 0;
+        public override int RecordsAffected => _resultSets.Aggregate(0, (a, r) => a + r.Count);
 
         public override bool GetBoolean(int ordinal) => (bool)_currentRow[ordinal];
 
@@ -110,10 +125,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             throw new NotImplementedException();
         }
 
-        public override string GetDataTypeName(int ordinal)
-        {
-            throw new NotImplementedException();
-        }
+        public override string GetDataTypeName(int ordinal) => GetFieldType(ordinal).Name;
 
         public override DateTime GetDateTime(int ordinal) => (DateTime)_currentRow[ordinal];
 
@@ -127,9 +139,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         }
 
         public override Type GetFieldType(int ordinal)
-        {
-            throw new NotImplementedException();
-        }
+            => _results.Count > 0
+                ? _results[0][ordinal]?.GetType() ?? typeof(object)
+                : typeof(object);
 
         public override float GetFloat(int ordinal) => (float)_currentRow[ordinal];
 
@@ -153,7 +165,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 
         public override bool NextResult()
         {
-            throw new NotImplementedException();
+            var hasResult = _resultSets.Count > ++_currentResultSet;
+            if (hasResult)
+            {
+                _results = _resultSets[_currentResultSet];
+            }
+
+            return hasResult;
         }
     }
 }

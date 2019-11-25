@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -249,7 +248,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         inverseNavigation.IsCollection()
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
-
                 }
 
                 return Expression.Lambda(Expression.Block(typeof(void), expressions), entityParameter, relatedEntityParameter);

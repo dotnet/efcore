@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         SQLite-specific implementation of <see cref="MigrationsSqlGenerator" />.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/>. This means that each
-    ///         <see cref="DbContext"/> instance will use its own instance of this service.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
     ///         The implementation may depend on other services registered with any lifetime.
     ///         The implementation does not need to be thread-safe.
     ///     </para>
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private readonly IMigrationsAnnotationProvider _migrationsAnnotations;
 
         /// <summary>
-        ///     Creates a new <see cref="SqliteMigrationsSqlGenerator"/> instance.
+        ///     Creates a new <see cref="SqliteMigrationsSqlGenerator" /> instance.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="migrationsAnnotations"> Provider-specific Migrations annotations to use. </param>
@@ -156,12 +156,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var dimension = operation[SqliteAnnotationNames.Dimension] as string;
 
             var geometryType = operation.ColumnType
-                               ?? GetColumnType(
-                                   operation.Schema,
-                                   operation.Table,
-                                   operation.Name,
-                                   operation,
-                                   model);
+                ?? GetColumnType(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation,
+                    model);
             if (!string.IsNullOrEmpty(dimension))
             {
                 geometryType += dimension;
@@ -352,9 +352,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             else
             {
                 builder
-                   .Append("CREATE TABLE ")
-                   .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
-                   .AppendLine(" (");
+                    .Append("CREATE TABLE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
+                    .AppendLine(" (");
 
                 using (builder.Indent())
                 {
@@ -461,8 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = operation[SqliteAnnotationNames.Autoincrement] as bool?
-                                    // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
-                                    ?? operation[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
+                    // NB: Migrations scaffolded with version 1.0.0 don't have the prefix. See #6461
+                    ?? operation[SqliteAnnotationNames.LegacyAutoincrement] as bool?;
                 if (autoincrement == true)
                 {
                     builder.Append(" AUTOINCREMENT");
@@ -480,7 +480,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
-        protected override void Generate(AddForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+        protected override void Generate(
+            AddForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -492,7 +493,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
-        protected override void Generate(AddPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+        protected override void Generate(
+            AddPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -526,7 +528,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
-        protected override void Generate(DropColumnOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+        protected override void Generate(
+            DropColumnOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -538,7 +541,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
-        protected override void Generate(DropForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+        protected override void Generate(
+            DropForeignKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 
@@ -550,7 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="model"> The target model which may be <c>null</c> if the operations exist without a model. </param>
         /// <param name="builder"> The command builder to use to build the commands. </param>
         /// <param name="terminate"> Indicates whether or not to terminate the command after generating SQL for the operation. </param>
-        protected override void Generate(DropPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
+        protected override void Generate(
+            DropPrimaryKeyOperation operation, IModel model, MigrationCommandListBuilder builder, bool terminate = true)
             => throw new NotSupportedException(
                 SqliteStrings.InvalidMigrationOperation(operation.GetType().ShortDisplayName()));
 

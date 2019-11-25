@@ -163,11 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                              where instance.Id != 3
                              group question by question.QuestionId
                              into gQuestions
-                             select new
-                             {
-                                 gQuestions.Key,
-                                 MaxDate = gQuestions.Max(q => q.Modified)
-                             };
+                             select new { gQuestions.Key, MaxDate = gQuestions.Max(q => q.Modified) };
 
                     var result = q0.ToList();
 
@@ -180,11 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var question = new Question3595();
             var examInstance = new Exam3595();
-            var examInstanceQuestion = new ExamQuestion3595
-            {
-                Question = question,
-                Exam = examInstance
-            };
+            var examInstanceQuestion = new ExamQuestion3595 { Question = question, Exam = examInstance };
 
             context.Add(question);
             context.Add(examInstance);
@@ -308,11 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                select new
-                                {
-                                    One = 1,
-                                    Coalesce = eRootJoined ?? eVersion
-                                };
+                                select new { One = 1, Coalesce = eRootJoined ?? eVersion };
 
                     var result = query.ToList();
                     Assert.True(result.All(e => e.Coalesce.Children.Count > 0));
@@ -332,11 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                select new
-                                {
-                                    Root = eRootJoined,
-                                    Coalesce = eRootJoined ?? eVersion
-                                };
+                                select new { Root = eRootJoined, Coalesce = eRootJoined ?? eVersion };
 
                     var result = query.ToList();
                     Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
@@ -356,11 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     on eVersion.RootEntityId equals (int?)eRoot.Id
                                     into RootEntities
                                 from eRootJoined in RootEntities.DefaultIfEmpty()
-                                select new
-                                {
-                                    One = 1,
-                                    Coalesce = eRootJoined ?? (eVersion ?? eRootJoined)
-                                };
+                                select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                     var result = query.ToList();
                     Assert.Equal(2, result.Count(e => e.Coalesce.Children.Count > 0));
@@ -443,52 +423,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static void Seed3101(MyContext3101 context)
         {
-            var c11 = new Child3101
-            {
-                Name = "c11"
-            };
-            var c12 = new Child3101
-            {
-                Name = "c12"
-            };
-            var c13 = new Child3101
-            {
-                Name = "c13"
-            };
-            var c21 = new Child3101
-            {
-                Name = "c21"
-            };
-            var c22 = new Child3101
-            {
-                Name = "c22"
-            };
-            var c31 = new Child3101
-            {
-                Name = "c31"
-            };
-            var c32 = new Child3101
-            {
-                Name = "c32"
-            };
+            var c11 = new Child3101 { Name = "c11" };
+            var c12 = new Child3101 { Name = "c12" };
+            var c13 = new Child3101 { Name = "c13" };
+            var c21 = new Child3101 { Name = "c21" };
+            var c22 = new Child3101 { Name = "c22" };
+            var c31 = new Child3101 { Name = "c31" };
+            var c32 = new Child3101 { Name = "c32" };
 
             context.Children.AddRange(c11, c12, c13, c21, c22, c31, c32);
 
-            var e1 = new Entity3101
-            {
-                Id = 1,
-                Children = new[] { c11, c12, c13 }
-            };
-            var e2 = new Entity3101
-            {
-                Id = 2,
-                Children = new[] { c21, c22 }
-            };
-            var e3 = new Entity3101
-            {
-                Id = 3,
-                Children = new[] { c31, c32 }
-            };
+            var e1 = new Entity3101 { Id = 1, Children = new[] { c11, c12, c13 } };
+            var e2 = new Entity3101 { Id = 2, Children = new[] { c21, c22 } };
+            var e3 = new Entity3101 { Id = 3, Children = new[] { c31, c32 } };
 
             e2.RootEntity = e1;
 
@@ -661,14 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Id = i + 1,
                         Posts = new List<Post5456>
                         {
-                            new Post5456
-                            {
-                                Comments = new List<Comment5456>
-                                {
-                                    new Comment5456(),
-                                    new Comment5456()
-                                }
-                            },
+                            new Post5456 { Comments = new List<Comment5456> { new Comment5456(), new Comment5456() } },
                             new Post5456()
                         },
                         Author = new Author5456()
@@ -737,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     var query = context.Entity.Select(e => new EntityDto8282(e)).ToList();
 
-                    Assert.Equal(0, query.Count);
+                    Assert.Empty(query);
                 }
             }
         }

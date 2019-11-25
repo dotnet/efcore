@@ -68,11 +68,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             strategy.Execute(
-                new
-                {
-                    operation,
-                    state
-                }, s =>
+                new { operation, state }, s =>
                 {
                     s.operation(s.state);
                     return true;
@@ -205,11 +201,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, async (t, ct) =>
+                new { operation, state }, async (t, ct) =>
                 {
                     await t.operation(t.state);
                     return true;
@@ -241,11 +233,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, async (t, ct) =>
+                new { operation, state }, async (t, ct) =>
                 {
                     await t.operation(t.state, ct);
                     return true;
@@ -277,11 +265,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(operation, nameof(operation));
 
             return strategy.ExecuteAsync(
-                new
-                {
-                    operation,
-                    state
-                }, (t, ct) => t.operation(t.state), default);
+                new { operation, state }, (t, ct) => t.operation(t.state), default);
         }
 
         /// <summary>
@@ -299,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this IExecutionStrategy strategy,
             [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation)
-            => strategy.Execute(operation, verifySucceeded: null, state: state);
+            => strategy.Execute(state, operation,  verifySucceeded: null);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
@@ -346,13 +330,39 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static TResult Execute<TState, TResult>(
             [NotNull] this IExecutionStrategy strategy,
+            [CanBeNull] TState state,
             [NotNull] Func<TState, TResult> operation,
-            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded,
-            [CanBeNull] TState state)
+            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded)
             => Check.NotNull(strategy, nameof(strategy)).Execute(
                 state,
                 (c, s) => operation(s),
                 verifySucceeded == null ? (Func<DbContext, TState, ExecutionResult<TResult>>)null : (c, s) => verifySucceeded(s));
+
+        /// <summary>
+        ///     Executes the specified operation and returns the result.
+        /// </summary>
+        /// <param name="strategy">The strategy that will be used for the execution.</param>
+        /// <param name="operation">
+        ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
+        /// </param>
+        /// <param name="verifySucceeded"> A delegate that tests whether the operation succeeded even though an exception was thrown. </param>
+        /// <param name="state"> The state that will be passed to the operation. </param>
+        /// <typeparam name="TState"> The type of the state. </typeparam>
+        /// <typeparam name="TResult"> The return type of <paramref name="operation" />. </typeparam>
+        /// <returns> The result from the operation. </returns>
+        /// <exception cref="RetryLimitExceededException">
+        ///     The operation has not succeeded after the configured number of retries.
+        /// </exception>
+        [Obsolete("Use overload that takes the state first")]
+        public static TResult Execute<TState, TResult>(
+            [NotNull] this IExecutionStrategy strategy,
+            [NotNull] Func<TState, TResult> operation,
+            [CanBeNull] Func<TState, ExecutionResult<TResult>> verifySucceeded,
+            [CanBeNull] TState state)
+            => strategy.Execute(
+                state,
+                operation,
+                verifySucceeded);
 
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.

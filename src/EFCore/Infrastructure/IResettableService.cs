@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Threading;
@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped"/> and multiple registrations
-    ///         are allowed. This means that each <see cref="DbContext"/> instance will use its own
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+    ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
     ///         set of instances of this service.
     ///         The implementations may depend on other services registered with any lifetime.
     ///         The implementations do not need to be thread-safe.

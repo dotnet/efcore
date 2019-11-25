@@ -3,8 +3,6 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore

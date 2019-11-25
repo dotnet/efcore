@@ -82,12 +82,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (shouldBeOwned == true
-                && entityType != null
-                && !entityType.IsOwned()
-                && configurationSource == ConfigurationSource.Explicit
-                && entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                && entityType != null)
             {
-                throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+                if (!entityType.IsOwned()
+                    && configurationSource == ConfigurationSource.Explicit
+                    && entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(entityType.DisplayName()));
+                }
+
+                foreach (var derivedType in entityType.GetDerivedTypes())
+                {
+                    if (!derivedType.IsOwned()
+                        && configurationSource == ConfigurationSource.Explicit
+                        && derivedType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ClashingNonOwnedDerivedEntityType(entityType.DisplayName(), derivedType.DisplayName()));
+                    }
+                }
             }
 
             if (entityType != null)
@@ -142,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var clrType = type.Type
-                          ?? Metadata.FindClrType(type.Name);
+                ?? Metadata.FindClrType(type.Name);
 
             var weakEntityType = clrType == null
                 ? Metadata.FindEntityType(type.Name, definingNavigationName, definingEntityType)
@@ -227,8 +240,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 var ownershipCandidate = entityType.GetForeignKeys().FirstOrDefault(
                     fk => fk.PrincipalToDependent != null
-                          && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
-                          && !fk.PrincipalEntityType.IsInDefinitionPath(type));
+                        && !fk.PrincipalEntityType.IsInOwnershipPath(entityType)
+                        && !fk.PrincipalEntityType.IsInDefinitionPath(type));
                 if (ownershipCandidate != null)
                 {
                     if (ownershipCandidate.Builder.IsOwnership(true, configurationSource) == null)
@@ -278,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(type.Name);
             return ignoredConfigurationSource.HasValue
-                   && ignoredConfigurationSource.Value.Overrides(configurationSource);
+                && ignoredConfigurationSource.Value.Overrides(configurationSource);
         }
 
         /// <summary>
@@ -464,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetChangeTrackingStrategy(
             ChangeTrackingStrategy? changeTrackingStrategy, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetChangeTrackingStrategyConfigurationSource())
-               || Metadata.GetChangeTrackingStrategy() == changeTrackingStrategy;
+                || Metadata.GetChangeTrackingStrategy() == changeTrackingStrategy;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -494,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetPropertyAccessModeConfigurationSource())
-               || Metadata.GetPropertyAccessMode() == propertyAccessMode;
+                || Metadata.GetPropertyAccessMode() == propertyAccessMode;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -602,7 +615,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IConventionModelBuilder IConventionModelBuilder.HasNoEntityType(IConventionEntityType entityType, bool fromDataAnnotation)
-            => HasNoEntityType((EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => HasNoEntityType(
+                (EntityType)entityType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyAccessMode GetPropertyAccessMode(
             [NotNull] this IPropertyBase propertyBase)
             => (PropertyAccessMode)(Check.NotNull(propertyBase, nameof(propertyBase))[CoreAnnotationNames.PropertyAccessMode]
-                                    ?? (propertyBase is INavigation
-                                        ? propertyBase.DeclaringType.GetNavigationAccessMode()
-                                        : propertyBase.DeclaringType.GetPropertyAccessMode()));
+                ?? (propertyBase is INavigation
+                    ? propertyBase.DeclaringType.GetNavigationAccessMode()
+                    : propertyBase.DeclaringType.GetPropertyAccessMode()));
     }
 }

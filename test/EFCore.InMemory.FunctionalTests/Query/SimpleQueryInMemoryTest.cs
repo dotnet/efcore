@@ -39,32 +39,44 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Where_query_composition_entity_equality_one_element_Single(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_one_element_Single(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_one_element_Single(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_one_element_First(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_one_element_First(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_one_element_First(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_no_elements_Single(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_no_elements_Single(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_no_elements_Single(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_no_elements_First(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_no_elements_First(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_no_elements_First(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync));
         }
 
         public override Task Where_query_composition_entity_equality_multiple_elements_Single(bool isAsync)
         {
-            return Assert.ThrowsAsync<InvalidOperationException>(() => base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync));
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync));
+        }
+
+        public override Task Collection_Last_member_access_in_projection_translated(bool isAsync)
+        {
+            return Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Collection_Last_member_access_in_projection_translated(isAsync));
         }
 
         // Sending client code to server
@@ -89,61 +101,61 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Contains_with_local_tuple_array_closure(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.Contains_with_local_tuple_array_closure(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Last_when_no_order_by(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.Last_when_no_order_by(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task OrderBy_multiple_queries(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.OrderBy_multiple_queries(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_1()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_1(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_1();
+            return base.Random_next_is_not_funcletized_1(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_2()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_2(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_2();
+            return base.Random_next_is_not_funcletized_2(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_3()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_3(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_3();
+            return base.Random_next_is_not_funcletized_3(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_4()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_4(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_4();
+            return base.Random_next_is_not_funcletized_4(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_5()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_5(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_5();
+            return base.Random_next_is_not_funcletized_5(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue#17386")]
-        public override void Random_next_is_not_funcletized_6()
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Random_next_is_not_funcletized_6(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_6();
+            return base.Random_next_is_not_funcletized_6(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
         public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
         {
-            return Task.CompletedTask;
+            return base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17386")]
@@ -158,13 +170,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.Projection_when_arithmetic_mixed_subqueries(isAsync);
         }
 
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Where_equals_method_string_with_ignore_case(bool isAsync)
+        {
+            return base.Where_equals_method_string_with_ignore_case(isAsync);
+        }
+
         [ConditionalTheory(Skip = "Issue#17536")]
         public override Task SelectMany_correlated_with_outer_3(bool isAsync)
         {
             return base.SelectMany_correlated_with_outer_3(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue #17531")]
+        [ConditionalTheory]
         public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
             return base.DefaultIfEmpty_in_subquery_nested(isAsync);
@@ -175,5 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Where_equals_on_null_nullable_int_types(isAsync);
         }
+
+        // Casting int to object to string is invalid for InMemory
+        public override Task Like_with_non_string_column_using_double_cast(bool isAsync) => Task.CompletedTask;
     }
 }

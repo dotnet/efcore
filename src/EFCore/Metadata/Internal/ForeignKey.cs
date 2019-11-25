@@ -478,19 +478,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey SetIsUnique(bool? unique, ConfigurationSource configurationSource)
         {
-            var isChanging = IsUnique != unique;
+            var oldUnique = IsUnique;
             _isUnique = unique;
 
             if (unique == null)
             {
                 _isUniqueConfigurationSource = null;
             }
-
+            else
             {
                 UpdateIsUniqueConfigurationSource(configurationSource);
             }
 
-            return isChanging
+            return IsUnique != oldUnique
                 ? (ForeignKey)DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)?.Metadata
                 : this;
         }
@@ -652,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ForeignKey SetIsOwnership(bool? ownership, ConfigurationSource configurationSource)
         {
-            var isChanging = IsOwnership != ownership;
+            var oldIsOwnership = IsOwnership;
             _isOwnership = ownership;
 
             if (_isOwnership == null)
@@ -664,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 UpdateIsOwnershipConfigurationSource(configurationSource);
             }
 
-            return isChanging
+            return IsOwnership != oldIsOwnership
                 ? (ForeignKey)DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyOwnershipChanged(Builder)?.Metadata
                 : this;
         }
@@ -918,8 +918,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionForeignKey.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -930,8 +929,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionForeignKey.PrincipalEntityType
         {
-            [DebuggerStepThrough]
-            get => PrincipalEntityType;
+            [DebuggerStepThrough] get => PrincipalEntityType;
         }
 
         /// <summary>
@@ -942,8 +940,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionKey IConventionForeignKey.PrincipalKey
         {
-            [DebuggerStepThrough]
-            get => PrincipalKey;
+            [DebuggerStepThrough] get => PrincipalKey;
         }
 
         /// <summary>
@@ -954,8 +951,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IConventionProperty> IConventionForeignKey.Properties
         {
-            [DebuggerStepThrough]
-            get => Properties;
+            [DebuggerStepThrough] get => Properties;
         }
 
         /// <summary>
@@ -966,8 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionNavigation IConventionForeignKey.DependentToPrincipal
         {
-            [DebuggerStepThrough]
-            get => DependentToPrincipal;
+            [DebuggerStepThrough] get => DependentToPrincipal;
         }
 
         /// <summary>
@@ -978,8 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionNavigation IConventionForeignKey.PrincipalToDependent
         {
-            [DebuggerStepThrough]
-            get => PrincipalToDependent;
+            [DebuggerStepThrough] get => PrincipalToDependent;
         }
 
         /// <summary>
@@ -1188,13 +1182,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return principalProperties == null
-                   || dependentProperties == null
-                   || AreCompatible(
-                       principalProperties,
-                       dependentProperties,
-                       principalEntityType,
-                       dependentEntityType,
-                       shouldThrow);
+                || dependentProperties == null
+                || AreCompatible(
+                    principalProperties,
+                    dependentProperties,
+                    principalEntityType,
+                    dependentEntityType,
+                    shouldThrow);
         }
 
         /// <summary>

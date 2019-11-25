@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "second" },
             { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) }), "millisecond" }
         };
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerDateTimeMethodTranslator(
@@ -41,21 +42,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
             {
                 return !datePart.Equals("year")
-                       && !datePart.Equals("month")
-                       && arguments[0] is SqlConstantExpression sqlConstant
-                       && ((double)sqlConstant.Value >= int.MaxValue
-                           || (double)sqlConstant.Value <= int.MinValue)
-                    ? null
-                    : _sqlExpressionFactory.Function(
-                        "DATEADD",
-                        new[]
-                        {
-                            _sqlExpressionFactory.Fragment(datePart),
-                            _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
-                            instance
-                        },
-                        instance.Type,
-                        instance.TypeMapping);
+                    && !datePart.Equals("month")
+                    && arguments[0] is SqlConstantExpression sqlConstant
+                    && ((double)sqlConstant.Value >= int.MaxValue
+                        || (double)sqlConstant.Value <= int.MinValue)
+                        ? null
+                        : _sqlExpressionFactory.Function(
+                            "DATEADD",
+                            new[]
+                            {
+                                _sqlExpressionFactory.Fragment(datePart),
+                                _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
+                                instance
+                            },
+                            instance.Type,
+                            instance.TypeMapping);
             }
 
             return null;

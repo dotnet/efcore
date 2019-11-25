@@ -48,7 +48,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
-    public class LocalView<TEntity> : ICollection<TEntity>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging, IListSource
+    public class LocalView<TEntity> :
+        ICollection<TEntity>,
+        INotifyCollectionChanged,
+        INotifyPropertyChanged,
+        INotifyPropertyChanging,
+        IListSource
         where TEntity : class
     {
         private ObservableBackedBindingList<TEntity> _bindingList;
@@ -324,10 +329,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             if (entry.Entity is TEntity entity)
             {
                 var wasIn = previousState != EntityState.Detached
-                            && previousState != EntityState.Deleted;
+                    && previousState != EntityState.Deleted;
 
                 var isIn = entry.EntityState != EntityState.Detached
-                           && entry.EntityState != EntityState.Deleted;
+                    && entry.EntityState != EntityState.Deleted;
 
                 if (wasIn != isIn)
                 {

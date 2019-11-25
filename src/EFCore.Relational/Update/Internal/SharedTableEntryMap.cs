@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                var factory = CreateSharedTableEntryMapFactory(tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema);
+                var factory = CreateSharedTableEntryMapFactory(
+                    tableMapping.Value, updateAdapter, tableMapping.Key.TableName, tableMapping.Key.Schema);
 
                 sharedTablesMap.Add(tableMapping.Key, factory);
             }
@@ -127,8 +128,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     if (referencingForeignKey.PrincipalEntityType.IsAssignableFrom(entityType)
                         && entityTypes.Contains(referencingForeignKey.DeclaringEntityType)
                         && !referencingForeignKey.IsIntraHierarchical()
-                        && PropertyListComparer.Instance.Compare(
-                            referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties, referencingForeignKey.Properties) == 0)
+                        && (PropertyListComparer.Instance.Compare(
+                                referencingForeignKey.DeclaringEntityType.FindPrimaryKey().Properties,
+                                referencingForeignKey.Properties)
+                            == 0))
                     {
                         dependentList.Add(referencingForeignKey.DeclaringEntityType);
                     }
@@ -256,14 +259,11 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
 
             public int Compare(IUpdateEntry x, IUpdateEntry y)
-            {
-                if (_principals[x.EntityType].Count == 0)
-                {
-                    return -1;
-                }
-
-                return _principals[y.EntityType].Count == 0 ? 1 : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
-            }
+                => _principals[x.EntityType].Count == 0
+                    ? -1
+                    : _principals[y.EntityType].Count == 0
+                        ? 1
+                        : StringComparer.Ordinal.Compare(x.EntityType.Name, y.EntityType.Name);
         }
     }
 }

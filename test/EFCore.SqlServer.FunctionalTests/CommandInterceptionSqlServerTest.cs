@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -66,11 +68,19 @@ namespace Microsoft.EntityFrameworkCore
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
                 protected override bool ShouldSubscribeToDiagnosticListener => false;
+
+                public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                {
+                    new SqlServerDbContextOptionsBuilder(base.AddOptions(builder))
+                        .ExecutionStrategy(d => new SqlServerExecutionStrategy(d));
+                    return builder;
+                }
             }
         }
 
         public class CommandInterceptionWithDiagnosticsSqlServerTest
-            : CommandInterceptionSqlServerTestBase, IClassFixture<CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
+            : CommandInterceptionSqlServerTestBase,
+                IClassFixture<CommandInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
         {
             public CommandInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
                 : base(fixture)
@@ -80,6 +90,13 @@ namespace Microsoft.EntityFrameworkCore
             public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
             {
                 protected override bool ShouldSubscribeToDiagnosticListener => true;
+
+                public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                {
+                    new SqlServerDbContextOptionsBuilder(base.AddOptions(builder))
+                        .ExecutionStrategy(d => new SqlServerExecutionStrategy(d));
+                    return builder;
+                }
             }
         }
     }

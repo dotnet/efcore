@@ -5,7 +5,6 @@ using System;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -259,11 +258,10 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData(0, 1, -1, SeekOrigin.Begin)]
-        [InlineData(0, 1, -2, SeekOrigin.Current)]
-        [InlineData(0, 1, -3, SeekOrigin.End)]
+        [InlineData(1, -1, SeekOrigin.Begin)]
+        [InlineData(1, -2, SeekOrigin.Current)]
+        [InlineData(1, -3, SeekOrigin.End)]
         public void Seek_throws_when_negative(
-            long expected,
             long initialPosition,
             long offset,
             SeekOrigin origin)
@@ -293,7 +291,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void SetLength_throws()
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<NotSupportedException>(
                     () => stream.SetLength(1));
@@ -317,7 +315,7 @@ namespace Microsoft.Data.Sqlite
             int offset,
             int count)
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 stream.Position = initialPosition;
                 stream.Write(buffer, offset, count);
@@ -334,7 +332,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_buffer_null()
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<ArgumentNullException>(
                     () => stream.Write(null, 0, 0));
@@ -345,7 +343,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_count_out_of_range()
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Write(new byte[] { 3 }, 0, 2));
@@ -357,7 +355,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_count_negative()
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Write(Array.Empty<byte>(), 0, -1));
@@ -369,7 +367,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_offset_out_of_range()
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<ArgumentException>(
                     () => stream.Write(new byte[] { 3 }, 1, 1));
@@ -381,7 +379,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_offset_negative()
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 var ex = Assert.Throws<ArgumentOutOfRangeException>(
                     () => stream.Write(new byte[] { 3, 4 }, -1, 2));
@@ -392,7 +390,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_position_at_end_of_stream()
         {
-            using (var stream = CreateStream(readOnly: false))
+            using (var stream = CreateStream())
             {
                 stream.Position = 2;
                 var ex = Assert.Throws<NotSupportedException>(
@@ -416,7 +414,7 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Write_throws_when_disposed()
         {
-            var stream = CreateStream(readOnly: false);
+            var stream = CreateStream();
             stream.Dispose();
 
             var ex = Assert.Throws<ObjectDisposedException>(

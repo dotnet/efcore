@@ -239,6 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
+                        null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger)))
                 {
@@ -276,6 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     new RelationalCommandParameterObject(
                         connection,
                         storeCommand.ParameterValues,
+                        null,
                         Dependencies.CurrentContext.Context,
                         Dependencies.Logger),
                     cancellationToken))
@@ -318,7 +320,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     being modified such that a ValueBuffer with appropriate slots can be created.
         /// </param>
         /// <returns> The factory. </returns>
-        protected virtual IRelationalValueBufferFactory CreateValueBufferFactory([NotNull] IReadOnlyList<ColumnModification> columnModifications)
+        protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+            [NotNull] IReadOnlyList<ColumnModification> columnModifications)
             => Dependencies.ValueBufferFactoryFactory
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))

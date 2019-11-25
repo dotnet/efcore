@@ -23,19 +23,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     public class OwnedFixupTest
     {
         [ConditionalFact]
+        public void Can_detach_Added_owner_referencing_detached_weak_owned_entity()
+        {
+            using (var context = new FixupContext())
+            {
+                var owner = new Parent { Child1 = new Child() };
+
+                context.Entry(owner).State = EntityState.Added;
+
+                Assert.Equal(EntityState.Added, context.Entry(owner).State);
+                Assert.Equal(EntityState.Detached, context.Entry(owner).Reference(e => e.Child1).TargetEntry.State);
+
+                context.Entry(owner).State = EntityState.Detached;
+
+                Assert.Equal(EntityState.Detached, context.Entry(owner).State);
+                Assert.Equal(EntityState.Detached, context.Entry(owner).Reference(e => e.Child1).TargetEntry.State);
+            }
+        }
+
+        [ConditionalFact]
         public void Can_get_owned_entity_entry()
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal.Child1 = dependent;
                 principal.Child2 = dependent;
 
@@ -66,15 +79,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext(false))
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal.Child1 = dependent;
                 principal.Child2 = dependent;
 
@@ -107,25 +114,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
                 if (useTrackGraph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal.Child1 = dependent;
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 if (useTrackGraph == null)
@@ -190,27 +188,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
                 if (useTrackGraph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
 
-                var dependent = new Child
-                {
-                    Name = "1",
-                    Parent = principal
-                };
+                var dependent = new Child { Name = "1", Parent = principal };
                 principal.Child1 = dependent;
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S",
-                    Parent = dependent
-                };
+                var subDependent = new SubChild { Name = "1S", Parent = dependent };
                 dependent.SubChild = subDependent;
 
                 if (useTrackGraph == null)
@@ -273,25 +260,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
                 if (useTrackGraph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
+                var dependent = new Child { Name = "1" };
                 principal.Child1 = dependent;
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 if (useTrackGraph == null)
@@ -395,29 +373,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
-        public void Add_principal_with_dependent_unidirectional_nav_collection(EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
+        public void Add_principal_with_dependent_unidirectional_nav_collection(
+            EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
                 if (useTrackGraph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 if (useTrackGraph == null)
@@ -426,21 +396,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else if (useTrackGraph == true)
                 {
-                    context.ChangeTracker.TrackGraph(principal, e =>
-                    {
-                        if (entityState != EntityState.Added)
+                    context.ChangeTracker.TrackGraph(
+                        principal, e =>
                         {
-                            if (ReferenceEquals(e.Entry.Entity, dependent))
+                            if (entityState != EntityState.Added)
                             {
-                                e.Entry.Property("Id").CurrentValue = 10;
+                                if (ReferenceEquals(e.Entry.Entity, dependent))
+                                {
+                                    e.Entry.Property("Id").CurrentValue = 10;
+                                }
+                                else if (ReferenceEquals(e.Entry.Entity, subDependent))
+                                {
+                                    e.Entry.Property("Id").CurrentValue = 100;
+                                }
                             }
-                            else if (ReferenceEquals(e.Entry.Entity, subDependent))
-                            {
-                                e.Entry.Property("Id").CurrentValue = 100;
-                            }
-                        }
-                        e.Entry.State = entityState;
-                    });
+
+                            e.Entry.State = entityState;
+                        });
                 }
                 else
                 {
@@ -537,31 +509,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
-        public void Add_principal_with_dependent_both_navs_collection(EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
+        public void Add_principal_with_dependent_both_navs_collection(
+            EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
                 if (useTrackGraph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
 
-                var dependent = new Child
-                {
-                    Name = "1",
-                    Parent = principal
-                };
+                var dependent = new Child { Name = "1", Parent = principal };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S",
-                    Parent = dependent
-                };
+                var subDependent = new SubChild { Name = "1S", Parent = dependent };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 if (useTrackGraph == null)
@@ -570,21 +532,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else if (useTrackGraph == true)
                 {
-                    context.ChangeTracker.TrackGraph(principal, e =>
-                    {
-                        if (entityState != EntityState.Added)
+                    context.ChangeTracker.TrackGraph(
+                        principal, e =>
                         {
-                            if (ReferenceEquals(e.Entry.Entity, dependent))
+                            if (entityState != EntityState.Added)
                             {
-                                e.Entry.Property("Id").CurrentValue = 10;
+                                if (ReferenceEquals(e.Entry.Entity, dependent))
+                                {
+                                    e.Entry.Property("Id").CurrentValue = 10;
+                                }
+                                else if (ReferenceEquals(e.Entry.Entity, subDependent))
+                                {
+                                    e.Entry.Property("Id").CurrentValue = 100;
+                                }
                             }
-                            else if (ReferenceEquals(e.Entry.Entity, subDependent))
-                            {
-                                e.Entry.Property("Id").CurrentValue = 100;
-                            }
-                        }
-                        e.Entry.State = entityState;
-                    });
+
+                            e.Entry.State = entityState;
+                        });
                 }
                 else
                 {
@@ -680,29 +644,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         [InlineData(EntityState.Unchanged, true, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, false, CollectionType.ObservableHashSet)]
         [InlineData(EntityState.Unchanged, null, CollectionType.ObservableHashSet)]
-        public void Add_principal_with_dependent_principal_nav_collection(EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
+        public void Add_principal_with_dependent_principal_nav_collection(
+            EntityState entityState, bool? useTrackGraph, CollectionType collectionType)
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
                 if (useTrackGraph == null)
                 {
                     context.Entry(principal).State = entityState;
                 }
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
+                var dependent = new Child { Name = "1" };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 if (useTrackGraph == null)
@@ -711,21 +667,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else if (useTrackGraph == true)
                 {
-                    context.ChangeTracker.TrackGraph(principal, e =>
-                    {
-                        if (entityState != EntityState.Added)
+                    context.ChangeTracker.TrackGraph(
+                        principal, e =>
                         {
-                            if (ReferenceEquals(e.Entry.Entity, dependent))
+                            if (entityState != EntityState.Added)
                             {
-                                e.Entry.Property("Id").CurrentValue = 10;
+                                if (ReferenceEquals(e.Entry.Entity, dependent))
+                                {
+                                    e.Entry.Property("Id").CurrentValue = 10;
+                                }
+                                else if (ReferenceEquals(e.Entry.Entity, subDependent))
+                                {
+                                    e.Entry.Property("Id").CurrentValue = 100;
+                                }
                             }
-                            else if (ReferenceEquals(e.Entry.Entity, subDependent))
-                            {
-                                e.Entry.Property("Id").CurrentValue = 100;
-                            }
-                        }
-                        e.Entry.State = entityState;
-                    });
+
+                            e.Entry.State = entityState;
+                        });
                 }
                 else
                 {
@@ -771,15 +729,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal.Child1 = dependent;
 
                 await context.AddAsync(principal);
@@ -807,37 +759,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal.Child2 = dependent1;
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
 
                 var dependentEntry1 = context.Entry(principal).Reference(p => p.Child2).TargetEntry;
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal.Child2 = dependent2;
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChildPN { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.DetectChanges();
@@ -880,37 +817,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
+                var dependent1 = new Child { Name = "1" };
                 principal.Child1 = dependent1;
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
 
                 var dependentEntry1 = context.Entry(principal).Reference(p => p.Child1).TargetEntry;
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal.Child1 = dependent2;
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.DetectChanges();
@@ -971,21 +893,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal.ChildCollection2 = CreateChildCollection(collectionType, dependent1);
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
                 switch (entityState)
@@ -1004,16 +917,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var dependentEntry1 = context.Entry(dependent1);
                 var subDependentEntry1 = context.Entry(subDependent1);
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal.ChildCollection2 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChildPN { Name = "2S" };
                 dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
 
                 var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection2)
@@ -1078,21 +985,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
+                var dependent1 = new Child { Name = "1" };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent1);
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
                 switch (entityState)
@@ -1111,16 +1009,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var dependentEntry1 = context.Entry(dependent1);
                 var subDependentEntry1 = context.Entry(subDependent1);
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
 
                 var dependentEntry2 = context.Entry(principal).Collection(p => p.ChildCollection1)
@@ -1172,21 +1064,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal.Child1 = dependent;
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 switch (entityState)
@@ -1247,21 +1130,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
+                var dependent = new Child { Name = "1" };
                 principal.Child2 = dependent;
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
@@ -1329,21 +1203,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 switch (entityState)
@@ -1419,21 +1284,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
+                var dependent = new Child { Name = "1" };
                 principal.ChildCollection2 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 switch (entityState)
@@ -1497,33 +1353,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal.Child1 = dependent1;
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal.Child2 = dependent2;
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChildPN { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
@@ -1591,33 +1432,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
+                var dependent1 = new Child { Name = "1" };
                 principal.Child1 = dependent1;
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal.Child2 = dependent2;
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.TrackGraph(principal, e => e.Entry.State = entityState);
@@ -1704,34 +1530,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal = new ParentPN { Id = 77 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent1);
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal.ChildCollection2 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
-                dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);;
+                var subDependent2 = new SubChildPN { Name = "2S" };
+                dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
+                ;
 
                 switch (entityState)
                 {
@@ -1842,33 +1654,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal = new Parent
-                {
-                    Id = 77
-                };
+                var principal = new Parent { Id = 77 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
+                var dependent1 = new Child { Name = "1" };
                 principal.ChildCollection1 = CreateChildCollection(collectionType, dependent1);
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal.ChildCollection2 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
 
                 switch (entityState)
@@ -1969,26 +1766,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal1.Child1 = dependent;
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -2054,26 +1839,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
+                var dependent = new Child { Name = "1" };
                 principal1.Child1 = dependent;
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -2156,26 +1929,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal1.ChildCollection1 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 switch (entityState)
@@ -2272,26 +2033,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
+                var dependent = new Child { Name = "1" };
                 principal1.ChildCollection1 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 switch (entityState)
@@ -2376,38 +2125,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal1.Child1 = dependent1;
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal2.Child1 = dependent2;
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChildPN { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -2484,38 +2215,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
+                var dependent1 = new Child { Name = "1" };
                 principal1.Child1 = dependent1;
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal2.Child1 = dependent2;
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -2613,38 +2326,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal1.ChildCollection1 = CreateChildCollection(collectionType, dependent1);
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal2.ChildCollection1 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChildPN { Name = "2S" };
                 dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
 
                 switch (entityState)
@@ -2757,38 +2452,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
+                var dependent1 = new Child { Name = "1" };
                 principal1.ChildCollection1 = CreateChildCollection(collectionType, dependent1);
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal2.ChildCollection1 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
 
                 switch (entityState)
@@ -2892,26 +2569,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal1.Child2 = dependent;
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -2967,26 +2632,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
+                var dependent = new Child { Name = "1" };
                 principal1.Child2 = dependent;
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChild = subDependent;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -3060,26 +2713,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent = new ChildPN { Name = "1" };
                 principal1.ChildCollection2 = CreateChildCollection(collectionType, dependent);
 
-                var subDependent = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChildPN { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 switch (entityState)
@@ -3163,26 +2804,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent = new Child
-                {
-                    Name = "1"
-                };
-                principal1.ChildCollection2 = CreateChildCollection(collectionType, dependent);;
+                var dependent = new Child { Name = "1" };
+                principal1.ChildCollection2 = CreateChildCollection(collectionType, dependent);
+                ;
 
-                var subDependent = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent = new SubChild { Name = "1S" };
                 dependent.SubChildCollection = CreateChildCollection(collectionType, subDependent);
 
                 switch (entityState)
@@ -3254,38 +2884,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal1.Child2 = dependent1;
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal2.Child1 = dependent2;
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChildPN { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -3359,38 +2971,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
+                var dependent1 = new Child { Name = "1" };
                 principal1.Child2 = dependent1;
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChild = subDependent1;
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal2.Child1 = dependent2;
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChild = subDependent2;
 
                 context.ChangeTracker.TrackGraph(principal1, e => e.Entry.State = entityState);
@@ -3461,6 +3055,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(dependent2, subDependent2.Parent);
             }
         }
+
         [ConditionalTheory]
         [InlineData(EntityState.Added, CollectionType.HashSet)]
         [InlineData(EntityState.Modified, CollectionType.HashSet)]
@@ -3484,38 +3079,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new ParentPN
-                {
-                    Id = 77
-                };
+                var principal1 = new ParentPN { Id = 77 };
 
-                var principal2 = new ParentPN
-                {
-                    Id = 78
-                };
+                var principal2 = new ParentPN { Id = 78 };
 
-                var dependent1 = new ChildPN
-                {
-                    Name = "1"
-                };
+                var dependent1 = new ChildPN { Name = "1" };
                 principal1.ChildCollection2 = CreateChildCollection(collectionType, dependent1);
 
-                var subDependent1 = new SubChildPN
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChildPN { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
-                var dependent2 = new ChildPN
-                {
-                    Name = "2"
-                };
+                var dependent2 = new ChildPN { Name = "2" };
                 principal2.ChildCollection1 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChildPN
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChildPN { Name = "2S" };
                 dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
 
                 switch (entityState)
@@ -3635,38 +3212,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new FixupContext())
             {
-                var principal1 = new Parent
-                {
-                    Id = 77
-                };
+                var principal1 = new Parent { Id = 77 };
 
-                var principal2 = new Parent
-                {
-                    Id = 78
-                };
+                var principal2 = new Parent { Id = 78 };
 
-                var dependent1 = new Child
-                {
-                    Name = "1"
-                };
-                principal1.ChildCollection2 = CreateChildCollection(collectionType, dependent1);;
+                var dependent1 = new Child { Name = "1" };
+                principal1.ChildCollection2 = CreateChildCollection(collectionType, dependent1);
+                ;
 
-                var subDependent1 = new SubChild
-                {
-                    Name = "1S"
-                };
+                var subDependent1 = new SubChild { Name = "1S" };
                 dependent1.SubChildCollection = CreateChildCollection(collectionType, subDependent1);
 
-                var dependent2 = new Child
-                {
-                    Name = "2"
-                };
+                var dependent2 = new Child { Name = "2" };
                 principal2.ChildCollection1 = CreateChildCollection(collectionType, dependent2);
 
-                var subDependent2 = new SubChild
-                {
-                    Name = "2S"
-                };
+                var subDependent2 = new SubChild { Name = "2S" };
                 dependent2.SubChildCollection = CreateChildCollection(collectionType, subDependent2);
 
                 switch (entityState)
@@ -3776,15 +3336,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new OwnedModifiedContext(Guid.NewGuid().ToString()))
             {
-                var details = new ProductDetails
-                {
-                    Color = "C1", Size = "S1"
-                };
+                var details = new ProductDetails { Color = "C1", Size = "S1" };
 
-                var product = new Product
-                {
-                    Name = "Product1", Details = details
-                };
+                var product = new Product { Name = "Product1", Details = details };
 
                 context.Add(product);
                 context.SaveChanges();
@@ -3805,14 +3359,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                    Assert.Single(context.ChangeTracker.Entries());
                     Assert.Equal(EntityState.Deleted, context.Entry(details).State);
                 }
 
-                var newDetails = new ProductDetails
-                {
-                    Color = "C2", Size = "S2"
-                };
+                var newDetails = new ProductDetails { Color = "C2", Size = "S2" };
 
                 var newProduct = new Product
                 {
@@ -3891,23 +3442,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             using (var context = new StreetContext(nameof(StreetContext)))
             {
-                var address1 = new StreetAddress
-                {
-                    Street = "1", City = "City"
-                };
+                var address1 = new StreetAddress { Street = "1", City = "City" };
 
-                var address2 = new StreetAddress
-                {
-                    Street = "2", City = "City"
-                };
+                var address2 = new StreetAddress { Street = "2", City = "City" };
 
-                var distributor = new Distributor
-                {
-                    ShippingCenters = new List<StreetAddress>
-                    {
-                        address1, address2
-                    }
-                };
+                var distributor = new Distributor { ShippingCenters = new List<StreetAddress> { address1, address2 } };
 
                 context.Add(distributor);
 
@@ -3959,12 +3498,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Distributor>().OwnsMany(rt => rt.ShippingCenters, image =>
-                {
-                    image.WithOwner().HasForeignKey("DistributorId");
-                    image.Property<int>("Id");
-                    image.HasKey("DistributorId", "Id");
-                });
+                modelBuilder.Entity<Distributor>().OwnsMany(
+                    rt => rt.ShippingCenters, image =>
+                    {
+                        image.WithOwner().HasForeignKey("DistributorId");
+                        image.Property<int>("Id");
+                        image.HasKey("DistributorId", "Id");
+                    });
             }
         }
 
@@ -3973,10 +3513,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             const long MyBookId = 1234;
 
-            var info = new Info
-            {
-                Title = "MyBook",
-            };
+            var info = new Info { Title = "MyBook" };
 
             var book = new Book
             {
@@ -4005,10 +3542,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Equal(EntityState.Unchanged, context.Entry(book).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(info).State);
 
-                var newInfo = new Info
-                {
-                    Title = "MyBook Rev 2",
-                };
+                var newInfo = new Info { Title = "MyBook Rev 2" };
 
                 var newBook = new Book
                 {
@@ -4040,7 +3574,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Same(info, book.EnglishInfo);
                 Assert.Equal("MyBook", book.EnglishInfo.Title);
                 Assert.Same(newInfo, newBook.EnglishInfo);
-                Assert.Equal("MyBook Rev 2", newBook.EnglishInfo.Title);            }
+                Assert.Equal("MyBook Rev 2", newBook.EnglishInfo.Title);
+            }
         }
 
         private class Book
@@ -4097,26 +3632,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     new TestOrderItem
                     {
-                        ProductName = "Test Product 1",
-                        Price = new TestMoney
-                        {
-                            Amount = 99.99, Currency = TestCurrency.EUR
-                        }
+                        ProductName = "Test Product 1", Price = new TestMoney { Amount = 99.99, Currency = TestCurrency.EUR }
                     },
                     new TestOrderItem
                     {
-                        ProductName = "Test Product 3",
-                        Price = new TestMoney
-                        {
-                            Amount = 8.95, Currency = TestCurrency.USD
-                        }
+                        ProductName = "Test Product 3", Price = new TestMoney { Amount = 8.95, Currency = TestCurrency.USD }
                     }
                 };
 
-                var order = new TestOrder
-                {
-                    CustomerName = "Test Customer", TestOrderItems = items
-                };
+                var order = new TestOrder { CustomerName = "Test Customer", TestOrderItems = items };
 
                 Assert.Equal(2, order.TestOrderItems.Count);
                 Assert.Equal("EUR", order.TestOrderItems.Single(e => e.ProductName == "Test Product 1").Price.Currency.Code);
@@ -4175,10 +3699,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 NumericCode = numericCode;
             }
 
-            public int Id { get; private set; }
-            public string Name { get; private set; }
-            public string Code { get; private set; }
-            public int NumericCode { get; private set; }
+            public int Id { get; }
+            public string Name { get; }
+            public string Code { get; }
+            public int NumericCode { get; }
         }
 
         private class TestCurrencyContext : DbContext
@@ -4228,42 +3752,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     new TestOrderItem
                     {
-                        ProductName = "Test Product 1",
-                        Price = new TestMoney
-                        {
-                            Amount = 99.99, Currency = TestCurrency.EUR
-                        }
+                        ProductName = "Test Product 1", Price = new TestMoney { Amount = 99.99, Currency = TestCurrency.EUR }
                     },
                     new TestOrderItem
                     {
-                        ProductName = "Test Product 2",
-                        Price = new TestMoney
-                        {
-                            Amount = 10, Currency = TestCurrency.EUR
-                        }
+                        ProductName = "Test Product 2", Price = new TestMoney { Amount = 10, Currency = TestCurrency.EUR }
                     },
                     new TestOrderItem
                     {
-                        ProductName = "Test Product 3",
-                        Price = new TestMoney
-                        {
-                            Amount = 8.95, Currency = TestCurrency.USD
-                        }
+                        ProductName = "Test Product 3", Price = new TestMoney { Amount = 8.95, Currency = TestCurrency.USD }
                     },
                     new TestOrderItem
                     {
-                        ProductName = "Test Product 4",
-                        Price = new TestMoney
-                        {
-                            Amount = 2.99, Currency = TestCurrency.USD
-                        }
+                        ProductName = "Test Product 4", Price = new TestMoney { Amount = 2.99, Currency = TestCurrency.USD }
                     }
                 };
 
-                var order = new TestOrder
-                {
-                    CustomerName = "Test Customer", TestOrderItems = items
-                };
+                var order = new TestOrder { CustomerName = "Test Customer", TestOrderItems = items };
 
                 Assert.Equal(4, order.TestOrderItems.Count);
                 Assert.Equal("EUR", order.TestOrderItems.Single(e => e.ProductName == "Test Product 1").Price.Currency.Code);
@@ -4310,7 +3815,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         oi => oi.Price, ip =>
                         {
                             ip.Property(p => p.Amount).IsRequired();
-                            ip.Property(p => p.Currency).HasConversion<string>(
+                            ip.Property(p => p.Currency).HasConversion(
                                 v => v.Code,
                                 v => v == "EUR" ? TestCurrency.EUR : v == "USD" ? TestCurrency.USD : null);
                         }).HasKey(oi => oi.Id);
@@ -4333,21 +3838,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 var user = new User();
 
                 user.SetRoles(
-                    new[]
-                    {
-                        new Role
-                        {
-                            Value = "Pascal"
-                        },
-                        new Role
-                        {
-                            Value = "Smalltalk"
-                        },
-                        new Role
-                        {
-                            Value = "COBOL"
-                        }
-                    });
+                    new[] { new Role { Value = "Pascal" }, new Role { Value = "Smalltalk" }, new Role { Value = "COBOL" } });
 
                 context.Add(user);
                 context.SaveChanges();
@@ -4365,13 +3856,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Assert.Contains("COBOL", roles);
 
                 user.SetRoles(
-                    new List<Role>
-                    {
-                        new Role
-                        {
-                            Value = "BASIC"
-                        }
-                    });
+                    new List<Role> { new Role { Value = "BASIC" } });
 
                 Assert.Equal(5, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, GetEntryState<User>(context));
@@ -4402,8 +3887,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public void SetRoles(IList<Role> roles)
             {
-                if (_roles.Count == roles.Count &&
-                    !_roles.Except(roles).Any())
+                if (_roles.Count == roles.Count
+                    && !_roles.Except(roles).Any())
                 {
                     return;
                 }
@@ -4610,19 +4095,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 cb.WithOwner(c => c.Parent)
                                     .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId");
+                                    });
                             });
 
                         pb.OwnsOne(
@@ -4632,19 +4119,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 cb.WithOwner(c => c.Parent)
                                     .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId");
+                                    });
                             });
 
                         pb.OwnsMany(
@@ -4654,21 +4143,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 cb.WithOwner(c => c.Parent)
                                     .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
                             });
 
                         pb.OwnsMany(
@@ -4678,21 +4169,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 cb.WithOwner(c => c.Parent)
                                     .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner(c => c.Parent)
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner(c => c.Parent)
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
                             });
                     });
 
@@ -4706,21 +4199,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             {
                                 cb.Property<int?>("ParentId");
                                 cb.WithOwner()
-                                  .HasForeignKey("ParentId");
+                                    .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId");
+                                    });
                             });
 
                         pb.OwnsOne(
@@ -4728,21 +4223,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             {
                                 cb.Property<int?>("ParentId");
                                 cb.WithOwner()
-                                  .HasForeignKey("ParentId");
+                                    .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId");
+                                    });
                             });
 
                         pb.OwnsMany(
@@ -4752,21 +4249,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 cb.WithOwner()
                                     .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
                             });
 
                         pb.OwnsMany(
@@ -4776,21 +4275,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 cb.WithOwner()
                                     .HasForeignKey("ParentId");
 
-                                cb.OwnsOne(c => c.SubChild, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsOne(
+                                    c => c.SubChild, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
 
-                                cb.OwnsMany(c => c.SubChildCollection, sb =>
-                                {
-                                    sb.Property<int>("ParentId");
-                                    sb.Property<int>("ChildId");
-                                    sb.WithOwner()
-                                        .HasForeignKey("ParentId", "ChildId");
-                                });
+                                cb.OwnsMany(
+                                    c => c.SubChildCollection, sb =>
+                                    {
+                                        sb.Property<int>("ParentId");
+                                        sb.Property<int>("ChildId");
+                                        sb.WithOwner()
+                                            .HasForeignKey("ParentId", "ChildId");
+                                    });
                             });
                     });
             }
@@ -4827,7 +4328,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 CollectionType.List => (ICollection<T>)new List<T> { dependent },
                 CollectionType.SortedSet => new SortedSet<T> { dependent },
                 CollectionType.Collection => new Collection<T> { dependent },
-                CollectionType.ObservableCollection=> new ObservableCollection<T> { dependent },
+                CollectionType.ObservableCollection => new ObservableCollection<T> { dependent },
                 CollectionType.ObservableHashSet => new ObservableHashSet<T>(ReferenceEqualityComparer.Instance) { dependent },
                 _ => new HashSet<T>(ReferenceEqualityComparer.Instance) { dependent }
             };

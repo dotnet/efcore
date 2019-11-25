@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -8,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for creating a new check constraint.
     /// </summary>
+    [DebuggerDisplay("ALTER TABLE {Table} ADD CONSTRAINT {Name} CHECK")]
     public class CreateCheckConstraintOperation : MigrationOperation
     {
         /// <summary>
@@ -26,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
-        ///    The logical sql expression used in a CHECK constraint and returns TRUE or FALSE.
-        ///    Sql used with CHECK constraints cannot reference another table
-        ///    but can reference other columns in the same table for the same row.
-        ///    The expression cannot reference an alias data type.
+        ///     The logical sql expression used in a CHECK constraint and returns TRUE or FALSE.
+        ///     Sql used with CHECK constraints cannot reference another table
+        ///     but can reference other columns in the same table for the same row.
+        ///     The expression cannot reference an alias data type.
         /// </summary>
         public virtual string Sql { get; [param: NotNull] set; }
     }
