@@ -410,8 +410,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("CustomerId", ownership2.Properties.Single().Name);
 
                 var foreignKey = model.FindEntityType(typeof(SpecialCustomer)).GetReferencingForeignKeys()
-                    .Single(
-                        fk => fk.DeclaringEntityType.ClrType == typeof(Order)
+                    .Single(fk => fk.DeclaringEntityType.ClrType == typeof(Order)
                             && fk.PrincipalToDependent == null);
                 Assert.Same(ownership1.DeclaringEntityType, foreignKey.DeclaringEntityType);
                 Assert.Null(foreignKey.PrincipalToDependent);
@@ -472,8 +471,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         ob.HasKey(o => o.OrderId);
                         ob.HasData(
                             new Order { OrderId = -2, CustomerId = -1 });
-                        ob.OwnsMany(o => o.Products)
-                            .HasKey(p => p.Id);
+                        ob.OwnsMany(o => o.Products, pb =>
+                        {
+                            pb.WithOwner(p => p.Order);
+                            pb.Ignore(p => p.Categories);
+                            pb.HasKey(p => p.Id);
+                        });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -509,7 +512,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
-                        r.OwnsMany(o => o.Products);
+                        r.OwnsMany(o => o.Products, pb =>
+                        {
+                            pb.WithOwner(p => p.Order);
+                            pb.Ignore(p => p.Categories);
+                        });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -551,8 +558,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r.Ignore(o => o.OrderCombination);
                         r.Ignore(o => o.Details);
                         r.Ignore(o => o.OrderId);
-                        r.OwnsMany(o => o.Products)
-                            .Ignore(p => p.Id);
+                        r.OwnsMany(o => o.Products, pb =>
+                        {
+                            pb.WithOwner(p => p.Order);
+                            pb.Ignore(p => p.Categories);
+                            pb.Ignore(p => p.Id);
+                        });
                     });
 
                 var model = modelBuilder.FinalizeModel();
@@ -594,7 +605,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<Tomato>();
 
                 Assert.Equal(
-                    CoreStrings.AmbiguousOwnedNavigation(nameof(Whoopper), nameof(Mustard)),
+                    CoreStrings.AmbiguousOwnedNavigation(
+                        "ToastedBun.Whoopper#Whoopper.Mustard",
+                        nameof(Mustard)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
 

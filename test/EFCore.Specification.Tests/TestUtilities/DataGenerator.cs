@@ -4,21 +4,54 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public static class DataGenerator
     {
+        private static readonly ConcurrentDictionary<Type, object[]> Values = new ConcurrentDictionary<Type, object[]>();
+
         private static readonly ConcurrentDictionary<int, object[][]> _boolCombinations
             = new ConcurrentDictionary<int, object[][]>();
 
         public static object[][] GetBoolCombinations(int length)
-            => _boolCombinations.GetOrAdd(length, l => GetCombinations(new object[] { false, true }, l));
+            => _boolCombinations.GetOrAdd(length, l => GetCombinations(Values[typeof(bool)], l));
+
+        static DataGenerator()
+        {
+            Values[typeof(bool)] = new object[] { false, true };
+            Values[typeof(bool?)] = new object[] { null, false, true };
+        }
 
         public static object[][] GetCombinations(object[] set, int length)
         {
             var sets = new object[length][];
             Array.Fill(sets, set);
+            return GetCombinations(sets);
+        }
+
+        public static object[][] GetCombinations(params Type[] types)
+        {
+            var sets = new object[types.Length][];
+            for (var i = 0; i < types.Length; i++)
+            {
+                var type = types[i];
+                if (!Values.TryGetValue(type, out var values))
+                {
+                    if (!type.IsDefined(typeof(FlagsAttribute), false))
+                    {
+                        values = Enum.GetValues(type).Cast<object>().ToArray();
+                        Values[type] = values;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"The set of values for the type {type} is not known.");
+                    }
+                }
+
+                sets[i] = values;
+            }
             return GetCombinations(sets);
         }
 

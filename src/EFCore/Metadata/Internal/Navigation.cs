@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] PropertyInfo propertyInfo,
             [CanBeNull] FieldInfo fieldInfo,
             [NotNull] ForeignKey foreignKey)
-            : base(name, propertyInfo, fieldInfo)
+            : base(name, propertyInfo, fieldInfo, ConfigurationSource.Convention)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
@@ -121,10 +121,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ConfigurationSource GetConfigurationSource()
+        public override ConfigurationSource GetConfigurationSource()
             => (ConfigurationSource)(IsOnDependent
                 ? ForeignKey.GetDependentToPrincipalConfigurationSource()
                 : ForeignKey.GetPrincipalToDependentConfigurationSource());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override void UpdateConfigurationSource(ConfigurationSource configurationSource)
+        {
+            if (IsOnDependent)
+            {
+                ForeignKey.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+            }
+            else
+            {
+                ForeignKey.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -1962,17 +1962,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Order>(
                     eb =>
                     {
-                        eb.HasKey(
-                            c => new { c.OrderId, c.CustomerId });
+                        eb.HasKey(c => new { c.OrderId, c.CustomerId });
                     });
 
-                modelBuilder.Entity<ProductCategory>(eb => { eb.HasKey(c => new { c.Id, c.Name }); });
+                modelBuilder.Ignore<ProductCategory>();
+                modelBuilder.Entity<Category>(eb => { eb.HasKey(c => new { c.Id, c.Name }); });
 
                 modelBuilder.Entity<Product>(
                     eb =>
                     {
+                        eb.Ignore(p => p.Categories);
                         eb.HasOne(p => p.Order).WithMany(o => o.Products).HasForeignKey("CommonId", "OrderId");
-                        eb.HasOne<ProductCategory>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
+                        eb.HasOne<Category>().WithMany(c => c.Products).HasForeignKey("CommonId", "Category").IsRequired();
 
                         eb.HasIndex("Id", "OrderId").IsUnique();
                         eb.HasKey("Id", "CommonId");
@@ -1998,6 +1999,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Throws_on_existing_many_to_many()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Product>();
+                modelBuilder.Entity<Category>()
+                    .HasMany(o => o.Products).WithMany(c => c.Categories);
+
+                Assert.Equal(
+                    CoreStrings.ConflictingRelationshipNavigation(
+                        nameof(Category) + "." + nameof(Category.Products),
+                        nameof(Product),
+                        nameof(Category) + "." + nameof(Category.Products),
+                        nameof(Product)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<Category>()
+                            .HasMany(o => o.Products).WithOne()).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Throws_on_existing_one_to_one_relationship()
             {
                 var modelBuilder = HobNobBuilder();
@@ -2009,14 +2031,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ConflictingRelationshipNavigation(
-                        principalType.DisplayName(),
-                        nameof(Nob.Hobs),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob),
-                        principalType.DisplayName(),
-                        nameof(Nob.Hob)),
+                        principalType.DisplayName() + "." + nameof(Nob.Hobs),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob),
+                        principalType.DisplayName() + "." + nameof(Nob.Hob)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder.Entity<Nob>().HasMany(e => e.Hobs).WithOne(e => e.Nob)).Message);
@@ -2603,7 +2621,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Creates_shadow_fk_configuring_using_ForeignKeyAttribute()
             {
                 var modelBuilder = CreateModelBuilder();
-                modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependends).WithOne(e => e.Principal);
+                modelBuilder.Entity<PrincipalShadowFk>().HasMany(e => e.Dependents).WithOne(e => e.Principal);
 
                 modelBuilder.FinalizeModel();
 

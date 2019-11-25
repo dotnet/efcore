@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -36,25 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public CollectionNavigationBuilder(
             [NotNull] IMutableEntityType declaringEntityType,
             [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] string navigationName,
-            [NotNull] IMutableForeignKey foreignKey)
-            : base(declaringEntityType, relatedEntityType, navigationName, foreignKey)
-        {
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public CollectionNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] MemberInfo navigationMemberInfo,
-            [NotNull] IMutableForeignKey foreignKey)
-            : base(declaringEntityType, relatedEntityType, navigationMemberInfo, foreignKey)
+            MemberIdentity navigation,
+            [CanBeNull] IMutableForeignKey foreignKey,
+            [CanBeNull] IMutableSkipNavigation skipNavigation)
+            : base(declaringEntityType, relatedEntityType, navigation, foreignKey, skipNavigation)
         {
         }
 
@@ -94,5 +79,44 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(navigationExpression?.GetPropertyAccess()).Metadata);
+
+        /// <summary>
+        ///     Configures this as a many-to-many relationship.
+        /// </summary>
+        /// <param name="navigationName">
+        ///     The name of the collection navigation property on the other end of this relationship.
+        /// </param>
+        /// <returns> An object to further configure the relationship. </returns>
+        public new virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany([NotNull] string navigationName)
+        {
+            var leftName = Builder?.Metadata.PrincipalToDependent.Name;
+            return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                           RelatedEntityType,
+                           DeclaringEntityType,
+                           WithLeftManyNavigation(navigationName),
+                           WithRightManyNavigation(navigationName, leftName));
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures this as a many-to-many relationship.
+        ///     </para>
+        /// </summary>
+        /// <param name="navigationExpression">
+        ///     A lambda expression representing the reference navigation property on the other end of this
+        ///     relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
+        ///     configured without a navigation property on the other end of the relationship.
+        /// </param>
+        /// <returns> An object to further configure the relationship. </returns>
+        public virtual CollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
+            [NotNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
+        {
+            var leftName = Builder?.Metadata.PrincipalToDependent.Name;
+            return new CollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                           RelatedEntityType,
+                           DeclaringEntityType,
+                           WithLeftManyNavigation(navigationExpression.GetPropertyAccess()),
+                           WithRightManyNavigation(navigationExpression.GetPropertyAccess(), leftName));
+        }
     }
 }

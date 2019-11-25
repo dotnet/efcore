@@ -1102,6 +1102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public int Compare(MemberInfo x, MemberInfo y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
+        [DebuggerDisplay("{DebuggerDisplay(),nq}")]
         private sealed class RelationshipCandidate
         {
             public RelationshipCandidate(
@@ -1117,6 +1118,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public IConventionEntityTypeBuilder TargetTypeBuilder { [DebuggerStepThrough] get; }
             public List<PropertyInfo> NavigationProperties { [DebuggerStepThrough] get; }
             public List<PropertyInfo> InverseProperties { [DebuggerStepThrough] get; }
+
+            private string DebuggerDisplay() =>
+                TargetTypeBuilder.Metadata.ToDebugString(MetadataDebugStringOptions.SingleLineDefault)
+                + ": ["
+                + string.Join(", ", NavigationProperties.Select(p => p.Name))
+                + "] - ["
+                + string.Join(", ", InverseProperties.Select(p => p.Name))
+                + "]";
         }
     }
 }

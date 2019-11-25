@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_only_override_lower_or_equal_source_unicode()
+        public void Can_only_override_lower_or_equal_source_IsUnicode()
         {
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Can_only_override_existing_unicode_value_explicitly()
+        public void Can_only_override_existing_IsUnicode_value_explicitly()
         {
             var metadata = CreateProperty();
             metadata.SetIsUnicode(true);

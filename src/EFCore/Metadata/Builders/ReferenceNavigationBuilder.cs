@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && builder.Metadata.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
                 && collectionName != null)
             {
-                ThrowForConflictingNavigation(builder.Metadata, collectionName, false);
+                InternalRelationshipBuilder.ThrowForConflictingNavigation(builder.Metadata, collectionName, false);
             }
 
             builder = builder.IsUnique(false, ConfigurationSource.Explicit);
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
                 && foreignKey.PrincipalToDependent.Name != collectionName)
             {
-                ThrowForConflictingNavigation(foreignKey, collectionName, false);
+                InternalRelationshipBuilder.ThrowForConflictingNavigation(foreignKey, collectionName, false);
             }
 
             return collection.MemberInfo == null || ReferenceMember == null
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 && Builder.Metadata.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
                 && referenceName != null)
             {
-                ThrowForConflictingNavigation(Builder.Metadata, referenceName, false);
+                InternalRelationshipBuilder.ThrowForConflictingNavigation(Builder.Metadata, referenceName, false);
             }
 
             using var batch = Builder.Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions();
@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         && foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
                         && foreignKey.PrincipalToDependent.Name != referenceName)))
             {
-                ThrowForConflictingNavigation(foreignKey, referenceName, pointsToPrincipal);
+                InternalRelationshipBuilder.ThrowForConflictingNavigation(foreignKey, referenceName, pointsToPrincipal);
             }
 
             var referenceProperty = reference.MemberInfo;
@@ -295,20 +295,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             }
 
             return batch.Run(builder);
-        }
-
-        private static void ThrowForConflictingNavigation(ForeignKey foreignKey, string newInverseName, bool newToPrincipal)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.ConflictingRelationshipNavigation(
-                    foreignKey.PrincipalEntityType.DisplayName(),
-                    newToPrincipal ? foreignKey.PrincipalToDependent?.Name : newInverseName,
-                    foreignKey.DeclaringEntityType.DisplayName(),
-                    newToPrincipal ? newInverseName : foreignKey.DependentToPrincipal?.Name,
-                    foreignKey.PrincipalEntityType.DisplayName(),
-                    foreignKey.PrincipalToDependent?.Name,
-                    foreignKey.DeclaringEntityType.DisplayName(),
-                    foreignKey.DependentToPrincipal?.Name));
         }
 
         #region Hidden System.Object members

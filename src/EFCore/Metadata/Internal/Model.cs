@@ -276,16 +276,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static void AssertCanRemove(EntityType entityType)
         {
-            var foreignKey = entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.PrincipalEntityType != entityType);
-            if (foreignKey != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.EntityTypeInUseByForeignKey(
-                        entityType.DisplayName(),
-                        foreignKey.PrincipalEntityType.DisplayName(),
-                        foreignKey.Properties.Format()));
-            }
-
             var referencingForeignKey = entityType.GetDeclaredReferencingForeignKeys().FirstOrDefault();
             if (referencingForeignKey != null)
             {
@@ -294,6 +284,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         entityType.DisplayName(),
                         referencingForeignKey.Properties.Format(),
                         referencingForeignKey.DeclaringEntityType.DisplayName()));
+            }
+
+            var referencingSkipNavigation = entityType.GetDeclaredReferencingSkipNavigations().FirstOrDefault();
+            if (referencingSkipNavigation != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.EntityTypeInUseByReferencingSkipNavigation(
+                        entityType.DisplayName(),
+                        referencingSkipNavigation.Name,
+                        referencingSkipNavigation.DeclaringEntityType.DisplayName()));
             }
 
             var derivedEntityType = entityType.GetDirectlyDerivedTypes().FirstOrDefault();
@@ -320,6 +320,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             AssertCanRemove(entityType);
+
+            foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+            {
+                if (foreignKey.PrincipalEntityType != entityType)
+                {
+                    entityType.RemoveForeignKey(foreignKey);
+                }
+            }
+
+            foreach (var skipNavigation in entityType.GetSkipNavigations().ToList())
+            {
+                if (skipNavigation.TargetEntityType != entityType)
+                {
+                    entityType.RemoveSkipNavigation(skipNavigation);
+                }
+            }
 
             var entityTypeName = entityType.Name;
             if (entityType.HasDefiningNavigation())
