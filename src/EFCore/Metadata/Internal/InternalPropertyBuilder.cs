@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, configurationSource);
             }
 
-            if (!typeof(ValueGenerator).GetTypeInfo().IsAssignableFrom(valueGeneratorType.GetTypeInfo()))
+            if (!typeof(ValueGenerator).IsAssignableFrom(valueGeneratorType))
             {
                 throw new ArgumentException(
                     CoreStrings.BadValueGeneratorType(valueGeneratorType.ShortDisplayName(), typeof(ValueGenerator).ShortDisplayName()));

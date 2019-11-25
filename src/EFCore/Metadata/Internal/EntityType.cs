@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.NonClrBaseType(this.DisplayName(), newBaseType.DisplayName()));
                     }
 
-                    if (!newBaseType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                    if (!newBaseType.ClrType.IsAssignableFrom(ClrType))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.NotAssignableClrBaseType(
@@ -1779,7 +1779,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
                 }
 
-                if (memberInfo.DeclaringType?.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()) != true)
+                if (memberInfo.DeclaringType?.IsAssignableFrom(ClrType) != true)
                 {
                     throw new ArgumentException(
                         CoreStrings.PropertyWrongEntityClrType(
@@ -2343,7 +2343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (ClrType != null
                     && ClrType != entity.GetType()
-                    && ClrType.GetTypeInfo().IsAssignableFrom(entity.GetType().GetTypeInfo()))
+                    && ClrType.IsAssignableFrom(entity.GetType()))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.SeedDatumDerivedType(
@@ -2390,14 +2390,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (ClrType != null)
             {
                 if (value != ChangeTrackingStrategy.Snapshot
-                    && !typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                    && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
                 {
                     return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
                 }
 
                 if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
                         || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                    && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                    && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
                 {
                     return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
                 }
@@ -2507,7 +2507,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (value != null
-                && !entityType.GetDiscriminatorProperty().ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                && !entityType.GetDiscriminatorProperty().ClrType.IsAssignableFrom(value.GetType()))
             {
                 throw new InvalidOperationException(
                     CoreStrings.DiscriminatorValueIncompatible(
@@ -3173,7 +3173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? Enumerable.Empty<T>()
                 : new[] { element };
 
-        private class PropertyComparer : IComparer<string>
+        private sealed class PropertyComparer : IComparer<string>
         {
             private readonly EntityType _entityType;
 

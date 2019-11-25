@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class ProxiesStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.ProxiesStrings", typeof(ProxiesStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.ProxiesStrings", typeof(ProxiesStrings).Assembly);
 
         /// <summary>
         ///     UseLazyLoadingProxies requires AddEntityFrameworkProxies to be called on the internal service provider used.

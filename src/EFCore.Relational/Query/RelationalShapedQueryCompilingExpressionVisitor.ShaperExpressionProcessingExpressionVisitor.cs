@@ -11,13 +11,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
-        private class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
+        private sealed class ShaperExpressionProcessingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MemberInfo _resultContextValuesMemberInfo
-                = typeof(ResultContext).GetTypeInfo().GetMember(nameof(ResultContext.Values))[0];
+                = typeof(ResultContext).GetMember(nameof(ResultContext.Values))[0];
 
             private static readonly MemberInfo _resultCoordinatorResultReadyMemberInfo
-                = typeof(ResultCoordinator).GetTypeInfo().GetMember(nameof(ResultCoordinator.ResultReady))[0];
+                = typeof(ResultCoordinator).GetMember(nameof(ResultCoordinator.ResultReady))[0];
 
             private readonly SelectExpression _selectExpression;
             private readonly ParameterExpression _dataReaderParameter;
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _indexMapParameter = indexMapParameter;
             }
 
-            private class CollectionShaperFindingExpressionVisitor : ExpressionVisitor
+            private sealed class CollectionShaperFindingExpressionVisitor : ExpressionVisitor
             {
                 private bool _containsCollection;
 

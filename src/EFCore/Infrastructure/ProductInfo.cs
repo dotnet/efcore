@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public static class ProductInfo
     {
         public static string GetVersion()
-            => typeof(ProductInfo).GetTypeInfo().Assembly
+            => typeof(ProductInfo).Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
     }
 }

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public static class CoreStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).Assembly);
 
         /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
@@ -2254,7 +2254,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     public static class CoreResources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).Assembly);
 
         /// <summary>
         ///     An 'IServiceProvider' was created for internal use by Entity Framework.

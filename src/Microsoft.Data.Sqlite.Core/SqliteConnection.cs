@@ -771,7 +771,7 @@ namespace Microsoft.Data.Sqlite
             return values;
         }
 
-        private class AggregateContext<T>
+        private sealed class AggregateContext<T>
         {
             public AggregateContext(T seed)
                 => Accumulate = seed;
@@ -780,7 +780,7 @@ namespace Microsoft.Data.Sqlite
             public Exception Exception { get; set; }
         }
 
-        private class FunctionsKeyComparer : IEqualityComparer<(string name, int arity)>
+        private sealed class FunctionsKeyComparer : IEqualityComparer<(string name, int arity)>
         {
             public static readonly FunctionsKeyComparer Instance = new FunctionsKeyComparer();
 

@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
 
         static EnumerableMethods()
         {
-            var enumerableMethods = typeof(Enumerable).GetTypeInfo()
+            var enumerableMethods = typeof(Enumerable)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .ToList();
 

@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return null;
         }
 
-        private class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
+        private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitExtension(Expression node)
             {

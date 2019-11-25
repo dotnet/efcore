@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public static bool IsSqlServer([NotNull] this MigrationBuilder migrationBuilder)
             => string.Equals(
                 migrationBuilder.ActiveProvider,
-                typeof(SqlServerOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqlServerOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             bool makeNullable)
         {
             if (propertyDeclaringType != target.Type
-                && target.Type.GetTypeInfo().IsAssignableFrom(propertyDeclaringType.GetTypeInfo()))
+                && target.Type.IsAssignableFrom(propertyDeclaringType))
             {
                 target = Expression.Convert(target, propertyDeclaringType);
             }

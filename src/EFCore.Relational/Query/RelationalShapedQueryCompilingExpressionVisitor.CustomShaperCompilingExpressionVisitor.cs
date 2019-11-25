@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
-        private class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
+        private sealed class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
         {
             private readonly ParameterExpression _dbDataReaderParameter;
             private readonly ParameterExpression _resultCoordinatorParameter;

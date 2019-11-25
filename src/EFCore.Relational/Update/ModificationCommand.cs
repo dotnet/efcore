@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        private class ColumnValuePropagator
+        private sealed class ColumnValuePropagator
         {
             private bool _write;
             private object _originalValue;

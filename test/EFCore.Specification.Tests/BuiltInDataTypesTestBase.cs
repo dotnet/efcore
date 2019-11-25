@@ -1605,7 +1605,7 @@ namespace Microsoft.EntityFrameworkCore
         public static Type UnwrapNullableEnumType(Type type)
         {
             var underlyingNonNullableType = UnwrapNullableType(type);
-            if (!underlyingNonNullableType.GetTypeInfo().IsEnum)
+            if (!underlyingNonNullableType.IsEnum)
             {
                 return underlyingNonNullableType;
             }

@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             public IReadOnlyDictionary<string, TypeInfo> Migrations => throw new NotImplementedException();
             public ModelSnapshot ModelSnapshot => throw new NotImplementedException();
-            public Assembly Assembly => typeof(FakeMigrationsAssembly).GetTypeInfo().Assembly;
+            public Assembly Assembly => typeof(FakeMigrationsAssembly).Assembly;
             public Migration CreateMigration(TypeInfo migrationClass, string activeProvider) => throw new NotImplementedException();
             public string FindMigrationId(string nameOrId) => throw new NotImplementedException();
         }

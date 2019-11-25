@@ -740,7 +740,7 @@ namespace Microsoft.EntityFrameworkCore
                     return s.Result;
                 }, async (c, s, ct) => new ExecutionResult<TResult>(s.CommitFailed && await s.VerifySucceeded(s.State, ct), s.Result));
 
-        private class ExecutionState<TState, TResult>
+        private sealed class ExecutionState<TState, TResult>
         {
             public ExecutionState(
                 Func<TState, TResult> operation,
@@ -759,7 +759,7 @@ namespace Microsoft.EntityFrameworkCore
             public bool CommitFailed { get; set; }
         }
 
-        private class ExecutionStateAsync<TState, TResult>
+        private sealed class ExecutionStateAsync<TState, TResult>
         {
             public ExecutionStateAsync(
                 Func<TState, CancellationToken, Task<TResult>> operation,

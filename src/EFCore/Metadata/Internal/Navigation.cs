@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? shouldBeCollection,
             bool shouldThrow)
         {
-            if (!navigationProperty.DeclaringType.GetTypeInfo().IsAssignableFrom(sourceClrType.GetTypeInfo()))
+            if (!navigationProperty.DeclaringType.IsAssignableFrom(sourceClrType))
             {
                 if (shouldThrow)
                 {
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
             shouldBeCollection ??= navigationTargetClrType != null && navigationProperty.GetMemberType() != targetClrType;
             if (shouldBeCollection.Value
-                && navigationTargetClrType?.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()) != true)
+                && navigationTargetClrType?.IsAssignableFrom(targetClrType) != true)
             {
                 if (shouldThrow)
                 {
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (!shouldBeCollection.Value
-                && !navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                && !navigationProperty.GetMemberType().IsAssignableFrom(targetClrType))
             {
                 if (shouldThrow)
                 {

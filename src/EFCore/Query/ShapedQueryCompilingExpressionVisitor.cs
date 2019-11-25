@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return _entityMaterializerInjectingExpressionVisitor.Inject(expression);
         }
 
-        private class ConstantVerifyingExpressionVisitor : ExpressionVisitor
+        private sealed class ConstantVerifyingExpressionVisitor : ExpressionVisitor
         {
             private readonly ITypeMappingSource _typeMappingSource;
 
@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor
+        private sealed class EntityMaterializerInjectingExpressionVisitor : ExpressionVisitor
         {
             private static readonly ConstructorInfo _materializationContextConstructor
                 = typeof(MaterializationContext).GetConstructors().Single(ci => ci.GetParameters().Length == 2);

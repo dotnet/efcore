@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         void IConventionSequence.SetIsCyclic(bool? cyclic, bool fromDataAnnotation)
             => SetIsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        private class SequenceData
+        private sealed class SequenceData
         {
             public string Name { get; set; }
 

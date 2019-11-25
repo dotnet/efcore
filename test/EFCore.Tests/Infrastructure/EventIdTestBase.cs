@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var loggerParameters = loggerMethod.GetParameters();
                     var category = loggerParameters[0].ParameterType.GenericTypeArguments[0];
 
-                    if (category.GetTypeInfo().ContainsGenericParameters)
+                    if (category.ContainsGenericParameters)
                     {
                         category = typeof(DbLoggerCategory.Infrastructure);
                         loggerMethod = loggerMethod.MakeGenericMethod(category);

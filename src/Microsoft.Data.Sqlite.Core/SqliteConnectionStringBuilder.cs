@@ -245,7 +245,7 @@ namespace Microsoft.Data.Sqlite
             {
                 enumValue = (TEnum)value;
             }
-            else if (value.GetType().GetTypeInfo().IsEnum)
+            else if (value.GetType().IsEnum)
             {
                 throw new ArgumentException(Resources.ConvertFailed(value.GetType(), typeof(TEnum)));
             }

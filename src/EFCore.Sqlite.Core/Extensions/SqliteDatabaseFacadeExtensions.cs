@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if SQLite is being used; false otherwise. </returns>
         public static bool IsSqlite([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
-                typeof(SqliteOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqliteOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

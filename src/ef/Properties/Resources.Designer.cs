@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
     internal static class Resources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Tools.Properties.Resources", typeof(Resources).Assembly);
 
         /// <summary>
         ///     The assembly to use.

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         // TODO: For debugging
-        private class EnumerableVerifyingExpressionVisitor : ExpressionVisitor
+        private sealed class EnumerableVerifyingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {

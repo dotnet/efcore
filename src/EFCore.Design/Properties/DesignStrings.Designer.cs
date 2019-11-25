@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public static class DesignStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.DesignStrings", typeof(DesignStrings).Assembly);
 
         /// <summary>
         ///     The name '{migrationName}' is used by an existing migration.

@@ -2236,7 +2236,7 @@ WHERE [e].[Name] IS NULL");
                 {
                     var compiledQueryCache = this.GetService<ICompiledQueryCache>();
 
-                    return (MemoryCache)typeof(CompiledQueryCache).GetTypeInfo()
+                    return (MemoryCache)typeof(CompiledQueryCache)
                         .GetField("_memoryCache", BindingFlags.Instance | BindingFlags.NonPublic)
                         ?.GetValue(compiledQueryCache);
                 }
@@ -4904,7 +4904,7 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]");
 
         private MemberInfo GetMemberInfo(Type type, string name)
         {
-            return type.GetTypeInfo().GetProperty(name);
+            return type.GetProperty(name);
         }
 
         [ConditionalFact]

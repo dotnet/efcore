@@ -541,10 +541,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyList<EntityType> FindLeastDerivedEntityTypes(
             [NotNull] Type type, [CanBeNull] Func<EntityType, bool> condition = null)
         {
-            var derivedLevels = new Dictionary<TypeInfo, int> { [type.GetTypeInfo()] = 0 };
+            var derivedLevels = new Dictionary<Type, int> { [type] = 0 };
 
             var leastDerivedTypesGroups = GetEntityTypes()
-                .GroupBy(t => GetDerivedLevel(t.ClrType.GetTypeInfo(), derivedLevels))
+                .GroupBy(t => GetDerivedLevel(t.ClrType, derivedLevels))
                 .Where(g => g.Key != int.MaxValue)
                 .OrderBy(g => g.Key);
 
@@ -565,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new List<EntityType>();
         }
 
-        private static int GetDerivedLevel(TypeInfo derivedType, Dictionary<TypeInfo, int> derivedLevels)
+        private static int GetDerivedLevel(Type derivedType, Dictionary<Type, int> derivedLevels)
         {
             if (derivedType?.BaseType == null)
             {
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return level;
             }
 
-            var baseType = derivedType.BaseType.GetTypeInfo();
+            var baseType = derivedType.BaseType;
             level = GetDerivedLevel(baseType, derivedLevels);
             level += level == int.MaxValue ? 0 : 1;
             derivedLevels.Add(derivedType, level);

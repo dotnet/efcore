@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if the type is abstract, false otherwise. </returns>
         [DebuggerStepThrough]
         public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+            => type.ClrType?.IsAbstract ?? false;
 
         /// <summary>
         ///     Gets the root base type for a given entity type.

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _entityProjectionFindingExpressionVisitor = new EntityProjectionFindingExpressionVisitor();
         }
 
-        private class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
+        private sealed class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
         {
             private bool _found;
 

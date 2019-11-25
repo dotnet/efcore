@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the Cosmos provider is being used. </returns>
         public static bool IsCosmos([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
-                typeof(CosmosOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(CosmosOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

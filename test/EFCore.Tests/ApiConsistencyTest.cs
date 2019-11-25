@@ -19,17 +19,17 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        public ApiConsistencyTest()
-            : base(
+        protected override HashSet<MethodInfo> NonVirtualMethods { get; }
+            = new HashSet<MethodInfo>
+            {
                 typeof(CompiledQueryCacheKeyGenerator).GetRuntimeMethods().Single(m => m.Name == "GenerateCacheKeyCore"),
                 typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == "get_Item"),
                 typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == "set_Item"),
                 typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == nameof(InternalEntityEntry.HasDefaultValue)),
                 typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.Filter)).GetMethod,
                 typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.Sink)).GetMethod,
-                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.FormatOptions)).GetMethod)
-        {
-        }
+                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.FormatOptions)).GetMethod
+            };
 
         private static readonly Type[] _fluentApiTypes =
         {
@@ -108,6 +108,6 @@ namespace Microsoft.EntityFrameworkCore
         protected override Dictionary<Type, (Type Mutable, Type Convention)> MetadataTypes
             => _metadataTypes;
 
-        protected override Assembly TargetAssembly => typeof(EntityType).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(EntityType).Assembly;
     }
 }

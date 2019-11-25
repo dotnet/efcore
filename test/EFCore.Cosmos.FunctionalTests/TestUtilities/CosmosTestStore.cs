@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             if (dataFilePath != null)
             {
                 _dataFilePath = Path.Combine(
-                    Path.GetDirectoryName(typeof(CosmosTestStore).GetTypeInfo().Assembly.Location),
+                    Path.GetDirectoryName(typeof(CosmosTestStore).Assembly.Location),
                     dataFilePath);
             }
         }

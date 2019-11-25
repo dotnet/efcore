@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitMethodCall(methodCallExpression);
         }
 
-        private class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
+        private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
         {
             private readonly List<ParameterExpression> _allowedParameters = new List<ParameterExpression>();
             private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };

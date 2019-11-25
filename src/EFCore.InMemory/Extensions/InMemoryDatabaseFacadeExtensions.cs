@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <c>true</c> if the in-memory database is being used. </returns>
         public static bool IsInMemory([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
-                typeof(InMemoryOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(InMemoryOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

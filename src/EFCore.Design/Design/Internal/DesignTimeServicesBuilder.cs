@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _reporter.WriteVerbose(DesignStrings.FindingDesignTimeServices(_startupAssembly.GetName().Name));
 
             var designTimeServicesType = _startupAssembly.GetLoadableDefinedTypes()
-                .Where(t => typeof(IDesignTimeServices).GetTypeInfo().IsAssignableFrom(t)).Select(t => t.AsType())
+                .Where(t => typeof(IDesignTimeServices).IsAssignableFrom(t)).Select(t => t.AsType())
                 .FirstOrDefault();
             if (designTimeServicesType == null)
             {

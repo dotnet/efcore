@@ -790,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return null;
         }
 
-        private class CorrelationFindingExpressionVisitor : ExpressionVisitor
+        private sealed class CorrelationFindingExpressionVisitor : ExpressionVisitor
         {
             private ParameterExpression _outerParameter;
             private bool _correlated;
@@ -962,7 +962,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         internal Expression ExpandWeakEntities(SelectExpression selectExpression, Expression lambdaBody)
             => _weakEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
 
-        private class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
         {
             private SelectExpression _selectExpression;
             private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
@@ -976,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _sqlExpressionFactory = sqlExpressionFactory;
             }
 
-            public virtual Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
+            public Expression Expand(SelectExpression selectExpression, Expression lambdaBody)
             {
                 _selectExpression = selectExpression;
 

@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(options, nameof(options));
 
-            if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
+            if (!options.ContextType.IsAssignableFrom(GetType()))
             {
                 throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().ShortDisplayName()));
             }

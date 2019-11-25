@@ -21,23 +21,23 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
+        private sealed class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _getItemMethodInfo
-                = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
+                = typeof(JObject).GetRuntimeProperties()
                     .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                     .GetMethod;
 
             private static readonly PropertyInfo _jTokenTypePropertyInfo
-                = typeof(JToken).GetTypeInfo().GetRuntimeProperties()
+                = typeof(JToken).GetRuntimeProperties()
                     .Single(mi => mi.Name == nameof(JToken.Type));
 
             private static readonly MethodInfo _jTokenToObjectMethodInfo
-                = typeof(JToken).GetTypeInfo().GetRuntimeMethods()
+                = typeof(JToken).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
 
             private static readonly MethodInfo _toObjectMethodInfo
-                = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo().GetRuntimeMethods()
+                = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(SafeToObject));
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo

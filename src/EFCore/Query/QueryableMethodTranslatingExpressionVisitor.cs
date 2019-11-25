@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : throw new NotImplementedException("Unhandled method: " + method.Name);
         }
 
-        private class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
+        private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitExtension(Expression extensionExpression)
             {
@@ -493,7 +493,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new[] { outerShaper, innerShaper }, outerMemberInfo, innerMemberInfo);
         }
 
-        private class MemberAccessShiftingExpressionVisitor : ExpressionVisitor
+        private sealed class MemberAccessShiftingExpressionVisitor : ExpressionVisitor
         {
             private readonly Expression _queryExpression;
             private readonly MemberInfo _memberShift;

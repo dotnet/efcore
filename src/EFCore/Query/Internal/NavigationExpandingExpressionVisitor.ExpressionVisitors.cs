@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var resultSelector = Expression.Lambda(
                     Expression.New(
-                        resultType.GetTypeInfo().GetConstructors().Single(),
+                        resultType.GetConstructors().Single(),
                         new[] { resultSelectorOuterParameter, resultSelectorInnerParameter }, transparentIdentifierOuterMemberInfo,
                         transparentIdentifierInnerMemberInfo),
                     resultSelectorOuterParameter,
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
+        private sealed class IncludeExpandingExpressionVisitor : ExpandingExpressionVisitor
         {
             private readonly bool _isTracking;
 
@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class PendingSelectorExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class PendingSelectorExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly NavigationExpandingExpressionVisitor _visitor;
             private readonly bool _applyIncludes;
@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class ReducingExpressionVisitor : ExpressionVisitor
+        private sealed class ReducingExpressionVisitor : ExpressionVisitor
         {
             public override Expression Visit(Expression expression)
             {
@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
+        private sealed class EntityReferenceOptionalMarkingExpressionVisitor : ExpressionVisitor
         {
             public override Expression Visit(Expression expression)
             {
@@ -596,7 +596,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class SelfReferenceEntityQueryableRewritingExpressionVisitor : ExpressionVisitor
+        private sealed class SelfReferenceEntityQueryableRewritingExpressionVisitor : ExpressionVisitor
         {
             private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
             private readonly IEntityType _entityType;

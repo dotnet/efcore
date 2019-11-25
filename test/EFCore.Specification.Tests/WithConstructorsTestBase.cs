@@ -1597,14 +1597,14 @@ namespace Microsoft.EntityFrameworkCore
                 var bindingFactories = context.GetService<IParameterBindingFactories>();
 
                 var blogServiceProperty = modelBuilder.Entity<LazyFieldBlog>().Metadata.AddServiceProperty(
-                    typeof(LazyFieldBlog).GetTypeInfo().GetRuntimeFields().Single(f => f.Name == "_loader"));
+                    typeof(LazyFieldBlog).GetRuntimeFields().Single(f => f.Name == "_loader"));
 
                 blogServiceProperty.ParameterBinding =
                     (ServiceParameterBinding)bindingFactories.FindFactory(typeof(ILazyLoader), "_loader")
                         .Bind(blogServiceProperty.DeclaringEntityType, typeof(ILazyLoader), "_loader");
 
                 var postServiceProperty = modelBuilder.Entity<LazyFieldPost>().Metadata.AddServiceProperty(
-                    typeof(LazyFieldPost).GetTypeInfo().GetRuntimeFields().Single(f => f.Name == "_loader"));
+                    typeof(LazyFieldPost).GetRuntimeFields().Single(f => f.Name == "_loader"));
 
                 postServiceProperty.ParameterBinding =
                     (ServiceParameterBinding)bindingFactories.FindFactory(typeof(ILazyLoader), "_loader")

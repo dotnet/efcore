@@ -379,8 +379,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var otherEntityType = existingInverse.GetTargetType();
-                if (!entityType.ClrType.GetTypeInfo()
-                    .IsAssignableFrom(otherEntityType.ClrType.GetTypeInfo()))
+                if (!entityType.ClrType
+                    .IsAssignableFrom(otherEntityType.ClrType))
                 {
                     return false;
                 }
@@ -1094,7 +1094,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ImmutableSortedDictionary<MemberInfo, Type> ambiguousNavigations)
             => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.AmbiguousNavigations, ambiguousNavigations);
 
-        private class MemberInfoNameComparer : IComparer<MemberInfo>
+        private sealed class MemberInfoNameComparer : IComparer<MemberInfo>
         {
             public static readonly MemberInfoNameComparer Instance = new MemberInfoNameComparer();
 
@@ -1105,7 +1105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             public int Compare(MemberInfo x, MemberInfo y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
-        private class RelationshipCandidate
+        private sealed class RelationshipCandidate
         {
             public RelationshipCandidate(
                 IConventionEntityTypeBuilder targetTypeBuilder,

@@ -629,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return null;
         }
 
-        private class DefaultIfEmptyFindingExpressionVisitor : ExpressionVisitor
+        private sealed class DefaultIfEmptyFindingExpressionVisitor : ExpressionVisitor
         {
             private bool _defaultIfEmpty;
 
@@ -801,7 +801,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         internal Expression ExpandWeakEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
             => _weakEntityExpandingExpressionVisitor.Expand(queryExpression, lambdaBody);
 
-        private class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
         {
             private InMemoryQueryExpression _queryExpression;
             private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
@@ -811,7 +811,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _expressionTranslator = expressionTranslator;
             }
 
-            public virtual Expression Expand(InMemoryQueryExpression queryExpression, Expression lambdaBody)
+            public Expression Expand(InMemoryQueryExpression queryExpression, Expression lambdaBody)
             {
                 _queryExpression = queryExpression;
 

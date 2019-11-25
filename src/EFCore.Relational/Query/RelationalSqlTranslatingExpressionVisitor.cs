@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     "SUM", new[] { sqlExpression }, inputType, sqlExpression.TypeMapping);
         }
 
-        private class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
+        private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
         {
             protected override Expression VisitExtension(Expression node)
             {

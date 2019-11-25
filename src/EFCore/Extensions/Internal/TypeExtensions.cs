@@ -171,9 +171,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             yield return type.Namespace;
 
-            if (type.GetTypeInfo().IsGenericType)
+            if (type.IsGenericType)
             {
-                foreach (var typeArgument in type.GetTypeInfo().GenericTypeArguments)
+                foreach (var typeArgument in type.GenericTypeArguments)
                 {
                     foreach (var ns in typeArgument.GetNamespaces())
                     {

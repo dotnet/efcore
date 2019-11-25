@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
             => modelBuilder.Metadata.RemoveAnnotation(StateAnnotationName);
 
-        private class NonNullabilityConventionState
+        private sealed class NonNullabilityConventionState
         {
             public Type NullableAttrType;
             public Type NullableContextAttrType;

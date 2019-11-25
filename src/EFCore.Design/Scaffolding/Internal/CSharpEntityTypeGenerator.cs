@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private class AttributeWriter
+        private sealed class AttributeWriter
         {
             private readonly string _attributeName;
             private readonly List<string> _parameters = new List<string>();

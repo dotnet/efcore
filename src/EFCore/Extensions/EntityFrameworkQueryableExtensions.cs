@@ -2142,7 +2142,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Single(
                     mi =>
                     {
-                        var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].GetTypeInfo();
+                        var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
                         return typeInfo.IsGenericType
                             && typeInfo.GetGenericTypeDefinition() == navType;
                     });
@@ -2284,7 +2284,7 @@ namespace Microsoft.EntityFrameworkCore
                             arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
                     : source);
 
-        private class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
+        private sealed class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
         {
             private readonly IQueryable<TEntity> _queryable;
 

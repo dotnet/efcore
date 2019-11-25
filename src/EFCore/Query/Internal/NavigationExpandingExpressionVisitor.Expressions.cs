@@ -313,8 +313,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var parentExperssion = Parent.GetExpression();
                 return Parent.Left == this
-                    ? MakeMemberAccess(parentExperssion, parentExperssion.Type.GetTypeInfo().GetMember("Outer")[0])
-                    : MakeMemberAccess(parentExperssion, parentExperssion.Type.GetTypeInfo().GetMember("Inner")[0]);
+                    ? MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Outer")[0])
+                    : MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Inner")[0]);
             }
         }
 
