@@ -35,96 +35,67 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     visitedNodes.Add(visitedNode);
                 }
 
-                return (visitedNodes?.Count ?? 0) == 0 ? null : new ConventionScope(node.Parent, visitedNodes);
+                return (visitedNodes?.Count ?? 0) == 0 ? null : new DelayedConventionScope(node.Parent, visitedNodes);
             }
 
-            public virtual OnModelAnnotationChangedNode VisitOnModelAnnotationChanged(OnModelAnnotationChangedNode node)
-                => node;
+            public abstract OnModelAnnotationChangedNode VisitOnModelAnnotationChanged(OnModelAnnotationChangedNode node);
 
-            public virtual OnEntityTypeAddedNode VisitOnEntityTypeAdded(OnEntityTypeAddedNode node)
-                => node;
+            public abstract OnEntityTypeAddedNode VisitOnEntityTypeAdded(OnEntityTypeAddedNode node);
 
-            public virtual OnEntityTypeIgnoredNode VisitOnEntityTypeIgnored(OnEntityTypeIgnoredNode node)
-                => node;
+            public abstract OnEntityTypeIgnoredNode VisitOnEntityTypeIgnored(OnEntityTypeIgnoredNode node);
 
-            public virtual OnEntityTypeRemovedNode VisitOnEntityTypeRemoved(OnEntityTypeRemovedNode node)
-                => node;
+            public abstract OnEntityTypeRemovedNode VisitOnEntityTypeRemoved(OnEntityTypeRemovedNode node);
 
-            public virtual OnEntityTypeMemberIgnoredNode VisitOnEntityTypeMemberIgnored(OnEntityTypeMemberIgnoredNode node)
-                => node;
+            public abstract OnEntityTypeMemberIgnoredNode VisitOnEntityTypeMemberIgnored(OnEntityTypeMemberIgnoredNode node);
 
-            public virtual OnEntityTypeBaseTypeChangedNode VisitOnBaseEntityTypeChanged(OnEntityTypeBaseTypeChangedNode node)
-                => node;
+            public abstract OnEntityTypeBaseTypeChangedNode VisitOnBaseEntityTypeChanged(OnEntityTypeBaseTypeChangedNode node);
 
-            public virtual OnEntityTypeAnnotationChangedNode VisitOnEntityTypeAnnotationChanged(OnEntityTypeAnnotationChangedNode node)
-                => node;
+            public abstract OnEntityTypeAnnotationChangedNode VisitOnEntityTypeAnnotationChanged(OnEntityTypeAnnotationChangedNode node);
 
-            public virtual OnForeignKeyAddedNode VisitOnForeignKeyAdded(OnForeignKeyAddedNode node)
-                => node;
+            public abstract OnForeignKeyAddedNode VisitOnForeignKeyAdded(OnForeignKeyAddedNode node);
 
-            public virtual OnForeignKeyRemovedNode VisitOnForeignKeyRemoved(OnForeignKeyRemovedNode node)
-                => node;
+            public abstract OnForeignKeyRemovedNode VisitOnForeignKeyRemoved(OnForeignKeyRemovedNode node);
 
-            public virtual OnForeignKeyPropertiesChangedNode VisitOnForeignKeyPropertiesChanged(OnForeignKeyPropertiesChangedNode node)
-                => node;
+            public abstract OnForeignKeyPropertiesChangedNode VisitOnForeignKeyPropertiesChanged(OnForeignKeyPropertiesChangedNode node);
 
-            public virtual OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node)
-                => node;
+            public abstract OnForeignKeyUniquenessChangedNode VisitOnForeignKeyUniquenessChanged(OnForeignKeyUniquenessChangedNode node);
 
-            public virtual OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(
-                OnForeignKeyRequirednessChangedNode node) => node;
+            public abstract OnForeignKeyRequirednessChangedNode VisitOnForeignKeyRequirednessChanged(OnForeignKeyRequirednessChangedNode node);
 
-            public virtual OnForeignKeyOwnershipChangedNode VisitOnForeignKeyOwnershipChanged(OnForeignKeyOwnershipChangedNode node)
-                => node;
+            public abstract OnForeignKeyOwnershipChangedNode VisitOnForeignKeyOwnershipChanged(OnForeignKeyOwnershipChangedNode node);
 
-            public virtual OnForeignKeyPrincipalEndChangedNode VisitOnForeignKeyPrincipalEndChanged(
-                OnForeignKeyPrincipalEndChangedNode node)
-                => node;
+            public abstract OnForeignKeyPrincipalEndChangedNode VisitOnForeignKeyPrincipalEndChanged(
+                OnForeignKeyPrincipalEndChangedNode node);
 
-            public virtual OnForeignKeyAnnotationChangedNode VisitOnForeignKeyAnnotationChanged(OnForeignKeyAnnotationChangedNode node)
-                => node;
+            public abstract OnForeignKeyAnnotationChangedNode VisitOnForeignKeyAnnotationChanged(OnForeignKeyAnnotationChangedNode node);
 
-            public virtual OnNavigationAddedNode VisitOnNavigationAdded(OnNavigationAddedNode node)
-                => node;
+            public abstract OnNavigationAddedNode VisitOnNavigationAdded(OnNavigationAddedNode node);
 
-            public virtual OnNavigationRemovedNode VisitOnNavigationRemoved(OnNavigationRemovedNode node)
-                => node;
+            public abstract OnNavigationRemovedNode VisitOnNavigationRemoved(OnNavigationRemovedNode node);
 
-            public virtual OnKeyAddedNode VisitOnKeyAdded(OnKeyAddedNode node)
-                => node;
+            public abstract OnKeyAddedNode VisitOnKeyAdded(OnKeyAddedNode node);
 
-            public virtual OnKeyRemovedNode VisitOnKeyRemoved(OnKeyRemovedNode node)
-                => node;
+            public abstract OnKeyRemovedNode VisitOnKeyRemoved(OnKeyRemovedNode node);
 
-            public virtual OnKeyAnnotationChangedNode VisitOnKeyAnnotationChanged(OnKeyAnnotationChangedNode node)
-                => node;
+            public abstract OnKeyAnnotationChangedNode VisitOnKeyAnnotationChanged(OnKeyAnnotationChangedNode node);
 
-            public virtual OnEntityTypePrimaryKeyChangedNode VisitOnPrimaryKeyChanged(OnEntityTypePrimaryKeyChangedNode node)
-                => node;
+            public abstract OnEntityTypePrimaryKeyChangedNode VisitOnPrimaryKeyChanged(OnEntityTypePrimaryKeyChangedNode node);
 
-            public virtual OnIndexAddedNode VisitOnIndexAdded(OnIndexAddedNode node)
-                => node;
+            public abstract OnIndexAddedNode VisitOnIndexAdded(OnIndexAddedNode node);
 
-            public virtual OnIndexRemovedNode VisitOnIndexRemoved(OnIndexRemovedNode node)
-                => node;
+            public abstract OnIndexRemovedNode VisitOnIndexRemoved(OnIndexRemovedNode node);
 
-            public virtual OnIndexUniquenessChangedNode VisitOnIndexUniquenessChanged(OnIndexUniquenessChangedNode node)
-                => node;
+            public abstract OnIndexUniquenessChangedNode VisitOnIndexUniquenessChanged(OnIndexUniquenessChangedNode node);
 
-            public virtual OnIndexAnnotationChangedNode VisitOnIndexAnnotationChanged(OnIndexAnnotationChangedNode node)
-                => node;
+            public abstract OnIndexAnnotationChangedNode VisitOnIndexAnnotationChanged(OnIndexAnnotationChangedNode node);
 
-            public virtual OnPropertyAddedNode VisitOnPropertyAdded(OnPropertyAddedNode node)
-                => node;
+            public abstract OnPropertyAddedNode VisitOnPropertyAdded(OnPropertyAddedNode node);
 
-            public virtual OnPropertyNullableChangedNode VisitOnPropertyNullableChanged(OnPropertyNullableChangedNode node)
-                => node;
+            public abstract OnPropertyNullableChangedNode VisitOnPropertyNullableChanged(OnPropertyNullableChangedNode node);
 
-            public virtual OnPropertyFieldChangedNode VisitOnPropertyFieldChanged(OnPropertyFieldChangedNode node)
-                => node;
+            public abstract OnPropertyFieldChangedNode VisitOnPropertyFieldChanged(OnPropertyFieldChangedNode node);
 
-            public virtual OnPropertyAnnotationChangedNode VisitOnPropertyAnnotationChanged(OnPropertyAnnotationChangedNode node)
-                => node;
+            public abstract OnPropertyAnnotationChangedNode VisitOnPropertyAnnotationChanged(OnPropertyAnnotationChangedNode node);
         }
 
         private sealed class RunVisitor : ConventionVisitor
