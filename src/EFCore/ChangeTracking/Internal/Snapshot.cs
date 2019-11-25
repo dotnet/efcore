@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public static Delegate[] CreateReaders<TSnapshot>()
         {
-            var genericArguments = typeof(TSnapshot).GetTypeInfo().GenericTypeArguments;
+            var genericArguments = typeof(TSnapshot).GenericTypeArguments;
             var delegates = new Delegate[genericArguments.Length];
 
             for (var i = 0; i < genericArguments.Length; ++i)

@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return (selectExpression: (SelectExpression)fromSqlParameterOptimized, canCache);
         }
 
-        private class ParameterNullabilityBasedSqlExpressionOptimizingExpressionVisitor : SqlExpressionOptimizingExpressionVisitor
+        private sealed class ParameterNullabilityBasedSqlExpressionOptimizingExpressionVisitor : SqlExpressionOptimizingExpressionVisitor
         {
             private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private readonly IReadOnlyDictionary<string, object> _parametersValues;
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        private class FromSqlParameterApplyingExpressionVisitor : ExpressionVisitor
+        private sealed class FromSqlParameterApplyingExpressionVisitor : ExpressionVisitor
         {
             private readonly IDictionary<FromSqlExpression, Expression> _visitedFromSqlExpressions
                 = new Dictionary<FromSqlExpression, Expression>(ReferenceEqualityComparer.Instance);

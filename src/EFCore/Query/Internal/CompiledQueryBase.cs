@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitParameter(ParameterExpression parameterExpression)
             {
-                if (typeof(TContext).GetTypeInfo().IsAssignableFrom(parameterExpression.Type.GetTypeInfo()))
+                if (typeof(TContext).IsAssignableFrom(parameterExpression.Type))
                 {
                     return Expression.Constant(_context);
                 }

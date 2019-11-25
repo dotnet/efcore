@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class JObjectInjectingExpressionVisitor : ExpressionVisitor
+        private sealed class JObjectInjectingExpressionVisitor : ExpressionVisitor
         {
             private int _currentEntityIndex;
 

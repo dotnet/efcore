@@ -862,7 +862,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var newResultSelector = Expression.Lambda(
                 Expression.New(
-                    transparentIdentifierType.GetTypeInfo().GetConstructors().Single(),
+                    transparentIdentifierType.GetConstructors().Single(),
                     new[] { outerSource.CurrentParameter, innerSource.CurrentParameter }, transparentIdentifierOuterMemberInfo,
                     transparentIdentifierInnerMemberInfo),
                 outerSource.CurrentParameter,
@@ -916,7 +916,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var newResultSelector = Expression.Lambda(
                 Expression.New(
-                    transparentIdentifierType.GetTypeInfo().GetConstructors().Single(),
+                    transparentIdentifierType.GetConstructors().Single(),
                     new[] { outerSource.CurrentParameter, innerSource.CurrentParameter }, transparentIdentifierOuterMemberInfo,
                     transparentIdentifierInnerMemberInfo),
                 outerSource.CurrentParameter,
@@ -1035,7 +1035,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var newResultSelector = Expression.Lambda(
                     Expression.New(
-                        transparentIdentifierType.GetTypeInfo().GetConstructors().Single(),
+                        transparentIdentifierType.GetConstructors().Single(),
                         new[] { source.CurrentParameter, collectionElementParameter }, transparentIdentifierOuterMemberInfo,
                         transparentIdentifierInnerMemberInfo),
                     source.CurrentParameter,
@@ -1522,13 +1522,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class Parameters : IParameterValues
+        private sealed class Parameters : IParameterValues
         {
             private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
 
             public IReadOnlyDictionary<string, object> ParameterValues => (IReadOnlyDictionary<string, object>)_parameterValues;
 
-            public virtual void AddParameter(string name, object value)
+            public void AddParameter(string name, object value)
             {
                 _parameterValues.Add(name, value);
             }

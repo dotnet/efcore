@@ -452,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return container.GetItemQueryStreamIterator(queryDefinition);
         }
 
-        private class DocumentEnumerable : IEnumerable<JObject>
+        private sealed class DocumentEnumerable : IEnumerable<JObject>
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
@@ -472,7 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-            private class Enumerator : IEnumerator<JObject>
+            private sealed class Enumerator : IEnumerator<JObject>
             {
                 private FeedIterator _query;
                 private ResponseMessage _responseMessage;
@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
         }
 
-        private class DocumentAsyncEnumerable : IAsyncEnumerable<JObject>
+        private sealed class DocumentAsyncEnumerable : IAsyncEnumerable<JObject>
         {
             private readonly CosmosClientWrapper _cosmosClient;
             private readonly string _containerId;
@@ -589,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             public IAsyncEnumerator<JObject> GetAsyncEnumerator(CancellationToken cancellationToken = default)
                 => new AsyncEnumerator(this, cancellationToken);
 
-            private class AsyncEnumerator : IAsyncEnumerator<JObject>
+            private sealed class AsyncEnumerator : IAsyncEnumerator<JObject>
             {
                 private FeedIterator _query;
                 private ResponseMessage _responseMessage;

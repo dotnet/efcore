@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return _currentResultSet.ReadAsync(cancellationToken);
         }
 
-        private class BufferedDataRecord
+        private sealed class BufferedDataRecord
         {
             private int _currentRowNumber = -1;
             private int _rowCount;

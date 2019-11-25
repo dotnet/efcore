@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 => node;
         }
 
-        private class RunVisitor : ConventionVisitor
+        private sealed class RunVisitor : ConventionVisitor
         {
             public RunVisitor(ConventionDispatcher dispatcher)
             {

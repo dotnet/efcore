@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             return result;
         }
 
-        private class ConventionBatch : IConventionBatch
+        private sealed class ConventionBatch : IConventionBatch
         {
             private readonly ConventionDispatcher _dispatcher;
             private int? _runCount;

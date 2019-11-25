@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EqualityComparer
                 = comparer != null
                     ? new NoNullsCustomEqualityComparer(comparer)
-                    : typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(typeof(TKey).GetTypeInfo())
+                    : typeof(IStructuralEquatable).IsAssignableFrom(typeof(TKey))
                         ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
                         : EqualityComparer<TKey>.Default;
         }

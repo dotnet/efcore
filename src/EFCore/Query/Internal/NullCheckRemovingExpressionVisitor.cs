@@ -45,11 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitConditional(conditionalExpression);
         }
 
-        private class NullSafeAccessVerifyingExpressionVisitor : ExpressionVisitor
+        private sealed class NullSafeAccessVerifyingExpressionVisitor : ExpressionVisitor
         {
             private readonly ISet<Expression> _nullSafeAccesses = new HashSet<Expression>(ExpressionEqualityComparer.Instance);
 
-            public virtual bool Verify(Expression caller, Expression result)
+            public bool Verify(Expression caller, Expression result)
             {
                 _nullSafeAccesses.Clear();
                 _nullSafeAccesses.Add(caller);

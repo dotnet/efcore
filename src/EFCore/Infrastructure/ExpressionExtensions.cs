@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var memberDeclaringClrType = member.DeclaringType;
             if (expression != null
                 && memberDeclaringClrType != expression.Type
-                && expression.Type.GetTypeInfo().IsAssignableFrom(memberDeclaringClrType.GetTypeInfo()))
+                && expression.Type.IsAssignableFrom(memberDeclaringClrType))
             {
                 expression = Expression.Convert(expression, memberDeclaringClrType);
             }
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (declaringType != null
                 && declaringType != parameterType
-                && declaringType.GetTypeInfo().IsInterface
-                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo()))
+                && declaringType.IsInterface
+                && declaringType.IsAssignableFrom(parameterType))
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);

@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return parameter;
         }
 
-        private class ContextParameterReplacingExpressionVisitor : ExpressionVisitor
+        private sealed class ContextParameterReplacingExpressionVisitor : ExpressionVisitor
         {
             private readonly Type _contextType;
 
@@ -350,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public override Expression Visit(Expression expression)
                 => expression?.Type != typeof(object)
-                    && expression?.Type.GetTypeInfo().IsAssignableFrom(_contextType) == true
+                    && expression?.Type.IsAssignableFrom(_contextType) == true
                     ? ContextParameterExpression
                     : base.Visit(expression);
         }
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private class EvaluatableExpressionFindingExpressionVisitor : ExpressionVisitor
+        private sealed class EvaluatableExpressionFindingExpressionVisitor : ExpressionVisitor
         {
             private readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter;
             private readonly ISet<ParameterExpression> _allowedParameters = new HashSet<ParameterExpression>();

@@ -957,7 +957,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 updatedExpressions);
         }
 
-        private class ShaperRemappingExpressionVisitor : ExpressionVisitor
+        private sealed class ShaperRemappingExpressionVisitor : ExpressionVisitor
         {
             private readonly SelectExpression _queryExpression;
             private readonly SelectExpression _innerSelectExpression;
@@ -1151,7 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool ContainsTableReference(TableExpressionBase table)
             => Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
 
-        private class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
+        private sealed class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
         {
             private readonly IReadOnlyList<TableExpressionBase> _tables;
             private bool _containsOuterReference;
@@ -1365,7 +1365,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public void AddOuterApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
             => AddJoin(JoinType.OuterApply, innerSelectExpression, transparentIdentifierType);
 
-        private class SqlRemappingVisitor : ExpressionVisitor
+        private sealed class SqlRemappingVisitor : ExpressionVisitor
         {
             private readonly SelectExpression _subquery;
             private readonly IDictionary<SqlExpression, ColumnExpression> _mappings;

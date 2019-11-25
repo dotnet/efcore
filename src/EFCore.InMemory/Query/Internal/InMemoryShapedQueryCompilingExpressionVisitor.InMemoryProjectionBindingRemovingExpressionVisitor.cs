@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor
     {
-        private class InMemoryProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
+        private sealed class InMemoryProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private readonly IDictionary<ParameterExpression, (IDictionary<IProperty, int> IndexMap, ParameterExpression valueBuffer)>
                 _materializationContextBindings

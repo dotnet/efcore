@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
-        private class RelationalProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
+        private sealed class RelationalProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _isDbNullMethod =
                 typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private ReaderColumn[] ProjectionColumns { get; }
 
-            public virtual Expression Visit(Expression node, out IReadOnlyList<ReaderColumn> projectionColumns)
+            public Expression Visit(Expression node, out IReadOnlyList<ReaderColumn> projectionColumns)
             {
                 var result = Visit(node);
                 projectionColumns = ProjectionColumns;

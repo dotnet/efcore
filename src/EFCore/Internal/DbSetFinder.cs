@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .Select(
                     p => new DbSetProperty(
                         p.Name,
-                        p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(),
+                        p.PropertyType.GenericTypeArguments.Single(),
                         p.SetMethod == null ? null : factory.Create(p)))
                 .ToArray();
         }

@@ -1131,11 +1131,11 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                if (typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
+                if (typeof(INotifyPropertyChanging).IsAssignableFrom(typeof(TBlog)))
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
                 }
-                else if (typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(typeof(TBlog).GetTypeInfo()))
+                else if (typeof(INotifyPropertyChanged).IsAssignableFrom(typeof(TBlog)))
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
                 }

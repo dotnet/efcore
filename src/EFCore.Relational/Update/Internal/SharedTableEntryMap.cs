@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private class EntryComparer : IComparer<IUpdateEntry>
+        private sealed class EntryComparer : IComparer<IUpdateEntry>
         {
             private readonly IReadOnlyDictionary<IEntityType, IReadOnlyList<IEntityType>> _principals;
 

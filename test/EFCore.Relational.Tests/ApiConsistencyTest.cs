@@ -16,15 +16,16 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        public ApiConsistencyTest()
-            : base(
+        protected override HashSet<MethodInfo> NonVirtualMethods { get; }
+            = new HashSet<MethodInfo>
+            {
                 typeof(RelationalCompiledQueryCacheKeyGenerator)
                     .GetRuntimeMethods()
                     .Single(
                         m => m.Name == "GenerateCacheKeyCore"
-                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator)))
-        {
-        }
+                            && m.DeclaringType == typeof(RelationalCompiledQueryCacheKeyGenerator))
+            };
+
 
         private static readonly Type[] _fluentApiTypes =
         {
@@ -48,6 +49,6 @@ namespace Microsoft.EntityFrameworkCore
             new EntityFrameworkRelationalServicesBuilder(serviceCollection).TryAddCoreServices();
         }
 
-        protected override Assembly TargetAssembly => typeof(RelationalDatabase).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(RelationalDatabase).Assembly;
     }
 }

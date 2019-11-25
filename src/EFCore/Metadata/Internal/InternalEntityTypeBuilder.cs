@@ -2131,8 +2131,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var navigationProperty = navigationToTarget?.MemberInfo;
             if (inverseNavigation == null
-                && navigationProperty?.GetMemberType().GetTypeInfo().IsAssignableFrom(
-                    targetEntityType.ClrType.GetTypeInfo())
+                && navigationProperty?.GetMemberType().IsAssignableFrom(
+                    targetEntityType.ClrType)
                 == false)
             {
                 // Only one nav specified and it can't be the nav to principal

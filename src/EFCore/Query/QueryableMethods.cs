@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         static QueryableMethods()
         {
-            var queryableMethods = typeof(Queryable).GetTypeInfo()
+            var queryableMethods = typeof(Queryable)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly).ToList();
 
             AsQueryable = queryableMethods.Single(

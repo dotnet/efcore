@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public static bool IsSqlite([NotNull] this MigrationBuilder migrationBuilder)
             => string.Equals(
                 migrationBuilder.ActiveProvider,
-                typeof(SqliteOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqliteOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

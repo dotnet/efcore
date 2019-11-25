@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     && Compare(a.Object, b.Object)
                     && CompareExpressionList(a.Arguments, b.Arguments);
 
-            private class ScopedDictionary<TKey, TValue>
+            private sealed class ScopedDictionary<TKey, TValue>
             {
                 private readonly ScopedDictionary<TKey, TValue> _previous;
                 private readonly Dictionary<TKey, TValue> _map;
