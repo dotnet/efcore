@@ -1375,7 +1375,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.
+        ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.
         /// </summary>
         public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalEntityType, [CanBeNull] object newPrincipalNavigation, [CanBeNull] object newDependentEntityType, [CanBeNull] object newDependentNavigation, [CanBeNull] object existingPrincipalEntityType, [CanBeNull] object existingPrincipalNavigation, [CanBeNull] object existingDependentEntityType, [CanBeNull] object existingDependentNavigation)
             => string.Format(
@@ -2245,12 +2245,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreigKey, entityType, navigation, navigationEntityType);
 
         /// <summary>
-        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreigKey}.
+        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreignKey}.
         /// </summary>
-        public static string SkipNavigationWrongDependentType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType, [CanBeNull] object foreigKey)
+        public static string SkipNavigationWrongDependentType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType, [CanBeNull] object foreignKey)
             => string.Format(
-                GetString("SkipNavigationWrongDependentType", nameof(navigation), nameof(entityType), nameof(dependentEntityType), nameof(foreigKey)),
-                navigation, entityType, dependentEntityType, foreigKey);
+                GetString("SkipNavigationWrongDependentType", nameof(navigation), nameof(entityType), nameof(dependentEntityType), nameof(foreignKey)),
+                navigation, entityType, dependentEntityType, foreignKey);
 
         /// <summary>
         ///     The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.
@@ -2261,12 +2261,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 inverse, inverseEntityType, navigation, targetEntityType);
 
         /// <summary>
-        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreigKey}.
+        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreignKey}.
         /// </summary>
-        public static string SkipNavigationWrongPrincipalType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType, [CanBeNull] object foreigKey)
+        public static string SkipNavigationWrongPrincipalType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType, [CanBeNull] object foreignKey)
             => string.Format(
-                GetString("SkipNavigationWrongPrincipalType", nameof(navigation), nameof(entityType), nameof(principalEntityType), nameof(foreigKey)),
-                navigation, entityType, principalEntityType, foreigKey);
+                GetString("SkipNavigationWrongPrincipalType", nameof(navigation), nameof(entityType), nameof(principalEntityType), nameof(foreignKey)),
+                navigation, entityType, principalEntityType, foreignKey);
 
         /// <summary>
         ///     The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
@@ -2299,6 +2299,38 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SkipNavigationNonCollection", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
+
+        /// <summary>
+        ///     The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the association entity type '{associationType}' while the inverse skip navigation '{inverse}' is using the association entity type '{inverseAssociationType}'. The inverse should use the same association entity type.
+        /// </summary>
+        public static string SkipInverseMismatchedForeignKey([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object associationType, [CanBeNull] object inverse, [CanBeNull] object inverseAssociationType)
+            => string.Format(
+                GetString("SkipInverseMismatchedForeignKey", nameof(foreignKey), nameof(navigation), nameof(associationType), nameof(inverse), nameof(inverseAssociationType)),
+                foreignKey, navigation, associationType, inverse, inverseAssociationType);
+
+        /// <summary>
+        ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.
+        /// </summary>
+        public static string SkipNavigationNoForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("SkipNavigationNoForeignKey", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}'.
+        /// </summary>
+        public static string SkipNavigationForeignKeyWrongDependentType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType)
+            => string.Format(
+                GetString("SkipNavigationForeignKeyWrongDependentType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(dependentEntityType)),
+                foreignKey, navigation, entityType, dependentEntityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}'.
+        /// </summary>
+        public static string SkipNavigationForeignKeyWrongPrincipalType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType)
+            => string.Format(
+                GetString("SkipNavigationForeignKeyWrongPrincipalType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(principalEntityType)),
+                foreignKey, navigation, entityType, principalEntityType);
 
         /// <summary>
         ///     Cannot add property '{property}' on entity type '{entity}' since there is no indexer on '{entity}' taking a single argument of type '{type}'.

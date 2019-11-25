@@ -20,27 +20,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
         /// </summary>
-        new IMutableEntityType DeclaringEntityType => IsOnPrincipal ? ForeignKey.PrincipalEntityType : ForeignKey.DeclaringEntityType;
-
-        /// <summary>
-        ///     Gets the association type used by the foreign key.
-        /// </summary>
-        new IMutableEntityType AssociationEntityType => IsOnPrincipal ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
+        new IMutableEntityType DeclaringEntityType => (IMutableEntityType)((ISkipNavigation)this).DeclaringEntityType;
 
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
-        new IMutableEntityType TargetEntityType { get; }
+        new IMutableEntityType TargetEntityType => (IMutableEntityType)((ISkipNavigation)this).TargetEntityType;
+
+        /// <summary>
+        ///     Gets the association type used by the foreign key.
+        /// </summary>
+        new IMutableEntityType AssociationEntityType => (IMutableEntityType)((ISkipNavigation)this).AssociationEntityType;
 
         /// <summary>
         ///     Gets the foreign key to the association type.
         /// </summary>
-        new IMutableForeignKey ForeignKey { get; }
+        new IMutableForeignKey ForeignKey => (IMutableForeignKey)((ISkipNavigation)this).ForeignKey;
+
+        /// <summary>
+        ///     Sets the foreign key.
+        /// </summary>
+        /// <param name="foreignKey">
+        ///     The foreign key. Passing <c>null</c> will result in there being no foreign key associated.
+        /// </param>
+        IMutableForeignKey SetForeignKey([CanBeNull] IMutableForeignKey foreignKey);
 
         /// <summary>
         ///     Gets the inverse skip navigation.
         /// </summary>
-        new IMutableSkipNavigation Inverse { get; }
+        new IMutableSkipNavigation Inverse => (IMutableSkipNavigation)((ISkipNavigation)this).Inverse;
 
         /// <summary>
         ///     Sets the inverse skip navigation.

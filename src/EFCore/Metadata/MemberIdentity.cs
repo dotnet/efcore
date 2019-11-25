@@ -7,6 +7,9 @@ using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
+    /// <summary>
+    ///     Represents the identity of an entity type member, can be based on <see cref="MemberInfo"/> or just the name.
+    /// </summary>
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     public readonly struct MemberIdentity
     {

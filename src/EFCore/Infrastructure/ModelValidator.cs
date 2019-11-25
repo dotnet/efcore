@@ -108,18 +108,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
                 }
 
-                foreach (var navigation in entityType.GetDeclaredSkipNavigations())
+                foreach (var skipNavigation in entityType.GetDeclaredSkipNavigations())
                 {
-                    if (!navigation.IsCollection)
+                    if (!skipNavigation.IsCollection)
                     {
                         throw new InvalidOperationException(CoreStrings.SkipNavigationNonCollection(
-                            navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+                            skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
                     }
 
-                    if (navigation.Inverse == null)
+                    if (skipNavigation.ForeignKey == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.SkipNavigationNoForeignKey(
+                            skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+                    }
+
+                    if (skipNavigation.Inverse == null)
                     {
                         throw new InvalidOperationException(CoreStrings.SkipNavigationNoInverse(
-                            navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+                            skipNavigation.Name, skipNavigation.DeclaringEntityType.DisplayName()));
                     }
                 }
             }

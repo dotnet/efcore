@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] IMutableEntityType targetEntityType,
-            [NotNull] IMutableForeignKey foreignKey,
+            [CanBeNull] IMutableForeignKey foreignKey,
             bool collection,
             bool onPrincipal);
 

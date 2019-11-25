@@ -1226,7 +1226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreignKey.Properties.Format(),
                         this.DisplayName(),
                         referencingSkipNavigation.Name,
-                        referencingSkipNavigation.DeclaringType.DisplayName()));
+                        referencingSkipNavigation.DeclaringEntityType.DisplayName()));
             }
 
             if (foreignKey.DependentToPrincipal != null)
@@ -1518,14 +1518,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] EntityType targetEntityType,
-            [NotNull] ForeignKey foreignKey,
+            [CanBeNull] ForeignKey foreignKey,
             bool collection,
             bool onPrincipal,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(targetEntityType, nameof(targetEntityType));
-            Check.NotNull(foreignKey, nameof(foreignKey));
 
             var duplicateProperty = FindMembersInHierarchy(name).FirstOrDefault();
             if (duplicateProperty != null)
@@ -1555,21 +1554,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     shouldThrow: true);
             }
 
-            var expectedEntityType = onPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
-            if (expectedEntityType != this)
-            {
-                var message = onPrincipal
-                    ? CoreStrings.SkipNavigationWrongPrincipalType(
-                        name, this.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format())
-                    : CoreStrings.SkipNavigationWrongDependentType(
-                        name, this.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format());
-                throw new InvalidOperationException(message);
-            }
-
             var skipNavigation = new SkipNavigation(
                 name,
                 memberInfo as PropertyInfo,
                 memberInfo as FieldInfo,
+                this,
                 targetEntityType,
                 foreignKey,
                 collection,
@@ -1577,15 +1566,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 configurationSource);
 
             _skipNavigations.Add(name, skipNavigation);
-
-            if (foreignKey.ReferencingSkipNavigations == null)
-            {
-                foreignKey.ReferencingSkipNavigations = new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
-            }
-            else
-            {
-                foreignKey.ReferencingSkipNavigations.Add(skipNavigation);
-            }
 
             return (SkipNavigation)Model.ConventionDispatcher.OnSkipNavigationAdded(skipNavigation.Builder)?.Metadata;
         }
@@ -1734,16 +1714,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(navigation, nameof(navigation));
             Check.DebugAssert(Builder != null, "Builder is null");
 
-            if (navigation.DeclaringType != this)
+            if (navigation.DeclaringEntityType != this)
             {
                 throw new InvalidOperationException(CoreStrings.SkipNavigationWrongType(
-                    navigation.Name, this.DisplayName(), navigation.DeclaringType.DisplayName()));
+                    navigation.Name, this.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
             }
 
             var removed = _skipNavigations.Remove(navigation.Name);
             Check.DebugAssert(removed, "Expected the navigation to be removed");
 
-            navigation.ForeignKey.ReferencingSkipNavigations.Remove(navigation);
+            navigation.ForeignKey?.ReferencingSkipNavigations.Remove(navigation);
 
             navigation.Builder = null;
 

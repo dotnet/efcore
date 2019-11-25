@@ -769,7 +769,7 @@
     <value>A parameterless constructor was not found on entity type '{entityType}'. In order to create an instance of '{entityType}' EF requires that a parameterless constructor be declared.</value>
   </data>
   <data name="ConflictingRelationshipNavigation" xml:space="preserve">
-    <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.</value>
+    <value>Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.</value>
   </data>
   <data name="WarningAsErrorTemplate" xml:space="preserve">
     <value>Error generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.</value>
@@ -1222,13 +1222,13 @@
     <value>Cannot remove foreign key {foreigKey} from entity type '{entityType}' because it is referenced by a skip navigation '{navigation}' on entity type '{navigationEntityType}'. All referencing skip navigation must be removed before the referenced foreign key can be removed.</value>
   </data>
   <data name="SkipNavigationWrongDependentType" xml:space="preserve">
-    <value>The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreigKey}.</value>
+    <value>The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreignKey}.</value>
   </data>
   <data name="SkipNavigationWrongInverse" xml:space="preserve">
     <value>The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.</value>
   </data>
   <data name="SkipNavigationWrongPrincipalType" xml:space="preserve">
-    <value>The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreigKey}.</value>
+    <value>The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreignKey}.</value>
   </data>
   <data name="SkipNavigationWrongType" xml:space="preserve">
     <value>The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.</value>
@@ -1241,6 +1241,18 @@
   </data>
   <data name="SkipNavigationNonCollection" xml:space="preserve">
     <value>The skip navigation '{navigation}' on entity type '{entityType}' is not a collection. Only collection skip navigation properties are currently supported.</value>
+  </data>
+  <data name="SkipInverseMismatchedForeignKey" xml:space="preserve">
+    <value>The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the association entity type '{associationType}' while the inverse skip navigation '{inverse}' is using the association entity type '{inverseAssociationType}'. The inverse should use the same association entity type.</value>
+  </data>
+  <data name="SkipNavigationNoForeignKey" xml:space="preserve">
+    <value>The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.</value>
+  </data>
+  <data name="SkipNavigationForeignKeyWrongDependentType" xml:space="preserve">
+    <value>The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}'.</value>
+  </data>
+  <data name="SkipNavigationForeignKeyWrongPrincipalType" xml:space="preserve">
+    <value>The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}'.</value>
   </data>
   <data name="NonIndexerEntityType" xml:space="preserve">
     <value>Cannot add property '{property}' on entity type '{entity}' since there is no indexer on '{entity}' taking a single argument of type '{type}'.</value>

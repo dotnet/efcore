@@ -14,6 +14,16 @@ namespace Microsoft.EntityFrameworkCore
     public static class ConventionNavigationExtensions
     {
         /// <summary>
+        ///     Returns the configuration source for the navigation.
+        /// </summary>
+        /// <param name="navigation"> The navigation property to find configuration source for. </param>
+        /// <returns> The configuration source for the navigation. </returns>
+        public static ConfigurationSource? GetConfigurationSource([NotNull] this IConventionNavigation navigation)
+            => navigation.IsDependentToPrincipal()
+                    ? navigation.ForeignKey.GetDependentToPrincipalConfigurationSource()
+                    : navigation.ForeignKey.GetPrincipalToDependentConfigurationSource();
+
+        /// <summary>
         ///     Gets the navigation property on the other end of the relationship. Returns null if
         ///     there is no navigation property defined on the other end of the relationship.
         /// </summary>

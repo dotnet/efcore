@@ -14,17 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type that this navigation belongs to.
         /// </summary>
-        IEntityType DeclaringEntityType => IsOnPrincipal ? ForeignKey.PrincipalEntityType : ForeignKey.DeclaringEntityType;
-
-        /// <summary>
-        ///     Gets the association type used by the foreign key.
-        /// </summary>
-        IEntityType AssociationEntityType => IsOnPrincipal ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
+        IEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
         IEntityType TargetEntityType { get; }
+
+        /// <summary>
+        ///     Gets the association type used by the foreign key.
+        /// </summary>
+        IEntityType AssociationEntityType => IsOnPrincipal ? ForeignKey?.DeclaringEntityType : ForeignKey?.PrincipalEntityType;
 
         /// <summary>
         ///     Gets the foreign key to the association type.

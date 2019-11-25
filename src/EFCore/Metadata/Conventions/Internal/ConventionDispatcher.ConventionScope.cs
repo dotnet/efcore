@@ -151,6 +151,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public abstract IConventionSkipNavigationBuilder OnSkipNavigationAdded(
                 [NotNull] IConventionSkipNavigationBuilder navigationBuilder);
 
+            public abstract IConventionForeignKey OnSkipNavigationForeignKeyChanged(
+                [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
+                [NotNull] IConventionForeignKey foreignKey,
+                [NotNull] IConventionForeignKey oldForeignKey);
+
             public abstract IConventionAnnotation OnSkipNavigationAnnotationChanged(
                 [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
                 [NotNull] string name,

@@ -26,33 +26,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type that this navigation property belongs to.
         /// </summary>
-        new IConventionEntityType DeclaringEntityType => IsOnPrincipal ? ForeignKey.PrincipalEntityType : ForeignKey.DeclaringEntityType;
-
-        /// <summary>
-        ///     Gets the association type used by the foreign key.
-        /// </summary>
-        new IConventionEntityType AssociationEntityType => IsOnPrincipal ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
+        new IConventionEntityType DeclaringEntityType => (IConventionEntityType)((ISkipNavigation)this).DeclaringEntityType;
 
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
-        new IConventionEntityType TargetEntityType { get; }
+        new IConventionEntityType TargetEntityType => (IConventionEntityType)((ISkipNavigation)this).TargetEntityType;
 
         /// <summary>
-        ///     Gets the foreign key to the association type.
+        ///     Gets the association type used by the foreign key.
         /// </summary>
-        new IConventionForeignKey ForeignKey { get; }
-
-        /// <summary>
-        ///     Gets the inverse skip navigation.
-        /// </summary>
-        new IConventionSkipNavigation Inverse { get; }
+        new IConventionEntityType AssociationEntityType => (IConventionEntityType)((ISkipNavigation)this).AssociationEntityType;
 
         /// <summary>
         ///     Returns the configuration source for this property.
         /// </summary>
         /// <returns> The configuration source. </returns>
         ConfigurationSource GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the foreign key to the association type.
+        /// </summary>
+        new IConventionForeignKey ForeignKey => (IConventionForeignKey)((ISkipNavigation)this).ForeignKey;
+
+        /// <summary>
+        ///     Sets the foreign key.
+        /// </summary>
+        /// <param name="foreignKey">
+        ///     The foreign key. Passing <c>null</c> will result in there being no foreign key associated.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        IConventionForeignKey SetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="ForeignKey" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="ForeignKey" />. </returns>
+        ConfigurationSource? GetForeignKeyConfigurationSource();
+
+        /// <summary>
+        ///     Gets the inverse skip navigation.
+        /// </summary>
+        new IConventionSkipNavigation Inverse => (IConventionSkipNavigation)((ISkipNavigation)this).Inverse;
 
         /// <summary>
         ///     Sets the inverse skip navigation.
@@ -64,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionSkipNavigation SetInverse([CanBeNull] IConventionSkipNavigation inverse, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="ISkipNavigation.Inverse" />.
+        ///     Returns the configuration source for <see cref="Inverse" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ISkipNavigation.Inverse" />. </returns>
+        /// <returns> The configuration source for <see cref="Inverse" />. </returns>
         ConfigurationSource? GetInverseConfigurationSource();
     }
 }
