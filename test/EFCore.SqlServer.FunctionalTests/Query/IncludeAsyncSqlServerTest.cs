@@ -7,9 +7,9 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class IncludeAsyncSqlServerTest : IncludeAsyncTestBase<IncludeSqlServerFixture>
+    public class IncludeAsyncSqlServerTest : IncludeAsyncTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public IncludeAsyncSqlServerTest(IncludeSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        public IncludeAsyncSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
@@ -26,14 +26,14 @@ FROM (
     SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[EmployeeID]) AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'ALFKI'
     ORDER BY (
         SELECT TOP(1) [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE ([c].[CustomerID] = [o].[CustomerID]) AND [o].[CustomerID] IS NOT NULL
+        WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[EmployeeID])
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
@@ -53,13 +53,6 @@ LEFT JOIN (
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID]");
-        }
-
-        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
-        // Test does not pass on SqlServer 2008. TODO: See issue#7160
-        public override Task Include_duplicate_reference()
-        {
-            return base.Include_duplicate_reference();
         }
 
         private void AssertSql(params string[] expected)

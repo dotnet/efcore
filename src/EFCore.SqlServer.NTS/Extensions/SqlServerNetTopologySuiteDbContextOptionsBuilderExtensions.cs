@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             var coreOptionsBuilder = ((IRelationalDbContextOptionsBuilderInfrastructure)optionsBuilder).OptionsBuilder;
 
             var extension = coreOptionsBuilder.Options.FindExtension<SqlServerNetTopologySuiteOptionsExtension>()
-                            ?? new SqlServerNetTopologySuiteOptionsExtension();
+                ?? new SqlServerNetTopologySuiteOptionsExtension();
 
             ((IDbContextOptionsBuilderInfrastructure)coreOptionsBuilder).AddOrUpdateExtension(extension);
 

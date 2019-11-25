@@ -94,14 +94,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Validate(EntityType entityType)
         {
             var convention = CreateServicePropertyDiscoveryConvention();
-            convention.ProcessModelFinalized(entityType.Model.Builder,
+            convention.ProcessModelFinalized(
+                entityType.Model.Builder,
                 new ConventionContext<IConventionModelBuilder>(entityType.Model.ConventionDispatcher));
         }
 
         private void RunConvention(EntityType entityType, string ignoredMember)
         {
             var convention = CreateServicePropertyDiscoveryConvention();
-            convention.ProcessEntityTypeMemberIgnored(entityType.Builder, ignoredMember,
+            convention.ProcessEntityTypeMemberIgnored(
+                entityType.Builder, ignoredMember,
                 new ConventionContext<string>(entityType.Model.ConventionDispatcher));
         }
 

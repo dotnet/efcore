@@ -109,10 +109,10 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var sequenceName = property.GetHiLoSequenceName()
-                               ?? model.GetHiLoSequenceName();
+                ?? model.GetHiLoSequenceName();
 
             var sequenceSchema = property.GetHiLoSequenceSchema()
-                                 ?? model.GetHiLoSequenceSchema();
+                ?? model.GetHiLoSequenceSchema();
 
             return model.FindSequence(sequenceName, sequenceSchema);
         }
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         If no strategy is set for the property, then the strategy to use will be taken from the <see cref="IModel" />.
         ///     </para>
         /// </summary>
-        /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None"/> if none was set. </returns>
+        /// <returns> The strategy, or <see cref="SqlServerValueGenerationStrategy.None" /> if none was set. </returns>
         public static SqlServerValueGenerationStrategy GetValueGenerationStrategy([NotNull] this IProperty property)
         {
             var annotation = property[SqlServerAnnotationNames.ValueGenerationStrategy];
@@ -216,9 +216,9 @@ namespace Microsoft.EntityFrameworkCore
             if (sharedTablePrincipalPrimaryKeyProperty != null)
             {
                 return sharedTablePrincipalPrimaryKeyProperty.GetValueGenerationStrategy()
-                       == SqlServerValueGenerationStrategy.IdentityColumn
-                    ? SqlServerValueGenerationStrategy.IdentityColumn
-                    : SqlServerValueGenerationStrategy.None;
+                    == SqlServerValueGenerationStrategy.IdentityColumn
+                        ? SqlServerValueGenerationStrategy.IdentityColumn
+                        : SqlServerValueGenerationStrategy.None;
             }
 
             if (property.ValueGenerated != ValueGenerated.OnAdd
@@ -238,9 +238,9 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
-                   && IsCompatibleWithValueGeneration(property)
-                ? SqlServerValueGenerationStrategy.IdentityColumn
-                : SqlServerValueGenerationStrategy.None;
+                && IsCompatibleWithValueGeneration(property)
+                    ? SqlServerValueGenerationStrategy.IdentityColumn
+                    : SqlServerValueGenerationStrategy.None;
         }
 
         /// <summary>
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
             => property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns a value indicating whether the property is compatible with any <see cref="SqlServerValueGenerationStrategy"/>.
+        ///     Returns a value indicating whether the property is compatible with any <see cref="SqlServerValueGenerationStrategy" />.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> <c>true</c> if compatible. </returns>
@@ -314,8 +314,9 @@ namespace Microsoft.EntityFrameworkCore
 
             return (type.IsInteger()
                     || type == typeof(decimal))
-                   && (property.FindTypeMapping()?.Converter
-                       ?? property.GetValueConverter()) == null;
+                && (property.FindTypeMapping()?.Converter
+                    ?? property.GetValueConverter())
+                == null;
         }
     }
 }

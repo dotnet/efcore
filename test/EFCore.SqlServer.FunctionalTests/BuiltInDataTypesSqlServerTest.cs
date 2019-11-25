@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -45,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
 
                 AssertSql(
                     @"SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE ([m].[TimeSpanAsTime] = '00:01:02') AND [m].[TimeSpanAsTime] IS NOT NULL");
+WHERE [m].[TimeSpanAsTime] = '00:01:02'");
             }
         }
 
@@ -84,13 +83,13 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_0='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT NULL AND @__timeSpan_0 IS NOT NULL)) OR ([m].[TimeSpanAsTime] IS NULL AND @__timeSpan_0 IS NULL)");
+WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
             }
         }
 
@@ -107,13 +106,13 @@ WHERE (([m].[TimeSpanAsTime] = @__timeSpan_0) AND ([m].[TimeSpanAsTime] IS NOT N
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -130,13 +129,13 @@ WHERE (DATEDIFF(HOUR, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(HOU
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -153,13 +152,13 @@ WHERE (DATEDIFF(MINUTE, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(M
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -176,13 +175,13 @@ WHERE (DATEDIFF(SECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(S
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -199,13 +198,13 @@ WHERE (DATEDIFF(MILLISECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -222,13 +221,13 @@ WHERE (DATEDIFF(MICROSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATED
                         .Select(e => e.Int)
                         .ToList();
 
-                Assert.Equal(0, results.Count);
+                Assert.Empty(results);
                 AssertSql(
                     @"@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) IS NOT NULL");
+WHERE DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             }
         }
 
@@ -463,10 +462,7 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             using (var context = CreateContext())
             {
                 context.Set<MappedNullableDataTypes>().Add(
-                    new MappedNullableDataTypes
-                    {
-                        Int = 911
-                    });
+                    new MappedNullableDataTypes { Int = 911 });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -550,22 +546,15 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                     context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNationalCharacterVaryingMax == param29));
 
                 string param30 = null;
-                var message30 = Assert.Throws<SqlException>(
-                    () => context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30)).Message;
 
-                // Expect: "The data types text and text are incompatible in the equal to operator."
-                Assert.NotEqual(
-                    message30.IndexOf("text", StringComparison.Ordinal),
-                    message30.LastIndexOf("text", StringComparison.Ordinal));
+                Assert.Same(
+                    entity,
+                    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsText == param30));
 
                 string param31 = null;
-                var message31 = Assert.Throws<SqlException>(
-                    () => context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31)).Message;
-
-                // Expect: "The data types ntext and ntext are incompatible in the equal to operator."
-                Assert.NotEqual(
-                    message31.IndexOf("ntext", StringComparison.Ordinal),
-                    message31.LastIndexOf("ntext", StringComparison.Ordinal));
+                Assert.Same(
+                    entity,
+                    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.StringAsNtext == param31));
 
                 byte[] param35 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsVarbinaryMax == param35));
@@ -575,13 +564,9 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                     entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsBinaryVaryingMax == param36));
 
                 byte[] param37 = null;
-                var message37 = Assert.Throws<SqlException>(
-                    () => context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37)).Message;
-
-                // Expect: "The data types image and image are incompatible in the equal to operator."
-                Assert.NotEqual(
-                    message37.IndexOf("image", StringComparison.Ordinal),
-                    message37.LastIndexOf("image", StringComparison.Ordinal));
+                Assert.Same(
+                    entity,
+                    context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.BytesAsImage == param37));
 
                 decimal? param38 = null;
                 Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.Decimal == param38));
@@ -720,9 +705,13 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
 @p39='help' (Nullable = false) (Size = 4000)
 @p40='anyone!' (Nullable = false) (Size = 4000)
 @p41='Gumball Rules OK!' (Nullable = false) (Size = 4000)
-@p42='" + entity.StringAsNvarcharMax + @"' (Nullable = false) (Size = -1)
+@p42='"
+                + entity.StringAsNvarcharMax
+                + @"' (Nullable = false) (Size = -1)
 @p43='Gumball Rules!' (Nullable = false) (Size = 8000) (DbType = AnsiString)
-@p44='" + entity.StringAsVarcharMax + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
+@p44='"
+                + entity.StringAsVarcharMax
+                + @"' (Nullable = false) (Size = -1) (DbType = AnsiString)
 @p45='11:15:12'
 @p46='65535'
 @p47='-1'
@@ -1055,57 +1044,57 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='78'
-@p1=''
-@p2='' (DbType = Byte)
-@p3='' (Size = 8000) (DbType = Binary)
-@p4='' (Size = 8000) (DbType = Binary)
-@p5='' (Size = 8000) (DbType = Binary)
-@p6='' (Size = 1) (DbType = AnsiString)
-@p7='' (Size = 1) (DbType = AnsiString)
-@p8='' (DbType = Int32)
-@p9='' (Size = 1)
-@p10='' (Size = 1)
-@p11='' (Size = 1)
-@p12='' (Size = 1)
-@p13='' (Size = 1) (DbType = AnsiString)
-@p14='' (Size = 1) (DbType = AnsiString)
-@p15='' (DbType = Date)
-@p16='' (DbType = DateTime)
-@p17='' (DbType = DateTime2)
-@p18='' (DbType = DateTime)
-@p19='' (DbType = DateTimeOffset)
-@p20=''
-@p21=''
-@p22=''
-@p23=''
-@p24=''
-@p25=''
-@p26=''
-@p27='' (Size = 20)
-@p28='' (Size = 8000) (DbType = AnsiString)
-@p29=''
-@p30='' (DbType = Guid)
-@p31='' (DbType = Int64)
-@p32='' (DbType = Int16)
-@p33='' (DbType = Byte)
-@p34='' (DbType = Int16)
-@p35=''
-@p36=''
-@p37='' (Size = 8000) (DbType = AnsiString)
-@p38='' (Size = 8000) (DbType = AnsiString)
-@p39='' (Size = 4000)
-@p40='' (Size = 4000)
-@p41='' (Size = 4000)
-@p42='' (Size = 4000)
-@p43='' (Size = 8000) (DbType = AnsiString)
-@p44='' (Size = 8000) (DbType = AnsiString)
-@p45=''
-@p46='' (DbType = Int32)
-@p47='' (DbType = Int16)
-@p48='' (DbType = Int64)
-@p49='' (DbType = Int32)
-@p50='' (DbType = Int64)
-@p51=''",
+@p1=NULL
+@p2=NULL (DbType = Byte)
+@p3=NULL (Size = 8000) (DbType = Binary)
+@p4=NULL (Size = 8000) (DbType = Binary)
+@p5=NULL (Size = 8000) (DbType = Binary)
+@p6=NULL (Size = 1) (DbType = AnsiString)
+@p7=NULL (Size = 1) (DbType = AnsiString)
+@p8=NULL (DbType = Int32)
+@p9=NULL (Size = 1)
+@p10=NULL (Size = 1)
+@p11=NULL (Size = 1)
+@p12=NULL (Size = 1)
+@p13=NULL (Size = 1) (DbType = AnsiString)
+@p14=NULL (Size = 1) (DbType = AnsiString)
+@p15=NULL (DbType = Date)
+@p16=NULL (DbType = DateTime)
+@p17=NULL (DbType = DateTime2)
+@p18=NULL (DbType = DateTime)
+@p19=NULL (DbType = DateTimeOffset)
+@p20=NULL
+@p21=NULL
+@p22=NULL
+@p23=NULL
+@p24=NULL
+@p25=NULL
+@p26=NULL
+@p27=NULL (Size = 20)
+@p28=NULL (Size = 8000) (DbType = AnsiString)
+@p29=NULL
+@p30=NULL (DbType = Guid)
+@p31=NULL (DbType = Int64)
+@p32=NULL (DbType = Int16)
+@p33=NULL (DbType = Byte)
+@p34=NULL (DbType = Int16)
+@p35=NULL
+@p36=NULL
+@p37=NULL (Size = 8000) (DbType = AnsiString)
+@p38=NULL (Size = 8000) (DbType = AnsiString)
+@p39=NULL (Size = 4000)
+@p40=NULL (Size = 4000)
+@p41=NULL (Size = 4000)
+@p42=NULL (Size = 4000)
+@p43=NULL (Size = 8000) (DbType = AnsiString)
+@p44=NULL (Size = 8000) (DbType = AnsiString)
+@p45=NULL
+@p46=NULL (DbType = Int32)
+@p47=NULL (DbType = Int16)
+@p48=NULL (DbType = Int64)
+@p49=NULL (DbType = Int32)
+@p50=NULL (DbType = Int64)
+@p51=NULL",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1274,25 +1263,25 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
             var parameters = DumpParameters();
             Assert.Equal(
                 @"@p0='78'
-@p1='' (Size = 3) (DbType = Binary)
-@p2='' (Size = 3) (DbType = Binary)
-@p3='' (Size = 3) (DbType = Binary)
-@p4='' (Size = 3) (DbType = AnsiString)
-@p5='' (Size = 3) (DbType = AnsiString)
-@p6='' (Size = 3)
-@p7='' (Size = 3)
-@p8='' (Size = 3)
-@p9='' (Size = 3) (DbType = AnsiString)
-@p10='' (Size = 3) (DbType = AnsiString)
-@p11='' (Size = 3) (DbType = AnsiString)
-@p12='' (Size = 3) (DbType = AnsiString)
-@p13='' (Size = 3) (DbType = AnsiString)
-@p14='' (Size = 3)
-@p15='' (Size = 3)
-@p16='' (Size = 3)
-@p17='' (Size = 3)
-@p18='' (Size = 3)
-@p19='' (Size = 3) (DbType = AnsiString)",
+@p1=NULL (Size = 3) (DbType = Binary)
+@p2=NULL (Size = 3) (DbType = Binary)
+@p3=NULL (Size = 3) (DbType = Binary)
+@p4=NULL (Size = 3) (DbType = AnsiString)
+@p5=NULL (Size = 3) (DbType = AnsiString)
+@p6=NULL (Size = 3)
+@p7=NULL (Size = 3)
+@p8=NULL (Size = 3)
+@p9=NULL (Size = 3) (DbType = AnsiString)
+@p10=NULL (Size = 3) (DbType = AnsiString)
+@p11=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiString)
+@p13=NULL (Size = 3) (DbType = AnsiString)
+@p14=NULL (Size = 3)
+@p15=NULL (Size = 3)
+@p16=NULL (Size = 3)
+@p17=NULL (Size = 3)
+@p18=NULL (Size = 3)
+@p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -1812,58 +1801,58 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0=''
-@p1='' (DbType = Byte)
-@p2='' (Size = 8000) (DbType = Binary)
-@p3='' (Size = 8000) (DbType = Binary)
-@p4='' (Size = 8000) (DbType = Binary)
-@p5='' (Size = 1) (DbType = AnsiString)
-@p6='' (Size = 1) (DbType = AnsiString)
-@p7='' (DbType = Int32)
-@p8='' (Size = 1)
-@p9='' (Size = 1)
-@p10='' (Size = 1)
-@p11='' (Size = 1)
-@p12='' (Size = 1) (DbType = AnsiString)
-@p13='' (Size = 1) (DbType = AnsiString)
-@p14='' (DbType = Date)
-@p15='' (DbType = DateTime)
-@p16='' (DbType = DateTime2)
-@p17='' (DbType = DateTime)
-@p18='' (DbType = DateTimeOffset)
-@p19=''
-@p20=''
-@p21=''
-@p22=''
-@p23=''
-@p24=''
-@p25=''
-@p26='' (Size = 20)
-@p27='' (Size = 8000) (DbType = AnsiString)
-@p28=''
-@p29='' (DbType = Guid)
+                @"@p0=NULL
+@p1=NULL (DbType = Byte)
+@p2=NULL (Size = 8000) (DbType = Binary)
+@p3=NULL (Size = 8000) (DbType = Binary)
+@p4=NULL (Size = 8000) (DbType = Binary)
+@p5=NULL (Size = 1) (DbType = AnsiString)
+@p6=NULL (Size = 1) (DbType = AnsiString)
+@p7=NULL (DbType = Int32)
+@p8=NULL (Size = 1)
+@p9=NULL (Size = 1)
+@p10=NULL (Size = 1)
+@p11=NULL (Size = 1)
+@p12=NULL (Size = 1) (DbType = AnsiString)
+@p13=NULL (Size = 1) (DbType = AnsiString)
+@p14=NULL (DbType = Date)
+@p15=NULL (DbType = DateTime)
+@p16=NULL (DbType = DateTime2)
+@p17=NULL (DbType = DateTime)
+@p18=NULL (DbType = DateTimeOffset)
+@p19=NULL
+@p20=NULL
+@p21=NULL
+@p22=NULL
+@p23=NULL
+@p24=NULL
+@p25=NULL
+@p26=NULL (Size = 20)
+@p27=NULL (Size = 8000) (DbType = AnsiString)
+@p28=NULL
+@p29=NULL (DbType = Guid)
 @p30='78' (Nullable = true)
-@p31='' (DbType = Int64)
-@p32='' (DbType = Int16)
-@p33='' (DbType = Byte)
-@p34='' (DbType = Int16)
-@p35=''
-@p36=''
-@p37='' (Size = 8000) (DbType = AnsiString)
-@p38='' (Size = 8000) (DbType = AnsiString)
-@p39='' (Size = 4000)
-@p40='' (Size = 4000)
-@p41='' (Size = 4000)
-@p42='' (Size = 4000)
-@p43='' (Size = 8000) (DbType = AnsiString)
-@p44='' (Size = 8000) (DbType = AnsiString)
-@p45=''
-@p46='' (DbType = Int32)
-@p47='' (DbType = Int64)
-@p48='' (DbType = Int32)
-@p49='' (DbType = Int64)
-@p50=''
-@p51='' (DbType = Int16)",
+@p31=NULL (DbType = Int64)
+@p32=NULL (DbType = Int16)
+@p33=NULL (DbType = Byte)
+@p34=NULL (DbType = Int16)
+@p35=NULL
+@p36=NULL
+@p37=NULL (Size = 8000) (DbType = AnsiString)
+@p38=NULL (Size = 8000) (DbType = AnsiString)
+@p39=NULL (Size = 4000)
+@p40=NULL (Size = 4000)
+@p41=NULL (Size = 4000)
+@p42=NULL (Size = 4000)
+@p43=NULL (Size = 8000) (DbType = AnsiString)
+@p44=NULL (Size = 8000) (DbType = AnsiString)
+@p45=NULL
+@p46=NULL (DbType = Int32)
+@p47=NULL (DbType = Int64)
+@p48=NULL (DbType = Int32)
+@p49=NULL (DbType = Int64)
+@p50=NULL
+@p51=NULL (DbType = Int16)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -2033,26 +2022,26 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
 
             var parameters = DumpParameters();
             Assert.Equal(
-                @"@p0='' (Size = 3) (DbType = Binary)
-@p1='' (Size = 3) (DbType = Binary)
-@p2='' (Size = 3) (DbType = Binary)
-@p3='' (Size = 3) (DbType = AnsiString)
-@p4='' (Size = 3) (DbType = AnsiString)
-@p5='' (Size = 3)
-@p6='' (Size = 3)
-@p7='' (Size = 3)
-@p8='' (Size = 3) (DbType = AnsiString)
+                @"@p0=NULL (Size = 3) (DbType = Binary)
+@p1=NULL (Size = 3) (DbType = Binary)
+@p2=NULL (Size = 3) (DbType = Binary)
+@p3=NULL (Size = 3) (DbType = AnsiString)
+@p4=NULL (Size = 3) (DbType = AnsiString)
+@p5=NULL (Size = 3)
+@p6=NULL (Size = 3)
+@p7=NULL (Size = 3)
+@p8=NULL (Size = 3) (DbType = AnsiString)
 @p9='78'
-@p10='' (Size = 3) (DbType = AnsiString)
-@p11='' (Size = 3) (DbType = AnsiString)
-@p12='' (Size = 3) (DbType = AnsiString)
-@p13='' (Size = 3) (DbType = AnsiString)
-@p14='' (Size = 3)
-@p15='' (Size = 3)
-@p16='' (Size = 3)
-@p17='' (Size = 3)
-@p18='' (Size = 3)
-@p19='' (Size = 3) (DbType = AnsiString)",
+@p10=NULL (Size = 3) (DbType = AnsiString)
+@p11=NULL (Size = 3) (DbType = AnsiString)
+@p12=NULL (Size = 3) (DbType = AnsiString)
+@p13=NULL (Size = 3) (DbType = AnsiString)
+@p14=NULL (Size = 3)
+@p15=NULL (Size = 3)
+@p16=NULL (Size = 3)
+@p17=NULL (Size = 3)
+@p18=NULL (Size = 3)
+@p19=NULL (Size = 3) (DbType = AnsiString)",
                 parameters,
                 ignoreLineEndingDifferences: true);
 
@@ -2487,7 +2476,14 @@ WHERE (DATEDIFF(NANOSECOND, [m].[TimeSpanAsTime], @__timeSpan_1) = 0) AND DATEDI
                 CreateContext(),
                 nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
+            const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
+AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
+AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.AnimalId ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Id ---> [int] [Precision = 10 Scale = 0]
+AnimalIdentification.Method ---> [int] [Precision = 10 Scale = 0]
+BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]
 BinaryKeyDataType.Id ---> [varbinary] [MaxLength = 900]

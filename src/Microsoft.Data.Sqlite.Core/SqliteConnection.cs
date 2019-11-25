@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -10,7 +10,6 @@ using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -32,8 +31,10 @@ namespace Microsoft.Data.Sqlite
         private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_scalar func)> _functions
             = new Dictionary<(string, int), (int, object, delegate_function_scalar)>(FunctionsKeyComparer.Instance);
 
-        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step, delegate_function_aggregate_final func_final)> _aggregates
-            = new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(FunctionsKeyComparer.Instance);
+        private readonly Dictionary<(string name, int arity), (int flags, object state, delegate_function_aggregate_step func_step,
+            delegate_function_aggregate_final func_final)> _aggregates
+            = new Dictionary<(string, int), (int, object, delegate_function_aggregate_step, delegate_function_aggregate_final)>(
+                FunctionsKeyComparer.Instance);
 
         private readonly HashSet<(string file, string proc)> _extensions = new HashSet<(string, string)>();
 
@@ -284,7 +285,8 @@ namespace Microsoft.Data.Sqlite
 
                 foreach (var item in _aggregates)
                 {
-                    rc = sqlite3_create_function(_db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
+                    rc = sqlite3_create_function(
+                        _db, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
                     SqliteException.ThrowExceptionForRC(rc, _db);
                 }
 
@@ -415,7 +417,8 @@ namespace Microsoft.Data.Sqlite
         /// <param name="name">Name of the collation.</param>
         /// <param name="comparison">Method that compares two strings.</param>
         public virtual void CreateCollation(string name, Comparison<string> comparison)
-            => CreateCollation(name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
+            => CreateCollation(
+                name, null, comparison != null ? (_, s1, s2) => comparison(s1, s2) : (Func<object, string, string, int>)null);
 
         /// <summary>
         ///     Create custom collation.

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -30,23 +30,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 left = instance;
                 right = RemoveObjectConvert(arguments[0]);
             }
-            else if (method.Name == nameof(object.Equals)
+            else if (instance == null
+                && method.Name == nameof(object.Equals)
                 && arguments.Count == 2)
             {
                 left = RemoveObjectConvert(arguments[0]);
                 right = RemoveObjectConvert(arguments[1]);
             }
 
-            if (left != null && right != null)
+            if (left != null
+                && right != null)
             {
                 if (left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType())
                 {
                     return _sqlExpressionFactory.Equal(left, right);
                 }
-                else
-                {
-                    return _sqlExpressionFactory.Constant(false);
-                }
+
+                return _sqlExpressionFactory.Constant(false);
             }
 
             return null;

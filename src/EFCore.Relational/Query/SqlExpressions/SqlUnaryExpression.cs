@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -17,8 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ExpressionType.NotEqual,
             ExpressionType.Convert,
             ExpressionType.Not,
-            ExpressionType.Negate,
+            ExpressionType.Negate
         };
+
         private static ExpressionType VerifyOperator(ExpressionType operatorType)
             => _allowedOperators.Contains(operatorType)
                 ? operatorType
@@ -66,16 +67,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 expressionPrinter.Append(")");
             }
         }
+
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is SqlUnaryExpression sqlUnaryExpression
+                && (ReferenceEquals(this, obj)
+                    || obj is SqlUnaryExpression sqlUnaryExpression
                     && Equals(sqlUnaryExpression));
 
         private bool Equals(SqlUnaryExpression sqlUnaryExpression)
             => base.Equals(sqlUnaryExpression)
-            && OperatorType == sqlUnaryExpression.OperatorType
-            && Operand.Equals(sqlUnaryExpression.Operand);
+                && OperatorType == sqlUnaryExpression.OperatorType
+                && Operand.Equals(sqlUnaryExpression.Operand);
 
         public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), OperatorType, Operand);
     }

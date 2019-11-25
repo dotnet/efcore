@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -12,7 +12,6 @@ using System.Text;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
-
 using static SQLitePCL.raw;
 
 namespace Microsoft.Data.Sqlite
@@ -176,25 +175,23 @@ namespace Microsoft.Data.Sqlite
 
                         return true;
                     }
+
+                    while (rc != SQLITE_DONE)
+                    {
+                        rc = sqlite3_step(stmt);
+                        SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
+                    }
+
+                    sqlite3_reset(stmt);
+
+                    var changes = sqlite3_changes(_command.Connection.Handle);
+                    if (_recordsAffected == -1)
+                    {
+                        _recordsAffected = changes;
+                    }
                     else
                     {
-                        while (rc != SQLITE_DONE)
-                        {
-                            rc = sqlite3_step(stmt);
-                            SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
-                        }
-
-                        sqlite3_reset(stmt);
-
-                        var changes = sqlite3_changes(_command.Connection.Handle);
-                        if (_recordsAffected == -1)
-                        {
-                            _recordsAffected = changes;
-                        }
-                        else
-                        {
-                            _recordsAffected += changes;
-                        }
+                        _recordsAffected += changes;
                     }
                 }
                 catch
@@ -213,8 +210,8 @@ namespace Microsoft.Data.Sqlite
 
         private static bool IsBusy(int rc)
             => rc == SQLITE_LOCKED
-               || rc == SQLITE_BUSY
-               || rc == SQLITE_LOCKED_SHAREDCACHE;
+                || rc == SQLITE_BUSY
+                || rc == SQLITE_LOCKED_SHAREDCACHE;
 
         /// <summary>
         ///     Closes the data reader.
@@ -230,7 +227,7 @@ namespace Microsoft.Data.Sqlite
         /// </param>
         protected override void Dispose(bool disposing)
         {
-            if (!disposing)
+            if (!disposing || _closed)
             {
                 return;
             }
@@ -694,14 +691,16 @@ namespace Microsoft.Data.Sqlite
                         var type = (string)command.ExecuteScalar();
                         schemaRow[DataType] =
                             (type != null)
-                            ? SqliteDataRecord.GetFieldType(type)
-                            : SqliteDataRecord.GetFieldTypeFromSqliteType(
-                            SqliteDataRecord.Sqlite3AffinityType(dataTypeName));
+                                ? SqliteDataRecord.GetFieldType(type)
+                                : SqliteDataRecord.GetFieldTypeFromSqliteType(
+                                    SqliteDataRecord.Sqlite3AffinityType(dataTypeName));
                     }
 
                     if (!string.IsNullOrEmpty(databaseName))
                     {
-                        var rc = sqlite3_table_column_metadata(_command.Connection.Handle, databaseName, tableName, columnName, out var dataType, out var collSeq, out var notNull, out var primaryKey, out var autoInc);
+                        var rc = sqlite3_table_column_metadata(
+                            _command.Connection.Handle, databaseName, tableName, columnName, out var dataType, out var collSeq,
+                            out var notNull, out var primaryKey, out var autoInc);
                         SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
 
                         schemaRow[IsKey] = primaryKey != 0;

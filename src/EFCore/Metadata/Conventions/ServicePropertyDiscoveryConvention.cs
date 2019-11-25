@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             var member = (MemberInfo)entityType.GetRuntimeProperties().Find(name)
-                         ?? entityType.GetRuntimeFields().Find(name);
+                ?? entityType.GetRuntimeFields().Find(name);
             var type = member.GetMemberType();
             if (duplicateMap.TryGetValue(type, out var duplicateServiceProperties)
                 && duplicateServiceProperties.Remove(member))
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private static void AddDuplicateServiceProperty(IConventionEntityTypeBuilder entityTypeBuilder, MemberInfo serviceProperty)
         {
             var duplicateMap = GetDuplicateServiceProperties(entityTypeBuilder.Metadata)
-                               ?? new Dictionary<Type, HashSet<MemberInfo>>(1);
+                ?? new Dictionary<Type, HashSet<MemberInfo>>(1);
 
             var type = serviceProperty.GetMemberType();
             if (!duplicateMap.TryGetValue(type, out var duplicateServiceProperties))

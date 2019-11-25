@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         private Expression ApplyConversion(SqlExpression sqlExpression, bool condition)
-                => _isSearchCondition
-                    ? ConvertToSearchCondition(sqlExpression, condition)
-                    : ConvertToValue(sqlExpression, condition);
+            => _isSearchCondition
+                ? ConvertToSearchCondition(sqlExpression, condition)
+                : ConvertToValue(sqlExpression, condition);
 
         private Expression ConvertToSearchCondition(SqlExpression sqlExpression, bool condition)
             => condition
@@ -33,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private Expression ConvertToValue(SqlExpression sqlExpression, bool condition)
         {
             return condition
-                ? _sqlExpressionFactory.Case(new[]
+                ? _sqlExpressionFactory.Case(
+                    new[]
                     {
                         new CaseWhenClause(
                             sqlExpression,
@@ -174,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return changed
                 ? selectExpression.Update(
-                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset, selectExpression.IsDistinct, selectExpression.Alias)
+                    projections, tables, predicate, groupBy, havingExpression, orderings, limit, offset, selectExpression.IsDistinct,
+                    selectExpression.Alias)
                 : selectExpression;
         }
 
@@ -201,13 +203,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             sqlBinaryExpression = sqlBinaryExpression.Update(newLeft, newRight);
             var condition = sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                    || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
-                    || sqlBinaryExpression.OperatorType == ExpressionType.Equal
-                    || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                    || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
-                    || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
-                    || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
-                    || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual;
+                || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
+                || sqlBinaryExpression.OperatorType == ExpressionType.Equal
+                || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
+                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
+                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
+                || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
+                || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual;
 
             return ApplyConversion(sqlBinaryExpression, condition);
         }
@@ -251,9 +253,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
-        {
-            return sqlFragmentExpression;
-        }
+            => sqlFragmentExpression;
 
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
@@ -281,9 +281,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         protected override Expression VisitTable(TableExpression tableExpression)
-        {
-            return tableExpression;
-        }
+            => tableExpression;
 
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {

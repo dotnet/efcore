@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [CanBeNull] IDbContextOptions contextOptions)
         {
             var coreOptions
-                = (contextOptions ??
-                   internalServiceProvider.GetService<IDbContextOptions>())
+                = (contextOptions ?? internalServiceProvider.GetService<IDbContextOptions>())
                 ?.FindExtension<CoreOptionsExtension>();
 
             if (coreOptions != null)

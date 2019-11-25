@@ -641,7 +641,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             DbCommand command)
             => command.Parameters.Count > 0
-               && diagnostics.ShouldLogSensitiveData();
+                && diagnostics.ShouldLogSensitiveData();
 
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.CommandExecuted" /> event.
@@ -1160,7 +1160,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that execution began. </param>
         /// <param name="duration"> The amount of time that passed until the exception was raised. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task CommandErrorAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1293,7 +1293,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 if (interceptor != null)
                 {
-                    return interceptor.ConnectionOpening(connection.DbConnection, eventData,default);
+                    return interceptor.ConnectionOpening(connection.DbConnection, eventData, default);
                 }
             }
 
@@ -1307,7 +1307,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task<InterceptionResult> ConnectionOpeningAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1355,7 +1355,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     connection.DbConnection.Database, connection.DbConnection.DataSource);
             }
         }
-
 
         private static ConnectionEventData BroadcastConnectionOpening(
             IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
@@ -1435,7 +1434,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was opened. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task ConnectionOpenedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1567,7 +1566,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task<InterceptionResult> ConnectionClosingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1692,7 +1691,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connection"> The connection. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The amount of time before the connection was closed. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task ConnectionClosedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -1831,7 +1830,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The elapsed time before the operation failed. </param>
         /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task ConnectionErrorAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Connection> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2047,7 +2046,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static void LogTransactionStarting(
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
-            System.Data.IsolationLevel isolationLevel,
+            IsolationLevel isolationLevel,
             EventDefinition<string> definition)
         {
             var warningBehavior = definition.GetLogBehavior(diagnostics);
@@ -2415,7 +2414,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task<InterceptionResult> TransactionCommittingAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2544,7 +2543,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task TransactionCommittedAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2677,7 +2676,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task TransactionRolledBackAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2735,7 +2734,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 connection.Context,
                 transactionId,
                 connection.ConnectionId,
-                @async,
+                async,
                 startTime,
                 duration);
 
@@ -2812,7 +2811,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="transactionId"> The correlation ID associated with the <see cref="DbTransaction" />. </param>
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task<InterceptionResult> TransactionRollingBackAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,
@@ -2867,7 +2866,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 connection.Context,
                 transactionId,
                 connection.ConnectionId,
-                @async,
+                async,
                 startTime);
 
             if (diagnosticSourceEnabled)
@@ -2988,7 +2987,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         /// <param name="cancellationToken"> The cancellation token. </param>
-        /// <returns> A <see cref="Task"/> representing the async operation. </returns>
+        /// <returns> A <see cref="Task" /> representing the async operation. </returns>
         public static Task TransactionErrorAsync(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             [NotNull] IRelationalConnection connection,

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -84,28 +85,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandNonQueryExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var nonQueryResult = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : command.ExecuteNonQuery();
 
                 return logger?.CommandNonQueryExecuted(
-                           connection,
-                           command,
-                           context,
-                           commandId,
-                           connection.ConnectionId,
-                           nonQueryResult,
-                           startTime,
-                           stopwatch.Elapsed)
-                       ?? nonQueryResult;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        nonQueryResult,
+                        startTime,
+                        stopwatch.Elapsed)
+                    ?? nonQueryResult;
             }
             catch (Exception exception)
             {
@@ -142,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IRelationalConnection connection)
         {
             command.Parameters.Clear();
-            await command.DisposeAsync();
+            await command.DisposeAsyncIfAvailable();
             await connection.CloseAsync();
         }
 
@@ -244,28 +245,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandScalarExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var result = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : command.ExecuteScalar();
 
                 return logger?.CommandScalarExecuted(
-                           connection,
-                           command,
-                           context,
-                           commandId,
-                           connection.ConnectionId,
-                           result,
-                           startTime,
-                           stopwatch.Elapsed)
-                       ?? result;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        result,
+                        startTime,
+                        stopwatch.Elapsed)
+                    ?? result;
             }
             catch (Exception exception)
             {
@@ -375,7 +376,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The result of the command. </returns>
         public virtual RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
         {
-            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+            var connection = parameterObject.Connection;
+            var context = parameterObject.Context;
+            var readerColumns = parameterObject.ReaderColumns;
+            var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
             var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -389,13 +393,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
             try
             {
                 var interceptionResult = logger?.CommandReaderExecuting(
-                                             connection,
-                                             command,
-                                             context,
-                                             commandId,
-                                             connection.ConnectionId,
-                                             startTime)
-                                         ?? default;
+                        connection,
+                        command,
+                        context,
+                        commandId,
+                        connection.ConnectionId,
+                        startTime)
+                    ?? default;
 
                 var reader = interceptionResult.HasResult
                     ? interceptionResult.Result
@@ -412,6 +416,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         reader,
                         startTime,
                         stopwatch.Elapsed);
+                }
+
+                if (readerColumns != null)
+                {
+                    reader = new BufferedDataReader(reader).Initialize(readerColumns);
                 }
 
                 var result = new RelationalDataReader(
@@ -461,7 +470,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default)
         {
-            var (connection, context, logger) = (parameterObject.Connection, parameterObject.Context, parameterObject.Logger);
+            var connection = parameterObject.Connection;
+            var context = parameterObject.Context;
+            var readerColumns = parameterObject.ReaderColumns;
+            var logger = parameterObject.Logger;
 
             var commandId = Guid.NewGuid();
             var command = CreateCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
@@ -501,6 +513,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         startTime,
                         stopwatch.Elapsed,
                         cancellationToken);
+                }
+
+                if (readerColumns != null)
+                {
+                    reader = await new BufferedDataReader(reader).InitializeAsync(readerColumns, cancellationToken);
                 }
 
                 var result = new RelationalDataReader(
@@ -569,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var stopwatch = Stopwatch.StartNew();
 
             var interceptionResult = logger?.CommandCreating(connection, commandMethod, context, commandId, connectionId, startTime)
-                                     ?? default;
+                ?? default;
 
             var command = interceptionResult.HasResult
                 ? interceptionResult.Result
@@ -577,7 +594,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             if (logger != null)
             {
-                command = logger.CommandCreated(connection, command, commandMethod, context, commandId, connectionId, startTime, stopwatch.Elapsed);
+                command = logger.CommandCreated(
+                    connection, command, commandMethod, context, commandId, connectionId, startTime, stopwatch.Elapsed);
             }
 
             command.CommandText = CommandText;

@@ -966,7 +966,7 @@ namespace Microsoft.EntityFrameworkCore
                     InMemoryFixture.BuildServiceProvider(
                         new ServiceCollection()
                             .AddSingleton<ILoggerFactory>(loggerFactory)
-                            .AddSingleton<IMemoryCache>(memoryCache)))
+                            .AddSingleton(memoryCache)))
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
@@ -1401,9 +1401,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_derived_context_with_options_no_OnConfiguring()
         {
             var appServiceProvider = new ServiceCollection()
-                .AddDbContext<ConstructorTestContext1A>(b =>
-                    b.EnableServiceProviderCaching(false)
-                       .UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddDbContext<ConstructorTestContext1A>(
+                    b =>
+                        b.EnableServiceProviderCaching(false)
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             var singleton = new object[3];
@@ -1437,9 +1438,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_derived_context_with_options_and_external_services_no_OnConfiguring()
         {
             var appServiceProvider = new ServiceCollection()
-                .AddDbContext<ConstructorTestContext1A>(b =>
-                    b.EnableServiceProviderCaching(false)
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddDbContext<ConstructorTestContext1A>(
+                    b =>
+                        b.EnableServiceProviderCaching(false)
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             ILoggerFactory loggerFactory;
@@ -1593,9 +1595,10 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_add_non_derived_context_with_options()
         {
             var appServiceProvider = new ServiceCollection()
-                .AddDbContext<DbContext>(b =>
-                    b.EnableServiceProviderCaching(false)
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddDbContext<DbContext>(
+                    b =>
+                        b.EnableServiceProviderCaching(false)
+                            .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
             var singleton = new object[4];
@@ -1999,14 +2002,16 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProvider = addSingletonFirst
                 ? new ServiceCollection()
                     .AddSingleton<DbContext>()
-                    .AddDbContext<DbContext>(b =>
-                        b.EnableServiceProviderCaching(false)
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                    .AddDbContext<DbContext>(
+                        b =>
+                            b.EnableServiceProviderCaching(false)
+                                .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .BuildServiceProvider()
                 : new ServiceCollection()
-                    .AddDbContext<DbContext>(b =>
-                        b.EnableServiceProviderCaching(false)
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                    .AddDbContext<DbContext>(
+                        b =>
+                            b.EnableServiceProviderCaching(false)
+                                .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .AddSingleton<DbContext>()
                     .BuildServiceProvider();
 
@@ -2120,14 +2125,16 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProvider = addTransientFirst
                 ? new ServiceCollection()
                     .AddTransient<DbContext>()
-                    .AddDbContext<DbContext>(b =>
-                        b.EnableServiceProviderCaching(false)
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                    .AddDbContext<DbContext>(
+                        b =>
+                            b.EnableServiceProviderCaching(false)
+                                .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .BuildServiceProvider()
                 : new ServiceCollection()
-                    .AddDbContext<DbContext>(b =>
-                        b.EnableServiceProviderCaching(false)
-                            .UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                    .AddDbContext<DbContext>(
+                        b =>
+                            b.EnableServiceProviderCaching(false)
+                                .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .AddTransient<DbContext>()
                     .BuildServiceProvider();
 
@@ -2271,7 +2278,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var appServiceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .AddDbContext<DbContext>((p, b) =>
+                .AddDbContext<DbContext>(
+                    (p, b) =>
                         b.UseInMemoryDatabase(Guid.NewGuid().ToString())
                             .EnableServiceProviderCaching(false)
                             .UseLoggerFactory(loggerFactory = new WrappingLoggerFactory(p.GetService<ILoggerFactory>())))
@@ -3427,12 +3435,14 @@ namespace Microsoft.EntityFrameworkCore
         public void Can_resolve_multiple_contexts_in_hierarchy_with_appropriate_constructors()
         {
             var services = new ServiceCollection()
-                .AddDbContext<DerivedContext1>(b =>
-                    b.EnableServiceProviderCaching(false)
-                        .UseInMemoryDatabase(nameof(DerivedContext1)))
-                .AddDbContext<DerivedContext2>(b =>
-                    b.EnableServiceProviderCaching(false)
-                        .UseInMemoryDatabase(nameof(DerivedContext2)))
+                .AddDbContext<DerivedContext1>(
+                    b =>
+                        b.EnableServiceProviderCaching(false)
+                            .UseInMemoryDatabase(nameof(DerivedContext1)))
+                .AddDbContext<DerivedContext2>(
+                    b =>
+                        b.EnableServiceProviderCaching(false)
+                            .UseInMemoryDatabase(nameof(DerivedContext2)))
                 .BuildServiceProvider();
 
             using (var scope = services.CreateScope())

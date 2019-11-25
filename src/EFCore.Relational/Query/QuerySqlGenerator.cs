@@ -1,11 +1,12 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -14,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
+        private static readonly Regex _composableSql
+            = new Regex(@"^\s*?SELECT\b", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(value: 1000.0));
+
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private IRelationalCommandBuilder _relationalCommandBuilder;
@@ -51,14 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
+            GenerateTagsHeaderComment(selectExpression);
+
             if (selectExpression.IsNonComposedFromSql())
             {
                 GenerateFromSql((FromSqlExpression)selectExpression.Tables[0]);
             }
             else
             {
-                GenerateTagsHeaderComment(selectExpression);
-
                 VisitSelect(selectExpression);
             }
 
@@ -103,9 +107,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && selectExpression.Tables.Count == 1
                 && selectExpression.Tables[0] is SetOperationBase setOperation
                 && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
-                && selectExpression.Projection.Select((pe, index) => pe.Expression is ColumnExpression column
-                    && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
+                && selectExpression.Projection.Select(
+                        (pe, index) => pe.Expression is ColumnExpression column
+                            && string.Equals(column.Table.Alias, setOperation.Alias, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(
+                                column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.OrdinalIgnoreCase))
                     .All(e => e);
 
         protected override Expression VisitSelect(SelectExpression selectExpression)
@@ -192,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (!string.Equals(string.Empty, projectionExpression.Alias)
                 && !(projectionExpression.Expression is ColumnExpression column
-                     && string.Equals(column.Name, projectionExpression.Alias)))
+                    && string.Equals(column.Name, projectionExpression.Alias)))
             {
                 _relationalCommandBuilder.Append(AliasSeparator + _sqlGenerationHelper.DelimitIdentifier(projectionExpression.Alias));
             }
@@ -263,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             switch (fromSqlExpression.Arguments)
             {
                 case ConstantExpression constantExpression
-                when constantExpression.Value is CompositeRelationalParameter compositeRelationalParameter:
+                    when constantExpression.Value is CompositeRelationalParameter compositeRelationalParameter:
                 {
                     var subParameters = compositeRelationalParameter.RelationalParameters;
                     substitutions = new string[subParameters.Count];
@@ -278,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
 
                 case ConstantExpression constantExpression
-                when constantExpression.Value is object[] constantValues:
+                    when constantExpression.Value is object[] constantValues:
                 {
                     substitutions = new string[constantValues.Length];
                     for (var i = 0; i < constantValues.Length; i++)
@@ -312,6 +318,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
         {
             _relationalCommandBuilder.AppendLine("(");
+
+            if (!_composableSql.IsMatch(fromSqlExpression.Sql))
+            {
+                throw new InvalidOperationException(RelationalStrings.FromSqlNonComposable);
+            }
 
             using (_relationalCommandBuilder.Indent())
             {
@@ -491,45 +502,47 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         _relationalCommandBuilder.Append("(");
                     }
+
                     Visit(sqlUnaryExpression.Operand);
                     if (requiresBrackets)
                     {
                         _relationalCommandBuilder.Append(")");
                     }
+
                     _relationalCommandBuilder.Append(" AS ");
                     _relationalCommandBuilder.Append(sqlUnaryExpression.TypeMapping.StoreType);
                     _relationalCommandBuilder.Append(")");
+                    break;
                 }
-                break;
 
                 case ExpressionType.Not:
                 {
                     _relationalCommandBuilder.Append("NOT (");
                     Visit(sqlUnaryExpression.Operand);
                     _relationalCommandBuilder.Append(")");
+                    break;
                 }
-                break;
 
                 case ExpressionType.Equal:
                 {
                     Visit(sqlUnaryExpression.Operand);
                     _relationalCommandBuilder.Append(" IS NULL");
+                    break;
                 }
-                break;
 
                 case ExpressionType.NotEqual:
                 {
                     Visit(sqlUnaryExpression.Operand);
                     _relationalCommandBuilder.Append(" IS NOT NULL");
+                    break;
                 }
-                break;
 
                 case ExpressionType.Negate:
                 {
                     _relationalCommandBuilder.Append("-");
                     Visit(sqlUnaryExpression.Operand);
+                    break;
                 }
-                break;
             }
 
             return sqlUnaryExpression;
@@ -768,6 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Visit(operand);
                 }
+
                 _relationalCommandBuilder.AppendLine().Append(")");
             }
             else
@@ -783,6 +797,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 GenerateSetOperation(setOperation);
             }
+
             _relationalCommandBuilder.AppendLine()
                 .Append(")")
                 .Append(AliasSeparator)

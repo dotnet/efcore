@@ -91,10 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
                             if (entityType.Builder.ToTable(uniqueName) != null)
                             {
-                                tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType>
-                                {
-                                    entityType
-                                };
+                                tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType> { entityType };
                                 continue;
                             }
                         }
@@ -109,10 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                 if (otherEntityType.Builder.ToTable(uniqueName) != null)
                                 {
                                     entityTypes.Remove(otherEntityType);
-                                    tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType>
-                                    {
-                                        otherEntityType
-                                    };
+                                    tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType> { otherEntityType };
                                 }
                             }
                         }
@@ -150,7 +144,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return true;
         }
 
-        private static void TryUniquifyColumnNames(IConventionEntityType entityType, Dictionary<string, IConventionProperty> properties, int maxLength)
+        private static void TryUniquifyColumnNames(
+            IConventionEntityType entityType, Dictionary<string, IConventionProperty> properties, int maxLength)
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
@@ -169,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
                 var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType
-                                || property.IsPrimaryKey()
-                                || otherProperty.IsPrimaryKey();
+                    || property.IsPrimaryKey()
+                    || otherProperty.IsPrimaryKey();
                 if (!property.IsPrimaryKey())
                 {
                     var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
@@ -194,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private static string TryUniquify(
-            IConventionProperty property, string columnName, Dictionary<string, IConventionProperty> properties, bool usePrefix, int maxLength)
+            IConventionProperty property, string columnName, Dictionary<string, IConventionProperty> properties, bool usePrefix,
+            int maxLength)
         {
             if (property.Builder.CanSetColumnName(null))
             {
@@ -262,7 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return null;
         }
 
-        private static void TryUniquifyIndexNames(IConventionEntityType entityType, Dictionary<string, IConventionIndex> indexes, int maxLength)
+        private static void TryUniquifyIndexNames(
+            IConventionEntityType entityType, Dictionary<string, IConventionIndex> indexes, int maxLength)
         {
             foreach (var index in entityType.GetDeclaredIndexes())
             {

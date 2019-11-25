@@ -16,10 +16,11 @@ namespace System.Reflection
 
         public static bool IsCandidateProperty(this PropertyInfo propertyInfo, bool needsWrite = true, bool publicOnly = true)
             => !propertyInfo.IsStatic()
-               && propertyInfo.CanRead
-               && (!needsWrite || propertyInfo.FindSetterProperty() != null)
-               && propertyInfo.GetMethod != null && (!publicOnly || propertyInfo.GetMethod.IsPublic)
-               && propertyInfo.GetIndexParameters().Length == 0;
+                && propertyInfo.CanRead
+                && (!needsWrite || propertyInfo.FindSetterProperty() != null)
+                && propertyInfo.GetMethod != null
+                && (!publicOnly || propertyInfo.GetMethod.IsPublic)
+                && propertyInfo.GetIndexParameters().Length == 0;
 
         public static bool IsEFIndexerProperty([NotNull] this PropertyInfo propertyInfo)
         {

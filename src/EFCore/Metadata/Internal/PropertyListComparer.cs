@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var index = 0;
             while ((result == 0)
-                   && (index < x.Count))
+                && (index < x.Count))
             {
                 result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
                 index++;
@@ -75,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 hash.Add(obj[i]);
             }
+
             return hash.ToHashCode();
         }
     }

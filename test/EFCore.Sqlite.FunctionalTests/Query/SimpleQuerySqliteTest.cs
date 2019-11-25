@@ -41,12 +41,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Message);
         }
 
-        [ConditionalTheory(Skip = "Issue = #17238")]
-        public override Task SelectMany_Joined_Take(bool isAsync) => null;
-
-        [ConditionalTheory(Skip = "Issue = #17239")]
-        public override Task Union_Take_Union_Take(bool isAsync) => null;
-
         // SQLite client-eval
         public override async Task Average_with_division_on_decimal(bool isAsync)
         {
@@ -427,11 +421,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .Message);
         }
 
-        public override void KeylessEntity_by_database_view()
-        {
-            // Not present on SQLite
-        }
-
         public override async Task Take_Skip(bool isAsync)
         {
             await base.Take_Skip(isAsync);
@@ -460,7 +449,7 @@ LIMIT -1 OFFSET @__p_1");
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') <> @__myDatetime_0) OR @__myDatetime_0 IS NULL");
+WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') <> @__myDatetime_0) OR rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') IS NULL");
         }
 
         public override async Task Where_datetime_utcnow(bool isAsync)
@@ -472,7 +461,7 @@ WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.')
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0) OR @__myDatetime_0 IS NULL");
+WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0) OR rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') IS NULL");
         }
 
         public override async Task Where_datetime_today(bool isAsync)
@@ -482,7 +471,7 @@ WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDate
             AssertSql(
                 @"SELECT ""e"".""EmployeeID"", ""e"".""City"", ""e"".""Country"", ""e"".""FirstName"", ""e"".""ReportsTo"", ""e"".""Title""
 FROM ""Employees"" AS ""e""
-WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.')");
+WHERE (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') = rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.')) OR rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of day'), '0'), '.') IS NULL");
         }
 
         public override async Task Where_datetime_date_component(bool isAsync)
@@ -494,7 +483,7 @@ WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of da
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE ((rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", 'start of day'), '0'), '.') = @__myDatetime_0) AND (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", 'start of day'), '0'), '.') IS NOT NULL AND @__myDatetime_0 IS NOT NULL)) OR (rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", 'start of day'), '0'), '.') IS NULL AND @__myDatetime_0 IS NULL)");
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", 'start of day'), '0'), '.') = @__myDatetime_0");
         }
 
         public override async Task Where_datetime_year_component(bool isAsync)
@@ -504,7 +493,7 @@ WHERE ((rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", 'start of
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) = 1998) AND CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) = 1998");
         }
 
         public override async Task Where_datetime_month_component(bool isAsync)
@@ -514,7 +503,7 @@ WHERE (CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER) = 1998) AND CAST(str
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) = 4");
         }
 
         public override async Task Where_datetime_dayOfYear_component(bool isAsync)
@@ -524,7 +513,7 @@ WHERE (CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strfti
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) = 68) AND CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) = 68");
         }
 
         public override async Task Where_datetime_day_component(bool isAsync)
@@ -534,7 +523,7 @@ WHERE (CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER) = 68) AND CAST(strft
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) = 4");
         }
 
         public override async Task Where_datetime_hour_component(bool isAsync)
@@ -544,7 +533,7 @@ WHERE (CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER) = 4) AND CAST(strfti
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) = 14) AND CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) = 14");
         }
 
         public override async Task Where_datetime_minute_component(bool isAsync)
@@ -554,7 +543,7 @@ WHERE (CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER) = 14) AND CAST(strft
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) = 23) AND CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) = 23");
         }
 
         public override async Task Where_datetime_second_component(bool isAsync)
@@ -564,7 +553,7 @@ WHERE (CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER) = 23) AND CAST(strft
             AssertSql(
                 @"SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""
-WHERE (CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44) AND CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) IS NOT NULL");
+WHERE CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER) = 44");
         }
 
         [ConditionalTheory(Skip = "Issue#15586")]
@@ -595,7 +584,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (((substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL))) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = ''))))");
         }
 
         public override async Task String_StartsWith_Column(bool isAsync)
@@ -605,7 +594,7 @@ WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR ("
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (((substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL))) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND (substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"")) OR (""c"".""ContactName"" = ''))))");
         }
 
         public override async Task String_StartsWith_MethodCall(bool isAsync)
@@ -635,7 +624,7 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%b')");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND ((((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL)) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = ''))))");
         }
 
         public override async Task String_EndsWith_Column(bool isAsync)
@@ -645,7 +634,7 @@ WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR ("
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND ((((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") AND (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NOT NULL AND ""c"".""ContactName"" IS NOT NULL)) OR (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) IS NULL AND ""c"".""ContactName"" IS NULL)) OR ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL))))");
+WHERE (""c"".""ContactName"" = '') OR (""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" IS NOT NULL AND ((substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"") OR (""c"".""ContactName"" = ''))))");
         }
 
         public override async Task String_EndsWith_MethodCall(bool isAsync)
@@ -675,7 +664,7 @@ WHERE ('M' = '') OR (instr(""c"".""ContactName"", 'M') > 0)");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0)");
+WHERE (""c"".""ContactName"" = '') OR (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0)");
         }
 
         public override async Task String_Contains_Column(bool isAsync)
@@ -685,7 +674,7 @@ WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (i
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((""c"".""ContactName"" = '') AND ""c"".""ContactName"" IS NOT NULL) OR (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0)");
+WHERE (""c"".""ContactName"" = '') OR (instr(""c"".""ContactName"", ""c"".""ContactName"") > 0)");
         }
 
         public override async Task String_Contains_MethodCall(bool isAsync)
@@ -705,7 +694,7 @@ WHERE ('M' = '') OR (instr(""c"".""ContactName"", 'M') > 0)");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""Region"" IS NULL OR ((trim(""c"".""Region"") = '') AND trim(""c"".""Region"") IS NOT NULL)");
+WHERE ""c"".""Region"" IS NULL OR (trim(""c"".""Region"") = '')");
         }
 
         public override async Task Where_string_length(bool isAsync)
@@ -715,7 +704,7 @@ WHERE ""c"".""Region"" IS NULL OR ((trim(""c"".""Region"") = '') AND trim(""c"".
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (length(""c"".""City"") = 6) AND length(""c"".""City"") IS NOT NULL");
+WHERE length(""c"".""City"") = 6");
         }
 
         public override async Task Where_string_indexof(bool isAsync)
@@ -725,7 +714,7 @@ WHERE (length(""c"".""City"") = 6) AND length(""c"".""City"") IS NOT NULL");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ((instr(""c"".""City"", 'Sea') - 1) <> -1) OR instr(""c"".""City"", 'Sea') - 1 IS NULL");
+WHERE ((instr(""c"".""City"", 'Sea') - 1) <> -1) OR instr(""c"".""City"", 'Sea') IS NULL");
         }
 
         public override async Task Indexof_with_emptystring(bool isAsync)
@@ -745,7 +734,7 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (replace(""c"".""City"", 'Sea', 'Rea') = 'Reattle') AND replace(""c"".""City"", 'Sea', 'Rea') IS NOT NULL");
+WHERE replace(""c"".""City"", 'Sea', 'Rea') = 'Reattle'");
         }
 
         public override async Task Replace_with_emptystring(bool isAsync)
@@ -765,7 +754,7 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (substr(""c"".""City"", 1 + 1, 2) = 'ea') AND substr(""c"".""City"", 1 + 1, 2) IS NOT NULL");
+WHERE substr(""c"".""City"", 1 + 1, 2) = 'ea'");
         }
 
         public override async Task Substring_with_zero_startindex(bool isAsync)
@@ -907,7 +896,7 @@ WHERE upper(""c"".""CustomerID"") = 'ALFKI'");
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (ltrim(""c"".""ContactTitle"") = 'Owner') AND ltrim(""c"".""ContactTitle"") IS NOT NULL");
+WHERE ltrim(""c"".""ContactTitle"") = 'Owner'");
         }
 
         public override async Task TrimStart_with_char_argument_in_predicate(bool isAsync)
@@ -917,7 +906,7 @@ WHERE (ltrim(""c"".""ContactTitle"") = 'Owner') AND ltrim(""c"".""ContactTitle""
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (ltrim(""c"".""ContactTitle"", 'O') = 'wner') AND ltrim(""c"".""ContactTitle"", 'O') IS NOT NULL");
+WHERE ltrim(""c"".""ContactTitle"", 'O') = 'wner'");
         }
 
         public override async Task TrimStart_with_char_array_argument_in_predicate(bool isAsync)
@@ -927,7 +916,7 @@ WHERE (ltrim(""c"".""ContactTitle"", 'O') = 'wner') AND ltrim(""c"".""ContactTit
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (ltrim(""c"".""ContactTitle"", 'Ow') = 'ner') AND ltrim(""c"".""ContactTitle"", 'Ow') IS NOT NULL");
+WHERE ltrim(""c"".""ContactTitle"", 'Ow') = 'ner'");
         }
 
         public override async Task TrimEnd_without_arguments_in_predicate(bool isAsync)
@@ -937,7 +926,7 @@ WHERE (ltrim(""c"".""ContactTitle"", 'Ow') = 'ner') AND ltrim(""c"".""ContactTit
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (rtrim(""c"".""ContactTitle"") = 'Owner') AND rtrim(""c"".""ContactTitle"") IS NOT NULL");
+WHERE rtrim(""c"".""ContactTitle"") = 'Owner'");
         }
 
         public override async Task TrimEnd_with_char_argument_in_predicate(bool isAsync)
@@ -947,7 +936,7 @@ WHERE (rtrim(""c"".""ContactTitle"") = 'Owner') AND rtrim(""c"".""ContactTitle""
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (rtrim(""c"".""ContactTitle"", 'r') = 'Owne') AND rtrim(""c"".""ContactTitle"", 'r') IS NOT NULL");
+WHERE rtrim(""c"".""ContactTitle"", 'r') = 'Owne'");
         }
 
         public override async Task TrimEnd_with_char_array_argument_in_predicate(bool isAsync)
@@ -957,7 +946,7 @@ WHERE (rtrim(""c"".""ContactTitle"", 'r') = 'Owne') AND rtrim(""c"".""ContactTit
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (rtrim(""c"".""ContactTitle"", 'er') = 'Own') AND rtrim(""c"".""ContactTitle"", 'er') IS NOT NULL");
+WHERE rtrim(""c"".""ContactTitle"", 'er') = 'Own'");
         }
 
         public override async Task Trim_without_argument_in_predicate(bool isAsync)
@@ -967,7 +956,7 @@ WHERE (rtrim(""c"".""ContactTitle"", 'er') = 'Own') AND rtrim(""c"".""ContactTit
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (trim(""c"".""ContactTitle"") = 'Owner') AND trim(""c"".""ContactTitle"") IS NOT NULL");
+WHERE trim(""c"".""ContactTitle"") = 'Owner'");
         }
 
         public override async Task Trim_with_char_argument_in_predicate(bool isAsync)
@@ -977,7 +966,7 @@ WHERE (trim(""c"".""ContactTitle"") = 'Owner') AND trim(""c"".""ContactTitle"") 
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (trim(""c"".""ContactTitle"", 'O') = 'wner') AND trim(""c"".""ContactTitle"", 'O') IS NOT NULL");
+WHERE trim(""c"".""ContactTitle"", 'O') = 'wner'");
         }
 
         public override async Task Trim_with_char_array_argument_in_predicate(bool isAsync)
@@ -987,7 +976,7 @@ WHERE (trim(""c"".""ContactTitle"", 'O') = 'wner') AND trim(""c"".""ContactTitle
             AssertSql(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE (trim(""c"".""ContactTitle"", 'Or') = 'wne') AND trim(""c"".""ContactTitle"", 'Or') IS NOT NULL");
+WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
         }
 
         public override async Task Select_datetime_year_component(bool isAsync)
@@ -1003,9 +992,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_year_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).Year));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Year));
 
             AssertSql(
                 @"SELECT CAST(strftime('%Y', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS INTEGER)
@@ -1079,9 +1068,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_millisecond_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
 
             AssertSql(
                 @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS REAL) * 1000.0) % 1000.0
@@ -1119,9 +1108,9 @@ FROM ""Orders"" AS ""o""");
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Select_datetime_TimeOfDay_component_composed(bool isAsync)
         {
-            await AssertQueryScalar<Order>(
+            await AssertQueryScalar(
                 isAsync,
-                os => os.Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
+                ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
 
             AssertSql(
                 @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years'), '0'), '.')
@@ -1322,11 +1311,36 @@ FROM (
 
         public override Task SelectMany_correlated_with_outer_4(bool isAsync) => null;
 
+        public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync)
+            => null;
+
+        public override Task SelectMany_correlated_subquery_hard(bool isAsync) => null;
+
+        public override Task SelectMany_whose_selector_references_outer_source(bool isAsync) => null;
+
+        public override Task AsQueryable_in_query_server_evals(bool isAsync) => null;
 
         [ConditionalTheory(Skip = "Issue#17324")]
         public override Task Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(bool isAsync)
         {
             return base.Project_single_element_from_collection_with_OrderBy_over_navigation_Take_and_FirstOrDefault_2(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17223")]
+        public override Task Like_with_non_string_column_using_ToString(bool isAsync)
+        {
+            return base.Like_with_non_string_column_using_ToString(isAsync);
+        }
+
+        public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync));
+        }
+
+        [ConditionalTheory(Skip = "Issue#17230")]
+        public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(isAsync);
         }
 
         private void AssertSql(params string[] expected)

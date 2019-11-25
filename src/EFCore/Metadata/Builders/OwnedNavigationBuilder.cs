@@ -690,13 +690,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 return relatedEntityType;
             }
 
+            var model = DependentEntityType.Model;
             if (navigationName != null)
             {
-                relatedEntityType = Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, DependentEntityType);
+                relatedEntityType = model.FindEntityType(relatedTypeName, navigationName, DependentEntityType);
             }
 
-            return relatedEntityType ??
-                   DependentEntityType.Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
+            if (relatedEntityType == null
+                && model.GetProductVersion()?.StartsWith("2.", StringComparison.Ordinal) == true)
+            {
+                var owner = DependentEntityType.FindOwnership().PrincipalEntityType;
+                if (owner.Name == relatedTypeName)
+                {
+                    relatedEntityType = owner;
+                }
+            }
+
+            return relatedEntityType ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit).Metadata;
         }
 
         /// <summary>
@@ -719,8 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 relatedEntityType = Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, DependentEntityType);
             }
 
-            return relatedEntityType ??
-                   DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
+            return relatedEntityType ?? DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit).Metadata;
         }
 
         /// <summary>

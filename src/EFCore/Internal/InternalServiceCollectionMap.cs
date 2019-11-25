@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 AddNewDescriptor(indexes, new ServiceDescriptor(serviceType, serviceType, lifetime));
             }
             else if (indexes.Count > 1
-                     || ServiceCollection[indexes[0]].ImplementationType != serviceType)
+                || ServiceCollection[indexes[0]].ImplementationType != serviceType)
             {
                 throw new InvalidOperationException(CoreStrings.BadDependencyRegistration(serviceType.Name));
             }

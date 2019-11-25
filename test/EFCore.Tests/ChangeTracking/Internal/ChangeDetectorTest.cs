@@ -43,10 +43,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void PropertyChanging_snapshots_original_and_FK_value_if_lazy_snapshots_are_in_use()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
-            var entity = new NotifyingProduct
-            {
-                DependentId = 77
-            };
+            var entity = new NotifyingProduct { DependentId = 77 };
             var entry = CreateInternalEntry(contextServices, entity);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -76,10 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public void PropertyChanging_does_not_snapshot_original_values_for_properties_with_no_original_value_tracking()
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
-            var entity = new NotifyingProduct
-            {
-                Name = "Cheese"
-            };
+            var entity = new NotifyingProduct { Name = "Cheese" };
             var entry = CreateInternalEntry(contextServices, entity);
 
             Assert.False(entry.EntityType.UseEagerSnapshots());
@@ -104,10 +98,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
             var category = new NotifyingCategory();
-            var entity = new NotifyingProduct
-            {
-                Category = category
-            };
+            var entity = new NotifyingProduct { Category = category };
             var entry = CreateInternalEntry(contextServices, entity);
             entry.SetEntityState(EntityState.Added);
 
@@ -125,11 +116,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(category, entry.GetRelationshipSnapshotValue(navigation));
             Assert.Same(category, entry.GetCurrentValue(navigation));
 
-            var newCategory = new NotifyingCategory
-            {
-                Id = 7,
-                PrincipalId = 11
-            };
+            var newCategory = new NotifyingCategory { Id = 7, PrincipalId = 11 };
             entity.Category = newCategory;
 
             Assert.Same(newCategory, entry.GetRelationshipSnapshotValue(navigation));
@@ -141,10 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(BuildNotifyingModel());
             var id = Guid.NewGuid();
-            var entity = new NotifyingProduct
-            {
-                Id = id
-            };
+            var entity = new NotifyingProduct { Id = id };
             var entry = CreateInternalEntry(contextServices, entity);
             entry.SetEntityState(EntityState.Added);
 
@@ -176,11 +160,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                Name = "Oculus Rift"
-            };
+            var product = new Product { Id = Guid.NewGuid(), Name = "Oculus Rift" };
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -207,11 +187,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 var value = nullValue ? null : new[] { 1, 2, 3, 4 };
 
-                var baxter = new Baxter
-                {
-                    Id = Guid.NewGuid(),
-                    Demands = value
-                };
+                var baxter = new Baxter { Id = Guid.NewGuid(), Demands = value };
 
                 var entityEntry = context.Entry(baxter);
 
@@ -255,11 +231,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
             {
                 var baxter = context.Attach(
-                    new Baxter
-                    {
-                        Id = Guid.NewGuid(),
-                        Demands = new[] { 1, 2, 3, 4 }
-                    }).Entity;
+                    new Baxter { Id = Guid.NewGuid(), Demands = new[] { 1, 2, 3, 4 } }).Entity;
 
                 baxter.Demands[2] = 33;
 
@@ -287,10 +259,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             using (var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext())
             {
                 var entityEntry = context.Entry(
-                    new Baxter
-                    {
-                        Id = Guid.NewGuid()
-                    });
+                    new Baxter { Id = Guid.NewGuid() });
                 entityEntry.Property("ShadyDemands").CurrentValue = new[] { 1, 2, 3, 4 };
                 entityEntry.State = EntityState.Unchanged;
 
@@ -413,11 +382,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
-            var product = new ProductWithChanged
-            {
-                Id = 1,
-                Name = "Oculus Rift"
-            };
+            var product = new ProductWithChanged { Id = 1, Name = "Oculus Rift" };
             var entry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -437,11 +402,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
-            var category = new Category
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
@@ -472,11 +433,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new Category
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
@@ -509,11 +466,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new Category
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
@@ -616,11 +569,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
-            var category = new Category
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
@@ -643,11 +592,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new Category
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new Category { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
             entry.PrepareToSave();
@@ -673,11 +618,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -706,11 +647,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -743,11 +680,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
             entry.PrepareToSave();
@@ -778,11 +711,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -805,11 +734,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
             entry.PrepareToSave();
@@ -834,11 +759,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var originalCategory = new Category
-            {
-                Id = 77,
-                PrincipalId = 1
-            };
+            var originalCategory = new Category { Id = 77, PrincipalId = 1 };
             var product = new Product
             {
                 Id = Guid.NewGuid(),
@@ -848,11 +769,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new Category
-            {
-                Id = 1,
-                PrincipalId = 2
-            };
+            var newCategory = new Category { Id = 1, PrincipalId = 2 };
             product.Category = newCategory;
 
             changeDetector.DetectChanges(entry);
@@ -932,11 +849,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new Category
-            {
-                Id = 55,
-                PrincipalId = 1
-            };
+            var category = new Category { Id = 55, PrincipalId = 1 };
             var product = new Product
             {
                 Id = Guid.NewGuid(),
@@ -965,34 +878,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
-            var product2 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
+            var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var category = new Category
             {
                 Id = 1,
                 PrincipalId = 77,
-                Products =
-                {
-                    product1,
-                    product2
-                }
+                Products = { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product3 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             category.Products.Add(product3);
 
             changeDetector.DetectChanges(entry);
@@ -1018,25 +915,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
-            var product2 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
+            var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var category = new Category
             {
                 Id = 1,
                 PrincipalId = 77,
-                Products =
-                {
-                    product1,
-                    product2
-                }
+                Products = { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
@@ -1064,25 +949,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
-            var product2 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
+            var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var category = new Category
             {
                 Id = 1,
                 PrincipalId = 77,
-                Products =
-                {
-                    product1,
-                    product2
-                }
+                Products = { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
@@ -1107,10 +980,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var stateManager = contextServices.GetRequiredService<IStateManager>();
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
 
-            var product = new ProductWithChanged
-            {
-                Id = 77
-            };
+            var product = new ProductWithChanged { Id = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Added);
 
@@ -1133,11 +1003,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new ProductWithChanged
-            {
-                Id = 1,
-                DependentId = 77
-            };
+            var product = new ProductWithChanged { Id = 1, DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -1160,10 +1026,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new CategoryWithChanged
-            {
-                Id = 1
-            };
+            var category = new CategoryWithChanged { Id = 1 };
             var product = new ProductWithChanged
             {
                 Id = 2,
@@ -1173,10 +1036,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            product.Category = new CategoryWithChanged
-            {
-                Id = 2
-            };
+            product.Category = new CategoryWithChanged { Id = 2 };
 
             changeDetector.DetectChanges(stateManager);
 
@@ -1194,33 +1054,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new ProductWithChanged
-            {
-                Id = 1,
-                DependentId = 77
-            };
-            var product2 = new ProductWithChanged
-            {
-                Id = 2,
-                DependentId = 77
-            };
+            var product1 = new ProductWithChanged { Id = 1, DependentId = 77 };
+            var product2 = new ProductWithChanged { Id = 2, DependentId = 77 };
             var category = new CategoryWithChanged
             {
-                Id = 77,
-                Products = new ObservableCollection<ProductWithChanged>
-                {
-                    product1,
-                    product2
-                }
+                Id = 77, Products = new ObservableCollection<ProductWithChanged> { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new ProductWithChanged
-            {
-                Id = 3,
-                DependentId = 77
-            };
+            var product3 = new ProductWithChanged { Id = 3, DependentId = 77 };
             category.Products.Add(product3);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
@@ -1242,11 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var originalCategory = new Category
-            {
-                Id = 77,
-                PrincipalId = 1
-            };
+            var originalCategory = new Category { Id = 77, PrincipalId = 1 };
             var product = new Product
             {
                 Id = Guid.NewGuid(),
@@ -1256,11 +1095,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new Category
-            {
-                PrincipalId = 2,
-                Tag = new CategoryTag()
-            };
+            var newCategory = new Category { PrincipalId = 2, Tag = new CategoryTag() };
             product.Category = newCategory;
 
             changeDetector.DetectChanges(stateManager);
@@ -1307,18 +1142,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var tag = new CategoryTag
-            {
-                Id = 1
-            };
+            var tag = new CategoryTag { Id = 1 };
             var entry = stateManager.GetOrCreateEntry(tag);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var category = new Category
-            {
-                TagId = 77,
-                PrincipalId = 777
-            };
+            var category = new Category { TagId = 77, PrincipalId = 777 };
             tag.Category = category;
 
             changeDetector.DetectChanges(stateManager);
@@ -1337,33 +1165,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
-            var product2 = new Product
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product1 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
+            var product2 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             var category = new Category
             {
                 Id = 1,
                 PrincipalId = 77,
-                Products =
-                {
-                    product1,
-                    product2
-                }
+                Products = { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new Product
-            {
-                Tag = new ProductTag()
-            };
+            var product3 = new Product { Tag = new ProductTag() };
             category.Products.Add(product3);
 
             changeDetector.DetectChanges(stateManager);
@@ -1428,11 +1241,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new NotifyingCategory
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
@@ -1458,11 +1267,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new NotifyingCategory
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
@@ -1520,11 +1325,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new NotifyingCategory
-            {
-                Id = -1,
-                PrincipalId = 77
-            };
+            var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
@@ -1544,11 +1345,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -1574,11 +1371,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -1605,11 +1398,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
@@ -1629,11 +1418,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var originalCategory = new NotifyingCategory
-            {
-                Id = 66,
-                PrincipalId = 1
-            };
+            var originalCategory = new NotifyingCategory { Id = 66, PrincipalId = 1 };
             var product = new NotifyingProduct
             {
                 Id = Guid.NewGuid(),
@@ -1643,11 +1428,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new NotifyingCategory
-            {
-                Id = 67,
-                PrincipalId = 2
-            };
+            var newCategory = new NotifyingCategory { Id = 67, PrincipalId = 2 };
             product.Category = newCategory;
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
@@ -1717,11 +1498,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var category = new NotifyingCategory
-            {
-                Id = 77,
-                PrincipalId = 1
-            };
+            var category = new NotifyingCategory { Id = 77, PrincipalId = 1 };
             var product = new NotifyingProduct
             {
                 Id = Guid.NewGuid(),
@@ -1747,34 +1524,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
-            var product2 = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
+            var product2 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var category = new NotifyingCategory
             {
                 Id = 1,
                 PrincipalId = 77,
-                Products =
-                {
-                    product1,
-                    product2
-                }
+                Products = { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product3 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             category.Products.Add(product3);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
@@ -1795,25 +1556,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
-            var product2 = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
+            var product2 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var category = new NotifyingCategory
             {
                 Id = 1,
                 PrincipalId = 77,
-                Products =
-                {
-                    product1,
-                    product2
-                }
+                Products = { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
@@ -1841,10 +1590,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var originalCategory = new NotifyingCategory
-            {
-                PrincipalId = 1
-            };
+            var originalCategory = new NotifyingCategory { PrincipalId = 1 };
             var product = new NotifyingProduct
             {
                 Id = Guid.NewGuid(),
@@ -1854,11 +1600,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new NotifyingCategory
-            {
-                PrincipalId = 2,
-                Tag = new NotifyingCategoryTag()
-            };
+            var newCategory = new NotifyingCategory { PrincipalId = 2, Tag = new NotifyingCategoryTag() };
             product.Category = newCategory;
 
             var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
@@ -1883,10 +1625,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var tag = new NotifyingCategoryTag
-            {
-                Id = 2
-            };
+            var tag = new NotifyingCategoryTag { Id = 2 };
             category.Tag = tag;
 
             var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
@@ -1902,18 +1641,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var tag = new NotifyingCategoryTag
-            {
-                Id = 1
-            };
+            var tag = new NotifyingCategoryTag { Id = 1 };
             var entry = stateManager.GetOrCreateEntry(tag);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var category = new NotifyingCategory
-            {
-                PrincipalId = 777,
-                TagId = 77
-            };
+            var category = new NotifyingCategory { PrincipalId = 777, TagId = 77 };
             tag.Category = category;
 
             var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
@@ -1930,33 +1662,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
-            var product2 = new NotifyingProduct
-            {
-                Id = Guid.NewGuid(),
-                DependentId = 77
-            };
+            var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
+            var product2 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             var category = new NotifyingCategory
             {
                 Id = 1,
                 PrincipalId = 77,
-                Products =
-                {
-                    product1,
-                    product2
-                }
+                Products = { product1, product2 }
             };
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new NotifyingProduct
-            {
-                Tag = new NotifyingProductTag()
-            };
+            var product3 = new NotifyingProduct { Tag = new NotifyingProductTag() };
             category.Products.Add(product3);
 
             var testAttacher = (TestAttacher)contextServices.GetRequiredService<IEntityGraphAttacher>();
@@ -2356,7 +2073,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return builder.Model.FinalizeModel();
         }
 
-        private static InternalEntityEntry CreateInternalEntry<TEntity>(IServiceProvider contextServices,
+        private static InternalEntityEntry CreateInternalEntry<TEntity>(
+            IServiceProvider contextServices,
             TEntity entity = null)
             where TEntity : class, new()
             => contextServices.GetRequiredService<IStateManager>()
@@ -2411,7 +2129,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public Tuple<InternalEntityEntry, INavigation, object, object> ReferenceChange { get; set; }
             public Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>> CollectionChange { get; set; }
 
-            public override void NavigationReferenceChanged(InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+            public override void NavigationReferenceChanged(
+                InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
             {
                 ReferenceChange = Tuple.Create(entry, navigation, oldValue, newValue);
 

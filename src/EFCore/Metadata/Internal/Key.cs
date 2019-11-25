@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         {
-            _configurationSource = _configurationSource.Max(configurationSource);
+            _configurationSource = configurationSource.Max(_configurationSource);
             foreach (var property in Properties)
             {
                 property.UpdateConfigurationSource(configurationSource);
@@ -176,8 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IProperty> IKey.Properties
         {
-            [DebuggerStepThrough]
-            get => Properties;
+            [DebuggerStepThrough] get => Properties;
         }
 
         /// <summary>
@@ -188,8 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IEntityType IKey.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -200,8 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IMutableProperty> IMutableKey.Properties
         {
-            [DebuggerStepThrough]
-            get => Properties;
+            [DebuggerStepThrough] get => Properties;
         }
 
         /// <summary>
@@ -212,8 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableEntityType IMutableKey.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -224,8 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionKeyBuilder IConventionKey.Builder
         {
-            [DebuggerStepThrough]
-            get => Builder;
+            [DebuggerStepThrough] get => Builder;
         }
 
         /// <summary>
@@ -236,8 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyList<IConventionProperty> IConventionKey.Properties
         {
-            [DebuggerStepThrough]
-            get => Properties;
+            [DebuggerStepThrough] get => Properties;
         }
 
         /// <summary>
@@ -248,8 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionKey.DeclaringEntityType
         {
-            [DebuggerStepThrough]
-            get => DeclaringEntityType;
+            [DebuggerStepThrough] get => DeclaringEntityType;
         }
     }
 }

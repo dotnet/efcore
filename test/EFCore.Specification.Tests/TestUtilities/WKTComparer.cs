@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public bool Equals(string x, string y)
             => x == y
-               || Normalize(x) == Normalize(y);
+                || Normalize(x) == Normalize(y);
 
         public static string Normalize(string text)
             => text != null

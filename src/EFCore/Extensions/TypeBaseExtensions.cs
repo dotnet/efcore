@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyAccessMode GetPropertyAccessMode(
             [NotNull] this ITypeBase typeBase)
             => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.PropertyAccessMode]
-               ?? typeBase.Model.GetPropertyAccessMode();
+                ?? typeBase.Model.GetPropertyAccessMode();
 
         /// <summary>
         ///     <para>
@@ -44,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyAccessMode GetNavigationAccessMode(
             [NotNull] this ITypeBase typeBase)
             => (PropertyAccessMode?)Check.NotNull(typeBase, nameof(typeBase))[CoreAnnotationNames.NavigationAccessMode]
-               ?? typeBase.GetPropertyAccessMode();
+                ?? typeBase.GetPropertyAccessMode();
     }
 }

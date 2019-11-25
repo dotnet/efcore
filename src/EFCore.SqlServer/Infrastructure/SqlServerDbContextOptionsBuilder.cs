@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Use a ROW_NUMBER() in queries instead of OFFSET/FETCH. This method is backwards-compatible to SQL Server 2005.
         /// </summary>
+        [Obsolete("Row-number paging is no longer supported. See https://ak.ms/AA6h122 for more information.")]
         public virtual SqlServerDbContextOptionsBuilder UseRowNumberForPaging(bool useRowNumberForPaging = true)
             => WithOption(e => e.WithRowNumberPaging(useRowNumberForPaging));
 

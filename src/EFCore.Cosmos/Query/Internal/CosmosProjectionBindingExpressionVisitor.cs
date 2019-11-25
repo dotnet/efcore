@@ -1,9 +1,9 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -26,9 +26,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
         private SelectExpression _selectExpression;
         private bool _clientEval;
+
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
+
         private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
+
+        private readonly IDictionary<ParameterExpression, CollectionShaperExpression> _collectionShaperMapping
+            = new Dictionary<ParameterExpression, CollectionShaperExpression>();
+
+        private readonly Stack<INavigation> _includedNavigations
+            = new Stack<INavigation>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -108,17 +116,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         return expression;
 
                     case ParameterExpression parameterExpression:
+                        if (_collectionShaperMapping.ContainsKey(parameterExpression))
+                        {
+                            return parameterExpression;
+                        }
+
                         return Expression.Call(
                             _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
                             QueryCompilationContext.QueryContextParameter,
                             Expression.Constant(parameterExpression.Name));
 
-                    case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
+                    case MaterializeCollectionNavigationExpression _:
                         return base.Visit(expression);
-                    //return _selectExpression.AddCollectionProjection(
-                    //    _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                    //        materializeCollectionNavigationExpression.Subquery),
-                    //    materializeCollectionNavigationExpression.Navigation, null);
                 }
 
                 var translation = _sqlTranslator.Translate(expression);
@@ -177,10 +186,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 case UnaryExpression unaryExpression:
                     shaperExpression = unaryExpression.Operand as EntityShaperExpression;
-                    if (shaperExpression == null)
+                    if (shaperExpression == null
+                        || unaryExpression.NodeType != ExpressionType.Convert)
                     {
                         return memberExpression.Update(innerExpression);
                     }
+
                     break;
 
                 default:
@@ -196,6 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 case UnaryExpression unaryExpression:
+                    // Unwrap EntityProjectionExpression when the root entity is not projected
                     innerEntityProjection = (EntityProjectionExpression)((UnaryExpression)unaryExpression.Operand).Operand;
                     break;
 
@@ -260,10 +272,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     case UnaryExpression unaryExpression:
                         shaperExpression = unaryExpression.Operand as EntityShaperExpression;
-                        if (shaperExpression == null)
+                        if (shaperExpression == null
+                            || unaryExpression.NodeType != ExpressionType.Convert)
                         {
                             return null;
                         }
+
+                        break;
+
+                    case ParameterExpression parameterExpression:
+                        if (!_collectionShaperMapping.TryGetValue(parameterExpression, out var collectionShaper))
+                        {
+                            return null;
+                        }
+
+                        shaperExpression = (EntityShaperExpression)collectionShaper.InnerShaper;
                         break;
 
                     default:
@@ -286,13 +309,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
                 }
 
-                var navigationProjection = innerEntityProjection.BindMember(
-                    memberName, visitedSource.Type, clientEval: true, out var propertyBase);
-
-                if (!(propertyBase is INavigation navigation)
-                    || !navigation.IsEmbedded())
+                Expression navigationProjection;
+                var navigation = _includedNavigations.FirstOrDefault(n => n.Name == memberName);
+                if (navigation == null)
                 {
-                    return null;
+                    navigationProjection = innerEntityProjection.BindMember(
+                        memberName, visitedSource.Type, clientEval: true, out var propertyBase);
+
+                    if (!(propertyBase is INavigation projectedNavigation)
+                        || !projectedNavigation.IsEmbedded())
+                    {
+                        return null;
+                    }
+
+                    navigation = projectedNavigation;
+                }
+                else
+                {
+                    navigationProjection = innerEntityProjection.BindNavigation(navigation, clientEval: true);
                 }
 
                 switch (navigationProjection)
@@ -320,6 +354,41 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     default:
                         throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
+                }
+            }
+
+            if (_clientEval)
+            {
+                var method = methodCallExpression.Method;
+                if (method.DeclaringType == typeof(Queryable))
+                {
+                    var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
+                    var visitedSource = Visit(methodCallExpression.Arguments[0]);
+
+                    switch (method.Name)
+                    {
+                        case nameof(Queryable.AsQueryable)
+                            when genericMethod == QueryableMethods.AsQueryable:
+                            // Unwrap AsQueryable
+                            return visitedSource;
+
+                        case nameof(Queryable.Select)
+                            when genericMethod == QueryableMethods.Select:
+                            if (!(visitedSource is CollectionShaperExpression shaper))
+                            {
+                                return null;
+                            }
+
+                            var lambda = methodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+
+                            _collectionShaperMapping.Add(lambda.Parameters.Single(), shaper);
+
+                            lambda = Expression.Lambda(Visit(lambda.Body), lambda.Parameters);
+                            return Expression.Call(
+                                EnumerableMethods.Select.MakeGenericMethod(method.GetGenericArguments()),
+                                shaper,
+                                lambda);
+                    }
                 }
             }
 
@@ -359,26 +428,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
-                    if (materializeCollectionNavigationExpression.Navigation.IsEmbedded())
-                    {
-                        var subquery = materializeCollectionNavigationExpression.Subquery;
-                        // Unwrap AsQueryable around the subquery if present
-                        if (subquery is MethodCallExpression innerMethodCall
-                            && innerMethodCall.Method.IsGenericMethod
-                            && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
-                        {
-                            subquery = innerMethodCall.Arguments[0];
-                        }
-
-                        return base.Visit(subquery);
-                    }
-                    else
-                    {
-                        return base.VisitExtension(materializeCollectionNavigationExpression);
-                    }
+                    return materializeCollectionNavigationExpression.Navigation.IsEmbedded()
+                        ? base.Visit(materializeCollectionNavigationExpression.Subquery)
+                        : base.VisitExtension(materializeCollectionNavigationExpression);
 
                 case IncludeExpression includeExpression:
-                    return _clientEval ? base.VisitExtension(includeExpression) : null;
+                    if (!_clientEval)
+                    {
+                        return null;
+                    }
+
+                    if (!includeExpression.Navigation.IsEmbedded())
+                    {
+                        throw new InvalidOperationException(
+                            "Non-embedded IncludeExpression is not supported: " + includeExpression.Print());
+                    }
+
+                    _includedNavigations.Push(includeExpression.Navigation);
+
+                    var newIncludeExpression = base.VisitExtension(includeExpression);
+
+                    _includedNavigations.Pop();
+
+                    return newIncludeExpression;
 
                 default:
                     throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
@@ -420,6 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         return null;
                     }
+
                     _projectionMembers.Pop();
                 }
             }

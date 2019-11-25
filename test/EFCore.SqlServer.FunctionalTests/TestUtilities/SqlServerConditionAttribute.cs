@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
                 isMet &= defaultConnection.DataSource.Contains("(localdb)")
-                         || defaultConnection.UserInstance;
+                    || defaultConnection.UserInstance;
             }
 
             if (Conditions.HasFlag(SqlServerCondition.IsNotCI))

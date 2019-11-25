@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var withMethod = typeof(TDependencies).GetTypeInfo().DeclaredMethods
                     .Single(
                         m => m.CustomAttributes.All(a => a.AttributeType != typeof(ObsoleteAttribute))
-                             && m.Name == "With"
-                             && m.GetParameters()[0].ParameterType == serviceType);
+                            && m.Name == "With"
+                            && m.GetParameters()[0].ParameterType == serviceType);
 
                 var clone = withMethod.Invoke(dependencies, new[] { services2.GetService(serviceType) });
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     }
                     else
                     {
-                        Assert.Same(property.GetValue(clone), property.GetValue(dependencies));
+                        Assert.Equal(property.GetValue(clone), property.GetValue(dependencies));
                     }
                 }
             }

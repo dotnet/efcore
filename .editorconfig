@@ -8,6 +8,7 @@ root = true
 [*]
 indent_style = space
 trim_trailing_whitespace = true
+guidelines = 140
 
 # Code files
 [*.{cs,csx,vb,vbx}]
@@ -197,8 +198,8 @@ dotnet_naming_rule.interface_naming.symbols = interface_symbol
 dotnet_naming_rule.interface_naming.style = interface_style
 dotnet_naming_rule.interface_naming.severity = suggestion
 
-# Classes, Structs, Enums, Properties, Methods, Events, Namespaces
-dotnet_naming_symbols.class_symbol.applicable_kinds = class, struct, enum, property, method, event, namespace
+# Classes, Structs, Enums, Properties, Methods, Local Functions, Events, Namespaces
+dotnet_naming_symbols.class_symbol.applicable_kinds = class, struct, enum, property, method, local_function, event, namespace, delegate
 dotnet_naming_symbols.class_symbol.applicable_accessibilities = *
 
 dotnet_naming_rule.class_naming.symbols = class_symbol
@@ -213,25 +214,15 @@ dotnet_naming_rule.type_parameter_naming.symbols = type_parameter_symbol
 dotnet_naming_rule.type_parameter_naming.style = type_parameter_style
 dotnet_naming_rule.type_parameter_naming.severity = suggestion
 
-# Private const fields
-dotnet_naming_symbols.const_field_symbol.applicable_kinds = field
-dotnet_naming_symbols.const_field_symbol.applicable_accessibilities = private
-dotnet_naming_symbols.const_field_symbol.required_modifiers = const
+# Private Fields
+dotnet_naming_symbols.private_field_symbol.applicable_kinds = field
+dotnet_naming_symbols.private_field_symbol.applicable_accessibilities = private
 
-dotnet_naming_rule.const_field_naming.symbols = const_field_symbol
-dotnet_naming_rule.const_field_naming.style = _camelCase
-dotnet_naming_rule.const_field_naming.severity = suggestion
+dotnet_naming_rule.private_field_naming.symbols = private_field_symbol
+dotnet_naming_rule.private_field_naming.style = _camelCase
+dotnet_naming_rule.private_field_naming.severity = suggestion
 
-# Other const fields
-dotnet_naming_symbols.const_field_symbol.applicable_kinds = field
-dotnet_naming_symbols.const_field_symbol.applicable_accessibilities = *
-dotnet_naming_symbols.const_field_symbol.required_modifiers = const
-
-dotnet_naming_rule.const_field_naming.symbols = const_field_symbol
-dotnet_naming_rule.const_field_naming.style = pascal_case_style
-dotnet_naming_rule.const_field_naming.severity = suggestion
-
-# Public fields
+# Visible Fields
 dotnet_naming_symbols.public_field_symbol.applicable_kinds = field
 dotnet_naming_symbols.public_field_symbol.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
 
@@ -239,16 +230,16 @@ dotnet_naming_rule.public_field_naming.symbols = public_field_symbol
 dotnet_naming_rule.public_field_naming.style = pascal_case_style
 dotnet_naming_rule.public_field_naming.severity = suggestion
 
-# Other fields
-dotnet_naming_symbols.other_field_symbol.applicable_kinds = field
-dotnet_naming_symbols.other_field_symbol.applicable_accessibilities = *
+# Parameters
+dotnet_naming_symbols.parameter_symbol.applicable_kinds = parameter
+dotnet_naming_symbols.parameter_symbol.applicable_accessibilities = *
 
-dotnet_naming_rule.other_field_naming.symbols = other_field_symbol
-dotnet_naming_rule.other_field_naming.style = _camelCase
-dotnet_naming_rule.other_field_naming.severity = suggestion
+dotnet_naming_rule.parameter_naming.symbols = parameter_symbol
+dotnet_naming_rule.parameter_naming.style = camel_case_style
+dotnet_naming_rule.parameter_naming.severity = suggestion
 
-# Everything Else
-dotnet_naming_symbols.everything_else.applicable_kinds = *
+# Everything Local
+dotnet_naming_symbols.everything_else.applicable_kinds = local
 dotnet_naming_symbols.everything_else.applicable_accessibilities = *
 
 dotnet_naming_rule.everything_else_naming.symbols = everything_else

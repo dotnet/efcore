@@ -1264,7 +1264,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (var context = CreateContext())
             {
-                var office = new Office { Number = "35"};
+                var office = new Office { Number = "35" };
                 var mailRoom = new MailRoom { id = 36 };
                 var building = Building.Create(Guid.NewGuid(), "Bag End", 77);
 
@@ -1301,7 +1301,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Assert.Equal(EntityState.Detached, entry.State);
                     Assert.Null(mailRoom.Building);
-                    Assert.Same(state == EntityState.Deleted ? building : null, office.Building);
+
+                    Assert.Equal(EntityState.Detached, context.Entry(office.Building).State);
+                    Assert.Same(building, office.Building);
                 }
 
                 Assert.Same(mailRoom, building.PrincipalMailRoom);
@@ -2398,11 +2400,7 @@ namespace Microsoft.EntityFrameworkCore
                     .HasForeignKey(m => m.BuildingId);
 
                 modelBuilder.Entity<Office>().HasKey(
-                    o => new
-                    {
-                        o.Number,
-                        o.BuildingId
-                    });
+                    o => new { o.Number, o.BuildingId });
 
                 modelBuilder.Ignore<UnMappedOffice>();
 
@@ -2443,26 +2441,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var offices = new List<Office>
                 {
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "1/1221"
-                    },
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "1/1223"
-                    },
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "2/1458"
-                    },
-                    new Office
-                    {
-                        BuildingId = buildings[0].BuildingId,
-                        Number = "2/1789"
-                    }
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1221" },
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1223" },
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1458" },
+                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1789" }
                 };
 
                 foreach (var office in offices)

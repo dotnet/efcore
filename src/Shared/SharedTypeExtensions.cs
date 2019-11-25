@@ -15,14 +15,11 @@ namespace System
     {
         public static Type UnwrapNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
-        public static bool IsNullableType(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
+        public static bool IsNullableValueType(this Type type)
+            => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
-            return !typeInfo.IsValueType
-                   || typeInfo.IsGenericType
-                   && typeInfo.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
+        public static bool IsNullableType(this Type type)
+            => !type.IsValueType || type.IsNullableValueType();
 
         public static bool IsValidEntityType(this Type type)
             => type.GetTypeInfo().IsClass;
@@ -39,9 +36,9 @@ namespace System
             type = type.UnwrapNullableType();
 
             return type.IsInteger()
-                   || type == typeof(decimal)
-                   || type == typeof(float)
-                   || type == typeof(double);
+                || type == typeof(decimal)
+                || type == typeof(float)
+                || type == typeof(double);
         }
 
         public static bool IsInteger(this Type type)
@@ -49,26 +46,26 @@ namespace System
             type = type.UnwrapNullableType();
 
             return type == typeof(int)
-                   || type == typeof(long)
-                   || type == typeof(short)
-                   || type == typeof(byte)
-                   || type == typeof(uint)
-                   || type == typeof(ulong)
-                   || type == typeof(ushort)
-                   || type == typeof(sbyte)
-                   || type == typeof(char);
+                || type == typeof(long)
+                || type == typeof(short)
+                || type == typeof(byte)
+                || type == typeof(uint)
+                || type == typeof(ulong)
+                || type == typeof(ushort)
+                || type == typeof(sbyte)
+                || type == typeof(char);
         }
 
         public static bool IsSignedInteger(this Type type)
             => type == typeof(int)
-               || type == typeof(long)
-               || type == typeof(short)
-               || type == typeof(sbyte);
+                || type == typeof(long)
+                || type == typeof(short)
+                || type == typeof(sbyte);
 
         public static bool IsAnonymousType(this Type type)
             => type.Name.StartsWith("<>", StringComparison.Ordinal)
-               && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
-               && type.Name.Contains("AnonymousType");
+                && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
+                && type.Name.Contains("AnonymousType");
 
         public static bool IsTupleType(this Type type)
         {
@@ -112,8 +109,8 @@ namespace System
 
         private static bool IsInstantiable(TypeInfo type)
             => !type.IsAbstract
-               && !type.IsInterface
-               && (!type.IsGenericType || !type.IsGenericTypeDefinition);
+                && !type.IsInterface
+                && (!type.IsGenericType || !type.IsGenericTypeDefinition);
 
         public static Type UnwrapEnumType(this Type type)
         {
@@ -142,7 +139,7 @@ namespace System
 
         public static Type TryGetSequenceType(this Type type)
             => type.TryGetElementType(typeof(IEnumerable<>))
-               ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
+                ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
 
         public static Type TryGetElementType(this Type type, Type interfaceOrBaseType)
         {
@@ -224,7 +221,7 @@ namespace System
             return type.GetTypeInfo().DeclaredConstructors
                 .SingleOrDefault(
                     c => !c.IsStatic
-                         && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types));
+                        && c.GetParameters().Select(p => p.ParameterType).SequenceEqual(types));
         }
 
         public static IEnumerable<PropertyInfo> GetPropertiesInHierarchy(this Type type, string name)
@@ -309,7 +306,7 @@ namespace System
         public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
             => assembly.GetLoadableDefinedTypes().Where(
                 t => !t.IsAbstract
-                     && !t.IsGenericTypeDefinition);
+                    && !t.IsGenericTypeDefinition);
 
         public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(this Assembly assembly)
         {

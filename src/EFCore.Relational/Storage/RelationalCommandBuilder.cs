@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     <para>
-        ///         Constructs a new <see cref="RelationalCommand"/>.
+        ///         Constructs a new <see cref="RelationalCommand" />.
         ///     </para>
         ///     <para>
         ///         This type is typically used by database providers (and other extensions). It is generally
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual RelationalCommandBuilderDependencies Dependencies { get; }
 
         /// <summary>
-        ///     The source for <see cref="RelationalTypeMapping"/>s to use.
+        ///     The source for <see cref="RelationalTypeMapping" />s to use.
         /// </summary>
         public virtual IRelationalTypeMappingSource TypeMappingSource => Dependencies.TypeMappingSource;
 

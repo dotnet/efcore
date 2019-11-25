@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using System.Globalization;
 using System.IO;
@@ -26,19 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var scaffolder = CreateScaffolder();
                 var scaffoldedModel = new ScaffoldedModel
                 {
-                    ContextFile = new ScaffoldedFile
-                    {
-                        Path = Path.Combine("..", "Data", "TestContext.cs"),
-                        Code = "// TestContext"
-                    },
-                    AdditionalFiles =
-                    {
-                        new ScaffoldedFile
-                        {
-                            Path = "TestEntity.cs",
-                            Code = "// TestEntity"
-                        }
-                    }
+                    ContextFile = new ScaffoldedFile { Path = Path.Combine("..", "Data", "TestContext.cs"), Code = "// TestContext" },
+                    AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
                 };
 
                 var result = scaffolder.Save(
@@ -71,19 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var scaffolder = CreateScaffolder();
                 var scaffoldedModel = new ScaffoldedModel
                 {
-                    ContextFile = new ScaffoldedFile
-                    {
-                        Path = "TestContext.cs",
-                        Code = "// TestContext"
-                    },
-                    AdditionalFiles =
-                    {
-                        new ScaffoldedFile
-                        {
-                            Path = "TestEntity.cs",
-                            Code = "// TestEntity"
-                        }
-                    }
+                    ContextFile = new ScaffoldedFile { Path = "TestContext.cs", Code = "// TestContext" },
+                    AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
                 };
 
                 var ex = Assert.Throws<OperationException>(
@@ -106,14 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 File.WriteAllText(path, "// Old");
 
                 var scaffolder = CreateScaffolder();
-                var scaffoldedModel = new ScaffoldedModel
-                {
-                    ContextFile = new ScaffoldedFile
-                    {
-                        Path = "Test.cs",
-                        Code = "// Test"
-                    }
-                };
+                var scaffoldedModel = new ScaffoldedModel { ContextFile = new ScaffoldedFile { Path = "Test.cs", Code = "// Test" } };
 
                 var result = scaffolder.Save(scaffoldedModel, directory.Path, overwriteFiles: true);
 
@@ -141,19 +113,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var scaffolder = CreateScaffolder();
                     var scaffoldedModel = new ScaffoldedModel
                     {
-                        ContextFile = new ScaffoldedFile
-                        {
-                            Path = "TestContext.cs",
-                            Code = "// TestContext"
-                        },
-                        AdditionalFiles =
-                        {
-                            new ScaffoldedFile
-                            {
-                                Path = "TestEntity.cs",
-                                Code = "// TestEntity"
-                            }
-                        }
+                        ContextFile = new ScaffoldedFile { Path = "TestContext.cs", Code = "// TestContext" },
+                        AdditionalFiles = { new ScaffoldedFile { Path = "TestEntity.cs", Code = "// TestEntity" } }
                     };
 
                     var ex = Assert.Throws<OperationException>(
@@ -237,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)
-                => throw new System.NotImplementedException();
+                => throw new NotImplementedException();
         }
     }
 }

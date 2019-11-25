@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
@@ -26,12 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             query = new EnumerableToQueryableMethodConvertingExpressionVisitor().Visit(query);
             query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
+            query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
             query = new AllAnyToContainsRewritingExpressionVisitor().Visit(query);
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
             query = new SubqueryMemberPushdownExpressionVisitor().Visit(query);
-            query = new NavigationExpandingExpressionVisitor(_queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(query);
+            query = new NavigationExpandingExpressionVisitor(_queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(
+                query);
             query = new FunctionPreprocessingExpressionVisitor().Visit(query);
             new EnumerableVerifyingExpressionVisitor().Visit(query);
 

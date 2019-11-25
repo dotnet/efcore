@@ -17,7 +17,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 ExpectedMessage("RowNumberPaging " + DefaultOptions),
+#pragma warning disable 618
                 ActualMessage(s => CreateOptionsBuilder(s, b => ((SqlServerDbContextOptionsBuilder)b).UseRowNumberForPaging())));
+#pragma warning restore 618
         }
 
         protected override DbContextOptionsBuilder CreateOptionsBuilder(

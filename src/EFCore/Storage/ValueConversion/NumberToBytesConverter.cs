@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
+            = new ValueConverterInfo(
+                typeof(TNumber), typeof(byte[]), i => new NumberToBytesConverter<TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TNumber, byte[]>> ToBytes()
         {
@@ -178,18 +179,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             return type == typeof(decimal)
                 ? 16
                 : (type == typeof(long)
-                   || type == typeof(ulong)
-                   || type == typeof(double)
-                    ? 8
-                    : (type == typeof(int)
-                       || type == typeof(uint)
-                       || type == typeof(float)
-                        ? 4
-                        : (type == typeof(short)
-                           || type == typeof(ushort)
-                           || type == typeof(char)
-                            ? 2
-                            : 1)));
+                    || type == typeof(ulong)
+                    || type == typeof(double)
+                        ? 8
+                        : (type == typeof(int)
+                            || type == typeof(uint)
+                            || type == typeof(float)
+                                ? 4
+                                : (type == typeof(short)
+                                    || type == typeof(ushort)
+                                    || type == typeof(char)
+                                        ? 2
+                                        : 1)));
         }
 
         private static byte[] EnsureEndianInt(byte[] bytes)

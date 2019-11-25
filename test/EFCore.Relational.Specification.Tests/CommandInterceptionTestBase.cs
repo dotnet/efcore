@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Xunit;
 
+// ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class CommandInterceptionTestBase : InterceptionTestBase
@@ -78,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -292,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -483,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -683,7 +684,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -891,6 +892,20 @@ namespace Microsoft.EntityFrameworkCore
                 _secondReader = secondReader;
             }
 
+            public override int FieldCount => _firstReader.FieldCount;
+            public override int RecordsAffected => _firstReader.RecordsAffected + _secondReader.RecordsAffected;
+            public override bool HasRows => _firstReader.HasRows || _secondReader.HasRows;
+            public override bool IsClosed => _firstReader.IsClosed;
+            public override int Depth => _firstReader.Depth;
+
+            public override string GetDataTypeName(int ordinal) => _firstReader.GetDataTypeName(ordinal);
+            public override Type GetFieldType(int ordinal) => _firstReader.GetFieldType(ordinal);
+            public override string GetName(int ordinal) => _firstReader.GetName(ordinal);
+            public override bool NextResult() => _firstReader.NextResult() || _secondReader.NextResult();
+
+            public override async Task<bool> NextResultAsync(CancellationToken cancellationToken)
+                => await _firstReader.NextResultAsync(cancellationToken) || await _secondReader.NextResultAsync(cancellationToken);
+
             public override void Close()
             {
                 _firstReader.Close();
@@ -948,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
                 {
@@ -1104,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 try
                 {
@@ -1163,7 +1178,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_query_to_throw(bool async, bool inject)
         {
-            using (var context = CreateContext(new ThrowingReaderCommandInterceptor()))
+            var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+            using (context)
             {
                 var exception = async
                     ? await Assert.ThrowsAsync<Exception>(() => context.Set<Singularity>().ToListAsync())
@@ -1180,13 +1196,14 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_scalar_to_throw(bool async, bool inject)
         {
-            using (var context = CreateContext(new ThrowingReaderCommandInterceptor()))
+            var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+            using (context)
             {
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append("SELECT 1").Build();
                 var connection = context.GetService<IRelationalConnection>();
                 var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-                var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+                var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
                 var exception = async
                     ? await Assert.ThrowsAsync<Exception>(() => command.ExecuteScalarAsync(commandParameterObject))
@@ -1203,7 +1220,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_non_query_to_throw(bool async, bool inject)
         {
-            using (var context = CreateContext(new ThrowingReaderCommandInterceptor()))
+            var (context, interceptor) = CreateContext<ThrowingReaderCommandInterceptor>(inject);
+            using (context)
             {
                 using (context.Database.BeginTransaction())
                 {
@@ -1320,7 +1338,7 @@ namespace Microsoft.EntityFrameworkCore
             var connection = context.GetService<IRelationalConnection>();
             var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
 
-            var commandParameterObject = new RelationalCommandParameterObject(connection, null, context, logger);
+            var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
             Assert.Equal(
                 ResultReplacingScalarCommandInterceptor.InterceptedResult,
@@ -1364,7 +1382,7 @@ namespace Microsoft.EntityFrameworkCore
             var injectedInterceptor1 = new MutatingReaderCommandInterceptor();
             var injectedInterceptor2 = new ResultReplacingReaderCommandInterceptor();
 
-            using (var context = CreateContext(null,injectedInterceptor1, injectedInterceptor2))
+            using (var context = CreateContext(null, injectedInterceptor1, injectedInterceptor2))
             {
                 await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
             }
@@ -1402,10 +1420,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor()
-                }))
+                new IInterceptor[] { new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor() }))
             {
                 var results = async
                     ? await context.Set<Singularity>().ToListAsync()
@@ -1436,10 +1451,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_scalar_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor()
-                }))
+                new IInterceptor[] { new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor() }))
             {
                 await TestCompositeScalarInterceptors(context, async);
             }
@@ -1451,10 +1463,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Intercept_non_query_with_explicitly_composed_app_interceptor(bool async)
         {
             using (var context = CreateContext(
-                new IInterceptor[]
-                {
-                    new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor()
-                }))
+                new IInterceptor[] { new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor() }))
             {
                 await TestCompositeNonQueryInterceptors(context, async);
             }
@@ -1470,42 +1479,51 @@ namespace Microsoft.EntityFrameworkCore
             public override int ExecuteNonQuery() => _command.ExecuteNonQuery();
             public override object ExecuteScalar() => _command.ExecuteScalar();
             public override void Prepare() => _command.Prepare();
+
             public override string CommandText
             {
                 get => _command.CommandText;
                 set => _command.CommandText = value;
             }
+
             public override int CommandTimeout
             {
                 get => _command.CommandTimeout;
                 set => _command.CommandTimeout = value;
             }
+
             public override CommandType CommandType
             {
                 get => _command.CommandType;
                 set => _command.CommandType = value;
             }
+
             public override UpdateRowSource UpdatedRowSource
             {
                 get => _command.UpdatedRowSource;
                 set => _command.UpdatedRowSource = value;
             }
+
             protected override DbConnection DbConnection
             {
                 get => _command.Connection;
                 set => _command.Connection = value;
             }
+
             protected override DbParameterCollection DbParameterCollection => _command.Parameters;
+
             protected override DbTransaction DbTransaction
             {
                 get => _command.Transaction;
                 set => _command.Transaction = value;
             }
+
             public override bool DesignTimeVisible
             {
                 get => _command.DesignTimeVisible;
                 set => _command.DesignTimeVisible = value;
             }
+
             protected override DbParameter CreateDbParameter() => _command.CreateParameter();
             protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => _command.ExecuteReader();
         }
@@ -1514,15 +1532,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             private int _index;
 
-            private readonly int[] _ints =
-            {
-                977, 988, 999
-            };
+            private readonly int[] _ints = { 977, 988, 999 };
 
-            private readonly string[] _strings =
-            {
-                "<977>", "<988>", "<999>"
-            };
+            private readonly string[] _strings = { "<977>", "<988>", "<999>" };
+            public override int FieldCount { get; }
+            public override int RecordsAffected { get; }
+            public override bool HasRows { get; }
+            public override bool IsClosed { get; }
+            public override int Depth { get; }
 
             public override bool Read()
                 => _index++ < _ints.Length;
@@ -1560,14 +1577,9 @@ namespace Microsoft.EntityFrameworkCore
             public override int GetOrdinal(string name) => throw new NotImplementedException();
             public override object GetValue(int ordinal) => throw new NotImplementedException();
             public override int GetValues(object[] values) => throw new NotImplementedException();
-            public override int FieldCount { get; }
             public override object this[int ordinal] => throw new NotImplementedException();
             public override object this[string name] => throw new NotImplementedException();
-            public override int RecordsAffected { get; }
-            public override bool HasRows { get; }
-            public override bool IsClosed { get; }
             public override bool NextResult() => throw new NotImplementedException();
-            public override int Depth { get; }
             public override IEnumerator GetEnumerator() => throw new NotImplementedException();
         }
 
@@ -1597,6 +1609,11 @@ namespace Microsoft.EntityFrameworkCore
             => listener.AssertEventsInOrder(
                 RelationalEventId.CommandExecuting.Name,
                 RelationalEventId.CommandExecuted.Name);
+
+        protected static void AssertSql(string expected, string actual)
+            => Assert.Equal(
+                expected,
+                actual.Replace("\r", string.Empty).Replace("\n", " "));
 
         protected abstract class CommandInterceptorBase : IDbCommandInterceptor
         {

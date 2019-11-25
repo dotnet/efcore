@@ -12,9 +12,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [AttributeUsage(
-        AttributeTargets.Enum | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface |
-        AttributeTargets.Event | AttributeTargets.Field | AttributeTargets.Method | AttributeTargets.Delegate |
-        AttributeTargets.Property | AttributeTargets.Constructor)]
+        AttributeTargets.Enum
+        | AttributeTargets.Class
+        | AttributeTargets.Struct
+        | AttributeTargets.Interface
+        | AttributeTargets.Event
+        | AttributeTargets.Field
+        | AttributeTargets.Method
+        | AttributeTargets.Delegate
+        | AttributeTargets.Property
+        | AttributeTargets.Constructor)]
     public sealed class EntityFrameworkInternalAttribute : Attribute
     {
     }

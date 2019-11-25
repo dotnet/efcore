@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
                         .Where(
                             m => m.GetParameters().Length == 1
-                                 && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
+                                && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
+
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerConvertTranslator(ISqlExpressionFactory sqlExpressionFactory)
@@ -55,11 +56,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return _supportedMethods.Contains(method)
                 ? _sqlExpressionFactory.Function(
                     "CONVERT",
-                    new[]
-                    {
-                        _sqlExpressionFactory.Fragment(_typeMapping[method.Name]),
-                        arguments[0]
-                    },
+                    new[] { _sqlExpressionFactory.Fragment(_typeMapping[method.Name]), arguments[0] },
                     method.ReturnType)
                 : null;
         }

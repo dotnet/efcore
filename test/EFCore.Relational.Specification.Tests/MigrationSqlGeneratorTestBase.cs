@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -295,11 +294,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AddPrimaryKeyOperation_without_name()
             => Generate(
-                new AddPrimaryKeyOperation
-                {
-                    Table = "People",
-                    Columns = new[] { "Id" }
-                });
+                new AddPrimaryKeyOperation { Table = "People", Columns = new[] { "Id" } });
 
         [ConditionalFact]
         public virtual void AddUniqueConstraintOperation_with_name()
@@ -315,11 +310,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AddUniqueConstraintOperation_without_name()
             => Generate(
-                new AddUniqueConstraintOperation
-                {
-                    Table = "People",
-                    Columns = new[] { "SSN" }
-                });
+                new AddUniqueConstraintOperation { Table = "People", Columns = new[] { "SSN" } });
 
         [ConditionalFact]
         public virtual void CreateCheckConstraintOperation_with_name()
@@ -372,11 +363,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AlterSequenceOperation_without_minValue_and_maxValue()
             => Generate(
-                new AlterSequenceOperation
-                {
-                    Name = "EntityFrameworkHiLoSequence",
-                    IncrementBy = 1
-                });
+                new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence", IncrementBy = 1 });
 
         [ConditionalFact]
         public virtual void RenameTableOperation_legacy()
@@ -509,24 +496,9 @@ namespace Microsoft.EntityFrameworkCore
                             IsNullable = true
                         }
                     },
-                    PrimaryKey = new AddPrimaryKeyOperation
-                    {
-                        Columns = new[] { "Id" }
-                    },
-                    UniqueConstraints =
-                    {
-                        new AddUniqueConstraintOperation
-                        {
-                            Columns = new[] { "SSN" }
-                        }
-                    },
-                    CheckConstraints =
-                    {
-                        new CreateCheckConstraintOperation
-                        {
-                            Sql = "SSN > 0"
-                        }
-                    },
+                    PrimaryKey = new AddPrimaryKeyOperation { Columns = new[] { "Id" } },
+                    UniqueConstraints = { new AddUniqueConstraintOperation { Columns = new[] { "SSN" } } },
+                    CheckConstraints = { new CreateCheckConstraintOperation { Sql = "SSN > 0" } },
                     ForeignKeys =
                     {
                         new AddForeignKeyOperation
@@ -600,20 +572,12 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void DropSequenceOperation()
             => Generate(
-                new DropSequenceOperation
-                {
-                    Name = "EntityFrameworkHiLoSequence",
-                    Schema = "dbo"
-                });
+                new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo" });
 
         [ConditionalFact]
         public virtual void DropTableOperation()
             => Generate(
-                new DropTableOperation
-                {
-                    Name = "People",
-                    Schema = "dbo"
-                });
+                new DropTableOperation { Name = "People", Schema = "dbo" });
 
         [ConditionalFact]
         public virtual void DropUniqueConstraintOperation()
@@ -638,10 +602,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void SqlOperation()
             => Generate(
-                new SqlOperation
-                {
-                    Sql = "-- I <3 DDL"
-                });
+                new SqlOperation { Sql = "-- I <3 DDL" });
 
         [ConditionalFact]
         public virtual void InsertDataOperation()
@@ -652,11 +613,7 @@ namespace Microsoft.EntityFrameworkCore
                     Columns = new[] { "Id", "Full Name" },
                     Values = new object[,]
                     {
-                        { 0, null },
-                        { 1, "Daenerys Targaryen" },
-                        { 2, "John Snow" },
-                        { 3, "Arya Stark" },
-                        { 4, "Harry Strickland" }
+                        { 0, null }, { 1, "Daenerys Targaryen" }, { 2, "John Snow" }, { 3, "Arya Stark" }, { 4, "Harry Strickland" }
                     }
                 });
 
@@ -667,11 +624,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    KeyValues = new object[,]
-                    {
-                        { 2 },
-                        { 4 }
-                    }
+                    KeyValues = new object[,] { { 2 }, { 4 } }
                 });
 
         [ConditionalFact]
@@ -681,11 +634,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "First Name", "Last Name" },
-                    KeyValues = new object[,]
-                    {
-                        { "Hodor", null },
-                        { "Daenerys", "Targaryen" }
-                    }
+                    KeyValues = new object[,] { { "Hodor", null }, { "Daenerys", "Targaryen" } }
                 });
 
         [ConditionalFact]
@@ -695,17 +644,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    KeyValues = new object[,]
-                    {
-                        { 1 },
-                        { 4 }
-                    },
+                    KeyValues = new object[,] { { 1 }, { 4 } },
                     Columns = new[] { "Full Name" },
-                    Values = new object[,]
-                    {
-                        { "Daenerys Stormborn" },
-                        { "Homeless Harry Strickland" }
-                    }
+                    Values = new object[,] { { "Daenerys Stormborn" }, { "Homeless Harry Strickland" } }
                 });
 
         [ConditionalFact]
@@ -715,17 +656,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id", "Last Name" },
-                    KeyValues = new object[,]
-                    {
-                        { 0, null },
-                        { 4, "Strickland" }
-                    },
+                    KeyValues = new object[,] { { 0, null }, { 4, "Strickland" } },
                     Columns = new[] { "First Name" },
-                    Values = new object[,]
-                    {
-                        { "Hodor" },
-                        { "Harry" }
-                    }
+                    Values = new object[,] { { "Hodor" }, { "Harry" } }
                 });
 
         [ConditionalFact]
@@ -735,17 +668,9 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     Table = "People",
                     KeyColumns = new[] { "Id" },
-                    KeyValues = new object[,]
-                    {
-                        { 1 },
-                        { 4 }
-                    },
+                    KeyValues = new object[,] { { 1 }, { 4 } },
                     Columns = new[] { "First Name", "Nickname" },
-                    Values = new object[,]
-                    {
-                        { "Daenerys", "Dany" },
-                        { "Harry", "Homeless" }
-                    }
+                    Values = new object[,] { { "Daenerys", "Dany" }, { "Harry", "Homeless" } }
                 });
 
         protected TestHelpers TestHelpers { get; }

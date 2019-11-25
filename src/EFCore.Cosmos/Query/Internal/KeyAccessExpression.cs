@@ -44,7 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+#pragma warning disable 109
         public new virtual IProperty Property { get; }
+#pragma warning restore 109
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -103,14 +105,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override bool Equals(object obj)
             => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is KeyAccessExpression keyAccessExpression
-                    && Equals(keyAccessExpression));
+               && (ReferenceEquals(this, obj)
+                   || obj is KeyAccessExpression keyAccessExpression
+                   && Equals(keyAccessExpression));
 
         private bool Equals(KeyAccessExpression keyAccessExpression)
             => base.Equals(keyAccessExpression)
-            && string.Equals(Name, keyAccessExpression.Name)
-            && AccessExpression.Equals(keyAccessExpression.AccessExpression);
+               && string.Equals(Name, keyAccessExpression.Name)
+               && AccessExpression.Equals(keyAccessExpression.AccessExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

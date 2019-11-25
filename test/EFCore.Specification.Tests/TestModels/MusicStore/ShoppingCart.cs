@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
 {
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
             // Get the matching cart and album instances
             var cartItem = await _dbContext.CartItems.SingleOrDefaultAsync(
                 c => c.CartId == _shoppingCartId
-                && c.AlbumId == album.AlbumId);
+                    && c.AlbumId == album.AlbumId);
 
             if (cartItem == null)
             {
@@ -55,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
             // Get the cart
             var cartItem = _dbContext.CartItems.SingleOrDefault(
                 cart => cart.CartId == _shoppingCartId
-                && cart.CartItemId == id);
+                    && cart.CartItemId == id);
 
             int itemCount = 0;
 
@@ -122,10 +121,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
 
             // No way to do decimal sum on server with SQLite, but client eval is fine here
             return (await _dbContext
-                .CartItems
-                .Where(c => c.CartId == _shoppingCartId)
-                .Select(c => c.Album.Price * c.Count)
-                .ToListAsync())
+                    .CartItems
+                    .Where(c => c.CartId == _shoppingCartId)
+                    .Select(c => c.Album.Price * c.Count)
+                    .ToListAsync())
                 .Sum();
         }
 
@@ -146,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
                     AlbumId = item.AlbumId,
                     Order = order,
                     UnitPrice = album.Price,
-                    Quantity = item.Count,
+                    Quantity = item.Count
                 };
 
                 // Set the order total of the shopping cart

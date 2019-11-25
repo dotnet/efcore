@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -228,12 +227,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             accessor.Add(entity, value, forMaterialization: false);
 
             Assert.True(accessor.Contains(entity, value));
-            Assert.Equal(1, reader(entity).Count());
+            Assert.Single(reader(entity));
 
             accessor.Remove(entity, value);
 
             Assert.False(accessor.Contains(entity, value));
-            Assert.Equal(0, reader(entity).Count());
+            Assert.Empty(reader(entity));
         }
 
         [ConditionalFact]
@@ -257,8 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var accessor = new ClrCollectionAccessorFactory().Create(navigation);
 
             var entity = new MyEntity(initialize: false);
-            var value = new MyEntityWithCustomComparer
-                { Id = 1 };
+            var value = new MyEntityWithCustomComparer { Id = 1 };
 
             Assert.False(accessor.Contains(entity, value));
 

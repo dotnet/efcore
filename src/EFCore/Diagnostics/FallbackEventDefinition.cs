@@ -20,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="loggingOptions"> Logging options. </param>
         /// <param name="eventId"> The <see cref="EventId" />. </param>
         /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
-        /// <param name="eventIdCode"> A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings"/>. </param>
+        /// <param name="eventIdCode">
+        ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
+        /// </param>
         /// <param name="messageFormat"> The parameterized message definition. </param>
         public FallbackEventDefinition(
             [NotNull] ILoggingOptions loggingOptions,

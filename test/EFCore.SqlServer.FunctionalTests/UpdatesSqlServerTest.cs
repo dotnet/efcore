@@ -30,7 +30,7 @@ FROM [Categories] AS [c]",
 
 SELECT [p].[Id], [p].[DependentId], [p].[Name], [p].[Price]
 FROM [Products] AS [p]
-WHERE (([p].[DependentId] = @__category_PrincipalId_0) AND ([p].[DependentId] IS NOT NULL AND @__category_PrincipalId_0 IS NOT NULL)) OR ([p].[DependentId] IS NULL AND @__category_PrincipalId_0 IS NULL)",
+WHERE [p].[DependentId] = @__category_PrincipalId_0",
                 //
                 @"@p1='78'
 @p0='New Category' (Size = 4000)
@@ -47,7 +47,7 @@ FROM [Categories] AS [c]",
 
 SELECT [p].[Id], [p].[DependentId], [p].[Name], [p].[Price]
 FROM [Products] AS [p]
-WHERE (([p].[DependentId] = @__category_PrincipalId_0) AND ([p].[DependentId] IS NOT NULL AND @__category_PrincipalId_0 IS NOT NULL)) OR ([p].[DependentId] IS NULL AND @__category_PrincipalId_0 IS NULL)");
+WHERE [p].[DependentId] = @__category_PrincipalId_0");
         }
 
         public override void Identifiers_are_generated_correctly()

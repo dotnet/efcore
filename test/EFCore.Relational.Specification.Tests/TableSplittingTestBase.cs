@@ -133,11 +133,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     OnModelCreating(modelBuilder);
                     modelBuilder.Ignore<SolidFuelTank>();
-                    modelBuilder.Entity<FuelTank>(eb =>
-                    {
-                        eb.Property(t => t.Capacity).IsRequired();
-                        eb.Property(t => t.FuelType).IsRequired();
-                    });
+                    modelBuilder.Entity<FuelTank>(
+                        eb =>
+                        {
+                            eb.Property(t => t.Capacity).IsRequired();
+                            eb.Property(t => t.FuelType).IsRequired();
+                        });
                 }))
             {
                 using (var context = CreateContext())
@@ -175,19 +176,147 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Can_share_required_columns()
+        {
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<Vehicle>(
+                        vb =>
+                        {
+                            vb.Property(v => v.SeatingCapacity).HasColumnName("SeatingCapacity");
+                        });
+                    modelBuilder.Entity<Engine>(
+                        cb =>
+                        {
+                            cb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity");
+                        });
+                    modelBuilder.Entity<FuelTank>(
+                        fb =>
+                        {
+                            fb.Ignore(f => f.Engine);
+                        });
+                }, seed: false))
+            {
+                using (var context = CreateContext())
+                {
+                    var scooterEntry = context.Add(
+                        new PoweredVehicle
+                        {
+                            Name = "Electric scooter",
+                            SeatingCapacity = 1,
+                            Engine = new Engine()
+                        });
+
+                    scooterEntry.Reference(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue = 1;
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var scooter = context.Set<PoweredVehicle>().Include(v => v.Engine).Single(v => v.Name == "Electric scooter");
+
+                    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter.Engine).Property<int>("SeatingCapacity").CurrentValue);
+                }
+            }
+        }
+
         protected void Test_roundtrip(Action<ModelBuilder> onModelCreating)
         {
             using (CreateTestStore(onModelCreating))
             {
+                using var context = CreateContext();
+                context.AssertSeeded();
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_manipulate_entities_sharing_row_independently()
+        {
+            using (CreateTestStore(
+                modelBuilder =>
+                {
+                    OnModelCreating(modelBuilder);
+                    modelBuilder.Entity<FuelTank>(eb => eb.Ignore(e => e.Engine));
+                }))
+            {
+                PoweredVehicle streetcar;
                 using (var context = CreateContext())
                 {
-                    context.AssertSeeded();
+                    streetcar = context.Set<PoweredVehicle>().Include(v => v.Engine)
+                        .Single(v => v.Name == "1984 California Car");
+
+                    Assert.Null(streetcar.Engine);
+
+                    streetcar.Engine = new Engine { Description = "Streetcar engine" };
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var streetcarFromStore = context.Set<PoweredVehicle>().Include(v => v.Engine).AsNoTracking()
+                        .Single(v => v.Name == "1984 California Car");
+
+                    Assert.Equal("Streetcar engine", streetcarFromStore.Engine.Description);
+
+                    streetcarFromStore.Engine.Description = "Line";
+
+                    context.Update(streetcarFromStore);
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var streetcarFromStore = context.Set<PoweredVehicle>().Include(v => v.Engine)
+                        .Single(v => v.Name == "1984 California Car");
+
+                    Assert.Equal("Line", streetcarFromStore.Engine.Description);
+
+                    streetcarFromStore.SeatingCapacity = 40;
+                    streetcarFromStore.Engine.Description = "Streetcar engine";
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var streetcarFromStore = context.Set<PoweredVehicle>().Include(v => v.Engine).AsNoTracking()
+                        .Single(v => v.Name == "1984 California Car");
+
+                    Assert.Equal(40, streetcarFromStore.SeatingCapacity);
+                    Assert.Equal("Streetcar engine", streetcarFromStore.Engine.Description);
+
+                    context.Remove(streetcarFromStore.Engine);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    var streetcarFromStore = context.Set<PoweredVehicle>().Include(v => v.Engine).AsNoTracking()
+                        .Single(v => v.Name == "1984 California Car");
+
+                    Assert.Null(streetcarFromStore.Engine);
+
+                    context.Remove(streetcarFromStore);
+
+                    context.SaveChanges();
+                }
+
+                using (var context = CreateContext())
+                {
+                    Assert.Null(context.Set<PoweredVehicle>().AsNoTracking().SingleOrDefault(v => v.Name == "1984 California Car"));
+                    Assert.Null(context.Set<Engine>().AsNoTracking().SingleOrDefault(e => e.VehicleName == "1984 California Car"));
                 }
             }
         }
 
         [ConditionalFact]
-        public virtual void Inserting_dependent_with_just_one_parent_throws()
+        public virtual void Can_insert_dependent_with_just_one_parent()
         {
             using (CreateTestStore(OnModelCreating))
             {
@@ -198,11 +327,7 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Name = "Fuel transport",
                             SeatingCapacity = 1,
-                            Operator = new LicensedOperator
-                            {
-                                Name = "Jack Jackson",
-                                LicenseType = "Class A CDC"
-                            }
+                            Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
                         });
                     context.Add(
                         new FuelTank
@@ -212,10 +337,7 @@ namespace Microsoft.EntityFrameworkCore
                             VehicleName = "Fuel transport"
                         });
 
-                    Assert.Equal(
-                        RelationalStrings.SharedRowEntryCountMismatchSensitive(
-                            nameof(FuelTank), "Vehicles", nameof(CombustionEngine), "{VehicleName: Fuel transport}", "Added"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    context.SaveChanges();
                 }
             }
         }
@@ -245,18 +367,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var bike = context.Vehicles.Include(v => v.Operator).Single(v => v.Name == "Trek Pro Fit Madone 6 Series");
 
-                    bike.Operator = new Operator
-                    {
-                        Name = "Chris Horner"
-                    };
+                    bike.Operator = new Operator { Name = "Chris Horner" };
 
                     context.ChangeTracker.DetectChanges();
 
-                    bike.Operator = new LicensedOperator
-                    {
-                        Name = "repairman",
-                        LicenseType = "Repair"
-                    };
+                    bike.Operator = new LicensedOperator { Name = "repairman", LicenseType = "Repair" };
 
                     TestSqlLoggerFactory.Clear();
                     context.SaveChanges();
@@ -352,11 +467,7 @@ namespace Microsoft.EntityFrameworkCore
                     var newBike = new Vehicle
                     {
                         Name = "Trek Pro Fit Madone 6 Series",
-                        Operator = new LicensedOperator
-                        {
-                            Name = "repairman",
-                            LicenseType = "Repair"
-                        },
+                        Operator = new LicensedOperator { Name = "repairman", LicenseType = "Repair" },
                         SeatingCapacity = 2
                     };
 
@@ -404,7 +515,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<FuelTank>().ToTable("Vehicles");
         }
 
-        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating)
+        protected TestStore CreateTestStore(Action<ModelBuilder> onModelCreating, bool seed = true)
         {
             TestStore = TestStoreFactory.Create(DatabaseName);
 
@@ -413,7 +524,14 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<ILoggerFactory>(TestSqlLoggerFactory)
                 .BuildServiceProvider(validateScopes: true);
 
-            TestStore.Initialize(ServiceProvider, CreateContext, c => ((TransportationContext)c).Seed(), null);
+            TestStore.Initialize(
+                ServiceProvider, CreateContext, c =>
+                {
+                    if (seed)
+                    {
+                        ((TransportationContext)c).Seed();
+                    }
+                });
 
             TestSqlLoggerFactory.Clear();
 

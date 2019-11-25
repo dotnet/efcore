@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Simple_IQueryable(bool isAsync)
         {
-            await AssertQuery<Customer>(isAsync, cs => cs, entryCount: 91);
+            await AssertQuery(isAsync, ss => ss.Set<Customer>(), entryCount: 91);
 
             AssertSql(
                 @"SELECT c
@@ -43,7 +43,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Shaper_command_caching_when_parameter_names_different()
         {
             base.Shaper_command_caching_when_parameter_names_different();
@@ -58,7 +58,7 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")) AND true)");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Lifting_when_subquery_nested_order_by_anonymous()
         {
             base.Lifting_when_subquery_nested_order_by_anonymous();
@@ -178,7 +178,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Query_when_evaluatable_queryable_method_call_with_repository()
         {
             using (var context = CreateContext())
@@ -193,7 +193,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
                         .Where(c => orderRepository.Find().Any(o => o.CustomerID == c.CustomerID))
                         .ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
 
                 results
                     = (from c in customerRepository.Find().Where(c => c.CustomerID == "ALFKI")
@@ -201,7 +201,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
                        select c)
                     .ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
 
                 var orderQuery = orderRepository.Find();
 
@@ -209,7 +209,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] != null))");
                     .Where(c => orderQuery.Any(o => o.CustomerID == c.CustomerID))
                     .ToList();
 
-                Assert.Equal(1, results.Count);
+                Assert.Single(results);
 
                 context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
             }
@@ -282,14 +282,9 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""EmployeeID""] > 0))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
+        public override Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool isAsync)
         {
-            await base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+            return base.Default_if_empty_top_level_arg_followed_by_projecting_constant(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue#17246")]
@@ -487,7 +482,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 10344))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_Where_Subquery_Deep_First()
         {
             base.Select_Where_Subquery_Deep_First();
@@ -520,6 +515,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_anon_nested(bool isAsync)
         {
             await base.Where_subquery_anon_nested(isAsync);
@@ -533,32 +529,20 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task OrderBy_SelectMany(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(c => c.CustomerID == "VINET")
-                    from o in os.OrderBy(o => o.OrderID).Take(3)
+                ss =>
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID == "VINET")
+                    from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(3)
                     where c.CustomerID == o.CustomerID
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    },
-                (cs, os) =>
-                    cs.Where(c => c.CustomerID == "VINET")
+                    select new { c.ContactName, o.OrderID },
+                ss =>
+                    ss.Set<Customer>().Where(c => c.CustomerID == "VINET")
                         .SelectMany(
-                            _ => os.OrderBy(o => o.OrderID).Take(3),
-                            (c, o) => new
-                            {
-                                c,
-                                o
-                            }).Where(t => t.c.CustomerID == t.o.CustomerID)
+                            _ => ss.Set<Order>().OrderBy(o => o.OrderID).Take(3),
+                            (c, o) => new { c, o }).Where(t => t.c.CustomerID == t.o.CustomerID)
                         .Select(
-                            t => new
-                            {
-                                t.c.ContactName,
-                                t.o.OrderID
-                            }),
+                            t => new { t.c.ContactName, t.o.OrderID }),
                 assertOrder: true);
 
             AssertSql(
@@ -611,7 +595,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Product"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void OrderBy_any()
         {
             base.OrderBy_any();
@@ -756,27 +740,6 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""FRANK""))");
-        }
-
-        public override async Task Null_conditional_simple(bool isAsync)
-        {
-            await base.Null_conditional_simple(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
-        }
-
-        [ConditionalTheory(Skip = "Issue #17246")]
-        public override async Task Null_conditional_deep(bool isAsync)
-        {
-            await base.Null_conditional_deep(isAsync);
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         public override async Task Queryable_simple(bool isAsync)
@@ -1001,7 +964,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Any_with_multiple_conditions_still_uses_exists()
         {
             base.Any_with_multiple_conditions_still_uses_exists();
@@ -1037,11 +1000,16 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task All_top_level_subquery(bool isAsync)
         {
-            await AssertSingleResult<Customer>(
+            await AssertSingleResult(
                 isAsync,
-                syncQuery: cs => cs.All(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))),
-                asyncQuery: cs =>
-                    cs.AllAsync(c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
+                syncQuery: ss => ss.Set<Customer>()
+                    .All(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))),
+                asyncQuery: ss => ss.Set<Customer>()
+                    .AllAsync(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>().Any(c2 => ss.Set<Customer>().Any(c3 => c1.CustomerID == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1052,12 +1020,22 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task All_top_level_subquery_ef_property(bool isAsync)
         {
-            await AssertSingleResult<Customer>(
+            await AssertSingleResult(
                 isAsync,
-                syncQuery: cs => cs.All(
-                    c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
-                asyncQuery: cs => cs.AllAsync(
-                    c1 => c1.CustomerID == "ALFKI" && cs.Any(c2 => cs.Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
+                syncQuery: ss => ss.Set<Customer>()
+                    .All(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>()
+                                .Any(
+                                    c2 => ss.Set<Customer>()
+                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))),
+                asyncQuery: ss => ss.Set<Customer>()
+                    .AllAsync(
+                        c1 => c1.CustomerID == "ALFKI"
+                            && ss.Set<Customer>()
+                                .Any(
+                                    c2 => ss.Set<Customer>()
+                                        .Any(c3 => EF.Property<string>(c1, "CustomerID") == c3.CustomerID))));
 
             AssertSql(
                 @"SELECT c
@@ -1167,19 +1145,19 @@ WHERE (c[""Discriminator""] = ""Employee"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_simple2(bool isAsync)
         {
-            await AssertQuery<Employee, Customer>(
+            await AssertQuery(
                 isAsync,
-                (es, cs) =>
-                    from e1 in es.Where(ct => ct.City == "London")
-                    from c in cs.Where(ct => ct.City == "London")
-                    from e2 in es.Where(ct => ct.City == "London")
+                ss =>
+                    from e1 in ss.Set<Employee>().Where(ct => ct.City == "London")
+                    from c in ss.Set<Customer>().Where(ct => ct.City == "London")
+                    from e2 in ss.Set<Employee>().Where(ct => ct.City == "London")
                     select new
                     {
                         e1,
                         c,
                         e2.FirstName
                     },
-                e => e.e1.EmployeeID + " " + e.c.CustomerID + " " + e.FirstName,
+                e => (e.e1.EmployeeID, e.c.CustomerID, e.FirstName),
                 entryCount: 10);
 
             AssertSql(
@@ -1191,21 +1169,20 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_entity_deep(bool isAsync)
         {
-            await AssertQuery<Employee>(
+            await AssertQuery(
                 isAsync,
-                es =>
-                    from e1 in es.Where(e => e.EmployeeID == 1)
-                    from e2 in es
-                    from e3 in es
-                    from e4 in es
-                    select new
-                    {
-                        e2,
-                        e3,
-                        e1,
-                        e4
-                    },
-                e => e.e2.EmployeeID + " " + e.e3.EmployeeID + " " + e.e1.EmployeeID + e.e4.EmployeeID,
+                ss => from e1 in ss.Set<Employee>().Where(e => e.EmployeeID == 1)
+                      from e2 in ss.Set<Employee>()
+                      from e3 in ss.Set<Employee>()
+                      from e4 in ss.Set<Employee>()
+                      select new
+                      {
+                          e2,
+                          e3,
+                          e1,
+                          e4
+                      },
+                e => (e.e2.EmployeeID, e.e3.EmployeeID, e.e1.EmployeeID, e.e4.EmployeeID),
                 entryCount: 9);
 
             AssertSql(
@@ -1239,18 +1216,14 @@ WHERE (c[""Discriminator""] = ""Employee"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_customer_orders(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(ct => ct.City == "London")
-                    from o in os
+                ss =>
+                    from c in ss.Set<Customer>().Where(ct => ct.City == "London")
+                    from o in ss.Set<Order>()
                     where c.CustomerID == o.CustomerID
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderID
-                    },
-                e => e.OrderID);
+                    select new { c.ContactName, o.OrderID },
+                e => (e.ContactName, e.OrderID));
 
             AssertSql(
                 @"SELECT c
@@ -1261,12 +1234,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Count(bool isAsync)
         {
-            await AssertCount<Customer, Order>(
+            await AssertCount(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(ct => ct.City == "London")
-                    from o in os
-                    select c.CustomerID);
+                ss => from c in ss.Set<Customer>().Where(ct => ct.City == "London")
+                      from o in ss.Set<Order>()
+                      select c.CustomerID);
 
             AssertSql(
                 @"SELECT c
@@ -1277,12 +1249,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_LongCount(bool isAsync)
         {
-            await AssertLongCount<Customer, Order>(
+            await AssertLongCount(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(ct => ct.City == "London")
-                    from o in os
-                    select c.CustomerID);
+                ss => from c in ss.Set<Customer>().Where(ct => ct.City == "London")
+                      from o in ss.Set<Order>()
+                      select c.CustomerID);
 
             AssertSql(
                 @"SELECT c
@@ -1458,17 +1429,13 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Joined_DefaultIfEmpty(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
-                    from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
-                    select new
-                    {
-                        c.ContactName,
-                        o
-                    },
-                e => e.ContactName + " " + e.o?.OrderID,
+                ss =>
+                    from c in ss.Set<Customer>().Where(cst => cst.CustomerID == "ALFKI")
+                    from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                    select new { c.ContactName, o },
+                e => (e.ContactName, +e.o?.OrderID),
                 entryCount: 6);
 
             AssertSql(
@@ -1480,13 +1447,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Joined_DefaultIfEmpty2(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
-                    from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                ss =>
+                    from c in ss.Set<Customer>().Where(cst => cst.CustomerID == "ALFKI")
+                    from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
                     select o,
-                e => e?.OrderID,
                 entryCount: 6);
 
             AssertSql(
@@ -1498,17 +1464,13 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Joined(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
-                    from o in os.Where(o => o.CustomerID == c.CustomerID)
-                    select new
-                    {
-                        c.ContactName,
-                        o.OrderDate
-                    },
-                e => e.ContactName + " " + e.OrderDate);
+                ss =>
+                    from c in ss.Set<Customer>().Where(cst => cst.CustomerID == "ALFKI")
+                    from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID)
+                    select new { c.ContactName, o.OrderDate },
+                e => (e.ContactName, e.OrderDate));
 
             AssertSql(
                 @"SELECT c
@@ -1519,17 +1481,13 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Joined_Take(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs.Where(cst => cst.CustomerID == "ALFKI")
-                    from o in os.Where(o => o.CustomerID == c.CustomerID).Take(1000)
-                    select new
-                    {
-                        c.ContactName,
-                        o
-                    },
-                e => e.o.OrderID,
+                ss =>
+                    from c in ss.Set<Customer>().Where(cst => cst.CustomerID == "ALFKI")
+                    from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Take(1000)
+                    select new { c.ContactName, o },
+                e => (e.ContactName, e.o.OrderID),
                 entryCount: 6);
 
             AssertSql(
@@ -1552,17 +1510,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Take_with_single_select_many(bool isAsync)
         {
-            await AssertSingle<Customer, Order>(
+            await AssertSingle(
                 isAsync,
-                (cs, os) =>
-                    (from c in cs.Where(cu => cu.CustomerID == "ALFKI")
-                     from o in os.Where(or => or.OrderID < 10300)
-                     orderby c.CustomerID, o.OrderID
-                     select new
-                     {
-                         c,
-                         o
-                     })
+                ss => (from c in ss.Set<Customer>().Where(cu => cu.CustomerID == "ALFKI")
+                       from o in ss.Set<Order>().Where(or => or.OrderID < 10300)
+                       orderby c.CustomerID, o.OrderID
+                       select new { c, o })
                     .Take(1)
                     .Cast<object>(),
                 entryCount: 2);
@@ -1804,6 +1757,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task OrderBy_multiple(bool isAsync)
         {
             await base.OrderBy_multiple(isAsync);
@@ -1872,13 +1826,13 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_expression(bool isAsync)
         {
-            await AssertQuery<Order, Order>(
+            await AssertQuery(
                 isAsync,
-                (o1, o2) =>
+                ss =>
                 {
-                    var firstOrder = o1.First();
+                    var firstOrder = ss.Set<Order>().First();
                     Expression<Func<Order, bool>> expr = z => z.OrderID == firstOrder.OrderID;
-                    return o1.Where(x => x.OrderID < 10300 && o2.Where(expr).Any());
+                    return ss.Set<Order>().Where(x => x.OrderID < 10300 && ss.Set<Order>().Where(expr).Any());
                 },
                 entryCount: 52);
 
@@ -1891,13 +1845,14 @@ WHERE (c[""Discriminator""] = ""Order"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_expression_same_parametername(bool isAsync)
         {
-            await AssertQuery<Order, Order>(
+            await AssertQuery(
                 isAsync,
-                (o1, o2) =>
+                ss =>
                 {
-                    var firstOrder = o1.OrderBy(o => o.OrderID).First();
+                    var firstOrder = ss.Set<Order>().OrderBy(o => o.OrderID).First();
                     Expression<Func<Order, bool>> expr = x => x.OrderID == firstOrder.OrderID;
-                    return o1.Where(o => o.OrderID < 10250).Where(x => o2.Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
+                    return ss.Set<Order>().Where(o => o.OrderID < 10250)
+                        .Where(x => ss.Set<Order>().Where(expr).Where(o => o.CustomerID == x.CustomerID).Any());
                 },
                 entryCount: 1);
 
@@ -1918,7 +1873,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_constructor_distinct_translated_to_server()
         {
             base.Select_DTO_constructor_distinct_translated_to_server();
@@ -1929,7 +1884,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_with_member_init_distinct_translated_to_server()
         {
             base.Select_DTO_with_member_init_distinct_translated_to_server();
@@ -1940,7 +1895,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_nested_collection_count_using_DTO()
         {
             base.Select_nested_collection_count_using_DTO();
@@ -1962,7 +1917,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10300))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server()
         {
             base.Select_DTO_with_member_init_distinct_in_subquery_used_in_projection_translated_to_server();
@@ -2017,14 +1972,13 @@ WHERE (c[""Discriminator""] = ""Product"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_subquery_on_collection(bool isAsync)
         {
-            await AssertQuery<Product, OrderDetail>(
+            await AssertQuery(
                 isAsync,
-                (pr, od) =>
-                    pr.Where(p => p.ProductID == 72)
-                        .Where(
-                            p => od
-                                .Where(o => o.ProductID == p.ProductID)
-                                .Select(odd => odd.Quantity).Contains<short>(5)),
+                ss => ss.Set<Product>().Where(p => p.ProductID == 72)
+                    .Where(
+                        p => ss.Set<OrderDetail>()
+                            .Where(o => o.ProductID == p.ProductID)
+                            .Select(odd => odd.Quantity).Contains<short>(5)),
                 entryCount: 1);
 
             AssertSql(
@@ -2088,7 +2042,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
 SELECT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")
-ORDER BY (@__p_0 ? ""ZZ"" : c[""City""])");
+ORDER BY c[""City""]");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -2178,7 +2132,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Selected_column_can_coalesce()
         {
             base.Selected_column_can_coalesce();
@@ -2239,70 +2193,40 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] > @__p_0))");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_1()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_1(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_1();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_1(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_2()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_2(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_2();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_2(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_3()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_3(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_3();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_3(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_4()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_4(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_4();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_4(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_5()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_5(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_5();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_5(isAsync);
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Random_next_is_not_funcletized_6()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Random_next_is_not_funcletized_6(bool isAsync)
         {
-            base.Random_next_is_not_funcletized_6();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE (c[""Discriminator""] = ""Order"")");
+            return base.Random_next_is_not_funcletized_6(isAsync);
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -2338,7 +2262,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or()
         {
             base.Select_bitwise_or();
@@ -2349,7 +2273,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or_multiple()
         {
             base.Select_bitwise_or_multiple();
@@ -2360,7 +2284,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_and()
         {
             base.Select_bitwise_and();
@@ -2371,7 +2295,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_and_or()
         {
             base.Select_bitwise_and_or();
@@ -2418,7 +2342,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (((c[""CustomerID""] = ""ALFKI"") & (c[""CustomerID""] = ""ANATR"")) OR (c[""CustomerID""] = ""ANTON"")))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_or_with_logical_or()
         {
             base.Select_bitwise_or_with_logical_or();
@@ -2429,7 +2353,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_bitwise_and_with_logical_and()
         {
             base.Select_bitwise_and_with_logical_and();
@@ -2649,18 +2573,13 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task DefaultIfEmpty_in_subquery(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    (from c in cs.Where(c => c.City == "London")
-                     from o in os.Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
-                     where o != null
-                     select new
-                     {
-                         c.CustomerID,
-                         o.OrderID
-                     }),
-                e => e.CustomerID + " " + e.OrderID);
+                ss => from c in ss.Set<Customer>().Where(c => c.City == "London")
+                      from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                      where o != null
+                      select new { c.CustomerID, o.OrderID },
+                elementSorter: e => (e.CustomerID, e.OrderID));
 
             AssertSql(
                 @"SELECT c
@@ -2677,21 +2596,20 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    (from c in cs.Where(c => c.City == "Seattle")
-                     from o1 in os.Where(o => o.OrderID > 11000).DefaultIfEmpty()
-                     from o2 in os.Where(o => o.OrderID < 10250).Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
-                     where o1 != null && o2 != null
-                     orderby o1.OrderID, o2.OrderDate
-                     select new
-                     {
-                         c.CustomerID,
-                         o1.OrderID,
-                         o2.OrderDate
-                     }),
-                e => e.CustomerID + " " + e.OrderID);
+                ss => from c in ss.Set<Customer>().Where(c => c.City == "Seattle")
+                      from o1 in ss.Set<Order>().Where(o => o.OrderID > 11000).DefaultIfEmpty()
+                      from o2 in ss.Set<Order>().Where(o => o.OrderID < 10250).Where(o => o.CustomerID == c.CustomerID).DefaultIfEmpty()
+                      where o1 != null && o2 != null
+                      orderby o1.OrderID, o2.OrderDate
+                      select new
+                      {
+                          c.CustomerID,
+                          o1.OrderID,
+                          o2.OrderDate
+                      },
+                elementSorter: e => (e.CustomerID, e.OrderID));
 
             AssertSql(
                 @"SELECT c
@@ -2876,14 +2794,15 @@ WHERE (c[""Discriminator""] = ""Order"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Contains_with_subquery_involving_join_binds_to_correct_table(bool isAsync)
         {
-            await AssertQuery<Order, OrderDetail>(
+            await AssertQuery(
                 isAsync,
-                (os, ods) =>
-                    os.Where(
-                        o => o.OrderID > 11002 && o.OrderID < 11004
-                                               && ods.Where(od => od.Product.ProductName == "Chai")
-                                                   .Select(od => od.OrderID)
-                                                   .Contains(o.OrderID)),
+                ss => ss.Set<Order>().Where(
+                    o => o.OrderID > 11002
+                        && o.OrderID < 11004
+                        && ss.Set<OrderDetail>()
+                            .Where(od => od.Product.ProductName == "Chai")
+                            .Select(od => od.OrderID)
+                            .Contains(o.OrderID)),
                 entryCount: 1);
 
             AssertSql(
@@ -2994,13 +2913,10 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Anonymous_subquery_orderby(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.City == "London").Where(c => c.Orders.Count > 1).Select(
-                    c => new
-                    {
-                        A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
-                    }).OrderBy(n => n.A),
+                ss => ss.Set<Customer>().Where(c => c.City == "London").Where(c => c.Orders.Count > 1).Select(
+                    c => new { A = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate }).OrderBy(n => n.A),
                 assertOrder: true);
 
             AssertSql(
@@ -3089,13 +3005,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task DTO_subquery_orderby(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.CustomerID == "ALFKI").Where(c => c.Orders.Count > 1).Select(
-                    c => new DTO<DateTime?>
-                    {
-                        Property = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate
-                    }).OrderBy(n => n.Property),
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Where(c => c.Orders.Count > 1).Select(
+                        c => new DTO<DateTime?> { Property = c.Orders.OrderByDescending(o => o.OrderID).FirstOrDefault().OrderDate })
+                    .OrderBy(n => n.Property),
                 assertOrder: true,
                 elementAsserter: (e, a) => Assert.Equal(e.Property, a.Property));
 
@@ -3129,16 +3043,14 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10300))");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Subquery_is_null_translated_correctly(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs =>
-                    from c in cs.Where(c => c.CustomerID == "ALFKI")
-                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
-                        .Select(o => o.CustomerID)
-                        .FirstOrDefault()
-                    where lastOrder == null
-                    select c,
-                entryCount: 0);
+                ss => from c in ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                      let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                          .Select(o => o.CustomerID)
+                          .FirstOrDefault()
+                      where lastOrder == null
+                      select c);
 
             AssertSql(
                 @"SELECT c
@@ -3149,15 +3061,14 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Subquery_is_not_null_translated_correctly(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs =>
-                    from c in cs.Where(c => c.CustomerID == "ALFKI")
-                    let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
-                        .Select(o => o.CustomerID)
-                        .FirstOrDefault()
-                    where lastOrder != null
-                    select c,
+                ss => from c in ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                      let lastOrder = c.Orders.OrderByDescending(o => o.OrderID)
+                          .Select(o => o.CustomerID)
+                          .FirstOrDefault()
+                      where lastOrder != null
+                      select c,
                 entryCount: 1);
 
             AssertSql(
@@ -3433,14 +3344,14 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Comparing_different_entity_types_using_Equals(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) => from c in cs
-                            where c.CustomerID == "ALFKI"
-                            from o in os
-                            where o.CustomerID == "ALFKI"
-                            where c.Equals(o)
-                            select c.CustomerID);
+                ss => from c in ss.Set<Customer>()
+                      where c.CustomerID == "ALFKI"
+                      from o in ss.Set<Order>()
+                      where o.CustomerID == "ALFKI"
+                      where c.Equals(o)
+                      select c.CustomerID);
 
             AssertSql(
                 @"SELECT c
@@ -3462,20 +3373,16 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Comparing_navigations_using_Equals(bool isAsync)
         {
-            await AssertQuery<Order, Order>(
+            await AssertQuery(
                 isAsync,
-                (os1, os2) =>
-                    from o1 in os1
+                ss =>
+                    from o1 in ss.Set<Order>()
                     where o1.CustomerID.StartsWith("A")
-                    from o2 in os2
+                    from o2 in ss.Set<Order>()
                     where o1.Customer.Equals(o2.Customer)
                     orderby o1.OrderID, o2.OrderID
-                    select new
-                    {
-                        Id1 = o1.OrderID,
-                        Id2 = o2.OrderID
-                    },
-                e => e.Id1 + " " + e.Id2);
+                    select new { Id1 = o1.OrderID, Id2 = o2.OrderID },
+                elementSorter: e => (e.Id1, e.Id2));
 
             AssertSql(
                 @"SELECT c
@@ -3486,20 +3393,16 @@ WHERE (c[""Discriminator""] = ""Order"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Comparing_navigations_using_static_Equals(bool isAsync)
         {
-            await AssertQuery<Order, Order>(
+            await AssertQuery(
                 isAsync,
-                (os1, os2) =>
-                    from o1 in os1
+                ss =>
+                    from o1 in ss.Set<Order>()
                     where o1.CustomerID.StartsWith("A")
-                    from o2 in os2
+                    from o2 in ss.Set<Order>()
                     where Equals(o1.Customer, o2.Customer)
                     orderby o1.OrderID, o2.OrderID
-                    select new
-                    {
-                        Id1 = o1.OrderID,
-                        Id2 = o2.OrderID
-                    },
-                e => e.Id1 + " " + e.Id2);
+                    select new { Id1 = o1.OrderID, Id2 = o2.OrderID },
+                elementSorter: e => (e.Id1, e.Id2));
 
             AssertSql(
                 @"SELECT c
@@ -3510,19 +3413,15 @@ WHERE (c[""Discriminator""] = ""Order"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Comparing_non_matching_entities_using_Equals(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs
+                ss =>
+                    from c in ss.Set<Customer>()
                     where c.CustomerID == "ALFKI"
-                    from o in os
+                    from o in ss.Set<Order>()
                     where Equals(c, o)
-                    select new
-                    {
-                        Id1 = c.CustomerID,
-                        Id2 = o.OrderID
-                    },
-                e => e.Id1 + " " + e.Id2);
+                    select new { Id1 = c.CustomerID, Id2 = o.OrderID },
+                elementSorter: e => (e.Id1, e.Id2));
 
             AssertSql(
                 @"SELECT c
@@ -3533,19 +3432,15 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Comparing_non_matching_collection_navigations_using_Equals(bool isAsync)
         {
-            await AssertQuery<Customer, Order>(
+            await AssertQuery(
                 isAsync,
-                (cs, os) =>
-                    from c in cs
+                ss =>
+                    from c in ss.Set<Customer>()
                     where c.CustomerID == "ALFKI"
-                    from o in os
+                    from o in ss.Set<Order>()
                     where c.Orders.Equals(o.OrderDetails)
-                    select new
-                    {
-                        Id1 = c.CustomerID,
-                        Id2 = o.OrderID
-                    },
-                e => e.Id1 + " " + e.Id2);
+                    select new { Id1 = c.CustomerID, Id2 = o.OrderID },
+                elementSorter: e => (e.Id1, e.Id2));
 
             AssertSql(
                 @"SELECT c
@@ -3641,6 +3536,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool isAsync)
         {
             await base.Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(isAsync);
@@ -3654,16 +3550,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Complex_nested_query_properly_binds_to_grandparent_when_parent_returns_scalar_result(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs =>
-                    cs.Where(c => c.CustomerID == "ALFKI")
-                        .Select(
-                            c => new
-                            {
-                                c.CustomerID,
-                                OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0)
-                            }));
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
+                    .Select(
+                        c => new { c.CustomerID, OuterOrders = c.Orders.Where(o => o.OrderID < 10250).Count(o => c.Orders.Count() > 0) }));
 
             AssertSql(
                 @"SELECT c
@@ -3705,20 +3596,13 @@ OFFSET @__p_0 LIMIT @__p_1");
                 var results
                     = (context.Customers.Where(c => c.CustomerID == "ALFKI")
                         .Select(
-                            c => new
-                            {
-                                c.CustomerID,
-                                Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID)
-                            }).ToList())
+                            c => new { c.CustomerID, Orders = context.Orders.Where(o => o.Customer.CustomerID == c.CustomerID) }).ToList())
                     .Select(
                         x => new
                         {
                             Orders = x.Orders
                                 .GroupJoin(
-                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new
-                                    {
-                                        h.Customer
-                                    })
+                                    new[] { "ALFKI" }, y => x.CustomerID, y => y, (h, id) => new { h.Customer })
                         })
                     .ToList();
 
@@ -3762,7 +3646,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Manual_expression_tree_typed_null_equality()
         {
             base.Manual_expression_tree_typed_null_equality();
@@ -3776,18 +3660,15 @@ WHERE (c[""Discriminator""] = ""Order"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Let_subquery_with_multiple_occurrences(bool isAsync)
         {
-            await AssertQuery<Order>(
+            await AssertQuery(
                 isAsync,
-                os => from o in os.Where(or => or.OrderID < 10250)
+                ss => from o in ss.Set<Order>().Where(or => or.OrderID < 10250)
                       let details =
                           from od in o.OrderDetails
                           where od.Quantity < 10
                           select od.Quantity
                       where details.Any()
-                      select new
-                      {
-                          Count = details.Count()
-                      });
+                      select new { Count = details.Count() });
 
             AssertSql(
                 @"SELECT c
@@ -3847,10 +3728,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Collection_navigation_equal_to_null_for_subquery(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
-                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault() == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().OrderDetails == null),
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault() == null),
                 entryCount: 89);
 
             AssertSql(
@@ -3859,12 +3742,14 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
+        [ConditionalTheory(Skip = "Issue #17314")]
         public override async Task Dependent_to_principal_navigation_equal_to_null_for_subquery(bool isAsync)
         {
-            await AssertQuery<Customer>(
+            await AssertQuery(
                 isAsync,
-                cs => cs.Where(c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
-                cs => cs.Where(
+                ss => ss.Set<Customer>().Where(
+                    c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).FirstOrDefault().Customer == null),
+                ss => ss.Set<Customer>().Where(
                     c => c.Orders.Where(o => o.OrderID < 10250).OrderBy(o => o.OrderID).Select(o => o.CustomerID).FirstOrDefault() == null),
                 entryCount: 89);
 
@@ -3973,7 +3858,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Multiple_collection_navigation_with_FirstOrDefault_chained_projecting_scalar(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Can_convert_manually_build_expression_with_default()
         {
             base.Can_convert_manually_build_expression_with_default();
@@ -4057,7 +3942,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.SelectMany_primitive_select_subquery(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalFact(Skip = "Issue #17246")]
         public override void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
         {
             base.Select_DTO_constructor_distinct_with_navigation_translated_to_server();
@@ -4177,17 +4062,100 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.SelectMany_correlated_with_outer_4(isAsync);
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task All_client(bool isAsync) => null;
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(bool isAsync)
+        {
+            return base.FirstOrDefault_over_empty_collection_of_value_type_returns_correct_results(isAsync);
+        }
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Client_OrderBy_GroupBy_Group_ordering_works(bool isAsync) => null;
+        public override Task All_client(bool isAsync) => base.All_client(isAsync);
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Subquery_member_pushdown_does_not_change_original_subquery_model2(bool isAsync) => null;
+        public override Task Client_OrderBy_GroupBy_Group_ordering_works(bool isAsync)
+            => base.Client_OrderBy_GroupBy_Group_ordering_works(isAsync);
 
         [ConditionalTheory(Skip = "Issue #17246")]
-        public override Task Where_query_composition3(bool isAsync) => null;
+        public override Task Subquery_member_pushdown_does_not_change_original_subquery_model2(bool isAsync)
+            => base.Subquery_member_pushdown_does_not_change_original_subquery_model2(isAsync);
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_query_composition3(bool isAsync) => base.Where_query_composition3(isAsync);
+
+        public override Task Member_binding_after_ctor_arguments_fails_with_client_eval(bool isAsync)
+        {
+            return AssertTranslationFailed(() => base.Member_binding_after_ctor_arguments_fails_with_client_eval(isAsync));
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task OrderBy_object_type_server_evals(bool isAsync)
+        {
+            return base.OrderBy_object_type_server_evals(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task AsQueryable_in_query_server_evals(bool isAsync)
+        {
+            return base.AsQueryable_in_query_server_evals(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_correlated_subquery_hard(bool isAsync)
+        {
+            return base.SelectMany_correlated_subquery_hard(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(bool isAsync)
+        {
+            return base.SelectMany_with_collection_being_correlated_subquery_which_references_inner_and_outer_entity(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(bool isAsync)
+        {
+            return base.Select_chained_entity_navigation_doesnt_materialize_intermittent_entities(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Select_entity_compared_to_null(bool isAsync)
+        {
+            return base.Select_entity_compared_to_null(isAsync);
+        }
+
+        public override async Task Explicit_cast_in_arithmatic_operation_is_preserved(bool isAsync)
+        {
+            await base.Explicit_cast_in_arithmatic_operation_is_preserved(isAsync);
+
+            AssertSql(
+                @"SELECT c[""OrderID""], (c[""OrderID""] + 1000) AS c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_whose_selector_references_outer_source(bool isAsync)
+        {
+            return base.SelectMany_whose_selector_references_outer_source(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Collection_FirstOrDefault_with_entity_equality_check_in_projection(bool isAsync)
+        {
+            return base.Collection_FirstOrDefault_with_entity_equality_check_in_projection(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Collection_FirstOrDefault_with_nullable_unsigned_int_column(bool isAsync)
+        {
+            return base.Collection_FirstOrDefault_with_nullable_unsigned_int_column(isAsync);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool isAsync)
+        {
+            return base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(isAsync);
+        }
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

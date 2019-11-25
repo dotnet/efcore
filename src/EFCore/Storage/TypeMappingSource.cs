@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton"/>. This means a single instance
-    ///         is used by many <see cref="DbContext"/> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped"/>.
+    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
+    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
+    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
     public abstract class TypeMappingSource : TypeMappingSourceBase
@@ -80,9 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     var (info, providerType, converter) = k;
                     var mapping = providerType == null
-                                  || providerType == info.ClrType
-                        ? FindMapping(info)
-                        : null;
+                        || providerType == info.ClrType
+                            ? FindMapping(info)
+                            : null;
 
                     if (mapping == null)
                     {

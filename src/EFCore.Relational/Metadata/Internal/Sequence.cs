@@ -318,10 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IReadOnlyCollection<Type> SupportedTypes { get; }
-            = new[]
-            {
-                typeof(byte), typeof(long), typeof(int), typeof(short), typeof(decimal)
-            };
+            = new[] { typeof(byte), typeof(long), typeof(int), typeof(short), typeof(decimal) };
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -599,12 +596,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var end = value.IndexOf('\'', position);
 
                 while (end + 1 < value.Length
-                       && value[end + 1] == '\'')
+                    && value[end + 1] == '\'')
                 {
                     end = value.IndexOf('\'', end + 2);
                 }
 
-                var extracted = value[position..end].Replace("''", "'");
+                var extracted = value.Substring(position, end - position).Replace("''", "'");
                 position = end + 1;
 
                 return extracted.Length == 0 ? null : extracted;
