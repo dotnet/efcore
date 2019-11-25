@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var collection = CurrentValue;
             if (collection != null)
             {
-                var targetType = Metadata.GetTargetType();
+                var targetType = Metadata.TargetEntityType;
                 var context = InternalEntry.StateManager.Context;
                 var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
                     && (string)context.Model[ChangeDetector.SkipDetectChangesAnnotation] != "true"
@@ -167,6 +167,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => CurrentValue == null
                 || !((Navigation)Metadata).CollectionAccessor.Contains(InternalEntry.Entity, entity)
                     ? null
-                    : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.GetTargetType());
+                    : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
     }
 }

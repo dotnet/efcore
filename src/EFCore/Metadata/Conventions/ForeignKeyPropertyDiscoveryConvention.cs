@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 || foreignKey.IsOwnership
                 || foreignKey.DeclaringEntityType.IsKeyless
                 || (!foreignKey.IsUnique && !ConfigurationSource.Convention.Overrides(foreignKey.GetIsUniqueConfigurationSource()))
-                || foreignKey.PrincipalToDependent?.IsCollection() == true
+                || foreignKey.PrincipalToDependent?.IsCollection == true
                 || foreignKey.DeclaringEntityType.FindOwnership() != null)
             {
                 relationshipBuilder = relationshipBuilder.HasEntityTypes(
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionNavigation> context)
         {
             var newRelationshipBuilder = DiscoverProperties(relationshipBuilder, context);
-            context.StopProcessingIfChanged(newRelationshipBuilder?.Metadata.GetNavigation(navigation.IsDependentToPrincipal()));
+            context.StopProcessingIfChanged(newRelationshipBuilder?.Metadata.GetNavigation(navigation.IsOnDependent));
         }
 
         /// <summary>

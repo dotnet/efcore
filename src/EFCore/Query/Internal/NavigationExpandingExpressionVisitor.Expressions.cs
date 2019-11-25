@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
                 else
                 {
-                    this[navigation] = new IncludeTreeNode(navigation.GetTargetType(), null);
+                    this[navigation] = new IncludeTreeNode(navigation.TargetEntityType, null);
                 }
 
                 return this[navigation];

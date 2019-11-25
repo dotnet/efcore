@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
             {
                 var entityType = Context.Model.FindEntityType(typeArgument);
                 var navigations = entityType.GetNavigations().ToList();
-                var collectionNavigations = navigations.Where(n => n.IsCollection()).ToList();
+                var collectionNavigations = navigations.Where(n => n.IsCollection).ToList();
 
                 var collectionNavigation = random.Choose(collectionNavigations);
                 if (collectionNavigation != null)

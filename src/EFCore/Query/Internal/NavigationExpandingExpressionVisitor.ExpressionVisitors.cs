@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return expansion;
                 }
 
-                var targetType = navigation.GetTargetType();
+                var targetType = navigation.TargetEntityType;
                 if (targetType.HasDefiningNavigation()
                     || targetType.IsOwned())
                 {
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     var ownedExpansion = new OwnedNavigationReference(root, navigation, ownedEntityReference);
-                    if (navigation.IsCollection())
+                    if (navigation.IsCollection)
                     {
                         var elementType = ownedExpansion.Type.TryGetSequenceType();
                         var subquery = Expression.Call(
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // This is FirstOrDefault ending so we need to push down properties.
                     var temporaryParameter = Expression.Parameter(root.Type);
                     var temporaryKey = temporaryParameter.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
                         makeNullable: true);
@@ -205,14 +205,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     outerKey = root.CreateKeyAccessExpression(
-                        navigation.IsDependentToPrincipal()
+                        navigation.IsOnDependent
                             ? navigation.ForeignKey.Properties
                             : navigation.ForeignKey.PrincipalKey.Properties,
                         makeNullable: true);
                 }
 
                 var innerKey = innerParameter.CreateKeyAccessExpression(
-                    navigation.IsDependentToPrincipal()
+                    navigation.IsOnDependent
                         ? navigation.ForeignKey.PrincipalKey.Properties
                         : navigation.ForeignKey.Properties,
                     makeNullable: true);
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
-                if (navigation.IsCollection())
+                if (navigation.IsCollection)
                 {
                     var outerKeyFirstProperty = outerKey is NewExpression newExpression
                         ? ((UnaryExpression)((NewArrayExpression)newExpression.Arguments[0]).Expressions[0]).Operand
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var innerJoin = !entityReference.IsOptional
                     && !derivedTypeConversion
-                    && navigation.IsDependentToPrincipal()
+                    && navigation.IsOnDependent
                     && navigation.ForeignKey.IsRequired;
 
                 if (!innerJoin)
@@ -486,7 +486,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     var navigation = keyValuePair.Key;
                     var referenceIncludeTreeNode = keyValuePair.Value;
-                    var inverseNavigation = navigation.FindInverse();
+                    var inverseNavigation = navigation.Inverse;
                     if (inverseNavigation != null
                         && referenceIncludeTreeNode.ContainsKey(inverseNavigation))
                     {
@@ -517,10 +517,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     var included = ExpandNavigation(convertedRoot, entityReference, navigation, converted);
                     // Collection will expand it's includes when reducing the navigationExpansionExpression
-                    if (!navigation.IsCollection())
+                    if (!navigation.IsCollection)
                     {
-                        var innerEntityReference = navigation.GetTargetType().HasDefiningNavigation()
-                            || navigation.GetTargetType().IsOwned()
+                        var innerEntityReference = navigation.TargetEntityType.HasDefiningNavigation()
+                            || navigation.TargetEntityType.IsOwned()
                                 ? ((OwnedNavigationReference)included).EntityReference
                                 : (EntityReference)((NavigationTreeExpression)included).Value;
 

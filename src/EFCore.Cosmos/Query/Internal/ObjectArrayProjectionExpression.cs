@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             [NotNull] Expression accessExpression,
             [CanBeNull] EntityProjectionExpression innerProjection = null)
         {
-            var targetType = navigation.GetTargetType();
+            var targetType = navigation.TargetEntityType;
             Type = typeof(IEnumerable<>).MakeGenericType(targetType.ClrType);
 
             Name = targetType.GetContainingPropertyName();

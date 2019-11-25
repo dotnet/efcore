@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var existingNavigation = entityType.FindNavigation(navigationProperty.GetSimpleMemberName());
                     if (existingNavigation != null
                         && (existingNavigation.DeclaringEntityType != entityType
-                            || existingNavigation.GetTargetType() != targetEntityType))
+                            || existingNavigation.TargetEntityType != targetEntityType))
                     {
                         relationshipCandidate.NavigationProperties.Remove(navigationProperty);
                         continue;
@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return false;
                 }
 
-                var otherEntityType = existingInverse.GetTargetType();
+                var otherEntityType = existingInverse.TargetEntityType;
                 if (!entityType.ClrType
                     .IsAssignableFrom(otherEntityType.ClrType))
                 {
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var fk = existingNavigation.ForeignKey;
             return (fk.IsSelfReferencing()
                     || fk.GetRelatedEntityType(existingNavigation.DeclaringEntityType) == inverseEntityTypeBuilder.Metadata)
-                && fk.Builder.CanSetNavigation(inverse, !existingNavigation.IsDependentToPrincipal());
+                && fk.Builder.CanSetNavigation(inverse, !existingNavigation.IsOnDependent);
         }
 
         private static IReadOnlyList<RelationshipCandidate> RemoveInheritedInverseNavigations(
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var navigation in relationshipCandidate.NavigationProperties.ToList())
                 {
                     if (entityTypeBuilder.Metadata.FindDerivedNavigations(navigation.GetSimpleMemberName())
-                        .Any(n => n.FindInverse() != null))
+                        .Any(n => n.Inverse != null))
                     {
                         relationshipCandidate.NavigationProperties.Remove(navigation);
                     }
@@ -575,11 +575,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         var existingNavigation = entityType.FindDeclaredNavigation(navigationProperty.GetSimpleMemberName());
                         if (existingNavigation != null
                             && existingNavigation.ForeignKey.DeclaringEntityType.Builder
-                                .HasNoRelationship(existingNavigation.ForeignKey)
-                            == null
+                                .HasNoRelationship(existingNavigation.ForeignKey) == null
                             && existingNavigation.ForeignKey.Builder.HasNavigation(
-                                (string)null, existingNavigation.IsDependentToPrincipal())
-                            == null)
+                                (string)null, existingNavigation.IsOnDependent) == null)
                         {
                             // Navigations of higher configuration source are not ambiguous
                             relationshipCandidate.NavigationProperties.Remove(navigationProperty);
@@ -591,11 +589,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         var existingInverse = targetEntityType.FindDeclaredNavigation(inverseProperty.GetSimpleMemberName());
                         if (existingInverse != null
                             && existingInverse.ForeignKey.DeclaringEntityType.Builder
-                                .HasNoRelationship(existingInverse.ForeignKey)
-                            == null
+                                .HasNoRelationship(existingInverse.ForeignKey) == null
                             && existingInverse.ForeignKey.Builder.HasNavigation(
-                                (string)null, existingInverse.IsDependentToPrincipal())
-                            == null)
+                                (string)null, existingInverse.IsOnDependent) == null)
                         {
                             // Navigations of higher configuration source are not ambiguous
                             relationshipCandidate.InverseProperties.Remove(inverseProperty);
@@ -935,9 +931,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in navigation.DeclaringEntityType.GetDerivedTypesInclusive())
             {
+                var targetEntityType = navigation.TargetEntityType;
                 // Only run the convention if an ambiguity might have been removed
-                var ambiguityRemoved = RemoveAmbiguous(entityType, navigation.GetTargetType().ClrType);
-                var targetAmbiguityRemoved = RemoveAmbiguous(navigation.GetTargetType(), entityType.ClrType);
+                var ambiguityRemoved = RemoveAmbiguous(entityType, targetEntityType.ClrType);
+                var targetAmbiguityRemoved = RemoveAmbiguous(targetEntityType, entityType.ClrType);
 
                 if (ambiguityRemoved)
                 {
@@ -946,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (targetAmbiguityRemoved)
                 {
-                    DiscoverRelationships(navigation.GetTargetType().Builder, context);
+                    DiscoverRelationships(targetEntityType.Builder, context);
                 }
             }
 

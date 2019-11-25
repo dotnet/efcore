@@ -804,7 +804,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var navigationsToDerived = model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
                     n =>
                     {
-                        var targetType = n.GetTargetType().ClrType;
+                        var targetType = n.TargetEntityType.ClrType;
                         return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
                     });
                 Assert.Empty(navigationsToDerived);
@@ -832,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
                         n =>
                         {
-                            var targetType = n.GetTargetType().ClrType;
+                            var targetType = n.TargetEntityType.ClrType;
                             return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
                         }));
                 Assert.Single(owned.GetForeignKeys());

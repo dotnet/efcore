@@ -1010,8 +1010,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     foreach (var navigation in entityType.GetNavigations())
                     {
                         if (seedDatum.TryGetValue(navigation.Name, out var value)
-                            && ((navigation.IsCollection() && value is IEnumerable collection && collection.Any())
-                                || (!navigation.IsCollection() && value != null)))
+                            && ((navigation.IsCollection && value is IEnumerable collection && collection.Any())
+                                || (!navigation.IsCollection && value != null)))
                         {
                             if (sensitiveDataLogged)
                             {
@@ -1020,7 +1020,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                         entityType.DisplayName(),
                                         string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
                                         navigation.Name,
-                                        navigation.GetTargetType().DisplayName(),
+                                        navigation.TargetEntityType.DisplayName(),
                                         navigation.ForeignKey.Properties.Format()));
                             }
 
@@ -1028,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 CoreStrings.SeedDatumNavigation(
                                     entityType.DisplayName(),
                                     navigation.Name,
-                                    navigation.GetTargetType().DisplayName(),
+                                    navigation.TargetEntityType.DisplayName(),
                                     navigation.ForeignKey.Properties.Format()));
                         }
                     }

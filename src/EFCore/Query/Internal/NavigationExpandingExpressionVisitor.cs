@@ -1433,7 +1433,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return expression is OwnedNavigationReference ownedNavigationReference
-                && ownedNavigationReference.Navigation.IsCollection()
+                && ownedNavigationReference.Navigation.IsCollection
                 ? CreateNavigationExpansionExpression(
                     Expression.Call(
                         QueryableMethods.AsQueryable.MakeGenericMethod(ownedNavigationReference.Type.TryGetSequenceType()),
@@ -1461,7 +1461,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var outboundNavigations
                 = entityType.GetNavigations()
                     .Concat(entityType.GetDerivedNavigations())
-                    .Where(n => n.IsEagerLoaded());
+                    .Where(n => n.IsEagerLoaded);
 
             foreach (var navigation in outboundNavigations)
             {

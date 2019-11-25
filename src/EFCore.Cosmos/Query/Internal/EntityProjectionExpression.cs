@@ -152,14 +152,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (!_navigationExpressionsCache.TryGetValue(navigation, out var expression))
             {
-                if (navigation.IsCollection())
+                if (navigation.IsCollection)
                 {
                     expression = new ObjectArrayProjectionExpression(navigation, AccessExpression);
                 }
                 else
                 {
                     expression = new EntityProjectionExpression(
-                        navigation.GetTargetType(),
+                        navigation.TargetEntityType,
                         new ObjectAccessExpression(navigation, AccessExpression));
                 }
 

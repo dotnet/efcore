@@ -42,14 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var modelBuilder = relationshipBuilder.ModelBuilder;
 
             if (!IsNonNullable(modelBuilder, navigation)
-                || navigation.IsCollection())
+                || navigation.IsCollection)
             {
                 return;
             }
 
-            if (!navigation.IsDependentToPrincipal())
+            if (!navigation.IsOnDependent)
             {
-                var inverse = navigation.FindInverse();
+                var inverse = navigation.Inverse;
                 if (inverse != null)
                 {
                     if (IsNonNullable(modelBuilder, inverse))

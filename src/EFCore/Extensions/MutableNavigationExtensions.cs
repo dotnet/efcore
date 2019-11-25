@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -21,8 +21,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The inverse navigation, or <c>null</c> if none is defined.
         /// </returns>
+        [Obsolete("Use IMutableNavigation.Inverse")]
         public static IMutableNavigation FindInverse([NotNull] this IMutableNavigation navigation)
-            => ((Navigation)navigation).FindInverse();
+            => navigation.Inverse;
 
         /// <summary>
         ///     Gets the entity type that a given navigation property will hold an instance of
@@ -30,15 +31,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="navigation"> The navigation property to find the target entity type of. </param>
         /// <returns> The target entity type. </returns>
+        [Obsolete("Use IMutableNavigation.TargetEntityType")]
         public static IMutableEntityType GetTargetType([NotNull] this IMutableNavigation navigation)
-            => ((Navigation)navigation).GetTargetType();
-
-        /// <summary>
-        ///     Sets a value indicating whether this navigation should be eager loaded by default.
-        /// </summary>
-        /// <param name="navigation"> The navigation property to set whether it should be eager loaded for. </param>
-        /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
-        public static void SetIsEagerLoaded([NotNull] this IMutableNavigation navigation, bool? eagerLoaded)
-            => navigation.AsNavigation().SetIsEagerLoaded(eagerLoaded, ConfigurationSource.Explicit);
+            => navigation.TargetEntityType;
     }
 }

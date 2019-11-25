@@ -183,8 +183,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
         /// <param name="foreignKey"> The foreign key to the association type. </param>
         /// <param name="collection"> Whether the navigation property is a collection property. </param>
-        /// <param name="onPrincipal">
-        ///     Whether the navigation property is defined on the principal side of the underlying foreign key.
+        /// <param name="onDependent">
+        ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The newly created skip navigation property. </returns>
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IConventionEntityType targetEntityType,
             [CanBeNull] IConventionForeignKey foreignKey,
             bool collection,
-            bool onPrincipal,
+            bool onDependent,
             bool fromDataAnnotation = false);
 
         /// <summary>

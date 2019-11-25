@@ -2336,7 +2336,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var baseNavigation = baseEntityBuilder.Metadata.GetNavigations().Single();
             Assert.Equal(nameof(Customer.SpecialCustomer), baseNavigation.Name);
-            Assert.Equal(nameof(SpecialCustomer.Customer), baseNavigation.FindInverse()?.Name);
+            Assert.Equal(nameof(SpecialCustomer.Customer), baseNavigation.Inverse?.Name);
         }
 
         [ConditionalFact]

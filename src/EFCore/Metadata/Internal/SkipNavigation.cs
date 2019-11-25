@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] EntityType targetEntityType,
             [CanBeNull] ForeignKey foreignKey,
             bool collection,
-            bool onPrincipal,
+            bool onDependent,
             ConfigurationSource configurationSource)
             : base(name, propertyInfo, fieldInfo)
         {
@@ -52,19 +52,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             DeclaringEntityType = declaringEntityType;
             TargetEntityType = targetEntityType;
             IsCollection = collection;
-            IsOnPrincipal = onPrincipal;
+            IsOnDependent = onDependent;
             _configurationSource = configurationSource;
             Builder = new InternalSkipNavigationBuilder(this, targetEntityType.Model.Builder);
 
             if (foreignKey != null)
             {
-                var expectedEntityType = IsOnPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
+                var expectedEntityType = IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType;
                 if (expectedEntityType != DeclaringEntityType)
                 {
-                    var message = IsOnPrincipal
-                        ? CoreStrings.SkipNavigationWrongPrincipalType(
+                    var message = IsOnDependent
+                        ? CoreStrings.SkipNavigationWrongDependentType(
                             Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format())
-                        : CoreStrings.SkipNavigationWrongDependentType(
+                        : CoreStrings.SkipNavigationWrongPrincipalType(
                             Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format());
                     throw new InvalidOperationException(message);
                 }
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType AssociationEntityType => IsOnPrincipal ? ForeignKey?.DeclaringEntityType : ForeignKey?.PrincipalEntityType;
+        public virtual EntityType AssociationEntityType => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsOnPrincipal { get; }
+        public virtual bool IsOnDependent { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -215,13 +215,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : foreignKey;
             }
 
-            var expectedEntityType = IsOnPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
+            var expectedEntityType = IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType;
             if (expectedEntityType != DeclaringEntityType)
             {
-                var message = IsOnPrincipal
-                    ? CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
+                var message = IsOnDependent
+                    ? CoreStrings.SkipNavigationForeignKeyWrongDependentType(
                         foreignKey.Properties.Format(), Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName())
-                    : CoreStrings.SkipNavigationForeignKeyWrongDependentType(
+                    : CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
                         foreignKey.Properties.Format(), Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName());
                 throw new InvalidOperationException(message);
             }
@@ -372,25 +372,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => Builder;
         }
 
-        IEntityType ISkipNavigation.DeclaringEntityType
+        IEntityType INavigationBase.DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => DeclaringEntityType;
         }
 
-        IEntityType ISkipNavigation.TargetEntityType
-        {
-            [DebuggerStepThrough]
-            get => TargetEntityType;
-        }
-
-        IMutableEntityType IMutableSkipNavigation.TargetEntityType
-        {
-            [DebuggerStepThrough]
-            get => TargetEntityType;
-        }
-
-        IConventionEntityType IConventionSkipNavigation.TargetEntityType
+        IEntityType INavigationBase.TargetEntityType
         {
             [DebuggerStepThrough]
             get => TargetEntityType;
@@ -402,23 +390,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => ForeignKey;
         }
 
-        IMutableForeignKey IMutableSkipNavigation.ForeignKey
-        {
-            [DebuggerStepThrough]
-            get => ForeignKey;
-        }
-
-        IConventionForeignKey IConventionSkipNavigation.ForeignKey
-        {
-            [DebuggerStepThrough]
-            get => ForeignKey;
-        }
-
-
         [DebuggerStepThrough]
         IMutableForeignKey IMutableSkipNavigation.SetForeignKey([CanBeNull] IMutableForeignKey foreignKey)
             => SetForeignKey((ForeignKey)foreignKey, ConfigurationSource.Explicit);
-
 
         [DebuggerStepThrough]
         IConventionForeignKey IConventionSkipNavigation.SetForeignKey([CanBeNull] IConventionForeignKey foreignKey, bool fromDataAnnotation)
@@ -430,20 +404,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => Inverse;
         }
 
-        IMutableSkipNavigation IMutableSkipNavigation.Inverse
-        {
-            [DebuggerStepThrough]
-            get => Inverse;
-        }
-
-        IConventionSkipNavigation IConventionSkipNavigation.Inverse
-        {
-            [DebuggerStepThrough]
-            get => Inverse;
-        }
-
         [DebuggerStepThrough]
-        IConventionSkipNavigation IMutableSkipNavigation.SetInverse([CanBeNull] IMutableSkipNavigation inverse)
+        IMutableSkipNavigation IMutableSkipNavigation.SetInverse([CanBeNull] IMutableSkipNavigation inverse)
             => SetInverse((SkipNavigation)inverse, ConfigurationSource.Explicit);
 
         [DebuggerStepThrough]

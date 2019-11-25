@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IConventionRelationshipBuilder relationshipBuilder, IConventionNavigation navigation)
             {
                 if (relationshipBuilder.Metadata.Builder == null
-                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
+                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent) != navigation)
                 {
                     return null;
                 }
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
+                if (relationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent) != navigation)
                 {
                     return null;
                 }
@@ -615,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IConventionAnnotation oldAnnotation)
             {
                 if (relationshipBuilder.Metadata.Builder == null
-                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
+                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent) != navigation)
                 {
                     return null;
                 }

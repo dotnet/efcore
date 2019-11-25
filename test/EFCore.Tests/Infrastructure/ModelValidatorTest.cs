@@ -494,10 +494,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, true);
+                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, false);
 
             var ordersNavigation = productEntity.AddSkipNavigation(
-                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, true);
+                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, false);
 
             productsNavigation.SetInverse(ordersNavigation);
             ordersNavigation.SetInverse(productsNavigation);
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, null, true, true);
+                nameof(Order.Products), null, productEntity, null, true, false);
 
             VerifyError(
                 CoreStrings.SkipNavigationNoForeignKey(nameof(Order.Products), nameof(Order)),
@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, true);
+                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, false);
 
             VerifyError(
                 CoreStrings.SkipNavigationNoInverse(nameof(Order.Products), nameof(Order)),

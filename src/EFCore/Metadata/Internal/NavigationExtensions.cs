@@ -57,18 +57,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(navigation.ClrType?.ShortDisplayName()).Append(")");
 
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 builder.Append(" Collection");
             }
 
-            builder.Append(navigation.IsDependentToPrincipal() ? " ToPrincipal " : " ToDependent ");
+            builder.Append(navigation.IsOnDependent ? " ToPrincipal " : " ToDependent ");
 
-            builder.Append(navigation.GetTargetType().DisplayName());
+            builder.Append(navigation.TargetEntityType.DisplayName());
 
-            if (navigation.FindInverse() != null)
+            if (navigation.Inverse != null)
             {
-                builder.Append(" Inverse: ").Append(navigation.FindInverse().Name);
+                builder.Append(" Inverse: ").Append(navigation.Inverse.Name);
             }
 
             if (navigation.GetPropertyAccessMode() != PropertyAccessMode.PreferField)

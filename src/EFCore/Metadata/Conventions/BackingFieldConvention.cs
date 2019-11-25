@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var field = GetFieldToSet(navigation);
             if (field != null)
             {
-                relationshipBuilder.HasField(field, navigation.IsDependentToPrincipal());
+                relationshipBuilder.HasField(field, navigation.IsOnDependent);
             }
         }
 

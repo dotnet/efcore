@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .AddForeignKey(new[] { orderIdProperty }, firstKey, firstEntity);
 
             var navigation = firstEntity.AddSkipNavigation(
-                nameof(Order.Products), null, secondEntity, firstFk, true, true);
+                nameof(Order.Products), null, secondEntity, firstFk, true, false);
 
             Assert.True(navigation.IsCollection);
-            Assert.True(navigation.IsOnPrincipal);
+            Assert.False(navigation.IsOnDependent);
             Assert.False(navigation.IsEagerLoaded);
             Assert.Null(navigation.Inverse);
             Assert.Equal(firstFk, navigation.ForeignKey);
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var firstFk = associationEntityBuilder
                 .AddForeignKey(new[] { orderIdProperty }, firstKey, firstEntity);
 
-            var navigation = firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, null, true, true);
+            var navigation = firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, null, true, false);
 
             Assert.Null(navigation.ForeignKey);
             Assert.Null(navigation.GetForeignKeyConfigurationSource());
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderProductForeignKey = orderProductEntity.AddForeignKey(orderProductFkProperty, orderKey, orderEntity);
 
             var navigation = orderEntity.AddSkipNavigation(
-                        nameof(Order.Products), null, productEntity, null, true, false);
+                nameof(Order.Products), null, productEntity, null, true, true);
 
             Assert.Equal(
                 CoreStrings.SkipNavigationForeignKeyWrongDependentType(
@@ -104,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var orderProductForeignKey = orderProductEntity.AddForeignKey(orderProductFkProperty, orderKey, orderEntity);
 
             var navigation = orderProductEntity.AddSkipNavigation(
-                        nameof(OrderProduct.Order), null, orderEntity, null, false, true);
+                nameof(OrderProduct.Order), null, orderEntity, null, false, false);
 
             Assert.Equal(
                 CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
@@ -131,10 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .AddForeignKey(new[] { productFkProperty }, productKey, productEntity);
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, null, true, true);
+                nameof(Order.Products), null, productEntity, null, true, false);
 
             var ordersNavigation = productEntity.AddSkipNavigation(
-                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, true);
+                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, false);
 
             productsNavigation.SetInverse(ordersNavigation);
 
@@ -164,10 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .AddForeignKey(new[] { productOrderFkProperty }, productKey, productEntity);
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, true);
+                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, false);
 
             var ordersNavigation = productEntity.AddSkipNavigation(
-                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, true);
+                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, false);
 
             productsNavigation.SetInverse(ordersNavigation);
             ordersNavigation.SetInverse(productsNavigation);
@@ -205,10 +205,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .AddForeignKey(new[] { productOrderFkProperty }, productKey, productEntity);
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, true);
+                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, false);
 
             var ordersNavigation = orderProductEntity.AddSkipNavigation(
-                nameof(OrderProduct.Product), null, productEntity, productOrderForeignKey, false, false);
+                nameof(OrderProduct.Product), null, productEntity, productOrderForeignKey, false, true);
 
             Assert.Equal(CoreStrings.SkipNavigationWrongInverse(
                     nameof(OrderProduct.Product), nameof(OrderProduct), nameof(Order.Products), nameof(Product)),
@@ -234,10 +234,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .AddForeignKey(new[] { productFkProperty }, productKey, productEntity);
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, true);
+                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, false);
 
             var ordersNavigation = productEntity.AddSkipNavigation(
-                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, true);
+                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, false);
 
             Assert.Equal(CoreStrings.SkipInverseMismatchedAssociationType(
                     nameof(Product.Orders), nameof(Product), nameof(Order.Products), nameof(OrderProduct)),

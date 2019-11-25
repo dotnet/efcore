@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
-            return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
+            return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 
         /// <summary>

@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
                 }
 
-                arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
+                arguments[i] = (propertyBase as INavigation)?.IsCollection ?? false
                     ? Expression.Call(
                         null,
                         _snapshotCollectionMethod,

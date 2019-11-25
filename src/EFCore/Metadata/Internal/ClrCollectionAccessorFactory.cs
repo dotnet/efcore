@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
-            => !navigation.IsCollection() || navigation.IsShadowProperty() ? null : Create(navigation, navigation.GetTargetType());
+            => !navigation.IsCollection || navigation.IsShadowProperty() ? null : Create(navigation, navigation.TargetEntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

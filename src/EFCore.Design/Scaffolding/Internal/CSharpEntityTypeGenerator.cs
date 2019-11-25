@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection()).ToList();
+            var collectionNavigations = entityType.GetNavigations().Where(n => n.IsCollection).ToList();
 
             if (collectionNavigations.Count > 0)
             {
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     foreach (var navigation in collectionNavigations)
                     {
-                        _sb.AppendLine($"{navigation.Name} = new HashSet<{navigation.GetTargetType().Name}>();");
+                        _sb.AppendLine($"{navigation.Name} = new HashSet<{navigation.TargetEntityType.Name}>();");
                     }
                 }
 
@@ -304,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(entityType, nameof(entityType));
 
             var sortedNavigations = entityType.GetNavigations()
-                .OrderBy(n => n.IsDependentToPrincipal() ? 0 : 1)
-                .ThenBy(n => n.IsCollection() ? 1 : 0)
+                .OrderBy(n => n.IsOnDependent ? 0 : 1)
+                .ThenBy(n => n.IsCollection ? 1 : 0)
                 .ToList();
 
             if (sortedNavigations.Any())
@@ -319,8 +319,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         GenerateNavigationDataAnnotations(navigation);
                     }
 
-                    var referencedTypeName = navigation.GetTargetType().Name;
-                    var navigationType = navigation.IsCollection() ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
+                    var referencedTypeName = navigation.TargetEntityType.Name;
+                    var navigationType = navigation.IsCollection ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
                     _sb.AppendLine($"public virtual {navigationType} {navigation.Name} {{ get; set; }}");
                 }
             }
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateForeignKeyAttribute(INavigation navigation)
         {
-            if (navigation.IsDependentToPrincipal())
+            if (navigation.IsOnDependent)
             {
                 if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
                 {
@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
             {
-                var inverseNavigation = navigation.FindInverse();
+                var inverseNavigation = navigation.Inverse;
 
                 if (inverseNavigation != null)
                 {

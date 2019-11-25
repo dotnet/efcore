@@ -517,9 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     var foreignKey = conflictingNavigation.ForeignKey;
 
-                    var navigationConfigurationSource = conflictingNavigation.IsDependentToPrincipal()
-                        ? foreignKey.GetDependentToPrincipalConfigurationSource()
-                        : foreignKey.GetPrincipalToDependentConfigurationSource();
+                    var navigationConfigurationSource = conflictingNavigation.GetConfigurationSource();
                     if (!configurationSource.Overrides(navigationConfigurationSource))
                     {
                         return null;
@@ -610,7 +608,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                         else if (foreignKey.Builder.HasNavigation(
                                 (string)null,
-                                conflictingNavigation.IsDependentToPrincipal(),
+                                conflictingNavigation.IsOnDependent,
                                 configurationSource.Value)
                             == null)
                         {
@@ -772,12 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var conflictingNavigation in Metadata.FindNavigationsInHierarchy(propertyName))
                 {
-                    var foreignKey = conflictingNavigation.ForeignKey;
-
-                    if (!configurationSource.Overrides(
-                        conflictingNavigation.IsDependentToPrincipal()
-                            ? foreignKey.GetDependentToPrincipalConfigurationSource()
-                            : foreignKey.GetPrincipalToDependentConfigurationSource()))
+                    if (!configurationSource.Overrides(conflictingNavigation.GetConfigurationSource()))
                     {
                         return null;
                     }
@@ -809,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             }
                             else if (foreignKey.Builder.HasNavigation(
                                     (string)null,
-                                    conflictingNavigation.IsDependentToPrincipal(),
+                                    conflictingNavigation.IsOnDependent,
                                     configurationSource)
                                 == null)
                             {
@@ -832,7 +825,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
             => !IsIgnored(navigationName, configurationSource)
                 && Metadata.FindNavigationsInHierarchy(navigationName).All(
-                    n => n.ForeignKey.Builder.CanSetNavigation((string)null, n.IsDependentToPrincipal(), configurationSource));
+                    n => n.ForeignKey.Builder.CanSetNavigation((string)null, n.IsOnDependent, configurationSource));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -894,14 +887,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var foreignKey = navigation.ForeignKey;
                     Check.DebugAssert(navigation.DeclaringEntityType == Metadata, "navigation.DeclaringEntityType != Metadata");
 
-                    var isDependent = navigation.IsDependentToPrincipal();
-                    var navigationConfigurationSource = isDependent
-                        ? foreignKey.GetDependentToPrincipalConfigurationSource()
-                        : foreignKey.GetPrincipalToDependentConfigurationSource();
+                    var navigationConfigurationSource = navigation.GetConfigurationSource();
                     if (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
                     {
                         var navigationRemoved = foreignKey.Builder.HasNavigation(
-                            (MemberInfo)null, isDependent, configurationSource);
+                            (MemberInfo)null, navigation.IsOnDependent, configurationSource);
                         Check.DebugAssert(navigationRemoved != null, "navigationRemoved is null");
                     }
                     else
@@ -1016,10 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return false;
                 }
 
-                var isDependent = navigation.IsDependentToPrincipal();
-                var navigationConfigurationSource = isDependent
-                    ? foreignKey.GetDependentToPrincipalConfigurationSource()
-                    : foreignKey.GetPrincipalToDependentConfigurationSource();
+                var navigationConfigurationSource = navigation.GetConfigurationSource();
                 if (foreignKey.GetConfigurationSource() != navigationConfigurationSource)
                 {
                     if (!configurationSource.Overrides(navigationConfigurationSource))
@@ -2534,7 +2521,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var existingNavigation = Metadata.FindNavigation(navigation.Name);
                 if (existingNavigation != null)
                 {
-                    if (existingNavigation.GetTargetType().Name == targetEntityType.Name)
+                    if (existingNavigation.TargetEntityType.Name == targetEntityType.Name)
                     {
                         var existingOwnedEntityType = existingNavigation.ForeignKey.DeclaringEntityType;
                         if (existingOwnedEntityType.HasDefiningNavigation())
@@ -2572,7 +2559,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         ownershipBuilder = ownershipBuilder
                             .IsRequired(true, configurationSource)
                             ?.HasEntityTypes(
-                                Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().GetTargetType(),
+                                Metadata, ownershipBuilder.Metadata.FindNavigationsFromInHierarchy(Metadata).Single().TargetEntityType,
                                 configurationSource)
                             ?.HasNavigations(inverse, navigation, configurationSource)
                             ?.IsOwnership(true, configurationSource);
@@ -2840,7 +2827,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 targetEntityTypeBuilder =
-                    entityType.FindNavigation(navigationInfo.GetSimpleMemberName())?.GetTargetType().Builder
+                    entityType.FindNavigation(navigationInfo.GetSimpleMemberName())?.TargetEntityType.Builder
                     ?? entityType.Model.FindEntityType(
                         targetClrType, navigationInfo.GetSimpleMemberName(), entityType)?.Builder;
 

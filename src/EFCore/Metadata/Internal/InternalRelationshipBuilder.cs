@@ -977,10 +977,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool pointsToPrincipal,
             ConfigurationSource? configurationSource)
         {
-            var navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
+            IConventionNavigation navigation = pointsToPrincipal ? Metadata.DependentToPrincipal : Metadata.PrincipalToDependent;
             return navigation != null
                 && (configurationSource.Overrides(navigation.GetIsEagerLoadedConfigurationSource())
-                    || navigation.IsEagerLoaded() == eagerLoaded);
+                    || navigation.IsEagerLoaded == eagerLoaded);
         }
 
         /// <summary>

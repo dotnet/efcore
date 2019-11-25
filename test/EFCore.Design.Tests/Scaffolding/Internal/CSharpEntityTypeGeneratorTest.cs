@@ -64,11 +64,11 @@ namespace TestNamespace
                 {
                     var postType = model.FindEntityType("TestNamespace.Post");
                     var authorNavigation = postType.FindNavigation("Author");
-                    Assert.True(authorNavigation.IsDependentToPrincipal());
+                    Assert.True(authorNavigation.IsOnDependent);
                     Assert.Equal("TestNamespace.Person", authorNavigation.ForeignKey.PrincipalEntityType.Name);
 
                     var contributionsNav = postType.FindNavigation("Contributions");
-                    Assert.False(contributionsNav.IsDependentToPrincipal());
+                    Assert.False(contributionsNav.IsOnDependent);
                     Assert.Equal("TestNamespace.Contribution", contributionsNav.ForeignKey.DeclaringEntityType.Name);
                 });
         }
@@ -122,7 +122,7 @@ namespace TestNamespace
                     var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                     Assert.Equal("BlogId", foreignKeyProperty.Name);
 
-                    var inverseNavigation = blogNavigation.FindInverse();
+                    var inverseNavigation = blogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
                 });
@@ -177,7 +177,7 @@ namespace TestNamespace
                     var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                     Assert.Equal("Blog", foreignKeyProperty.Name);
 
-                    var inverseNavigation = blogNavigation.FindInverse();
+                    var inverseNavigation = blogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
                 });
@@ -238,7 +238,7 @@ namespace TestNamespace
                     var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
                     Assert.Equal("BlogId", foreignKeyProperty.Name);
 
-                    var inverseNavigation = blogNavigation.FindInverse();
+                    var inverseNavigation = blogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", inverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("Posts", inverseNavigation.Name);
 
@@ -247,7 +247,7 @@ namespace TestNamespace
                     var originalForeignKeyProperty = Assert.Single(originalBlogNavigation.ForeignKey.Properties);
                     Assert.Equal("OriginalBlogId", originalForeignKeyProperty.Name);
 
-                    var originalInverseNavigation = originalBlogNavigation.FindInverse();
+                    var originalInverseNavigation = originalBlogNavigation.Inverse;
                     Assert.Equal("TestNamespace.Blog", originalInverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
                 });

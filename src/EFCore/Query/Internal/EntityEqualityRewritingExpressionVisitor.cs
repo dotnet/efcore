@@ -866,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Expression nonNullExpression,
             [CanBeNull] INavigation lastNavigation)
         {
-            if (lastNavigation?.IsCollection() == true)
+            if (lastNavigation?.IsCollection == true)
             {
                 // collection navigation is only null if its parent entity is null (null propagation thru navigation)
                 // it is probable that user wanted to see if the collection is (not) empty
@@ -898,8 +898,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Expression right, [CanBeNull] INavigation rightNavigation,
             bool subqueryTraversed)
         {
-            if (leftNavigation?.IsCollection() == true
-                || rightNavigation?.IsCollection() == true)
+            if (leftNavigation?.IsCollection == true
+                || rightNavigation?.IsCollection == true)
             {
                 if (leftNavigation?.Equals(rightNavigation) == true)
                 {
@@ -1168,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return EntityType.FindNavigation(propertyName) is INavigation navigation
                         ? new EntityReferenceExpression(
                             destinationExpression,
-                            navigation.GetTargetType(),
+                            navigation.TargetEntityType,
                             navigation,
                             null,
                             SubqueryTraversed)

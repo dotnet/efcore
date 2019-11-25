@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var currentValue = entry[navigation];
             var stateManager = entry.StateManager;
 
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 var snapshotCollection = (IEnumerable)snapshotValue;
                 var currentCollection = (IEnumerable)currentValue;
@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
             else if (!ReferenceEquals(currentValue, snapshotValue)
                 && (!navigation.ForeignKey.IsOwnership
-                    || !navigation.IsDependentToPrincipal()))
+                    || !navigation.IsOnDependent))
             {
                 if (_loggingOptions.IsSensitiveDataLoggingEnabled)
                 {

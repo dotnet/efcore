@@ -235,14 +235,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 case EntityProjectionExpression entityProjection:
                     return new EntityShaperExpression(
-                        navigation.GetTargetType(),
+                        navigation.TargetEntityType,
                         Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
                         nullable: true);
 
                 case ObjectArrayProjectionExpression objectArrayProjectionExpression:
                 {
                     var innerShaperExpression = new EntityShaperExpression(
-                        navigation.GetTargetType(),
+                        navigation.TargetEntityType,
                         Expression.Convert(
                             Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                         nullable: true);
@@ -343,14 +343,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     case EntityProjectionExpression entityProjection:
                         return new EntityShaperExpression(
-                            navigation.GetTargetType(),
+                            navigation.TargetEntityType,
                             Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
                             nullable: true);
 
                     case ObjectArrayProjectionExpression objectArrayProjectionExpression:
                     {
                         var innerShaperExpression = new EntityShaperExpression(
-                            navigation.GetTargetType(),
+                            navigation.TargetEntityType,
                             Expression.Convert(
                                 Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                             nullable: true);

@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -16,15 +16,6 @@ namespace Microsoft.EntityFrameworkCore
     public static class NavigationExtensions
     {
         /// <summary>
-        ///     Gets the <see cref="IClrCollectionAccessor" /> for this navigation property, which must be a collection
-        ///     navigation.
-        /// </summary>
-        /// <param name="navigation"> The navigation property. </param>
-        /// <returns> The accessor. </returns>
-        public static IClrCollectionAccessor GetCollectionAccessor([NotNull] this INavigation navigation)
-            => navigation.AsNavigation().CollectionAccessor;
-
-        /// <summary>
         ///     Gets a value indicating whether the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity.
         /// </summary>
@@ -34,8 +25,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     type that points to the principal entity, otherwise false.
         /// </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use INavigation.IsOnDependent")]
         public static bool IsDependentToPrincipal([NotNull] this INavigation navigation)
-            => Check.NotNull(navigation, nameof(navigation)).ForeignKey.DependentToPrincipal == navigation;
+            => Check.NotNull(navigation, nameof(navigation)).IsOnDependent;
 
         /// <summary>
         ///     Gets a value indicating whether the given navigation property is a collection property.
@@ -45,12 +37,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     True if this is a collection property, false if it is a reference property.
         /// </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use INavigation.IsCollection")]
         public static bool IsCollection([NotNull] this INavigation navigation)
-        {
-            Check.NotNull(navigation, nameof(navigation));
-
-            return !navigation.IsDependentToPrincipal() && !navigation.ForeignKey.IsUnique;
-        }
+            => Check.NotNull(navigation, nameof(navigation)).IsCollection;
 
         /// <summary>
         ///     Gets the navigation property on the other end of the relationship. Returns null if
@@ -61,8 +50,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     The inverse navigation, or null if none is defined.
         /// </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use INavigation.Inverse")]
         public static INavigation FindInverse([NotNull] this INavigation navigation)
-            => ((Navigation)Check.NotNull(navigation, nameof(navigation))).FindInverse();
+            => Check.NotNull(navigation, nameof(navigation)).Inverse;
 
         /// <summary>
         ///     Gets the entity type that a given navigation property will hold an instance of
@@ -71,19 +61,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation"> The navigation property to find the target entity type of. </param>
         /// <returns> The target entity type. </returns>
         [DebuggerStepThrough]
+        [Obsolete("Use INavigation.TargetEntityType")]
         public static IEntityType GetTargetType([NotNull] this INavigation navigation)
-            => (Check.NotNull(navigation, nameof(navigation)) as Navigation)?.GetTargetType();
+            => Check.NotNull(navigation, nameof(navigation)).TargetEntityType;
 
         /// <summary>
         ///     Gets a value indicating whether this navigation should be eager loaded by default.
         /// </summary>
         /// <param name="navigation"> The navigation property to find whether it should be eager loaded. </param>
         /// <returns> A value indicating whether this navigation should be eager loaded by default. </returns>
+        [Obsolete("Use INavigation.IsEagerLoaded")]
         public static bool IsEagerLoaded([NotNull] this INavigation navigation)
-        {
-            Check.NotNull(navigation, nameof(navigation));
-
-            return (bool?)navigation[CoreAnnotationNames.EagerLoaded] ?? false;
-        }
+            => Check.NotNull(navigation, nameof(navigation)).IsEagerLoaded;
     }
 }

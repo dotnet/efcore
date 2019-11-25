@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var navigation = InternalEntry.EntityType.FindNavigation(propertyName);
             if (navigation != null)
             {
-                return navigation.IsCollection()
+                return navigation.IsCollection
                     ? (MemberEntry)new CollectionEntry(InternalEntry, propertyName)
                     : new ReferenceEntry(InternalEntry, propertyName);
             }
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var navigation = InternalEntry.EntityType.FindNavigation(propertyName);
             if (navigation != null)
             {
-                return navigation.IsCollection()
+                return navigation.IsCollection
                     ? (NavigationEntry)new CollectionEntry(InternalEntry, propertyName)
                     : new ReferenceEntry(InternalEntry, propertyName);
             }
@@ -194,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual IEnumerable<NavigationEntry> Navigations
             => InternalEntry.EntityType.GetNavigations().Select(
-                navigation => navigation.IsCollection()
+                navigation => navigation.IsCollection
                     ? (NavigationEntry)new CollectionEntry(InternalEntry, navigation)
                     : new ReferenceEntry(InternalEntry, navigation));
 
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     reference (i.e. non-collection) navigation properties of this entity.
         /// </summary>
         public virtual IEnumerable<ReferenceEntry> References
-            => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection())
+            => InternalEntry.EntityType.GetNavigations().Where(n => !n.IsCollection)
                 .Select(navigation => new ReferenceEntry(InternalEntry, navigation));
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     collection navigation properties of this entity.
         /// </summary>
         public virtual IEnumerable<CollectionEntry> Collections
-            => InternalEntry.EntityType.GetNavigations().Where(n => n.IsCollection())
+            => InternalEntry.EntityType.GetNavigations().Where(n => n.IsCollection)
                 .Select(navigation => new CollectionEntry(InternalEntry, navigation));
 
         /// <summary>

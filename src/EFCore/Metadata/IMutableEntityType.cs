@@ -141,8 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
         /// <param name="foreignKey"> The foreign key to the association type. </param>
         /// <param name="collection"> Whether the navigation property is a collection property. </param>
-        /// <param name="onPrincipal">
-        ///     Whether the navigation property is defined on the principal side of the underlying foreign key.
+        /// <param name="onDependent">
+        ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
         /// <returns> The newly created skip navigation property. </returns>
         IMutableSkipNavigation AddSkipNavigation(
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] IMutableEntityType targetEntityType,
             [CanBeNull] IMutableForeignKey foreignKey,
             bool collection,
-            bool onPrincipal);
+            bool onDependent);
 
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no navigation property is found.

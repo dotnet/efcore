@@ -1380,7 +1380,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Check.DebugAssert(
-                !GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsDependentToPrincipal() == pointsToPrincipal),
+                !GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsOnDependent == pointsToPrincipal),
                 "There is another navigation corresponding to the same foreign key and pointing in the same direction.");
 
             Check.DebugAssert(
@@ -1538,7 +1538,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] EntityType targetEntityType,
             [CanBeNull] ForeignKey foreignKey,
             bool collection,
-            bool onPrincipal,
+            bool onDependent,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
@@ -1580,7 +1580,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 targetEntityType,
                 foreignKey,
                 collection,
-                onPrincipal,
+                onDependent,
                 configurationSource);
 
             _skipNavigations.Add(name, skipNavigation);
@@ -3207,8 +3207,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IMutableEntityType targetEntityType,
             [NotNull] IMutableForeignKey foreignKey,
             bool collection,
-            bool onPrincipal)
-            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, (ForeignKey)foreignKey, collection, onPrincipal,
+            bool onDependent)
+            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, (ForeignKey)foreignKey, collection, onDependent,
                 ConfigurationSource.Explicit);
 
         /// <summary>
@@ -3224,9 +3224,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] IConventionEntityType targetEntityType,
             [NotNull] IConventionForeignKey foreignKey,
             bool collection,
-            bool onPrincipal,
+            bool onDependent,
             bool fromDataAnnotation)
-            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, (ForeignKey)foreignKey, collection, onPrincipal,
+            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, (ForeignKey)foreignKey, collection, onDependent,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

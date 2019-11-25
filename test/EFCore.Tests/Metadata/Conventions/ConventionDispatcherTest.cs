@@ -1676,7 +1676,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (_terminate)
                 {
-                    if (navigation.IsDependentToPrincipal())
+                    if (navigation.IsOnDependent)
                     {
                         relationshipBuilder.Metadata.HasDependentToPrincipal((string)null);
                     }
@@ -1921,7 +1921,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             else
             {
                 var result = firstEntityBuilder.Metadata.AddSkipNavigation(
-                    nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, true, ConfigurationSource.Convention);
+                    nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, false, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -1991,7 +1991,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;
             var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-                nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, true, ConfigurationSource.Convention);
+                nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, false, ConfigurationSource.Convention);
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -2100,7 +2100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;
             var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-                nameof(Order.Products), null, secondEntityBuilder.Metadata, null, true, true, ConfigurationSource.Convention);
+                nameof(Order.Products), null, secondEntityBuilder.Metadata, null, true, false, ConfigurationSource.Convention);
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -2200,7 +2200,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;
             var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-                nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, true, ConfigurationSource.Convention);
+                nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, false, ConfigurationSource.Convention);
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -2211,7 +2211,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             else
             {
                 var inverse = secondEntityBuilder.Metadata.AddSkipNavigation(
-                nameof(Product.Orders), null, firstEntityBuilder.Metadata, secondFk, true, true, ConfigurationSource.Convention);
+                nameof(Product.Orders), null, firstEntityBuilder.Metadata, secondFk, true, false, ConfigurationSource.Convention);
 
                 var result = navigation.SetInverse(inverse, ConfigurationSource.Convention);
 
@@ -2288,7 +2288,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .IsUnique(false, ConfigurationSource.Convention)
                 .Metadata;
             var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-                nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, true, ConfigurationSource.Convention);
+                nameof(Order.Products), null, secondEntityBuilder.Metadata, firstFk, true, false, ConfigurationSource.Convention);
 
             var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
