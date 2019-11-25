@@ -185,6 +185,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Assert.Equal(e.Id, a.Id);
                             Assert.Equal(e.Name, a.Name);
+                            Assert.Equal(e.Banner == null, a.Banner == null);
+                            if (e.Banner != null)
+                            {
+                                Assert.True(Enumerable.SequenceEqual(e.Banner, a.Banner));
+                            }
                         }
                     }
                 },
