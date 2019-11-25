@@ -502,17 +502,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         Part of a query is being evaluated on the client instead of on the database server.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete("Automatic client evaluation is no longer supported. This event is no longer generated.")]
-        public static readonly EventId QueryClientEvaluationWarning = MakeQueryId(Id.QueryClientEvaluationWarning);
-
-        /// <summary>
-        ///     <para>
         ///         A query is using equals comparisons in a possibly unintended way.
         ///     </para>
         ///     <para>

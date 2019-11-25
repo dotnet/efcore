@@ -87,11 +87,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<bool> CloseAsync();
 
         /// <summary>
-        ///     Gets a value indicating whether the multiple active result sets feature is enabled.
-        /// </summary>
-        bool IsMultipleActiveResultSetsEnabled { get; }
-
-        /// <summary>
         ///     Gets the current transaction.
         /// </summary>
         new IDbContextTransaction CurrentTransaction { get; }

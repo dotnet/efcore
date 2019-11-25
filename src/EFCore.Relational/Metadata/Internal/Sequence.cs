@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     end = value.IndexOf('\'', end + 2);
                 }
 
-                var extracted = value.Substring(position, end - position).Replace("''", "'");
+                var extracted = value[position..end].Replace("''", "'");
                 position = end + 1;
 
                 return extracted.Length == 0 ? null : extracted;

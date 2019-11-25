@@ -88,27 +88,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "nvarchar(max)"), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy(bool obsolete)
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_value_generation_strategy()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
             modelBuilder.Entity<Cat>(
                 cb =>
                 {
-                    if (obsolete)
-                    {
-#pragma warning disable 618
-                        cb.Property(c => c.Identity).UseSqlServerIdentityColumn();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-                        cb.Property(c => c.Identity).UseIdentityColumn();
-                    }
-
+                    cb.Property(c => c.Identity).UseIdentityColumn();
                     cb.Property(c => c.Identity).HasColumnName(nameof(Cat.Identity));
                 });
             modelBuilder.Entity<Dog>(
@@ -154,25 +142,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal("IX_Animal_Name1", index2.GetName());
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Detects_incompatible_memory_optimized_shared_table(bool obsolete)
+        [ConditionalFact]
+        public virtual void Detects_incompatible_memory_optimized_shared_table()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<A>().ToTable("Table").ForSqlServerIsMemoryOptimized();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<A>().ToTable("Table").IsMemoryOptimized();
-            }
+            modelBuilder.Entity<A>().ToTable("Table").IsMemoryOptimized();
 
             modelBuilder.Entity<B>().ToTable("Table");
 
@@ -181,31 +158,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Detects_incompatible_non_clustered_shared_key(bool obsolete)
+        [ConditionalFact]
+        public virtual void Detects_incompatible_non_clustered_shared_key()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
             modelBuilder.Entity<A>().HasOne<B>().WithOne().IsRequired().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id);
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<A>().ToTable("Table")
-                    .HasKey(a => a.Id).ForSqlServerIsClustered();
-                modelBuilder.Entity<B>().ToTable("Table")
-                    .HasKey(b => b.Id).ForSqlServerIsClustered(false);
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<A>().ToTable("Table")
-                    .HasKey(a => a.Id).IsClustered();
-                modelBuilder.Entity<B>().ToTable("Table")
-                    .HasKey(b => b.Id).IsClustered(false);
-            }
+            modelBuilder.Entity<A>().ToTable("Table")
+                .HasKey(a => a.Id).IsClustered();
+            modelBuilder.Entity<B>().ToTable("Table")
+                .HasKey(b => b.Id).IsClustered(false);
 
             VerifyError(
                 SqlServerStrings.DuplicateKeyMismatchedClustering("{'Id'}", nameof(B), "{'Id'}", nameof(A), "Table", "PK_Table"),
@@ -234,138 +197,67 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     .GenerateMessage("Price", nameof(Animal)), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detects_byte_identity_column(bool obsolete)
+        [ConditionalFact]
+        public void Detects_byte_identity_column()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().Property<byte>("Bite").UseSqlServerIdentityColumn();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().Property<byte>("Bite").UseIdentityColumn();
-            }
+            modelBuilder.Entity<Dog>().Property<byte>("Bite").UseIdentityColumn();
 
             VerifyWarning(
                 SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>())
                     .GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detects_nullable_byte_identity_column(bool obsolete)
+        [ConditionalFact]
+        public void Detects_nullable_byte_identity_column()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseSqlServerIdentityColumn();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseIdentityColumn();
-            }
+            modelBuilder.Entity<Dog>().Property<byte?>("Bite").UseIdentityColumn();
 
             VerifyWarning(
                 SqlServerResources.LogByteIdentityColumn(new TestLogger<SqlServerLoggingDefinitions>())
                     .GenerateMessage("Bite", nameof(Dog)), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Passes_for_non_key_identity(bool obsolete)
+        [ConditionalFact]
+        public void Passes_for_non_key_identity()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
-
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
-            }
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
 
             Validate(modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detects_multiple_identity_properties(bool obsolete)
+        [ConditionalFact]
+        public void Detects_multiple_identity_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(d => d.Id).ValueGeneratedNever();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().Property(c => c.Type).UseSqlServerIdentityColumn();
-                modelBuilder.Entity<Dog>().Property<int?>("Tag").UseSqlServerIdentityColumn();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
-                modelBuilder.Entity<Dog>().Property<int?>("Tag").UseIdentityColumn();
-            }
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseIdentityColumn();
+            modelBuilder.Entity<Dog>().Property<int?>("Tag").UseIdentityColumn();
 
             VerifyError(SqlServerStrings.MultipleIdentityColumns("'Dog.Tag', 'Dog.Type'", nameof(Dog)), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detects_non_key_SequenceHiLo(bool obsolete)
+        [ConditionalFact]
+        public void Detects_non_key_SequenceHiLo()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().Property(c => c.Type).ForSqlServerUseSequenceHiLo();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().Property(c => c.Type).UseHiLo();
-            }
+            modelBuilder.Entity<Dog>().Property(c => c.Type).UseHiLo();
 
             VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Passes_for_non_key_identity_on_model(bool obsolete)
+        [ConditionalFact]
+        public void Passes_for_non_key_identity_on_model()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseIdentityColumns();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseIdentityColumns();
-            }
+            modelBuilder.UseIdentityColumns();
 
             modelBuilder.Entity<Dog>().Property(c => c.Id).ValueGeneratedNever();
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
@@ -373,23 +265,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Passes_for_non_key_SequenceHiLo_on_model(bool obsolete)
+        [ConditionalFact]
+        public void Passes_for_non_key_SequenceHiLo_on_model()
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.ForSqlServerUseSequenceHiLo();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.UseHiLo();
-            }
+            modelBuilder.UseHiLo();
 
             modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 
@@ -438,87 +319,43 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detects_missing_include_properties(bool obsolete)
+        [ConditionalFact]
+        public void Detects_missing_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
 
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), "Tag");
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), "Tag");
-            }
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), "Tag");
 
             VerifyError(SqlServerStrings.IncludePropertyNotFound(nameof(Dog), "Tag"), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detects_duplicate_include_properties(bool obsolete)
+        [ConditionalFact]
+        public void Detects_duplicate_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Type), nameof(Dog.Type));
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), nameof(Dog.Type));
-            }
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Type), nameof(Dog.Type));
 
             VerifyError(SqlServerStrings.IncludePropertyDuplicated(nameof(Dog), nameof(Dog.Type)), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Detects_indexed_include_properties(bool obsolete)
+        [ConditionalFact]
+        public void Detects_indexed_include_properties()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerInclude(nameof(Dog.Name));
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Name));
-            }
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IncludeProperties(nameof(Dog.Name));
 
             VerifyError(SqlServerStrings.IncludePropertyInIndex(nameof(Dog), nameof(Dog.Name)), modelBuilder.Model);
         }
 
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Passes_for_online_index(bool obsolete)
+        [ConditionalFact]
+        public void Passes_for_online_index()
         {
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Dog>().Property(c => c.Type);
-            if (obsolete)
-            {
-#pragma warning disable 618
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).ForSqlServerIsCreatedOnline();
-#pragma warning restore 618
-            }
-            else
-            {
-                modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IsCreatedOnline();
-            }
+            modelBuilder.Entity<Dog>().HasIndex(nameof(Dog.Name)).IsCreatedOnline();
 
             Validate(modelBuilder.Model);
         }

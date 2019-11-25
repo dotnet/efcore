@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task String_contains_on_argument_with_wildcard_constant(bool isAsync)
+        public override async Task String_contains_on_argument_with_wildcard_constant(bool async)
         {
-            await base.String_contains_on_argument_with_wildcard_constant(isAsync);
+            await base.String_contains_on_argument_with_wildcard_constant(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName]
@@ -53,9 +53,9 @@ FROM [FunkyCustomers] AS [f]
 WHERE CHARINDEX(NULL, [f].[FirstName]) <= 0");
         }
 
-        public override async Task String_contains_on_argument_with_wildcard_parameter(bool isAsync)
+        public override async Task String_contains_on_argument_with_wildcard_parameter(bool async)
         {
-            await base.String_contains_on_argument_with_wildcard_parameter(isAsync);
+            await base.String_contains_on_argument_with_wildcard_parameter(async);
 
             AssertSql(
                 @"@__prm1_0='%B' (Size = 4000)
@@ -107,9 +107,9 @@ FROM [FunkyCustomers] AS [f]
 WHERE CHARINDEX(@__prm8_0, [f].[FirstName]) <= 0");
         }
 
-        public override async Task String_contains_on_argument_with_wildcard_column(bool isAsync)
+        public override async Task String_contains_on_argument_with_wildcard_column(bool async)
         {
-            await base.String_contains_on_argument_with_wildcard_column(isAsync);
+            await base.String_contains_on_argument_with_wildcard_column(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -118,9 +118,9 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE ([f0].[LastName] = N'') OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 0)");
         }
 
-        public override async Task String_contains_on_argument_with_wildcard_column_negated(bool isAsync)
+        public override async Task String_contains_on_argument_with_wildcard_column_negated(bool async)
         {
-            await base.String_contains_on_argument_with_wildcard_column_negated(isAsync);
+            await base.String_contains_on_argument_with_wildcard_column_negated(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -129,9 +129,9 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND (CHARINDEX([f0].[LastName], [f].[FirstName]) <= 0)");
         }
 
-        public override async Task String_starts_with_on_argument_with_wildcard_constant(bool isAsync)
+        public override async Task String_starts_with_on_argument_with_wildcard_constant(bool async)
         {
-            await base.String_starts_with_on_argument_with_wildcard_constant(isAsync);
+            await base.String_starts_with_on_argument_with_wildcard_constant(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName]
@@ -166,9 +166,9 @@ FROM [FunkyCustomers] AS [f]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
-        public override async Task String_starts_with_on_argument_with_wildcard_parameter(bool isAsync)
+        public override async Task String_starts_with_on_argument_with_wildcard_parameter(bool async)
         {
-            await base.String_starts_with_on_argument_with_wildcard_parameter(isAsync);
+            await base.String_starts_with_on_argument_with_wildcard_parameter(async);
 
             AssertSql(
                 @"@__prm1_0='%B' (Size = 4000)
@@ -216,9 +216,9 @@ FROM [FunkyCustomers] AS [f]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
-        public override async Task String_starts_with_on_argument_with_bracket(bool isAsync)
+        public override async Task String_starts_with_on_argument_with_bracket(bool async)
         {
-            await base.String_starts_with_on_argument_with_bracket(isAsync);
+            await base.String_starts_with_on_argument_with_bracket(async);
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
@@ -256,9 +256,9 @@ FROM [FunkyCustomers] AS [f]
 WHERE ([f].[LastName] = N'') OR ([f].[FirstName] IS NOT NULL AND ([f].[LastName] IS NOT NULL AND (LEFT([f].[FirstName], LEN([f].[LastName])) = [f].[LastName])))");
         }
 
-        public override async Task String_starts_with_on_argument_with_wildcard_column(bool isAsync)
+        public override async Task String_starts_with_on_argument_with_wildcard_column(bool async)
         {
-            await base.String_starts_with_on_argument_with_wildcard_column(isAsync);
+            await base.String_starts_with_on_argument_with_wildcard_column(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -267,9 +267,9 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE ([f0].[LastName] = N'') OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (LEFT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName])))");
         }
 
-        public override async Task String_starts_with_on_argument_with_wildcard_column_negated(bool isAsync)
+        public override async Task String_starts_with_on_argument_with_wildcard_column_negated(bool async)
         {
-            await base.String_starts_with_on_argument_with_wildcard_column_negated(isAsync);
+            await base.String_starts_with_on_argument_with_wildcard_column_negated(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -278,9 +278,9 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName]) OR LEFT([f].[FirstName], LEN([f0].[LastName])) IS NULL)))");
         }
 
-        public override async Task String_ends_with_on_argument_with_wildcard_constant(bool isAsync)
+        public override async Task String_ends_with_on_argument_with_wildcard_constant(bool async)
         {
-            await base.String_ends_with_on_argument_with_wildcard_constant(isAsync);
+            await base.String_ends_with_on_argument_with_wildcard_constant(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName]
@@ -315,9 +315,9 @@ FROM [FunkyCustomers] AS [f]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
-        public override async Task String_ends_with_on_argument_with_wildcard_parameter(bool isAsync)
+        public override async Task String_ends_with_on_argument_with_wildcard_parameter(bool async)
         {
-            await base.String_ends_with_on_argument_with_wildcard_parameter(isAsync);
+            await base.String_ends_with_on_argument_with_wildcard_parameter(async);
 
             AssertSql(
                 @"@__prm1_0='%B' (Size = 4000)
@@ -365,9 +365,9 @@ FROM [FunkyCustomers] AS [f]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
-        public override async Task String_ends_with_on_argument_with_wildcard_column(bool isAsync)
+        public override async Task String_ends_with_on_argument_with_wildcard_column(bool async)
         {
-            await base.String_ends_with_on_argument_with_wildcard_column(isAsync);
+            await base.String_ends_with_on_argument_with_wildcard_column(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -376,9 +376,9 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE ([f0].[LastName] = N'') OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName])))");
         }
 
-        public override async Task String_ends_with_on_argument_with_wildcard_column_negated(bool isAsync)
+        public override async Task String_ends_with_on_argument_with_wildcard_column_negated(bool async)
         {
-            await base.String_ends_with_on_argument_with_wildcard_column_negated(isAsync);
+            await base.String_ends_with_on_argument_with_wildcard_column_negated(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -387,9 +387,9 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName]) OR RIGHT([f].[FirstName], LEN([f0].[LastName])) IS NULL)))");
         }
 
-        public override async Task String_ends_with_inside_conditional(bool isAsync)
+        public override async Task String_ends_with_inside_conditional(bool async)
         {
-            await base.String_ends_with_inside_conditional(isAsync);
+            await base.String_ends_with_inside_conditional(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -401,9 +401,9 @@ WHERE CASE
 END = CAST(1 AS bit)");
         }
 
-        public override async Task String_ends_with_inside_conditional_negated(bool isAsync)
+        public override async Task String_ends_with_inside_conditional_negated(bool async)
         {
-            await base.String_ends_with_inside_conditional_negated(isAsync);
+            await base.String_ends_with_inside_conditional_negated(async);
 
             AssertSql(
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
@@ -415,9 +415,9 @@ WHERE CASE
 END = CAST(1 AS bit)");
         }
 
-        public override async Task String_ends_with_equals_nullable_column(bool isAsync)
+        public override async Task String_ends_with_equals_nullable_column(bool async)
         {
-            await base.String_ends_with_equals_nullable_column(isAsync);
+            await base.String_ends_with_equals_nullable_column(async);
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool], [f0].[Id], [f0].[FirstName], [f0].[LastName], [f0].[NullableBool]
@@ -429,9 +429,9 @@ WHERE CASE
 END = [f].[NullableBool]");
         }
 
-        public override async Task String_ends_with_not_equals_nullable_column(bool isAsync)
+        public override async Task String_ends_with_not_equals_nullable_column(bool async)
         {
-            await base.String_ends_with_not_equals_nullable_column(isAsync);
+            await base.String_ends_with_not_equals_nullable_column(async);
 
             AssertSql(
                 @"SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool], [f0].[Id], [f0].[FirstName], [f0].[LastName], [f0].[NullableBool]

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -32,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            if (unaryExpression.NodeType == ExpressionType.Not)
+            if (unaryExpression.NodeType == ExpressionType.Not
+                && unaryExpression.IsLogicalNot())
             {
                 if (unaryExpression.Operand is ConstantExpression innerConstant
                     && innerConstant.Value is bool value)

@@ -10,10 +10,8 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void IsInMemory_when_using_in_memory()
         {
-            using (var context = new ProviderContext())
-            {
-                Assert.True(context.Database.IsInMemory());
-            }
+            using var context = new ProviderContext();
+            Assert.True(context.Database.IsInMemory());
         }
 
         private class ProviderContext : DbContext

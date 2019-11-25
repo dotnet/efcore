@@ -466,11 +466,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     entry.SetIsLoaded(navigation);
                     if (relatedEntities != null)
                     {
-                        using (var enumerator = relatedEntities.GetEnumerator())
+                        using var enumerator = relatedEntities.GetEnumerator();
+                        while (enumerator.MoveNext())
                         {
-                            while (enumerator.MoveNext())
-                            {
-                            }
                         }
                     }
                     else
@@ -596,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _projectionBindings[jObjectExpression];
                 }
 
-                var storeName = property.GetPropertyName();
+                var storeName = property.GetJsonPropertyName();
                 if (storeName.Length == 0)
                 {
                     var entityType = property.DeclaringEntityType;

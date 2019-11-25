@@ -191,14 +191,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         dependentEntityTypeName));
             }
 
-            using (var batch = dependentEntityType.Model.ConventionDispatcher.DelayConventions())
-            {
-                var builder = Builder.HasEntityTypes(
-                    GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
-                builder = hasForeignKey(builder, dependentEntityType);
+            using var batch = dependentEntityType.Model.ConventionDispatcher.DelayConventions();
+            var builder = Builder.HasEntityTypes(
+                GetOtherEntityType(dependentEntityType), dependentEntityType, ConfigurationSource.Explicit);
+            builder = hasForeignKey(builder, dependentEntityType);
 
-                return batch.Run(builder);
-            }
+            return batch.Run(builder);
         }
 
         /// <summary>
@@ -303,14 +301,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                         principalEntityTypeName));
             }
 
-            using (var batch = principalEntityType.Model.ConventionDispatcher.DelayConventions())
-            {
-                var builder = Builder.HasEntityTypes(
-                    principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
-                builder = hasPrincipalKey(builder);
+            using var batch = principalEntityType.Model.ConventionDispatcher.DelayConventions();
+            var builder = Builder.HasEntityTypes(
+                principalEntityType, GetOtherEntityType(principalEntityType), ConfigurationSource.Explicit);
+            builder = hasPrincipalKey(builder);
 
-                return batch.Run(builder);
-            }
+            return batch.Run(builder);
         }
 
         /// <summary>

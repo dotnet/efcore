@@ -70,32 +70,5 @@ namespace Microsoft.EntityFrameworkCore
 
             return keyBuilder.CanSetAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
         }
-
-        /// <summary>
-        ///     Configures whether the key is clustered when targeting SQL Server.
-        /// </summary>
-        /// <param name="keyBuilder"> The builder for the key being configured. </param>
-        /// <param name="clustered"> A value indicating whether the key is clustered. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        [Obsolete("Use IsClustered")]
-        public static KeyBuilder ForSqlServerIsClustered([NotNull] this KeyBuilder keyBuilder, bool clustered = true)
-            => keyBuilder.IsClustered(clustered);
-
-        /// <summary>
-        ///     Configures whether the key is clustered when targeting SQL Server.
-        /// </summary>
-        /// <param name="keyBuilder"> The builder for the key being configured. </param>
-        /// <param name="clustered"> A value indicating whether the key is clustered. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns>
-        ///     The same builder instance if the configuration was applied,
-        ///     <c>null</c> otherwise.
-        /// </returns>
-        [Obsolete("Use IsClustered")]
-        public static IConventionKeyBuilder ForSqlServerIsClustered(
-            [NotNull] this IConventionKeyBuilder keyBuilder,
-            bool? clustered,
-            bool fromDataAnnotation = false)
-            => keyBuilder.IsClustered(clustered, fromDataAnnotation);
     }
 }

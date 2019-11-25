@@ -4215,17 +4215,15 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Temporary_value_equals_database_generated_value()
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new Game { Id = Guid77 });
-                entry.Property(g => g.Id).IsTemporary = true;
-                var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
-                internalEntry.PrepareToSave();
-                internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
-                internalEntry.AcceptChanges();
+            using var context = CreateContext();
+            var entry = context.Add(new Game { Id = Guid77 });
+            entry.Property(g => g.Id).IsTemporary = true;
+            var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
+            internalEntry.PrepareToSave();
+            internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
+            internalEntry.AcceptChanges();
 
-                Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
-            }
+            Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
         }
 
         private void AssertFixupAndSave(DbContext context, Game game, Level level, Item item)
@@ -4278,24 +4276,22 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Remove_overlapping_principal()
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+            using var context = CreateContext();
+            context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
 
-                var game = new Game { Id = Guid77 };
-                var level = new Level { Game = game };
-                var item = new Item { Level = level };
+            var game = new Game { Id = Guid77 };
+            var level = new Level { Game = game };
+            var item = new Item { Level = level };
 
-                context.Add(item);
+            context.Add(item);
 
-                level.Items.Remove(item);
+            level.Items.Remove(item);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Null(item.Level);
-                Assert.Empty(level.Items);
-                Assert.Empty(level.Actors);
-            }
+            Assert.Null(item.Level);
+            Assert.Empty(level.Items);
+            Assert.Empty(level.Actors);
         }
 
         [ConditionalFact]

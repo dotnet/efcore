@@ -15,22 +15,20 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void All_non_static_DbSet_properties_are_discovered()
         {
-            using (var context = new The())
-            {
-                var sets = new DbSetFinder().FindSets(context.GetType());
+            using var context = new The();
+            var sets = new DbSetFinder().FindSets(context.GetType());
 
-                Assert.Equal(
-                    new[] { "Betters", "Brandies", "Drinkings", "Stops", "Yous" },
-                    sets.Select(s => s.Name).ToArray());
+            Assert.Equal(
+                new[] { "Betters", "Brandies", "Drinkings", "Stops", "Yous" },
+                sets.Select(s => s.Name).ToArray());
 
-                Assert.Equal(
-                    new[] { typeof(Better), typeof(Brandy), typeof(Drinking), typeof(Stop), typeof(You) },
-                    sets.Select(s => s.ClrType).ToArray());
+            Assert.Equal(
+                new[] { typeof(Better), typeof(Brandy), typeof(Drinking), typeof(Stop), typeof(You) },
+                sets.Select(s => s.ClrType).ToArray());
 
-                Assert.Equal(
-                    new[] { true, true, true, false, true },
-                    sets.Select(s => s.Setter != null).ToArray());
-            }
+            Assert.Equal(
+                new[] { true, true, true, false, true },
+                sets.Select(s => s.Setter != null).ToArray());
         }
 
         #region Fixture

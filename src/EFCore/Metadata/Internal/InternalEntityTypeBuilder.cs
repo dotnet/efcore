@@ -2858,19 +2858,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? isRequired,
             ConfigurationSource configurationSource)
         {
-            using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+            using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+            var foreignKey = SetOrAddForeignKey(
+                null, principalEntityTypeBuilder,
+                dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
+            if (isRequired.HasValue
+                && foreignKey.IsRequired == isRequired.Value)
             {
-                var foreignKey = SetOrAddForeignKey(
-                    null, principalEntityTypeBuilder,
-                    dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
-                if (isRequired.HasValue
-                    && foreignKey.IsRequired == isRequired.Value)
-                {
-                    foreignKey = foreignKey.SetIsRequired(isRequired.Value, configurationSource);
-                }
-
-                return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
+                foreignKey = foreignKey.SetIsRequired(isRequired.Value, configurationSource);
             }
+
+            return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
         }
 
         /// <summary>
@@ -2887,14 +2885,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? isRequired,
             ConfigurationSource? configurationSource)
         {
-            using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
-            {
-                foreignKey = SetOrAddForeignKey(
-                    foreignKey, foreignKey.PrincipalEntityType.Builder,
-                    dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
+            using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+            foreignKey = SetOrAddForeignKey(
+                foreignKey, foreignKey.PrincipalEntityType.Builder,
+                dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
 
-                return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
-            }
+            return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
         }
 
         private ForeignKey SetOrAddForeignKey(
@@ -3089,63 +3085,61 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var canReuniquify = false;
             using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
             {
-                using (var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator())
+                using var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator();
+                for (var i = 0;
+                     i < propertyCount
+                     && principalPropertyNamesEnumerator.MoveNext()
+                     && principalPropertyTypesEnumerator.MoveNext();
+                     i++)
                 {
-                    for (var i = 0;
-                         i < propertyCount
-                         && principalPropertyNamesEnumerator.MoveNext()
-                         && principalPropertyTypesEnumerator.MoveNext();
-                         i++)
+                    var keyPropertyName = principalPropertyNamesEnumerator.Current;
+                    var keyPropertyType = principalPropertyTypesEnumerator.Current;
+                    var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
+                        ? keyPropertyName
+                        : baseName + keyPropertyName;
+                    string propertyName;
+                    var clrType = keyPropertyType.MakeNullable(!isRequired);
+                    var index = -1;
+                    while (true)
                     {
-                        var keyPropertyName = principalPropertyNamesEnumerator.Current;
-                        var keyPropertyType = principalPropertyTypesEnumerator.Current;
-                        var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
-                            ? keyPropertyName
-                            : baseName + keyPropertyName;
-                        string propertyName;
-                        var clrType = keyPropertyType.MakeNullable(!isRequired);
-                        var index = -1;
-                        while (true)
+                        propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
+                        if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
+                            && clrProperties?.ContainsKey(propertyName) != true
+                            && clrFields?.ContainsKey(propertyName) != true
+                            && !IsIgnored(propertyName, ConfigurationSource.Convention))
                         {
-                            propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
-                            if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
-                                && clrProperties?.ContainsKey(propertyName) != true
-                                && clrFields?.ContainsKey(propertyName) != true
-                                && !IsIgnored(propertyName, ConfigurationSource.Convention))
+                            if (currentProperties == null)
                             {
-                                if (currentProperties == null)
-                                {
-                                    var propertyBuilder = Property(
-                                        clrType, propertyName, typeConfigurationSource: null,
-                                        configurationSource: ConfigurationSource.Convention);
+                                var propertyBuilder = Property(
+                                    clrType, propertyName, typeConfigurationSource: null,
+                                    configurationSource: ConfigurationSource.Convention);
 
-                                    if (clrType.IsNullableType())
-                                    {
-                                        propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
-                                    }
-
-                                    newProperties[i] = propertyBuilder.Metadata;
-                                }
-                                else
+                                if (clrType.IsNullableType())
                                 {
-                                    canReuniquify = true;
+                                    propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
                                 }
 
-                                break;
+                                newProperties[i] = propertyBuilder.Metadata;
+                            }
+                            else
+                            {
+                                canReuniquify = true;
                             }
 
-                            var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
-                            if (currentProperty != null)
-                            {
-                                if (currentProperty.IsShadowProperty()
-                                    && currentProperty.ClrType != clrType
-                                    && isRequired)
-                                {
-                                    canReuniquify = true;
-                                }
+                            break;
+                        }
 
-                                break;
+                        var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
+                        if (currentProperty != null)
+                        {
+                            if (currentProperty.IsShadowProperty()
+                                && currentProperty.ClrType != clrType
+                                && isRequired)
+                            {
+                                canReuniquify = true;
                             }
+
+                            break;
                         }
                     }
                 }

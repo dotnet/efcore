@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -20,29 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public readonly struct RelationalCommandParameterObject
     {
-        /// <summary>
-        ///     <para>
-        ///         Creates a new parameter object for the given parameters.
-        ///     </para>
-        ///     <para>
-        ///         This type is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        /// </summary>
-        /// <param name="connection"> The connection on which the command will execute. </param>
-        /// <param name="parameterValues"> The SQL parameter values to use, or null if none. </param>
-        /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
-        /// <param name="logger"> A logger, or null if no logger is available. </param>
-        [Obsolete("Use the overload with the readerColumns parameter")]
-        public RelationalCommandParameterObject(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues,
-            [CanBeNull] DbContext context,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-            : this(connection, parameterValues, null, context, logger)
-        {
-        }
-
         /// <summary>
         ///     <para>
         ///         Creates a new parameter object for the given parameters.

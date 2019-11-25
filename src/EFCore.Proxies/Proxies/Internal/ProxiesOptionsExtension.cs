@@ -98,13 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 var internalServiceProvider = options.FindExtension<CoreOptionsExtension>()?.InternalServiceProvider;
                 if (internalServiceProvider != null)
                 {
-                    using (var scope = internalServiceProvider.CreateScope())
+                    using var scope = internalServiceProvider.CreateScope();
+                    var conventionPlugins = scope.ServiceProvider.GetService<IEnumerable<IConventionSetPlugin>>();
+                    if (conventionPlugins?.Any(s => s is ProxiesConventionSetPlugin) == false)
                     {
-                        var conventionPlugins = scope.ServiceProvider.GetService<IEnumerable<IConventionSetPlugin>>();
-                        if (conventionPlugins?.Any(s => s is ProxiesConventionSetPlugin) == false)
-                        {
-                            throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
-                        }
+                        throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
                     }
                 }
             }

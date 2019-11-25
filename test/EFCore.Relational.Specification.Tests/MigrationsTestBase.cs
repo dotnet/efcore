@@ -70,237 +70,205 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Can_apply_all_migrations()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                db.Database.EnsureDeleted();
+            using var db = Fixture.CreateContext();
+            db.Database.EnsureDeleted();
 
-                GiveMeSomeTime(db);
+            GiveMeSomeTime(db);
 
-                db.Database.Migrate();
+            db.Database.Migrate();
 
-                var history = db.GetService<IHistoryRepository>();
-                Assert.Collection(
-                    history.GetAppliedMigrations(),
-                    x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
-                    x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
-                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
-            }
+            var history = db.GetService<IHistoryRepository>();
+            Assert.Collection(
+                history.GetAppliedMigrations(),
+                x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+                x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
+                x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
         }
 
         [ConditionalFact]
         public virtual void Can_apply_one_migration()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                db.Database.EnsureDeleted();
+            using var db = Fixture.CreateContext();
+            db.Database.EnsureDeleted();
 
-                GiveMeSomeTime(db);
+            GiveMeSomeTime(db);
 
-                var migrator = db.GetService<IMigrator>();
-                migrator.Migrate("Migration1");
+            var migrator = db.GetService<IMigrator>();
+            migrator.Migrate("Migration1");
 
-                var history = db.GetService<IHistoryRepository>();
-                Assert.Collection(
-                    history.GetAppliedMigrations(),
-                    x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
-            }
+            var history = db.GetService<IHistoryRepository>();
+            Assert.Collection(
+                history.GetAppliedMigrations(),
+                x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
         }
 
         [ConditionalFact]
         public virtual void Can_revert_all_migrations()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                db.Database.EnsureDeleted();
+            using var db = Fixture.CreateContext();
+            db.Database.EnsureDeleted();
 
-                GiveMeSomeTime(db);
+            GiveMeSomeTime(db);
 
-                db.Database.Migrate();
+            db.Database.Migrate();
 
-                var migrator = db.GetService<IMigrator>();
-                migrator.Migrate(Migration.InitialDatabase);
+            var migrator = db.GetService<IMigrator>();
+            migrator.Migrate(Migration.InitialDatabase);
 
-                var history = db.GetService<IHistoryRepository>();
-                Assert.Empty(history.GetAppliedMigrations());
-            }
+            var history = db.GetService<IHistoryRepository>();
+            Assert.Empty(history.GetAppliedMigrations());
         }
 
         [ConditionalFact]
         public virtual void Can_revert_one_migrations()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                db.Database.EnsureDeleted();
+            using var db = Fixture.CreateContext();
+            db.Database.EnsureDeleted();
 
-                GiveMeSomeTime(db);
+            GiveMeSomeTime(db);
 
-                db.Database.Migrate();
+            db.Database.Migrate();
 
-                var migrator = db.GetService<IMigrator>();
-                migrator.Migrate("Migration1");
+            var migrator = db.GetService<IMigrator>();
+            migrator.Migrate("Migration1");
 
-                var history = db.GetService<IHistoryRepository>();
-                Assert.Collection(
-                    history.GetAppliedMigrations(),
-                    x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
-            }
+            var history = db.GetService<IHistoryRepository>();
+            Assert.Collection(
+                history.GetAppliedMigrations(),
+                x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
         }
 
         [ConditionalFact]
         public virtual async Task Can_apply_all_migrations_async()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                await db.Database.EnsureDeletedAsync();
+            using var db = Fixture.CreateContext();
+            await db.Database.EnsureDeletedAsync();
 
-                await GiveMeSomeTimeAsync(db);
+            await GiveMeSomeTimeAsync(db);
 
-                await db.Database.MigrateAsync();
+            await db.Database.MigrateAsync();
 
-                var history = db.GetService<IHistoryRepository>();
-                Assert.Collection(
-                    await history.GetAppliedMigrationsAsync(),
-                    x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
-                    x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
-                    x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
-            }
+            var history = db.GetService<IHistoryRepository>();
+            Assert.Collection(
+                await history.GetAppliedMigrationsAsync(),
+                x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+                x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
+                x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_no_migration_script()
         {
-            using (var db = Fixture.CreateEmptyContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateEmptyContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(migrator.GenerateScript());
-            }
+            SetSql(migrator.GenerateScript());
         }
 
         [ConditionalFact]
         public virtual void Can_generate_migration_from_initial_database_to_initial()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
-            }
+            SetSql(migrator.GenerateScript(fromMigration: Migration.InitialDatabase, toMigration: Migration.InitialDatabase));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_up_scripts()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(migrator.GenerateScript());
-            }
+            SetSql(migrator.GenerateScript());
         }
 
         [ConditionalFact]
         public virtual void Can_generate_one_up_script()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(migrator.GenerateScript(fromMigration: "00000000000001_Migration1", toMigration: "00000000000002_Migration2"));
-            }
+            SetSql(migrator.GenerateScript(fromMigration: "00000000000001_Migration1", toMigration: "00000000000002_Migration2"));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_up_script_using_names()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(migrator.GenerateScript(fromMigration: "Migration1", toMigration: "Migration2"));
-            }
+            SetSql(migrator.GenerateScript(fromMigration: "Migration1", toMigration: "Migration2"));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_idempotent_up_scripts()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(migrator.GenerateScript(idempotent: true));
-            }
+            SetSql(migrator.GenerateScript(idempotent: true));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_down_scripts()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(
-                    migrator.GenerateScript(
-                        fromMigration: "Migration2",
-                        toMigration: Migration.InitialDatabase));
-            }
+            SetSql(
+                migrator.GenerateScript(
+                    fromMigration: "Migration2",
+                    toMigration: Migration.InitialDatabase));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_one_down_script()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(
-                    migrator.GenerateScript(
-                        fromMigration: "00000000000002_Migration2",
-                        toMigration: "00000000000001_Migration1"));
-            }
+            SetSql(
+                migrator.GenerateScript(
+                    fromMigration: "00000000000002_Migration2",
+                    toMigration: "00000000000001_Migration1"));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_down_script_using_names()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(
-                    migrator.GenerateScript(
-                        fromMigration: "Migration2",
-                        toMigration: "Migration1"));
-            }
+            SetSql(
+                migrator.GenerateScript(
+                    fromMigration: "Migration2",
+                    toMigration: "Migration1"));
         }
 
         [ConditionalFact]
         public virtual void Can_generate_idempotent_down_scripts()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
 
-                SetSql(
-                    migrator.GenerateScript(
-                        fromMigration: "Migration2",
-                        toMigration: Migration.InitialDatabase,
-                        idempotent: true));
-            }
+            SetSql(
+                migrator.GenerateScript(
+                    fromMigration: "Migration2",
+                    toMigration: Migration.InitialDatabase,
+                    idempotent: true));
         }
 
         [ConditionalFact]
         public virtual void Can_get_active_provider()
         {
-            using (var db = Fixture.CreateContext())
-            {
-                var migrator = db.GetService<IMigrator>();
-                MigrationsFixtureBase.ActiveProvider = null;
+            using var db = Fixture.CreateContext();
+            var migrator = db.GetService<IMigrator>();
+            MigrationsFixtureBase.ActiveProvider = null;
 
-                migrator.GenerateScript(toMigration: "Migration1");
+            migrator.GenerateScript(toMigration: "Migration1");
 
-                ActiveProvider = MigrationsFixtureBase.ActiveProvider;
-            }
+            ActiveProvider = MigrationsFixtureBase.ActiveProvider;
         }
 
         /// <summary>
@@ -310,30 +278,28 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual async Task Can_execute_operations()
         {
-            using (var db = Fixture.CreateContext())
+            using var db = Fixture.CreateContext();
+            await db.Database.EnsureDeletedAsync();
+
+            await GiveMeSomeTimeAsync(db);
+
+            await db.Database.EnsureCreatedAsync();
+
+            var services = db.GetInfrastructure();
+            var connection = db.Database.GetDbConnection();
+
+            await db.Database.OpenConnectionAsync();
+
+            try
             {
-                await db.Database.EnsureDeletedAsync();
-
-                await GiveMeSomeTimeAsync(db);
-
-                await db.Database.EnsureCreatedAsync();
-
-                var services = db.GetInfrastructure();
-                var connection = db.Database.GetDbConnection();
-
-                await db.Database.OpenConnectionAsync();
-
-                try
-                {
-                    await ExecuteAsync(services, BuildFirstMigration);
-                    await AssertFirstMigrationAsync(connection);
-                    await ExecuteAsync(services, BuildSecondMigration);
-                    await AssertSecondMigrationAsync(connection);
-                }
-                finally
-                {
-                    await db.Database.CloseConnectionAsync();
-                }
+                await ExecuteAsync(services, BuildFirstMigration);
+                await AssertFirstMigrationAsync(connection);
+                await ExecuteAsync(services, BuildSecondMigration);
+                await AssertSecondMigrationAsync(connection);
+            }
+            finally
+            {
+                await db.Database.CloseConnectionAsync();
             }
         }
 

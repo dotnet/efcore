@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -248,6 +249,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return rowNumberExpression.Update(partitions, orderings);
         }
 
+        protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
+        {
+            var canOptimize = _canOptimize;
+            _canOptimize = false;
+            var subquery = (SelectExpression)Visit(scalarSubqueryExpression.Subquery);
+            _canOptimize = canOptimize;
+
+            return scalarSubqueryExpression.Update(subquery);
+        }
+
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {
             var changed = false;
@@ -389,8 +400,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var leftUnary = newLeft as SqlUnaryExpression;
                 var rightUnary = newRight as SqlUnaryExpression;
 
-                var leftNegated = leftUnary?.OperatorType == ExpressionType.Not;
-                var rightNegated = rightUnary?.OperatorType == ExpressionType.Not;
+                var leftNegated = leftUnary?.IsLogicalNot() == true;
+                var rightNegated = rightUnary?.IsLogicalNot() == true;
 
                 if (leftNegated)
                 {
@@ -581,16 +592,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _canOptimize = canOptimize;
 
             return sqlCastExpression.Update(newOperand);
-        }
-
-        protected override Expression VisitSubSelect(ScalarSubqueryExpression scalarSubqueryExpression)
-        {
-            var canOptimize = _canOptimize;
-            _canOptimize = false;
-            var subquery = (SelectExpression)Visit(scalarSubqueryExpression.Subquery);
-            _canOptimize = canOptimize;
-
-            return scalarSubqueryExpression.Update(subquery);
         }
 
         protected override Expression VisitTable(TableExpression tableExpression)

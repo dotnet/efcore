@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var name = entityType.GetPartitionKeyPropertyName();
             if (name != null)
             {
-                return entityType.FindProperty(name).GetPropertyName();
+                return entityType.FindProperty(name).GetJsonPropertyName();
             }
 
             return CosmosClientWrapper.DefaultPartitionKey;
