@@ -35,7 +35,114 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(nameof(Order.Products), navigation.Name);
             Assert.Null(navigation.FieldInfo);
             Assert.NotNull(navigation.PropertyInfo);
+            Assert.Equal(ConfigurationSource.Convention, navigation.GetForeignKeyConfigurationSource());
+            Assert.Null(navigation.GetInverseConfigurationSource());
             Assert.Equal(ConfigurationSource.Convention, navigation.GetConfigurationSource());
+        }
+
+        [ConditionalFact]
+        public void Can_set_foreign_key()
+        {
+            var model = (IConventionModel)CreateModel();
+            var firstEntity = model.AddEntityType(typeof(Order));
+            var firstIdProperty = firstEntity.AddProperty(Order.IdProperty);
+            var firstKey = firstEntity.AddKey(firstIdProperty);
+            var secondEntity = model.AddEntityType(typeof(Product));
+            var associationEntityBuilder = model.AddEntityType(typeof(OrderProduct));
+            var orderIdProperty = associationEntityBuilder.AddProperty(OrderProduct.OrderIdProperty);
+            var firstFk = associationEntityBuilder
+                .AddForeignKey(new[] { orderIdProperty }, firstKey, firstEntity);
+
+            var navigation = firstEntity.AddSkipNavigation(nameof(Order.Products), null, secondEntity, null, true, true);
+
+            Assert.Null(navigation.ForeignKey);
+            Assert.Null(navigation.GetForeignKeyConfigurationSource());
+
+            navigation.SetForeignKey(firstFk, fromDataAnnotation: true);
+
+            Assert.Same(firstFk, navigation.ForeignKey);
+            Assert.Equal(ConfigurationSource.DataAnnotation, navigation.GetForeignKeyConfigurationSource());
+
+            navigation.SetForeignKey(null);
+
+            Assert.Null(navigation.ForeignKey);
+            Assert.Null(navigation.GetForeignKeyConfigurationSource());
+        }
+
+
+        [ConditionalFact]
+        public void Setting_foreign_key_to_skip_navigation_with_wrong_dependent_throws()
+        {
+            var model = CreateModel();
+            var orderEntity = model.AddEntityType(typeof(Order));
+            var orderIdProperty = orderEntity.AddProperty(Order.IdProperty);
+            var orderKey = orderEntity.AddKey(orderIdProperty);
+            var productEntity = model.AddEntityType(typeof(Product));
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderProductFkProperty = orderProductEntity.AddProperty(nameof(OrderProduct.OrderId), typeof(int));
+            var orderProductForeignKey = orderProductEntity.AddForeignKey(orderProductFkProperty, orderKey, orderEntity);
+
+            var navigation = orderEntity.AddSkipNavigation(
+                        nameof(Order.Products), null, productEntity, null, true, false);
+
+            Assert.Equal(
+                CoreStrings.SkipNavigationForeignKeyWrongDependentType(
+                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(Order.Products), nameof(Order), nameof(OrderProduct)),
+                Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
+        }
+
+        [ConditionalFact]
+        public void Setting_foreign_key_to_skip_navigation_with_wrong_principal_throws()
+        {
+            var model = CreateModel();
+            var orderEntity = model.AddEntityType(typeof(Order));
+            var orderIdProperty = orderEntity.AddProperty(Order.IdProperty);
+            var orderKey = orderEntity.AddKey(orderIdProperty);
+            var productEntity = model.AddEntityType(typeof(Product));
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderProductFkProperty = orderProductEntity.AddProperty(nameof(OrderProduct.OrderId), typeof(int));
+            var orderProductForeignKey = orderProductEntity.AddForeignKey(orderProductFkProperty, orderKey, orderEntity);
+
+            var navigation = orderProductEntity.AddSkipNavigation(
+                        nameof(OrderProduct.Order), null, orderEntity, null, false, true);
+
+            Assert.Equal(
+                CoreStrings.SkipNavigationForeignKeyWrongPrincipalType(
+                    "{'" + nameof(OrderProduct.OrderId) + "'}", nameof(OrderProduct.Order), nameof(OrderProduct), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() => navigation.SetForeignKey(orderProductForeignKey)).Message);
+        }
+
+        [ConditionalFact]
+        public void Setting_foreign_key_with_wrong_inverse_throws()
+        {
+            var model = CreateModel();
+            var orderEntity = model.AddEntityType(typeof(Order));
+            var orderIdProperty = orderEntity.AddProperty(Order.IdProperty);
+            var orderKey = orderEntity.AddKey(orderIdProperty);
+            var productEntity = model.AddEntityType(typeof(Product));
+            var productIdProperty = productEntity.AddProperty(Product.IdProperty);
+            var productKey = productEntity.AddKey(productIdProperty);
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderProductFkProperty = orderProductEntity.AddProperty(OrderProduct.OrderIdProperty);
+            var orderProductForeignKey = orderProductEntity
+                .AddForeignKey(new[] { orderProductFkProperty }, orderKey, orderEntity);
+            var productFkProperty = productEntity.AddProperty("Fk", typeof(int));
+            var productOrderForeignKey = productEntity
+                .AddForeignKey(new[] { productFkProperty }, productKey, productEntity);
+
+            var productsNavigation = orderEntity.AddSkipNavigation(
+                nameof(Order.Products), null, productEntity, null, true, true);
+
+            var ordersNavigation = productEntity.AddSkipNavigation(
+                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, true);
+
+            productsNavigation.SetInverse(ordersNavigation);
+
+            Assert.Equal(CoreStrings.SkipInverseMismatchedForeignKey(
+                   "{'" + orderProductFkProperty.Name + "'}",
+                   nameof(Order.Products), nameof(OrderProduct),
+                   nameof(Product.Orders), nameof(Product)),
+                Assert.Throws<InvalidOperationException>(() => productsNavigation.SetForeignKey(orderProductForeignKey)).Message);
         }
 
         [ConditionalFact]

@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] IConventionEntityType targetEntityType,
-            [NotNull] IConventionForeignKey foreignKey,
+            [CanBeNull] IConventionForeignKey foreignKey,
             bool collection,
             bool onPrincipal,
             bool fromDataAnnotation = false);

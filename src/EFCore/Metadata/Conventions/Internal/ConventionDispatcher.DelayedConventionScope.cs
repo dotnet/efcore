@@ -237,6 +237,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return annotation;
             }
 
+            public override IConventionForeignKey OnSkipNavigationForeignKeyChanged(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                IConventionForeignKey foreignKey,
+                IConventionForeignKey oldForeignKey)
+            {
+                Add(new OnSkipNavigationForeignKeyChangedNode(navigationBuilder, foreignKey, oldForeignKey));
+                return foreignKey;
+            }
+
             public override IConventionSkipNavigation OnSkipNavigationInverseChanged(
                 IConventionSkipNavigationBuilder navigationBuilder,
                 IConventionSkipNavigation inverse,
@@ -684,6 +693,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnSkipNavigationAnnotationChanged(
                     NavigationBuilder, Name, Annotation, OldAnnotation);
+        }
+
+        private sealed class OnSkipNavigationForeignKeyChangedNode : ConventionNode
+        {
+            public OnSkipNavigationForeignKeyChangedNode(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                IConventionForeignKey foreignKey,
+                IConventionForeignKey oldForeignKey)
+            {
+                NavigationBuilder = navigationBuilder;
+                ForeignKey = foreignKey;
+                OldForeignKey = oldForeignKey;
+            }
+
+            public IConventionSkipNavigationBuilder NavigationBuilder { get; }
+            public IConventionForeignKey ForeignKey { get; }
+            public IConventionForeignKey OldForeignKey { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnSkipNavigationForeignKeyChanged(NavigationBuilder, ForeignKey, OldForeignKey);
         }
 
         private sealed class OnSkipNavigationInverseChangedNode : ConventionNode

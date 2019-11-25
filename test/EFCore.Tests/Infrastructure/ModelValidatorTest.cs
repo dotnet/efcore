@@ -506,6 +506,29 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_missing_foreign_key_for_skip_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var productEntity = model.FindEntityType(typeof(Product));
+            var orderProductForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
+            var productOrderForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
+            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+
+            var productsNavigation = orderEntity.AddSkipNavigation(
+                nameof(Order.Products), null, productEntity, null, true, true);
+
+            VerifyError(
+                CoreStrings.SkipNavigationNoForeignKey(nameof(Order.Products), nameof(Order)),
+                model);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_missing_inverse_skip_navigations()
         {
             var modelBuilder = CreateConventionalModelBuilder();

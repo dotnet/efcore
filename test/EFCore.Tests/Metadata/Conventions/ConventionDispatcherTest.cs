@@ -2079,6 +2079,102 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [InlineData(false, true)]
         //[InlineData(true, true)]
         [ConditionalTheory]
+        public void OnSkipNavigationForeignKeyChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new SkipNavigationForeignKeyChangedConvention(terminate: false);
+            var convention2 = new SkipNavigationForeignKeyChangedConvention(terminate: true);
+            var convention3 = new SkipNavigationForeignKeyChangedConvention(terminate: false);
+            conventions.SkipNavigationForeignKeyChangedConventions.Add(convention1);
+            conventions.SkipNavigationForeignKeyChangedConventions.Add(convention2);
+            conventions.SkipNavigationForeignKeyChangedConventions.Add(convention3);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+            var firstEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var secondEntityBuilder = builder.Entity(typeof(Product), ConfigurationSource.Convention);
+            var associationEntityBuilder = builder.Entity(typeof(OrderProduct), ConfigurationSource.Convention);
+
+            var firstFk = associationEntityBuilder
+                .HasRelationship(typeof(Order), new[] { OrderProduct.OrderIdProperty }, ConfigurationSource.Convention)
+                .IsUnique(false, ConfigurationSource.Convention)
+                .Metadata;
+            var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
+                nameof(Order.Products), null, secondEntityBuilder.Metadata, null, true, true, ConfigurationSource.Convention);
+
+            var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+            if (useBuilder)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                navigation.SetForeignKey(firstFk, ConfigurationSource.Explicit);
+            }
+
+            if (useScope)
+            {
+                Assert.Empty(convention1.Calls);
+                Assert.Empty(convention2.Calls);
+                scope.Dispose();
+            }
+
+            Assert.Equal(new[] { firstFk }, convention1.Calls);
+            Assert.Equal(new[] { firstFk }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            if (useBuilder)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                navigation.SetForeignKey(null, ConfigurationSource.Explicit);
+            }
+
+            Assert.Equal(new ForeignKey[] { firstFk, null }, convention1.Calls);
+            Assert.Equal(new ForeignKey[] { firstFk, null }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+        }
+
+        private class SkipNavigationForeignKeyChangedConvention : ISkipNavigationForeignKeyChangedConvention
+        {
+            private readonly bool _terminate;
+            public readonly List<object> Calls = new List<object>();
+
+            public SkipNavigationForeignKeyChangedConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public virtual void ProcessSkipNavigationForeignKeyChanged(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                IConventionForeignKey foreignKey,
+                IConventionForeignKey oldForeignKey,
+                IConventionContext<IConventionForeignKey> context)
+            {
+                Assert.NotNull(navigationBuilder.Metadata.Builder);
+
+                Calls.Add(foreignKey);
+
+                if (foreignKey == null)
+                {
+                    Assert.NotNull(oldForeignKey);
+                }
+
+                if (_terminate)
+                {
+                    context.StopProcessing();
+                }
+            }
+        }
+
+        [InlineData(false, false)]
+        //[InlineData(true, false)]
+        [InlineData(false, true)]
+        //[InlineData(true, true)]
+        [ConditionalTheory]
         public void OnSkipNavigationInverseChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();
