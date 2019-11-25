@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
@@ -122,5 +123,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <returns> The newly created navigation property. </returns>
         IMutableNavigation HasPrincipalToDependent([CanBeNull] MemberInfo property);
+
+        /// <summary>
+        ///     Gets all skip navigations using this foreign key.
+        /// </summary>
+        /// <returns> The skip navigations using this foreign key. </returns>
+        new IEnumerable<IMutableSkipNavigation> GetReferencingSkipNavigations()
+            => ((IForeignKey)this).GetReferencingSkipNavigations().Cast<IMutableSkipNavigation>();
     }
 }

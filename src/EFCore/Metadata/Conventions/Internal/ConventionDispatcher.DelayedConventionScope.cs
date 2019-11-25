@@ -199,6 +199,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return navigation;
             }
 
+            public override IConventionAnnotation OnNavigationAnnotationChanged(
+                IConventionRelationshipBuilder relationshipBuilder,
+                IConventionNavigation navigation,
+                string name,
+                IConventionAnnotation annotation,
+                IConventionAnnotation oldAnnotation)
+            {
+                Add(new OnNavigationAnnotationChangedNode(relationshipBuilder, navigation, name, annotation, oldAnnotation));
+                return annotation;
+            }
+
             public override string OnNavigationRemoved(
                 IConventionEntityTypeBuilder sourceEntityTypeBuilder,
                 IConventionEntityTypeBuilder targetEntityTypeBuilder,
@@ -207,6 +218,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 Add(new OnNavigationRemovedNode(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, memberInfo));
                 return navigationName;
+            }
+
+            public override IConventionSkipNavigationBuilder OnSkipNavigationAdded(
+                IConventionSkipNavigationBuilder navigationBuilder)
+            {
+                Add(new OnSkipNavigationAddedNode(navigationBuilder));
+                return navigationBuilder;
+            }
+
+            public override IConventionAnnotation OnSkipNavigationAnnotationChanged(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                string name,
+                IConventionAnnotation annotation,
+                IConventionAnnotation oldAnnotation)
+            {
+                Add(new OnSkipNavigationAnnotationChangedNode(navigationBuilder, name, annotation, oldAnnotation));
+                return annotation;
+            }
+
+            public override IConventionSkipNavigation OnSkipNavigationInverseChanged(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                IConventionSkipNavigation inverse,
+                IConventionSkipNavigation oldInverse)
+            {
+                Add(new OnSkipNavigationInverseChangedNode(navigationBuilder, inverse, oldInverse));
+                return inverse;
+            }
+
+            public override IConventionSkipNavigation OnSkipNavigationRemoved(
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionSkipNavigation navigation)
+            {
+                Add(new OnSkipNavigationRemovedNode(entityTypeBuilder, navigation));
+                return navigation;
             }
 
             public override IConventionRelationshipBuilder OnForeignKeyPropertiesChanged(
@@ -273,6 +318,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             {
                 Add(new OnPropertyAnnotationChangedNode(propertyBuilder, name, annotation, oldAnnotation));
                 return annotation;
+            }
+
+            public override IConventionProperty OnPropertyRemoved(
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionProperty property)
+            {
+                Add(new OnPropertyRemovedNode(entityTypeBuilder, property));
+                return property;
             }
         }
 
@@ -545,6 +598,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 => dispatcher._immediateConventionScope.OnNavigationAdded(RelationshipBuilder, Navigation);
         }
 
+        private sealed class OnNavigationAnnotationChangedNode : ConventionNode
+        {
+            public OnNavigationAnnotationChangedNode(
+                IConventionRelationshipBuilder relationshipBuilder,
+                IConventionNavigation navigation,
+                string name,
+                IConventionAnnotation annotation,
+                IConventionAnnotation oldAnnotation)
+            {
+                RelationshipBuilder = relationshipBuilder;
+                Navigation = navigation;
+                Name = name;
+                Annotation = annotation;
+                OldAnnotation = oldAnnotation;
+            }
+
+            public IConventionRelationshipBuilder RelationshipBuilder { get; }
+            public IConventionNavigation Navigation { get; }
+            public string Name { get; }
+            public IConventionAnnotation Annotation { get; }
+            public IConventionAnnotation OldAnnotation { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnNavigationAnnotationChanged(
+                    RelationshipBuilder, Navigation, Name, Annotation, OldAnnotation);
+        }
+
         private sealed class OnNavigationRemovedNode : ConventionNode
         {
             public OnNavigationRemovedNode(
@@ -567,6 +647,80 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnNavigationRemoved(
                     SourceEntityTypeBuilder, TargetEntityTypeBuilder, NavigationName, MemberInfo);
+        }
+
+        private sealed class OnSkipNavigationAddedNode : ConventionNode
+        {
+            public OnSkipNavigationAddedNode(IConventionSkipNavigationBuilder navigationBuilder)
+            {
+                NavigationBuilder = navigationBuilder;
+            }
+
+            public IConventionSkipNavigationBuilder NavigationBuilder { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnSkipNavigationAdded(NavigationBuilder);
+        }
+
+        private sealed class OnSkipNavigationAnnotationChangedNode : ConventionNode
+        {
+            public OnSkipNavigationAnnotationChangedNode(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                string name,
+                IConventionAnnotation annotation,
+                IConventionAnnotation oldAnnotation)
+            {
+                NavigationBuilder = navigationBuilder;
+                Name = name;
+                Annotation = annotation;
+                OldAnnotation = oldAnnotation;
+            }
+
+            public IConventionSkipNavigationBuilder NavigationBuilder { get; }
+            public string Name { get; }
+            public IConventionAnnotation Annotation { get; }
+            public IConventionAnnotation OldAnnotation { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnSkipNavigationAnnotationChanged(
+                    NavigationBuilder, Name, Annotation, OldAnnotation);
+        }
+
+        private sealed class OnSkipNavigationInverseChangedNode : ConventionNode
+        {
+            public OnSkipNavigationInverseChangedNode(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                IConventionSkipNavigation inverse,
+                IConventionSkipNavigation oldInverse)
+            {
+                NavigationBuilder = navigationBuilder;
+                Inverse = inverse;
+                OldInverse = oldInverse;
+            }
+
+            public IConventionSkipNavigationBuilder NavigationBuilder { get; }
+            public IConventionSkipNavigation Inverse { get; }
+            public IConventionSkipNavigation OldInverse { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnSkipNavigationInverseChanged(NavigationBuilder, Inverse, OldInverse);
+        }
+
+        private sealed class OnSkipNavigationRemovedNode : ConventionNode
+        {
+            public OnSkipNavigationRemovedNode(
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionSkipNavigation navigation)
+            {
+                EntityTypeBuilder = entityTypeBuilder;
+                Navigation = navigation;
+            }
+
+            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
+            public IConventionSkipNavigation Navigation { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnSkipNavigationRemoved(EntityTypeBuilder, Navigation);
         }
 
         private sealed class OnKeyAddedNode : ConventionNode
@@ -767,6 +921,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnPropertyAnnotationChanged(
                     PropertyBuilder, Name, Annotation, OldAnnotation);
+        }
+
+        private sealed class OnPropertyRemovedNode : ConventionNode
+        {
+            public OnPropertyRemovedNode(
+                IConventionEntityTypeBuilder entityTypeBuilder,
+                IConventionProperty property)
+            {
+                EntityTypeBuilder = entityTypeBuilder;
+                Property = property;
+            }
+
+            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
+            public IConventionProperty Property { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnPropertyRemoved(EntityTypeBuilder, Property);
         }
     }
 }

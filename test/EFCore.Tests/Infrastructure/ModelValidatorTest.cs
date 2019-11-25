@@ -479,6 +479,56 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_on_valid_many_to_many_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var productEntity = model.FindEntityType(typeof(Product));
+            var orderProductForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
+            var productOrderForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
+            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+
+            var productsNavigation = orderEntity.AddSkipNavigation(
+                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, true);
+
+            var ordersNavigation = productEntity.AddSkipNavigation(
+                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, true);
+
+            productsNavigation.SetInverse(ordersNavigation);
+            ordersNavigation.SetInverse(productsNavigation);
+
+            Validate(model);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_missing_inverse_skip_navigations()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+
+            var model = modelBuilder.Model;
+            var orderProductEntity = model.AddEntityType(typeof(OrderProduct));
+            var orderEntity = model.FindEntityType(typeof(Order));
+            var productEntity = model.FindEntityType(typeof(Product));
+            var orderProductForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == orderEntity);
+            var productOrderForeignKey = orderProductEntity
+                .GetForeignKeys().Single(fk => fk.PrincipalEntityType == productEntity);
+            orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
+
+            var productsNavigation = orderEntity.AddSkipNavigation(
+                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, true);
+
+            VerifyError(
+                CoreStrings.SkipNavigationNoInverse(nameof(Order.Products), nameof(Order)),
+                model);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_on_valid_owned_entity_types()
         {
             var modelBuilder = CreateConventionlessModelBuilder().GetInfrastructure();

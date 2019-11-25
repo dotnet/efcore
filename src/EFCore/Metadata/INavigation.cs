@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface INavigation : IPropertyBase
     {
         /// <summary>
-        ///     Gets the entity type that this property belongs to.
+        ///     Gets the entity type that this navigation property belongs to.
         /// </summary>
         IEntityType DeclaringEntityType { get; }
 

@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The inverse navigation, or <c>null</c> if none is defined.
         /// </returns>
         public static IMutableNavigation FindInverse([NotNull] this IMutableNavigation navigation)
-            => (IMutableNavigation)((INavigation)navigation).FindInverse();
+            => ((Navigation)navigation).FindInverse();
 
         /// <summary>
         ///     Gets the entity type that a given navigation property will hold an instance of
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="navigation"> The navigation property to find the target entity type of. </param>
         /// <returns> The target entity type. </returns>
         public static IMutableEntityType GetTargetType([NotNull] this IMutableNavigation navigation)
-            => (IMutableEntityType)((INavigation)navigation).GetTargetType();
+            => ((Navigation)navigation).GetTargetType();
 
         /// <summary>
         ///     Sets a value indicating whether this navigation should be eager loaded by default.

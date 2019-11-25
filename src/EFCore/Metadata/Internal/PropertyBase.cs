@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsCompatible(
             [NotNull] FieldInfo fieldInfo,
-            [NotNull] Type propertyType,
+            [CanBeNull] Type propertyType,
             [CanBeNull] Type entityClrType,
             [CanBeNull] string propertyName,
             bool shouldThrow)
@@ -203,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var fieldTypeInfo = fieldInfo.FieldType;
-            if (!fieldTypeInfo.IsAssignableFrom(propertyType)
+            if (propertyType != null
+                && !fieldTypeInfo.IsAssignableFrom(propertyType)
                 && !propertyType.IsAssignableFrom(fieldTypeInfo))
             {
                 if (shouldThrow)

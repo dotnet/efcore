@@ -141,6 +141,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [NotNull] string navigationName,
                 [CanBeNull] MemberInfo memberInfo);
 
+            public abstract IConventionAnnotation OnNavigationAnnotationChanged(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+                [NotNull] IConventionNavigation navigation,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull] IConventionAnnotation oldAnnotation);
+
+            public abstract IConventionSkipNavigationBuilder OnSkipNavigationAdded(
+                [NotNull] IConventionSkipNavigationBuilder navigationBuilder);
+
+            public abstract IConventionAnnotation OnSkipNavigationAnnotationChanged(
+                [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull] IConventionAnnotation oldAnnotation);
+
+            public abstract IConventionSkipNavigation OnSkipNavigationInverseChanged(
+                [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
+                [NotNull] IConventionSkipNavigation inverse,
+                [NotNull] IConventionSkipNavigation oldInverse);
+
+            public abstract IConventionSkipNavigation OnSkipNavigationRemoved(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [NotNull] IConventionSkipNavigation navigation);
+
             public abstract IConventionPropertyBuilder OnPropertyAdded([NotNull] IConventionPropertyBuilder propertyBuilder);
 
             public abstract IConventionAnnotation OnPropertyAnnotationChanged(
@@ -153,6 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 [NotNull] IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo);
 
             public abstract IConventionPropertyBuilder OnPropertyNullableChanged([NotNull] IConventionPropertyBuilder propertyBuilder);
+
+            public abstract IConventionProperty OnPropertyRemoved([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionProperty property);
         }
     }
 }

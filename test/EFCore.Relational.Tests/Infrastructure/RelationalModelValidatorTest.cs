@@ -723,7 +723,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
-                        .HasOne(a => (Customer)a.FavoritePerson)
+                        .HasOne(a => (Employee)a.FavoritePerson)
                         .WithMany()
                         .HasForeignKey(
                             c => new { c.Name, c.Breed })
@@ -770,7 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     et.Property(c => c.Breed).HasColumnName("Breed");
                     fk2 = et
-                        .HasOne<Customer>()
+                        .HasOne<Employee>()
                         .WithMany()
                         .HasForeignKey(
                             c => new { c.Name, c.Breed })
@@ -1081,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public string FavoriteBreed { get; set; }
         }
 
-        protected class Customer : Person
+        protected class Employee : Person
         {
         }
 

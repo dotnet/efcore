@@ -293,6 +293,89 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual IConventionAnnotation OnNavigationAnnotationChanged(
+            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+            [NotNull] IConventionNavigation navigation,
+            [NotNull] string name,
+            [CanBeNull] IConventionAnnotation annotation,
+            [CanBeNull] IConventionAnnotation oldAnnotation)
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnNavigationAnnotationChanged(
+                relationshipBuilder,
+                navigation,
+                name,
+                annotation,
+                oldAnnotation);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionSkipNavigationBuilder OnSkipNavigationAdded(
+            [NotNull] IConventionSkipNavigationBuilder navigationBuilder)
+            => _scope.OnSkipNavigationAdded(navigationBuilder);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionSkipNavigation OnSkipNavigationInverseChanged(
+            [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
+            [NotNull] IConventionSkipNavigation inverse,
+            [NotNull] IConventionSkipNavigation oldInverse)
+            => _scope.OnSkipNavigationInverseChanged(navigationBuilder, inverse, oldInverse);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionSkipNavigation OnSkipNavigationRemoved(
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+            [NotNull] IConventionSkipNavigation navigation)
+            => _scope.OnSkipNavigationRemoved(entityTypeBuilder, navigation);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionAnnotation OnSkipNavigationAnnotationChanged(
+            [NotNull] IConventionSkipNavigationBuilder navigationBuilder,
+            [NotNull] string name,
+            [CanBeNull] IConventionAnnotation annotation,
+            [CanBeNull] IConventionAnnotation oldAnnotation)
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnSkipNavigationAnnotationChanged(
+                navigationBuilder,
+                name,
+                annotation,
+                oldAnnotation);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IConventionKeyBuilder OnKeyAdded([NotNull] IConventionKeyBuilder keyBuilder)
             => _scope.OnKeyAdded(keyBuilder);
 
@@ -401,6 +484,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual IConventionPropertyBuilder OnPropertyAdded([NotNull] IConventionPropertyBuilder propertyBuilder)
             => _scope.OnPropertyAdded(propertyBuilder);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionProperty OnPropertyRemoved(
+            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+            [NotNull] IConventionProperty property)
+            => _scope.OnPropertyRemoved(entityTypeBuilder, property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

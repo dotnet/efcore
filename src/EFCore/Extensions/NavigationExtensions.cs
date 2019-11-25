@@ -62,13 +62,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         [DebuggerStepThrough]
         public static INavigation FindInverse([NotNull] this INavigation navigation)
-        {
-            Check.NotNull(navigation, nameof(navigation));
-
-            return navigation.IsDependentToPrincipal()
-                ? navigation.ForeignKey.PrincipalToDependent
-                : navigation.ForeignKey.DependentToPrincipal;
-        }
+            => ((Navigation)Check.NotNull(navigation, nameof(navigation))).FindInverse();
 
         /// <summary>
         ///     Gets the entity type that a given navigation property will hold an instance of
@@ -78,13 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The target entity type. </returns>
         [DebuggerStepThrough]
         public static IEntityType GetTargetType([NotNull] this INavigation navigation)
-        {
-            Check.NotNull(navigation, nameof(navigation));
-
-            return navigation.IsDependentToPrincipal()
-                ? navigation.ForeignKey.PrincipalEntityType
-                : navigation.ForeignKey.DeclaringEntityType;
-        }
+            => (Check.NotNull(navigation, nameof(navigation)) as Navigation)?.GetTargetType();
 
         /// <summary>
         ///     Gets a value indicating whether this navigation should be eager loaded by default.

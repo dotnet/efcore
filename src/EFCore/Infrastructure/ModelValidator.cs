@@ -107,6 +107,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     : "." + foreignKey.PrincipalToDependent.Name)));
                     }
                 }
+
+                foreach (var navigation in entityType.GetDeclaredSkipNavigations())
+                {
+                    if (!navigation.IsCollection)
+                    {
+                        throw new InvalidOperationException(CoreStrings.SkipNavigationNonCollection(
+                            navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+                    }
+
+                    if (navigation.Inverse == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.SkipNavigationNoInverse(
+                            navigation.Name, navigation.DeclaringEntityType.DisplayName()));
+                    }
+                }
             }
         }
 
@@ -155,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
+                clrProperties.ExceptWith(entityType.GetSkipNavigations().Select(p => p.Name));
                 clrProperties.ExceptWith(entityType.GetServiceProperties().Select(p => p.Name));
                 clrProperties.RemoveWhere(p => entityType.FindIgnoredConfigurationSource(p) != null);
 

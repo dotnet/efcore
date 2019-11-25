@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            // TODO: Use convention batch to get the updated builder, see #214
+            // TODO: Use convention batch to get the updated builder, see #15898
             if (keyBuilder?.Metadata.Builder == null)
             {
                 properties = GetActualProperties(properties, null);
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && property.ClrType.IsNullableType()
                         && !property.GetContainingForeignKeys().Any(fk => fk.IsRequired))
                     {
-                        // TODO: This should be handled by reference tracking, see #214
+                        // TODO: This should be handled by reference tracking, see #15898
                         property.Builder?.IsRequired(null, configurationSource);
                     }
                 }

@@ -74,6 +74,7 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(IIndex), (typeof(IMutableIndex), typeof(IConventionIndex)) },
                 { typeof(IProperty), (typeof(IMutableProperty), typeof(IConventionProperty)) },
                 { typeof(INavigation), (typeof(IMutableNavigation), typeof(IConventionNavigation)) },
+                { typeof(ISkipNavigation), (typeof(IMutableSkipNavigation), typeof(IConventionSkipNavigation)) },
                 { typeof(IServiceProperty), (typeof(IMutableServiceProperty), typeof(IConventionServiceProperty)) },
                 { typeof(IPropertyBase), (typeof(IMutablePropertyBase), typeof(IConventionPropertyBase)) },
                 { typeof(ModelExtensions), (typeof(MutableModelExtensions), typeof(ConventionModelExtensions)) },

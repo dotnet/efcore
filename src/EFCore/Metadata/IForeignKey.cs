@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -68,5 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         DeleteBehavior DeleteBehavior { get; }
+
+        /// <summary>
+        ///     Gets all skip navigations using this foreign key.
+        /// </summary>
+        /// <returns> The skip navigations using this foreign key. </returns>
+        IEnumerable<ISkipNavigation> GetReferencingSkipNavigations()
+            => PrincipalEntityType.GetSkipNavigations().Where(n => n.IsOnPrincipal && n.ForeignKey == this)
+            .Concat(DeclaringEntityType.GetSkipNavigations().Where(n => !n.IsOnPrincipal && n.ForeignKey == this));
     }
 }
