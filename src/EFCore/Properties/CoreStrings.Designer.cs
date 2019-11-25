@@ -977,14 +977,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.
-        /// </summary>
-        public static string DuplicateNavigationsOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object navigations)
-            => string.Format(
-                GetString("DuplicateNavigationsOnBase", nameof(entityType), nameof(baseType), nameof(navigations)),
-                entityType, baseType, navigations);
-
-        /// <summary>
         ///     The entity types '{firstEntityType}' and '{secondEntityType}' do not belong to the same model.
         /// </summary>
         public static string EntityTypeModelMismatch([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType)
@@ -1375,12 +1367,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.
+        ///     Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.
         /// </summary>
-        public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalEntityType, [CanBeNull] object newPrincipalNavigation, [CanBeNull] object newDependentEntityType, [CanBeNull] object newDependentNavigation, [CanBeNull] object existingPrincipalEntityType, [CanBeNull] object existingPrincipalNavigation, [CanBeNull] object existingDependentEntityType, [CanBeNull] object existingDependentNavigation)
+        public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalNavigationSpecification, [CanBeNull] object newDependentNavigationSpecification, [CanBeNull] object existingPrincipalNavigationSpecification, [CanBeNull] object existingDependentNavigationSpecification)
             => string.Format(
-                GetString("ConflictingRelationshipNavigation", nameof(newPrincipalEntityType), nameof(newPrincipalNavigation), nameof(newDependentEntityType), nameof(newDependentNavigation), nameof(existingPrincipalEntityType), nameof(existingPrincipalNavigation), nameof(existingDependentEntityType), nameof(existingDependentNavigation)),
-                newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);
+                GetString("ConflictingRelationshipNavigation", nameof(newPrincipalNavigationSpecification), nameof(newDependentNavigationSpecification), nameof(existingPrincipalNavigationSpecification), nameof(existingDependentNavigationSpecification)),
+                newPrincipalNavigationSpecification, newDependentNavigationSpecification, existingPrincipalNavigationSpecification, existingDependentNavigationSpecification);
 
         /// <summary>
         ///     Error generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.
@@ -1527,12 +1519,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependentType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be removed because it is referencing '{referencedEntityType}' by foreign key {foreignKey}. All foreign keys must be removed before the entity type can be removed.
+        ///     The entity type '{entityType}' cannot be removed because it is being referenced by the skip navigation '{skipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before the entity type can be removed.
         /// </summary>
-        public static string EntityTypeInUseByForeignKey([CanBeNull] object entityType, [CanBeNull] object referencedEntityType, [CanBeNull] object foreignKey)
+        public static string EntityTypeInUseByReferencingSkipNavigation([CanBeNull] object entityType, [CanBeNull] object skipNavigation, [CanBeNull] object referencingEntityType)
             => string.Format(
-                GetString("EntityTypeInUseByForeignKey", nameof(entityType), nameof(referencedEntityType), nameof(foreignKey)),
-                entityType, referencedEntityType, foreignKey);
+                GetString("EntityTypeInUseByReferencingSkipNavigation", nameof(entityType), nameof(skipNavigation), nameof(referencingEntityType)),
+                entityType, skipNavigation, referencingEntityType);
 
         /// <summary>
         ///     The entity type '{entityType}' cannot be added to the model because a weak entity type with the same name already exists.
@@ -1929,12 +1921,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ownedType);
 
         /// <summary>
-        ///     Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
-        public static string AmbiguousOwnedNavigation([CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+        public static string AmbiguousOwnedNavigation([CanBeNull] object entityTypeNavigationSpecification, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("AmbiguousOwnedNavigation", nameof(entityType), nameof(otherEntityType)),
-                entityType, otherEntityType);
+                GetString("AmbiguousOwnedNavigation", nameof(entityTypeNavigationSpecification), nameof(otherEntityType)),
+                entityTypeNavigationSpecification, otherEntityType);
 
         /// <summary>
         ///     The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.
@@ -2261,28 +2253,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreigKey, entityType, navigation, navigationEntityType);
 
         /// <summary>
-        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreignKey}.
-        /// </summary>
-        public static string SkipNavigationWrongDependentType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType, [CanBeNull] object foreignKey)
-            => string.Format(
-                GetString("SkipNavigationWrongDependentType", nameof(navigation), nameof(entityType), nameof(dependentEntityType), nameof(foreignKey)),
-                navigation, entityType, dependentEntityType, foreignKey);
-
-        /// <summary>
         ///     The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.
         /// </summary>
         public static string SkipNavigationWrongInverse([CanBeNull] object inverse, [CanBeNull] object inverseEntityType, [CanBeNull] object navigation, [CanBeNull] object targetEntityType)
             => string.Format(
                 GetString("SkipNavigationWrongInverse", nameof(inverse), nameof(inverseEntityType), nameof(navigation), nameof(targetEntityType)),
                 inverse, inverseEntityType, navigation, targetEntityType);
-
-        /// <summary>
-        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreignKey}.
-        /// </summary>
-        public static string SkipNavigationWrongPrincipalType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType, [CanBeNull] object foreignKey)
-            => string.Format(
-                GetString("SkipNavigationWrongPrincipalType", nameof(navigation), nameof(entityType), nameof(principalEntityType), nameof(foreignKey)),
-                navigation, entityType, principalEntityType, foreignKey);
 
         /// <summary>
         ///     The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
@@ -2379,6 +2355,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("CannotFindEntityWithClrTypeWhenShared", nameof(clrType)),
                 clrType);
+
+        /// <summary>
+        ///     The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.
+        /// </summary>
+        public static string SkipNavigationInUseBySkipNavigation([CanBeNull] object skipNavigation, [CanBeNull] object inverseSkipNavigation, [CanBeNull] object referencingEntityType)
+            => string.Format(
+                GetString("SkipNavigationInUseBySkipNavigation", nameof(skipNavigation), nameof(inverseSkipNavigation), nameof(referencingEntityType)),
+                skipNavigation, inverseSkipNavigation, referencingEntityType);
 
         private static string GetString(string name, params string[] formatterNames)
         {

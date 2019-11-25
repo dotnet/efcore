@@ -181,18 +181,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(
                     () => dependentOrderType.AddForeignKey(fkProperty, orderKey, dependentOrderType)).Message);
 
-            Assert.Equal(
-                CoreStrings.EntityTypeInUseByForeignKey(
-                    nameof(Customer) + "." + nameof(Customer.Orders) + "#" + nameof(Order),
-                    nameof(Customer), fk.Properties.Format()),
-                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(dependentOrderType)).Message);
-
-            dependentOrderType.RemoveForeignKey(fk.Properties, fk.PrincipalKey, fk.PrincipalEntityType);
-
             Assert.Same(
                 dependentOrderType, model.RemoveEntityType(
                     typeof(Order), nameof(Customer.Orders), customerType));
             Assert.Null(((EntityType)dependentOrderType).Builder);
+            Assert.Empty(customerType.GetReferencingForeignKeys());
         }
 
         [ConditionalFact]

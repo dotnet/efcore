@@ -2824,6 +2824,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Can_create_relationship_if_navigations_have_same_name()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                var dependentEntityTypeBuilder = modelBuilder.Entity<BaseTypeWithKeyAnnotation>();
+                var principalEntityTypeBuilder = modelBuilder.Entity<PrincipalTypeWithKeyAnnotation>();
+
+                var foreignKey1 = dependentEntityTypeBuilder.HasOne(p => p.Navigation).WithOne(d => d.Navigation).Metadata;
+
+                var foreignKey2 = principalEntityTypeBuilder.HasOne(p => p.Navigation).WithOne(d => d.Navigation).Metadata;
+
+                modelBuilder.FinalizeModel();
+
+                Assert.Same(foreignKey1, foreignKey2);
+                Assert.Same(dependentEntityTypeBuilder.Metadata, foreignKey1.DeclaringEntityType);
+                Assert.Equal(nameof(PrincipalTypeWithKeyAnnotation.Navigation), foreignKey1.DependentToPrincipal?.Name);
+                Assert.Equal(nameof(BaseTypeWithKeyAnnotation.Navigation), foreignKey1.PrincipalToDependent?.Name);
+            }
+
+            [ConditionalFact]
             public virtual void Can_specify_shadow_fk_before_configuring_principal_PK()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -3251,14 +3271,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ConflictingRelationshipNavigation(
-                        principalType.DisplayName(),
-                        nameof(Hob.Nob),
-                        dependentType.DisplayName(),
-                        nameof(Nob.Hob),
-                        dependentType.DisplayName(),
-                        nameof(Nob.Hobs),
-                        principalType.DisplayName(),
-                        nameof(Hob.Nob)),
+                        principalType.DisplayName() + "." + nameof(Hob.Nob),
+                        dependentType.DisplayName() + "." + nameof(Nob.Hob),
+                        dependentType.DisplayName() + "." + nameof(Nob.Hobs),
+                        principalType.DisplayName() + "." + nameof(Hob.Nob)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)).Message);
@@ -3304,14 +3320,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ConflictingRelationshipNavigation(
-                        principalType.DisplayName(),
-                        nameof(Hob.Nob),
-                        dependentType.DisplayName(),
-                        nameof(Nob.Hob),
-                        principalType.DisplayName(),
-                        nameof(Hob.Nobs),
-                        dependentType.DisplayName(),
-                        nameof(Nob.Hob)),
+                        principalType.DisplayName() + "." + nameof(Hob.Nob),
+                        dependentType.DisplayName() + "." + nameof(Nob.Hob),
+                        principalType.DisplayName() + "." + nameof(Hob.Nobs),
+                        dependentType.DisplayName() + "." + nameof(Nob.Hob)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder.Entity<Nob>().HasOne(e => e.Hob).WithOne(e => e.Nob)).Message);
@@ -3753,7 +3765,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_create_one_to_one_self_referencing_relationship_without_navigations()
+            public virtual void Can_create_self_referencing_relationship_without_navigations()
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<SelfRef>(
@@ -3775,7 +3787,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_create_one_to_one_relationship_if_dependent_has_matching_property_with_navigation_name()
+            public virtual void Can_create_relationship_if_dependent_has_matching_property_with_navigation_name()
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(
@@ -3800,7 +3812,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_create_one_to_one_relationship_if_dependent_has_matching_property_with_entity_type_name()
+            public virtual void Can_create_relationship_if_dependent_has_matching_property_with_entity_type_name()
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(
@@ -3825,7 +3837,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_invert_one_to_one_relationship_if_principal_has_matching_property_with_navigation_name()
+            public virtual void Can_invert_relationship_if_principal_has_matching_property_with_navigation_name()
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(b => b.Ignore(e => e.OneToOneDependentEntityId));
@@ -3850,7 +3862,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_invert_one_to_one_relationship_if_principal_has_matching_property_with_entity_type_name()
+            public virtual void Can_invert_relationship_if_principal_has_matching_property_with_entity_type_name()
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<OneToOnePrincipalEntity>(b => b.Ignore(e => e.NavOneToOneDependentEntityId));
@@ -4057,7 +4069,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_create_one_to_one_relationship_if_user_specify_foreign_key_property()
+            public virtual void Can_create_relationship_if_user_specify_foreign_key_property()
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -4077,7 +4089,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_create_one_to_one_relationship_if_user_specifies_principal_key_property()
+            public virtual void Can_create_relationship_if_user_specifies_principal_key_property()
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -4099,7 +4111,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_create_one_to_one_relationship_if_foreign_key_attribute_is_used()
+            public virtual void Can_create_relationship_if_foreign_key_attribute_is_used()
             {
                 var modelBuilder = CreateModelBuilder();
 

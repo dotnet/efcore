@@ -529,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -573,7 +573,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigation,
                 Builder.HasRelationship(
                     relatedEntityType, navigation, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: Builder.Metadata == relatedEntityType).Metadata);
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -608,25 +608,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
             var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationName);
+            var skipNavigation = navigationName != null ? Builder.Metadata.FindSkipNavigation(navigationName) : null;
 
-            InternalRelationshipBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
+            InternalRelationshipBuilder relationship = null;
+            if (skipNavigation == null)
             {
-                relationship = relatedEntityType.Builder
-                    .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
-                    .IsUnique(false, ConfigurationSource.Explicit)
-                    .HasEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit).HasNavigation(
-                        navigationName,
-                        pointsToPrincipal: false,
-                        ConfigurationSource.Explicit);
-                relationship = batch.Run(relationship);
+                relationship = Builder
+                    .HasRelationship(relatedEntityType, navigationName, ConfigurationSource.Explicit, targetIsPrincipal: false)
+                    .IsUnique(false, ConfigurationSource.Explicit);
             }
 
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
-                navigationName,
-                relationship.Metadata);
+                new MemberIdentity(navigationName),
+                relationship?.Metadata,
+                skipNavigation);
         }
 
         /// <summary>
@@ -658,27 +655,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> navigationExpression = null)
             where TRelatedEntity : class
         {
-            var navigation = navigationExpression?.GetPropertyAccess();
-            var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigation?.GetSimpleMemberName());
+            var navigationMember = navigationExpression?.GetPropertyAccess();
+            var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationMember?.GetSimpleMemberName());
+            var skipNavigation = navigationMember != null ? Builder.Metadata.FindSkipNavigation(navigationMember) : null;
 
-            InternalRelationshipBuilder relationship;
-            using (var batch = Builder.Metadata.Model.ConventionDispatcher.DelayConventions())
+            InternalRelationshipBuilder relationship = null;
+            if (skipNavigation == null)
             {
-                relationship = relatedEntityType.Builder
-                    .HasRelationship(Builder.Metadata, ConfigurationSource.Explicit)
-                    .IsUnique(false, ConfigurationSource.Explicit)
-                    .HasEntityTypes(Builder.Metadata, relatedEntityType, ConfigurationSource.Explicit).HasNavigation(
-                        navigation,
-                        pointsToPrincipal: false,
-                        ConfigurationSource.Explicit);
-                relationship = batch.Run(relationship);
+                relationship = Builder
+                    .HasRelationship(relatedEntityType, navigationMember, ConfigurationSource.Explicit, targetIsPrincipal: false)
+                    .IsUnique(false, ConfigurationSource.Explicit);
             }
 
             return new CollectionNavigationBuilder<TEntity, TRelatedEntity>(
                 Builder.Metadata,
                 relatedEntityType,
-                navigation,
-                relationship.Metadata);
+                new MemberIdentity(navigationMember),
+                relationship?.Metadata,
+                skipNavigation);
         }
 
         /// <summary>

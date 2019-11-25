@@ -534,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>
@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigation,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigation, ConfigurationSource.Explicit,
-                    setTargetAsPrincipal: DependentEntityType == relatedEntityType).Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null).Metadata);
         }
 
         /// <summary>

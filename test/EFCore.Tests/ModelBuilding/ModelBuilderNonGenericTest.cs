@@ -53,6 +53,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new NonGenericTestModelBuilder(testHelpers);
         }
 
+        public class NonGenericManyToMany : ManyToManyTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
+                => new NonGenericTestModelBuilder(testHelpers);
+        }
+
         public class NonGenericOneToOne : OneToOneTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
@@ -378,8 +384,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     ReferenceNavigationBuilder.WithOne(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
         }
 
-        protected class
-            NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity> : TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
+        protected class NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>
+            : TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -394,10 +400,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TRelatedEntity, TEntity>> navigationExpression = null)
                 => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(
                     CollectionNavigationBuilder.WithOne(navigationExpression?.GetPropertyAccess().GetSimpleMemberName()));
+
+            public override TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
+                Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
+                => new NonGenericTestCollectionCollectionBuilder<TRelatedEntity, TEntity>(
+                    CollectionNavigationBuilder.WithMany(navigationExpression.GetPropertyAccess().GetSimpleMemberName()));
         }
 
-        protected class
-            NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity> : TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
+        protected class NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
+            : TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
             where TEntity : class
             where TRelatedEntity : class
         {
@@ -406,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 ReferenceCollectionBuilder = referenceCollectionBuilder;
             }
 
-            private ReferenceCollectionBuilder ReferenceCollectionBuilder { get; }
+            public ReferenceCollectionBuilder ReferenceCollectionBuilder { get; }
 
             public override IMutableForeignKey Metadata => ReferenceCollectionBuilder.Metadata;
 
@@ -465,16 +476,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
                 Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => Wrap(
-                    ReferenceReferenceBuilder.HasForeignKey(
-                        typeof(TDependentEntity),
-                        foreignKeyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                => Wrap(ReferenceReferenceBuilder.HasForeignKey(
+                    typeof(TDependentEntity),
+                    foreignKeyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(
                 Expression<Func<TPrincipalEntity, object>> keyExpression)
-                => Wrap(
-                    ReferenceReferenceBuilder.HasPrincipalKey(
-                        typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
+                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(
+                    typeof(TPrincipalEntity), keyExpression.GetPropertyAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(
                 params string[] foreignKeyPropertyNames)
@@ -489,6 +498,46 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
                 => Wrap(ReferenceReferenceBuilder.OnDelete(deleteBehavior));
+        }
+
+        protected class NonGenericTestCollectionCollectionBuilder<TLeftEntity, TRightEntity> :
+            TestCollectionCollectionBuilder<TLeftEntity, TRightEntity>
+            where TLeftEntity : class
+            where TRightEntity : class
+        {
+            public NonGenericTestCollectionCollectionBuilder(CollectionCollectionBuilder collectionCollectionBuilder)
+            {
+                CollectionCollectionBuilder = collectionCollectionBuilder;
+            }
+
+            protected CollectionCollectionBuilder CollectionCollectionBuilder { get; }
+
+            public override TestEntityTypeBuilder<TAssociationEntity> UsingEntity<TAssociationEntity>(
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft)
+                => new NonGenericTestEntityTypeBuilder<TAssociationEntity>(CollectionCollectionBuilder.UsingEntity(
+                    typeof(TAssociationEntity),
+                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
+                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder));
+
+            public override TestEntityTypeBuilder<TLeftEntity> UsingEntity<TAssociationEntity>(
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>> configureRight,
+                Func<TestEntityTypeBuilder<TAssociationEntity>,
+                    TestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>> configureLeft,
+                Action<TestEntityTypeBuilder<TAssociationEntity>> configureAssociation)
+                where TAssociationEntity : class
+                => new NonGenericTestEntityTypeBuilder<TLeftEntity>(CollectionCollectionBuilder.UsingEntity(
+                    typeof(TAssociationEntity),
+                    l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, TAssociationEntity>)configureRight(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(l))).ReferenceCollectionBuilder,
+                    r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TAssociationEntity>)configureLeft(
+                        new NonGenericTestEntityTypeBuilder<TAssociationEntity>(r))).ReferenceCollectionBuilder,
+                    e => configureAssociation(new NonGenericTestEntityTypeBuilder<TAssociationEntity>(e))));
         }
 
         protected class NonGenericTestOwnershipBuilder<TEntity, TRelatedEntity>

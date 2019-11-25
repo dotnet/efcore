@@ -555,10 +555,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, false);
+                nameof(Order.Products), null, productEntity, true, false);
+            productsNavigation.SetForeignKey(orderProductForeignKey);
 
             var ordersNavigation = productEntity.AddSkipNavigation(
-                nameof(Product.Orders), null, orderEntity, productOrderForeignKey, true, false);
+                nameof(Product.Orders), null, orderEntity, true, false);
+            ordersNavigation.SetForeignKey(productOrderForeignKey);
 
             productsNavigation.SetInverse(ordersNavigation);
             ordersNavigation.SetInverse(productsNavigation);
@@ -582,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, null, true, false);
+                nameof(Order.Products), null, productEntity, true, false);
 
             VerifyError(
                 CoreStrings.SkipNavigationNoForeignKey(nameof(Order.Products), nameof(Order)),
@@ -605,7 +607,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             orderProductEntity.SetPrimaryKey(new[] { orderProductForeignKey.Properties.Single(), productOrderForeignKey.Properties.Single() });
 
             var productsNavigation = orderEntity.AddSkipNavigation(
-                nameof(Order.Products), null, productEntity, orderProductForeignKey, true, false);
+                nameof(Order.Products), null, productEntity, true, false);
+            productsNavigation.SetForeignKey(orderProductForeignKey);
 
             VerifyError(
                 CoreStrings.SkipNavigationNoInverse(nameof(Order.Products), nameof(Order)),
@@ -782,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             anotherEntityTypeBuilder.HasRelationship(
                 ownedTypeBuilder.Metadata, nameof(AnotherSampleEntity.ReferencedEntity), ConfigurationSource.Convention,
-                setTargetAsPrincipal: true);
+                targetIsPrincipal: true);
 
             VerifyError(
                 CoreStrings.PrincipalOwnedType(

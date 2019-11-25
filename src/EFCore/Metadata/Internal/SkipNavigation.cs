@@ -21,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     /// </summary>
     public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionSkipNavigation
     {
-        private ConfigurationSource _configurationSource;
         private ConfigurationSource? _foreignKeyConfigurationSource;
         private ConfigurationSource? _inverseConfigurationSource;
 
@@ -40,11 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] FieldInfo fieldInfo,
             [NotNull] EntityType declaringEntityType,
             [NotNull] EntityType targetEntityType,
-            [CanBeNull] ForeignKey foreignKey,
             bool collection,
             bool onDependent,
             ConfigurationSource configurationSource)
-            : base(name, propertyInfo, fieldInfo)
+            : base(name, propertyInfo, fieldInfo, configurationSource)
         {
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
             Check.NotNull(targetEntityType, nameof(targetEntityType));
@@ -53,25 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             TargetEntityType = targetEntityType;
             IsCollection = collection;
             IsOnDependent = onDependent;
-            _configurationSource = configurationSource;
             Builder = new InternalSkipNavigationBuilder(this, targetEntityType.Model.Builder);
-
-            if (foreignKey != null)
-            {
-                var expectedEntityType = IsOnDependent ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType;
-                if (expectedEntityType != DeclaringEntityType)
-                {
-                    var message = IsOnDependent
-                        ? CoreStrings.SkipNavigationWrongDependentType(
-                            Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format())
-                        : CoreStrings.SkipNavigationWrongPrincipalType(
-                            Name, DeclaringEntityType.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format());
-                    throw new InvalidOperationException(message);
-                }
-
-                ProcessForeignKey(foreignKey);
-                UpdateForeignKeyConfigurationSource(configurationSource);
-            }
         }
 
         private void ProcessForeignKey(ForeignKey foreignKey)
@@ -168,26 +148,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsOnDependent { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool UpdateConfigurationSource(ConfigurationSource configurationSource)
-        {
-            var oldConfigurationSource = _configurationSource;
-            _configurationSource = configurationSource.Max(_configurationSource);
-            return _configurationSource != oldConfigurationSource;
-        }
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

@@ -24,6 +24,18 @@ namespace System.Reflection
                             || otherPropertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces
                                 .Contains(propertyInfo.DeclaringType))));
 
+        public static bool IsOverridenBy(this MemberInfo propertyInfo, MemberInfo otherPropertyInfo)
+            => propertyInfo == null
+                ? otherPropertyInfo == null
+                : (otherPropertyInfo == null
+                    ? false
+                    : Equals(propertyInfo, otherPropertyInfo)
+                    || (propertyInfo.Name == otherPropertyInfo.Name
+                        && (propertyInfo.DeclaringType == otherPropertyInfo.DeclaringType
+                            || otherPropertyInfo.DeclaringType.GetTypeInfo().IsSubclassOf(propertyInfo.DeclaringType)
+                            || otherPropertyInfo.DeclaringType.GetTypeInfo().ImplementedInterfaces
+                                .Contains(propertyInfo.DeclaringType))));
+
         public static string GetSimpleMemberName(this MemberInfo member)
         {
             var name = member.Name;

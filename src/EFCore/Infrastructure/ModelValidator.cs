@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             {
                                 throw new InvalidOperationException(
                                     CoreStrings.AmbiguousOwnedNavigation(
-                                        entityType.ClrType.ShortDisplayName(), targetType.ShortDisplayName()));
+                                        entityType.DisplayName() + "." + actualProperty.Name, targetType.ShortDisplayName()));
                             }
 
                             throw new InvalidOperationException(
@@ -314,6 +314,32 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             throw new InvalidOperationException(
                                 CoreStrings.InheritedPropertyCannotBeIgnored(
                                     ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
+                        }
+
+                        Check.DebugAssert(false, "Should never get here...");
+                    }
+
+                    var skipNavigation = entityType.FindSkipNavigation(ignoredMember);
+                    if (skipNavigation != null)
+                    {
+                        if (skipNavigation.DeclaringEntityType != entityType)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    ignoredMember, entityType.DisplayName(), skipNavigation.DeclaringEntityType.DisplayName()));
+                        }
+
+                        Check.DebugAssert(false, "Should never get here...");
+                    }
+
+                    var serviceProperty = entityType.FindServiceProperty(ignoredMember);
+                    if (serviceProperty != null)
+                    {
+                        if (serviceProperty.DeclaringEntityType != entityType)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.InheritedPropertyCannotBeIgnored(
+                                    ignoredMember, entityType.DisplayName(), serviceProperty.DeclaringEntityType.DisplayName()));
                         }
 
                         Check.DebugAssert(false, "Should never get here...");

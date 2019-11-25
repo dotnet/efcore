@@ -57,10 +57,10 @@ namespace Microsoft.EntityFrameworkCore
                     propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="PropertyBaseExtensions.GetPropertyAccessMode" />.
+        ///     Returns the configuration source for <see cref="IPropertyBase.GetPropertyAccessMode" />.
         /// </summary>
         /// <param name="property"> The property to find configuration source for. </param>
-        /// <returns> The configuration source for <see cref="PropertyBaseExtensions.GetPropertyAccessMode" />. </returns>
+        /// <returns> The configuration source for <see cref="IPropertyBase.GetPropertyAccessMode" />. </returns>
         public static ConfigurationSource? GetPropertyAccessModeConfigurationSource([NotNull] this IConventionPropertyBase property)
             => property.FindAnnotation(CoreAnnotationNames.PropertyAccessMode)?.GetConfigurationSource();
     }

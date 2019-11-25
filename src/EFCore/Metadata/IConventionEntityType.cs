@@ -181,7 +181,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </param>
         /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
-        /// <param name="foreignKey"> The foreign key to the association type. </param>
         /// <param name="collection"> Whether the navigation property is a collection property. </param>
         /// <param name="onDependent">
         ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
@@ -192,7 +191,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] IConventionEntityType targetEntityType,
-            [CanBeNull] IConventionForeignKey foreignKey,
             bool collection,
             bool onDependent,
             bool fromDataAnnotation = false);
