@@ -105,7 +105,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         }
 
         public static IReadOnlyList<Squad> CreateSquads()
-            => new List<Squad> { new Squad { Id = 1, Name = "Delta", Banner = new byte[] { 0x00, 0x01 } }, new Squad { Id = 2, Name = "Kilo", Banner = null } };
+            => new List<Squad>
+            {
+                new Squad { Id = 1, Name = "Delta", Banner = new byte[] { 0x00, 0x01 } },
+                new Squad { Id = 2, Name = "Kilo", Banner = new byte[] { 0x02, 0x03 } }
+            };
 
         public static IReadOnlyList<Mission> CreateMissions()
             => new List<Mission>

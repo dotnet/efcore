@@ -116,6 +116,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM ""Missions"" AS ""m""");
         }
 
+        public override Task Byte_array_contains_literal(bool async) => null;
+
+        public override Task Byte_array_contains_parameter(bool async) => null;
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

@@ -7265,6 +7265,28 @@ END <> CAST(1 AS bit)) OR CASE
 END IS NULL)");
         }
 
+        public override async Task Byte_array_contains_literal(bool async)
+        {
+            await base.Byte_array_contains_literal(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CHARINDEX(0x01, [s].[Banner]) > 0");
+        }
+
+        public override async Task Byte_array_contains_parameter(bool async)
+        {
+            await base.Byte_array_contains_parameter(async);
+
+            AssertSql(
+                @"@__someByte_0='1' (Size = 1)
+
+SELECT [s].[Id], [s].[Banner], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CHARINDEX(CAST(@__someByte_0 AS varbinary(max)), [s].[Banner]) > 0");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

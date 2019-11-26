@@ -7282,6 +7282,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select h);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_contains_literal(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Banner.Contains((byte)1)),
+                ss => ss.Set<Squad>().Where(s => s.Banner != null && s.Banner.Contains((byte)1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_contains_parameter(bool async)
+        {
+            var someByte = (byte)1;
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Banner.Contains(someByte)),
+                ss => ss.Set<Squad>().Where(s => s.Banner != null && s.Banner.Contains(someByte)));
+        }
+
         protected async Task AssertTranslationFailed(Func<Task> testCode)
         {
             Assert.Contains(
