@@ -434,6 +434,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
+        #region Set operations
+
         [ConditionalFact]
         public virtual void Union_of_supertype_with_itself_with_properties_mapped_to_same_column()
         {
@@ -483,46 +485,56 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void OfType_Union_subquery()
         {
             using var context = CreateContext();
-            context.Set<Animal>()
+            var kiwis = context.Set<Animal>()
                 .OfType<Kiwi>()
                 .Union(
                     context.Set<Animal>()
                         .OfType<Kiwi>())
-                .Where(o => o.FoundOn == Island.North)
+                .Where(o => o.FoundOn == Island.South)
                 .ToList();
+
+            Assert.Equal("Great spotted kiwi", Assert.Single(kiwis).Name);
         }
 
         [ConditionalFact]
         public virtual void OfType_Union_OfType()
         {
             using var context = CreateContext();
-            context.Set<Bird>()
+            var kiwis = context.Set<Bird>()
                 .OfType<Kiwi>()
                 .Union(context.Set<Bird>())
                 .OfType<Kiwi>()
                 .ToList();
+
+            Assert.Equal("Great spotted kiwi", Assert.Single(kiwis).Name);
         }
 
         [ConditionalFact]
         public virtual void Subquery_OfType()
         {
             using var context = CreateContext();
-            context.Set<Bird>()
+            var kiwis = context.Set<Bird>()
                 .Take(5)
                 .Distinct() // Causes pushdown
                 .OfType<Kiwi>()
                 .ToList();
+
+            Assert.Equal("Great spotted kiwi", Assert.Single(kiwis).Name);
         }
 
         [ConditionalFact]
         public virtual void Union_entity_equality()
         {
             using var context = CreateContext();
-            context.Set<Kiwi>()
+            var kiwis = context.Set<Kiwi>()
                 .Union(context.Set<Eagle>().Cast<Bird>())
                 .Where(b => b == null)
                 .ToList();
+
+            Assert.Empty(kiwis);
         }
+
+        #endregion Set operations
 
         [ConditionalFact]
         public virtual void Setting_foreign_key_to_a_different_type_throws()

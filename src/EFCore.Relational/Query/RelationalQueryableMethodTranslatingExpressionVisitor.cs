@@ -1185,8 +1185,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        /// If a set operation is between different entity types, the query will return their closest common ancestor.
-        /// Modify the shaper accordingly.
+        ///     If a set operation is between different entity types, the query will return their closest common ancestor.
+        ///     Modify the shaper accordingly.
         /// </summary>
         private void ModifyShaperForSetOperation(ShapedQueryExpression source1, ShapedQueryExpression source2)
         {
@@ -1194,10 +1194,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 && RemoveConvert(source2.ShaperExpression) is EntityShaperExpression shaper2
                 && shaper1.EntityType != shaper2.EntityType)
             {
+                var closestCommonParent = shaper1.EntityType.GetClosestCommonParent(shaper2.EntityType);
+
                 source1.ShaperExpression = new EntityShaperExpression(
-                    shaper1.EntityType.GetClosestCommonParent(shaper2.EntityType),
+                    closestCommonParent,
                     shaper1.ValueBufferExpression,
                     shaper1.IsNullable);
+
+                // If there's a convert node on either side (set operation over different entity type) and it's
+                // converting to a higher type in the hierarchy, add back a convert node to that type.
+                var convertType =
+                    source1.ShaperExpression is UnaryExpression unary1
+                    && unary1.NodeType == ExpressionType.Convert
+                        ? unary1.Type
+                        : source2.ShaperExpression is UnaryExpression unary2
+                        && unary2.NodeType == ExpressionType.Convert
+                            ? unary2.Type
+                            : null;
+
+                if (convertType != null && convertType != closestCommonParent.ClrType)
+                {
+                    source1.ShaperExpression = Expression.Convert(source1.ShaperExpression, convertType);
+                }
             }
 
             static Expression RemoveConvert(Expression expression)

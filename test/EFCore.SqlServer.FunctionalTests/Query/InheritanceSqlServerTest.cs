@@ -423,6 +423,8 @@ FROM [Animal] AS [a]
 WHERE [a].[Discriminator] = N'Kiwi'");
         }
 
+        #region Set operations
+
         public override void Union_of_supertype_with_itself_with_properties_mapped_to_same_column()
         {
             base.Union_of_supertype_with_itself_with_properties_mapped_to_same_column();
@@ -483,7 +485,7 @@ FROM (
     FROM [Animal] AS [a0]
     WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi') AND ([a0].[Discriminator] = N'Kiwi')
 ) AS [t]
-WHERE [t].[FoundOn] = CAST(0 AS tinyint)");
+WHERE [t].[FoundOn] = CAST(1 AS tinyint)");
         }
 
         public override void OfType_Union_OfType()
@@ -491,7 +493,7 @@ WHERE [t].[FoundOn] = CAST(0 AS tinyint)");
             base.OfType_Union_OfType();
 
             AssertSql(
-                @"SELECT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn]
+                @"SELECT [t].[Species], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
 FROM (
     SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn], NULL AS [Group]
     FROM [Animal] AS [a]
@@ -500,7 +502,8 @@ FROM (
     SELECT [a0].[Species], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], [a0].[FoundOn], [a0].[Group]
     FROM [Animal] AS [a0]
     WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi')
-) AS [t]");
+) AS [t]
+WHERE [t].[Discriminator] = N'Kiwi'");
         }
 
         public override void Subquery_OfType()
@@ -536,6 +539,8 @@ FROM (
 ) AS [t]
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
+
+        #endregion Set operations
 
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());

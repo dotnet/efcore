@@ -575,12 +575,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("PendingAmbientTransaction");
 
         /// <summary>
-        ///     Set operations (Union, Concat, Intersect, Except) are only supported over entity types within the same type hierarchy.
-        /// </summary>
-        public static string SetOperationNotWithinEntityTypeHierarchy
-            => GetString("SetOperationNotWithinEntityTypeHierarchy");
-
-        /// <summary>
         ///     FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.
         /// </summary>
         public static string FromSqlNonComposable

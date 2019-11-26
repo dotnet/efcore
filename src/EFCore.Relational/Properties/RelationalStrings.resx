@@ -491,9 +491,6 @@
   <data name="PendingAmbientTransaction" xml:space="preserve">
     <value>This connection was used with an ambient transaction. The original ambient transaction needs to be completed before this connection can be used outside of it.</value>
   </data>
-  <data name="SetOperationNotWithinEntityTypeHierarchy" xml:space="preserve">
-    <value>Set operations (Union, Concat, Intersect, Except) are only supported over entity types within the same type hierarchy.</value>
-  </data>
   <data name="FromSqlNonComposable" xml:space="preserve">
     <value>FromSqlRaw or FromSqlInterpolated was called with non-composable SQL and with a query composing over it. Consider calling `AsEnumerable` after the FromSqlRaw or FromSqlInterpolated method to perform the composition on the client side.</value>
   </data>

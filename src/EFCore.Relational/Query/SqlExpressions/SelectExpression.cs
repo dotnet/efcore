@@ -526,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (joinedMapping.Value1 is EntityProjectionExpression entityProjection1
                     && joinedMapping.Value2 is EntityProjectionExpression entityProjection2)
                 {
-                    HandleEntityMapping(joinedMapping.Key, entityProjection1, entityProjection2);
+                    _projectionMapping[joinedMapping.Key] = LiftEntityProjectionFromSetOperands(entityProjection1, entityProjection2);
                     continue;
                 }
 
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _tables.Clear();
             _tables.Add(setExpression);
 
-            void HandleEntityMapping(ProjectionMember projectionMember, EntityProjectionExpression projection1, EntityProjectionExpression projection2)
+            EntityProjectionExpression LiftEntityProjectionFromSetOperands(EntityProjectionExpression projection1, EntityProjectionExpression projection2)
             {
                 var (entityType1, entityType2) = (projection1.EntityType, projection2.EntityType);
 
@@ -586,14 +586,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     foreach (var property in GetAllPropertiesInHierarchy(entityType1))
                     {
-                        propertyExpressions[property] = AddSetOperationColumnProjections(
+                        propertyExpressions[property] = GenerateOuterSetOperationColumn(
                             property.GetColumnName(),
                             projection1.BindProperty(property),
                             projection2.BindProperty(property));
                     }
 
-                    _projectionMapping[projectionMember] = new EntityProjectionExpression(entityType1, propertyExpressions);
-                    return;
+                    return new EntityProjectionExpression(entityType1, propertyExpressions);
                 }
 
                 // We're doing a set operation over two different entity types (within the same hierarchy).
@@ -606,16 +605,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 if (commonParentEntityType == null)
                 {
-                    throw new InvalidOperationException(RelationalStrings.SetOperationNotWithinEntityTypeHierarchy);
+                    throw new InvalidOperationException("No common parent in set operation over different types!");
                 }
 
-                var properties1 = GetAllPropertiesInHierarchy(entityType1).ToList();
-                var properties2 = GetAllPropertiesInHierarchy(entityType2).ToList();
+                var allProperties1 = GetAllPropertiesInHierarchy(entityType1).ToList();
+                var allProperties2 = GetAllPropertiesInHierarchy(entityType2).ToList();
+                var properties1 = allProperties1.ToList();
+                var properties2 = allProperties2.ToList();
 
                 // First handle shared properties that come from common base entity types
                 foreach (var property in properties1.Intersect(properties2).ToArray())
                 {
-                    propertyExpressions[property] = AddSetOperationColumnProjections(
+                    propertyExpressions[property] = GenerateOuterSetOperationColumn(
                         property.GetColumnName(),
                         projection1.BindProperty(property),
                         projection2.BindProperty(property));
@@ -634,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         (p1, p2) => (p1, p2))
                     .ToArray())
                 {
-                    var outerProjection = AddSetOperationColumnProjections(
+                    var outerProjection = GenerateOuterSetOperationColumn(
                         group1.Key,
                         projection1.BindProperty(group1.First()),
                         projection2.BindProperty(group2.First()));
@@ -655,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 // Remaining properties exist only on one side, so inject a null constant projection on the other side.
                 foreach (var property in properties1)
                 {
-                    propertyExpressions[property] = AddSetOperationColumnProjections(
+                    propertyExpressions[property] = GenerateOuterSetOperationColumn(
                         property.GetColumnName(),
                         projection1.BindProperty(property),
                         new SqlConstantExpression(
@@ -665,7 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 foreach (var property in properties2)
                 {
-                    propertyExpressions[property] = AddSetOperationColumnProjections(
+                    propertyExpressions[property] = GenerateOuterSetOperationColumn(
                         property.GetColumnName(),
                         new SqlConstantExpression(
                             Constant(null, property.ClrType.MakeNullable()),
@@ -676,12 +677,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 // Finally, the shaper will expect to read properties from unrelated siblings, since the set operations
                 // return type is the common ancestor. Add appropriate null constant projections for both sides.
                 // See #16215 for a possible optimization.
-                var unrelatedSiblingProperties = GetAllPropertiesInHierarchy(commonParentEntityType)
-                    .Except(GetAllPropertiesInHierarchy(entityType1))
-                    .Except(GetAllPropertiesInHierarchy(entityType2));
+                var unrelatedSiblingProperties = GetAllPropertiesInHierarchy(commonParentEntityType).ToList()
+                    .Except(allProperties1)
+                    .Except(allProperties2);
                 foreach (var property in unrelatedSiblingProperties)
                 {
-                    propertyExpressions[property] = AddSetOperationColumnProjections(
+                    propertyExpressions[property] = GenerateOuterSetOperationColumn(
                         property.GetColumnName(),
                         new SqlConstantExpression(
                             Constant(null, property.ClrType.MakeNullable()),
@@ -691,9 +692,39 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             property.GetRelationalTypeMapping()));
                 }
 
-                _projectionMapping[projectionMember] = new EntityProjectionExpression(commonParentEntityType, propertyExpressions);
+                var newEntityProjection = new EntityProjectionExpression(commonParentEntityType, propertyExpressions);
 
-                ColumnExpression AddSetOperationColumnProjections(string columnName, SqlExpression innerExpression1, SqlExpression innerExpression2)
+                // Also lift nested entity projections
+                foreach (var navigation in projection1.EntityType.GetTypesInHierarchy()
+                    .SelectMany(EntityTypeExtensions.GetDeclaredNavigations))
+                {
+                    var boundEntityShaperExpression1 = projection1.BindNavigation(navigation);
+                    var boundEntityShaperExpression2 = projection2.BindNavigation(navigation);
+
+                    if (boundEntityShaperExpression1 == null
+                        && boundEntityShaperExpression2 == null)
+                    {
+                        continue;
+                    }
+
+                    if (boundEntityShaperExpression1 == null
+                        && boundEntityShaperExpression2 != null
+                        || boundEntityShaperExpression2 == null
+                        && boundEntityShaperExpression1 != null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.SetOperationWithDifferentIncludesInOperands);
+                    }
+
+                    var newInnerEntityProjection = LiftEntityProjectionFromSetOperands(
+                        (EntityProjectionExpression)boundEntityShaperExpression1.ValueBufferExpression,
+                        (EntityProjectionExpression)boundEntityShaperExpression2.ValueBufferExpression);
+                    boundEntityShaperExpression1 = boundEntityShaperExpression1.Update(newInnerEntityProjection);
+                    newEntityProjection.AddNavigationBinding(navigation, boundEntityShaperExpression1);
+                }
+
+                return newEntityProjection;
+
+                ColumnExpression GenerateOuterSetOperationColumn(string columnName, SqlExpression innerExpression1, SqlExpression innerExpression2)
                 {
                     if (expressionsByColumnName.TryGetValue(columnName, out var outerProjection))
                     {
