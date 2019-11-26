@@ -41,10 +41,10 @@
     <MicrosoftExtensionsLoggingPackageVersion>5.0.0-alpha1.19575.8</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
-    <MicrosoftCSharpPackageVersion>5.0.0-alpha.1.19563.6</MicrosoftCSharpPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>5.0.0-alpha.1.19563.6</SystemCollectionsImmutablePackageVersion>
-    <SystemComponentModelAnnotationsPackageVersion>5.0.0-alpha.1.19563.6</SystemComponentModelAnnotationsPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>5.0.0-alpha.1.19563.6</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <MicrosoftCSharpPackageVersion>5.0.0-alpha.1.19556.7</MicrosoftCSharpPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>5.0.0-alpha.1.19556.7</SystemCollectionsImmutablePackageVersion>
+    <SystemComponentModelAnnotationsPackageVersion>5.0.0-alpha.1.19556.7</SystemComponentModelAnnotationsPackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>5.0.0-alpha.1.19556.7</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
     <MicrosoftDotNetPlatformAbstractionsPackageVersion>5.0.0-alpha.1.19562.8</MicrosoftDotNetPlatformAbstractionsPackageVersion>
