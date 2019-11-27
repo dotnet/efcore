@@ -450,7 +450,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (changeState
                 && !isConceptualNull
                 && isModified
-                && property.IsKey())
+                && !StateManager.SavingChanges
+                && property.IsKey()
+                && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
             {
                 throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
             }
@@ -609,7 +611,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             SetProperty(
-                property, value, isMaterialization: false, setModified: true, isCascadeDelete: false, CurrentValueType.StoreGenerated);
+                property,
+                value,
+                isMaterialization: false,
+                setModified: true,
+                isCascadeDelete: false,
+                CurrentValueType.StoreGenerated);
         }
 
         /// <summary>

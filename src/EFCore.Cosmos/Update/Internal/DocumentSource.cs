@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
@@ -65,6 +66,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual JObject CreateDocument([NotNull] IUpdateEntry entry)
+            => CreateDocument(entry, null);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual JObject CreateDocument([NotNull] IUpdateEntry entry, int? ordinal)
         {
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
@@ -76,7 +86,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else if (entry.HasTemporaryValue(property))
                 {
-                    ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
+                    if (ordinal != null
+                        && property.IsOrdinalKeyProperty())
+                    {
+                        entry.SetStoreGeneratedValue(property, ordinal.Value);
+                    }
                 }
             }
 
@@ -103,11 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else
                 {
+                    var embeddedOrdinal = 0;
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
                         var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
-                        array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry));
+                        array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
+                        embeddedOrdinal++;
                     }
 
                     document[embeddedPropertyName] = array;
@@ -123,9 +139,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
+        public virtual JObject UpdateDocument([NotNull] JObject document, IUpdateEntry entry)
+            => UpdateDocument(document, entry, null);
+        
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual JObject UpdateDocument([NotNull] JObject document, IUpdateEntry entry, int? ordinal)
         {
             var anyPropertyUpdated = false;
+            var stateManager = ((InternalEntityEntry)entry).StateManager;
             foreach (var property in entry.EntityType.GetProperties())
             {
                 if (entry.EntityState == EntityState.Added
@@ -137,10 +163,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                         document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
                         anyPropertyUpdated = true;
                     }
-                    else if (entry.HasTemporaryValue(property))
-                    {
-                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
-                    }
+                }
+
+                if (ordinal != null
+                    && entry.HasTemporaryValue(property)
+                    && property.IsOrdinalKeyProperty())
+                {
+                    entry.SetStoreGeneratedValue(property, ordinal.Value);
                 }
             }
 
@@ -186,6 +215,47 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else
                 {
+                    var embeddedOrdinal = 0;
+                    var ordinalKeyProperty = GetOrdinalKeyProperty(fk.DeclaringEntityType);
+                    if (ordinalKeyProperty != null)
+                    {
+                        var shouldSetTemporaryKeys = false;
+                        foreach (var dependent in (IEnumerable)embeddedValue)
+                        {
+                            var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                            if (embeddedEntry == null)
+                            {
+                                continue;
+                            }
+
+                            if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty) != embeddedOrdinal)
+                            {
+                                shouldSetTemporaryKeys = true;
+                                break;
+                            }
+
+                            embeddedOrdinal++;
+                        }
+
+                        if (shouldSetTemporaryKeys)
+                        {
+                            var temporaryOrdinal = -1;
+                            foreach (var dependent in (IEnumerable)embeddedValue)
+                            {
+                                var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                                if (embeddedEntry == null)
+                                {
+                                    continue;
+                                }
+
+                                embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
+
+                                temporaryOrdinal--;
+                            }
+                        }
+                    }
+
+                    embeddedOrdinal = 0;
                     var array = new JArray();
                     foreach (var dependent in (IEnumerable)embeddedValue)
                     {
@@ -197,10 +267,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
                         var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                         embeddedDocument = embeddedDocument != null
-                            ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry) ?? embeddedDocument
-                            : embeddedDocumentSource.CreateDocument(embeddedEntry);
+                            ? embeddedDocumentSource.UpdateDocument(embeddedDocument, embeddedEntry, embeddedOrdinal) ?? embeddedDocument
+                            : embeddedDocumentSource.CreateDocument(embeddedEntry, embeddedOrdinal);
 
                         array.Add(embeddedDocument);
+                        embeddedOrdinal++;
                     }
 
                     document[embeddedPropertyName] = array;
@@ -210,6 +281,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
 
             return anyPropertyUpdated ? document : null;
         }
+
+        private IProperty GetOrdinalKeyProperty(IEntityType entityType)
+            => entityType.FindPrimaryKey().Properties.FirstOrDefault(p =>
+                p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
 
         public virtual JObject GetCurrentDocument([NotNull] IUpdateEntry entry)
             => _jObjectProperty != null

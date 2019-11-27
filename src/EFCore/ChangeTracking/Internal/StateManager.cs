@@ -129,6 +129,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool SavingChanges { get; set; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IInternalEntityEntryNotifier InternalEntityEntryNotifier { get; }
 
         /// <summary>
@@ -651,6 +659,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Tracked = null;
             StateChanged = null;
+
+            SavingChanges = false;
         }
 
         /// <summary>
@@ -1062,7 +1072,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1089,6 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             try
             {
+                SavingChanges = true;
                 var result = SaveChanges(entriesToSave);
 
                 if (acceptAllChangesOnSuccess)
@@ -1106,6 +1116,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 throw;
+            }
+            finally
+            {
+                SavingChanges = false;
             }
         }
 
@@ -1137,6 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             try
             {
+                SavingChanges = true;
                 var result = await SaveChangesAsync(entriesToSave, cancellationToken);
 
                 if (acceptAllChangesOnSuccess)
@@ -1154,6 +1169,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
 
                 throw;
+            }
+            finally
+            {
+                SavingChanges = false;
             }
         }
 
