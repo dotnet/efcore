@@ -113,14 +113,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             await using var enumerator = asyncEnumerable.GetAsyncEnumerator(cancellationToken);
             if (!await enumerator.MoveNextAsync())
             {
-                throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
+                throw new InvalidOperationException("Sequence contains no elements");
             }
 
             var result = enumerator.Current;
 
             if (await enumerator.MoveNextAsync())
             {
-                throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
+                throw new InvalidOperationException("Sequence contains more than one element");
             }
 
             return result;
@@ -140,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (await enumerator.MoveNextAsync())
             {
-                throw new InvalidOperationException("Enumerator failed to MoveNextAsync.");
+                throw new InvalidOperationException("Sequence contains more than one element");
             }
 
             return result;
