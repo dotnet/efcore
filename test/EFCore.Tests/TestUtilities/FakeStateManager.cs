@@ -62,13 +62,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool unchanged = false)
             => throw new NotImplementedException();
 
+        public int ChangedCount { get; set; }
+
         public int Count => throw new NotImplementedException();
+
+        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
+
+        public bool SavingChanges => throw new NotImplementedException();
 
         public IEnumerable<TEntity> GetNonDeletedEntities<TEntity>()
             where TEntity : class
             => throw new NotImplementedException();
-
-        public int ChangedCount { get; set; }
 
         public IEntityFinder CreateEntityFinder(IEntityType entityType) => throw new NotImplementedException();
         public void UpdateIdentityMap(InternalEntityEntry entry, IKey principalKey) => throw new NotImplementedException();
@@ -153,7 +157,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             throw new NotImplementedException();
         }
-
-        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
     }
 }
