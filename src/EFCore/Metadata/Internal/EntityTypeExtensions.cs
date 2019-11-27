@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this IEntityType entityType,
-            DebugViewOptions options,
+            MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
@@ -513,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" ChangeTrackingStrategy.").Append(entityType.GetChangeTrackingStrategy());
             }
 
-            if ((options & DebugViewOptions.SingleLine) == 0)
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {
                 var properties = entityType.GetDeclaredProperties().ToList();
                 if (properties.Count != 0)
@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                if ((options & DebugViewOptions.IncludeAnnotations) != 0)
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
                 {
                     builder.Append(entityType.AnnotationsToDebugString(indent: indent + "  "));
                 }

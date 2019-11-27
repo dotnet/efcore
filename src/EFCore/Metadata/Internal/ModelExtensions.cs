@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this IModel model,
-            DebugViewOptions options,
+            MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.AppendLine().Append(entityType.ToDebugString(options, indent + "  "));
             }
 
-            if ((options & DebugViewOptions.IncludeAnnotations) != 0)
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(model.AnnotationsToDebugString(indent));
             }

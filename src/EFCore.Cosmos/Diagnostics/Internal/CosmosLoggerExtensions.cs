@@ -92,19 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                     builder.Append(dateTimeOffsetValue.ToString("o"));
                     break;
                 case byte[] binaryValue:
-                    builder.Append("0x");
-
-                    for (var i = 0; i < binaryValue.Length; i++)
-                    {
-                        if (i > 31)
-                        {
-                            builder.Append("...");
-                            break;
-                        }
-
-                        builder.Append(binaryValue[i].ToString("X2", CultureInfo.InvariantCulture));
-                    }
-
+                    builder.AppendBytes(binaryValue);
                     break;
                 default:
                     builder.Append(Convert.ToString(parameterValue, CultureInfo.InvariantCulture));

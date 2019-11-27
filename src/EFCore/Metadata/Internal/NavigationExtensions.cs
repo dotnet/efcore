@@ -26,14 +26,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this INavigation navigation,
-            DebugViewOptions options,
+            MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
-            var singleLine = (options & DebugViewOptions.SingleLine) != 0;
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append($"Navigation: {navigation.DeclaringEntityType.DisplayName()}.");
@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PropertyAccessMode.").Append(navigation.GetPropertyAccessMode());
             }
 
-            if ((options & DebugViewOptions.IncludePropertyIndexes) != 0)
+            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0)
             {
                 var indexes = navigation.GetPropertyIndexes();
                 builder.Append(" ").Append(indexes.Index);
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (!singleLine &&
-                (options & DebugViewOptions.IncludeAnnotations) != 0)
+                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(navigation.AnnotationsToDebugString(indent + "  "));
             }

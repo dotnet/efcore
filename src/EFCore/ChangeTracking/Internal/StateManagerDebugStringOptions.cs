@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
-using JetBrains.Annotations;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -13,16 +11,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DebugView<TMetadata>
+    [Flags]
+    public enum StateManagerDebugStringOptions
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly TMetadata _metadata;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Func<TMetadata, string> _toShortDebugString;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Func<TMetadata, string> _toLongDebugString;
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IncludeProperties = 1,
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,15 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DebugView(
-            [NotNull] TMetadata metadata,
-            [NotNull] Func<TMetadata, string> toShortDebugString,
-            [NotNull] Func<TMetadata, string> toLongDebugString)
-        {
-            _metadata = metadata;
-            _toShortDebugString = toShortDebugString;
-            _toLongDebugString = toLongDebugString;
-        }
+        IncludeNavigations = 2,
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string LongView => _toLongDebugString(_metadata);
+        ShortDefault = 0,
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,6 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ShortView => _toShortDebugString(_metadata);
+        LongDefault = IncludeProperties | IncludeNavigations,
     }
 }
