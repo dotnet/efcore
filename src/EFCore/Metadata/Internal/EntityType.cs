@@ -463,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString();
+        public override string ToString() => this.ToDebugString(DebugViewOptions.SingleLineDefault);
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
@@ -3306,6 +3306,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual DebugView<EntityType> DebugView
-            => new DebugView<EntityType>(this, m => m.ToDebugString(false));
+            => new DebugView<EntityType>(
+                this,
+                m => m.ToDebugString(DebugViewOptions.ShortDefault),
+                m => m.ToDebugString(DebugViewOptions.LongDefault));
     }
 }

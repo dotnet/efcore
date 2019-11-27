@@ -59,12 +59,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IKey key, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IKey key,
+            DebugViewOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & DebugViewOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append("Key: ");
@@ -81,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PK");
             }
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & DebugViewOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(key.AnnotationsToDebugString(indent + "  "));
             }

@@ -199,14 +199,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this IProperty property,
-            bool singleLine = true,
-            bool includeIndexes = false,
+            DebugViewOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & DebugViewOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append($"Property: {property.DeclaringEntityType.DisplayName()}.");
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PropertyAccessMode.").Append(property.GetPropertyAccessMode());
             }
 
-            if (includeIndexes)
+            if ((options & DebugViewOptions.IncludePropertyIndexes) != 0)
             {
                 var indexes = property.GetPropertyIndexes();
                 if (indexes != null)
@@ -305,7 +305,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & DebugViewOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(property.AnnotationsToDebugString(indent + "  "));
             }

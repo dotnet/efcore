@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly TMetadata _metadata;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly Func<TMetadata, string> _toDebugString;
+        private readonly Func<TMetadata, string> _toShortDebugString;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string _view;
+        private readonly Func<TMetadata, string> _toLongDebugString;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,10 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DebugView([NotNull] TMetadata metadata, [NotNull] Func<TMetadata, string> toDebugString)
+        public DebugView(
+            [NotNull] TMetadata metadata,
+            [NotNull] Func<TMetadata, string> toShortDebugString,
+            [NotNull] Func<TMetadata, string> toLongDebugString)
         {
             _metadata = metadata;
-            _toDebugString = toDebugString;
+            _toShortDebugString = toShortDebugString;
+            _toLongDebugString = toLongDebugString;
         }
 
         /// <summary>
@@ -42,6 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string View => _view ?? (_view = _toDebugString(_metadata));
+        public virtual string LongView => _toLongDebugString(_metadata);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ShortView => _toShortDebugString(_metadata);
     }
 }

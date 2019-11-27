@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.AppendLine("MaterializeCollectionNavigation(");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine($"navigation: {Navigation.ToDebugString(detailed: false)},");
+                expressionPrinter.AppendLine($"navigation: Navigation: {Navigation.DeclaringEntityType.DisplayName()}.{Navigation.Name},");
                 expressionPrinter.Append("subquery: ");
                 expressionPrinter.Visit(Subquery);
             }
