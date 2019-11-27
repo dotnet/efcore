@@ -49,10 +49,6 @@
       <Uri>https://github.com/aspnet/Extensions</Uri>
       <Sha>92cf26b203486123be3c1ba03dc57acecd720e6b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Ref" Version="3.1.1-servicing.19576.9" CoherentParentDependency="Microsoft.Extensions.Logging">
-      <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>f3f2dd583fffa254015fc21ff0e45784b333256d</Sha>
-    </Dependency>
     <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="3.1.1-servicing.19576.9" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>f3f2dd583fffa254015fc21ff0e45784b333256d</Sha>
@@ -72,6 +68,11 @@
     <Dependency Name="System.Diagnostics.DiagnosticSource" Version="4.7.0" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
       <Sha>0f7f38c4fd323b26da10cce95f857f77f0f09b48</Sha>
+    </Dependency>
+    <!-- Keep this dependency at the bottom of ProductDependencies, else it will be picked as the parent for CoherentParentDependencies -->
+    <Dependency Name="Microsoft.NETCore.App.Ref" Version="3.1.0" Pinned="true">
+      <Uri>https://github.com/dotnet/core-setup</Uri>
+      <Sha>65f04fb6db7a5e198d05dbebd5c4ad21eb018f89</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
