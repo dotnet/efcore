@@ -42,12 +42,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IIndex index, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IIndex index,
+            DebugViewOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & DebugViewOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append("Index: ");
@@ -66,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" Unique");
             }
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & DebugViewOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(index.AnnotationsToDebugString(indent + "  "));
             }

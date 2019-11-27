@@ -26,26 +26,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this INavigation navigation,
-            bool singleLine = true,
-            bool includeIndexes = false,
-            [NotNull] string indent = "",
-            bool detailed = true)
+            DebugViewOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & DebugViewOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append($"Navigation: {navigation.DeclaringEntityType.DisplayName()}.");
             }
 
             builder.Append(navigation.Name);
-
-            if (!detailed)
-            {
-                return builder.ToString();
-            }
 
             var field = navigation.GetFieldName();
             if (field == null)
@@ -82,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" PropertyAccessMode.").Append(navigation.GetPropertyAccessMode());
             }
 
-            if (includeIndexes)
+            if ((options & DebugViewOptions.IncludePropertyIndexes) != 0)
             {
                 var indexes = navigation.GetPropertyIndexes();
                 builder.Append(" ").Append(indexes.Index);
@@ -92,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" ").Append(indexes.StoreGenerationIndex);
             }
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & DebugViewOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(navigation.AnnotationsToDebugString(indent + "  "));
             }
