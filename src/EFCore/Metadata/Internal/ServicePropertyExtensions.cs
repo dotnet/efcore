@@ -34,14 +34,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static string ToDebugString(
             [NotNull] this IServiceProperty serviceProperty,
-            DebugViewOptions options,
+            MetadataDebugStringOptions options,
             [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
-            var singleLine = (options & DebugViewOptions.SingleLine) != 0;
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append("Service property: ").Append(serviceProperty.DeclaringType.DisplayName()).Append(".");
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             builder.Append(serviceProperty.ClrType?.ShortDisplayName()).Append(")");
 
             if (!singleLine &&
-                (options & DebugViewOptions.IncludeAnnotations) != 0)
+                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(serviceProperty.AnnotationsToDebugString(indent + "  "));
             }
