@@ -37,6 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="type"> The database type of the column. </param>
         /// <param name="unicode"> Indicates whether or not the column will store Unicode data. </param>
         /// <param name="maxLength"> The maximum length for data in the column. </param>
+        /// <param name="precision"> The maximum number of digits for data in the column. </param>
+        /// <param name="scale"> The maximum number of decimal places for data in the column. </param>
         /// <param name="rowVersion"> Indicates whether or not the column will act as a rowversion/timestamp concurrency token. </param>
         /// <param name="name"> The column name. </param>
         /// <param name="nullable"> Indicates whether or not the column can store <c>NULL</c> values. </param>
@@ -50,6 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             [CanBeNull] string type = null,
             bool? unicode = null,
             int? maxLength = null,
+            int? precision = null,
+            int? scale = null,
             bool rowVersion = false,
             [CanBeNull] string name = null,
             bool nullable = false,
@@ -68,6 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
                 ColumnType = type,
                 IsUnicode = unicode,
                 MaxLength = maxLength,
+                Precision = precision,
+                Scale = scale,
                 IsRowVersion = rowVersion,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,

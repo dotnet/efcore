@@ -50,6 +50,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="maxLength">
         ///     The maximum length of data that can be stored in the column, or <c>null</c> if not specified or not applicable.
         /// </param>
+        /// <param name="precision">
+        ///     The maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="scale">
+        ///     The maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
         /// <param name="rowVersion">
         ///     Indicates whether or not the column acts as an automatic concurrency token, such as a rowversion/timestamp column
         ///     in SQL Server.
@@ -68,6 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string type = null,
             bool? unicode = null,
             int? maxLength = null,
+            int? precision = null,
+            int? scale = null,
             bool rowVersion = false,
             [CanBeNull] string schema = null,
             bool nullable = false,
@@ -95,6 +103,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql,
                 IsFixedLength = fixedLength,
+                Precision = precision,
+                Scale = scale,
                 Comment = comment
             };
             Operations.Add(operation);
@@ -291,6 +301,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="maxLength">
         ///     The maximum length of data that can be stored in the column, or <c>null</c> if not specified or not applicable.
         /// </param>
+        /// <param name="precision">
+        ///     The maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="scale">
+        ///     The maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
         /// <param name="rowVersion">
         ///     Indicates whether or not the column acts as an automatic concurrency token, such as a rowversion/timestamp column
         ///     in SQL Server.
@@ -311,6 +327,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         /// <param name="oldMaxLength">
         ///     The previous maximum length of data that can be stored in the column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="oldPrecision">
+        ///     The previous maximum number of digits that is allowed in this column, or <c>null</c> if not specified or not applicable.
+        /// </param>
+        /// <param name="oldScale">
+        ///     The previous maximum number of decimal places that is allowed in this column, or <c>null</c> if not specified or not applicable.
         /// </param>
         /// <param name="oldRowVersion">
         ///     Indicates whether or not the column previously acted as an automatic concurrency token, such as a rowversion/timestamp column
@@ -341,6 +363,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string type = null,
             bool? unicode = null,
             int? maxLength = null,
+            int? precision = null,
+            int? scale = null,
             bool rowVersion = false,
             [CanBeNull] string schema = null,
             bool nullable = false,
@@ -351,6 +375,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             [CanBeNull] string oldType = null,
             bool? oldUnicode = null,
             int? oldMaxLength = null,
+            int? oldPrecision = null,
+            int? oldScale = null,
             bool oldRowVersion = false,
             bool oldNullable = false,
             [CanBeNull] object oldDefaultValue = null,
@@ -373,6 +399,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 ColumnType = type,
                 IsUnicode = unicode,
                 MaxLength = maxLength,
+                Precision = precision,
+                Scale = scale,
                 IsRowVersion = rowVersion,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
@@ -392,6 +420,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     DefaultValueSql = oldDefaultValueSql,
                     ComputedColumnSql = oldComputedColumnSql,
                     IsFixedLength = oldFixedLength,
+                    Precision = oldPrecision,
+                    Scale = oldScale,
                     Comment = oldComment
                 }
             };
