@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
         /// </summary>
         public static void ExecutingSqlQuery(
             [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Database.Command> diagnosticsLogger,
-            CosmosSqlQuery cosmosSqlQuery)
+            [NotNull] CosmosSqlQuery cosmosSqlQuery)
         {
             var definition = new EventDefinition<string, string, string>(
                 diagnosticsLogger.Options,

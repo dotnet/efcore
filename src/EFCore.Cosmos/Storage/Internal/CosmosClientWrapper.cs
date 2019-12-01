@@ -107,8 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateDatabaseIfNotExistsOnce(
-            DbContext context,
-            object state)
+            [NotNull] DbContext context,
+            [NotNull] object state)
             => CreateDatabaseIfNotExistsOnceAsync(context, state).GetAwaiter().GetResult();
 
         /// <summary>
@@ -129,8 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
-            DbContext _,
-            object __,
+            [CanBeNull] DbContext _,
+            [CanBeNull] object __,
             CancellationToken cancellationToken = default)
         {
             var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken)
@@ -155,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteDatabaseOnce(
-            DbContext context,
-            object state)
+            [CanBeNull] DbContext context,
+            [CanBeNull] object state)
             => DeleteDatabaseOnceAsync(context, state).GetAwaiter().GetResult();
 
         /// <summary>
@@ -177,8 +177,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> DeleteDatabaseOnceAsync(
-            DbContext _,
-            object __,
+            [CanBeNull] DbContext _,
+            [CanBeNull] object __,
             CancellationToken cancellationToken = default)
         {
             using var response = await Client.GetDatabase(_databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
@@ -199,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateContainerIfNotExists(
-            string containerId,
-            string partitionKey)
+            [NotNull] string containerId,
+            [NotNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, partitionKey), CreateContainerIfNotExistsOnce, null);
 
@@ -216,8 +216,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> CreateContainerIfNotExistsAsync(
-            string containerId,
-            string partitionKey,
+            [NotNull] string containerId,
+            [NotNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, partitionKey), CreateContainerIfNotExistsOnceAsync, null, cancellationToken);
@@ -250,9 +250,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateItem(
-            string containerId,
-            JToken document,
-            string partitionKey)
+            [NotNull] string containerId,
+            [NotNull] JToken document,
+            [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, document, partitionKey), CreateItemOnce, null);
 
@@ -268,9 +268,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> CreateItemAsync(
-            string containerId,
-            JToken document,
-            string partitionKey,
+            [NotNull] string containerId,
+            [NotNull] JToken document,
+            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, document, partitionKey), CreateItemOnceAsync, null, cancellationToken);
@@ -300,10 +300,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool ReplaceItem(
-            string collectionId,
-            string documentId,
-            JObject document,
-            string partitionKey)
+            [NotNull] string collectionId,
+            [NotNull] string documentId,
+            [NotNull] JObject document,
+            [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (collectionId, documentId, document, partitionKey), ReplaceItemOnce, null);
 
@@ -319,10 +319,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> ReplaceItemAsync(
-            string collectionId,
-            string documentId,
-            JObject document,
-            string partitionKey,
+            [NotNull] string collectionId,
+            [NotNull] string documentId,
+            [NotNull] JObject document,
+            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (collectionId, documentId, document, partitionKey), ReplaceItemOnceAsync, null, cancellationToken);
@@ -353,9 +353,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteItem(
-            string containerId,
-            string documentId,
-            string partitionKey)
+            [NotNull] string containerId,
+            [NotNull] string documentId,
+            [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (containerId, documentId, partitionKey), DeleteItemOnce, null);
 
@@ -366,7 +366,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteItemOnce(
-            DbContext context,
+            [NotNull] DbContext context,
             (string ContainerId, string DocumentId, string PartitionKey) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
@@ -377,9 +377,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> DeleteItemAsync(
-            string containerId,
-            string documentId,
-            string partitionKey,
+            [NotNull] string containerId,
+            [NotNull] string documentId,
+            [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
                 (containerId, documentId, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
@@ -391,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual async Task<bool> DeleteItemOnceAsync(
-            DbContext _,
+            [CanBeNull] DbContext _,
             (string ContainerId, string DocumentId, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<JObject> ExecuteSqlQuery(
-            string containerId,
+            [NotNull] string containerId,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IAsyncEnumerable<JObject> ExecuteSqlQueryAsync(
-            string containerId,
+            [NotNull] string containerId,
             [NotNull] CosmosSqlQuery query)
         {
             _commandLogger.ExecutingSqlQuery(query);

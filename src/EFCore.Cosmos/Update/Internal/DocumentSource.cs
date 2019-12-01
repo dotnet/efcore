@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DocumentSource(IEntityType entityType, CosmosDatabaseWrapper database)
+        public DocumentSource([NotNull] IEntityType entityType, [NotNull] CosmosDatabaseWrapper database)
         {
             _collectionId = entityType.GetContainer();
             _database = database;
@@ -54,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string GetId(IUpdateEntry entry)
+        public virtual string GetId([NotNull] IUpdateEntry entry)
             => entry.GetCurrentValue<string>(_idProperty);
 
         /// <summary>
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject CreateDocument(IUpdateEntry entry)
+        public virtual JObject CreateDocument([NotNull] IUpdateEntry entry)
         {
             var document = new JObject();
             foreach (var property in entry.EntityType.GetProperties())
@@ -122,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument(JObject document, IUpdateEntry entry)
+        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
         {
             var anyPropertyUpdated = false;
             foreach (var property in entry.EntityType.GetProperties())
@@ -210,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             return anyPropertyUpdated ? document : null;
         }
 
-        public virtual JObject GetCurrentDocument(IUpdateEntry entry)
+        public virtual JObject GetCurrentDocument([NotNull] IUpdateEntry entry)
             => _jObjectProperty != null
                 ? (JObject)(entry.SharedIdentityEntry ?? entry).GetCurrentValue(_jObjectProperty)
                 : null;

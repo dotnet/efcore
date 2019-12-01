@@ -3,8 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -22,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public KeyAccessExpression(IProperty property, Expression accessExpression)
+        public KeyAccessExpression([NotNull] IProperty property, [NotNull] Expression accessExpression)
             : base(property.ClrType, property.GetTypeMapping())
         {
             Name = property.GetJsonPropertyName();
@@ -64,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var outerExpression = visitor.Visit(AccessExpression);
 
             return Update(outerExpression);
@@ -75,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual KeyAccessExpression Update(Expression outerExpression)
+        public virtual KeyAccessExpression Update([NotNull] Expression outerExpression)
             => outerExpression != AccessExpression
                 ? new KeyAccessExpression(Property, outerExpression)
                 : this;
@@ -87,7 +91,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Append(ToString());
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append(ToString());
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

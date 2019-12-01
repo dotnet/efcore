@@ -7,11 +7,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -23,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly EntityProjectionFindingExpressionVisitor _entityProjectionFindingExpressionVisitor;
 
         public InMemoryExpressionTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _entityProjectionFindingExpressionVisitor = new EntityProjectionFindingExpressionVisitor();
@@ -59,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        public virtual Expression Translate(Expression expression)
+        public virtual Expression Translate([NotNull] Expression expression)
         {
             var result = Visit(expression);
 
@@ -70,6 +72,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
             var newLeft = Visit(binaryExpression.Left);
             var newRight = Visit(binaryExpression.Right);
 
@@ -97,6 +101,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
+            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
+
             var test = Visit(conditionalExpression.Test);
             var ifTrue = Visit(conditionalExpression.IfTrue);
             var ifFalse = Visit(conditionalExpression.IfFalse);
@@ -125,6 +131,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             if (TryBindMember(
                 memberExpression.Expression,
                 MemberIdentity.Create(memberExpression.Member),
@@ -264,6 +272,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
             {
@@ -478,6 +488,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
         {
+            Check.NotNull(typeBinaryExpression, nameof(typeBinaryExpression));
+
             if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
                 && Visit(typeBinaryExpression.Expression) is EntityProjectionExpression entityProjectionExpression)
             {
@@ -516,6 +528,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
+            Check.NotNull(newExpression, nameof(newExpression));
+
             var newArguments = new List<Expression>();
             foreach (var argument in newExpression.Arguments)
             {
@@ -538,6 +552,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
         {
+            Check.NotNull(newArrayExpression, nameof(newArrayExpression));
+
             var newExpressions = new List<Expression>();
             foreach (var expression in newArrayExpression.Expressions)
             {
@@ -576,6 +592,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
                 case EntityProjectionExpression _:
@@ -595,14 +613,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
-        protected override Expression VisitListInit(ListInitExpression node) => null;
+        protected override Expression VisitListInit(ListInitExpression node)
+        {
+            Check.NotNull(node, nameof(node));
 
-        protected override Expression VisitInvocation(InvocationExpression node) => null;
+            return null;
+        }
 
-        protected override Expression VisitLambda<T>(Expression<T> node) => null;
+        protected override Expression VisitInvocation(InvocationExpression node)
+        {
+            Check.NotNull(node, nameof(node));
+
+            return null;
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            Check.NotNull(node, nameof(node));
+
+            return null;
+        }
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
+            Check.NotNull(parameterExpression, nameof(parameterExpression));
+
             if (parameterExpression.Name.StartsWith(CompiledQueryParameterPrefix, StringComparison.Ordinal))
             {
                 return Expression.Call(
@@ -625,6 +660,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+            Check.NotNull(unaryExpression, nameof(unaryExpression));
+
             var newOperand = Visit(unaryExpression.Operand);
             if (newOperand == null)
             {

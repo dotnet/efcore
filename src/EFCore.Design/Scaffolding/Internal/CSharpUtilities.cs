@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -176,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Uniquifier(
-            string proposedIdentifier, ICollection<string> existingIdentifiers)
+            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
             Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
 

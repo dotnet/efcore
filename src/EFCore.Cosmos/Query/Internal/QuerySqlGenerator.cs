@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -70,7 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosSqlQuery GetSqlQuery(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parameterValues)
+        public virtual CosmosSqlQuery GetSqlQuery(
+            [NotNull] SelectExpression selectExpression, [NotNull] IReadOnlyDictionary<string, object> parameterValues)
         {
             _sqlBuilder.Clear();
             _parameterValues = parameterValues;
@@ -89,6 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression)
         {
+            Check.NotNull(entityProjectionExpression, nameof(entityProjectionExpression));
+
             Visit(entityProjectionExpression.AccessExpression);
 
             return entityProjectionExpression;
@@ -102,6 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression)
         {
+            Check.NotNull(objectArrayProjectionExpression, nameof(objectArrayProjectionExpression));
+
             _sqlBuilder.Append(objectArrayProjectionExpression);
 
             return objectArrayProjectionExpression;
@@ -115,6 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitKeyAccess(KeyAccessExpression keyAccessExpression)
         {
+            Check.NotNull(keyAccessExpression, nameof(keyAccessExpression));
+
             _sqlBuilder.Append(keyAccessExpression);
 
             return keyAccessExpression;
@@ -128,6 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression)
         {
+            Check.NotNull(objectAccessExpression, nameof(objectAccessExpression));
+
             _sqlBuilder.Append(objectAccessExpression);
 
             return objectAccessExpression;
@@ -141,6 +152,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
+            Check.NotNull(projectionExpression, nameof(projectionExpression));
+
             Visit(projectionExpression.Expression);
 
             if (!string.Equals(string.Empty, projectionExpression.Alias)
@@ -160,6 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitRootReference(RootReferenceExpression rootReferenceExpression)
         {
+            Check.NotNull(rootReferenceExpression, nameof(rootReferenceExpression));
+
             _sqlBuilder.Append(rootReferenceExpression);
 
             return rootReferenceExpression;
@@ -173,6 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             _sqlBuilder.Append("SELECT ");
 
             if (selectExpression.IsDistinct)
@@ -245,6 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitOrdering(OrderingExpression orderingExpression)
         {
+            Check.NotNull(orderingExpression, nameof(orderingExpression));
+
             Visit(orderingExpression.Expression);
 
             if (!orderingExpression.IsAscending)
@@ -263,6 +282,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
+            Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
+
             var op = _operatorMap[sqlBinaryExpression.OperatorType];
             _sqlBuilder.Append("(");
             Visit(sqlBinaryExpression.Left);
@@ -289,6 +310,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
         {
+            Check.NotNull(sqlUnaryExpression, nameof(sqlUnaryExpression));
+
             var op = _operatorMap[sqlUnaryExpression.OperatorType];
 
             if (sqlUnaryExpression.OperatorType == ExpressionType.Not
@@ -332,6 +355,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
         {
+            Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
+
             var jToken = GenerateJToken(sqlConstantExpression.Value, sqlConstantExpression.TypeMapping);
 
             _sqlBuilder.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
@@ -363,6 +388,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
         {
+            Check.NotNull(sqlConditionalExpression, nameof(sqlConditionalExpression));
+
             _sqlBuilder.Append("(");
             Visit(sqlConditionalExpression.Test);
             _sqlBuilder.Append(" ? ");
@@ -382,6 +409,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
         {
+            Check.NotNull(sqlParameterExpression, nameof(sqlParameterExpression));
+
             var parameterName = $"@{sqlParameterExpression.Name}";
 
             if (_sqlParameters.All(sp => sp.Name != parameterName))
@@ -403,6 +432,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitIn(InExpression inExpression)
         {
+            Check.NotNull(inExpression, nameof(inExpression));
+
             Visit(inExpression.Item);
             _sqlBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
             _sqlBuilder.Append("(");
@@ -423,6 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
+            Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
+
             _sqlBuilder.Append(sqlFunctionExpression.Name);
             _sqlBuilder.Append("(");
             GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));

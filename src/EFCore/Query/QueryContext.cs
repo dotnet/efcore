@@ -65,7 +65,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="entity"> The entity instance. </param>
         /// <param name="navigation"> The navigation property. </param>
         public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigation navigation)
-            => Dependencies.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+        {
+            Check.NotNull(entity, nameof(entity));
+            Check.NotNull(navigation, nameof(navigation));
+
+            Dependencies.StateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+        }
 
         /// <summary>
         ///     The query provider.
@@ -146,8 +151,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public virtual InternalEntityEntry StartTracking(
-            IEntityType entityType,
-            object entity,
+            [NotNull] IEntityType entityType,
+            [NotNull] object entity,
             ValueBuffer valueBuffer)
             => StateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }

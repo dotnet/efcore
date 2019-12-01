@@ -4,26 +4,28 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
     {
         public SqliteQueryableMethodTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            IModel model)
+            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
+            [NotNull] IModel model)
             : base(dependencies, relationalDependencies, model)
         {
         }
 
         protected SqliteQueryableMethodTranslatingExpressionVisitor(
-            SqliteQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            [NotNull] SqliteQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor)
         {
         }
@@ -34,6 +36,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         protected override ShapedQueryExpression TranslateOrderBy(
             ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+
             var translation = base.TranslateOrderBy(source, keySelector, ascending);
             if (translation == null)
             {
@@ -56,6 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+
             var translation = base.TranslateThenBy(source, keySelector, ascending);
             if (translation == null)
             {

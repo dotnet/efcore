@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -12,13 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public RelationalCollectionShaperExpression(
             int collectionId,
-            Expression parentIdentifier,
-            Expression outerIdentifier,
-            Expression selfIdentifier,
-            Expression innerShaper,
-            INavigation navigation,
-            Type elementType)
+            [NotNull] Expression parentIdentifier,
+            [NotNull] Expression outerIdentifier,
+            [CanBeNull] Expression selfIdentifier,
+            [CanBeNull] Expression innerShaper,
+            [CanBeNull] INavigation navigation,
+            [NotNull] Type elementType)
         {
+            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
+            Check.NotNull(outerIdentifier, nameof(outerIdentifier));
+            Check.NotNull(elementType, nameof(elementType));
+
             CollectionId = collectionId;
             ParentIdentifier = parentIdentifier;
             OuterIdentifier = outerIdentifier;
@@ -41,6 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var parentIdentifier = visitor.Visit(ParentIdentifier);
             var outerIdentifier = visitor.Visit(OuterIdentifier);
             var selfIdentifier = visitor.Visit(SelfIdentifier);
@@ -50,8 +58,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual RelationalCollectionShaperExpression Update(
-            Expression parentIdentifier, Expression outerIdentifier, Expression selfIdentifier, Expression innerShaper)
+            [NotNull] Expression parentIdentifier,
+            [NotNull] Expression outerIdentifier,
+            [NotNull] Expression selfIdentifier,
+            [NotNull] Expression innerShaper)
         {
+            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
+            Check.NotNull(outerIdentifier, nameof(outerIdentifier));
+            Check.NotNull(selfIdentifier, nameof(selfIdentifier));
+            Check.NotNull(innerShaper, nameof(innerShaper));
+
             return parentIdentifier != ParentIdentifier
                 || outerIdentifier != OuterIdentifier
                 || selfIdentifier != SelfIdentifier
@@ -63,6 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine("RelationalCollectionShaper:");
             using (expressionPrinter.Indent())
             {

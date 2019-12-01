@@ -6,11 +6,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -23,9 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalParameterBasedQueryTranslationPostprocessor
     {
         public RelationalParameterBasedQueryTranslationPostprocessor(
-            RelationalParameterBasedQueryTranslationPostprocessorDependencies dependencies,
+            [NotNull] RelationalParameterBasedQueryTranslationPostprocessorDependencies dependencies,
             bool useRelationalNulls)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+
             Dependencies = dependencies;
             UseRelationalNulls = useRelationalNulls;
         }
@@ -35,8 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual bool UseRelationalNulls { get; }
 
         public virtual (SelectExpression selectExpression, bool canCache) Optimize(
-            SelectExpression selectExpression, IReadOnlyDictionary<string, object> parametersValues)
+            [NotNull] SelectExpression selectExpression,
+            [NotNull] IReadOnlyDictionary<string, object> parametersValues)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+            Check.NotNull(parametersValues, nameof(parametersValues));
+
             var canCache = true;
 
             var inExpressionOptimized = new InExpressionValuesExpandingExpressionVisitor(

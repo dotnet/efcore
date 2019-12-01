@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -22,11 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly bool _useRelationalNulls;
 
         public RelationalShapedQueryCompilingExpressionVisitor(
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
-            QueryCompilationContext queryCompilationContext)
+            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
             RelationalDependencies = relationalDependencies;
 
             _contextType = queryCompilationContext.ContextType;
@@ -39,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
             var selectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             selectExpression.ApplyTags(_tags);
 

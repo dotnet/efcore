@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -17,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             = new Dictionary<INavigation, EntityShaperExpression>();
 
         public EntityProjectionExpression(
-            IEntityType entityType, IDictionary<IProperty, Expression> readExpressionMap)
+            [NotNull] IEntityType entityType, [NotNull] IDictionary<IProperty, Expression> readExpressionMap)
         {
             EntityType = entityType;
             _readExpressionMap = readExpressionMap;
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public override Type Type => EntityType.ClrType;
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
-        public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
+        public virtual EntityProjectionExpression UpdateEntityType([NotNull] IEntityType derivedType)
         {
             var readExpressionMap = new Dictionary<IProperty, Expression>();
             foreach (var kvp in _readExpressionMap)
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return new EntityProjectionExpression(derivedType, readExpressionMap);
         }
 
-        public virtual Expression BindProperty(IProperty property)
+        public virtual Expression BindProperty([NotNull] IProperty property)
         {
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return _readExpressionMap[property];
         }
 
-        public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
+        public virtual void AddNavigationBinding([NotNull] INavigation navigation, [NotNull] EntityShaperExpression entityShaper)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -68,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _navigationExpressionsCache[navigation] = entityShaper;
         }
 
-        public virtual EntityShaperExpression BindNavigation(INavigation navigation)
+        public virtual EntityShaperExpression BindNavigation([NotNull] INavigation navigation)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -85,6 +87,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine(nameof(EntityProjectionExpression) + ":");
             using (expressionPrinter.Indent())
             {

@@ -4,8 +4,10 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -33,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return negated.HasValue;
         }
 
-        public SqlExpressionOptimizingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
+        public SqlExpressionOptimizingExpressionVisitor([NotNull] ISqlExpressionFactory sqlExpressionFactory, bool useRelationalNulls)
         {
             SqlExpressionFactory = sqlExpressionFactory;
             _useRelationalNulls = useRelationalNulls;
@@ -42,13 +44,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
 
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression switch
+        {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
+            return extensionExpression switch
             {
                 SqlUnaryExpression sqlUnaryExpression => VisitSqlUnaryExpression(sqlUnaryExpression),
                 SqlBinaryExpression sqlBinaryExpression => VisitSqlBinaryExpression(sqlBinaryExpression),
                 SelectExpression selectExpression => VisitSelectExpression(selectExpression),
                 _ => base.VisitExtension(extensionExpression),
             };
+        }
 
         private Expression VisitSelectExpression(SelectExpression selectExpression)
         {
@@ -94,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return newExpression;
         }
 
-        protected virtual Expression VisitSqlUnaryExpression(SqlUnaryExpression sqlUnaryExpression)
+        protected virtual Expression VisitSqlUnaryExpression([NotNull] SqlUnaryExpression sqlUnaryExpression)
         {
             var newOperand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
 
@@ -280,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return SqlExpressionFactory.MakeUnary(operatorType, operand, type, typeMapping);
         }
 
-        protected virtual Expression VisitSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
+        protected virtual Expression VisitSqlBinaryExpression([NotNull] SqlBinaryExpression sqlBinaryExpression)
         {
             var newLeft = (SqlExpression)Visit(sqlBinaryExpression.Left);
             var newRight = (SqlExpression)Visit(sqlBinaryExpression.Right);
@@ -375,11 +381,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected virtual SqlExpression SimplifyNullComparisonExpression(
             ExpressionType operatorType,
-            SqlExpression left,
-            SqlExpression right,
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
             bool leftNull,
             bool rightNull,
-            RelationalTypeMapping typeMapping)
+            [CanBeNull] RelationalTypeMapping typeMapping)
         {
             if ((operatorType == ExpressionType.Equal || operatorType == ExpressionType.NotEqual)
                 && (leftNull || rightNull))

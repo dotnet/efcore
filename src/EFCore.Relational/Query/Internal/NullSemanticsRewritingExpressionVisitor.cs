@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -17,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private bool _canOptimize;
         private readonly List<ColumnExpression> _nonNullableColumns = new List<ColumnExpression>();
 
-        public NullSemanticsRewritingExpressionVisitor(ISqlExpressionFactory sqlExpressionFactory)
+        public NullSemanticsRewritingExpressionVisitor([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _canOptimize = true;
@@ -25,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitCase(CaseExpression caseExpression)
         {
+            Check.NotNull(caseExpression, nameof(caseExpression));
+
             _isNullable = false;
             // if there is no 'else' there is a possibility of null, when none of the conditions are met
             // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
@@ -56,6 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitColumn(ColumnExpression columnExpression)
         {
+            Check.NotNull(columnExpression, nameof(columnExpression));
+
             _isNullable = !_nonNullableColumns.Contains(columnExpression) && columnExpression.IsNullable;
 
             return columnExpression;
@@ -63,6 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
         {
+            Check.NotNull(crossApplyExpression, nameof(crossApplyExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var table = (TableExpressionBase)Visit(crossApplyExpression.Table);
@@ -73,6 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitCrossJoin(CrossJoinExpression crossJoinExpression)
         {
+            Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var table = (TableExpressionBase)Visit(crossJoinExpression.Table);
@@ -83,6 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitExcept(ExceptExpression exceptExpression)
         {
+            Check.NotNull(exceptExpression, nameof(exceptExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var source1 = (SelectExpression)Visit(exceptExpression.Source1);
@@ -94,6 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitExists(ExistsExpression existsExpression)
         {
+            Check.NotNull(existsExpression, nameof(existsExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var newSubquery = (SelectExpression)Visit(existsExpression.Subquery);
@@ -103,10 +117,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
-            => fromSqlExpression;
+        {
+            Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
+
+            return fromSqlExpression;
+        }
 
         protected override Expression VisitIn(InExpression inExpression)
         {
+            Check.NotNull(inExpression, nameof(inExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             _isNullable = false;
@@ -125,6 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitIntersect(IntersectExpression intersectExpression)
         {
+            Check.NotNull(intersectExpression, nameof(intersectExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var source1 = (SelectExpression)Visit(intersectExpression.Source1);
@@ -136,6 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitLike(LikeExpression likeExpression)
         {
+            Check.NotNull(likeExpression, nameof(likeExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             _isNullable = false;
@@ -154,6 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitInnerJoin(InnerJoinExpression innerJoinExpression)
         {
+            Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var newTable = (TableExpressionBase)Visit(innerJoinExpression.Table);
@@ -165,6 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitLeftJoin(LeftJoinExpression leftJoinExpression)
         {
+            Check.NotNull(leftJoinExpression, nameof(leftJoinExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var newTable = (TableExpressionBase)Visit(leftJoinExpression.Table);
@@ -201,6 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitOrdering(OrderingExpression orderingExpression)
         {
+            Check.NotNull(orderingExpression, nameof(orderingExpression));
+
             var expression = (SqlExpression)Visit(orderingExpression.Expression);
 
             return orderingExpression.Update(expression);
@@ -208,6 +238,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitOuterApply(OuterApplyExpression outerApplyExpression)
         {
+            Check.NotNull(outerApplyExpression, nameof(outerApplyExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var table = (TableExpressionBase)Visit(outerApplyExpression.Table);
@@ -218,6 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitProjection(ProjectionExpression projectionExpression)
         {
+            Check.NotNull(projectionExpression, nameof(projectionExpression));
+
             var expression = (SqlExpression)Visit(projectionExpression.Expression);
 
             return projectionExpression.Update(expression);
@@ -225,6 +259,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
         {
+            Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var changed = false;
@@ -251,6 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitScalarSubquery(ScalarSubqueryExpression scalarSubqueryExpression)
         {
+            Check.NotNull(scalarSubqueryExpression, nameof(scalarSubqueryExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var subquery = (SelectExpression)Visit(scalarSubqueryExpression.Subquery);
@@ -261,6 +299,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitSelect(SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             var changed = false;
             var canOptimize = _canOptimize;
             var projections = new List<ProjectionExpression>();
@@ -327,6 +367,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
         {
+            Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
+
             _isNullable = false;
             var canOptimize = _canOptimize;
 
@@ -537,16 +579,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
         {
+            Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
+
             _isNullable = sqlConstantExpression.Value == null;
 
             return sqlConstantExpression;
         }
 
         protected override Expression VisitSqlFragment(SqlFragmentExpression sqlFragmentExpression)
-            => sqlFragmentExpression;
+        {
+            Check.NotNull(sqlFragmentExpression, nameof(sqlFragmentExpression));
+
+            return sqlFragmentExpression;
+        }
 
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
+            Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
 
@@ -567,6 +617,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
         {
+            Check.NotNull(sqlParameterExpression, nameof(sqlParameterExpression));
+
             // at this point we assume every parameter is nullable, we will filter out the non-nullable ones once we know the actual values
             _isNullable = true;
 
@@ -575,6 +627,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitSqlUnary(SqlUnaryExpression sqlCastExpression)
         {
+            Check.NotNull(sqlCastExpression, nameof(sqlCastExpression));
+
             _isNullable = false;
 
             var canOptimize = _canOptimize;
@@ -595,10 +649,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         protected override Expression VisitTable(TableExpression tableExpression)
-            => tableExpression;
+        {
+            Check.NotNull(tableExpression, nameof(tableExpression));
+
+            return tableExpression;
+        }
 
         protected override Expression VisitUnion(UnionExpression unionExpression)
         {
+            Check.NotNull(unionExpression, nameof(unionExpression));
+
             var canOptimize = _canOptimize;
             _canOptimize = false;
             var source1 = (SelectExpression)Visit(unionExpression.Source1);

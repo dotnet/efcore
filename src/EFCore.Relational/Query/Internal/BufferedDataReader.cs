@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        public static bool IsSupportedValueType(Type type)
+        public static bool IsSupportedValueType([NotNull] Type type)
             => type == typeof(int)
                 || type == typeof(bool)
                 || type == typeof(Guid)

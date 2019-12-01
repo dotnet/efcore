@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -12,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteByteArrayMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }

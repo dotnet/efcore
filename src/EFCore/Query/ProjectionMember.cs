@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -19,21 +21,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             _memberChain = new List<MemberInfo>();
         }
 
-        private ProjectionMember(IList<MemberInfo> memberChain)
+        private ProjectionMember([NotNull] IList<MemberInfo> memberChain)
         {
+            Check.NotNull(memberChain, nameof(memberChain));
+
             _memberChain = memberChain;
         }
 
-        public virtual ProjectionMember Append(MemberInfo member)
+        public virtual ProjectionMember Append([NotNull] MemberInfo member)
         {
+            Check.NotNull(member, nameof(member));
+
             var existingChain = _memberChain.ToList();
             existingChain.Add(member);
 
             return new ProjectionMember(existingChain);
         }
 
-        public virtual ProjectionMember Prepend(MemberInfo member)
+        public virtual ProjectionMember Prepend([NotNull] MemberInfo member)
         {
+            Check.NotNull(member, nameof(member));
+
             var existingChain = _memberChain.ToList();
             existingChain.Insert(0, member);
 

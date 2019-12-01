@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface IMethodCallTranslatorProvider
     {
-        SqlExpression Translate(IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments);
+        SqlExpression Translate(
+            [NotNull] IModel model,
+            [CanBeNull] SqlExpression instance,
+            [NotNull] MethodInfo method,
+            [NotNull] IReadOnlyList<SqlExpression> arguments);
     }
 }

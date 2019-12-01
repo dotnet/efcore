@@ -3,12 +3,14 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public interface IMethodCallTranslator
     {
-        SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments);
+        SqlExpression Translate(
+            [CanBeNull] SqlExpression instance, [NotNull] MethodInfo method, [NotNull] IReadOnlyList<SqlExpression> arguments);
     }
 }

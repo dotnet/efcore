@@ -5,6 +5,7 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -32,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 var methodName = methodCallExpression.Method.Name;
                 if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
                     && (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw)
