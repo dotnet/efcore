@@ -447,7 +447,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (normalized.Contains("20", StringComparison.Ordinal))
                     {
-                        var end = (utc ? 28 : 23) + dateAt;
+                        // May fail if test happens to span midnight on a change in length; seems unlikely!
+                        var end = (utc ? 28 : DateTime.Now.ToShortDateString().Length + 13) + dateAt;
                         normalized = normalized.Substring(0, dateAt)
                             + (utc ? "YYYY-MM-DDTHH:MM:SS.MMMMMMTZ" : "<Local Date> HH:mm:ss.fff") + normalized.Substring(end);
                     }
