@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -31,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityProjectionExpression(IEntityType entityType, Expression accessExpression)
+        public EntityProjectionExpression([NotNull] IEntityType entityType, [NotNull] Expression accessExpression)
         {
             EntityType = entityType;
             AccessExpression = accessExpression;
@@ -86,6 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var accessExpression = visitor.Visit(AccessExpression);
 
             return accessExpression != AccessExpression
@@ -99,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression BindProperty(IProperty property, bool clientEval)
+        public virtual Expression BindProperty([NotNull] IProperty property, bool clientEval)
         {
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -130,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression BindNavigation(INavigation navigation, bool clientEval)
+        public virtual Expression BindNavigation([NotNull] INavigation navigation, bool clientEval)
         {
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
@@ -171,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression BindMember(string name, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
+        public virtual Expression BindMember(
+            [NotNull] string name, [NotNull] Type entityClrType, bool clientEval, [NotNull] out IPropertyBase propertyBase)
             => BindMember(MemberIdentity.Create(name), entityClrType, clientEval, out propertyBase);
 
         /// <summary>
@@ -181,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Expression BindMember(
-            MemberInfo memberInfo, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
+            [NotNull] MemberInfo memberInfo, [NotNull] Type entityClrType, bool clientEval, [NotNull] out IPropertyBase propertyBase)
             => BindMember(MemberIdentity.Create(memberInfo), entityClrType, clientEval, out propertyBase);
 
         private Expression BindMember(MemberIdentity member, Type entityClrType, bool clientEval, out IPropertyBase propertyBase)
@@ -223,7 +228,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Visit(AccessExpression);
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Visit(AccessExpression);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

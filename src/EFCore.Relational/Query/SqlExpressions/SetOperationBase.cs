@@ -9,9 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public abstract class SetOperationBase : TableExpressionBase
     {
-        protected SetOperationBase([NotNull] string alias, SelectExpression source1, SelectExpression source2, bool distinct)
+        protected SetOperationBase(
+            [NotNull] string alias, [NotNull] SelectExpression source1, [NotNull] SelectExpression source2, bool distinct)
             : base(Check.NotEmpty(alias, nameof(alias)))
         {
+            Check.NotNull(source1, nameof(source1));
+            Check.NotNull(source2, nameof(source2));
+
             IsDistinct = distinct;
             Source1 = source1;
             Source2 = source2;

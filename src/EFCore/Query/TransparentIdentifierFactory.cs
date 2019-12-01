@@ -3,13 +3,19 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public static class TransparentIdentifierFactory
     {
-        public static Type Create(Type outerType, Type innerType)
-            => typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
+        public static Type Create([NotNull] Type outerType, [NotNull] Type innerType)
+        {
+            Check.NotNull(outerType, nameof(outerType));
+            Check.NotNull(innerType, nameof(innerType));
+
+            return typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
+        }
 
         private readonly struct TransparentIdentifier<TOuter, TInner>
         {

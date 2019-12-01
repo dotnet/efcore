@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With(ISqlExpressionFactory sqlExpressionFactory)
+        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
             => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(sqlExpressionFactory, ParameterNameGeneratorFactory);
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
         /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With(IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+        public RelationalParameterBasedQueryTranslationPostprocessorDependencies With([NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
             => new RelationalParameterBasedQueryTranslationPostprocessorDependencies(SqlExpressionFactory, parameterNameGeneratorFactory);
     }
 }

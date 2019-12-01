@@ -31,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosDatabaseCreator(
-            CosmosClientWrapper cosmosClient,
-            IModel model,
-            IUpdateAdapterFactory updateAdapterFactory,
-            IDatabase database)
+            [NotNull] CosmosClientWrapper cosmosClient,
+            [NotNull] IModel model,
+            [NotNull] IUpdateAdapterFactory updateAdapterFactory,
+            [NotNull] IDatabase database)
         {
             _cosmosClient = cosmosClient;
             _model = model;

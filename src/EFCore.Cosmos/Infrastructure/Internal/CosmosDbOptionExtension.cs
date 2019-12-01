@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected CosmosOptionsExtension(CosmosOptionsExtension copyFrom)
+        protected CosmosOptionsExtension([NotNull] CosmosOptionsExtension copyFrom)
         {
             _accountEndpoint = copyFrom._accountEndpoint;
             _accountKey = copyFrom._accountKey;
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithAccountEndpoint(string accountEndpoint)
+        public virtual CosmosOptionsExtension WithAccountEndpoint([NotNull] string accountEndpoint)
         {
             var clone = Clone();
 
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithAccountKey(string accountKey)
+        public virtual CosmosOptionsExtension WithAccountKey([NotNull] string accountKey)
         {
             var clone = Clone();
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithDatabaseName(string database)
+        public virtual CosmosOptionsExtension WithDatabaseName([NotNull] string database)
         {
             var clone = Clone();
 
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CosmosOptionsExtension WithRegion(string region)
+        public virtual CosmosOptionsExtension WithRegion([NotNull] string region)
         {
             var clone = Clone();
 

@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -18,9 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly EntityShaperNullableMarkingExpressionVisitor _entityShaperNullableMarkingExpressionVisitor;
 
         protected QueryableMethodTranslatingExpressionVisitor(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             bool subquery)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+
             Dependencies = dependencies;
             _subquery = subquery;
             _entityShaperNullableMarkingExpressionVisitor = new EntityShaperNullableMarkingExpressionVisitor();
@@ -29,17 +33,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => constantExpression.IsEntityQueryable()
+        {
+            Check.NotNull(constantExpression, nameof(constantExpression));
+
+            return constantExpression.IsEntityQueryable()
                 ? CreateShapedQueryExpression(((IQueryable)constantExpression.Value).ElementType)
                 : base.VisitConstant(constantExpression);
+        }
 
         protected override Expression VisitExtension(Expression expression)
-            => expression is ShapedQueryExpression
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return expression is ShapedQueryExpression
                 ? expression
                 : base.VisitExtension(expression);
+        }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             ShapedQueryExpression CheckTranslated(ShapedQueryExpression translated)
             {
                 if (translated == null)
@@ -441,21 +455,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 return extensionExpression is EntityShaperExpression entityShaper
                     ? entityShaper.MarkAsNullable()
                     : base.VisitExtension(extensionExpression);
             }
         }
 
-        protected virtual Expression MarkShaperNullable(Expression shaperExpression)
-            => _entityShaperNullableMarkingExpressionVisitor.Visit(shaperExpression);
+        protected virtual Expression MarkShaperNullable([NotNull] Expression shaperExpression)
+        {
+            Check.NotNull(shaperExpression, nameof(shaperExpression));
+
+            return _entityShaperNullableMarkingExpressionVisitor.Visit(shaperExpression);
+        }
 
         protected virtual ShapedQueryExpression TranslateResultSelectorForJoin(
-            ShapedQueryExpression outer,
-            LambdaExpression resultSelector,
-            Expression innerShaper,
-            Type transparentIdentifierType)
+            [NotNull] ShapedQueryExpression outer,
+            [NotNull] LambdaExpression resultSelector,
+            [NotNull] Expression innerShaper,
+            [CanBeNull] Type transparentIdentifierType)
         {
+            Check.NotNull(outer, nameof(outer));
+            Check.NotNull(resultSelector, nameof(resultSelector));
+            Check.NotNull(innerShaper, nameof(innerShaper));
+
             outer.ShaperExpression = CombineShapers(
                 outer.QueryExpression,
                 outer.ShaperExpression,
@@ -506,6 +530,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitExtension(Expression node)
             {
+                Check.NotNull(node, nameof(node));
+
                 if (node is ProjectionBindingExpression projectionBindingExpression)
                 {
                     return new ProjectionBindingExpression(
@@ -536,79 +562,127 @@ namespace Microsoft.EntityFrameworkCore.Query
             return Expression.Field(targetExpression, fieldInfo);
         }
 
-        public virtual ShapedQueryExpression TranslateSubquery(Expression expression)
-            => (ShapedQueryExpression)CreateSubqueryVisitor().Visit(expression);
+        public virtual ShapedQueryExpression TranslateSubquery([NotNull] Expression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return (ShapedQueryExpression)CreateSubqueryVisitor().Visit(expression);
+        }
 
         protected abstract QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor();
 
-        protected abstract ShapedQueryExpression CreateShapedQueryExpression(Type elementType);
-        protected abstract ShapedQueryExpression TranslateAll(ShapedQueryExpression source, LambdaExpression predicate);
-        protected abstract ShapedQueryExpression TranslateAny(ShapedQueryExpression source, LambdaExpression predicate);
-        protected abstract ShapedQueryExpression TranslateAverage(ShapedQueryExpression source, LambdaExpression selector, Type resultType);
-        protected abstract ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType);
-        protected abstract ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2);
-        protected abstract ShapedQueryExpression TranslateContains(ShapedQueryExpression source, Expression item);
-        protected abstract ShapedQueryExpression TranslateCount(ShapedQueryExpression source, LambdaExpression predicate);
-        protected abstract ShapedQueryExpression TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression defaultValue);
-        protected abstract ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source);
+        protected abstract ShapedQueryExpression CreateShapedQueryExpression([NotNull] Type elementType);
+        protected abstract ShapedQueryExpression TranslateAll([NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression predicate);
+        protected abstract ShapedQueryExpression TranslateAny([NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression predicate);
+
+        protected abstract ShapedQueryExpression TranslateAverage(
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression selector, [NotNull] Type resultType);
+
+        protected abstract ShapedQueryExpression TranslateCast([NotNull] ShapedQueryExpression source, [NotNull] Type resultType);
+
+        protected abstract ShapedQueryExpression TranslateConcat(
+            [NotNull] ShapedQueryExpression source1, [NotNull] ShapedQueryExpression source2);
+        protected abstract ShapedQueryExpression TranslateContains([NotNull] ShapedQueryExpression source, [NotNull] Expression item);
+
+        protected abstract ShapedQueryExpression TranslateCount(
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression predicate);
+
+        protected abstract ShapedQueryExpression TranslateDefaultIfEmpty(
+            [NotNull] ShapedQueryExpression source, [CanBeNull] Expression defaultValue);
+
+        protected abstract ShapedQueryExpression TranslateDistinct([NotNull] ShapedQueryExpression source);
 
         protected abstract ShapedQueryExpression TranslateElementAtOrDefault(
-            ShapedQueryExpression source, Expression index, bool returnDefault);
+            [NotNull] ShapedQueryExpression source, [NotNull] Expression index, bool returnDefault);
 
-        protected abstract ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2);
+        protected abstract ShapedQueryExpression TranslateExcept(
+            [NotNull] ShapedQueryExpression source1, [NotNull] ShapedQueryExpression source2);
 
         protected abstract ShapedQueryExpression TranslateFirstOrDefault(
-            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault);
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression predicate, [NotNull] Type returnType, bool returnDefault);
 
         protected abstract ShapedQueryExpression TranslateGroupBy(
-            ShapedQueryExpression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector);
+            [NotNull] ShapedQueryExpression source,
+            [NotNull] LambdaExpression keySelector,
+            [CanBeNull] LambdaExpression elementSelector,
+            [CanBeNull] LambdaExpression resultSelector);
 
         protected abstract ShapedQueryExpression TranslateGroupJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector);
+            [NotNull] ShapedQueryExpression outer,
+            [NotNull] ShapedQueryExpression inner,
+            [NotNull] LambdaExpression outerKeySelector,
+            [NotNull] LambdaExpression innerKeySelector,
+            [NotNull] LambdaExpression resultSelector);
 
-        protected abstract ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2);
+        protected abstract ShapedQueryExpression TranslateIntersect(
+            [NotNull] ShapedQueryExpression source1, [NotNull] ShapedQueryExpression source2);
 
         protected abstract ShapedQueryExpression TranslateJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector);
+            [NotNull] ShapedQueryExpression outer,
+            [NotNull] ShapedQueryExpression inner,
+            [CanBeNull] LambdaExpression outerKeySelector,
+            [CanBeNull] LambdaExpression innerKeySelector,
+            [NotNull] LambdaExpression resultSelector);
 
         protected abstract ShapedQueryExpression TranslateLeftJoin(
-            ShapedQueryExpression outer, ShapedQueryExpression inner, LambdaExpression outerKeySelector, LambdaExpression innerKeySelector,
-            LambdaExpression resultSelector);
+            [NotNull] ShapedQueryExpression outer,
+            [NotNull] ShapedQueryExpression inner,
+            [CanBeNull] LambdaExpression outerKeySelector,
+            [CanBeNull] LambdaExpression innerKeySelector,
+            [NotNull] LambdaExpression resultSelector);
 
         protected abstract ShapedQueryExpression TranslateLastOrDefault(
-            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault);
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression predicate, [NotNull] Type returnType, bool returnDefault);
 
-        protected abstract ShapedQueryExpression TranslateLongCount(ShapedQueryExpression source, LambdaExpression predicate);
-        protected abstract ShapedQueryExpression TranslateMax(ShapedQueryExpression source, LambdaExpression selector, Type resultType);
-        protected abstract ShapedQueryExpression TranslateMin(ShapedQueryExpression source, LambdaExpression selector, Type resultType);
-        protected abstract ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType);
+        protected abstract ShapedQueryExpression TranslateLongCount(
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression predicate);
+
+        protected abstract ShapedQueryExpression TranslateMax(
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression selector, [NotNull] Type resultType);
+
+        protected abstract ShapedQueryExpression TranslateMin(
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression selector, [NotNull] Type resultType);
+
+        protected abstract ShapedQueryExpression TranslateOfType([NotNull] ShapedQueryExpression source, [NotNull] Type resultType);
 
         protected abstract ShapedQueryExpression TranslateOrderBy(
-            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending);
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression keySelector, bool ascending);
 
-        protected abstract ShapedQueryExpression TranslateReverse(ShapedQueryExpression source);
-        protected abstract ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector);
+        protected abstract ShapedQueryExpression TranslateReverse([NotNull] ShapedQueryExpression source);
+
+        protected abstract ShapedQueryExpression TranslateSelect(
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression selector);
 
         protected abstract ShapedQueryExpression TranslateSelectMany(
-            ShapedQueryExpression source, LambdaExpression collectionSelector, LambdaExpression resultSelector);
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression collectionSelector, [NotNull] LambdaExpression resultSelector);
 
-        protected abstract ShapedQueryExpression TranslateSelectMany(ShapedQueryExpression source, LambdaExpression selector);
+        protected abstract ShapedQueryExpression TranslateSelectMany(
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression selector);
 
         protected abstract ShapedQueryExpression TranslateSingleOrDefault(
-            ShapedQueryExpression source, LambdaExpression predicate, Type returnType, bool returnDefault);
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression predicate, [NotNull] Type returnType, bool returnDefault);
 
-        protected abstract ShapedQueryExpression TranslateSkip(ShapedQueryExpression source, Expression count);
-        protected abstract ShapedQueryExpression TranslateSkipWhile(ShapedQueryExpression source, LambdaExpression predicate);
-        protected abstract ShapedQueryExpression TranslateSum(ShapedQueryExpression source, LambdaExpression selector, Type resultType);
-        protected abstract ShapedQueryExpression TranslateTake(ShapedQueryExpression source, Expression count);
-        protected abstract ShapedQueryExpression TranslateTakeWhile(ShapedQueryExpression source, LambdaExpression predicate);
+        protected abstract ShapedQueryExpression TranslateSkip(
+            [NotNull] ShapedQueryExpression source, [NotNull] Expression count);
+
+        protected abstract ShapedQueryExpression TranslateSkipWhile(
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression predicate);
+
+        protected abstract ShapedQueryExpression TranslateSum(
+            [NotNull] ShapedQueryExpression source, [CanBeNull] LambdaExpression selector, [NotNull] Type resultType);
+
+        protected abstract ShapedQueryExpression TranslateTake([NotNull] ShapedQueryExpression source, [NotNull] Expression count);
+
+        protected abstract ShapedQueryExpression TranslateTakeWhile(
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression predicate);
 
         protected abstract ShapedQueryExpression TranslateThenBy(
-            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending);
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression keySelector, bool ascending);
 
-        protected abstract ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2);
-        protected abstract ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate);
+        protected abstract ShapedQueryExpression TranslateUnion(
+            [NotNull] ShapedQueryExpression source1, [NotNull] ShapedQueryExpression source2);
+
+        protected abstract ShapedQueryExpression TranslateWhere(
+            [NotNull] ShapedQueryExpression source, [NotNull] LambdaExpression predicate);
     }
 }

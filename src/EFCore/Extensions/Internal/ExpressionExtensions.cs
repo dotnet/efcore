@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static LambdaExpression GetLambdaOrNull(this Expression expression)
+        public static LambdaExpression GetLambdaOrNull([NotNull] this Expression expression)
             => expression is LambdaExpression lambda
                 ? lambda
                 : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsLogicalNot(this UnaryExpression sqlUnaryExpression)
+        public static bool IsLogicalNot([NotNull] this UnaryExpression sqlUnaryExpression)
             => sqlUnaryExpression.NodeType == ExpressionType.Not
                 && (sqlUnaryExpression.Type == typeof(bool)
                     || sqlUnaryExpression.Type == typeof(bool?));

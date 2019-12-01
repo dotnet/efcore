@@ -318,14 +318,13 @@ namespace Microsoft.EntityFrameworkCore
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.IsVisible
                        && !typeof(Delegate).IsAssignableFrom(type)
-                       && !type.Namespace.Contains("Internal", StringComparison.Ordinal)
                    let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static | BindingFlags.DeclaredOnly)
-                       .Concat<MethodBase>(type.GetConstructors())
+                       .Concat<MethodBase>(type.GetConstructors(
+                           BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static))
                    where (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                        && ShouldHaveNotNullAnnotation(method, type)
-                       && !method.DeclaringType.Namespace.Contains("Query", StringComparison.Ordinal)
                    where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                    where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                    from parameter in method.GetParameters()

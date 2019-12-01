@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
@@ -27,12 +28,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly RelationalParameterBasedQueryTranslationPostprocessor _relationalParameterBasedQueryTranslationPostprocessor;
 
         public RelationalCommandCache(
-            IMemoryCache memoryCache,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            IRelationalParameterBasedQueryTranslationPostprocessorFactory relationalParameterBasedQueryTranslationPostprocessorFactory,
+            [NotNull] IMemoryCache memoryCache,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] IRelationalParameterBasedQueryTranslationPostprocessorFactory relationalParameterBasedQueryTranslationPostprocessorFactory,
             bool useRelationalNulls,
-            SelectExpression selectExpression)
+            [NotNull] SelectExpression selectExpression)
         {
             _memoryCache = memoryCache;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
@@ -40,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _relationalParameterBasedQueryTranslationPostprocessor = relationalParameterBasedQueryTranslationPostprocessorFactory.Create(useRelationalNulls);
         }
 
-        public virtual IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object> parameters)
+        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object> parameters)
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 

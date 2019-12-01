@@ -5547,7 +5547,7 @@ WHERE [p].[Id] = @__id_0");
 
         private interface IOwned
         {
-            public string OwnedValue { get; }
+            string OwnedValue { get; }
         }
 
         private class Specification17276<T>

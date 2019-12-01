@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -29,9 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         private Dictionary<string, LambdaExpression> _runtimeParameters;
 
         public QueryCompilationContext(
-            QueryCompilationContextDependencies dependencies,
+            [NotNull] QueryCompilationContextDependencies dependencies,
             bool async)
         {
+            Check.NotNull(dependencies, nameof(dependencies));
+
             IsAsync = async;
             IsTracking = dependencies.IsTracking;
             IsBuffering = dependencies.IsRetryingExecutionStrategy;
@@ -56,13 +60,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; }
         public virtual Type ContextType { get; }
 
-        public virtual void AddTag(string tag)
+        public virtual void AddTag([NotNull] string tag)
         {
+            Check.NotEmpty(tag, nameof(tag));
+
             Tags.Add(tag);
         }
 
-        public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
+        public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>([NotNull] Expression query)
         {
+            Check.NotNull(query, nameof(query));
+
             query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
             // Convert EntityQueryable to ShapedQueryExpression
             query = _queryableMethodTranslatingExpressionVisitorFactory.Create(Model).Visit(query);
@@ -95,8 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A lambda must be provided, which will extract the parameter's value from the QueryContext every time
         ///     the query is executed.
         /// </summary>
-        public virtual ParameterExpression RegisterRuntimeParameter(string name, LambdaExpression valueExtractor)
+        public virtual ParameterExpression RegisterRuntimeParameter([NotNull] string name, [NotNull] LambdaExpression valueExtractor)
         {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(valueExtractor, nameof(valueExtractor));
+
             if (valueExtractor.Parameters.Count != 1
                 || valueExtractor.Parameters[0] != QueryContextParameter)
             {

@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -20,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             = typeof(QueryContext)
                 .GetTypeInfo()
                 .GetDeclaredProperty(nameof(QueryContext.Context));
+
         private static readonly IDictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
         {
             { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
@@ -39,13 +42,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly EnumerableToQueryableMethodConvertingExpressionVisitor _enumerableToQueryableMethodConvertingExpressionVisitor;
         private readonly EntityEqualityRewritingExpressionVisitor _entityEqualityRewritingExpressionVisitor;
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
+
         private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
             = new Dictionary<IEntityType, LambdaExpression>();
+
         private readonly Parameters _parameters = new Parameters();
 
         public NavigationExpandingExpressionVisitor(
-            QueryCompilationContext queryCompilationContext,
-            IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            [NotNull] QueryCompilationContext queryCompilationContext,
+            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
             _queryCompilationContext = queryCompilationContext;
             _pendingSelectorExpandingExpressionVisitor = new PendingSelectorExpandingExpressionVisitor(this);
@@ -64,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 generateContextAccessors: true);
         }
 
-        public virtual Expression Expand(Expression query)
+        public virtual Expression Expand([NotNull] Expression query)
         {
             var result = Visit(query);
             result = new PendingSelectorExpandingExpressionVisitor(this, applyIncludes: true).Visit(result);
@@ -99,6 +104,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
+            Check.NotNull(constantExpression, nameof(constantExpression));
+
             if (constantExpression.IsEntityQueryable())
             {
                 var entityType = _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType);
@@ -129,6 +136,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             return extensionExpression is NavigationExpansionExpression
                 || extensionExpression is OwnedNavigationReference
                     ? extensionExpression
@@ -137,6 +146,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             var innerExpression = Visit(memberExpression.Expression);
 
             // Convert CollectionNavigation.Count to subquery.Count()
@@ -177,6 +188,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             var method = methodCallExpression.Method;
             if (method.DeclaringType == typeof(Queryable)
                 || method.DeclaringType == typeof(QueryableExtensions)

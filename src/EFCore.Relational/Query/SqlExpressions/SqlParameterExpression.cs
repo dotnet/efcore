@@ -3,7 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
@@ -20,13 +22,24 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public string Name => _parameterExpression.Name;
 
-        public SqlExpression ApplyTypeMapping(RelationalTypeMapping typeMapping)
-            => new SqlParameterExpression(_parameterExpression, typeMapping);
+        public SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping typeMapping)
+        {
+            return new SqlParameterExpression(_parameterExpression, typeMapping);
+        }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
-            => expressionPrinter.Append("@" + _parameterExpression.Name);
+        {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+            expressionPrinter.Append("@" + _parameterExpression.Name);
+        }
 
         public override bool Equals(object obj)
             => obj != null

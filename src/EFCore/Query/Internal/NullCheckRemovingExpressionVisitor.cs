@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -13,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
         {
+            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
+
             var test = Visit(conditionalExpression.Test);
 
             if (test is BinaryExpression binaryTest
@@ -65,6 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
+                Check.NotNull(memberExpression, nameof(memberExpression));
+
                 var innerExpression = Visit(memberExpression.Expression);
                 if (_nullSafeAccesses.Contains(innerExpression))
                 {
@@ -76,6 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitUnary(UnaryExpression unaryExpression)
             {
+                Check.NotNull(unaryExpression, nameof(unaryExpression));
+
                 var operand = Visit(unaryExpression.Operand);
                 if ((unaryExpression.NodeType == ExpressionType.Convert
                         || unaryExpression.NodeType == ExpressionType.ConvertChecked)

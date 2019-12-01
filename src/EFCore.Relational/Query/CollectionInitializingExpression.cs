@@ -3,15 +3,26 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class CollectionInitializingExpression : Expression, IPrintableExpression
     {
         public CollectionInitializingExpression(
-            int collectionId, Expression parent, Expression parentIdentifier, Expression outerIdentifier, INavigation navigation, Type type)
+            int collectionId,
+            [CanBeNull] Expression parent,
+            [NotNull] Expression parentIdentifier,
+            [NotNull] Expression outerIdentifier,
+            [CanBeNull] INavigation navigation,
+            [NotNull] Type type)
         {
+            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
+            Check.NotNull(outerIdentifier, nameof(outerIdentifier));
+            Check.NotNull(type, nameof(type));
+
             CollectionId = collectionId;
             Parent = parent;
             ParentIdentifier = parentIdentifier;
@@ -22,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var parent = visitor.Visit(Parent);
             var parentIdentifier = visitor.Visit(ParentIdentifier);
             var outerIdentifier = visitor.Visit(OuterIdentifier);
@@ -33,6 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine("InitializeCollection:");
             using (expressionPrinter.Indent())
             {

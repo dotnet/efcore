@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -18,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (_startsWithMethodInfo.Equals(methodCallExpression.Method)
                 || _endsWithMethodInfo.Equals(methodCallExpression.Method))
             {
@@ -51,6 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
+            Check.NotNull(unaryExpression, nameof(unaryExpression));
+
             if (unaryExpression.NodeType == ExpressionType.Not
                 && unaryExpression.Operand is MethodCallExpression innerMethodCall
                 && (_startsWithMethodInfo.Equals(innerMethodCall.Method)

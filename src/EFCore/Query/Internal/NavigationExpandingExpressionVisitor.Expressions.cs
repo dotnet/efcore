@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -30,7 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual IncludeTreeNode LastIncludeTreeNode { get; private set; }
             public override ExpressionType NodeType => ExpressionType.Extension;
             public override Type Type => EntityType.ClrType;
-            protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+
+            protected override Expression VisitChildren(ExpressionVisitor visitor)
+            {
+                Check.NotNull(visitor, nameof(visitor));
+
+                return this;
+            }
 
             public virtual void SetIncludePaths(IncludeTreeNode includePaths)
             {
@@ -52,6 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
                 expressionPrinter.Append($"{nameof(EntityReference)}: {EntityType.DisplayName()}");
                 if (IsOptional)
                 {
@@ -213,10 +222,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override Type Type => CardinalityReducingGenericMethodInfo == null
                 ? typeof(IQueryable<>).MakeGenericType(PendingSelector.Type)
                 : PendingSelector.Type;
-            protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+            protected override Expression VisitChildren(ExpressionVisitor visitor)
+            {
+                Check.NotNull(visitor, nameof(visitor));
+
+                return this;
+            }
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
                 expressionPrinter.AppendLine(nameof(NavigationExpansionExpression));
                 using (expressionPrinter.Indent())
                 {
@@ -246,6 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
+                Check.NotNull(visitor, nameof(visitor));
+
                 Value = visitor.Visit(Value);
 
                 return this;
@@ -255,6 +273,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public virtual void Print(ExpressionPrinter expressionPrinter)
             {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
                 expressionPrinter.AppendLine(nameof(NavigationTreeExpression));
                 using (expressionPrinter.Indent())
                 {
@@ -329,6 +349,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
             {
+                Check.NotNull(visitor, nameof(visitor));
+
                 Parent = visitor.Visit(Parent);
 
                 return this;

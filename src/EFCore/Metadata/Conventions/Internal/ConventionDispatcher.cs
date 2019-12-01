@@ -459,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Run<T>(Func<T> func, ref ForeignKey foreignKey)
+        public virtual T Run<T>([NotNull] Func<T> func, [CanBeNull] ref ForeignKey foreignKey)
         {
             var batch = DelayConventions();
             using var foreignKeyReference = Tracker.Track(foreignKey);

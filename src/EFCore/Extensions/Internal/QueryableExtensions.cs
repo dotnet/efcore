@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 
 // ReSharper disable CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -28,11 +29,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
-            this IQueryable<TOuter> outer,
-            IEnumerable<TInner> inner,
-            Expression<Func<TOuter, TKey>> outerKeySelector,
-            Expression<Func<TInner, TKey>> innerKeySelector,
-            Expression<Func<TOuter, TInner, TResult>> resultSelector)
+            [NotNull] this IQueryable<TOuter> outer,
+            [NotNull] IEnumerable<TInner> inner,
+            [NotNull] Expression<Func<TOuter, TKey>> outerKeySelector,
+            [NotNull] Expression<Func<TInner, TKey>> innerKeySelector,
+            [NotNull] Expression<Func<TOuter, TInner, TResult>> resultSelector)
         {
             throw new NotImplementedException();
         }

@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties(this ITypeBase type)
+        public static IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties([NotNull] this ITypeBase type)
             => (type as TypeBase).GetRuntimeProperties();
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields(this ITypeBase type)
+        public static IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields([NotNull] this ITypeBase type)
             => (type as TypeBase).GetRuntimeFields();
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static MemberInfo FindClrMember(this TypeBase type, string name)
+        public static MemberInfo FindClrMember([NotNull] this TypeBase type, [NotNull] string name)
         {
             if (type.GetRuntimeProperties().TryGetValue(name, out var property))
             {

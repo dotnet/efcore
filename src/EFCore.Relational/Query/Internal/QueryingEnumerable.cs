@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -30,13 +31,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         public QueryingEnumerable(
-            RelationalQueryContext relationalQueryContext,
-            RelationalCommandCache relationalCommandCache,
-            IReadOnlyList<string> columnNames,
-            IReadOnlyList<ReaderColumn> readerColumns,
-            Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
-            Type contextType,
-            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+            [NotNull] RelationalQueryContext relationalQueryContext,
+            [NotNull] RelationalCommandCache relationalCommandCache,
+            [NotNull] IReadOnlyList<string> columnNames,
+            [NotNull] IReadOnlyList<ReaderColumn> readerColumns,
+            [NotNull] Func<QueryContext, DbDataReader, ResultContext, int[], ResultCoordinator, T> shaper,
+            [NotNull] Type contextType,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
             _relationalQueryContext = relationalQueryContext;
             _relationalCommandCache = relationalCommandCache;
@@ -53,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual IEnumerator<T> GetEnumerator() => new Enumerator(this);
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public static int[] BuildIndexMap(IReadOnlyList<string> columnNames, DbDataReader dataReader)
+        public static int[] BuildIndexMap([CanBeNull] IReadOnlyList<string> columnNames, [NotNull] DbDataReader dataReader)
         {
             if (columnNames == null)
             {
