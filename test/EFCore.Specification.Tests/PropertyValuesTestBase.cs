@@ -1618,9 +1618,10 @@ namespace Microsoft.EntityFrameworkCore
             var building = context.Set<Building>().Single(b => b.Name == "Building One");
             var values = getPropertyValues(context.Entry(building));
 
+            values["BuildingId"] = new Guid();
             Assert.Equal(
                 CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
-                Assert.Throws<InvalidOperationException>(() => values["BuildingId"] = new Guid()).Message);
+                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
         [ConditionalTheory]
@@ -1828,12 +1829,13 @@ namespace Microsoft.EntityFrameworkCore
             var building = context.Set<Building>().Single(b => b.Name == "Building One");
             var values = getPropertyValues(context.Entry(building));
 
-            var newBuilding = (Building)values.ToObject();
-            newBuilding.BuildingId = new Guid();
+                var newBuilding = (Building)values.ToObject();
+                newBuilding.BuildingId = new Guid();
+                values.SetValues(newBuilding);
 
-            Assert.Equal(
-                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
-                Assert.Throws<InvalidOperationException>(() => values.SetValues(newBuilding)).Message);
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
         [ConditionalFact]
@@ -1854,12 +1856,13 @@ namespace Microsoft.EntityFrameworkCore
             var building = context.Set<Building>().Single(b => b.Name == "Building One");
             var values = getPropertyValues(context.Entry(building));
 
-            var clone = values.Clone();
-            clone["BuildingId"] = new Guid();
+                var clone = values.Clone();
+                clone["BuildingId"] = new Guid();
+                values.SetValues(clone);
 
-            Assert.Equal(
-                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
-                Assert.Throws<InvalidOperationException>(() => values.SetValues(clone)).Message);
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                    Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
         }
 
         [ConditionalFact]

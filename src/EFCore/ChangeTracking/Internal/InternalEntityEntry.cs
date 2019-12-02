@@ -443,7 +443,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var propertyIndex = property.GetIndex();
 
-            return _stateData.EntityState == EntityState.Modified
+            return (_stateData.EntityState == EntityState.Modified
+                    || _stateData.EntityState == EntityState.Deleted)
                 && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Modified)
                 && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown);
         }
@@ -458,7 +459,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IProperty property,
             bool changeState = true,
             bool isModified = true,
-            bool isConceptualNull = false,
             bool acceptChanges = false)
         {
             var propertyIndex = property.GetIndex();
@@ -479,21 +479,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             if (currentState == EntityState.Added)
-            {
-                return;
-            }
-
-            if (changeState
-                && !isConceptualNull
-                && isModified
-                && !StateManager.SavingChanges
-                && property.IsKey()
-                && property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw)
-            {
-                throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
-            }
-
-            if (currentState == EntityState.Deleted)
             {
                 return;
             }
@@ -1233,8 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             if (setModified)
                             {
                                 SetPropertyModified(
-                                    asProperty, changeState: true, isModified: true,
-                                    isConceptualNull: true);
+                                    asProperty, changeState: true, isModified: true);
                             }
 
                             if (!isCascadeDelete
@@ -1438,10 +1422,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
                         && IsModified(property))
                     {
-                        throw new InvalidOperationException(
-                            CoreStrings.PropertyReadOnlyAfterSave(
-                                property.Name,
-                                EntityType.DisplayName()));
+                        if (property.IsKey())
+                        {
+                            throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.PropertyReadOnlyAfterSave(
+                                    property.Name,
+                                    EntityType.DisplayName()));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
+                        && IsModified(property)
+                        && property.IsKey())
+                    {
+                        throw new InvalidOperationException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
                     }
                 }
             }

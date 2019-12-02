@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         [ConditionalFact]
-        public virtual void Key_properties_throw_immediately_if_modified()
+        public virtual void Key_properties_do_not_throw_immediately_if_modified()
         {
             using var context = new TKContext();
             var entry = context.Add(new TSomeEntity()).GetInfrastructure();
@@ -181,21 +181,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.False(entry.IsModified(keyProperty));
 
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("Id", "SomeEntity"),
-                Assert.Throws<InvalidOperationException>(
-                    () => entry.SetPropertyModified(keyProperty)).Message);
+                entry.SetPropertyModified(keyProperty);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.False(entry.IsModified(keyProperty));
+                Assert.Equal(EntityState.Modified, entry.EntityState);
+                Assert.True(entry.IsModified(keyProperty));
 
-            Assert.Equal(
-                CoreStrings.KeyReadOnly("Id", "SomeEntity"),
-                Assert.Throws<InvalidOperationException>(
-                    () => entry[keyProperty] = 2).Message);
+                entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.False(entry.IsModified(keyProperty));
+                entry[keyProperty] = 2;
+
+                Assert.Equal(EntityState.Modified, entry.EntityState);
+                Assert.True(entry.IsModified(keyProperty));
         }
 
         [ConditionalFact]
