@@ -6,13 +6,13 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
-    public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
+    public class SqliteByteArrayMethodTranslator : IMethodCallTranslator
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteByteArrayMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -28,12 +28,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 var pattern = arguments[1] is SqlConstantExpression constantPattern
                     ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantPattern.Value }, typeMapping)
-                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), typeMapping);
+                    : _sqlExpressionFactory.Function(
+                        "char",
+                        new[] { arguments[1] },
+                        typeof(string));
 
                 return _sqlExpressionFactory.GreaterThan(
                     _sqlExpressionFactory.Function(
-                        "CHARINDEX",
-                        new[] { pattern, instance },
+                        "instr",
+                        new[] { instance, pattern },
                         typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }

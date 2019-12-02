@@ -3,15 +3,17 @@
 
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class GearsOfWarQuerySqliteTest : GearsOfWarQueryTestBase<GearsOfWarQuerySqliteFixture>
     {
-        public GearsOfWarQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture)
+        public GearsOfWarQuerySqliteTest(GearsOfWarQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
             Fixture.TestSqlLoggerFactory.Clear();
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         // SQLite client-eval
@@ -116,9 +118,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM ""Missions"" AS ""m""");
         }
 
-        public override Task Byte_array_contains_literal(bool async) => null;
+        public override async Task Byte_array_contains_literal(bool async)
+        {
+            await base.Byte_array_contains_literal(async);
 
-        public override Task Byte_array_contains_parameter(bool async) => null;
+            AssertSql(
+                @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE instr(""s"".""Banner"", X'01') > 0");
+        }
+
+        public override async Task Byte_array_contains_parameter(bool async)
+        {
+            await base.Byte_array_contains_parameter(async);
+
+            AssertSql(
+                @"@__someByte_0='1' (DbType = String)
+
+SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
+        }
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
