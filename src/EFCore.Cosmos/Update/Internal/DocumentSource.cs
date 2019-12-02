@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
@@ -85,8 +86,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 }
                 else if (entry.HasTemporaryValue(property))
                 {
-                    if (ordinal != null
-                        && property.IsOrdinalKeyProperty())
+                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18948", out var isEnabled) && isEnabled)
+                    {
+                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
+                    }
+                    else if (ordinal != null
+                      && property.IsOrdinalKeyProperty())
                     {
                         entry.SetStoreGeneratedValue(property, ordinal.Value);
                     }
@@ -161,14 +166,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                     {
                         document[storeName] = ConvertPropertyValue(property, entry.GetCurrentValue(property));
                         anyPropertyUpdated = true;
+                        continue;
                     }
                 }
 
-                if (ordinal != null
-                    && entry.HasTemporaryValue(property)
-                    && property.IsOrdinalKeyProperty())
+                if (entry.HasTemporaryValue(property))
                 {
-                    entry.SetStoreGeneratedValue(property, ordinal.Value);
+                    if (AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18948", out var isEnabled) && isEnabled)
+                    {
+                        ((InternalEntityEntry)entry)[property] = entry.GetCurrentValue(property);
+                    }
+                    else if (ordinal != null
+                        && property.IsOrdinalKeyProperty())
+                    {
+                        entry.SetStoreGeneratedValue(property, ordinal.Value);
+                    }
                 }
             }
 
@@ -215,30 +227,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                 else
                 {
                     var embeddedOrdinal = 0;
-                    var ordinalKeyProperty = GetOrdinalKeyProperty(fk.DeclaringEntityType);
-                    if (ordinalKeyProperty != null)
+                    if (!AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue18948", out var isEnabled) || !isEnabled)
                     {
-                        var shouldSetTemporaryKeys = false;
-                        foreach (var dependent in (IEnumerable)embeddedValue)
+                        var ordinalKeyProperty = GetOrdinalKeyProperty(fk.DeclaringEntityType);
+                        if (ordinalKeyProperty != null)
                         {
-                            var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
-                            if (embeddedEntry == null)
-                            {
-                                continue;
-                            }
-
-                            if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty) != embeddedOrdinal)
-                            {
-                                shouldSetTemporaryKeys = true;
-                                break;
-                            }
-
-                            embeddedOrdinal++;
-                        }
-
-                        if (shouldSetTemporaryKeys)
-                        {
-                            var temporaryOrdinal = -1;
+                            var shouldSetTemporaryKeys = false;
                             foreach (var dependent in (IEnumerable)embeddedValue)
                             {
                                 var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
@@ -247,9 +241,30 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
                                     continue;
                                 }
 
-                                embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
+                                if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty) != embeddedOrdinal)
+                                {
+                                    shouldSetTemporaryKeys = true;
+                                    break;
+                                }
 
-                                temporaryOrdinal--;
+                                embeddedOrdinal++;
+                            }
+
+                            if (shouldSetTemporaryKeys)
+                            {
+                                var temporaryOrdinal = -1;
+                                foreach (var dependent in (IEnumerable)embeddedValue)
+                                {
+                                    var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                                    if (embeddedEntry == null)
+                                    {
+                                        continue;
+                                    }
+
+                                    embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
+
+                                    temporaryOrdinal--;
+                                }
                             }
                         }
                     }
