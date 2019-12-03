@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,6 +61,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 return internalServiceProvider;
             }
+
+            if (coreOptionsExtension?.ServiceProviderCachingEnabled == false)
+            {
+                return BuildServiceProvider().ServiceProvider;
+            }
+
+            var key = options.Extensions
+                .OrderBy(e => e.GetType().Name)
+                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.Info.GetServiceProviderHashCode());
+
+            return _configurations.GetOrAdd(key, k => BuildServiceProvider()).ServiceProvider;
 
             (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider()
             {
@@ -137,22 +149,17 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                     _configurations.Values.Select(e => e.ServiceProvider).ToList());
                             }
                         }
+
+                        var applicationServiceProvider = options.FindExtension<CoreOptionsExtension>()?.ApplicationServiceProvider;
+                        if (applicationServiceProvider?.GetService<IRegisteredServices>() != null)
+                        {
+                            logger.RedundantAddServicesCallWarning(serviceProvider);
+                        }
                     }
                 }
 
                 return (serviceProvider, debugInfo);
             }
-
-            if (coreOptionsExtension?.ServiceProviderCachingEnabled == false)
-            {
-                return BuildServiceProvider().ServiceProvider;
-            }
-
-            var key = options.Extensions
-                .OrderBy(e => e.GetType().Name)
-                .Aggregate(0L, (t, e) => (t * 397) ^ ((long)e.GetType().GetHashCode() * 397) ^ e.Info.GetServiceProviderHashCode());
-
-            return _configurations.GetOrAdd(key, k => BuildServiceProvider()).ServiceProvider;
         }
 
         private static void ValidateOptions(IDbContextOptions options)

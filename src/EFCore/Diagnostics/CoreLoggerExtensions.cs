@@ -945,6 +945,34 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.RedundantAddServicesCallWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="serviceProvider"> The service provider used. </param>
+        public static void RedundantAddServicesCallWarning(
+            [NotNull] this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            [NotNull] IServiceProvider serviceProvider)
+        {
+            var definition = CoreResources.LogRedundantAddServicesCall(diagnostics);
+
+            var warningBehavior = definition.GetLogBehavior(diagnostics);
+            if (warningBehavior != WarningBehavior.Ignore)
+            {
+                definition.Log(diagnostics, warningBehavior);
+            }
+
+            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            {
+                diagnostics.DiagnosticSource.Write(
+                    definition.EventId.Name,
+                    new ServiceProviderEventData(
+                        definition,
+                        (d, p) => ((EventDefinition)d).GenerateMessage(),
+                        serviceProvider));
+            }
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.ShadowPropertyCreated" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
