@@ -508,7 +508,7 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.TryAdd(
                 new ServiceDescriptor(
                     typeof(DbContextOptions<TContextImplementation>),
-                    p => DbContextOptionsFactory<TContextImplementation>(p, optionsAction),
+                    p => CreateDbContextOptions<TContextImplementation>(p, optionsAction),
                     optionsLifetime));
 
             serviceCollection.Add(
@@ -518,7 +518,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     optionsLifetime));
         }
 
-        private static DbContextOptions<TContext> DbContextOptionsFactory<TContext>(
+        private static DbContextOptions<TContext> CreateDbContextOptions<TContext>(
             [NotNull] IServiceProvider applicationServiceProvider,
             [CanBeNull] Action<IServiceProvider, DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
