@@ -31,16 +31,5 @@ namespace System.Reflection
             var index = name.LastIndexOf('.');
             return index >= 0 ? name.Substring(index + 1) : name;
         }
-
-        private class MemberInfoComparer : IEqualityComparer<MemberInfo>
-        {
-            public static readonly MemberInfoComparer Instance = new MemberInfoComparer();
-
-            public bool Equals(MemberInfo x, MemberInfo y)
-                => x.IsSameAs(y);
-
-            public int GetHashCode(MemberInfo obj)
-                => obj.GetHashCode();
-        }
     }
 }

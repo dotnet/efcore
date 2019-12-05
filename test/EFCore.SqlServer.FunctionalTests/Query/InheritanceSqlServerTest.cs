@@ -502,6 +502,17 @@ FROM (
 WHERE CAST(0 AS bit) = CAST(1 AS bit)");
         }
 
+        public override void Member_access_on_intermediate_type_works()
+        {
+            base.Member_access_on_intermediate_type_works();
+
+            AssertSql(
+                @"SELECT [a].[Name]
+FROM [Animal] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'
+ORDER BY [a].[Name]");
+        }
+
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 
