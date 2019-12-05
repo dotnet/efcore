@@ -458,6 +458,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 thenBy: true);
 
+                        case nameof(Queryable.Reverse)
+                            when genericMethod == QueryableMethods.Reverse:
+                            return ProcessReverse(source);
+
                         case nameof(Queryable.Select)
                             when genericMethod == QueryableMethods.Select:
                             return ProcessSelect(
@@ -979,6 +983,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 source.AddPendingOrdering(genericMethod, lambdaBody);
             }
+
+            return source;
+        }
+
+        private Expression ProcessReverse(NavigationExpansionExpression source)
+        {
+            source.UpdateSource(
+                Expression.Call(
+                    QueryableMethods.Reverse.MakeGenericMethod(source.SourceElementType),
+                    source.Source));
 
             return source;
         }
