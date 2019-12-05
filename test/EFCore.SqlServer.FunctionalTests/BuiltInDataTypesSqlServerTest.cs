@@ -51,19 +51,20 @@ FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = '00:01:02'");
         }
 
-        [ConditionalFact(Skip = "Issue#13487")]
+        [ConditionalFact]
         public void Translate_array_length()
         {
-            using var db = CreateContext();
-            db.Set<MappedDataTypesWithIdentity>()
-                .Where(p => p.BytesAsImage.Length == 0)
-                .Select(p => p.BytesAsImage.Length)
-                .FirstOrDefault();
+            using var context = CreateContext();
+            var results
+                = context.Set<MappedDataTypesWithIdentity>()
+                    .Where(p => p.BytesAsImage.Length == 0)
+                    .Select(p => p.BytesAsImage.Length)
+                    .FirstOrDefault();
 
             AssertSql(
-                @"SELECT TOP(1) CAST(DATALENGTH([p].[BytesAsImage]) AS int)
-FROM [MappedDataTypesWithIdentity] AS [p]
-WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
+                @"SELECT TOP(1) CAST(DATALENGTH([m].[BytesAsImage]) AS int)
+FROM [MappedDataTypesWithIdentity] AS [m]
+WHERE CAST(DATALENGTH([m].[BytesAsImage]) AS int) = 0");
         }
 
         [ConditionalFact]
