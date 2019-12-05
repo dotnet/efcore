@@ -895,6 +895,20 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Reverse_without_explicit_ordering_throws(bool async)
+        {
+            Assert.Equal("Reverse can only be applied with explicit ordering",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Employee>()
+                        .Reverse()
+                        .Select(e => $"{e.EmployeeID}")
+                ))).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_containing_DateTime_subtraction(bool async)
         {
             return AssertQueryScalar(

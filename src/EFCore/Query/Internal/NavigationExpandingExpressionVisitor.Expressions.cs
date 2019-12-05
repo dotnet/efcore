@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual void ReversePendingOrdering()
             {
                 if (_pendingOrderings.Count == 0)
-                    throw new InvalidOperationException("Reverse can only be applied with explicit ordering");//TODO: Tests, extract string
+                    throw new InvalidOperationException(CoreStrings.ReverseRequiresExplicitOrdering);
 
                 for (int i = 0; i < _pendingOrderings.Count; i++)
                 {

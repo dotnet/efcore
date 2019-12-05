@@ -2236,6 +2236,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("ClientProjectionCapturingConstantInTree", nameof(constantType)),
                 constantType);
 
+
+        /// <summary>
+        ///     Reverse can only be applied with explicit ordering
+        /// </summary>
+        public static string ReverseRequiresExplicitOrdering
+            => GetString("ReverseRequiresExplicitOrdering");
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
