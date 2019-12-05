@@ -201,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     if (source.PendingOrderings.Any()
                         && genericMethod != QueryableMethods.ThenBy
-                        && genericMethod != QueryableMethods.ThenByDescending)
+                        && genericMethod != QueryableMethods.ThenByDescending
+                        && genericMethod != QueryableMethods.Reverse)
                     {
                         ApplyPendingOrderings(source);
                     }
@@ -457,6 +458,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 genericMethod,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                                 thenBy: true);
+
+                        case nameof(Queryable.Reverse)
+                            when genericMethod == QueryableMethods.Reverse:
+                            return ProcessReverse(source);
 
                         case nameof(Queryable.Select)
                             when genericMethod == QueryableMethods.Select:
@@ -979,6 +984,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 source.AddPendingOrdering(genericMethod, lambdaBody);
             }
+
+            return source;
+        }
+
+        private Expression ProcessReverse(NavigationExpansionExpression source)
+        {
+            source.ReversePendingOrdering();
 
             return source;
         }
