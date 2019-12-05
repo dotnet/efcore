@@ -746,7 +746,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(source, nameof(source));
 
-            return null;
+            var selectExpression = (SelectExpression)source.QueryExpression;
+            if (selectExpression.Orderings.Count == 0)
+            {
+                return null;
+            }
+
+            selectExpression.ReverseOrderings();
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)
