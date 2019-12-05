@@ -45,6 +45,10 @@
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>547ae1f5f072d130b32ec3089876711070b2dc4f</Sha>
     </Dependency>
+    <Dependency Name="Microsoft.NETCore.App.Internal" Version="3.0.2-servicing-19576-08" CoherentParentDependency="Microsoft.Extensions.Logging">
+      <Uri>https://github.com/dotnet/core-setup</Uri>
+      <Sha>547ae1f5f072d130b32ec3089876711070b2dc4f</Sha>
+    </Dependency>
     <Dependency Name="NETStandard.Library.Ref" Version="2.1.0" Pinned="true">
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>7d57652f33493fa022125b7f63aad0d70c52d810</Sha>
