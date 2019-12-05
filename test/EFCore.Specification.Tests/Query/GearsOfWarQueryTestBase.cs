@@ -7195,6 +7195,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool isAsync)
+        {
+            var prm = true;
+            var prm2 = (string)null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => g.HasSoulPatch == prm
+                    ? true
+                    : g.CityOfBirthName == prm2));
+        }
+
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_expression_with_test_being_simplified_to_constant_complex(bool isAsync)
+        {
+            var prm = true;
+            var prm2 = "Dom's Lancer";
+            var prm3 = (string)null;
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Where(g => g.HasSoulPatch == prm
+                    ? ss.Set<Weapon>().Where(w => w.Id == g.SquadId).Single().Name == prm2
+                    : g.CityOfBirthName == prm3));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual async Task Bitwise_operation_with_non_null_parameter_optimizes_null_checks(bool async)
         {
             var ranks = MilitaryRank.Corporal | MilitaryRank.Sergeant | MilitaryRank.General;
