@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.Inheritance;
@@ -593,8 +594,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected virtual bool EnforcesFkConstraints => true;
-
         [ConditionalFact]
         public virtual void Byte_enum_value_constant_used_in_projection()
         {
@@ -608,7 +607,31 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
+        [ConditionalFact]
+        public virtual void Member_access_on_intermediate_type_works()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Kiwi>().Select(k => new Kiwi { Name = k.Name });
+
+            var parameter = Expression.Parameter(query.ElementType, "p");
+            var property = Expression.Property(parameter, "Name");
+            var getProperty = Expression.Lambda(property, new[] { parameter });
+
+            var expression = Expression.Call(typeof(Queryable), nameof(Queryable.OrderBy),
+                new[] { query.ElementType, typeof(string) },
+                new[] { query.Expression, Expression.Quote(getProperty) });
+
+            query = query.Provider.CreateQuery<Kiwi>(expression);
+
+            var result = query.ToList();
+
+            var kiwi = Assert.Single(result);
+            Assert.Equal("Great spotted kiwi", kiwi.Name);
+        }
+
         protected InheritanceContext CreateContext() => Fixture.CreateContext();
+
+        protected virtual bool EnforcesFkConstraints => true;
 
         protected virtual void ClearLog()
         {
