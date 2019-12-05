@@ -7358,6 +7358,31 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_length(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(w => w.Banner.Length == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_length_with_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Where(w => w.Squad.Banner.Length == 1));
+        }
+
+        protected async Task AssertTranslationFailed(Func<Task> testCode)
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(21),
+                (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_bool_coming_from_optional_navigation(bool async)
         {
             return AssertQuery(

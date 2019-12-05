@@ -64,6 +64,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     : visitedExpression;
         }
 
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            if (unaryExpression.NodeType == ExpressionType.ArrayLength
+             && unaryExpression.Operand.Type == typeof(byte[])
+             && Visit(unaryExpression.Operand) is ColumnExpression columnExpression)
+            {
+                var intMapping = _sqlExpressionFactory.FindMapping(typeof(int));
+
+                return _sqlExpressionFactory.Convert(
+                    _sqlExpressionFactory.Function("DATALENGTH", new[] { columnExpression }, typeof(int?), intMapping),
+                    typeof(int?), intMapping);
+            }
+
+            return base.VisitUnary(unaryExpression);
+        }
+
         public override SqlExpression TranslateLongCount(Expression expression = null)
         {
             if (expression != null)

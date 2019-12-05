@@ -7291,6 +7291,27 @@ FROM [Squads] AS [s]
 WHERE CHARINDEX(0x01, [s].[Banner]) > 0");
         }
 
+        public override async Task Byte_array_filter_by_length(bool async)
+        {
+            await base.Byte_array_filter_by_length(async);
+
+            AssertSql(
+                @"SELECT [s].[Id], [s].[Banner], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE CAST(DATALENGTH([s].[Banner]) AS int) = 1");
+        }
+
+        public override async Task Byte_array_filter_by_length_with_join(bool async)
+        {
+            await base.Byte_array_filter_by_length_with_join(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (CAST(DATALENGTH([s].[Banner]) AS int) = 1)");
+        }
+
         public override async Task Byte_array_contains_parameter(bool async)
         {
             await base.Byte_array_contains_parameter(async);
