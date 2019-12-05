@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -60,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             if (innerExpression is MemberInitExpression memberInitExpression
                 && memberInitExpression.Bindings.SingleOrDefault(
-                    mb => mb.Member == memberExpression.Member) is MemberAssignment memberAssignment)
+                    mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
             {
                 return memberAssignment.Expression;
             }
