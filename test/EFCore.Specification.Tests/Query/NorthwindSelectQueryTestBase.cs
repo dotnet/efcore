@@ -865,6 +865,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_changes_asc_order_to_desc(bool async)
+        {
+            return AssertQuery(
+                async,
+                actualQuery: ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
+                    .Reverse()
+                    .Select(e => $"{e.EmployeeID}"),
+                expectedQuery: ss => ss.Set<Employee>().OrderByDescending(e => e.EmployeeID)
+                    .Select(e => $"{e.EmployeeID}"),
+                assertOrder: true
+                    );
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_changes_desc_order_to_asc(bool async)
+        {
+            return AssertQuery(
+                async,
+                actualQuery: ss => ss.Set<Employee>().OrderByDescending(e => e.EmployeeID)
+                    .Reverse()
+                    .Select(e => $"{e.EmployeeID}"),
+                expectedQuery: ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
+                    .Select(e => $"{e.EmployeeID}"),
+                assertOrder: true
+                    );
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_containing_DateTime_subtraction(bool async)
         {
             return AssertQueryScalar(
