@@ -7374,13 +7374,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(w => w.Squad.Banner.Length == 1));
         }
 
-        protected async Task AssertTranslationFailed(Func<Task> testCode)
-        {
-            Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
-                (await Assert.ThrowsAsync<InvalidOperationException>(testCode)).Message);
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_bool_coming_from_optional_navigation(bool async)
