@@ -1271,6 +1271,37 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'");
         }
 
+        public override async Task Projection_with_parameterized_constructor(bool async)
+        {
+            await base.Projection_with_parameterized_constructor(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task Projection_with_parameterized_constructor_with_member_assignment(bool async)
+        {
+            await base.Projection_with_parameterized_constructor_with_member_assignment(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task Collection_projection_AsNoTracking_OrderBy(bool async)
+        {
+            await base.Collection_projection_AsNoTracking_OrderBy(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderDate], [o].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
