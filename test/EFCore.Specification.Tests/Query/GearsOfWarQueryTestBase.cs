@@ -7333,6 +7333,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Squad>().Where(s => s.Banner != null && s.Banner.Contains(someByte)));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_bool_coming_from_optional_navigation(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => g.IsAutomatic),
+                ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => MaybeScalar<bool>(g, () => g.IsAutomatic)),
+                assertOrder: true);
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
