@@ -4691,6 +4691,26 @@ OUTER APPLY (
 ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
+        public override async Task Subquery_DefaultIfEmpty_Any(bool async)
+        {
+            await base.Subquery_DefaultIfEmpty_Any(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM (
+            SELECT NULL AS [empty]
+        ) AS [empty]
+        LEFT JOIN (
+            SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+            FROM [Employees] AS [e]
+            WHERE [e].[EmployeeID] = -1
+        ) AS [t] ON 1 = 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
