@@ -7367,11 +7367,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Byte_array_filter_by_length_with_join(bool async)
+        public virtual Task Byte_array_filter_by_length_parameter(bool async)
         {
+            var someByteArr = new[] { (byte)42 };
             return AssertQuery(
                 async,
-                ss => ss.Set<Gear>().Where(w => w.Squad.Banner.Length == 1));
+                ss => ss.Set<Squad>().Where(w => w.Banner.Length == someByteArr.Length));
         }
 
         [ConditionalTheory]
