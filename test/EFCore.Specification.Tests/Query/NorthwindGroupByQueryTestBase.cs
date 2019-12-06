@@ -1747,6 +1747,42 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Join_GroupBy_Aggregate_with_left_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss =>
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                    join a in ss.Set<Order>().GroupBy(o => o.CustomerID)
+                            .Where(g => g.Count() > 5)
+                            .Select(
+                                g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                        on c.CustomerID equals a.CustomerID into grouping
+                    from g in grouping.DefaultIfEmpty()
+                    select new
+                    {
+                        c,
+                        LastOrderID = (int?)g.LastOrderID
+                    },
+                ss =>
+                    from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                    join a in ss.Set<Order>().GroupBy(o => o.CustomerID)
+                            .Where(g => g.Count() > 5)
+                            .Select(
+                                g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                        on c.CustomerID equals a.CustomerID into grouping
+                    from g in grouping.DefaultIfEmpty()
+                    select new
+                    {
+                        c,
+                        LastOrderID = g != null ? g.LastOrderID : (int?)null
+                    },
+                elementSorter: r => r.c.CustomerID,
+                entryCount: 4);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_in_subquery(bool async)
         {
             return AssertQuery(
