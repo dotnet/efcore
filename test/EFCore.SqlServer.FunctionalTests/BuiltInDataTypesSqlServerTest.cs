@@ -52,22 +52,6 @@ WHERE [m].[TimeSpanAsTime] = '00:01:02'");
         }
 
         [ConditionalFact]
-        public void Translate_array_length()
-        {
-            using var context = CreateContext();
-            var results
-                = context.Set<MappedDataTypesWithIdentity>()
-                    .Where(p => p.BytesAsImage.Length == 0)
-                    .Select(p => p.BytesAsImage.Length)
-                    .FirstOrDefault();
-
-            AssertSql(
-                @"SELECT TOP(1) CAST(DATALENGTH([m].[BytesAsImage]) AS int)
-FROM [MappedDataTypesWithIdentity] AS [m]
-WHERE CAST(DATALENGTH([m].[BytesAsImage]) AS int) = 0");
-        }
-
-        [ConditionalFact]
         public void Sql_translation_uses_type_mapper_when_parameter()
         {
             using var context = CreateContext();
