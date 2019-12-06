@@ -1334,6 +1334,22 @@ INNER JOIN (
 INNER JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]");
         }
 
+        public override async Task Join_GroupBy_Aggregate_with_left_join(bool async)
+        {
+            await base.Join_GroupBy_Aggregate_with_left_join(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[c] AS [LastOrderID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 5
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'A%'");
+        }
+
         public override async Task Join_GroupBy_Aggregate_in_subquery(bool async)
         {
             await base.Join_GroupBy_Aggregate_in_subquery(async);
