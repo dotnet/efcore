@@ -7333,6 +7333,17 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (CASE
 END = CAST(1 AS bit))");
         }
 
+        public override async Task OrderBy_bool_coming_from_optional_navigation(bool async)
+        {
+            await base.OrderBy_bool_coming_from_optional_navigation(async);
+
+            AssertSql(
+                @"SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
+FROM [Weapons] AS [w]
+LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
+ORDER BY [w0].[IsAutomatic]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
