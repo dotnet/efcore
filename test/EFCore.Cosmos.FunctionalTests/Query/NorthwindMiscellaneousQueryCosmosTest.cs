@@ -3976,6 +3976,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.SelectMany_correlated_subquery_hard(async);
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Subquery_DefaultIfEmpty_Any(bool async)
+        {
+            return base.Subquery_DefaultIfEmpty_Any(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
