@@ -5463,5 +5463,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private static Expression<Func<Order, bool>> ValidYear => a => a.OrderDate.Value.Year == 1998;
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Subquery_DefaultIfEmpty_Any(bool async)
+        {
+            return AssertAny(
+                async,
+                ss => (from e in ss.Set<Employee>()
+                          .Where(e => e.EmployeeID == NonExistentID)
+                          .Select(e => e.EmployeeID)
+                          .DefaultIfEmpty()
+                       select e));
+        }
     }
 }
