@@ -54,6 +54,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 ");
         }
 
+        public override void AddColumnOperation_with_precision()
+        {
+            base.AddColumnOperation_with_precision();
+
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Salary"" default_double_mapping_precision(10) NULL;
+");
+        }
+
+         public override void AddColumnOperation_with_precision_on_derived()
+        {
+            base.AddColumnOperation_with_precision_on_derived();
+
+            AssertSql(
+                @"ALTER TABLE ""Person"" ADD ""Salary"" default_double_mapping_precision(10) NULL;
+");
+        }
+
         public override void AddColumnOperation_with_shared_column()
         {
             base.AddColumnOperation_with_shared_column();

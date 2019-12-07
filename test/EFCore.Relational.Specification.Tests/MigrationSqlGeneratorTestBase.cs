@@ -200,6 +200,43 @@ namespace Microsoft.EntityFrameworkCore
                     MaxLength = 30,
                     IsNullable = true
                 });
+        
+        [ConditionalFact]
+        public virtual void AddColumnOperation_with_precision()
+            => Generate(
+                modelBuilder => modelBuilder.Entity("Person").Property<double>("Salary").HasPrecision(10),
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Salary",
+                    ClrType = typeof(double),
+                    Precision = 10,
+                    IsNullable = true
+                });
+        
+        [ConditionalFact]
+        public virtual void AddColumnOperation_with_precision_on_derived()
+            => Generate(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity("Person");
+                    modelBuilder.Entity(
+                        "SpecialPerson", b =>
+                        {
+                            b.HasBaseType("Person");
+                            b.Property<double>("Salary").HasPrecision(10);
+                        });
+
+                    modelBuilder.Entity("MoreSpecialPerson").HasBaseType("SpecialPerson");
+                },
+                new AddColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Salary",
+                    ClrType = typeof(double),
+                    Precision = 10,
+                    IsNullable = true
+                });
 
         [ConditionalFact]
         public virtual void AddColumnOperation_with_shared_column()

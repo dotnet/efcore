@@ -1201,6 +1201,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (operation.IsUnicode == property.IsUnicode()
                     && operation.MaxLength == property.GetMaxLength()
+                    && operation.Precision == property.GetPrecision()
+                    && operation.Scale == property.GetScale()
                     && (operation.IsFixedLength ?? false) == property.IsFixedLength()
                     && operation.IsRowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
                 {
@@ -1209,7 +1211,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 keyOrIndex = property.IsKey() || property.IsForeignKey();
             }
-
+            
             return Dependencies.TypeMappingSource.FindMapping(
                     operation.ClrType,
                     null,
@@ -1217,7 +1219,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     operation.IsUnicode,
                     operation.MaxLength,
                     operation.IsRowVersion,
-                    operation.IsFixedLength)
+                    operation.IsFixedLength,
+                    operation.Precision,
+                    operation.Scale)
                 .StoreType;
         }
 
