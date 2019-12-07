@@ -1306,7 +1306,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         from o in ss.Set<Order>().OrderBy(oo => oo.OrderID).Take(5).Select(
                             o => new { o })
                         select new { e, o })
-                    from c in ss.Set<Customer>().Take(2).Select(
+                    from c in ss.Set<Customer>().OrderBy(cc => cc.CustomerID).Take(2).Select(
                         c => new { c })
                     select new
                     {
