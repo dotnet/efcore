@@ -23,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 "datetimeoffset"
             };
 
+        private static readonly string _varbinaryMaxDataType = "varbinary(max)";
+
         private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
             = new HashSet<ExpressionType>
             {
@@ -70,9 +72,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 && unaryExpression.Operand.Type == typeof(byte[])
                 && Visit(unaryExpression.Operand) is ColumnExpression columnExpression)
             {
-                return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function("DATALENGTH", new[] { columnExpression }, typeof(int?)),
-                    typeof(int?));
+                var dataLengthSqlFunction = _sqlExpressionFactory.Function("DATALENGTH", new[] { columnExpression }, typeof(int?));
+
+                return GetProviderType(columnExpression) == _varbinaryMaxDataType
+                    ? (Expression)_sqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int?))
+                    : dataLengthSqlFunction;
             }
 
             return base.VisitUnary(unaryExpression);
