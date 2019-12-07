@@ -35,16 +35,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 ExpressionType.Modulo
             };
 
-        // TODO: Possibly make this protected in base
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
         public SqlServerSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] IModel model,
             [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
         {
-            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -70,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
                 && unaryExpression.Operand.Type == typeof(byte[])
-                && Visit(unaryExpression.Operand) is ColumnExpression columnExpression)
+                && base.Visit(unaryExpression.Operand) is ColumnExpression columnExpression)
             {
-                var dataLengthSqlFunction = _sqlExpressionFactory.Function("DATALENGTH", new[] { columnExpression }, typeof(int?));
+                var dataLengthSqlFunction = SqlExpressionFactory.Function("DATALENGTH", new[] { columnExpression }, typeof(int?));
 
                 return GetProviderType(columnExpression) == _varbinaryMaxDataType
-                    ? (Expression)_sqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int?))
+                    ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int?))
                     : dataLengthSqlFunction;
             }
 
@@ -90,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return null;
             }
 
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT_BIG", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+            return SqlExpressionFactory.ApplyDefaultTypeMapping(
+                SqlExpressionFactory.Function("COUNT_BIG", new[] { SqlExpressionFactory.Fragment("*") }, typeof(long)));
         }
 
         private static string GetProviderType(SqlExpression expression)
