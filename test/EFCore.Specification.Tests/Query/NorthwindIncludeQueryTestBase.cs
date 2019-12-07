@@ -3502,6 +3502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             ? context.Employees.Include(nameof(Employee.Manager))
                             : context.Employees.Include(e => e.Manager))
                         where e.EmployeeID == 1 || e.EmployeeID == 2
+                        orderby e.EmployeeID
                         select e.Manager != null ? "Employee " + ClientMethod(e) : "";
 
             var result = async
