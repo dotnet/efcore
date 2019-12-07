@@ -5886,6 +5886,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_concat_nullable_expressions_are_coalesced(bool async)
+        {
+            object nullableParam = null;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(w => w.FullName + null + w.LeaderNickname + nullableParam),
+                ss => ss.Set<Gear>().Select(w => w.FullName + string.Empty + w.LeaderNickname ?? string.Empty + nullableParam ?? string.Empty));
+        }
+
         [ConditionalTheory(Skip = "issue #14205")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_concat_on_various_types(bool async)

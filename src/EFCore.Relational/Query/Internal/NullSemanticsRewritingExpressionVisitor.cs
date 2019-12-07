@@ -409,6 +409,30 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return sqlBinaryExpression.Update(newLeft, newRight);
             }
 
+            if (sqlBinaryExpression.OperatorType == ExpressionType.Add
+                && sqlBinaryExpression.Type == typeof(string))
+            {
+                if (leftNullable)
+                {
+                    newLeft = newLeft is SqlConstantExpression
+                        ? _sqlExpressionFactory.Constant(string.Empty)
+                        : newLeft is ColumnExpression || newLeft is SqlParameterExpression
+                            ? _sqlExpressionFactory.Coalesce(newLeft, _sqlExpressionFactory.Constant(string.Empty))
+                            : newLeft;
+                }
+
+                if (rightNullable)
+                {
+                    newRight = newRight is SqlConstantExpression
+                        ? _sqlExpressionFactory.Constant(string.Empty)
+                        : newRight is ColumnExpression || newRight is SqlParameterExpression
+                            ? _sqlExpressionFactory.Coalesce(newRight, _sqlExpressionFactory.Constant(string.Empty))
+                            : newRight;
+                }
+
+                return sqlBinaryExpression.Update(newLeft, newRight);
+            }
+
             if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
                 || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
             {
