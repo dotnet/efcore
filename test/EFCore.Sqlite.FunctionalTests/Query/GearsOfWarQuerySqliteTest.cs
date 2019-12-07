@@ -102,9 +102,25 @@ FROM ""Squads"" AS ""s""
 WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
         }
 
-        public override Task Byte_array_filter_by_length(bool async) => null; // Work in Progress
+        public override async Task Byte_array_filter_by_length(bool async)
+        {
+            await base.Byte_array_filter_by_length(async);
 
-        public override Task Byte_array_filter_by_length_parameter(bool async) => null; // Work in progress
+            AssertSql(@"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE length(""s"".""Banner"") = 1");
+        }
+
+        public override async Task Byte_array_filter_by_length_parameter(bool async)
+        {
+            await base.Byte_array_filter_by_length_parameter(async);
+
+            AssertSql(@"@__p_0='1' (DbType = String)
+
+SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE length(""s"".""Banner"") = @__p_0");
+        }
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
