@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Select(c => new List<object> { c }),
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Select(c => new List<object> { c }),
                 entryCount: 91,
                 assertOrder: true);
         }
