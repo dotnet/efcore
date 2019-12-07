@@ -1593,5 +1593,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             public string City { get; set; }
             public Customer Customer { get; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_AsNoTracking_OrderBy(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => (from c in ss.Set<Customer>()
+                       select new
+                       {
+                           c.CustomerID,
+                           Orders = c.Orders.Select(o => o.OrderDate).ToList()
+                       })
+                      .AsNoTracking()
+                      .OrderBy(a => a.CustomerID),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    AssertCollection(e.Orders, a.Orders, elementSorter: i => i, elementAsserter: (ie, ia) => Assert.Equal(ie, ia));
+                });
+        }
     }
 }

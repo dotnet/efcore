@@ -1032,6 +1032,12 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
             return base.LastOrDefault_member_access_in_projection_translates_to_server(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Collection_projection_AsNoTracking_OrderBy(bool async)
+        {
+            return base.Collection_projection_AsNoTracking_OrderBy(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

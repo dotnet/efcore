@@ -23,21 +23,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
                 && arguments[0].Type == typeof(byte[]))
             {
-                instance = arguments[0];
-                var typeMapping = instance.TypeMapping;
+                var source = arguments[0];
 
-                var pattern = arguments[1] is SqlConstantExpression constantPattern
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantPattern.Value }, typeMapping)
-                    : _sqlExpressionFactory.Function(
-                        "char",
-                        new[] { arguments[1] },
-                        typeof(string));
+                var value = arguments[1] is SqlConstantExpression constantValue
+                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, source.TypeMapping)
+                    : _sqlExpressionFactory.Function("char", new[] { arguments[1] }, typeof(string));
 
                 return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function(
-                        "instr",
-                        new[] { instance, pattern },
-                        typeof(int)),
+                    _sqlExpressionFactory.Function("instr", new[] { source, value }, typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
 

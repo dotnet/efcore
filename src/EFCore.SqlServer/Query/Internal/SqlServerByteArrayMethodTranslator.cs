@@ -23,18 +23,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
                 && arguments[0].Type == typeof(byte[]))
             {
-                instance = arguments[0];
-                var typeMapping = instance.TypeMapping;
+                var source = arguments[0];
+                var sourceTypeMapping = source.TypeMapping;
 
-                var pattern = arguments[1] is SqlConstantExpression constantPattern
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantPattern.Value }, typeMapping)
-                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), typeMapping);
+                var value = arguments[1] is SqlConstantExpression constantValue
+                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, sourceTypeMapping)
+                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
                 return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function(
-                        "CHARINDEX",
-                        new[] { pattern, instance },
-                        typeof(int)),
+                    _sqlExpressionFactory.Function("CHARINDEX", new[] { value, source }, typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
 
