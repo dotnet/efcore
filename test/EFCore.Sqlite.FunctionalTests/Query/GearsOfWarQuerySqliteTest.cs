@@ -104,7 +104,7 @@ WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
 
         public override Task Byte_array_filter_by_length(bool async) => null; // Work in Progress
 
-        public override Task Byte_array_filter_by_length_with_join(bool async) => null; // Work in progress
+        public override Task Byte_array_filter_by_length_parameter(bool async) => null; // Work in progress
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
