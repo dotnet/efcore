@@ -2203,7 +2203,7 @@ DROP TABLE PrincipalTable;");
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"),
                         new SqlServerLoggingDefinitions(),
-                        new NullSimpleLogger()));
+                        new NullDbContextLogger()));
 
                 var databaseModel = databaseModelFactory.Create(
                     Fixture.TestStore.ConnectionString,

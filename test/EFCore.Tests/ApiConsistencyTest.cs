@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,10 +26,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(CompiledQueryCacheKeyGenerator).GetRuntimeMethods().Single(m => m.Name == "GenerateCacheKeyCore"),
                 typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == "get_Item"),
                 typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == "set_Item"),
-                typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == nameof(InternalEntityEntry.HasDefaultValue)),
-                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.Filter)).GetMethod,
-                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.Sink)).GetMethod,
-                typeof(SimpleLogger).GetAnyProperty(nameof(SimpleLogger.FormatOptions)).GetMethod
+                typeof(InternalEntityEntry).GetRuntimeMethods().Single(m => m.Name == nameof(InternalEntityEntry.HasDefaultValue))
             };
 
         private static readonly Type[] _fluentApiTypes =

@@ -7,46 +7,46 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.EntityFrameworkCore.Diagnostics
+namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 {
     /// <summary>
-    ///     An implementation of <see cref="ISimpleLogger" /> that will log filtered events to a given sink
-    ///     with some control over formatting.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SimpleLogger : ISimpleLogger
+    public class FormattingDbContextLogger : IDbContextLogger
     {
+        [NotNull]
+        private readonly Action<string> _sink;
+
+        [NotNull]
+        private readonly Func<EventId, LogLevel, bool> _filter;
+
+        private readonly DbContextLoggerOptions _options;
+
         /// <summary>
-        ///     Creates a new <see cref="SimpleLogger" /> instance.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="sink"> The sink to which messages will be logged. </param>
-        /// <param name="filter"> A delegate that returns true to log the message; false to filter it out. </param>
-        /// <param name="formatOptions"> Formatting options for log messages. </param>
-        public SimpleLogger(
+        public FormattingDbContextLogger(
             [NotNull] Action<string> sink,
             [NotNull] Func<EventId, LogLevel, bool> filter,
-            SimpleLoggerFormatOptions formatOptions)
+            DbContextLoggerOptions options)
         {
-            FormatOptions = formatOptions;
-            Sink = sink;
-            Filter = filter;
+            _sink = sink;
+            _filter = filter;
+            _options = options;
         }
 
         /// <summary>
-        ///     The <see cref="FormatOptions" /> to used when formatting messages to log.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SimpleLoggerFormatOptions FormatOptions { get; } // Intentionally not virtual for perf
-
-        /// <summary>
-        ///     The sink to which messages are being logged.
-        /// </summary>
-        public Action<string> Sink { get; } // Intentionally not virtual for perf
-
-        /// <summary>
-        ///     A delegate that returns true to log the message; false to filter it out.
-        /// </summary>
-        public Func<EventId, LogLevel, bool> Filter { get; } // Intentionally not virtual for perf
-
-        /// <inheritdoc />
         public virtual void Log(EventData eventData)
         {
             Check.NotNull(eventData, nameof(eventData));
@@ -55,31 +55,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var logLevel = eventData.LogLevel;
             var eventId = eventData.EventId;
 
-            if (FormatOptions != SimpleLoggerFormatOptions.None)
+            if (_options != DbContextLoggerOptions.None)
             {
                 var messageBuilder = new StringBuilder();
 
-                if ((FormatOptions & SimpleLoggerFormatOptions.Level) != 0)
+                if ((_options & DbContextLoggerOptions.Level) != 0)
                 {
                     messageBuilder.Append(GetLogLevelString(logLevel));
                 }
 
-                if ((FormatOptions & SimpleLoggerFormatOptions.LocalTime) != 0)
+                if ((_options & DbContextLoggerOptions.LocalTime) != 0)
                 {
                     messageBuilder.Append(DateTime.Now.ToShortDateString()).Append(DateTime.Now.ToString(" HH:mm:ss.fff "));
                 }
 
-                if ((FormatOptions & SimpleLoggerFormatOptions.UtcTime) != 0)
+                if ((_options & DbContextLoggerOptions.UtcTime) != 0)
                 {
                     messageBuilder.Append(DateTime.UtcNow.ToString("o")).Append(' ');
                 }
 
-                if ((FormatOptions & SimpleLoggerFormatOptions.Id) != 0)
+                if ((_options & DbContextLoggerOptions.Id) != 0)
                 {
                     messageBuilder.Append(eventData.EventIdCode).Append('[').Append(eventId.Id).Append("] ");
                 }
 
-                if ((FormatOptions & SimpleLoggerFormatOptions.Category) != 0)
+                if ((_options & DbContextLoggerOptions.Category) != 0)
                 {
                     var lastDot = eventId.Name.LastIndexOf('.');
                     if (lastDot > 0)
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 const string padding = "      ";
                 var preambleLength = messageBuilder.Length;
 
-                if (FormatOptions == SimpleLoggerFormatOptions.SingleLine) // Single line ONLY
+                if (_options == DbContextLoggerOptions.SingleLine) // Single line ONLY
                 {
                     message = messageBuilder
                         .Append(message)
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
                 else
                 {
-                    message = (FormatOptions & SimpleLoggerFormatOptions.SingleLine) != 0
+                    message = (_options & DbContextLoggerOptions.SingleLine) != 0
                         ? messageBuilder
                             .Append("-> ")
                             .Append(message)
@@ -114,12 +114,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 }
             }
 
-            Sink(message);
+            _sink(message);
         }
 
         /// <inheritdoc />
         public virtual bool ShouldLog(EventId eventId, LogLevel logLevel)
-            => Filter(eventId, logLevel);
+            => _filter(eventId, logLevel);
 
         private static string GetLogLevelString(LogLevel logLevel)
             => logLevel switch

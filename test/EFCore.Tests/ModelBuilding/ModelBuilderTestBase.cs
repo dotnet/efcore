@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     options,
                     new DiagnosticListener("Fake"),
                     testHelpers.LoggingDefinitions,
-                    new NullSimpleLogger());
+                    new NullDbContextLogger());
 
                 ModelLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
                 var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     options,
                     new DiagnosticListener("Fake"),
                     testHelpers.LoggingDefinitions,
-                    new NullSimpleLogger());
+                    new NullDbContextLogger());
 
                 ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, validationLogger);
             }

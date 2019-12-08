@@ -73,13 +73,13 @@ namespace Microsoft.EntityFrameworkCore
                     new LoggingOptions(),
                     new DiagnosticListener("FakeDiagnosticListener"),
                     new SqlServerLoggingDefinitions(),
-                    new NullSimpleLogger()),
+                    new NullDbContextLogger()),
                 new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
                     new LoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("FakeDiagnosticListener"),
                     new SqlServerLoggingDefinitions(),
-                    new NullSimpleLogger()),
+                    new NullDbContextLogger()),
                 new NamedConnectionStringResolver(options),
                 new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
                 new CurrentDbContext(new FakeDbContext()));

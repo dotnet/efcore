@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public EventId LoggedEvent { get; set; }
         public string Message { get; set; }
 
-        public ISimpleLogger SimpleLogger { get; } = new TestSimpleLogger();
+        public IDbContextLogger DbContextLogger { get; } = new TestDbContextLogger();
 
         public DiagnosticSource DiagnosticSource { get; } = new TestDiagnosticSource();
     }

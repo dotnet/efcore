@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new LoggingOptions(),
                     new DiagnosticListener("Fake"),
                     new TestRelationalLoggingDefinitions(),
-                    new NullSimpleLogger()),
+                    new NullDbContextLogger()),
                 false);
 
             Assert.Equal(dbTransaction, transaction.GetDbTransaction());

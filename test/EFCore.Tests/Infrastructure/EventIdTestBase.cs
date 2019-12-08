@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var testLogger =
                         (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<,>).MakeGenericType(category, loggerDefinitionsType));
                     var testDiagnostics = (TestDiagnosticSource)testLogger.DiagnosticSource;
-                    var simpleLogger = (TestSimpleLogger)testLogger.SimpleLogger;
+                    var contextLogger = (TestDbContextLogger)testLogger.DbContextLogger;
 
                     var args = new object[loggerParameters.Length];
                     args[0] = testLogger;
@@ -116,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                                 if (categoryName != DbLoggerCategory.Scaffolding.Name)
                                 {
-                                    Assert.Equal(logLevel, simpleLogger.LoggedAt);
-                                    Assert.Equal(eventId, simpleLogger.LoggedEvent);
+                                    Assert.Equal(logLevel, contextLogger.LoggedAt);
+                                    Assert.Equal(eventId, contextLogger.LoggedEvent);
                                 }
                             }
 
