@@ -7358,7 +7358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Byte_array_filter_by_length(bool async)
+        public virtual Task Byte_array_filter_by_length_literal(bool async)
         {
             return AssertQuery(
                 async,
