@@ -102,9 +102,9 @@ FROM ""Squads"" AS ""s""
 WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
         }
 
-        public override async Task Byte_array_filter_by_length(bool async)
+        public override async Task Byte_array_filter_by_length_literal(bool async)
         {
-            await base.Byte_array_filter_by_length(async);
+            await base.Byte_array_filter_by_length_literal(async);
 
             AssertSql(@"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
