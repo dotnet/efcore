@@ -124,7 +124,8 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Customer"")
+ORDER BY c[""CustomerID""]");
         }
 
         public override async Task Project_to_int_array(bool async)
