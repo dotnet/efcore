@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 "datetimeoffset"
             };
 
-        private static readonly string _varbinaryMaxDataType = "varbinary(max)";
-
         private static readonly HashSet<ExpressionType> _arithmeticOperatorTypes
             = new HashSet<ExpressionType>
             {
@@ -65,13 +63,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
-                && unaryExpression.Operand.Type == typeof(byte[])
-                && base.Visit(unaryExpression.Operand) is ColumnExpression columnExpression)
+                && unaryExpression.Operand.Type == typeof(byte[]))
             {
-                var dataLengthSqlFunction = SqlExpressionFactory.Function("DATALENGTH", new[] { columnExpression }, typeof(int?));
+                var visitedExpression = (SqlExpression)base.Visit(unaryExpression.Operand);
 
-                return GetProviderType(columnExpression) == _varbinaryMaxDataType
-                    ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int?))
+                var dataLengthSqlFunction = SqlExpressionFactory.Function("DATALENGTH", new[] { visitedExpression }, typeof(int));
+
+                return visitedExpression is ColumnExpression && GetProviderType(visitedExpression) == "varbinary(max)"
+                    ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
                     : dataLengthSqlFunction;
             }
 
