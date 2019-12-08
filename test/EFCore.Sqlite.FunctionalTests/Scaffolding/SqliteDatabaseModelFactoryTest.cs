@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
                     .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory)
-                    .AddSingleton<ISimpleLogger, NullSimpleLogger>();
+                    .AddSingleton<IDbContextLogger, NullDbContextLogger>();
 
                 new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
 

@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             scopedProvider.GetService<ILoggingOptions>(),
                             scopedProvider.GetService<DiagnosticSource>(),
                             loggingDefinitions,
-                            new NullSimpleLogger());
+                            new NullDbContextLogger());
 
                         if (_configurations.Count == 0)
                         {
