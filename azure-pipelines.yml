@@ -18,6 +18,7 @@ trigger:
   - master
   - release/*
   - feature/*
+  - internal/release/*
 
 pr: ['*']
 
