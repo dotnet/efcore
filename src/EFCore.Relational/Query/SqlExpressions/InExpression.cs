@@ -68,6 +68,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(item, nameof(item));
 
+            if (values != null
+                && subquery != null)
+            {
+                throw new ArgumentException($"Either {nameof(values)} or {nameof(subquery)} must be null");
+            }
+
             return item != Item || subquery != Subquery || values != Values
                 ? new InExpression(item, IsNegated, values, subquery, TypeMapping)
                 : this;
