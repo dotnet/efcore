@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
 
-        protected readonly ISqlExpressionFactory SqlExpressionFactory;
+        protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
 
         public RelationalSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
