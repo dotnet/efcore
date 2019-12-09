@@ -85,7 +85,7 @@ FROM ""Missions"" AS ""m""");
             await base.Byte_array_contains_literal(async);
 
             AssertSql(
-                @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+                @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
 WHERE instr(""s"".""Banner"", X'01') > 0");
         }
@@ -97,7 +97,7 @@ WHERE instr(""s"".""Banner"", X'01') > 0");
             AssertSql(
                 @"@__someByte_0='1' (DbType = String)
 
-SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
 WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
         }
@@ -106,7 +106,7 @@ WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
         {
             await base.Byte_array_filter_by_length_literal(async);
 
-            AssertSql(@"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+            AssertSql(@"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
 WHERE length(""s"".""Banner"") = 1");
         }
@@ -117,7 +117,7 @@ WHERE length(""s"".""Banner"") = 1");
 
             AssertSql(@"@__p_0='1' (DbType = String)
 
-SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""InternalNumber"", ""s"".""Name""
+SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
 WHERE length(""s"".""Banner"") = @__p_0");
         }
