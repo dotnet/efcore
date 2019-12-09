@@ -190,6 +190,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             {
                                 Assert.True(Enumerable.SequenceEqual(e.Banner, a.Banner));
                             }
+                            Assert.Equal(e.Banner5 == null, a.Banner5 == null);
+                            if (e.Banner5 != null)
+                            {
+                                Assert.True(Enumerable.SequenceEqual(e.Banner5, a.Banner5));
+                            }
                         }
                     }
                 },
@@ -255,6 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     b.HasKey(s => s.Id);
                     b.Property(s => s.Id).ValueGeneratedNever();
+                    b.Property(s => s.Banner5).HasMaxLength(5);
                     b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
                 });
 

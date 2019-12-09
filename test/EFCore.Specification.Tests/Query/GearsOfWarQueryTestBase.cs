@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -7355,6 +7354,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Squad>().Where(s => s.Banner.Contains(someByte)),
                 ss => ss.Set<Squad>().Where(s => s.Banner != null && s.Banner.Contains(someByte)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_length_literal_does_not_cast_on_varbinary_n(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(w => w.Banner5.Length == 5));
         }
 
         [ConditionalTheory]
