@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string CheckValueComparer(ValueComparer comparer)
+        public virtual string CheckValueComparer([CanBeNull] ValueComparer comparer)
         {
             if (comparer != null
                 && comparer.Type != ClrType)

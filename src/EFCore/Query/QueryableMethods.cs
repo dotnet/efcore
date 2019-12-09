@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -77,24 +79,63 @@ namespace Microsoft.EntityFrameworkCore.Query
         public static MethodInfo GroupByWithKeyElementResultSelector { get; }
         public static MethodInfo GroupByWithKeyResultSelector { get; }
 
-        public static bool IsSumWithoutSelector(MethodInfo methodInfo)
-            => SumWithoutSelectorMethods.Values.Contains(methodInfo);
+        public static bool IsSumWithoutSelector([NotNull] MethodInfo methodInfo)
+        {
+            Check.NotNull(methodInfo, nameof(methodInfo));
 
-        public static bool IsSumWithSelector(MethodInfo methodInfo)
-            => methodInfo.IsGenericMethod
+            return SumWithoutSelectorMethods.Values.Contains(methodInfo);
+        }
+
+        public static bool IsSumWithSelector([NotNull] MethodInfo methodInfo)
+        {
+            Check.NotNull(methodInfo, nameof(methodInfo));
+
+            return methodInfo.IsGenericMethod
                 && SumWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+        }
 
-        public static bool IsAverageWithoutSelector(MethodInfo methodInfo)
-            => AverageWithoutSelectorMethods.Values.Contains(methodInfo);
+        public static bool IsAverageWithoutSelector([NotNull] MethodInfo methodInfo)
+        {
+            Check.NotNull(methodInfo, nameof(methodInfo));
 
-        public static bool IsAverageWithSelector(MethodInfo methodInfo)
-            => methodInfo.IsGenericMethod
+            return AverageWithoutSelectorMethods.Values.Contains(methodInfo);
+        }
+
+        public static bool IsAverageWithSelector([NotNull] MethodInfo methodInfo)
+        {
+            Check.NotNull(methodInfo, nameof(methodInfo));
+
+            return methodInfo.IsGenericMethod
                 && AverageWithSelectorMethods.Values.Contains(methodInfo.GetGenericMethodDefinition());
+        }
 
-        public static MethodInfo GetSumWithoutSelector(Type type) => SumWithoutSelectorMethods[type];
-        public static MethodInfo GetSumWithSelector(Type type) => SumWithSelectorMethods[type];
-        public static MethodInfo GetAverageWithoutSelector(Type type) => AverageWithoutSelectorMethods[type];
-        public static MethodInfo GetAverageWithSelector(Type type) => AverageWithSelectorMethods[type];
+        public static MethodInfo GetSumWithoutSelector([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return SumWithoutSelectorMethods[type];
+        }
+
+        public static MethodInfo GetSumWithSelector([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return SumWithSelectorMethods[type];
+        }
+
+        public static MethodInfo GetAverageWithoutSelector([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return AverageWithoutSelectorMethods[type];
+        }
+
+        public static MethodInfo GetAverageWithSelector([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return AverageWithSelectorMethods[type];
+        }
 
         private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
         private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }

@@ -3,13 +3,18 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class ProjectionExpression : Expression, IPrintableExpression
     {
-        public ProjectionExpression(SqlExpression expression, string alias)
+        public ProjectionExpression([NotNull] SqlExpression expression, [NotNull] string alias)
         {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(alias, nameof(alias));
+
             Expression = expression;
             Alias = alias;
         }
@@ -21,15 +26,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((SqlExpression)visitor.Visit(Expression));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public virtual ProjectionExpression Update(SqlExpression expression)
-            => expression != Expression
+            return Update((SqlExpression)visitor.Visit(Expression));
+        }
+
+        public virtual ProjectionExpression Update([NotNull] SqlExpression expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            return expression != Expression
                 ? new ProjectionExpression(expression, Alias)
                 : this;
+        }
 
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Visit(Expression);
             if (!string.Equals(string.Empty, Alias)
                 && !(Expression is ColumnExpression column

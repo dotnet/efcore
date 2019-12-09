@@ -3,15 +3,22 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class ExistsExpression : SqlExpression
     {
-        public ExistsExpression(SelectExpression subquery, bool negated, RelationalTypeMapping typeMapping)
+        public ExistsExpression(
+            [NotNull] SelectExpression subquery,
+            bool negated,
+            [CanBeNull] RelationalTypeMapping typeMapping)
             : base(typeof(bool), typeMapping)
         {
+            Check.NotNull(subquery, nameof(subquery));
+
             Subquery = subquery;
             IsNegated = negated;
         }
@@ -20,15 +27,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual bool IsNegated { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((SelectExpression)visitor.Visit(Subquery));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public virtual ExistsExpression Update(SelectExpression subquery)
-            => subquery != Subquery
+            return Update((SelectExpression)visitor.Visit(Subquery));
+        }
+
+        public virtual ExistsExpression Update([NotNull] SelectExpression subquery)
+        {
+            Check.NotNull(subquery, nameof(subquery));
+
+            return subquery != Subquery
                 ? new ExistsExpression(subquery, IsNegated, TypeMapping)
                 : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             if (IsNegated)
             {
                 expressionPrinter.Append("NOT ");

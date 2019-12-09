@@ -53,13 +53,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public TableExpressionBase Table { get; }
         public bool IsNullable { get; }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         public ColumnExpression MakeNullable()
             => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append(Table.Alias).Append(".");
             expressionPrinter.Append(Name);
         }

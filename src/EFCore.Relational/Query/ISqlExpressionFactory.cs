@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,84 +24,122 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public interface ISqlExpressionFactory
     {
-        SqlExpression ApplyTypeMapping(SqlExpression sqlExpression, RelationalTypeMapping typeMapping);
-        SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression);
-        RelationalTypeMapping GetTypeMappingForValue(object value);
-        RelationalTypeMapping FindMapping(Type type);
+        SqlExpression ApplyTypeMapping([CanBeNull] SqlExpression sqlExpression, [CanBeNull] RelationalTypeMapping typeMapping);
+        SqlExpression ApplyDefaultTypeMapping([CanBeNull] SqlExpression sqlExpression);
+        RelationalTypeMapping GetTypeMappingForValue([CanBeNull] object value);
+        RelationalTypeMapping FindMapping([NotNull] Type type);
 
         SqlUnaryExpression MakeUnary(
-            ExpressionType operatorType, SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null);
+            ExpressionType operatorType,
+            [NotNull] SqlExpression operand,
+            [NotNull] Type type,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlBinaryExpression MakeBinary(
-            ExpressionType operatorType, SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping);
+            ExpressionType operatorType,
+            [NotNull] SqlExpression left,
+            [NotNull] SqlExpression right,
+            [CanBeNull] RelationalTypeMapping typeMapping);
 
         // Comparison
-        SqlBinaryExpression Equal(SqlExpression left, SqlExpression right);
-        SqlBinaryExpression NotEqual(SqlExpression left, SqlExpression right);
-        SqlBinaryExpression GreaterThan(SqlExpression left, SqlExpression right);
-        SqlBinaryExpression GreaterThanOrEqual(SqlExpression left, SqlExpression right);
-        SqlBinaryExpression LessThan(SqlExpression left, SqlExpression right);
+        SqlBinaryExpression Equal([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+        SqlBinaryExpression NotEqual([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+        SqlBinaryExpression GreaterThan([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+        SqlBinaryExpression GreaterThanOrEqual([NotNull] SqlExpression left, [NotNull] SqlExpression right);
+        SqlBinaryExpression LessThan([NotNull] SqlExpression left, [NotNull] SqlExpression right);
 
-        SqlBinaryExpression LessThanOrEqual(SqlExpression left, SqlExpression right);
+        SqlBinaryExpression LessThanOrEqual([NotNull] SqlExpression left, [NotNull] SqlExpression right);
 
         // Logical
-        SqlBinaryExpression AndAlso(SqlExpression left, SqlExpression right);
+        SqlBinaryExpression AndAlso([NotNull] SqlExpression left, [NotNull] SqlExpression right);
 
-        SqlBinaryExpression OrElse(SqlExpression left, SqlExpression right);
+        SqlBinaryExpression OrElse([NotNull] SqlExpression left, [NotNull] SqlExpression right);
 
         // Arithmetic
-        SqlBinaryExpression Add(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
-        SqlBinaryExpression Subtract(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
-        SqlBinaryExpression Multiply(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
-        SqlBinaryExpression Divide(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
+        SqlBinaryExpression Add(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        SqlBinaryExpression Modulo(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
+        SqlBinaryExpression Subtract(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlBinaryExpression Multiply(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlBinaryExpression Divide(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlBinaryExpression Modulo(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         // Bitwise
-        SqlBinaryExpression And(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
+        SqlBinaryExpression And(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        SqlBinaryExpression Or(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
+        SqlBinaryExpression Or(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         // Other
-        SqlBinaryExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null);
+        SqlBinaryExpression Coalesce(
+            [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        SqlUnaryExpression IsNull(SqlExpression operand);
-        SqlUnaryExpression IsNotNull(SqlExpression operand);
-        SqlUnaryExpression Convert(SqlExpression operand, Type type, RelationalTypeMapping typeMapping = null);
-        SqlUnaryExpression Not(SqlExpression operand);
-        SqlUnaryExpression Negate(SqlExpression operand);
+        SqlUnaryExpression IsNull([NotNull] SqlExpression operand);
+        SqlUnaryExpression IsNotNull([NotNull] SqlExpression operand);
 
-        CaseExpression Case(SqlExpression operand, params CaseWhenClause[] whenClauses);
-        CaseExpression Case(IReadOnlyList<CaseWhenClause> whenClauses, SqlExpression elseResult);
+        SqlUnaryExpression Convert(
+            [NotNull] SqlExpression operand, [NotNull] Type type, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        SqlFunctionExpression Function(
-            string name, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null);
+        SqlUnaryExpression Not([NotNull] SqlExpression operand);
+        SqlUnaryExpression Negate([NotNull] SqlExpression operand);
 
-        SqlFunctionExpression Function(
-            string schema, string name, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null);
+        CaseExpression Case([NotNull] SqlExpression operand, [NotNull] params CaseWhenClause[] whenClauses);
+        CaseExpression Case([NotNull] IReadOnlyList<CaseWhenClause> whenClauses, [CanBeNull] SqlExpression elseResult);
 
         SqlFunctionExpression Function(
-            SqlExpression instance, string name, IEnumerable<SqlExpression> arguments, Type returnType,
-            RelationalTypeMapping typeMapping = null);
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
-            string name, Type returnType, RelationalTypeMapping typeMapping = null);
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
-            string schema, string name, Type returnType, RelationalTypeMapping typeMapping = null);
+            [CanBeNull] SqlExpression instance,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlFunctionExpression Function(
-            SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null);
+            [NotNull] string name,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        ExistsExpression Exists(SelectExpression subquery, bool negated);
-        InExpression In(SqlExpression item, SqlExpression values, bool negated);
-        InExpression In(SqlExpression item, SelectExpression subquery, bool negated);
-        LikeExpression Like(SqlExpression match, SqlExpression pattern, SqlExpression escapeChar = null);
-        SqlConstantExpression Constant(object value, RelationalTypeMapping typeMapping = null);
-        SqlFragmentExpression Fragment(string sql);
+        SqlFunctionExpression Function(
+            [NotNull] string schema,
+            [NotNull] string name,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
 
-        SelectExpression Select(SqlExpression projection);
-        SelectExpression Select(IEntityType entityType);
-        SelectExpression Select(IEntityType entityType, string sql, Expression sqlArguments);
+        SqlFunctionExpression Function(
+            [CanBeNull] SqlExpression instance,
+            [NotNull] string name,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        ExistsExpression Exists([NotNull] SelectExpression subquery, bool negated);
+        InExpression In([NotNull] SqlExpression item, [NotNull] SqlExpression values, bool negated);
+        InExpression In([NotNull] SqlExpression item, [NotNull] SelectExpression subquery, bool negated);
+        LikeExpression Like([NotNull] SqlExpression match, [NotNull] SqlExpression pattern, [CanBeNull] SqlExpression escapeChar = null);
+        SqlConstantExpression Constant([NotNull] object value, [CanBeNull] RelationalTypeMapping typeMapping = null);
+        SqlFragmentExpression Fragment([NotNull] string sql);
+
+        SelectExpression Select([CanBeNull] SqlExpression projection);
+        SelectExpression Select([NotNull] IEntityType entityType);
+        SelectExpression Select([NotNull] IEntityType entityType, [NotNull] string sql, [NotNull] Expression sqlArguments);
     }
 }

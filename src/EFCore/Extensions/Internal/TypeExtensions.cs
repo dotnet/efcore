@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string GenerateParameterName(this Type type)
+        public static string GenerateParameterName([NotNull] this Type type)
         {
             var sb = new StringBuilder();
             var removeLowerCase = sb.Append(type.Name.Where(char.IsUpper).ToArray()).ToString();
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsQueryableType(this Type type)
+        public static bool IsQueryableType([NotNull] this Type type)
         {
             if (type.IsGenericType
                 && type.GetGenericTypeDefinition() == typeof(IQueryable<>))

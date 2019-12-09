@@ -721,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual string GetSimpleEnumValue(Type type, string name)
+        protected virtual string GetSimpleEnumValue([NotNull] Type type, [NotNull] string name)
             => Reference(type) + "." + name;
 
         /// <summary>
@@ -730,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual string GetCompositeEnumValue(Type type, Enum flags)
+        protected virtual string GetCompositeEnumValue([NotNull] Type type, [NotNull] Enum flags)
         {
             var allValues = new HashSet<Enum>(GetFlags(flags));
             foreach (var currentValue in allValues.ToList())

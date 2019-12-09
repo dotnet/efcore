@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual string GetDisplayName(Type type)
+        public virtual string GetDisplayName([NotNull] Type type)
             => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
         /// <summary>

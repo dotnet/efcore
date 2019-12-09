@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             [CanBeNull] string storeType = null,
             int? size = null,
             bool fixedLength = false,
-            ValueComparer comparer = null,
+            [CanBeNull] ValueComparer comparer = null,
             SqlDbType? sqlDbType = null,
             StoreTypePostfix? storeTypePostfix = null)
             : this(

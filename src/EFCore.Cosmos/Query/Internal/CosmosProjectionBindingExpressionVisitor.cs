@@ -6,12 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -44,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosProjectionBindingExpressionVisitor(CosmosSqlTranslatingExpressionVisitor sqlTranslator)
+        public CosmosProjectionBindingExpressionVisitor([NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
         {
             _sqlTranslator = sqlTranslator;
         }
@@ -55,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Translate(SelectExpression selectExpression, Expression expression)
+        public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
         {
             _selectExpression = selectExpression;
             _clientEval = false;
@@ -170,6 +172,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             if (!_clientEval)
             {
                 return null;
@@ -254,6 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var memberName))
             {
                 if (!_clientEval)
@@ -403,6 +409,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
                 case EntityShaperExpression entityShaperExpression:
@@ -465,6 +473,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitNew(NewExpression newExpression)
         {
+            Check.NotNull(newExpression, nameof(newExpression));
+
             if (newExpression.Arguments.Count == 0)
             {
                 return newExpression;
@@ -508,6 +518,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         {
+            Check.NotNull(memberInitExpression, nameof(memberInitExpression));
+
             var newExpression = Visit(memberInitExpression.NewExpression);
             if (newExpression == null)
             {

@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetClrType(Type clrType, ConfigurationSource configurationSource)
+        public virtual void SetClrType([CanBeNull] Type clrType, ConfigurationSource configurationSource)
         {
             clrType ??= DefaultClrType;
             if (!SupportedTypes.Contains(clrType))

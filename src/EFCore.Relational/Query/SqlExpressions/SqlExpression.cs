@@ -3,13 +3,14 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public abstract class SqlExpression : Expression, IPrintableExpression
     {
-        protected SqlExpression(Type type, RelationalTypeMapping typeMapping)
+        protected SqlExpression([NotNull] Type type, [CanBeNull] RelationalTypeMapping typeMapping)
         {
             Type = type;
             TypeMapping = typeMapping;

@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
@@ -24,13 +26,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqliteLineStringMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteLineStringMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
         {
+            Check.NotNull(member, nameof(member));
+            Check.NotNull(returnType, nameof(returnType));
+
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
                 SqlExpression translation = _sqlExpressionFactory.Function(

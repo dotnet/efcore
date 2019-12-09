@@ -3,31 +3,46 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class UnionExpression : SetOperationBase
     {
-        public UnionExpression(string alias, SelectExpression source1, SelectExpression source2, bool distinct)
+        public UnionExpression(
+            [NotNull] string alias,
+            [NotNull] SelectExpression source1,
+            [NotNull] SelectExpression source2,
+            bool distinct)
             : base(alias, source1, source2, distinct)
         {
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var source1 = (SelectExpression)visitor.Visit(Source1);
             var source2 = (SelectExpression)visitor.Visit(Source2);
 
             return Update(source1, source2);
         }
 
-        public virtual UnionExpression Update(SelectExpression source1, SelectExpression source2)
-            => source1 != Source1 || source2 != Source2
+        public virtual UnionExpression Update([NotNull] SelectExpression source1, [NotNull] SelectExpression source2)
+        {
+            Check.NotNull(source1, nameof(source1));
+            Check.NotNull(source2, nameof(source2));
+
+            return source1 != Source1 || source2 != Source2
                 ? new UnionExpression(Alias, source1, source2, IsDistinct)
                 : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append("(");
             using (expressionPrinter.Indent())
             {

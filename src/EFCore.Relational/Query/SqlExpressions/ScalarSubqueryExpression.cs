@@ -3,16 +3,20 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class ScalarSubqueryExpression : SqlExpression
     {
-        public ScalarSubqueryExpression(SelectExpression subquery)
+        public ScalarSubqueryExpression([NotNull] SelectExpression subquery)
             : base(Verify(subquery).Projection[0].Type, subquery.Projection[0].Expression.TypeMapping)
         {
+            Check.NotNull(subquery, nameof(subquery));
+
             Subquery = subquery;
         }
 
@@ -29,15 +33,25 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual SelectExpression Subquery { get; }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((SelectExpression)visitor.Visit(Subquery));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
-        public virtual ScalarSubqueryExpression Update(SelectExpression subquery)
-            => subquery != Subquery
+            return Update((SelectExpression)visitor.Visit(Subquery));
+        }
+
+        public virtual ScalarSubqueryExpression Update([NotNull] SelectExpression subquery)
+        {
+            Check.NotNull(subquery, nameof(subquery));
+
+            return subquery != Subquery
                 ? new ScalarSubqueryExpression(subquery)
                 : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append("(");
             using (expressionPrinter.Indent())
             {

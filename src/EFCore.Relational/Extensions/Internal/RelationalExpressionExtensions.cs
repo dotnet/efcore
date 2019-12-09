@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 // ReSharper disable once CheckNamespace
@@ -21,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsLogicalNot(this SqlUnaryExpression sqlUnaryExpression)
+        public static bool IsLogicalNot([NotNull] this SqlUnaryExpression sqlUnaryExpression)
             => sqlUnaryExpression.OperatorType == ExpressionType.Not
                 && (sqlUnaryExpression.Type == typeof(bool)
                     || sqlUnaryExpression.Type == typeof(bool?));

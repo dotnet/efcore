@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -17,8 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     info/metadata for the given extension.
         /// </summary>
         /// <param name="extension"> The extension. </param>
-        protected DbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
+        protected DbContextOptionsExtensionInfo([NotNull] IDbContextOptionsExtension extension)
         {
+            Check.NotNull(extension, nameof(extension));
+
             Extension = extension;
         }
 

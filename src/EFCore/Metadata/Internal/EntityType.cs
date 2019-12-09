@@ -915,7 +915,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void OnForeignKeyUpdating(ForeignKey foreignKey)
+        public virtual void OnForeignKeyUpdating([NotNull] ForeignKey foreignKey)
         {
             var removed = _foreignKeys.Remove(foreignKey);
             Debug.Assert(removed);
@@ -944,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void OnForeignKeyUpdated(ForeignKey foreignKey)
+        public virtual void OnForeignKeyUpdated([NotNull] ForeignKey foreignKey)
         {
             var added = _foreignKeys.Add(foreignKey);
             Debug.Assert(added);
@@ -1649,7 +1649,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Index RemoveIndex(Index index)
+        public virtual Index RemoveIndex([NotNull] Index index)
         {
             if (!_indexes.Remove(index.Properties))
             {
@@ -1753,9 +1753,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Property AddProperty(
-            string name,
-            Type propertyType,
-            MemberInfo memberInfo,
+            [NotNull] string name,
+            [NotNull] Type propertyType,
+            [CanBeNull] MemberInfo memberInfo,
             ConfigurationSource? typeConfigurationSource,
             ConfigurationSource configurationSource)
         {
@@ -1949,7 +1949,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Property RemoveProperty(Property property)
+        public virtual Property RemoveProperty([NotNull] Property property)
         {
             if (property.DeclaringEntityType != this)
             {
@@ -2497,7 +2497,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        public virtual void CheckDiscriminatorValue(IEntityType entityType, object value)
+        public virtual void CheckDiscriminatorValue([NotNull] IEntityType entityType, [CanBeNull] object value)
         {
             if (value != null
                 && entityType.GetDiscriminatorProperty() == null)

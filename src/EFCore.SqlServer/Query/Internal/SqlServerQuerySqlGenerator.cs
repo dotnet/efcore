@@ -2,20 +2,24 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
-        public SqlServerQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+        public SqlServerQuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }
 
         protected override void GenerateTop(SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             if (selectExpression.Limit != null
                 && selectExpression.Offset == null)
             {
@@ -29,6 +33,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
+            Check.NotNull(selectExpression, nameof(selectExpression));
+
             // Note: For Limit without Offset, SqlServer generates TOP()
             if (selectExpression.Offset != null)
             {
@@ -52,6 +58,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
+            Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
+
             if (!sqlFunctionExpression.IsBuiltIn
                 && string.IsNullOrEmpty(sqlFunctionExpression.Schema))
             {

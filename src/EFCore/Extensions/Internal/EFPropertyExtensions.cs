@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public static bool TryGetEFIndexerArguments(
             [NotNull] this MethodCallExpression methodCallExpression,
-            out Expression entityExpression,
-            out string propertyName)
+            [CanBeNull] out Expression entityExpression,
+            [CanBeNull] out string propertyName)
         {
             if (IsEFIndexer(methodCallExpression)
                 && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsEFIndexer(this MethodInfo methodInfo)
+        public static bool IsEFIndexer([NotNull] this MethodInfo methodInfo)
             => !methodInfo.IsStatic
                 && "get_Item".Equals(methodInfo.Name, StringComparison.Ordinal)
                 && typeof(object) == methodInfo.ReturnType

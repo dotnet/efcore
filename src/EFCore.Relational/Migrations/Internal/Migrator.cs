@@ -222,11 +222,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void PopulateMigrations(
-            IEnumerable<string> appliedMigrationEntries,
-            string targetMigration,
-            out IReadOnlyList<Migration> migrationsToApply,
-            out IReadOnlyList<Migration> migrationsToRevert,
-            out Migration actualTargetMigration)
+            [NotNull] IEnumerable<string> appliedMigrationEntries,
+            [NotNull] string targetMigration,
+            [NotNull] out IReadOnlyList<Migration> migrationsToApply,
+            [NotNull] out IReadOnlyList<Migration> migrationsToRevert,
+            [NotNull] out Migration actualTargetMigration)
         {
             var appliedMigrations = new Dictionary<string, TypeInfo>();
             var unappliedMigrations = new Dictionary<string, TypeInfo>();

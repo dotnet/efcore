@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -12,11 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         private readonly SqlExpressionOptimizingExpressionVisitor _sqlExpressionOptimizingExpressionVisitor;
 
         public RelationalQueryTranslationPostprocessor(
-            QueryTranslationPostprocessorDependencies dependencies,
-            RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-            QueryCompilationContext queryCompilationContext)
+            [NotNull] QueryTranslationPostprocessorDependencies dependencies,
+            [NotNull] RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
+
             RelationalDependencies = relationalDependencies;
             UseRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
             SqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
@@ -48,6 +53,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             return query;
         }
 
-        protected virtual Expression OptimizeSqlExpression(Expression query) => _sqlExpressionOptimizingExpressionVisitor.Visit(query);
+        protected virtual Expression OptimizeSqlExpression([NotNull] Expression query)
+        {
+            Check.NotNull(query, nameof(query));
+
+            return _sqlExpressionOptimizingExpressionVisitor.Visit(query);
+        }
     }
 }

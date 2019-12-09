@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public class InMemoryQueryTranslationPostprocessor : QueryTranslationPostprocessor
     {
-        public InMemoryQueryTranslationPostprocessor(QueryTranslationPostprocessorDependencies dependencies)
+        public InMemoryQueryTranslationPostprocessor([NotNull] QueryTranslationPostprocessorDependencies dependencies)
             : base(dependencies)
         {
         }

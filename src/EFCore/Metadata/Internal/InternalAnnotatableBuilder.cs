@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanRemoveAnnotation(string name, ConfigurationSource configurationSource)
+        public virtual bool CanRemoveAnnotation([NotNull] string name, ConfigurationSource configurationSource)
         {
             var existingAnnotation = Metadata.FindAnnotation(name);
             return existingAnnotation == null
