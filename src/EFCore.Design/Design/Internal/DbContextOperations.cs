@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -305,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 throw new OperationException(DesignStrings.MultipleContextsWithQualifiedName(name));
             }
 
-            Debug.Assert(candidates.Count == 1, "candidates.Count is not 1.");
+            Check.DebugAssert(candidates.Count == 1, $"candidates.Count is {candidates.Count}");
 
             return candidates.First();
         }

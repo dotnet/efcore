@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -289,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var invalidEntityType in unvalidatedTypes)
             {
-                Debug.Assert(root != null);
+                Check.DebugAssert(root != null, "root is null");
                 throw new InvalidOperationException(
                     RelationalStrings.IncompatibleTableNoRelationship(
                         tableName,

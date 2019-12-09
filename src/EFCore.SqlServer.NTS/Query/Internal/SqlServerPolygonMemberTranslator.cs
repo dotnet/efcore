@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (typeof(Polygon).IsAssignableFrom(member.DeclaringType))
             {
-                Debug.Assert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 

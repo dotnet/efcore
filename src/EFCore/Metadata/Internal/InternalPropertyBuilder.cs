@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         var removed = key.DeclaringEntityType.Builder.HasNoKey(key, configurationSource);
-                        Debug.Assert(removed != null);
+                        Check.DebugAssert(removed != null, "removed is null");
                     }
 
                     Metadata.SetIsNullable(true, configurationSource);

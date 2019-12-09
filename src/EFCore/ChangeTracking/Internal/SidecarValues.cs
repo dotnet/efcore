@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             public void SetValue(IProperty property, object value, int index)
             {
-                Debug.Assert(!IsEmpty);
+                Check.DebugAssert(!IsEmpty, "sidecar is empty");
 
                 if (value == null
                     && !property.ClrType.IsNullableType())

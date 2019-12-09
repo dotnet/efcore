@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return new InternalShadowEntityEntry(stateManager, entityType);
             }
 
-            Debug.Assert(entity != null);
+            Check.DebugAssert(entity != null, "entity is null");
 
             return entityType.ShadowPropertyCount() > 0
                 ? (InternalEntityEntry)new InternalMixedEntityEntry(stateManager, entityType, entity)

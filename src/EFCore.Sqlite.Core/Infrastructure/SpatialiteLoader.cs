@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         }
                     }
 
-                    Debug.Assert(assetFullPath != null);
+                    Check.DebugAssert(assetFullPath != null, "assetFullPath is null");
 
                     var assetDirectory = Path.GetDirectoryName(assetFullPath);
 

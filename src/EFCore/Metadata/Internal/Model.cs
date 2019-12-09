@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -174,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var added = entityTypesWithSameType.Add(entityType);
-                Debug.Assert(added);
+                Check.DebugAssert(added, "added is false");
             }
             else
             {
@@ -290,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var removed = entityTypesWithSameType.Remove(entityType);
-                Debug.Assert(removed);
+                Check.DebugAssert(removed, "removed is false");
 
                 if (entityTypesWithSameType.Count == 0)
                 {
@@ -300,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 var removed = _entityTypes.Remove(entityTypeName);
-                Debug.Assert(removed);
+                Check.DebugAssert(removed, "removed is false");
             }
 
             entityType.OnTypeRemoved();

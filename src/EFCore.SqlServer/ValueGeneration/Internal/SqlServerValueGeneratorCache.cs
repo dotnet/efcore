@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         {
             var sequence = property.FindHiLoSequence();
 
-            Debug.Assert(sequence != null);
+            Check.DebugAssert(sequence != null, "sequence is null");
 
             return _sequenceGeneratorCache.GetOrAdd(
                 GetSequenceName(sequence, connection),

@@ -4,9 +4,9 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 {
@@ -124,14 +124,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
         {
             if (Transaction == null)
             {
-                Debug.Assert(((FakeDbConnection)DbConnection).ActiveTransaction == null);
+                Check.DebugAssert(
+                    ((FakeDbConnection)DbConnection).ActiveTransaction == null,
+                    "((FakeDbConnection)DbConnection).ActiveTransaction is null");
             }
             else
             {
                 var transaction = (FakeDbTransaction)Transaction;
 
-                Debug.Assert(transaction.Connection == Connection);
-                Debug.Assert(transaction.DisposeCount == 0);
+                Check.DebugAssert(transaction.Connection == Connection, "transaction.Connection != Connection");
+                Check.DebugAssert(transaction.DisposeCount == 0, $"transaction.DisposeCount is {transaction.DisposeCount}");
             }
         }
     }
