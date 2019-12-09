@@ -1333,7 +1333,7 @@ WHERE ((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) 
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
+WHERE (COALESCE(@__i_0, N'') + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_string_concat_method_comparison(bool async)
@@ -1345,7 +1345,7 @@ WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
+WHERE (COALESCE(@__i_0, N'') + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool async)
