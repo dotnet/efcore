@@ -63,19 +63,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
-                && unaryExpression.Operand.Type == typeof(byte[]))
+                && unaryExpression.Operand.Type == typeof(byte[])
+                && base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression)
             {
-                var visitedExpression = (SqlExpression)base.Visit(unaryExpression.Operand);
+                var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)";
+                var dataLengthSqlFunction = SqlExpressionFactory.Function(
+                    "DATALENGTH", new[] { sqlExpression }, isBinaryMaxDataType ? typeof(int) : typeof(long));
 
-                if (visitedExpression == null)
-                {
-                    return null;
-                }
-
-                var dataLengthSqlFunction = SqlExpressionFactory.Function("DATALENGTH", new[] { visitedExpression }, typeof(int));
-
-                return (visitedExpression is ColumnExpression && GetProviderType(visitedExpression) == "varbinary(max)"
-                 || visitedExpression is SqlParameterExpression)
+                return (sqlExpression is ColumnExpression && isBinaryMaxDataType
+                 || sqlExpression is SqlParameterExpression)
                     ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
                     : dataLengthSqlFunction;
             }
