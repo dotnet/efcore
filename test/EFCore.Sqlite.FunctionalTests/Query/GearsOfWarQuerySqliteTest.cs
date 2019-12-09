@@ -122,6 +122,18 @@ FROM ""Squads"" AS ""s""
 WHERE length(""s"".""Banner"") = @__p_0");
         }
 
+        public override void Byte_array_filter_by_length_parameter_compiled()
+        {
+            base.Byte_array_filter_by_length_parameter_compiled();
+
+            AssertSql(
+                @"@__byteArrayParam='0x2A80' (Size = 2) (DbType = String)
+
+SELECT COUNT(*)
+FROM ""Squads"" AS ""s""
+WHERE (length(""s"".""Banner"") = length(@__byteArrayParam)) OR (length(""s"".""Banner"") IS NULL AND length(@__byteArrayParam) IS NULL)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

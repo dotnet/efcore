@@ -7313,6 +7313,18 @@ FROM [Squads] AS [s]
 WHERE CAST(DATALENGTH([s].[Banner]) AS int) = @__p_0");
         }
 
+        public override void Byte_array_filter_by_length_parameter_compiled()
+        {
+            base.Byte_array_filter_by_length_parameter_compiled();
+
+            AssertSql(
+                @"@__byteArrayParam='0x2A80' (Size = 8000)
+
+SELECT COUNT(*)
+FROM [Squads] AS [s]
+WHERE (CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam) AS int)) OR (DATALENGTH([s].[Banner]) IS NULL AND DATALENGTH(@__byteArrayParam) IS NULL)");
+        }
+
         public override async Task Byte_array_contains_parameter(bool async)
         {
             await base.Byte_array_contains_parameter(async);
