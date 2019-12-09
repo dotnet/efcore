@@ -67,9 +67,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 var visitedExpression = (SqlExpression)base.Visit(unaryExpression.Operand);
 
+                if (visitedExpression == null)
+                {
+                    return null;
+                }
+
                 var dataLengthSqlFunction = SqlExpressionFactory.Function("DATALENGTH", new[] { visitedExpression }, typeof(int));
 
-                return visitedExpression is ColumnExpression && GetProviderType(visitedExpression) == "varbinary(max)"
+                return (visitedExpression is ColumnExpression && GetProviderType(visitedExpression) == "varbinary(max)"
+                 || visitedExpression is SqlParameterExpression)
                     ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
                     : dataLengthSqlFunction;
             }
