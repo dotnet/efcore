@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -286,6 +287,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasConversion([CanBeNull] ValueConverter converter)
             => (PropertyBuilder<TProperty>)base.HasConversion(converter);
+
+
+        /// <summary>
+        ///     Configures the property so that the property value can be compared to other instances
+        ///     using the given <see cref="ValueComparer" />.
+        /// </summary>
+        /// <param name="comparer"> The comparer to use. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder<TProperty> HasValueComparer<TProvider>([CanBeNull] ValueComparer<TProvider> comparer)
+            => (PropertyBuilder<TProperty>)base.HasValueComparer(comparer);
 
         /// <summary>
         ///     <para>

@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -365,6 +366,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter converter)
         {
             Builder.HasConversion(converter, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures the property so that the property value can be compared to other instances
+        ///     using the given <see cref="ValueComparer" />.
+        /// </summary>
+        /// <param name="comparer"> The comparer to use. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasValueComparer([CanBeNull] ValueComparer comparer)
+        {
+            Builder.HasValueComparer(comparer, ConfigurationSource.Explicit);
 
             return this;
         }
