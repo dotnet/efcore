@@ -49,6 +49,6 @@
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
     <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.1.0</MicrosoftDotNetPlatformAbstractionsPackageVersion>
     <MicrosoftExtensionsDependencyModelPackageVersion>3.1.0</MicrosoftExtensionsDependencyModelPackageVersion>
-    <MicrosoftNETCoreAppInternalPackageVersion>3.1.1-servicing.19576.9</MicrosoftNETCoreAppInternalPackageVersion>
+    <MicrosoftNETCoreAppInternalPackageVersion>3.1.0-rtm.19565.2</MicrosoftNETCoreAppInternalPackageVersion>
   </PropertyGroup>
 </Project>
