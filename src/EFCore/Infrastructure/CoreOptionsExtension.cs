@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private IServiceProvider _applicationServiceProvider;
         private IModel _model;
         private ILoggerFactory _loggerFactory;
+        private ISimpleLogger _simpleLogger;
         private IMemoryCache _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
         private bool _detailedErrorsEnabled;
@@ -66,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _applicationServiceProvider = copyFrom.ApplicationServiceProvider;
             _model = copyFrom.Model;
             _loggerFactory = copyFrom.LoggerFactory;
+            _simpleLogger = copyFrom.SimpleLogger;
             _memoryCache = copyFrom.MemoryCache;
             _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _detailedErrorsEnabled = copyFrom.DetailedErrorsEnabled;
@@ -164,6 +166,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._loggerFactory = loggerFactory;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="simpleLogger"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithSimpleLogger([CanBeNull] ISimpleLogger simpleLogger)
+        {
+            var clone = Clone();
+
+            clone._simpleLogger = simpleLogger;
 
             return clone;
         }
@@ -317,6 +334,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseLoggerFactory" /> method.
         /// </summary>
         public virtual ILoggerFactory LoggerFactory => _loggerFactory;
+
+        /// <summary>
+        ///     The option set from the <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" /> method.
+        /// </summary>
+        public virtual ISimpleLogger SimpleLogger => _simpleLogger;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseMemoryCache" /> method.

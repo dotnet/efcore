@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -73,14 +74,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             protected override Expression VisitMember(MemberExpression memberExpression)
             {
+                Check.NotNull(memberExpression, nameof(memberExpression));
+
                 if (memberExpression.Expression != null
                     && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
                         || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
                     && memberExpression.Type.IsGenericType
-                    && (memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
-#pragma warning disable CS0618 // Type or member is obsolete
-                        || memberExpression.Type.GetGenericTypeDefinition() == typeof(DbQuery<>)))
-#pragma warning restore CS0618 // Type or member is obsolete
+                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
                 {
                     return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(memberExpression.Type.GetGenericArguments()[0]);
                 }
@@ -90,6 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 if (methodCallExpression.Method.Name == nameof(DbContext.Set)
                     && methodCallExpression.Object != null
                     && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)

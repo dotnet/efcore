@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -2201,7 +2202,8 @@ DROP TABLE PrincipalTable;");
                         Fixture.ListLoggerFactory,
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"),
-                        new SqlServerLoggingDefinitions()));
+                        new SqlServerLoggingDefinitions(),
+                        new NullSimpleLogger()));
 
                 var databaseModel = databaseModelFactory.Create(
                     Fixture.TestStore.ConnectionString,

@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     {
                         var expression = b.BindToParameter(bindingInfo);
 
-                        if (expression.Type.GetTypeInfo().IsValueType)
+                        if (expression.Type.IsValueType)
                         {
                             expression = Expression.Convert(expression, typeof(object));
                         }

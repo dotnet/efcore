@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -49,8 +50,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
                     .AddSingleton(typeof(IDiagnosticsLogger<>), typeof(DiagnosticsLogger<>))
                     .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
-                    .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory);
+                    .AddSingleton<ILoggerFactory>(Fixture.ListLoggerFactory)
+                    .AddSingleton<ISimpleLogger, NullSimpleLogger>();
+
                 new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
+
                 var databaseModelFactory = services
                     .BuildServiceProvider()
                     .GetRequiredService<IDatabaseModelFactory>();

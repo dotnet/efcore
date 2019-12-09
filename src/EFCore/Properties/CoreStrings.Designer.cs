@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public static class CoreStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreStrings).Assembly);
 
         /// <summary>
         ///     Unable to save changes because a circular dependency was detected in the data to be saved: '{cycle}'.
@@ -2254,7 +2254,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     public static class CoreResources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.CoreStrings", typeof(CoreResources).Assembly);
 
         /// <summary>
         ///     An 'IServiceProvider' was created for internal use by Entity Framework.
@@ -3001,81 +3001,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Compiling query model: {newline}'{queryModel}'
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string, string> LogCompilingQueryModel([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogCompilingQueryModel;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogCompilingQueryModel,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.QueryModelCompiling,
-                        LogLevel.Debug,
-                        "CoreEventId.QueryModelCompiling",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.QueryModelCompiling,
-                            _resourceManager.GetString("LogCompilingQueryModel"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Optimized query model: {newline}'{queryModel}'
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string, string> LogOptimizedQueryModel([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogOptimizedQueryModel;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogOptimizedQueryModel,
-                    () => new EventDefinition<string, string>(
-                        logger.Options,
-                        CoreEventId.QueryModelOptimized,
-                        LogLevel.Debug,
-                        "CoreEventId.QueryModelOptimized",
-                        level => LoggerMessage.Define<string, string>(
-                            level,
-                            CoreEventId.QueryModelOptimized,
-                            _resourceManager.GetString("LogOptimizedQueryModel"))));
-            }
-
-            return (EventDefinition<string, string>)definition;
-        }
-
-        /// <summary>
-        ///     Including navigation: '{navigation}'
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogIncludingNavigation([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogIncludingNavigation;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogIncludingNavigation,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.NavigationIncluded,
-                        LogLevel.Debug,
-                        "CoreEventId.NavigationIncluded",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.NavigationIncluded,
-                            _resourceManager.GetString("LogIncludingNavigation"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
         ///     {plan}
         /// </summary>
         public static EventDefinition<string> LogQueryExecutionPlanned([NotNull] IDiagnosticsLogger logger)
@@ -3121,81 +3046,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
-        }
-
-        /// <summary>
-        ///     The Include operation for navigation '{include}' is unnecessary and was ignored because the navigation is not reachable in the final query results. See https://go.microsoft.com/fwlink/?linkid=850303 for more information.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogIgnoredInclude([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogIgnoredInclude;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogIgnoredInclude,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.IncludeIgnoredWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.IncludeIgnoredWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.IncludeIgnoredWarning,
-                            _resourceManager.GetString("LogIgnoredInclude"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     Query: '{queryModel}' uses a row limiting operation (Skip/Take) without OrderBy which may lead to unpredictable results.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogRowLimitingOperationWithoutOrderBy([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogRowLimitingOperationWithoutOrderBy,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.RowLimitingOperationWithoutOrderByWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.RowLimitingOperationWithoutOrderByWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.RowLimitingOperationWithoutOrderByWarning,
-                            _resourceManager.GetString("LogRowLimitingOperationWithoutOrderBy"))));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
-        ///     Query: '{queryModel}' uses First/FirstOrDefault/Last/LastOrDefault operation without OrderBy and filter which may lead to unpredictable results.
-        /// </summary>
-        [Obsolete]
-        public static EventDefinition<string> LogFirstWithoutOrderByAndFilter([NotNull] IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter;
-            if (definition == null)
-            {
-                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
-                    ref ((LoggingDefinitions)logger.Definitions).LogFirstWithoutOrderByAndFilter,
-                    () => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.FirstWithoutOrderByAndFilterWarning,
-                        LogLevel.Warning,
-                        "CoreEventId.FirstWithoutOrderByAndFilterWarning",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.FirstWithoutOrderByAndFilterWarning,
-                            _resourceManager.GetString("LogFirstWithoutOrderByAndFilter"))));
-            }
-
-            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

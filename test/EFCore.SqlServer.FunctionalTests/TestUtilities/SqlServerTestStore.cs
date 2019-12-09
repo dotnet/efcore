@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (scriptPath != null)
             {
-                _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).GetTypeInfo().Assembly.Location), scriptPath);
+                _scriptPath = Path.Combine(Path.GetDirectoryName(typeof(SqlServerTestStore).Assembly.Location), scriptPath);
             }
 
             ConnectionString = CreateConnectionString(Name, _fileName, multipleActiveResultSets);
@@ -85,11 +85,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
                 else
                 {
-                    using (var context = createContext())
-                    {
-                        context.Database.EnsureCreatedResiliently();
-                        seed?.Invoke(context);
-                    }
+                    using var context = createContext();
+                    context.Database.EnsureCreatedResiliently();
+                    seed?.Invoke(context);
                 }
             }
         }
@@ -112,16 +110,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                     if (_fileName == null)
                     {
-                        using (var context = new DbContext(
+                        using var context = new DbContext(
                             AddProviderOptions(
                                     new DbContextOptionsBuilder()
                                         .EnableServiceProviderCaching(false))
-                                .Options))
-                        {
-                            clean?.Invoke(context);
-                            Clean(context);
-                            return true;
-                        }
+                                .Options);
+                        clean?.Invoke(context);
+                        Clean(context);
+                        return true;
                     }
 
                     // Delete the database to ensure it's recreated with the correct file path
@@ -218,18 +214,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public void DeleteDatabase()
         {
-            using (var master = new SqlConnection(CreateConnectionString("master")))
-            {
-                ExecuteNonQuery(
-                    master, string.Format(
-                        @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
+            using var master = new SqlConnection(CreateConnectionString("master"));
+            ExecuteNonQuery(
+                master, string.Format(
+                    @"IF EXISTS (SELECT * FROM sys.databases WHERE name = N'{0}')
                                           BEGIN
                                               ALTER DATABASE [{0}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
                                               DROP DATABASE [{0}];
                                           END", Name));
 
-                SqlConnection.ClearAllPools();
-            }
+            SqlConnection.ClearAllPools();
         }
 
         public override void OpenConnection()
@@ -269,16 +263,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => Execute(
                 connection, command =>
                 {
-                    using (var dataReader = command.ExecuteReader())
+                    using var dataReader = command.ExecuteReader();
+                    var results = Enumerable.Empty<T>();
+                    while (dataReader.Read())
                     {
-                        var results = Enumerable.Empty<T>();
-                        while (dataReader.Read())
-                        {
-                            results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
-                        }
-
-                        return results;
+                        results = results.Concat(new[] { dataReader.GetFieldValue<T>(0) });
                     }
+
+                    return results;
                 }, sql, false, parameters);
 
         public Task<IEnumerable<T>> QueryAsync<T>(string sql, params object[] parameters)
@@ -288,16 +280,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => ExecuteAsync(
                 connection, async command =>
                 {
-                    using (var dataReader = await command.ExecuteReaderAsync())
+                    using var dataReader = await command.ExecuteReaderAsync();
+                    var results = Enumerable.Empty<T>();
+                    while (await dataReader.ReadAsync())
                     {
-                        var results = Enumerable.Empty<T>();
-                        while (await dataReader.ReadAsync())
-                        {
-                            results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
-                        }
-
-                        return results;
+                        results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
                     }
+
+                    return results;
                 }, sql, false, parameters);
 
         private static T Execute<T>(
@@ -325,19 +315,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             connection.Open();
             try
             {
-                using (var transaction = useTransaction ? connection.BeginTransaction() : null)
+                using var transaction = useTransaction ? connection.BeginTransaction() : null;
+                T result;
+                using (var command = CreateCommand(connection, sql, parameters))
                 {
-                    T result;
-                    using (var command = CreateCommand(connection, sql, parameters))
-                    {
-                        command.Transaction = transaction;
-                        result = execute(command);
-                    }
-
-                    transaction?.Commit();
-
-                    return result;
+                    command.Transaction = transaction;
+                    result = execute(command);
                 }
+
+                transaction?.Commit();
+
+                return result;
             }
             finally
             {
@@ -374,21 +362,19 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             await connection.OpenAsync();
             try
             {
-                using (var transaction = useTransaction ? await connection.BeginTransactionAsync() : null)
+                using var transaction = useTransaction ? await connection.BeginTransactionAsync() : null;
+                T result;
+                using (var command = CreateCommand(connection, sql, parameters))
                 {
-                    T result;
-                    using (var command = CreateCommand(connection, sql, parameters))
-                    {
-                        result = await executeAsync(command);
-                    }
-
-                    if (transaction != null)
-                    {
-                        await transaction.CommitAsync();
-                    }
-
-                    return result;
+                    result = await executeAsync(command);
                 }
+
+                if (transaction != null)
+                {
+                    await transaction.CommitAsync();
+                }
+
+                return result;
             }
             finally
             {

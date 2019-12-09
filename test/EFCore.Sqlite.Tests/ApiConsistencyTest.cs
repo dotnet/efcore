@@ -27,6 +27,6 @@ namespace Microsoft.EntityFrameworkCore
             serviceCollection.AddEntityFrameworkSqlite();
         }
 
-        protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).Assembly;
     }
 }

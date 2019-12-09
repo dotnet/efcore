@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -9,13 +11,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly QueryCompilationContext _queryCompilationContext;
 
-        public QueryMetadataExtractingExpressionVisitor(QueryCompilationContext queryCompilationContext)
+        public QueryMetadataExtractingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
         {
             _queryCompilationContext = queryCompilationContext;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             var method = methodCallExpression.Method;
             if (method.DeclaringType == typeof(EntityFrameworkQueryableExtensions)
                 && method.IsGenericMethod)

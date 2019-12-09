@@ -10,12 +10,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor
     {
-        private class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
+        private sealed class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
         {
             private readonly bool _tracking;
 
@@ -158,6 +159,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
                     var entityClrType = includeExpression.EntityExpression.Type;

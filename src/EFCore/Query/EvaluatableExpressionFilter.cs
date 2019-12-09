@@ -84,6 +84,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> True if the expression can be evaluated; false otherwise. </returns>
         public virtual bool IsEvaluatableExpression(Expression expression, IModel model)
         {
+            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(model, nameof(model));
+
             switch (expression)
             {
                 case MemberExpression memberExpression:

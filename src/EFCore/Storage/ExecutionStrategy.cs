@@ -205,10 +205,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     OnRetry();
                 }
 
-                using (var waitEvent = new ManualResetEventSlim(false))
-                {
-                    waitEvent.WaitHandle.WaitOne(delay.Value);
-                }
+                using var waitEvent = new ManualResetEventSlim(false);
+                waitEvent.WaitHandle.WaitOne(delay.Value);
             }
         }
 

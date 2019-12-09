@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
@@ -32,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
-            => new InMemoryQueryableMethodTranslatingExpressionVisitor(_dependencies, model);
+        {
+            Check.NotNull(model, nameof(model));
+
+            return new InMemoryQueryableMethodTranslatingExpressionVisitor(_dependencies, model);
+        }
     }
 }

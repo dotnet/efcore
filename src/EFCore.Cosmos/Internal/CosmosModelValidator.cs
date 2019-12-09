@@ -123,12 +123,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
 
                         partitionKey = nextPartitionKeyProperty;
                     }
-                    else if (partitionKey.GetPropertyName() != nextPartitionKeyProperty.GetPropertyName())
+                    else if (partitionKey.GetJsonPropertyName() != nextPartitionKeyProperty.GetJsonPropertyName())
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyStoreNameMismatch(
-                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetPropertyName(),
-                                nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetPropertyName()));
+                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetJsonPropertyName(),
+                                nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetJsonPropertyName()));
                     }
                 }
                 else if (partitionKey != null)

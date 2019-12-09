@@ -84,23 +84,19 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return true;
             }
 
-            using (var firstEnumerator = first.GetEnumerator())
+            using var firstEnumerator = first.GetEnumerator();
+            using var secondEnumerator = second.GetEnumerator();
+            while (firstEnumerator.MoveNext())
             {
-                using (var secondEnumerator = second.GetEnumerator())
+                if (!secondEnumerator.MoveNext()
+                    || !StructuralComparisons.StructuralEqualityComparer
+                        .Equals(firstEnumerator.Current, secondEnumerator.Current))
                 {
-                    while (firstEnumerator.MoveNext())
-                    {
-                        if (!secondEnumerator.MoveNext()
-                            || !StructuralComparisons.StructuralEqualityComparer
-                                .Equals(firstEnumerator.Current, secondEnumerator.Current))
-                        {
-                            return false;
-                        }
-                    }
-
-                    return !secondEnumerator.MoveNext();
+                    return false;
                 }
             }
+
+            return !secondEnumerator.MoveNext();
         }
 
         /// <summary>
@@ -120,15 +116,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             using (var firstEnumerator = first.GetEnumerator())
             {
-                using (var secondEnumerator = second.GetEnumerator())
+                using var secondEnumerator = second.GetEnumerator();
+                while (secondEnumerator.MoveNext())
                 {
-                    while (secondEnumerator.MoveNext())
+                    if (!firstEnumerator.MoveNext()
+                        || !Equals(firstEnumerator.Current, secondEnumerator.Current))
                     {
-                        if (!firstEnumerator.MoveNext()
-                            || !Equals(firstEnumerator.Current, secondEnumerator.Current))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }

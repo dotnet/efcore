@@ -4,6 +4,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -15,6 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.IsGenericMethod
                 && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo methodInfo
                 && (methodInfo.Equals(EnumerableMethods.AnyWithPredicate) || methodInfo.Equals(EnumerableMethods.All))
@@ -67,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 case MethodCallExpression methodCallExpression
                     when methodCallExpression.Method.Name == nameof(object.Equals):
+                {
                     negated = false;
                     if (methodCallExpression.Arguments.Count == 1
                         && methodCallExpression.Object.Type == methodCallExpression.Arguments[0].Type)
@@ -80,12 +85,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     return true;
+                }
 
                 case UnaryExpression unaryExpression
-                    when unaryExpression.NodeType == ExpressionType.Not:
+                    when unaryExpression.IsLogicalNot():
+                {
                     var result = TryExtractEqualityOperands(unaryExpression.Operand, out left, out right, out negated);
                     negated = !negated;
                     return result;
+                }
             }
 
             return false;

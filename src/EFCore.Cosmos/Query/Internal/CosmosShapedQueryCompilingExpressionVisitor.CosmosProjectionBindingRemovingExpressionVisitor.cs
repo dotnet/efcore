@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -15,29 +16,30 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
+        private sealed class CosmosProjectionBindingRemovingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _getItemMethodInfo
-                = typeof(JObject).GetTypeInfo().GetRuntimeProperties()
+                = typeof(JObject).GetRuntimeProperties()
                     .Single(pi => pi.Name == "Item" && pi.GetIndexParameters()[0].ParameterType == typeof(string))
                     .GetMethod;
 
             private static readonly PropertyInfo _jTokenTypePropertyInfo
-                = typeof(JToken).GetTypeInfo().GetRuntimeProperties()
+                = typeof(JToken).GetRuntimeProperties()
                     .Single(mi => mi.Name == nameof(JToken.Type));
 
             private static readonly MethodInfo _jTokenToObjectMethodInfo
-                = typeof(JToken).GetTypeInfo().GetRuntimeMethods()
+                = typeof(JToken).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(JToken.ToObject) && mi.GetParameters().Length == 0);
 
             private static readonly MethodInfo _toObjectMethodInfo
-                = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetTypeInfo().GetRuntimeMethods()
+                = typeof(CosmosProjectionBindingRemovingExpressionVisitor).GetRuntimeMethods()
                     .Single(mi => mi.Name == nameof(SafeToObject));
 
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
@@ -68,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 = new List<IncludeExpression>();
 
             public CosmosProjectionBindingRemovingExpressionVisitor(
-                SelectExpression selectExpression,
-                ParameterExpression jObjectParameter,
+                [NotNull] SelectExpression selectExpression,
+                [NotNull] ParameterExpression jObjectParameter,
                 bool trackQueryResults)
             {
                 _selectExpression = selectExpression;
@@ -79,6 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitBinary(BinaryExpression binaryExpression)
             {
+                Check.NotNull(binaryExpression, nameof(binaryExpression));
+
                 if (binaryExpression.NodeType == ExpressionType.Assign)
                 {
                     if (binaryExpression.Left is ParameterExpression parameterExpression)
@@ -178,6 +182,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
+                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
                 var method = methodCallExpression.Method;
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
                 if (genericMethod == EntityMaterializerSource.TryReadValueMethod)
@@ -227,6 +233,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 switch (extensionExpression)
                 {
                     case ProjectionBindingExpression projectionBindingExpression:
@@ -466,11 +474,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     entry.SetIsLoaded(navigation);
                     if (relatedEntities != null)
                     {
-                        using (var enumerator = relatedEntities.GetEnumerator())
+                        using var enumerator = relatedEntities.GetEnumerator();
+                        while (enumerator.MoveNext())
                         {
-                            while (enumerator.MoveNext())
-                            {
-                            }
                         }
                     }
                     else
@@ -596,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return _projectionBindings[jObjectExpression];
                 }
 
-                var storeName = property.GetPropertyName();
+                var storeName = property.GetJsonPropertyName();
                 if (storeName.Length == 0)
                 {
                     var entityType = property.DeclaringEntityType;

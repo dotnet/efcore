@@ -12,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public void Can_use_With_methods_to_clone_and_replace_service()
         {
-            InMemoryTestHelpers.Instance.TestDependenciesClone<QueryCompilationContextDependencies>();
+            InMemoryTestHelpers.Instance.TestDependenciesClone<QueryCompilationContextDependencies>(
+                nameof(QueryCompilationContextDependencies.IsTracking),
+                nameof(QueryCompilationContextDependencies.ContextType));
         }
     }
 }

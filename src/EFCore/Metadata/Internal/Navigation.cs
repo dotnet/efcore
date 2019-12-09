@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? shouldBeCollection,
             bool shouldThrow)
         {
-            if (!navigationProperty.DeclaringType.GetTypeInfo().IsAssignableFrom(sourceClrType.GetTypeInfo()))
+            if (!navigationProperty.DeclaringType.IsAssignableFrom(sourceClrType))
             {
                 if (shouldThrow)
                 {
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var navigationTargetClrType = navigationProperty.GetMemberType().TryGetSequenceType();
             shouldBeCollection ??= navigationTargetClrType != null && navigationProperty.GetMemberType() != targetClrType;
             if (shouldBeCollection.Value
-                && navigationTargetClrType?.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()) != true)
+                && navigationTargetClrType?.IsAssignableFrom(targetClrType) != true)
             {
                 if (shouldThrow)
                 {
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (!shouldBeCollection.Value
-                && !navigationProperty.GetMemberType().GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
+                && !navigationProperty.GetMemberType().IsAssignableFrom(targetClrType))
             {
                 if (shouldThrow)
                 {
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString();
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -243,8 +243,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView<Navigation> DebugView
-            => new DebugView<Navigation>(this, m => m.ToDebugString(false));
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

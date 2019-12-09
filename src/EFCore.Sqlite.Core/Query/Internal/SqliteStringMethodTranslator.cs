@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -72,13 +74,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private const char LikeEscapeChar = '\\';
 
-        public SqliteStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteStringMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_indexOfMethodInfo.Equals(method))
             {
                 var argument = arguments[0];

@@ -4,20 +4,34 @@
 using System;
 using System.Collections;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public class InExpression : SqlExpression
     {
-        public InExpression(SqlExpression item, bool negated, SelectExpression subquery, RelationalTypeMapping typeMapping)
+        public InExpression(
+            [NotNull] SqlExpression item,
+            bool negated,
+            [NotNull] SelectExpression subquery,
+            [CanBeNull] RelationalTypeMapping typeMapping)
             : this(item, negated, null, subquery, typeMapping)
         {
+            Check.NotNull(item, nameof(item));
+            Check.NotNull(subquery, nameof(subquery));
         }
 
-        public InExpression(SqlExpression item, bool negated, SqlExpression values, RelationalTypeMapping typeMapping)
+        public InExpression(
+            [NotNull] SqlExpression item,
+            bool negated,
+            [NotNull] SqlExpression values,
+            [CanBeNull] RelationalTypeMapping typeMapping)
             : this(item, negated, values, null, typeMapping)
         {
+            Check.NotNull(item, nameof(item));
+            Check.NotNull(values, nameof(values));
         }
 
         private InExpression(
@@ -38,6 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var newItem = (SqlExpression)visitor.Visit(Item);
             var subquery = (SelectExpression)visitor.Visit(Subquery);
             var values = (SqlExpression)visitor.Visit(Values);
@@ -47,13 +63,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public virtual InExpression Negate() => new InExpression(Item, !IsNegated, Values, Subquery, TypeMapping);
 
-        public virtual InExpression Update(SqlExpression item, SqlExpression values, SelectExpression subquery)
-            => item != Item || subquery != Subquery || values != Values
+        public virtual InExpression Update(
+            [NotNull] SqlExpression item, [CanBeNull] SqlExpression values, [CanBeNull] SelectExpression subquery)
+        {
+            Check.NotNull(item, nameof(item));
+
+            return item != Item || subquery != Subquery || values != Values
                 ? new InExpression(item, IsNegated, values, subquery, TypeMapping)
                 : this;
+        }
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Visit(Item);
             expressionPrinter.Append(IsNegated ? " NOT IN " : " IN ");
             expressionPrinter.Append("(");

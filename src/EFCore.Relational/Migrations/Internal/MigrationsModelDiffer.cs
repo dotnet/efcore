@@ -799,7 +799,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(GetSortedProperties));
         }
 
-        private class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
+        private sealed class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
         {
             private PropertyInfoEqualityComparer()
             {
@@ -2236,7 +2236,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return result;
         }
 
-        private class EntryMapping
+        private sealed class EntryMapping
         {
             public HashSet<IUpdateEntry> SourceEntries { get; } = new HashSet<IUpdateEntry>();
             public HashSet<IUpdateEntry> TargetEntries { get; } = new HashSet<IUpdateEntry>();

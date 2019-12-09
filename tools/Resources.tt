@@ -69,7 +69,7 @@ namespace <#= model.Namespace #>
     <#= model.AccessModifier #> static class <#= model.Class #>
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("<#= model.ResourceName #>", typeof(<#= model.Class #>).GetTypeInfo().Assembly);
+            = new ResourceManager("<#= model.ResourceName #>", typeof(<#= model.Class #>).Assembly);
 <#
     foreach (var resource in model.Resources)
     {
@@ -136,7 +136,7 @@ namespace <#= model.Namespace.EndsWith(".Internal") ? model.Namespace : (model.N
     <#= model.AccessModifier #> static class <#= model.DiagnosticsClass #>
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("<#= model.ResourceName #>", typeof(<#= model.DiagnosticsClass #>).GetTypeInfo().Assembly);
+            = new ResourceManager("<#= model.ResourceName #>", typeof(<#= model.DiagnosticsClass #>).Assembly);
 <#
         foreach (var resource in model.Resources)
         {

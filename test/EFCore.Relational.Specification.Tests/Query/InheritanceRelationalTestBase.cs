@@ -21,19 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void FromSql_on_root()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<Animal>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
-            }
+            using var context = CreateContext();
+            context.Set<Animal>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
         }
 
         [ConditionalFact]
         public virtual void FromSql_on_derived()
         {
-            using (var context = CreateContext())
-            {
-                context.Set<Eagle>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
-            }
+            using var context = CreateContext();
+            context.Set<Eagle>().FromSqlRaw(NormalizeDelimitersInRawString("select * from [Animal]")).ToList();
         }
 
         private string NormalizeDelimitersInRawString(string sql)

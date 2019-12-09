@@ -939,7 +939,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 logFactory,
                 new FakeLoggingOptions(false),
                 new DiagnosticListener("Fake"),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullSimpleLogger());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -996,7 +997,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 logFactory,
                 new FakeLoggingOptions(true),
                 new DiagnosticListener("Fake"),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullSimpleLogger());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -1053,7 +1055,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullSimpleLogger());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -1123,7 +1126,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullSimpleLogger());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]

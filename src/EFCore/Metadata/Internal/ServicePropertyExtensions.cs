@@ -33,12 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string ToDebugString(
-            [NotNull] this IServiceProperty serviceProperty, bool singleLine = true, [NotNull] string indent = "")
+            [NotNull] this IServiceProperty serviceProperty,
+            MetadataDebugStringOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append("Service property: ").Append(serviceProperty.DeclaringType.DisplayName()).Append(".");
@@ -57,7 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             builder.Append(serviceProperty.ClrType?.ShortDisplayName()).Append(")");
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(serviceProperty.AnnotationsToDebugString(indent + "  "));
             }

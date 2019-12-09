@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetPrimaryKey(IReadOnlyList<IConventionProperty> properties, ConfigurationSource configurationSource)
+        public virtual bool CanSetPrimaryKey([CanBeNull] IReadOnlyList<IConventionProperty> properties, ConfigurationSource configurationSource)
         {
             var previousPrimaryKey = Metadata.FindPrimaryKey();
             if (properties == null)
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static List<(InternalKeyBuilder, ConfigurationSource?)> DetachKeys(IEnumerable<Key> keysToDetach)
+        public static List<(InternalKeyBuilder, ConfigurationSource?)> DetachKeys([NotNull] IEnumerable<Key> keysToDetach)
         {
             var keysToDetachList = (keysToDetach as List<Key>) ?? keysToDetach.ToList();
             if (keysToDetachList.Count == 0)
@@ -662,7 +662,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanAddProperty(Type propertyType, string name, ConfigurationSource? typeConfigurationSource)
+        public virtual bool CanAddProperty([NotNull] Type propertyType, [NotNull] string name, ConfigurationSource? typeConfigurationSource)
         {
             var conflictingMember = Metadata.FindPropertiesInHierarchy(name).FirstOrDefault();
             if (conflictingMember != null
@@ -969,7 +969,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanIgnore(string name, ConfigurationSource configurationSource)
+        public virtual bool CanIgnore([NotNull] string name, ConfigurationSource configurationSource)
             => CanIgnore(name, configurationSource, shouldThrow: false);
 
         private bool CanIgnore(string name, ConfigurationSource configurationSource, bool shouldThrow)
@@ -1119,7 +1119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetDefiningQuery(LambdaExpression query, ConfigurationSource configurationSource)
+        public virtual bool CanSetDefiningQuery([CanBeNull] LambdaExpression query, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetDefiningQueryConfigurationSource())
                 || Metadata.GetDefiningQuery() == query;
 
@@ -1431,7 +1431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetBaseType(EntityType baseEntityType, ConfigurationSource configurationSource)
+        public virtual bool CanSetBaseType([NotNull] EntityType baseEntityType, ConfigurationSource configurationSource)
             => Metadata.BaseType == baseEntityType
                 || configurationSource.Overrides(Metadata.GetBaseTypeConfigurationSource());
 
@@ -1894,7 +1894,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static List<InternalIndexBuilder> DetachIndexes(IEnumerable<Index> indexesToDetach)
+        public static List<InternalIndexBuilder> DetachIndexes([NotNull] IEnumerable<Index> indexesToDetach)
         {
             var indexesToDetachList = (indexesToDetach as List<Index>) ?? indexesToDetach.ToList();
             if (indexesToDetachList.Count == 0)
@@ -2131,8 +2131,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var navigationProperty = navigationToTarget?.MemberInfo;
             if (inverseNavigation == null
-                && navigationProperty?.GetMemberType().GetTypeInfo().IsAssignableFrom(
-                    targetEntityType.ClrType.GetTypeInfo())
+                && navigationProperty?.GetMemberType().IsAssignableFrom(
+                    targetEntityType.ClrType)
                 == false)
             {
                 // Only one nav specified and it can't be the nav to principal
@@ -2678,7 +2678,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool RemoveNonOwnershipRelationships(ForeignKey ownership, ConfigurationSource configurationSource)
+        public virtual bool RemoveNonOwnershipRelationships([NotNull] ForeignKey ownership, ConfigurationSource configurationSource)
         {
             var incompatibleRelationships = Metadata.GetDerivedTypesInclusive()
                 .SelectMany(t => t.GetDeclaredForeignKeys())
@@ -2756,8 +2756,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalEntityTypeBuilder GetTargetEntityTypeBuilder(
-            Type targetClrType,
-            MemberInfo navigationInfo,
+            [NotNull] Type targetClrType,
+            [NotNull] MemberInfo navigationInfo,
             ConfigurationSource? configurationSource)
         {
             var ownership = Metadata.FindOwnership();
@@ -2858,19 +2858,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? isRequired,
             ConfigurationSource configurationSource)
         {
-            using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
+            using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+            var foreignKey = SetOrAddForeignKey(
+                null, principalEntityTypeBuilder,
+                dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
+            if (isRequired.HasValue
+                && foreignKey.IsRequired == isRequired.Value)
             {
-                var foreignKey = SetOrAddForeignKey(
-                    null, principalEntityTypeBuilder,
-                    dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
-                if (isRequired.HasValue
-                    && foreignKey.IsRequired == isRequired.Value)
-                {
-                    foreignKey = foreignKey.SetIsRequired(isRequired.Value, configurationSource);
-                }
-
-                return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
+                foreignKey = foreignKey.SetIsRequired(isRequired.Value, configurationSource);
             }
+
+            return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
         }
 
         /// <summary>
@@ -2887,14 +2885,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             bool? isRequired,
             ConfigurationSource? configurationSource)
         {
-            using (var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions())
-            {
-                foreignKey = SetOrAddForeignKey(
-                    foreignKey, foreignKey.PrincipalEntityType.Builder,
-                    dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
+            using var batch = ModelBuilder.Metadata.ConventionDispatcher.DelayConventions();
+            foreignKey = SetOrAddForeignKey(
+                foreignKey, foreignKey.PrincipalEntityType.Builder,
+                dependentProperties, principalKey, navigationToPrincipalName, isRequired, configurationSource);
 
-                return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
-            }
+            return (InternalRelationshipBuilder)batch.Run(foreignKey)?.Builder;
         }
 
         private ForeignKey SetOrAddForeignKey(
@@ -3036,8 +3032,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Property CreateUniqueProperty(
-            string propertyName,
-            Type propertyType,
+            [NotNull] string propertyName,
+            [NotNull] Type propertyType,
             bool isRequired)
             => CreateUniqueProperties(
                 new[] { propertyName },
@@ -3051,8 +3047,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IReadOnlyList<Property> CreateUniqueProperties(
-            IReadOnlyList<string> propertyNames,
-            IReadOnlyList<Type> propertyTypes,
+            [NotNull] IReadOnlyList<string> propertyNames,
+            [NotNull] IReadOnlyList<Type> propertyTypes,
             bool isRequired)
             => TryCreateUniqueProperties(
                 propertyNames.Count,
@@ -3089,63 +3085,61 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var canReuniquify = false;
             using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
             {
-                using (var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator())
+                using var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator();
+                for (var i = 0;
+                     i < propertyCount
+                     && principalPropertyNamesEnumerator.MoveNext()
+                     && principalPropertyTypesEnumerator.MoveNext();
+                     i++)
                 {
-                    for (var i = 0;
-                         i < propertyCount
-                         && principalPropertyNamesEnumerator.MoveNext()
-                         && principalPropertyTypesEnumerator.MoveNext();
-                         i++)
+                    var keyPropertyName = principalPropertyNamesEnumerator.Current;
+                    var keyPropertyType = principalPropertyTypesEnumerator.Current;
+                    var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
+                        ? keyPropertyName
+                        : baseName + keyPropertyName;
+                    string propertyName;
+                    var clrType = keyPropertyType.MakeNullable(!isRequired);
+                    var index = -1;
+                    while (true)
                     {
-                        var keyPropertyName = principalPropertyNamesEnumerator.Current;
-                        var keyPropertyType = principalPropertyTypesEnumerator.Current;
-                        var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
-                            ? keyPropertyName
-                            : baseName + keyPropertyName;
-                        string propertyName;
-                        var clrType = keyPropertyType.MakeNullable(!isRequired);
-                        var index = -1;
-                        while (true)
+                        propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
+                        if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
+                            && clrProperties?.ContainsKey(propertyName) != true
+                            && clrFields?.ContainsKey(propertyName) != true
+                            && !IsIgnored(propertyName, ConfigurationSource.Convention))
                         {
-                            propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
-                            if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
-                                && clrProperties?.ContainsKey(propertyName) != true
-                                && clrFields?.ContainsKey(propertyName) != true
-                                && !IsIgnored(propertyName, ConfigurationSource.Convention))
+                            if (currentProperties == null)
                             {
-                                if (currentProperties == null)
-                                {
-                                    var propertyBuilder = Property(
-                                        clrType, propertyName, typeConfigurationSource: null,
-                                        configurationSource: ConfigurationSource.Convention);
+                                var propertyBuilder = Property(
+                                    clrType, propertyName, typeConfigurationSource: null,
+                                    configurationSource: ConfigurationSource.Convention);
 
-                                    if (clrType.IsNullableType())
-                                    {
-                                        propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
-                                    }
-
-                                    newProperties[i] = propertyBuilder.Metadata;
-                                }
-                                else
+                                if (clrType.IsNullableType())
                                 {
-                                    canReuniquify = true;
+                                    propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
                                 }
 
-                                break;
+                                newProperties[i] = propertyBuilder.Metadata;
+                            }
+                            else
+                            {
+                                canReuniquify = true;
                             }
 
-                            var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
-                            if (currentProperty != null)
-                            {
-                                if (currentProperty.IsShadowProperty()
-                                    && currentProperty.ClrType != clrType
-                                    && isRequired)
-                                {
-                                    canReuniquify = true;
-                                }
+                            break;
+                        }
 
-                                break;
+                        var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
+                        if (currentProperty != null)
+                        {
+                            if (currentProperty.IsShadowProperty()
+                                && currentProperty.ClrType != clrType
+                                && isRequired)
+                            {
+                                canReuniquify = true;
                             }
+
+                            break;
                         }
                     }
                 }
@@ -3373,7 +3367,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalPropertyBuilder GetOrCreateDiscriminatorProperty(Type type, string name, bool fromDataAnnotation)
+        public virtual InternalPropertyBuilder GetOrCreateDiscriminatorProperty(
+            [CanBeNull] Type type, [CanBeNull] string name, bool fromDataAnnotation)
         {
             var discriminatorProperty = ((IEntityType)Metadata).GetDiscriminatorProperty();
             if ((name != null && discriminatorProperty?.Name != name)
@@ -3391,7 +3386,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         public virtual DiscriminatorBuilder DiscriminatorBuilder(
-            InternalPropertyBuilder discriminatorPropertyBuilder,
+            [CanBeNull] InternalPropertyBuilder discriminatorPropertyBuilder,
             ConfigurationSource configurationSource)
         {
             if (discriminatorPropertyBuilder == null)

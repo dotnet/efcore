@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalTypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IMethodCallTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
                 { typeof(IMemberTranslatorPlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
-
+                { typeof(IRelationalParameterBasedQueryTranslationPostprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) }
             };
 
         /// <summary>
@@ -166,6 +166,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, RelationalSqlTranslatingExpressionVisitorFactory>();
             TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
+            TryAdd<IRelationalParameterBasedQueryTranslationPostprocessorFactory, RelationalParameterBasedQueryTranslationPostprocessorFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
@@ -187,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalQueryTranslationPostprocessorDependencies>()
                 .AddDependencySingleton<RelationalEvaluatableExpressionFilterDependencies>()
                 .AddDependencySingleton<RelationalQueryTranslationPreprocessorDependencies>()
+                .AddDependencySingleton<RelationalParameterBasedQueryTranslationPostprocessorDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()

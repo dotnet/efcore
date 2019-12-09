@@ -3,7 +3,7 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <PropertyGroup>
-    <Description>SQLite implementation of the System.Data.Common provider model.
+    <Description>Microsoft.Data.Sqlite is a lightweight ADO.NET provider for SQLite.
 
 Commonly Used Types:
 Microsoft.Data.Sqlite.SqliteCommand

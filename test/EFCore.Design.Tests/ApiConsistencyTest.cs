@@ -19,6 +19,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override Assembly TargetAssembly => typeof(OperationExecutor).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(OperationExecutor).Assembly;
     }
 }

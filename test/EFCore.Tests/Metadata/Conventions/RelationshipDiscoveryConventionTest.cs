@@ -945,7 +945,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var fk = entityType.GetForeignKeys().Single();
             Assert.False(fk.IsUnique);
-            Assert.True(fk.PrincipalEntityType.ClrType.GetTypeInfo().IsAbstract);
+            Assert.True(fk.PrincipalEntityType.ClrType.IsAbstract);
             Assert.Single(entityType.GetNavigations());
         }
 
@@ -991,7 +991,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullSimpleLogger());
             return modelLogger;
         }
 

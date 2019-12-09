@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -122,14 +123,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     ValidationLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"),
-                    testHelpers.LoggingDefinitions);
+                    testHelpers.LoggingDefinitions,
+                    new NullSimpleLogger());
 
                 ModelLoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
                 var modelLogger = new DiagnosticsLogger<DbLoggerCategory.Model>(
                     ModelLoggerFactory,
                     options,
                     new DiagnosticListener("Fake"),
-                    testHelpers.LoggingDefinitions);
+                    testHelpers.LoggingDefinitions,
+                    new NullSimpleLogger());
 
                 ModelBuilder = testHelpers.CreateConventionBuilder(modelLogger, validationLogger);
             }

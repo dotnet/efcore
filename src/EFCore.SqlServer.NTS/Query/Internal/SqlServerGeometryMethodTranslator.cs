@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -53,8 +55,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerGeometryMethodTranslator(
-            IRelationalTypeMappingSource typeMappingSource,
-            ISqlExpressionFactory sqlExpressionFactory)
+            [NotNull] IRelationalTypeMappingSource typeMappingSource,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -62,6 +64,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (typeof(Geometry).IsAssignableFrom(method.DeclaringType))
             {
                 var geometryExpressions = new[] { instance }.Concat(

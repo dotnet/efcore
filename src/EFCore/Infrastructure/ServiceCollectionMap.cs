@@ -507,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => descriptor.ImplementationType
                 ?? descriptor.ImplementationInstance?.GetType()
                 // Generic arg on Func may be object, but this is the best we can do and matches logic in D.I. container
-                ?? descriptor.ImplementationFactory?.GetType().GetTypeInfo().GenericTypeArguments[1];
+                ?? descriptor.ImplementationFactory?.GetType().GenericTypeArguments[1];
 
         InternalServiceCollectionMap IInfrastructure<InternalServiceCollectionMap>.Instance => _map;
     }

@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to get the cache key for. </param>
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
-        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
+        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
             => new CompiledQueryCacheKey(
                 Check.NotNull(query, nameof(query)),
                 Dependencies.Model,

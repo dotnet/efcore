@@ -86,7 +86,7 @@ WHERE [m].[Tenant] = @__ef_filter__p_0");
             AssertSql(
                 @"SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE CAST(1 AS bit) = CAST(0 AS bit)",
+WHERE CAST(0 AS bit) = CAST(1 AS bit)",
                 //
                 @"SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]

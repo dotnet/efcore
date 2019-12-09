@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : Expression.Convert(valueParameter, memberType);
 
             Expression writeExpression;
-            if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
+            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
             {
                 writeExpression = Expression.MakeMemberAccess(entityParameter, memberInfo)
                     .Assign(convertedParameter);
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var propertyType = propertyBase?.ClrType ?? memberInfo.GetMemberType();
 
             return propertyType.IsNullableType()
-                && propertyType.UnwrapNullableType().GetTypeInfo().IsEnum
+                && propertyType.UnwrapNullableType().IsEnum
                     ? new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setter)
                     : (IClrPropertySetter)new ClrPropertySetter<TEntity, TValue>(setter);
         }

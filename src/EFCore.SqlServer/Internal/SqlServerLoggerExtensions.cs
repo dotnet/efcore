@@ -28,23 +28,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogDefaultDecimalTypeColumn(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new PropertyEventData(
-                        definition,
-                        DecimalTypeDefaultWarning,
-                        property));
+                var eventData = new PropertyEventData(
+                    definition,
+                    DecimalTypeDefaultWarning,
+                    property);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -69,23 +65,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogByteIdentityColumn(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    property.Name, property.DeclaringEntityType.DisplayName());
+                definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new PropertyEventData(
-                        definition,
-                        ByteIdentityColumnWarning,
-                        property));
+                var eventData = new PropertyEventData(
+                    definition,
+                    ByteIdentityColumnWarning,
+                    property);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 
@@ -120,12 +112,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundColumn(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     l => l.LogDebug(
                         definition.EventId,
                         null,
@@ -161,13 +151,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundForeignKey(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    foreignKeyName, tableName, principalTableName, onDeleteAction);
+                definition.Log(diagnostics, foreignKeyName, tableName, principalTableName, onDeleteAction);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -185,13 +171,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundDefaultSchema(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    schemaName);
+                definition.Log(diagnostics, schemaName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -210,13 +192,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundTypeAlias(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    typeAliasName, systemTypeName);
+                definition.Log(diagnostics, typeAliasName, systemTypeName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -235,13 +213,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundPrimaryKey(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    primaryKeyName, tableName);
+                definition.Log(diagnostics, primaryKeyName, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -260,13 +234,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundUniqueConstraint(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    uniqueConstraintName, tableName);
+                definition.Log(diagnostics, uniqueConstraintName, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -286,13 +256,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundIndex(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    indexName, tableName, unique);
+                definition.Log(diagnostics, indexName, tableName, unique);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -312,13 +278,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogPrincipalTableNotInSelectionSet(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    foreignKeyName, tableName, principalTableName);
+                definition.Log(diagnostics, foreignKeyName, tableName, principalTableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -339,13 +301,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogPrincipalColumnNotFound(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    foreignKeyName, tableName, principalColumnName, principalTableName);
+                definition.Log(diagnostics, foreignKeyName, tableName, principalColumnName, principalTableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -363,13 +321,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogMissingSchema(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    schemaName);
+                definition.Log(diagnostics, schemaName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -387,13 +341,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogMissingTable(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    tableName);
+                definition.Log(diagnostics, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -418,12 +368,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             // No DiagnosticsSource events because these are purely design-time messages
             var definition = SqlServerResources.LogFoundSequence(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
                 definition.Log(
                     diagnostics,
-                    warningBehavior,
                     l => l.LogDebug(
                         definition.EventId,
                         null,
@@ -450,13 +398,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogFoundTable(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    tableName);
+                definition.Log(diagnostics, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages
@@ -475,13 +419,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         {
             var definition = SqlServerResources.LogReflexiveConstraintIgnored(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(
-                    diagnostics,
-                    warningBehavior,
-                    foreignKeyName, tableName);
+                definition.Log(diagnostics, foreignKeyName, tableName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages

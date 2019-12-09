@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
 
             Expression readExpression;
-            if (memberInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(typeof(TEntity).GetTypeInfo()))
+            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
             {
                 readExpression = Expression.MakeMemberAccess(entityParameter, memberInfo);
             }

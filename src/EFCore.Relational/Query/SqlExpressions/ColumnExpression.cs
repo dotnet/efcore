@@ -11,7 +11,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
-    public class ColumnExpression : SqlExpression
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class ColumnExpression : SqlExpression
     {
         internal ColumnExpression(IProperty property, TableExpressionBase table, bool nullable)
             : this(
@@ -52,13 +53,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public TableExpressionBase Table { get; }
         public bool IsNullable { get; }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return this;
+        }
 
         public ColumnExpression MakeNullable()
             => new ColumnExpression(Name, Table, Type.MakeNullable(), TypeMapping, true);
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append(Table.Alias).Append(".");
             expressionPrinter.Append(Name);
         }

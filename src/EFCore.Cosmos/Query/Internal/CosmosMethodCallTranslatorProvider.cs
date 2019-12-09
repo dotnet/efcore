@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -26,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosMethodCallTranslatorProvider(
-            ISqlExpressionFactory sqlExpressionFactory,
-            IEnumerable<IMethodCallTranslatorPlugin> plugins)
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IEnumerable<IMethodCallTranslatorPlugin> plugins)
         {
             _plugins.AddRange(plugins.SelectMany(p => p.Translators));
 
@@ -53,18 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public virtual SqlExpression Translate(
             IModel model, SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
-            // TODO: UDF support. See issue#15338
-            //var dbFunction = model.FindDbFunction(method);
-            //if (dbFunction != null)
-            //{
-            //    return dbFunction.Translation?.Invoke(
-            //            arguments.Select(e => _sqlExpressionFactory.ApplyDefaultTypeMapping(e)).ToList())
-            //        ?? _sqlExpressionFactory.Function(
-            //            dbFunction.Schema,
-            //            dbFunction.Name,
-            //            arguments,
-            //            method.ReturnType);
-            //}
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
 
             return _plugins.Concat(_translators)
                 .Select(t => t.Translate(instance, method, arguments))
@@ -77,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void AddTranslators(IEnumerable<IMethodCallTranslator> translators)
+        protected virtual void AddTranslators([NotNull] IEnumerable<IMethodCallTranslator> translators)
             => _translators.InsertRange(0, translators);
     }
 }

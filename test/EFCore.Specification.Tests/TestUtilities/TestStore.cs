@@ -69,14 +69,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
-            using (var context = createContext())
-            {
-                clean?.Invoke(context);
+            using var context = createContext();
+            clean?.Invoke(context);
 
-                Clean(context);
+            Clean(context);
 
-                seed?.Invoke(context);
-            }
+            seed?.Invoke(context);
         }
 
         public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);

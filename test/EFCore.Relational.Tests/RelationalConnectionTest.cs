@@ -36,15 +36,13 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(
-                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
-            }
+                .CreateScope();
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(
+                    () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
         }
 
         [ConditionalFact]
@@ -58,12 +56,10 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
-            using (var context = new ConstructorTestContext1A(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            using var context = new ConstructorTestContext1A(options);
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         [ConditionalFact]
@@ -77,27 +73,23 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         [ConditionalFact]
         public void Throws_with_new_when_no_EF_services_because_parameterless_constructor_use_Database()
         {
-            using (var context = new ConstructorTestContextNoConfiguration())
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            using var context = new ConstructorTestContextNoConfiguration();
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         [ConditionalFact]
@@ -107,16 +99,14 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<ConstructorTestContextNoConfiguration>()
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
 
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         private class ConstructorTestContext1A : DbContext
@@ -137,101 +127,95 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_create_new_connection_lazily_using_given_connection_string()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                var dbConnection = connection.DbConnection;
+            var dbConnection = connection.DbConnection;
 
-                Assert.Equal(1, connection.DbConnections.Count);
-                Assert.Equal("Database=FrodoLives", dbConnection.ConnectionString);
-            }
+            Assert.Equal(1, connection.DbConnections.Count);
+            Assert.Equal("Database=FrodoLives", dbConnection.ConnectionString);
         }
 
         [ConditionalFact]
         public void Lazy_connection_is_opened_and_closed_when_necessary()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.True(connection.Open());
+            Assert.True(connection.Open());
 
-                Assert.Equal(1, connection.DbConnections.Count);
+            Assert.Equal(1, connection.DbConnections.Count);
 
-                var dbConnection = connection.DbConnections[0];
-                Assert.Equal(1, dbConnection.OpenCount);
+            var dbConnection = connection.DbConnections[0];
+            Assert.Equal(1, dbConnection.OpenCount);
 
-                Assert.False(connection.Open());
-                Assert.False(connection.Open());
+            Assert.False(connection.Open());
+            Assert.False(connection.Open());
 
-                Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.OpenCount);
 
-                Assert.False(connection.Close());
-                Assert.False(connection.Close());
+            Assert.False(connection.Close());
+            Assert.False(connection.Close());
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(0, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.CloseCount);
 
-                Assert.True(connection.Close());
+            Assert.True(connection.Close());
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                Assert.True(connection.Open());
+            Assert.True(connection.Open());
 
-                Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.OpenCount);
 
-                Assert.True(connection.Close());
+            Assert.True(connection.Close());
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
-            }
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
         }
 
         [ConditionalFact]
         public async Task Lazy_connection_is_async_opened_and_closed_when_necessary()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                var cancellationToken = new CancellationTokenSource().Token;
-                Assert.True(await connection.OpenAsync(cancellationToken));
+            var cancellationToken = new CancellationTokenSource().Token;
+            Assert.True(await connection.OpenAsync(cancellationToken));
 
-                Assert.Equal(1, connection.DbConnections.Count);
+            Assert.Equal(1, connection.DbConnections.Count);
 
-                var dbConnection = connection.DbConnections[0];
-                Assert.Equal(1, dbConnection.OpenAsyncCount);
+            var dbConnection = connection.DbConnections[0];
+            Assert.Equal(1, dbConnection.OpenAsyncCount);
 
-                Assert.False(await connection.OpenAsync(cancellationToken));
-                Assert.False(await connection.OpenAsync(cancellationToken));
+            Assert.False(await connection.OpenAsync(cancellationToken));
+            Assert.False(await connection.OpenAsync(cancellationToken));
 
-                Assert.Equal(1, dbConnection.OpenAsyncCount);
+            Assert.Equal(1, dbConnection.OpenAsyncCount);
 
-                Assert.False(connection.Close());
-                Assert.False(connection.Close());
+            Assert.False(connection.Close());
+            Assert.False(connection.Close());
 
-                Assert.Equal(1, dbConnection.OpenAsyncCount);
-                Assert.Equal(0, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenAsyncCount);
+            Assert.Equal(0, dbConnection.CloseCount);
 
-                Assert.True(connection.Close());
+            Assert.True(connection.Close());
 
-                Assert.Equal(1, dbConnection.OpenAsyncCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenAsyncCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                Assert.True(await connection.OpenAsync(cancellationToken));
+            Assert.True(await connection.OpenAsync(cancellationToken));
 
-                Assert.Equal(2, dbConnection.OpenAsyncCount);
+            Assert.Equal(2, dbConnection.OpenAsyncCount);
 
-                Assert.True(connection.Close());
+            Assert.True(connection.Close());
 
-                Assert.Equal(2, dbConnection.OpenAsyncCount);
-                Assert.Equal(2, dbConnection.CloseCount);
-            }
+            Assert.Equal(2, dbConnection.OpenAsyncCount);
+            Assert.Equal(2, dbConnection.CloseCount);
         }
 
         [ConditionalFact]
@@ -283,15 +267,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
 
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Same(dbConnection, connection.DbConnection);
+            Assert.Same(dbConnection, connection.DbConnection);
 
-                Assert.Equal(0, connection.DbConnections.Count);
-            }
+            Assert.Equal(0, connection.DbConnections.Count);
         }
 
         [ConditionalFact]
@@ -299,42 +281,40 @@ namespace Microsoft.EntityFrameworkCore
         {
             var dbConnection = new FakeDbConnection("Database=FrodoLives");
 
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Open();
-                connection.Open();
+            connection.Open();
+            connection.Open();
 
-                Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Close();
-                connection.Close();
+            connection.Close();
+            connection.Close();
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(0, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.CloseCount);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.OpenCount);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
-            }
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
         }
 
         [ConditionalFact]
@@ -344,42 +324,40 @@ namespace Microsoft.EntityFrameworkCore
                 "Database=FrodoLives",
                 state: ConnectionState.Open);
 
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Equal(0, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.OpenCount);
 
-                connection.Open();
-                connection.Open();
+            connection.Open();
+            connection.Open();
 
-                Assert.Equal(0, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.OpenCount);
 
-                connection.Close();
-                connection.Close();
+            connection.Close();
+            connection.Close();
 
-                Assert.Equal(0, dbConnection.OpenCount);
-                Assert.Equal(0, dbConnection.CloseCount);
+            Assert.Equal(0, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.CloseCount);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(0, dbConnection.OpenCount);
-                Assert.Equal(0, dbConnection.CloseCount);
+            Assert.Equal(0, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.CloseCount);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(0, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.OpenCount);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(0, dbConnection.OpenCount);
-                Assert.Equal(0, dbConnection.CloseCount);
-            }
+            Assert.Equal(0, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.CloseCount);
         }
 
         [ConditionalFact]
@@ -388,79 +366,77 @@ namespace Microsoft.EntityFrameworkCore
             var dbConnection = new FakeDbConnection(
                 "Database=FrodoLives");
 
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.OpenCount);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Open);
+            dbConnection.SetState(ConnectionState.Open);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Open);
+            dbConnection.SetState(ConnectionState.Open);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                connection.Open();
-                connection.Open();
+            connection.Open();
+            connection.Open();
 
-                Assert.Equal(3, dbConnection.OpenCount);
+            Assert.Equal(3, dbConnection.OpenCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                connection.Open();
+            connection.Open();
 
-                Assert.Equal(4, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(4, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                connection.Close();
+            connection.Close();
 
-                Assert.Equal(4, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
-            }
+            Assert.Equal(4, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
         }
 
         [ConditionalFact]
@@ -469,79 +445,77 @@ namespace Microsoft.EntityFrameworkCore
             var dbConnection = new FakeDbConnection(
                 "Database=FrodoLives");
 
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                await connection.OpenAsync(default);
+            await connection.OpenAsync(default);
 
-                Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.OpenCount);
 
-                await connection.CloseAsync();
+            await connection.CloseAsync();
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Open);
+            dbConnection.SetState(ConnectionState.Open);
 
-                await connection.OpenAsync(default);
+            await connection.OpenAsync(default);
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                await connection.CloseAsync();
+            await connection.CloseAsync();
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                await connection.OpenAsync(default);
+            await connection.OpenAsync(default);
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
 
-                await connection.CloseAsync();
+            await connection.CloseAsync();
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Open);
+            dbConnection.SetState(ConnectionState.Open);
 
-                await connection.OpenAsync(default);
+            await connection.OpenAsync(default);
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                await connection.CloseAsync();
+            await connection.CloseAsync();
 
-                Assert.Equal(2, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(2, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                await connection.OpenAsync(default);
-                await connection.OpenAsync(default);
+            await connection.OpenAsync(default);
+            await connection.OpenAsync(default);
 
-                Assert.Equal(3, dbConnection.OpenCount);
+            Assert.Equal(3, dbConnection.OpenCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                await connection.OpenAsync(default);
+            await connection.OpenAsync(default);
 
-                Assert.Equal(4, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
+            Assert.Equal(4, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
 
-                dbConnection.SetState(ConnectionState.Closed);
+            dbConnection.SetState(ConnectionState.Closed);
 
-                await connection.CloseAsync();
+            await connection.CloseAsync();
 
-                Assert.Equal(4, dbConnection.OpenCount);
-                Assert.Equal(2, dbConnection.CloseCount);
-            }
+            Assert.Equal(4, dbConnection.OpenCount);
+            Assert.Equal(2, dbConnection.CloseCount);
         }
 
         [ConditionalFact]
@@ -577,48 +551,76 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Connection_is_opened_and_closed_by_using_transaction()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Null(connection.CurrentTransaction);
+            Assert.Null(connection.CurrentTransaction);
 
-                var transaction = connection.BeginTransaction();
+            var transaction = connection.BeginTransaction();
 
-                Assert.Same(transaction, connection.CurrentTransaction);
+            Assert.Same(transaction, connection.CurrentTransaction);
 
-                Assert.Equal(1, connection.DbConnections.Count);
-                var dbConnection = connection.DbConnections[0];
+            Assert.Equal(1, connection.DbConnections.Count);
+            var dbConnection = connection.DbConnections[0];
 
-                Assert.Equal(1, dbConnection.DbTransactions.Count);
-                var dbTransaction = dbConnection.DbTransactions[0];
+            Assert.Equal(1, dbConnection.DbTransactions.Count);
+            var dbTransaction = dbConnection.DbTransactions[0];
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(0, dbConnection.CloseCount);
-                Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.CloseCount);
+            Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
 
-                transaction.Dispose();
+            transaction.Dispose();
 
-                Assert.Null(connection.CurrentTransaction);
+            Assert.Null(connection.CurrentTransaction);
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
-            }
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
         }
 
         [ConditionalFact]
         public async Task Connection_is_opened_and_closed_by_using_transaction_async()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            Assert.Null(connection.CurrentTransaction);
+
+            var transaction = await connection.BeginTransactionAsync();
+
+            Assert.Same(transaction, connection.CurrentTransaction);
+
+            Assert.Equal(1, connection.DbConnections.Count);
+            var dbConnection = connection.DbConnections[0];
+
+            Assert.Equal(1, dbConnection.DbTransactions.Count);
+            var dbTransaction = dbConnection.DbTransactions[0];
+
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(0, dbConnection.CloseCount);
+            Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
+
+            transaction.Dispose();
+
+            Assert.Null(connection.CurrentTransaction);
+
+            Assert.Equal(1, dbConnection.OpenCount);
+            Assert.Equal(1, dbConnection.CloseCount);
+        }
+
+        [ConditionalFact]
+        public void Transaction_can_begin_with_isolation_level()
+        {
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            Assert.Null(connection.CurrentTransaction);
+
+            using (var transaction = connection.BeginTransaction(IsolationLevel.Chaos))
             {
-                Assert.Equal(0, connection.DbConnections.Count);
-
-                Assert.Null(connection.CurrentTransaction);
-
-                var transaction = await connection.BeginTransactionAsync();
-
                 Assert.Same(transaction, connection.CurrentTransaction);
 
                 Assert.Equal(1, connection.DbConnections.Count);
@@ -627,71 +629,35 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(1, dbConnection.DbTransactions.Count);
                 var dbTransaction = dbConnection.DbTransactions[0];
 
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(0, dbConnection.CloseCount);
-                Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
-
-                transaction.Dispose();
-
-                Assert.Null(connection.CurrentTransaction);
-
-                Assert.Equal(1, dbConnection.OpenCount);
-                Assert.Equal(1, dbConnection.CloseCount);
+                Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
             }
-        }
 
-        [ConditionalFact]
-        public void Transaction_can_begin_with_isolation_level()
-        {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
-
-                Assert.Null(connection.CurrentTransaction);
-
-                using (var transaction = connection.BeginTransaction(IsolationLevel.Chaos))
-                {
-                    Assert.Same(transaction, connection.CurrentTransaction);
-
-                    Assert.Equal(1, connection.DbConnections.Count);
-                    var dbConnection = connection.DbConnections[0];
-
-                    Assert.Equal(1, dbConnection.DbTransactions.Count);
-                    var dbTransaction = dbConnection.DbTransactions[0];
-
-                    Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
-                }
-
-                Assert.Null(connection.CurrentTransaction);
-            }
+            Assert.Null(connection.CurrentTransaction);
         }
 
         [ConditionalFact]
         public async Task Transaction_can_begin_with_isolation_level_async()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            Assert.Null(connection.CurrentTransaction);
+
+            using (var transaction = await connection.BeginTransactionAsync(IsolationLevel.Chaos))
             {
-                Assert.Equal(0, connection.DbConnections.Count);
+                Assert.Same(transaction, connection.CurrentTransaction);
 
-                Assert.Null(connection.CurrentTransaction);
+                Assert.Equal(1, connection.DbConnections.Count);
+                var dbConnection = connection.DbConnections[0];
 
-                using (var transaction = await connection.BeginTransactionAsync(IsolationLevel.Chaos))
-                {
-                    Assert.Same(transaction, connection.CurrentTransaction);
+                Assert.Equal(1, dbConnection.DbTransactions.Count);
+                var dbTransaction = dbConnection.DbTransactions[0];
 
-                    Assert.Equal(1, connection.DbConnections.Count);
-                    var dbConnection = connection.DbConnections[0];
-
-                    Assert.Equal(1, dbConnection.DbTransactions.Count);
-                    var dbTransaction = dbConnection.DbTransactions[0];
-
-                    Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
-                }
-
-                Assert.Null(connection.CurrentTransaction);
+                Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
             }
+
+            Assert.Null(connection.CurrentTransaction);
         }
 
         [ConditionalFact]
@@ -728,112 +694,100 @@ namespace Microsoft.EntityFrameworkCore
 
             var dbTransaction = dbConnection.BeginTransaction(IsolationLevel.Unspecified);
 
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection))))
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+            Assert.Null(connection.CurrentTransaction);
+
+            using (connection.UseTransaction(dbTransaction))
             {
-                Assert.Null(connection.CurrentTransaction);
-
-                using (connection.UseTransaction(dbTransaction))
-                {
-                    Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
-                }
-
-                Assert.Null(connection.CurrentTransaction);
+                Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
             }
+
+            Assert.Null(connection.CurrentTransaction);
         }
 
         [ConditionalFact]
         public void Commit_calls_commit_on_DbTransaction()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            Assert.Null(connection.CurrentTransaction);
+
+            using (var transaction = connection.BeginTransaction())
             {
-                Assert.Equal(0, connection.DbConnections.Count);
+                Assert.Same(transaction, connection.CurrentTransaction);
 
-                Assert.Null(connection.CurrentTransaction);
+                Assert.Equal(1, connection.DbConnections.Count);
+                var dbConnection = connection.DbConnections[0];
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    Assert.Same(transaction, connection.CurrentTransaction);
+                Assert.Equal(1, dbConnection.DbTransactions.Count);
+                var dbTransaction = dbConnection.DbTransactions[0];
 
-                    Assert.Equal(1, connection.DbConnections.Count);
-                    var dbConnection = connection.DbConnections[0];
+                connection.CommitTransaction();
 
-                    Assert.Equal(1, dbConnection.DbTransactions.Count);
-                    var dbTransaction = dbConnection.DbTransactions[0];
-
-                    connection.CommitTransaction();
-
-                    Assert.Equal(1, dbTransaction.CommitCount);
-                }
-
-                Assert.Null(connection.CurrentTransaction);
+                Assert.Equal(1, dbTransaction.CommitCount);
             }
+
+            Assert.Null(connection.CurrentTransaction);
         }
 
         [ConditionalFact]
         public void Rollback_calls_rollback_on_DbTransaction()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            Assert.Null(connection.CurrentTransaction);
+
+            using (var transaction = connection.BeginTransaction())
             {
-                Assert.Equal(0, connection.DbConnections.Count);
+                Assert.Same(transaction, connection.CurrentTransaction);
 
-                Assert.Null(connection.CurrentTransaction);
+                Assert.Equal(1, connection.DbConnections.Count);
+                var dbConnection = connection.DbConnections[0];
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    Assert.Same(transaction, connection.CurrentTransaction);
+                Assert.Equal(1, dbConnection.DbTransactions.Count);
+                var dbTransaction = dbConnection.DbTransactions[0];
 
-                    Assert.Equal(1, connection.DbConnections.Count);
-                    var dbConnection = connection.DbConnections[0];
+                connection.RollbackTransaction();
 
-                    Assert.Equal(1, dbConnection.DbTransactions.Count);
-                    var dbTransaction = dbConnection.DbTransactions[0];
-
-                    connection.RollbackTransaction();
-
-                    Assert.Equal(1, dbTransaction.RollbackCount);
-                }
-
-                Assert.Null(connection.CurrentTransaction);
+                Assert.Equal(1, dbTransaction.RollbackCount);
             }
+
+            Assert.Null(connection.CurrentTransaction);
         }
 
         [ConditionalFact]
         public void Can_create_new_connection_with_CommandTimeout()
         {
-            using (var connection = new FakeRelationalConnection(
+            using var connection = new FakeRelationalConnection(
                 CreateOptions(
                     new FakeRelationalOptionsExtension()
                         .WithConnectionString("Database=FrodoLives")
-                        .WithCommandTimeout(99))))
-            {
-                Assert.Equal(99, connection.CommandTimeout);
-            }
+                        .WithCommandTimeout(99)));
+            Assert.Equal(99, connection.CommandTimeout);
         }
 
         [ConditionalFact]
         public void Can_set_CommandTimeout()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                connection.CommandTimeout = 88;
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            connection.CommandTimeout = 88;
 
-                Assert.Equal(88, connection.CommandTimeout);
-            }
+            Assert.Equal(88, connection.CommandTimeout);
         }
 
         [ConditionalFact]
         public void Throws_if_CommandTimeout_out_of_range()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Throws<ArgumentException>(
-                    () => connection.CommandTimeout = -1);
-            }
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Throws<ArgumentException>(
+                () => connection.CommandTimeout = -1);
         }
 
         [ConditionalFact]
@@ -884,31 +838,27 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Throws_when_commit_is_called_without_active_transaction()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Equal(
-                    RelationalStrings.NoActiveTransaction,
-                    Assert.Throws<InvalidOperationException>(
-                        () => connection.CommitTransaction()).Message);
-            }
+            Assert.Equal(
+                RelationalStrings.NoActiveTransaction,
+                Assert.Throws<InvalidOperationException>(
+                    () => connection.CommitTransaction()).Message);
         }
 
         [ConditionalFact]
         public void Throws_when_rollback_is_called_without_active_transaction()
         {
-            using (var connection = new FakeRelationalConnection(
-                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives"))))
-            {
-                Assert.Equal(0, connection.DbConnections.Count);
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+            Assert.Equal(0, connection.DbConnections.Count);
 
-                Assert.Equal(
-                    RelationalStrings.NoActiveTransaction,
-                    Assert.Throws<InvalidOperationException>(
-                        () => connection.RollbackTransaction()).Message);
-            }
+            Assert.Equal(
+                RelationalStrings.NoActiveTransaction,
+                Assert.Throws<InvalidOperationException>(
+                    () => connection.RollbackTransaction()).Message);
         }
 
         private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)

@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
-                || !Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
-                    .IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
+                || !Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo)
+                    .IsAssignableFrom(entityType.ClrType))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidNavigationWithInverseProperty(

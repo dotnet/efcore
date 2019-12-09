@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     return fieldInfo;
                 }
 
-                type = type.GetTypeInfo().BaseType;
+                type = type.BaseType;
             }
 
             return null;
@@ -167,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return existingMatch;
             }
 
-            var typeInfo = propertyBase?.ClrType.GetTypeInfo();
+            var typeInfo = propertyBase?.ClrType;
             var length = prefix.Length + middle.Length + suffix.Length;
             var currentValue = array[index];
             while (true)
@@ -240,9 +240,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static bool IsConvertible(TypeInfo typeInfo, FieldInfo fieldInfo)
+        private static bool IsConvertible(Type typeInfo, FieldInfo fieldInfo)
         {
-            var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
+            var fieldTypeInfo = fieldInfo.FieldType;
 
             return typeInfo.IsAssignableFrom(fieldTypeInfo)
                 || fieldTypeInfo.IsAssignableFrom(typeInfo);

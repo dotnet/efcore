@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -162,7 +163,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void SetProperties(
-            IReadOnlyList<Property> properties, Key principalKey, ConfigurationSource? configurationSource)
+            [NotNull] IReadOnlyList<Property> properties,
+            [NotNull] Key principalKey,
+            ConfigurationSource? configurationSource)
         {
             Validate(properties, principalKey, DeclaringEntityType, PrincipalEntityType);
 
@@ -1068,7 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString();
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         private void Validate(
             IReadOnlyList<Property> properties,
@@ -1257,8 +1260,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView<ForeignKey> DebugView
-            => new DebugView<ForeignKey>(this, m => m.ToDebugString(false));
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

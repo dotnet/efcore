@@ -21,12 +21,10 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
-            using (var context = new ConstructorTestContext1A(options))
-            {
-                Assert.Equal(
-                    RelationalStrings.RelationalNotInUse,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            using var context = new ConstructorTestContext1A(options);
+            Assert.Equal(
+                RelationalStrings.RelationalNotInUse,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         [ConditionalFact]
@@ -38,16 +36,14 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Equal(
-                    RelationalStrings.RelationalNotInUse,
-                    Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
-            }
+            Assert.Equal(
+                RelationalStrings.RelationalNotInUse,
+                Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 
         private class ConstructorTestContext1A : DbContext

@@ -506,18 +506,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         {
             var options = Fixture.CreateOptions();
 
-            using (var context = new ConflictingIncompatibleIdContext(options))
-            {
-                await Assert.ThrowsAnyAsync<Exception>(
-                    async () =>
-                    {
-                        await context.Database.EnsureCreatedAsync();
+            using var context = new ConflictingIncompatibleIdContext(options);
+            await Assert.ThrowsAnyAsync<Exception>(
+                async () =>
+                {
+                    await context.Database.EnsureCreatedAsync();
 
-                        context.Add(new ConflictingIncompatibleId { id = 42 });
+                    context.Add(new ConflictingIncompatibleId { id = 42 });
 
-                        await context.SaveChangesAsync();
-                    });
-            }
+                    await context.SaveChangesAsync();
+                });
         }
 
         private class ConflictingIncompatibleId
@@ -616,15 +614,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         [ConditionalFact]
         public async Task Can_have_non_string_property_named_Discriminator()
         {
-            using (var context = new NonStringDiscriminatorContext(Fixture.CreateOptions()))
-            {
-                context.Database.EnsureCreated();
+            using var context = new NonStringDiscriminatorContext(Fixture.CreateOptions());
+            context.Database.EnsureCreated();
 
-                context.Add(new NonStringDiscriminator { Id = 1 });
-                await context.SaveChangesAsync();
+            context.Add(new NonStringDiscriminator { Id = 1 });
+            await context.SaveChangesAsync();
 
-                Assert.NotNull(await context.Set<NonStringDiscriminator>().FirstOrDefaultAsync());
-            }
+            Assert.NotNull(await context.Set<NonStringDiscriminator>().FirstOrDefaultAsync());
         }
 
         private class NonStringDiscriminator

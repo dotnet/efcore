@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Debug.Assert(propertyName != null || !shouldThrow);
 
             if (entityClrType == null
-                || !fieldInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityClrType.GetTypeInfo()))
+                || !fieldInfo.DeclaringType.IsAssignableFrom(entityClrType))
             {
                 if (shouldThrow)
                 {
@@ -202,9 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var fieldTypeInfo = fieldInfo.FieldType.GetTypeInfo();
-            if (!fieldTypeInfo.IsAssignableFrom(propertyType.GetTypeInfo())
-                && !propertyType.GetTypeInfo().IsAssignableFrom(fieldTypeInfo))
+            var fieldTypeInfo = fieldInfo.FieldType;
+            if (!fieldTypeInfo.IsAssignableFrom(propertyType)
+                && !propertyType.IsAssignableFrom(fieldTypeInfo))
             {
                 if (shouldThrow)
                 {

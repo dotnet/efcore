@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -10,16 +11,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
     public class SqliteQuerySqlGenerator : QuerySqlGenerator
     {
-        public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+        public SqliteQuerySqlGenerator([NotNull] QuerySqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }
 
         protected override string GenerateOperator(SqlBinaryExpression binaryExpression)
-            => binaryExpression.OperatorType == ExpressionType.Add
+        {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
+            return binaryExpression.OperatorType == ExpressionType.Add
                 && binaryExpression.Type == typeof(string)
                     ? " || "
                     : base.GenerateOperator(binaryExpression);
+        }
 
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
@@ -46,6 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
         {
+            Check.NotNull(setOperation, nameof(setOperation));
+            Check.NotNull(operand, nameof(operand));
+
             // Sqlite doesn't support parentheses around set operation operands
             Visit(operand);
         }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -21,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake"),
-                    new SqlServerLoggingDefinitions()));
+                    new SqlServerLoggingDefinitions(),
+                    new NullSimpleLogger()));
 
         protected override bool AcceptTable(DatabaseTable table) => !(table is DatabaseView);
 

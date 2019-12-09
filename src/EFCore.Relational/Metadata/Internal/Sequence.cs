@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetClrType(Type clrType, ConfigurationSource configurationSource)
+        public virtual void SetClrType([CanBeNull] Type clrType, ConfigurationSource configurationSource)
         {
             clrType ??= DefaultClrType;
             if (!SupportedTypes.Contains(clrType))
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         void IConventionSequence.SetIsCyclic(bool? cyclic, bool fromDataAnnotation)
             => SetIsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-        private class SequenceData
+        private sealed class SequenceData
         {
             public string Name { get; set; }
 
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     end = value.IndexOf('\'', end + 2);
                 }
 
-                var extracted = value.Substring(position, end - position).Replace("''", "'");
+                var extracted = value[position..end].Replace("''", "'");
                 position = end + 1;
 
                 return extracted.Length == 0 ? null : extracted;
