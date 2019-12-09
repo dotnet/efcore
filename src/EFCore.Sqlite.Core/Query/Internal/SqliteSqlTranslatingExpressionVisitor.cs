@@ -88,8 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(unaryExpression, nameof(unaryExpression));
 
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
-             && unaryExpression.Operand.Type == typeof(byte[])
-             && base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression)
+                 && unaryExpression.Operand.Type == typeof(byte[])
+                 && base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression)
             {
                 return SqlExpressionFactory.Function("length", new[] { sqlExpression }, typeof(int));
             }
