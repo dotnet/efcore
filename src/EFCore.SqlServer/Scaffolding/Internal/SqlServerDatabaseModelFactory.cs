@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -873,7 +872,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Debug.Assert(column != null, "column is null.");
+                        Check.DebugAssert(column != null, "column is null.");
 
                         primaryKey.Columns.Add(column);
                     }
@@ -906,7 +905,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Debug.Assert(column != null, "column is null.");
+                        Check.DebugAssert(column != null, "column is null.");
 
                         uniqueConstraint.Columns.Add(column);
                     }
@@ -950,7 +949,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Debug.Assert(column != null, "column is null.");
+                        Check.DebugAssert(column != null, "column is null.");
 
                         index.Columns.Add(column);
                     }
@@ -1047,7 +1046,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Debug.Assert(column != null, "column is null.");
+                        Check.DebugAssert(column != null, "column is null.");
 
                         var principalColumnName = dataRecord.GetValueOrDefault<string>("referenced_column_name");
                         var principalColumn = foreignKey.PrincipalTable.Columns.FirstOrDefault(c => c.Name == principalColumnName)

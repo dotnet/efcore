@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (oldNavigation != null)
             {
-                Debug.Assert(oldNavigation.Name != null);
+                Check.DebugAssert(oldNavigation.Name != null, "oldNavigation.Name is null");
                 if (pointsToPrincipal)
                 {
                     DeclaringEntityType.RemoveNavigation(oldNavigation.Name);
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (oldNavigation != null)
             {
-                Debug.Assert(oldNavigation.Name != null);
+                Check.DebugAssert(oldNavigation.Name != null, "oldNavigation.Name is null");
 
                 if (pointsToPrincipal)
                 {

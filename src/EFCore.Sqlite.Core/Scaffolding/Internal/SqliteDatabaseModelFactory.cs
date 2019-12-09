@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -336,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     var columnName = reader.GetString(0);
                     var column = columns.FirstOrDefault(c => c.Name == columnName)
                         ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                    Debug.Assert(column != null, "column is null.");
+                    Check.DebugAssert(column != null, "column is null.");
 
                     primaryKey.Columns.Add(column);
                 }
@@ -371,9 +370,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             var columnName = reader.GetString(0);
             var column = columns.FirstOrDefault(c => c.Name == columnName)
                 ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-            Debug.Assert(column != null, "column is null.");
+            Check.DebugAssert(column != null, "column is null.");
 
-            Debug.Assert(!reader.Read(), "Unexpected composite primary key.");
+            Check.DebugAssert(!reader.Read(), "Unexpected composite primary key.");
 
             return new DatabasePrimaryKey { Columns = { column } };
         }
@@ -428,7 +427,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         var column = columns.FirstOrDefault(c => c.Name == columnName)
                             ?? columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Debug.Assert(column != null, "column is null.");
+                        Check.DebugAssert(column != null, "column is null.");
 
                         uniqueConstraint.Columns.Add(column);
                     }
@@ -482,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         var name = reader2.GetString(0);
                         var column = columns.FirstOrDefault(c => c.Name == name)
                             ?? columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
-                        Debug.Assert(column != null, "column is null.");
+                        Check.DebugAssert(column != null, "column is null.");
 
                         index.Columns.Add(column);
                     }
@@ -556,7 +555,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
                             ?? table.Columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Debug.Assert(column != null, "column is null.");
+                        Check.DebugAssert(column != null, "column is null.");
 
                         var principalColumnName = reader2.GetString(1);
                         var principalColumn =
@@ -603,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     return ReferentialAction.NoAction;
 
                 default:
-                    Debug.Assert(value == "NONE", "Unexpected value: " + value);
+                    Check.DebugAssert(value == "NONE", "Unexpected value: " + value);
                     return null;
             }
         }

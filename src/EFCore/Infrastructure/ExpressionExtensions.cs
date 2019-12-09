@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -120,7 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The <see cref="PropertyInfo" />. </returns>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+            Check.DebugAssert(
+                propertyAccessExpression.Parameters.Count == 1,
+                $"Parameters.Count is {propertyAccessExpression.Parameters.Count}");
 
             var parameterExpression = propertyAccessExpression.Parameters.Single();
             var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);

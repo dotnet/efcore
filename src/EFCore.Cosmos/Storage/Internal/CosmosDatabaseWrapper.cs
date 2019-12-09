@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -15,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var entry = entries[i];
                 var entityType = entry.EntityType;
 
-                Debug.Assert(!entityType.IsAbstract());
+                Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
 
                 if (!entityType.IsDocumentRoot())
                 {
@@ -133,7 +133,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 var entry = entries[i];
                 var entityType = entry.EntityType;
 
-                Debug.Assert(!entityType.IsAbstract());
+                Check.DebugAssert(!entityType.IsAbstract(), $"{entityType} is abstract");
+
                 if (!entityType.IsDocumentRoot())
                 {
                     var root = GetRootDocument((InternalEntityEntry)entry);

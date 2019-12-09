@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -274,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     ignoredMember, entityType.DisplayName(), property.DeclaringEntityType.DisplayName()));
                         }
 
-                        Debug.Assert(false);
+                        Check.DebugAssert(false, "Should never get here...");
                     }
 
                     var navigation = entityType.FindNavigation(ignoredMember);
@@ -287,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
                         }
 
-                        Debug.Assert(false);
+                        Check.DebugAssert(false, "Should never get here...");
                     }
                 }
             }

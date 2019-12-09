@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         public static IReadOnlyList<PropertyInfo> MatchPropertyAccessList(
             [NotNull] this LambdaExpression lambdaExpression, [NotNull] Func<Expression, Expression, PropertyInfo> propertyMatcher)
         {
-            Debug.Assert(lambdaExpression.Body != null);
+            Check.DebugAssert(lambdaExpression.Body != null, "lambdaExpression.Body is null");
 
             var parameterExpression = lambdaExpression.Parameters.Single();
 

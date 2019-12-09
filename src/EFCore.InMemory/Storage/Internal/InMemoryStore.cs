@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -10,6 +9,7 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 {
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     var entry = entries[i];
                     var entityType = entry.EntityType;
 
-                    Debug.Assert(!entityType.IsAbstract());
+                    Check.DebugAssert(!entityType.IsAbstract(), "entityType is abstract");
 
                     var key = _useNameMatching ? (object)entityType.Name : entityType;
                     var table = EnsureTable(key, entityType);

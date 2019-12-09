@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static FieldInfo GetFieldInfo(
             [NotNull] string fieldName, [NotNull] TypeBase type, [CanBeNull] string propertyName, bool shouldThrow)
         {
-            Debug.Assert(propertyName != null || !shouldThrow);
+            Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
             if (!type.GetRuntimeFields().TryGetValue(fieldName, out var fieldInfo)
                 && shouldThrow)
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] string propertyName,
             bool shouldThrow)
         {
-            Debug.Assert(propertyName != null || !shouldThrow);
+            Check.DebugAssert(propertyName != null || !shouldThrow, "propertyName is null");
 
             if (entityClrType == null
                 || !fieldInfo.DeclaringType.IsAssignableFrom(entityClrType))

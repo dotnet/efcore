@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -1565,7 +1564,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     builder.Append("SET DEFAULT");
                     break;
                 default:
-                    Debug.Assert(
+                    Check.DebugAssert(
                         referentialAction == ReferentialAction.NoAction,
                         "Unexpected value: " + referentialAction);
                     break;

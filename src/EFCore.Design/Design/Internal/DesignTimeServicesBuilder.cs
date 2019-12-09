@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -194,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Type designTimeServicesType,
             IServiceCollection services)
         {
-            Debug.Assert(designTimeServicesType != null, "designTimeServicesType is null.");
+            Check.DebugAssert(designTimeServicesType != null, "designTimeServicesType is null.");
 
             var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType);
             designTimeServices.ConfigureDesignTimeServices(services);

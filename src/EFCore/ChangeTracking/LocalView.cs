@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -98,7 +98,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void LocalViewCollectionChanged(object _, NotifyCollectionChangedEventArgs args)
         {
-            Debug.Assert(args.Action == NotifyCollectionChangedAction.Add || args.Action == NotifyCollectionChangedAction.Remove);
+            Check.DebugAssert(
+                args.Action == NotifyCollectionChangedAction.Add || args.Action == NotifyCollectionChangedAction.Remove,
+                "action is not Add or Remove");
 
             if (_triggeringLocalViewChange)
             {
@@ -111,12 +113,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 if (args.Action == NotifyCollectionChangedAction.Remove)
                 {
-                    Debug.Assert(args.OldItems.Count == 1);
+                    Check.DebugAssert(args.OldItems.Count == 1, $"OldItems.Count is {args.OldItems.Count}");
                     _observable.Remove((TEntity)args.OldItems[0]);
                 }
                 else
                 {
-                    Debug.Assert(args.NewItems.Count == 1);
+                    Check.DebugAssert(args.NewItems.Count == 1, $"NewItems.Count is {args.NewItems.Count}");
                     _observable.Add((TEntity)args.NewItems[0]);
                 }
             }

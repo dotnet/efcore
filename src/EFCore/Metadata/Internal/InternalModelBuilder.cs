@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -422,20 +422,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
                     var removed = entityTypeBuilder.HasNoRelationship(foreignKey, configurationSource);
-                    Debug.Assert(removed != null);
+                    Check.DebugAssert(removed != null, "removed is null");
                 }
 
                 foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
                 {
                     var removed = foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
-                    Debug.Assert(removed != null);
+                    Check.DebugAssert(removed != null, "removed is null");
                 }
 
                 foreach (var directlyDerivedType in entityType.GetDirectlyDerivedTypes().ToList())
                 {
                     var derivedEntityTypeBuilder = directlyDerivedType.Builder
                         .HasBaseType(entityType.BaseType, configurationSource);
-                    Debug.Assert(derivedEntityTypeBuilder != null);
+                    Check.DebugAssert(derivedEntityTypeBuilder != null, "derivedEntityTypeBuilder is null");
                 }
 
                 foreach (var definedType in Metadata.GetEntityTypes().Where(e => e.DefiningEntityType == entityType).ToList())

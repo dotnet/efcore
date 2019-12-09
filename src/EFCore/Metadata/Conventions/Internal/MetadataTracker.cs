@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -27,7 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         /// </summary>
         public virtual void Update([NotNull] ForeignKey oldForeignKey, [NotNull] ForeignKey newForeignKey)
         {
-            Debug.Assert(oldForeignKey.Builder == null && newForeignKey.Builder != null);
+            Check.DebugAssert(
+                oldForeignKey.Builder == null && newForeignKey.Builder != null,
+                "oldForeignKey.Builder is not null or newForeignKey.Builder is null");
 
             if (_trackedForeignKeys.TryGetValue(oldForeignKey, out var reference))
             {

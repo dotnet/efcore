@@ -257,8 +257,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IReadOnlyList<Property> principalProperties = null;
             if (shouldInvert == true)
             {
-                Debug.Assert(configurationSource.Overrides(Metadata.GetPropertiesConfigurationSource()));
-                Debug.Assert(configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()));
+                Check.DebugAssert(
+                    configurationSource.Overrides(Metadata.GetPropertiesConfigurationSource()),
+                    "configurationSource does not override Metadata.GetPropertiesConfigurationSource");
+
+                Check.DebugAssert(
+                    configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()),
+                    "configurationSource does not override Metadata.GetPrincipalKeyConfigurationSource");
 
                 var entityType = principalEntityType;
                 principalEntityType = dependentEntityType;
@@ -302,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                Debug.Assert(builder.Metadata.Builder != null);
+                Check.DebugAssert(builder.Metadata.Builder != null, "builder.Metadata.Builder is null");
             }
             else
             {
@@ -1033,9 +1038,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (declaringType.HasDefiningNavigation())
                 {
-                    Debug.Assert(
+                    Check.DebugAssert(
                         Metadata.PrincipalToDependent == null
-                        || declaringType.DefiningNavigationName == Metadata.PrincipalToDependent.Name);
+                        || declaringType.DefiningNavigationName == Metadata.PrincipalToDependent.Name,
+                        $"Unexpected navigation");
 
                     if (otherOwnership != null
                         && !configurationSource.Overrides(otherOwnership.GetConfigurationSource()))
@@ -1198,11 +1204,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var newOwnership = newEntityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
             if (newOwnership == null)
             {
-                Debug.Assert(Metadata.Builder != null);
+                Check.DebugAssert(Metadata.Builder != null, "Metadata.Builder is null");
                 return Metadata.Builder;
             }
 
-            Debug.Assert(Metadata.Builder == null);
+            Check.DebugAssert(Metadata.Builder == null, "Metadata.Builder is not null");
             ModelBuilder.Metadata.ConventionDispatcher.Tracker.Update(Metadata, newOwnership);
             return newOwnership.Builder;
         }
@@ -1257,7 +1263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             builder = builder.Metadata.SetIsUnique(unique, configurationSource)?.Builder;
-            Debug.Assert(builder != null);
+            Check.DebugAssert(builder != null, "builder is null");
 
             return batch.Run(builder);
         }
@@ -1492,10 +1498,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var builder = this;
             if (shouldInvert)
             {
-                Debug.Assert(
-                    configurationSource.Overrides(Metadata.GetPropertiesConfigurationSource()));
-                Debug.Assert(
-                    configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()));
+                Check.DebugAssert(
+                    configurationSource.Overrides(Metadata.GetPropertiesConfigurationSource()),
+                    "configurationSource does not override Metadata.GetPropertiesConfigurationSource");
+
+                Check.DebugAssert(
+                    configurationSource.Overrides(Metadata.GetPrincipalKeyConfigurationSource()),
+                    "configurationSource does not override Metadata.GetPrincipalKeyConfigurationSource");
 
                 principalEntityType = principalEntityType.LeastDerivedType(Metadata.DeclaringEntityType);
                 dependentEntityType = dependentEntityType.LeastDerivedType(Metadata.PrincipalEntityType);
@@ -2183,15 +2192,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(principalEntityTypeBuilder, nameof(principalEntityTypeBuilder));
             Check.NotNull(dependentEntityTypeBuilder, nameof(dependentEntityTypeBuilder));
-            Debug.Assert(
+
+            Check.DebugAssert(
                 navigationToPrincipal?.Name == null
                 || navigationToPrincipal.Value.MemberInfo != null
-                || !dependentEntityTypeBuilder.Metadata.HasClrType());
-            Debug.Assert(
+                || !dependentEntityTypeBuilder.Metadata.HasClrType(),
+                "Principal navigation check failed");
+
+            Check.DebugAssert(
                 navigationToDependent?.Name == null
                 || navigationToDependent.Value.MemberInfo != null
-                || !principalEntityTypeBuilder.Metadata.HasClrType());
-            Debug.Assert(
+                || !principalEntityTypeBuilder.Metadata.HasClrType(),
+                "Dependent navigation check failed");
+
+            Check.DebugAssert(
                 AreCompatible(
                     principalEntityTypeBuilder.Metadata,
                     dependentEntityTypeBuilder.Metadata,
@@ -2200,13 +2214,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     dependentProperties?.Count > 0 ? dependentProperties : null,
                     principalProperties?.Count > 0 ? principalProperties : null,
                     isUnique,
-                    configurationSource));
-            Debug.Assert(oldNameDependentProperties == null || (dependentProperties?.Count ?? 0) == 0);
-            Debug.Assert(
+                    configurationSource),
+                "Compatibility check failed");
+
+            Check.DebugAssert(
+                oldNameDependentProperties == null || (dependentProperties?.Count ?? 0) == 0,
+                "Dependent properties check failed");
+
+            Check.DebugAssert(
                 removeCurrent
                 || Metadata.Builder == null
                 || (Metadata.PrincipalEntityType.IsAssignableFrom(principalEntityTypeBuilder.Metadata)
-                    && Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityTypeBuilder.Metadata)));
+                    && Metadata.DeclaringEntityType.IsAssignableFrom(dependentEntityTypeBuilder.Metadata)),
+                "Entity type check failed");
 
             InternalRelationshipBuilder newRelationshipBuilder;
             using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
@@ -2336,7 +2356,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 var updated = newRelationshipBuilder.HasForeignKey(
                                     dependentProperties, foreignKeyPropertiesConfigurationSource.Value);
-                                Debug.Assert(updated == newRelationshipBuilder);
+
+                                Check.DebugAssert(updated == newRelationshipBuilder, "updated != newRelationshipBuilder");
                             }
                             else if (dependentProperties.Count > 0
                                 || (!removeCurrent
@@ -2367,7 +2388,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 var updated = newRelationshipBuilder.HasPrincipalKey(
                                     principalProperties, principalKeyConfigurationSource.Value);
-                                Debug.Assert(updated == newRelationshipBuilder);
+
+                                Check.DebugAssert(updated == newRelationshipBuilder, "updated != newRelationshipBuilder");
                             }
                             else if (principalProperties.Count > 0
                                 || (!removeCurrent
@@ -3286,7 +3308,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (dependentEntityType.GetForeignKeys().Contains(Metadata, ReferenceEqualityComparer.Instance))
             {
-                Debug.Assert(Metadata.Builder != null);
+                Check.DebugAssert(Metadata.Builder != null, "Metadata.Builder is null");
+
                 return Metadata.Builder;
             }
 
