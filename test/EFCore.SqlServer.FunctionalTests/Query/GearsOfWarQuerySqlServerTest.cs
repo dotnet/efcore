@@ -1871,7 +1871,7 @@ WHERE CHARINDEX('Jacinto', [c].[Location]) > 0");
             AssertSql(
                 @"SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE CHARINDEX('Add', [c].[Location] + 'Added') > 0");
+WHERE CHARINDEX('Add', COALESCE([c].[Location], '') + 'Added') > 0");
         }
 
         public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()
@@ -6014,7 +6014,7 @@ ORDER BY [w].[Id] + 2");
                 @"SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-ORDER BY [w0].[Name] + CAST(5 AS nvarchar(max))");
+ORDER BY COALESCE([w0].[Name], N'') + CAST(5 AS nvarchar(max))");
         }
 
         public override async Task String_concat_with_null_conditional_argument2(bool async)
@@ -6025,7 +6025,7 @@ ORDER BY [w0].[Name] + CAST(5 AS nvarchar(max))");
                 @"SELECT [w0].[Id], [w0].[AmmunitionType], [w0].[IsAutomatic], [w0].[Name], [w0].[OwnerFullName], [w0].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-ORDER BY [w0].[Name] + N'Marcus'' Lancer'");
+ORDER BY COALESCE([w0].[Name], N'') + N'Marcus'' Lancer'");
         }
 
         public override async Task String_concat_on_various_types(bool async)
