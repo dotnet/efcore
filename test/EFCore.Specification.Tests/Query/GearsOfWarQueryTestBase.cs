@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -7384,6 +7385,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => g.IsAutomatic),
                 ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => MaybeScalar<bool>(g, () => g.IsAutomatic)),
                 assertOrder: true);
+        }
+        
+        [ConditionalFact]
+        public virtual void Byte_array_filter_by_length_parameter_compiled()
+        {
+            var query = EF.CompileQuery(
+                (GearsOfWarContext context, byte[] byteArrayParam)
+                    => context.Squads.Where(w => w.Banner.Length == byteArrayParam.Length).Count());
+
+            using var context = CreateContext();
+            var byteQueryParam = new[] { (byte)42, (byte)128 };
+
+            Assert.Equal(2, query(context, byteQueryParam));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
