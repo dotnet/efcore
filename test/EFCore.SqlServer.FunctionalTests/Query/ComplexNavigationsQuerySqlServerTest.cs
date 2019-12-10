@@ -4328,6 +4328,41 @@ WHERE [l].[Name] IN (N'L1 01', N'L1 02')
 ORDER BY [l].[Id], [l1].[Id]");
         }
 
+        public override async Task Sum_with_selector_cast_using_as(bool async)
+        {
+            await base.Sum_with_selector_cast_using_as(async);
+
+            AssertSql(
+                @"SELECT SUM([l].[Id])
+FROM [LevelOne] AS [l]");
+        }
+
+        public override async Task Sum_with_filter_with_include_selector_cast_using_as(bool async)
+        {
+            await base.Sum_with_filter_with_include_selector_cast_using_as(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+WHERE [l].[Id] > (
+    SELECT SUM([l1].[Id])
+    FROM [LevelTwo] AS [l1]
+    WHERE [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id])
+ORDER BY [l].[Id], [l0].[Id]");
+        }
+
+        public override async Task Select_with_joined_where_clause_cast_using_as(bool async)
+        {
+            await base.Select_with_joined_where_clause_cast_using_as(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+WHERE [l].[Id] = [l0].[Id]");
+        }
+
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
 }
