@@ -119,7 +119,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         base.UnsafeLog(logLevel, eventId, message, state, exception);
                     }
 
-                    if (message != null
+                    if (!IsRecordingSuspended
+                        && message != null
                         && eventId.Id != RelationalEventId.CommandExecuting.Id)
                     {
                         var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;

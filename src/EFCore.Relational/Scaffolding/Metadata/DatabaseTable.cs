@@ -56,5 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     The list of foreign key constraints defined on the table.
         /// </summary>
         public virtual IList<DatabaseForeignKey> ForeignKeys { get; } = new List<DatabaseForeignKey>();
+
+        public override string ToString() => Schema == null ? Name : $"{Schema}.{Name}";
     }
 }
