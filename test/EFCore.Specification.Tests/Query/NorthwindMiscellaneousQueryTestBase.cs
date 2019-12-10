@@ -2918,6 +2918,19 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_Joined_DefaultIfEmpty3(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss =>
+                    from c in ss.Set<Customer>()
+                    from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Where(o => o.OrderDetails.Any()).DefaultIfEmpty()
+                    select o,
+                entryCount: 830);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_many_cross_join_same_collection(bool async)
         {
             return AssertQuery(

@@ -1106,6 +1106,22 @@ LEFT JOIN [Squads] AS [s] ON [t0].[SquadId] = [s].[Id]
 LEFT JOIN [Cities] AS [c] ON [t0].[AssignedCityName] = [c].[Name]");
         }
 
+        public override async Task Select_null_propagation_negative9(bool async)
+        {
+            await base.Select_null_propagation_negative9(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [g].[LeaderNickname] IS NOT NULL THEN COALESCE(CASE
+        WHEN (CAST(LEN([g].[Nickname]) AS int) = 5) AND LEN([g].[Nickname]) IS NOT NULL THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END, CAST(0 AS bit))
+    ELSE NULL
+END
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
         public override async Task Select_null_propagation_works_for_navigations_with_composite_keys(bool async)
         {
             await base.Select_null_propagation_works_for_navigations_with_composite_keys(async);

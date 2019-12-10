@@ -882,6 +882,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task Select_GetValueOrDefault_on_DateTime_with_null_values(bool async)
         {
             await base.Select_GetValueOrDefault_on_DateTime_with_null_values(async);
@@ -1037,6 +1038,22 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10243))");
         public override Task Collection_projection_AsNoTracking_OrderBy(bool async)
         {
             return base.Collection_projection_AsNoTracking_OrderBy(async);
+        }
+
+        public override async Task Coalesce_over_nullable_uint(bool async)
+        {
+            await base.Coalesce_over_nullable_uint(async);
+
+            AssertSql(
+                @"SELECT ((c[""EmployeeID""] != null) ? c[""EmployeeID""] : 0) AS c
+FROM root c
+WHERE (c[""Discriminator""] = ""Order"")");
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Project_uint_through_collection_FirstOrDefault(bool async)
+        {
+            return base.Project_uint_through_collection_FirstOrDefault(async);
         }
 
         private void AssertSql(params string[] expected)

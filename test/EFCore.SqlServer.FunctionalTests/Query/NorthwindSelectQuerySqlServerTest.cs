@@ -956,7 +956,7 @@ FROM [Orders] AS [o]");
             await base.Select_GetValueOrDefault_on_DateTime_with_null_values(async);
 
             AssertSql(
-                @"SELECT COALESCE([o].[OrderDate], '1753-01-01T00:00:00.000')
+                @"SELECT [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
@@ -1301,6 +1301,28 @@ WHERE [c].[CustomerID] = N'ALFKI'");
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Coalesce_over_nullable_uint(bool async)
+        {
+            await base.Coalesce_over_nullable_uint(async);
+
+            AssertSql(
+                @"SELECT COALESCE([o].[EmployeeID], 0)
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Project_uint_through_collection_FirstOrDefault(bool async)
+        {
+            await base.Project_uint_through_collection_FirstOrDefault(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [o].[EmployeeID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]");
         }
 
         private void AssertSql(params string[] expected)

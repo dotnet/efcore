@@ -1859,6 +1859,23 @@ FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
 
+        public override async Task SelectMany_Joined_DefaultIfEmpty3(bool async)
+        {
+            await base.SelectMany_Joined_DefaultIfEmpty3(async);
+
+            AssertSql(
+                @"SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE EXISTS (
+        SELECT 1
+        FROM [Order Details] AS [o0]
+        WHERE [o].[OrderID] = [o0].[OrderID])
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+        }
+
         public override async Task SelectMany_Joined_Take(bool async)
         {
             await base.SelectMany_Joined_Take(async);
