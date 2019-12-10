@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private void ExitCriticalSection()
         {
-            Debug.Assert(_inCriticalSection == 1, "Expected to be in a critical section");
+            Check.DebugAssert(_inCriticalSection == 1, "Expected to be in a critical section");
 
             if (--_refCount == 0)
             {

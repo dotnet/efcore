@@ -830,7 +830,6 @@ ORDER BY [t].[EmployeeID]");
 
             AssertSql(
                 @"@__p_0='3'
-@__p_1='2'
 
 SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
@@ -844,8 +843,9 @@ CROSS JOIN (
     ORDER BY [o].[OrderID]
 ) AS [t0]
 CROSS JOIN (
-    SELECT TOP(@__p_1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
 ) AS [t1]
 WHERE [t].[City] = N'Seattle'
 ORDER BY [t].[EmployeeID]");

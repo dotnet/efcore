@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -629,7 +628,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             Expression ownerJObjectExpression = null;
                             if (_ownerMappings.TryGetValue(jObjectExpression, out var ownerInfo))
                             {
-                                Debug.Assert(principalProperty.DeclaringEntityType.IsAssignableFrom(ownerInfo.EntityType));
+                                Check.DebugAssert(
+                                    principalProperty.DeclaringEntityType.IsAssignableFrom(ownerInfo.EntityType),
+                                    $"{principalProperty.DeclaringEntityType} is not assignable from {ownerInfo.EntityType}");
 
                                 ownerJObjectExpression = ownerInfo.JObjectExpression;
                             }

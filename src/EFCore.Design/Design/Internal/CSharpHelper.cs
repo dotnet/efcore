@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -245,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (type.IsNested)
             {
-                Debug.Assert(type.DeclaringType != null);
+                Check.DebugAssert(type.DeclaringType != null, "DeclaringType is null");
                 builder
                     .Append(Reference(type.DeclaringType))
                     .Append(".");

@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] EntityType newBaseType,
             ConfigurationSource configurationSource)
         {
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
 
             if (_baseType == newBaseType)
             {
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
 
             if (_baseType != null)
             {
@@ -804,7 +804,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Key RemoveKey([NotNull] Key key)
         {
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
+
             if (key.DeclaringEntityType != this)
             {
                 throw new InvalidOperationException(
@@ -820,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var removed = _keys.Remove(key.Properties);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
             key.Builder = null;
 
             foreach (var property in key.Properties)
@@ -918,7 +919,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void OnForeignKeyUpdating([NotNull] ForeignKey foreignKey)
         {
             var removed = _foreignKeys.Remove(foreignKey);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
 
             foreach (var property in foreignKey.Properties)
             {
@@ -933,9 +934,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             removed = foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
             removed = foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
         }
 
         /// <summary>
@@ -947,7 +948,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void OnForeignKeyUpdated([NotNull] ForeignKey foreignKey)
         {
             var added = _foreignKeys.Add(foreignKey);
-            Debug.Assert(added);
+            Check.DebugAssert(added, "added is false");
 
             foreach (var property in foreignKey.Properties)
             {
@@ -969,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 added = principalKey.ReferencingForeignKeys.Add(foreignKey);
-                Debug.Assert(added);
+                Check.DebugAssert(added, "added is false");
             }
 
             var principalEntityType = foreignKey.PrincipalEntityType;
@@ -980,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
-                Debug.Assert(added);
+                Check.DebugAssert(added, "added is false");
             }
         }
 
@@ -1346,11 +1347,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         duplicateProperty.DeclaringType.DisplayName()));
             }
 
-            Debug.Assert(
+            Check.DebugAssert(
                 !GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsDependentToPrincipal() == pointsToPrincipal),
                 "There is another navigation corresponding to the same foreign key and pointing in the same direction.");
 
-            Debug.Assert(
+            Check.DebugAssert(
                 (pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
                 "EntityType mismatch");
 
@@ -1761,7 +1762,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
 
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
             if (conflictingMember != null)
@@ -1963,7 +1964,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             CheckPropertyNotInUse(property);
 
             var removed = _properties.Remove(property.Name);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
             property.Builder = null;
 
             return property;

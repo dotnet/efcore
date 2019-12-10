@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -703,7 +702,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var projectionMember = projectionBindingExpression.ProjectionMember;
 
-                    Debug.Assert(
+                    Check.DebugAssert(
                         new ProjectionMember().Equals(projectionMember),
                         "Invalid ProjectionMember when processing OfType");
 
@@ -850,7 +849,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
             {
-                Debug.Assert(lambdaExpression.Parameters.Count == 1, "Multiparameter lambda passed to CorrelationFindingExpressionVisitor");
+                Check.DebugAssert(lambdaExpression.Parameters.Count == 1, "Multiparameter lambda passed to CorrelationFindingExpressionVisitor");
 
                 _correlated = false;
                 _defaultIfEmpty = false;

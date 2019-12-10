@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -74,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private void Add(ConventionNode node)
             {
 #if DEBUG
-                Debug.Assert(!_readonly);
+                Check.DebugAssert(!_readonly, "_readonly is true");
 #endif
 
                 if (_children == null)

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -621,10 +620,10 @@ namespace Microsoft.EntityFrameworkCore
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
-                Debug.Assert(configurationSnapshot.QueryTrackingBehavior.HasValue);
-                Debug.Assert(configurationSnapshot.LazyLoadingEnabled.HasValue);
-                Debug.Assert(configurationSnapshot.CascadeDeleteTiming.HasValue);
-                Debug.Assert(configurationSnapshot.DeleteOrphansTiming.HasValue);
+                Check.DebugAssert(configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
+                Check.DebugAssert(configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
+                Check.DebugAssert(configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
+                Check.DebugAssert(configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
                 ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;

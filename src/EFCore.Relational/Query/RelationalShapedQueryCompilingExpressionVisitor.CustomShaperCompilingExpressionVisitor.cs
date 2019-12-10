@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -382,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
-                    Debug.Assert(
+                    Check.DebugAssert(
                         !includeExpression.Navigation.IsCollection(),
                         "Only reference include should be present in tree");
                     var entityClrType = includeExpression.EntityExpression.Type;

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
@@ -118,7 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         return null;
                 }
 
-                Debug.Assert(timestring != null);
+                Check.DebugAssert(timestring != null, "timestring is null");
 
                 return _sqlExpressionFactory.Function(
                     "rtrim",

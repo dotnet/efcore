@@ -649,7 +649,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] Property property, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
             Check.NotNull(property, nameof(property));
-            Debug.Assert(property.DeclaringEntityType == Metadata);
+            Check.DebugAssert(property.DeclaringEntityType == Metadata, "property.DeclaringEntityType != Metadata");
 
             var currentConfigurationSource = property.GetConfigurationSource();
             return configurationSource.Overrides(currentConfigurationSource)
@@ -837,7 +837,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanRemoveForeignKey([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
         {
-            Debug.Assert(foreignKey.DeclaringEntityType == Metadata);
+            Check.DebugAssert(foreignKey.DeclaringEntityType == Metadata, "foreignKey.DeclaringEntityType != Metadata");
 
             var currentConfigurationSource = foreignKey.GetConfigurationSource();
             return configurationSource.Overrides(currentConfigurationSource);
@@ -872,7 +872,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (navigation != null)
                 {
                     var foreignKey = navigation.ForeignKey;
-                    Debug.Assert(navigation.DeclaringEntityType == Metadata);
+                    Check.DebugAssert(navigation.DeclaringEntityType == Metadata, "navigation.DeclaringEntityType != Metadata");
 
                     var isDependent = navigation.IsDependentToPrincipal();
                     var navigationConfigurationSource = isDependent
@@ -882,13 +882,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         var navigationRemoved = foreignKey.Builder.HasNavigation(
                             (MemberInfo)null, isDependent, configurationSource);
-                        Debug.Assert(navigationRemoved != null);
+                        Check.DebugAssert(navigationRemoved != null, "navigationRemoved is null");
                     }
                     else
                     {
                         var removed = foreignKey.DeclaringEntityType.Builder.HasNoRelationship(
                             foreignKey, configurationSource);
-                        Debug.Assert(removed != null);
+                        Check.DebugAssert(removed != null, "removed is null");
                     }
                 }
                 else
@@ -896,19 +896,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     var property = Metadata.FindProperty(name);
                     if (property != null)
                     {
-                        Debug.Assert(property.DeclaringEntityType == Metadata);
+                        Check.DebugAssert(property.DeclaringEntityType == Metadata, "property.DeclaringEntityType != Metadata");
 
                         var removed = property.DeclaringEntityType.Builder.RemoveProperty(
                             property, configurationSource);
 
-                        Debug.Assert(removed != null);
+                        Check.DebugAssert(removed != null, "removed is null");
                     }
                     else
                     {
                         var serviceProperty = Metadata.FindServiceProperty(name);
                         if (serviceProperty != null)
                         {
-                            Debug.Assert(serviceProperty.DeclaringEntityType == Metadata);
+                            Check.DebugAssert(serviceProperty.DeclaringEntityType == Metadata, "serviceProperty.DeclaringEntityType != Metadata");
 
                             serviceProperty.DeclaringEntityType.RemoveServiceProperty(name);
                         }
@@ -1499,7 +1499,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         property.DeclaringEntityType.RemoveProperty(property.Name);
                     }
 
-                    Debug.Assert(removedConfigurationSource.HasValue);
+                    Check.DebugAssert(removedConfigurationSource.HasValue, "removedConfigurationSource.HasValue is false");
                     detachedProperties.Add(propertyBuilder);
                 }
             }
@@ -1568,19 +1568,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         key.GetReferencingForeignKeys().ToList()
                             .Select(DetachRelationship));
                     var removed = key.DeclaringEntityType.Builder.HasNoKey(key, configurationSource);
-                    Debug.Assert(removed != null);
+                    Check.DebugAssert(removed != null, "removed is null");
                 }
 
                 foreach (var index in property.GetContainingIndexes().ToList())
                 {
                     var removed = index.DeclaringEntityType.Builder.HasNoIndex(index, configurationSource);
-                    Debug.Assert(removed != null);
+                    Check.DebugAssert(removed != null, "removed is null");
                 }
 
                 if (property.Builder != null)
                 {
                     var removedProperty = Metadata.RemoveProperty(property.Name);
-                    Debug.Assert(removedProperty == property);
+                    Check.DebugAssert(removedProperty == property, "removedProperty != property");
                 }
 
                 foreach (var relationshipSnapshot in detachedRelationships)
@@ -1612,7 +1612,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var detachedBuilder = foreignKey.Builder;
             var relationshipConfigurationSource = foreignKey.DeclaringEntityType.Builder
                 .HasNoRelationship(foreignKey, foreignKey.GetConfigurationSource());
-            Debug.Assert(relationshipConfigurationSource != null);
+            Check.DebugAssert(relationshipConfigurationSource != null, "relationshipConfigurationSource is null");
 
             EntityType.Snapshot definedSnapshot = null;
             if (includeDefinedType)
@@ -1791,7 +1791,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var removedProperty = property.DeclaringEntityType.RemoveProperty(property.Name);
-            Debug.Assert(removedProperty == property);
+            Check.DebugAssert(removedProperty == property, "removedProperty != property");
         }
 
         /// <summary>
@@ -1881,7 +1881,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var removedIndex = Metadata.RemoveIndex(index.Properties);
-            Debug.Assert(removedIndex == index);
+            Check.DebugAssert(removedIndex == index, "removedIndex != index");
 
             RemoveUnusedShadowProperties(index.Properties);
 
@@ -1917,7 +1917,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var entityTypeBuilder = indexToDetach.DeclaringEntityType.Builder;
             var indexBuilder = indexToDetach.Builder;
             var removedConfigurationSource = entityTypeBuilder.HasNoIndex(indexToDetach, indexToDetach.GetConfigurationSource());
-            Debug.Assert(removedConfigurationSource != null);
+            Check.DebugAssert(removedConfigurationSource != null, "removedConfigurationSource is null");
             return indexBuilder;
         }
 
@@ -2125,9 +2125,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ConfigurationSource configurationSource,
             bool? required = null)
         {
-            Debug.Assert(
-                navigationToTarget != null
-                || inverseNavigation != null);
+            Check.DebugAssert(
+                navigationToTarget != null || inverseNavigation != null,
+                "navigationToTarget == null and inverseNavigation == null");
 
             var navigationProperty = navigationToTarget?.MemberInfo;
             if (inverseNavigation == null
@@ -2949,9 +2949,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    Debug.Assert(
+                    Check.DebugAssert(
                         foreignKey != null
-                        || Metadata.FindForeignKey(dependentProperties, principalKey, principalType) == null);
+                        || Metadata.FindForeignKey(dependentProperties, principalKey, principalType) == null,
+                        "FK not found");
                 }
             }
             else

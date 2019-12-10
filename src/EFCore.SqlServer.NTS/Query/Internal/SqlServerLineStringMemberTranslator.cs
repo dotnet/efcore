@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
-                Debug.Assert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 
