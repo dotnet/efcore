@@ -680,6 +680,23 @@ WHERE CAST(ISDATE([o].[CustomerID] + CAST([o].[OrderID] AS nchar(5))) AS bit) = 
                 exIsDate.Message);
         }
 
+        [ConditionalFact]
+        public virtual void DateTimeFromParts()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => c.OrderDate > EF.Functions.DateTimeFromParts(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 30, 12));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), DATEPART(month, GETDATE()), DATEPART(day, GETDATE()), 23, 59, 30, 12)");
+            }
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

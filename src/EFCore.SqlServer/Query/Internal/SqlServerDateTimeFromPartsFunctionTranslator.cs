@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -22,9 +24,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             return _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Function(
-                        "DATETIMEFROMPARTS",
-                        new[] { arguments[1], arguments[2], arguments[3], arguments[4], arguments[5], arguments[6], arguments[7] },
-                        _methodInfo.ReturnType)
+                    "DATETIMEFROMPARTS",
+                    arguments.Skip(1),
+                    _methodInfo.ReturnType,
+                    _sqlExpressionFactory.FindMapping(typeof(DateTime)))
                 : null;
         }
     }

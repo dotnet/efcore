@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             : base(dependencies)
         {
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
-
             AddTranslators(
                 new IMethodCallTranslator[]
                 {
