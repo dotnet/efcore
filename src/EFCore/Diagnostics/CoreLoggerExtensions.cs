@@ -910,20 +910,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var definition = CoreResources.LogRedundantAddServicesCall(diagnostics);
 
-            var warningBehavior = definition.GetLogBehavior(diagnostics);
-            if (warningBehavior != WarningBehavior.Ignore)
+            if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, warningBehavior);
+                definition.Log(diagnostics);
             }
 
-            if (diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name))
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                diagnostics.DiagnosticSource.Write(
-                    definition.EventId.Name,
-                    new ServiceProviderEventData(
+                var eventData = new ServiceProviderEventData(
                         definition,
                         (d, p) => ((EventDefinition)d).GenerateMessage(),
-                        serviceProvider));
+                        serviceProvider);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
 

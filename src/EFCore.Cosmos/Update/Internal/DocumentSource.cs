@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument([NotNull] JObject document, IUpdateEntry entry)
+        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry)
             => UpdateDocument(document, entry, null);
         
         /// <summary>
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject UpdateDocument([NotNull] JObject document, IUpdateEntry entry, int? ordinal)
+        public virtual JObject UpdateDocument([NotNull] JObject document, [NotNull] IUpdateEntry entry, int? ordinal)
         {
             var anyPropertyUpdated = false;
             var stateManager = ((InternalEntityEntry)entry).StateManager;
