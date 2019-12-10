@@ -666,6 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return _sqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:
+                case ExpressionType.TypeAs:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
                         && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)

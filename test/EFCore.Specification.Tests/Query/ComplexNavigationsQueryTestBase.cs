@@ -5587,5 +5587,34 @@ namespace Microsoft.EntityFrameworkCore.Query
                           OneToMany_Required2 = l2 == null ? null : l2.OneToMany_Required2
                       });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_selector_cast_using_as(bool async)
+        {
+            return AssertSum(
+                async,
+                ss => ss.Set<Level1>().Select(s => s.Id as int?));
+        }
+
+        [ConditionalTheory(Skip = "Issue#12657")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_filter_with_include_selector_cast_using_as(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Where(l1 => l1.Id > l1.OneToMany_Optional1.Select(l2 => l2.Id as int?).Sum()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_with_joined_where_clause_cast_using_as(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Where(w => w.Id == w.OneToOne_Optional_FK1.Id as int?),
+                ss => ss.Set<Level1>()
+                    .Where(w => w.Id == (MaybeScalar<int>(w.OneToOne_Optional_FK1, () => w.OneToOne_Optional_FK1.Id) as int?)));
+        }
     }
 }
