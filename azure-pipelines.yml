@@ -26,6 +26,13 @@ trigger:
 
 pr: ['*']
 
+resources:
+  containers:
+    - container: cosmosEmulator
+      image: microsoft/azure-cosmosdb-emulator
+      ports:
+        - 8081:8081
+
 stages:
 - stage: build
   displayName: Build
@@ -48,6 +55,8 @@ stages:
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 name: NetCoreInternal-Pool
                 queue: BuildPool.Windows.10.Amd64.VS2017
+            services:
+              cosmosEmulator: cosmosEmulator
             variables:
               - _InternalBuildArgs: ''
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
