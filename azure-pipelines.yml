@@ -57,6 +57,22 @@ stages:
                 - _DotNetPublishToBlobFeed: true
                 - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
             steps:
+              - task: Cache@2
+                inputs:
+                  key: 'ConstantCosmosMsiKey'
+                  path: cosmosdb-emulator-cache-dir
+                  cacheHitVar: CACHE_RESTORED
+                displayName: Cache Cosmos Emulator MSI
+              - powershell: mkdir cosmosdb-emulator-cache-dir; Invoke-WebRequest https://aka.ms/cosmosdb-emulator -outfile cosmosdb-emulator-cache-dir\cosmosdb-emulator.msi
+                condition: ne(variables.CACHE_RESTORED, 'true')
+                displayName: Download CosmosDB Emulator
+              - powershell: msiexec /i cosmosdb-emulator-cache-dir\cosmosdb-emulator.msi /qn /quiet /norestart /log install.log
+                displayName: Install CosmosDB Emulator
+              - powershell: |
+                  Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
+                  Start-CosmosDbEmulator
+                displayName: Start CosmosDB Emulator
+
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
                 condition: succeeded()
