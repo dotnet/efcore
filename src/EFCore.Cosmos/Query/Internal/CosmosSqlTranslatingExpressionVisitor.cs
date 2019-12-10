@@ -225,11 +225,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
+                var ifTrue = binaryExpression.Left;
+                var ifFalse = binaryExpression.Right;
+                if (ifTrue.Type != ifFalse.Type)
+                {
+                    ifFalse = Expression.Convert(ifFalse, ifTrue.Type);
+                }
+
                 return Visit(
                     Expression.Condition(
-                        Expression.NotEqual(binaryExpression.Left, Expression.Constant(null, binaryExpression.Left.Type)),
-                        binaryExpression.Left,
-                        binaryExpression.Right));
+                        Expression.NotEqual(ifTrue, Expression.Constant(null, ifTrue.Type)),
+                        ifTrue,
+                        ifFalse));
             }
 
             var left = TryRemoveImplicitConvert(binaryExpression.Left);

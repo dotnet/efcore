@@ -1140,6 +1140,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_null_propagation_negative9(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().Select(g => g.LeaderNickname != null
+                        ? (bool?)(g.Nickname.Length == 5) ?? default(bool)
+                        : (bool?)null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_works_for_navigations_with_composite_keys(bool async)
         {
             return AssertQuery(

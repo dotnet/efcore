@@ -1456,6 +1456,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task SelectMany_Joined_DefaultIfEmpty3(bool async)
+        {
+            return base.SelectMany_Joined_DefaultIfEmpty3(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task SelectMany_Joined(bool async)
         {
             await AssertQuery(
