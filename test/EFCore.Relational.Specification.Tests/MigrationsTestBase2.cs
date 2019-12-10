@@ -40,6 +40,47 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder => modelBuilder.Entity("People").HasIndex("FirstName", "LastName").IsUnique(),
                 model => Assert.True(model.Tables.Single().Indexes.Single().IsUnique));
 
+        [ConditionalFact]
+        public virtual void CreateSequenceOperation_with_minValue_and_maxValue()
+            => Execute(
+                modelBuilder => modelBuilder.HasSequence<long>("TestSequence", "dbo")
+                    .StartsAt(3)
+                    .IncrementsBy(2)
+                    .HasMin(2)
+                    .HasMax(916)
+                    .IsCyclic(),
+                model =>
+                {
+                    var sequence = Assert.Single(model.Sequences);
+                    Assert.Equal(3, sequence.StartValue);
+                    Assert.Equal(2, sequence.IncrementBy);
+                    Assert.Equal(2, sequence.MinValue);
+                    Assert.Equal(916, sequence.MaxValue);
+                    Assert.True(sequence.IsCyclic);
+                });
+
+        [ConditionalFact]
+        public virtual void DropSequenceOperation()
+            => Execute(
+                modelBuilder => modelBuilder.HasSequence("TestSequence"),
+                modelBuilder => { },
+                model => Assert.Empty(model.Sequences));
+
+        [ConditionalFact]
+        public virtual void DropTableOperation()
+            => Execute(
+                modelBuilder => modelBuilder.Entity("People", entityBuilder => entityBuilder.Property<int>("Id")),
+                modelBuilder => { },
+                model => Assert.Empty(model.Tables));
+
+        protected virtual void Execute(
+            Action<ModelBuilder> buildTargetAction,
+            Action<DatabaseModel> modelAsserter)
+            => Execute(
+                builder => { },
+                buildTargetAction,
+                modelAsserter);
+
         protected virtual void ExecuteIncremental(
             Action<ModelBuilder> buildSourceAction,
             Action<ModelBuilder> buildTargetIncrementalAction,
