@@ -414,20 +414,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (leftNullable)
                 {
-                    newLeft = newLeft is SqlConstantExpression
-                        ? _sqlExpressionFactory.Constant(string.Empty)
-                        : newLeft is ColumnExpression || newLeft is SqlParameterExpression
-                            ? _sqlExpressionFactory.Coalesce(newLeft, _sqlExpressionFactory.Constant(string.Empty))
-                            : newLeft;
+                    newLeft = RewriteToCoalesce(newLeft);
                 }
 
                 if (rightNullable)
                 {
-                    newRight = newRight is SqlConstantExpression
-                        ? _sqlExpressionFactory.Constant(string.Empty)
-                        : newRight is ColumnExpression || newRight is SqlParameterExpression
-                            ? _sqlExpressionFactory.Coalesce(newRight, _sqlExpressionFactory.Constant(string.Empty))
-                            : newRight;
+                    newRight = RewriteToCoalesce(newRight);
                 }
 
                 return sqlBinaryExpression.Update(newLeft, newRight);
@@ -599,6 +591,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _canOptimize = canOptimize;
 
             return sqlBinaryExpression.Update(newLeft, newRight);
+
+            SqlExpression RewriteToCoalesce(SqlExpression argument)
+                => argument is SqlConstantExpression
+                    ? _sqlExpressionFactory.Constant(string.Empty)
+                    : argument is ColumnExpression || argument is SqlParameterExpression
+                        ? _sqlExpressionFactory.Coalesce(argument, _sqlExpressionFactory.Constant(string.Empty))
+                        : argument;
         }
 
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
