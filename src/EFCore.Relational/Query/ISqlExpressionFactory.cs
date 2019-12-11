@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         // Other
-        SqlBinaryExpression Coalesce(
+        SqlFunctionExpression Coalesce(
             [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlUnaryExpression IsNull([NotNull] SqlExpression operand);

@@ -31,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ExpressionType.Equal,
             ExpressionType.NotEqual,
             //ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce
             //ExpressionType.ArrayIndex,
             //ExpressionType.RightShift,
             //ExpressionType.LeftShift,
@@ -116,13 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 expressionPrinter.Append(")");
             }
-        }
 
-        private bool RequiresBrackets(SqlExpression expression)
-        {
-            return expression is SqlBinaryExpression sqlBinary
-                && sqlBinary.OperatorType != ExpressionType.Coalesce
-                || expression is LikeExpression;
+            static bool RequiresBrackets(SqlExpression expression) => expression is SqlBinaryExpression || expression is LikeExpression;
         }
 
         public override bool Equals(object obj)
