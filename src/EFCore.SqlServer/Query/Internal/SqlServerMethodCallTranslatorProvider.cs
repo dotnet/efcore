@@ -3,22 +3,23 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTranslatorProvider
     {
-        public SqlServerMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies)
+        public SqlServerMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies, [NotNull] IRelationalTypeMappingSource typeMappingSource)
             : base(dependencies)
         {
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
             AddTranslators(
                 new IMethodCallTranslator[]
                 {
-					new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
-					new SqlServerConvertTranslator(sqlExpressionFactory),
+                    new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
+                    new SqlServerConvertTranslator(sqlExpressionFactory),
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
-                    new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory),
+                    new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
