@@ -375,56 +375,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
 
-            if (sqlBinaryExpression.OperatorType == ExpressionType.Coalesce)
+            var requiresBrackets = RequiresBrackets(sqlBinaryExpression.Left);
+
+            if (requiresBrackets)
             {
-                _relationalCommandBuilder.Append("COALESCE(");
-                Visit(sqlBinaryExpression.Left);
-                _relationalCommandBuilder.Append(", ");
-                Visit(sqlBinaryExpression.Right);
+                _relationalCommandBuilder.Append("(");
+            }
+
+            Visit(sqlBinaryExpression.Left);
+
+            if (requiresBrackets)
+            {
                 _relationalCommandBuilder.Append(")");
             }
-            else
+
+            _relationalCommandBuilder.Append(GenerateOperator(sqlBinaryExpression));
+
+            requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right);
+
+            if (requiresBrackets)
             {
-                var requiresBrackets = RequiresBrackets(sqlBinaryExpression.Left);
+                _relationalCommandBuilder.Append("(");
+            }
 
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append("(");
-                }
+            Visit(sqlBinaryExpression.Right);
 
-                Visit(sqlBinaryExpression.Left);
-
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append(")");
-                }
-
-                _relationalCommandBuilder.Append(GenerateOperator(sqlBinaryExpression));
-
-                requiresBrackets = RequiresBrackets(sqlBinaryExpression.Right);
-
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append("(");
-                }
-
-                Visit(sqlBinaryExpression.Right);
-
-                if (requiresBrackets)
-                {
-                    _relationalCommandBuilder.Append(")");
-                }
+            if (requiresBrackets)
+            {
+                _relationalCommandBuilder.Append(")");
             }
 
             return sqlBinaryExpression;
         }
 
-        private bool RequiresBrackets(SqlExpression expression)
-        {
-            return expression is SqlBinaryExpression sqlBinary
-                && sqlBinary.OperatorType != ExpressionType.Coalesce
-                || expression is LikeExpression;
-        }
+        private static bool RequiresBrackets(SqlExpression expression)
+            => expression is SqlBinaryExpression || expression is LikeExpression;
 
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
         {

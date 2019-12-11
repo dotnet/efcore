@@ -180,7 +180,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
                 case ExpressionType.Modulo:
-                case ExpressionType.Coalesce:
                 case ExpressionType.And:
                 case ExpressionType.Or:
                 {
@@ -358,12 +357,27 @@ namespace Microsoft.EntityFrameworkCore.Query
             return MakeBinary(ExpressionType.Or, left, right, typeMapping);
         }
 
-        public virtual SqlBinaryExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression Coalesce(SqlExpression left, SqlExpression right, RelationalTypeMapping typeMapping = null)
         {
             Check.NotNull(left, nameof(left));
             Check.NotNull(right, nameof(right));
 
-            return MakeBinary(ExpressionType.Coalesce, left, right, typeMapping);
+            var resultType = right.Type;
+            var inferredTypeMapping = typeMapping
+                ?? ExpressionExtensions.InferTypeMapping(left, right)
+                ?? _typeMappingSource.FindMapping(resultType);
+
+            var typeMappedArguments = new List<SqlExpression>()
+            {
+                ApplyTypeMapping(left, inferredTypeMapping),
+                ApplyTypeMapping(right, inferredTypeMapping)
+            };
+
+            return SqlFunctionExpression.Create(
+                "COALESCE",
+                typeMappedArguments,
+                resultType,
+                inferredTypeMapping);
         }
 
         public virtual SqlUnaryExpression MakeUnary(
@@ -677,7 +691,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (sharingTypes.Count > 0)
                 {
-                    bool discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
+                    var discriminatorAdded = AddDiscriminatorCondition(selectExpression, entityType);
 
                     var linkingFks = entityType.GetRootType().FindForeignKeys(entityType.FindPrimaryKey().Properties)
                         .Where(

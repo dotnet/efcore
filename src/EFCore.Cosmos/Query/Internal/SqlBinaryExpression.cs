@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             ExpressionType.Equal,
             ExpressionType.NotEqual,
             ExpressionType.ExclusiveOr,
-            ExpressionType.Coalesce,
             ExpressionType.RightShift,
             ExpressionType.LeftShift
         };
@@ -160,12 +159,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 expressionPrinter.Append(")");
             }
-        }
 
-        private bool RequiresBrackets(SqlExpression expression)
-        {
-            return expression is SqlBinaryExpression sqlBinary
-                   && sqlBinary.OperatorType != ExpressionType.Coalesce;
+            static bool RequiresBrackets(SqlExpression expression) => expression is SqlBinaryExpression;
         }
 
         /// <summary>

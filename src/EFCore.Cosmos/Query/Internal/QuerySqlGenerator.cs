@@ -60,10 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             // Unary
             { ExpressionType.UnaryPlus, "+" },
             { ExpressionType.Negate, "-" },
-            { ExpressionType.Not, "~" },
-
-            // Others
-            { ExpressionType.Coalesce, " ?? " }
+            { ExpressionType.Not, "~" }
         };
 
         /// <summary>
