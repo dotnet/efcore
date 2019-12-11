@@ -3743,5 +3743,29 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
             return (EventDefinition<string, string>)definition;
         }
+
+        /// <summary>
+        ///     'AddEntityFramework*' was called on the service provider, but 'UseInternalServiceProvider' wasn't called in the DbContext options configuration. Remove the 'AddEntityFramework*' call as in most cases it's not needed and might cause conflicts with other products and services registered in the same service provider.
+        /// </summary>
+        public static EventDefinition LogRedundantAddServicesCall([NotNull] IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogRedundantAddServicesCall;
+            if (definition == null)
+            {
+                definition = LazyInitializer.EnsureInitialized<EventDefinitionBase>(
+                    ref ((LoggingDefinitions)logger.Definitions).LogRedundantAddServicesCall,
+                    () => new EventDefinition(
+                        logger.Options,
+                        CoreEventId.RedundantAddServicesCallWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.RedundantAddServicesCallWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            CoreEventId.RedundantAddServicesCallWarning,
+                            _resourceManager.GetString("LogRedundantAddServicesCall"))));
+            }
+
+            return (EventDefinition)definition;
+        }
     }
 }

@@ -609,9 +609,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         var ownership = entityType.FindOwnership();
                         if (!ownership.IsUnique
-                            && property.IsPrimaryKey()
-                            && !property.IsForeignKey()
-                            && property.ClrType == typeof(int))
+                            && property.IsOrdinalKeyProperty())
                         {
                             Expression readExpression = _ordinalParameterBindings[jObjectExpression];
                             if (readExpression.Type != clrType)

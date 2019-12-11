@@ -1045,10 +1045,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private static readonly IServiceProvider _poolProvider
             = new ServiceCollection()
-                .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContextPool<LikeAZooContextPooled>(
-                    p =>
-                        p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
+                    p => p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
                             .UseInternalServiceProvider(InMemoryFixture.BuildServiceProvider(_loggerFactory)))
                 .BuildServiceProvider();
 

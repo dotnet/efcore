@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
-        public virtual async Task Can_add_collection_dependent_to_owner()
+        public virtual async Task Can_manipulate_embedded_collections()
         {
             var options = Fixture.CreateOptions(seed: false);
 
@@ -121,18 +121,35 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             using (var context = new EmbeddedTransportationContext(options))
             {
                 context.Add(new Person { Id = 1 });
+                var note1 = new Note { Content = "First note" };
+                var note2 = new Note { Content = "Second note" };
                 existingAddress1Person2 = new Address
                 {
                     Street = "Second",
                     City = "Village",
-                    Notes = new[] { new Note { Content = "First note" }, new Note { Content = "Second note" } }
+                    Notes = new List<Note> { note1, note2 }
                 };
-                context.Add(new Person { Id = 2, Addresses = new[] { existingAddress1Person2 } });
+                context.Add(new Person { Id = 2, Addresses = new List<Address> { existingAddress1Person2 } });
                 existingAddress1Person3 = new Address { Street = "First", City = "City" };
                 existingAddress2Person3 = new Address { Street = "Second", City = "City" };
-                context.Add(new Person { Id = 3, Addresses = new[] { existingAddress1Person3, existingAddress2Person3 } });
+                context.Add(new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
                 await context.SaveChangesAsync();
+
+                var people = await context.Set<Person>().ToListAsync();
+
+                Assert.Empty(people[0].Addresses);
+
+                Assert.Equal(1, people[1].Addresses.Count);
+                Assert.Same(existingAddress1Person2, people[1].Addresses.First());
+
+                Assert.Equal(2, existingAddress1Person2.Notes.Count);
+                Assert.Same(existingAddress1Person3, people[2].Addresses.First());
+                Assert.Same(existingAddress2Person3, people[2].Addresses.Last());
+
+                Assert.Equal(2, people[2].Addresses.Count);
+                Assert.Same(existingAddress1Person3, people[2].Addresses.First());
+                Assert.Same(existingAddress2Person3, people[2].Addresses.Last());
             }
 
             using (var context = new EmbeddedTransportationContext(options))
@@ -141,66 +158,84 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 addedAddress1 = new Address { Street = "First", City = "Town" };
                 people[0].Addresses.Add(addedAddress1);
 
-                addedAddress2 = new Address { Street = "Another", City = "Village" };
+                addedAddress2 = new Address { Street = "Another", City = "Village", Notes = existingAddress1Person2.Notes };
+                people[1].Addresses.Clear();
                 people[1].Addresses.Add(addedAddress2);
 
-                var existingAddressEntry = context.Entry(people[1].Addresses.First());
+                addedAddress3 = new Address
+                {
+                    Street = "Another",
+                    City = "City",
+                    Notes = new List<Note> { new Note { Content = "Another note" } }
+                };
 
-                var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
+                var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());
 
-                Assert.Equal("Second", addressJson[nameof(Address.Street)]);
+                var addressJson = existingFirstAddressEntry.Property<JObject>("__jObject").CurrentValue;
+
+                Assert.Equal("First", addressJson[nameof(Address.Street)]);
                 addressJson["unmappedId"] = 2;
 
-                existingAddressEntry.Property<JObject>("__jObject").IsModified = true;
+                existingFirstAddressEntry.Property<JObject>("__jObject").IsModified = true;
 
-                addedAddress3 = new Address { Street = "Another", City = "City" };
                 var existingLastAddress = people[2].Addresses.Last();
                 people[2].Addresses.Remove(existingLastAddress);
                 people[2].Addresses.Add(addedAddress3);
                 people[2].Addresses.Add(existingLastAddress);
 
+                existingLastAddress.Notes.Add(new Note { Content = "City note" });
+
                 await context.SaveChangesAsync();
+
+                await AssertState(context);
             }
 
             using (var context = new EmbeddedTransportationContext(options))
             {
+                await AssertState(context);
+            }
+
+            async Task AssertState(EmbeddedTransportationContext context)
+            {
                 var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
                 var addresses = people[0].Addresses.ToList();
-                Assert.Equal(addedAddress1.Street, addresses.Single().Street);
-                Assert.Equal(addedAddress1.City, addresses.Single().City);
-                Assert.Equal(addedAddress1.Notes, addresses.Single().Notes);
+                Assert.Equal("First", addresses.Single().Street);
+                Assert.Equal("Town", addresses.Single().City);
+                Assert.Empty(addresses.Single().Notes);
 
                 addresses = people[1].Addresses.ToList();
-                Assert.Equal(2, addresses.Count);
+                Assert.Single(addresses);
 
-                Assert.Equal(existingAddress1Person2.Street, addresses[0].Street);
-                Assert.Equal(existingAddress1Person2.City, addresses[0].City);
-                Assert.Equal(
-                    existingAddress1Person2.Notes.OrderBy(n => n.Content).Select(n => n.Content),
-                    addresses[0].Notes.OrderBy(n => n.Content).Select(n => n.Content));
-
-                Assert.Equal(addedAddress2.Street, addresses[1].Street);
-                Assert.Equal(addedAddress2.City, addresses[1].City);
-
-                var existingAddressEntry = context.Entry(people[1].Addresses.First());
-
-                var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
-
-                Assert.Equal("Second", addressJson[nameof(Address.Street)]);
-                Assert.Equal(4, addressJson.Count);
-                Assert.Equal(2, addressJson["unmappedId"]);
+                Assert.Equal("Another", addresses[0].Street);
+                Assert.Equal("Village", addresses[0].City);
+                var notes = addresses[0].Notes;
+                Assert.Equal(2, notes.Count);
+                Assert.Equal("First note", notes.First().Content);
+                Assert.Equal("Second note", notes.Last().Content);
 
                 addresses = people[2].Addresses.ToList();
                 Assert.Equal(3, addresses.Count);
 
-                Assert.Equal(existingAddress1Person3.Street, addresses[0].Street);
-                Assert.Equal(existingAddress1Person3.City, addresses[0].City);
+                Assert.Equal("First", addresses[0].Street);
+                Assert.Equal("City", addresses[0].City);
 
-                Assert.Equal(addedAddress3.Street, addresses[1].Street);
-                Assert.Equal(addedAddress3.City, addresses[1].City);
+                var existingAddressEntry = context.Entry(addresses[0]);
 
-                Assert.Equal(existingAddress2Person3.Street, addresses[2].Street);
-                Assert.Equal(existingAddress2Person3.City, addresses[2].City);
+                var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
+
+                Assert.Equal("First", addressJson[nameof(Address.Street)]);
+                Assert.Equal(4, addressJson.Count);
+                Assert.Equal(2, addressJson["unmappedId"]);
+
+                Assert.Equal("Another", addresses[1].Street);
+                Assert.Equal("City", addresses[1].City);
+                Assert.Equal(1, addresses[1].Notes.Count);
+                Assert.Equal("Another note", addresses[1].Notes.First().Content);
+
+                Assert.Equal("Second", addresses[2].Street);
+                Assert.Equal("City", addresses[2].City);
+                Assert.Equal(1, addresses[2].Notes.Count);
+                Assert.Equal("City note", addresses[2].Notes.First().Content);
             }
         }
 
