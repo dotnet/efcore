@@ -3097,7 +3097,7 @@ ORDER BY [l].[Id], [t].[Id], [t].[Id0]");
             await base.Select_optional_navigation_property_string_concat(async);
 
             AssertSql(
-                @"SELECT ([l].[Name] + N' ') + CASE
+                @"SELECT (COALESCE([l].[Name], N'') + N' ') + CASE
     WHEN [t].[Id] IS NOT NULL THEN [t].[Name]
     ELSE N'NULL'
 END
