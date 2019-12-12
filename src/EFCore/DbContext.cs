@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(options, nameof(options));
 
-            if (!options.ContextType.GetTypeInfo().IsAssignableFrom(GetType().GetTypeInfo()))
+            if (!options.ContextType.IsAssignableFrom(GetType()))
             {
                 throw new InvalidOperationException(CoreStrings.NonGenericOptions(GetType().ShortDisplayName()));
             }
@@ -258,16 +257,6 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbSet<TEntity> Set<TEntity>()
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
-
-        /// <summary>
-        ///     Creates a <see cref="DbSet{TQuery}" /> that can be used to query instances of <typeparamref name="TQuery" />.
-        /// </summary>
-        /// <typeparam name="TQuery"> The type of query for which a DbQuery should be returned. </typeparam>
-        /// <returns> A DbQuery for the given keyless entity type. </returns>
-        [Obsolete("Use Set() for entity types without keys")]
-        public virtual DbQuery<TQuery> Query<TQuery>()
-            where TQuery : class
-            => (DbQuery<TQuery>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TQuery));
 
         private IEntityFinder Finder(Type type)
         {
@@ -631,10 +620,10 @@ namespace Microsoft.EntityFrameworkCore
 
             if (configurationSnapshot.AutoDetectChangesEnabled != null)
             {
-                Debug.Assert(configurationSnapshot.QueryTrackingBehavior.HasValue);
-                Debug.Assert(configurationSnapshot.LazyLoadingEnabled.HasValue);
-                Debug.Assert(configurationSnapshot.CascadeDeleteTiming.HasValue);
-                Debug.Assert(configurationSnapshot.DeleteOrphansTiming.HasValue);
+                Check.DebugAssert(configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
+                Check.DebugAssert(configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
+                Check.DebugAssert(configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
+                Check.DebugAssert(configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
                 ChangeTracker.AutoDetectChangesEnabled = configurationSnapshot.AutoDetectChangesEnabled.Value;
                 ChangeTracker.QueryTrackingBehavior = configurationSnapshot.QueryTrackingBehavior.Value;

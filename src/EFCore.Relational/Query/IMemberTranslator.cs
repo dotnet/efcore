@@ -3,12 +3,13 @@
 
 using System;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public interface IMemberTranslator
     {
-        SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType);
+        SqlExpression Translate([CanBeNull] SqlExpression instance, [NotNull] MemberInfo member, [NotNull] Type returnType);
     }
 }

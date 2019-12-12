@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -12,6 +13,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public LogLevel? LoggedAt { get; set; }
         public EventId LoggedEvent { get; set; }
         public string Message { get; set; }
+
+        public IDbContextLogger DbContextLogger { get; } = new TestDbContextLogger();
 
         public DiagnosticSource DiagnosticSource { get; } = new TestDiagnosticSource();
     }

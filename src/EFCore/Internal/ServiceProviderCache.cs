@@ -9,6 +9,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -131,7 +132,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
                             ScopedLoggerFactory.Create(scopedProvider, options),
                             scopedProvider.GetService<ILoggingOptions>(),
                             scopedProvider.GetService<DiagnosticSource>(),
-                            loggingDefinitions);
+                            loggingDefinitions,
+                            new NullDbContextLogger());
 
                         if (_configurations.Count == 0)
                         {

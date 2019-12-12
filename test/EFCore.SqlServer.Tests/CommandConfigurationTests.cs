@@ -15,19 +15,17 @@ namespace Microsoft.EntityFrameworkCore
             [ConditionalFact]
             public void Default_value_for_CommandTimeout_is_null_and_can_be_changed_including_setting_to_null()
             {
-                using (var context = new TimeoutContext())
-                {
-                    Assert.Null(context.Database.GetCommandTimeout());
+                using var context = new TimeoutContext();
+                Assert.Null(context.Database.GetCommandTimeout());
 
-                    context.Database.SetCommandTimeout(77);
-                    Assert.Equal(77, context.Database.GetCommandTimeout());
+                context.Database.SetCommandTimeout(77);
+                Assert.Equal(77, context.Database.GetCommandTimeout());
 
-                    context.Database.SetCommandTimeout(null);
-                    Assert.Null(context.Database.GetCommandTimeout());
+                context.Database.SetCommandTimeout(null);
+                Assert.Null(context.Database.GetCommandTimeout());
 
-                    context.Database.SetCommandTimeout(TimeSpan.FromSeconds(66));
-                    Assert.Equal(66, context.Database.GetCommandTimeout());
-                }
+                context.Database.SetCommandTimeout(TimeSpan.FromSeconds(66));
+                Assert.Equal(66, context.Database.GetCommandTimeout());
             }
 
             [ConditionalFact]
@@ -38,23 +36,21 @@ namespace Microsoft.EntityFrameworkCore
                         "No=LoveyDovey",
                         b => b.CommandTimeout(-55)));
 
-                using (var context = new TimeoutContext())
-                {
-                    Assert.Null(context.Database.GetCommandTimeout());
+                using var context = new TimeoutContext();
+                Assert.Null(context.Database.GetCommandTimeout());
 
-                    Assert.Throws<ArgumentException>(
-                        () => context.Database.SetCommandTimeout(-3));
-                    Assert.Throws<ArgumentException>(
-                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-3)));
+                Assert.Throws<ArgumentException>(
+                    () => context.Database.SetCommandTimeout(-3));
+                Assert.Throws<ArgumentException>(
+                    () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-3)));
 
-                    Assert.Throws<ArgumentException>(
-                        () => context.Database.SetCommandTimeout(-99));
-                    Assert.Throws<ArgumentException>(
-                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-99)));
+                Assert.Throws<ArgumentException>(
+                    () => context.Database.SetCommandTimeout(-99));
+                Assert.Throws<ArgumentException>(
+                    () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(-99)));
 
-                    Assert.Throws<ArgumentException>(
-                        () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(uint.MaxValue)));
-                }
+                Assert.Throws<ArgumentException>(
+                    () => context.Database.SetCommandTimeout(TimeSpan.FromSeconds(uint.MaxValue)));
             }
 
             public class TimeoutContext : DbContext

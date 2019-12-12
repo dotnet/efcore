@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
-    public class SelectExpression : TableExpressionBase
+    // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+    public sealed class SelectExpression : TableExpressionBase
     {
         private readonly IDictionary<EntityProjectionExpression, IDictionary<IProperty, int>> _entityProjectionCache
             = new Dictionary<EntityProjectionExpression, IDictionary<IProperty, int>>();
@@ -37,8 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public SqlExpression Offset { get; private set; }
         public bool IsDistinct { get; private set; }
 
-        public void ApplyTags(ISet<string> tags)
+        public void ApplyTags([NotNull] ISet<string> tags)
         {
+            Check.NotNull(tags, nameof(tags));
+
             Tags = tags;
         }
 
@@ -140,8 +145,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
             => entityType.GetTypesInHierarchy().SelectMany(EntityTypeExtensions.GetDeclaredProperties);
 
-        public void ReplaceProjectionMapping(IDictionary<ProjectionMember, Expression> projectionMapping)
+        public void ReplaceProjectionMapping([NotNull] IDictionary<ProjectionMember, Expression> projectionMapping)
         {
+            Check.NotNull(projectionMapping, nameof(projectionMapping));
+
             _projectionMapping.Clear();
             foreach (var kvp in projectionMapping)
             {
@@ -149,11 +156,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public Expression GetMappedProjection(ProjectionMember projectionMember)
-            => _projectionMapping[projectionMember];
+        public Expression GetMappedProjection([NotNull] ProjectionMember projectionMember)
+        {
+            Check.NotNull(projectionMember, nameof(projectionMember));
 
-        public int AddToProjection(SqlExpression sqlExpression)
-            => AddToProjection(sqlExpression, null);
+            return _projectionMapping[projectionMember];
+        }
+
+        public int AddToProjection([NotNull] SqlExpression sqlExpression)
+        {
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
+
+            return AddToProjection(sqlExpression, null);
+        }
 
         private int AddToProjection(SqlExpression sqlExpression, string alias)
         {
@@ -180,8 +195,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             return _projection.Count - 1;
         }
 
-        public IDictionary<IProperty, int> AddToProjection(EntityProjectionExpression entityProjection)
+        public IDictionary<IProperty, int> AddToProjection([NotNull] EntityProjectionExpression entityProjection)
         {
+            Check.NotNull(entityProjection, nameof(entityProjection));
+
             if (!_entityProjectionCache.TryGetValue(entityProjection, out var dictionary))
             {
                 dictionary = new Dictionary<IProperty, int>();
@@ -207,8 +224,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public void ApplyPredicate(SqlExpression expression)
+        public void ApplyPredicate([NotNull] SqlExpression expression)
         {
+            Check.NotNull(expression, nameof(expression));
+
             if (expression is SqlConstantExpression sqlConstant
                 && (bool)sqlConstant.Value)
             {
@@ -245,15 +264,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public void ApplyGrouping(Expression keySelector)
+        public void ApplyGrouping([NotNull] Expression keySelector)
         {
+            Check.NotNull(keySelector, nameof(keySelector));
+
             ClearOrdering();
 
             AppendGroupBy(keySelector);
         }
 
-        private void AppendGroupBy(Expression keySelector)
+        private void AppendGroupBy([NotNull] Expression keySelector)
         {
+            Check.NotNull(keySelector, nameof(keySelector));
+
             switch (keySelector)
             {
                 case SqlExpression sqlExpression:
@@ -293,8 +316,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public void ApplyOrdering(OrderingExpression orderingExpression)
+        public void ApplyOrdering([NotNull] OrderingExpression orderingExpression)
         {
+            Check.NotNull(orderingExpression, nameof(orderingExpression));
+
             if (IsDistinct
                 || Limit != null
                 || Offset != null)
@@ -308,15 +333,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             _orderings.Add(orderingExpression);
         }
 
-        public void AppendOrdering(OrderingExpression orderingExpression)
+        public void AppendOrdering([NotNull] OrderingExpression orderingExpression)
         {
+            Check.NotNull(orderingExpression, nameof(orderingExpression));
+
             if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
             {
                 _orderings.Add(orderingExpression);
             }
         }
 
-        public void ApplyLimit(SqlExpression sqlExpression)
+        public void ApplyLimit([CanBeNull] SqlExpression sqlExpression)
         {
             if (Limit != null)
             {
@@ -326,8 +353,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Limit = sqlExpression;
         }
 
-        public void ApplyOffset(SqlExpression sqlExpression)
+        public void ApplyOffset([NotNull] SqlExpression sqlExpression)
         {
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
+
             if (Limit != null
                 || Offset != null)
             {
@@ -371,8 +400,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             ClearOrdering();
         }
 
-        public void ApplyDefaultIfEmpty(ISqlExpressionFactory sqlExpressionFactory)
+        public void ApplyDefaultIfEmpty([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+
             var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
                 new SqlConstantExpression(Constant(null, typeof(string)), null));
 
@@ -447,14 +478,26 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             Union
         }
 
-        public void ApplyExcept(SelectExpression source2, bool distinct)
-            => ApplySetOperation(SetOperationType.Except, source2, distinct);
+        public void ApplyExcept([NotNull] SelectExpression source2, bool distinct)
+        {
+            Check.NotNull(source2, nameof(source2));
 
-        public void ApplyIntersect(SelectExpression source2, bool distinct)
-            => ApplySetOperation(SetOperationType.Intersect, source2, distinct);
+            ApplySetOperation(SetOperationType.Except, source2, distinct);
+        }
 
-        public void ApplyUnion(SelectExpression source2, bool distinct)
-            => ApplySetOperation(SetOperationType.Union, source2, distinct);
+        public void ApplyIntersect([NotNull] SelectExpression source2, bool distinct)
+        {
+            Check.NotNull(source2, nameof(source2));
+
+            ApplySetOperation(SetOperationType.Intersect, source2, distinct);
+        }
+
+        public void ApplyUnion([NotNull] SelectExpression source2, bool distinct)
+        {
+            Check.NotNull(source2, nameof(source2));
+
+            ApplySetOperation(SetOperationType.Union, source2, distinct);
+        }
 
         private void ApplySetOperation(SetOperationType setOperationType, SelectExpression select2, bool distinct)
         {
@@ -581,7 +624,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 if (projection1.EntityType != projection2.EntityType)
                 {
                     throw new InvalidOperationException(
-                        "Set operations over different entity types are currently unsupported (see #16298)");
+                        "Set operations over different entity types are currently unsupported (see Issue#16298)");
                 }
 
                 var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
@@ -796,8 +839,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public Expression AddSingleProjection(ShapedQueryExpression shapedQueryExpression)
+        public Expression AddSingleProjection([NotNull] ShapedQueryExpression shapedQueryExpression)
         {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
             var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             var shaperExpression = shapedQueryExpression.ShaperExpression;
             var innerExpression = RemoveConvert(shaperExpression);
@@ -851,8 +896,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         public CollectionShaperExpression AddCollectionProjection(
-            ShapedQueryExpression shapedQueryExpression, INavigation navigation, Type elementType)
+            [NotNull] ShapedQueryExpression shapedQueryExpression, [CanBeNull] INavigation navigation, [CanBeNull] Type elementType)
         {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
             var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
             _pendingCollections.Add(innerSelectExpression);
 
@@ -864,8 +911,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         public Expression ApplyCollectionJoin(
-            int collectionIndex, int collectionId, Expression innerShaper, INavigation navigation, Type elementType)
+            int collectionIndex,
+            int collectionId,
+            [NotNull] Expression innerShaper,
+            [CanBeNull] INavigation navigation,
+            [NotNull] Type elementType)
         {
+            Check.NotNull(innerShaper, nameof(innerShaper));
+            Check.NotNull(elementType, nameof(elementType));
+
             var innerSelectExpression = _pendingCollections[collectionIndex];
             _pendingCollections[collectionIndex] = null;
             var parentIdentifier = GetIdentifierAccessor(_identifier);
@@ -956,7 +1010,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 updatedExpressions);
         }
 
-        private class ShaperRemappingExpressionVisitor : ExpressionVisitor
+        private sealed class ShaperRemappingExpressionVisitor : ExpressionVisitor
         {
             private readonly SelectExpression _queryExpression;
             private readonly SelectExpression _innerSelectExpression;
@@ -971,6 +1025,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
                     var oldIndex = (int)GetProjectionIndex(projectionBindingExpression);
@@ -1150,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private bool ContainsTableReference(TableExpressionBase table)
             => Tables.Any(te => ReferenceEquals(te is JoinExpressionBase jeb ? jeb.Table : te, table));
 
-        private class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
+        private sealed class SelectExpressionCorrelationFindingExpressionVisitor : ExpressionVisitor
         {
             private readonly IReadOnlyList<TableExpressionBase> _tables;
             private bool _containsOuterReference;
@@ -1349,22 +1405,50 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
         }
 
-        public void AddInnerJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
-            => AddJoin(JoinType.InnerJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
+        public void AddInnerJoin(
+            [NotNull] SelectExpression innerSelectExpression,
+            [NotNull] SqlExpression joinPredicate,
+            [CanBeNull] Type transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
 
-        public void AddLeftJoin(SelectExpression innerSelectExpression, SqlExpression joinPredicate, Type transparentIdentifierType)
-            => AddJoin(JoinType.LeftJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
+            AddJoin(JoinType.InnerJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
+        }
 
-        public void AddCrossJoin(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-            => AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType);
+        public void AddLeftJoin(
+            [NotNull] SelectExpression innerSelectExpression,
+            [NotNull] SqlExpression joinPredicate,
+            [CanBeNull] Type transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
 
-        public void AddCrossApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-            => AddJoin(JoinType.CrossApply, innerSelectExpression, transparentIdentifierType);
+            AddJoin(JoinType.LeftJoin, innerSelectExpression, transparentIdentifierType, joinPredicate);
+        }
 
-        public void AddOuterApply(SelectExpression innerSelectExpression, Type transparentIdentifierType)
-            => AddJoin(JoinType.OuterApply, innerSelectExpression, transparentIdentifierType);
+        public void AddCrossJoin([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
 
-        private class SqlRemappingVisitor : ExpressionVisitor
+            AddJoin(JoinType.CrossJoin, innerSelectExpression, transparentIdentifierType);
+        }
+
+        public void AddCrossApply([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.CrossApply, innerSelectExpression, transparentIdentifierType);
+        }
+
+        public void AddOuterApply([NotNull] SelectExpression innerSelectExpression, [CanBeNull] Type transparentIdentifierType)
+        {
+            Check.NotNull(innerSelectExpression, nameof(innerSelectExpression));
+
+            AddJoin(JoinType.OuterApply, innerSelectExpression, transparentIdentifierType);
+        }
+
+        private sealed class SqlRemappingVisitor : ExpressionVisitor
         {
             private readonly SelectExpression _subquery;
             private readonly IDictionary<SqlExpression, ColumnExpression> _mappings;
@@ -1400,6 +1484,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             // We have to do in-place mutation till we have applied pending collections because of shaper references
             // This is pseudo finalization phase for select expression.
             if (_pendingCollections.Any(e => e != null))
@@ -1661,7 +1747,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             if (!(Having == null && selectExpression.Having == null
-                || Having != null && Predicate.Equals(selectExpression.Having)))
+                || Having != null && Having.Equals(selectExpression.Having)))
             {
                 return false;
             }
@@ -1690,17 +1776,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         // This does not take internal states since when using this method SelectExpression should be finalized
         public SelectExpression Update(
-            List<ProjectionExpression> projections,
-            List<TableExpressionBase> tables,
-            SqlExpression predicate,
-            List<SqlExpression> groupBy,
-            SqlExpression havingExpression,
-            List<OrderingExpression> orderings,
-            SqlExpression limit,
-            SqlExpression offset,
+            [NotNull] List<ProjectionExpression> projections,
+            [NotNull] List<TableExpressionBase> tables,
+            [CanBeNull] SqlExpression predicate,
+            [CanBeNull] List<SqlExpression> groupBy,
+            [CanBeNull] SqlExpression havingExpression,
+            [CanBeNull] List<OrderingExpression> orderings,
+            [CanBeNull] SqlExpression limit,
+            [CanBeNull] SqlExpression offset,
             bool distinct,
-            string alias)
+            [CanBeNull] string alias)
         {
+            Check.NotNull(projections, nameof(projections));
+            Check.NotNull(tables, nameof(tables));
+
             var projectionMapping = new Dictionary<ProjectionMember, Expression>();
             foreach (var kvp in _projectionMapping)
             {
@@ -1763,6 +1852,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine("Projection Mapping:");
             using (expressionPrinter.Indent())
             {

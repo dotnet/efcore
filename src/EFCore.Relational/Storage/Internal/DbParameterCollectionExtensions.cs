@@ -155,21 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             }
             else if (parameterValue.GetType() == typeof(byte[]))
             {
-                var buffer = (byte[])parameterValue;
-                builder.Append("'0x");
-
-                for (var i = 0; i < buffer.Length; i++)
-                {
-                    if (i > 31)
-                    {
-                        builder.Append("...");
-                        break;
-                    }
-
-                    builder.Append(buffer[i].ToString("X2", CultureInfo.InvariantCulture));
-                }
-
-                builder.Append('\'');
+                builder.AppendBytes((byte[])parameterValue);
             }
             else
             {

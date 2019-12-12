@@ -130,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IDbContextTransactionManager), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IQueryCompilationContextFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(ILazyLoader), new ServiceCharacteristics(ServiceLifetime.Transient) },
                 {
                     typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true)
@@ -264,6 +265,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
             TryAdd<IQueryTranslationPostprocessorFactory, QueryTranslationPostprocessorFactory>();
+
+            TryAdd(p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger ?? new NullDbContextLogger());
 
             // This has to be lazy to avoid creating instances that are not disposed
             ServiceCollectionMap

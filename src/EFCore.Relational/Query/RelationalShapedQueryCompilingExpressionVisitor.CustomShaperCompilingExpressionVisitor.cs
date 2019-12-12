@@ -5,19 +5,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public partial class RelationalShapedQueryCompilingExpressionVisitor
     {
-        private class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
+        private sealed class CustomShaperCompilingExpressionVisitor : ExpressionVisitor
         {
             private readonly ParameterExpression _dbDataReaderParameter;
             private readonly ParameterExpression _resultCoordinatorParameter;
@@ -377,9 +377,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
-                    Debug.Assert(
+                    Check.DebugAssert(
                         !includeExpression.Navigation.IsCollection(),
                         "Only reference include should be present in tree");
                     var entityClrType = includeExpression.EntityExpression.Type;

@@ -54,10 +54,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (CreateTestStore(OnModelCreating))
             {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
-                }
+                using var context = CreateContext();
+                Assert.Equal(5, context.Set<Operator>().ToList().Count);
             }
         }
 
@@ -71,10 +69,8 @@ namespace Microsoft.EntityFrameworkCore
                     modelBuilder.Ignore<LicensedOperator>();
                 }))
             {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
-                }
+                using var context = CreateContext();
+                Assert.Equal(5, context.Set<Operator>().ToList().Count);
             }
         }
 
@@ -89,10 +85,8 @@ namespace Microsoft.EntityFrameworkCore
                     modelBuilder.Entity<OperatorDetails>().ToTable("OperatorDetails");
                 }))
             {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(5, context.Set<Operator>().ToList().Count);
-                }
+                using var context = CreateContext();
+                Assert.Equal(5, context.Set<Operator>().ToList().Count);
             }
         }
 
@@ -101,10 +95,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (CreateTestStore(OnModelCreating))
             {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
-                }
+                using var context = CreateContext();
+                Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
             }
         }
 
@@ -118,10 +110,8 @@ namespace Microsoft.EntityFrameworkCore
                     modelBuilder.Ignore<SolidFuelTank>();
                 }))
             {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
-                }
+                using var context = CreateContext();
+                Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
             }
         }
 
@@ -141,10 +131,8 @@ namespace Microsoft.EntityFrameworkCore
                         });
                 }))
             {
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
-                }
+                using var context = CreateContext();
+                Assert.Equal(2, context.Set<FuelTank>().ToList().Count);
             }
         }
 
@@ -320,25 +308,23 @@ namespace Microsoft.EntityFrameworkCore
         {
             using (CreateTestStore(OnModelCreating))
             {
-                using (var context = CreateContext())
-                {
-                    context.Add(
-                        new PoweredVehicle
-                        {
-                            Name = "Fuel transport",
-                            SeatingCapacity = 1,
-                            Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
-                        });
-                    context.Add(
-                        new FuelTank
-                        {
-                            Capacity = "10000 l",
-                            FuelType = "Gas",
-                            VehicleName = "Fuel transport"
-                        });
+                using var context = CreateContext();
+                context.Add(
+                    new PoweredVehicle
+                    {
+                        Name = "Fuel transport",
+                        SeatingCapacity = 1,
+                        Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
+                    });
+                context.Add(
+                    new FuelTank
+                    {
+                        Capacity = "10000 l",
+                        FuelType = "Gas",
+                        VehicleName = "Fuel transport"
+                    });
 
-                    context.SaveChanges();
-                }
+                context.SaveChanges();
             }
         }
 

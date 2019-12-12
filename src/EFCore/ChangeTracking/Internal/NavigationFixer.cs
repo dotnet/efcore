@@ -3,10 +3,10 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
                 else
                 {
-                    Debug.Assert(foreignKey.IsUnique);
+                    Check.DebugAssert(foreignKey.IsUnique, $"foreignKey {foreignKey} is not unique");
 
                     if (oldTargetEntry != null)
                     {

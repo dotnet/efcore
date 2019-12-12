@@ -270,12 +270,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string ToDebugString([NotNull] this IForeignKey foreignKey, bool singleLine = true, [NotNull] string indent = "")
+        public static string ToDebugString(
+            [NotNull] this IForeignKey foreignKey,
+            MetadataDebugStringOptions options,
+            [NotNull] string indent = "")
         {
             var builder = new StringBuilder();
 
             builder.Append(indent);
 
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
                 builder.Append("ForeignKey: ");
@@ -310,7 +314,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 builder.Append(" ToPrincipal: ").Append(foreignKey.DependentToPrincipal.Name);
             }
 
-            if (!singleLine)
+            if (!singleLine &&
+                (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(foreignKey.AnnotationsToDebugString(indent + "  "));
             }

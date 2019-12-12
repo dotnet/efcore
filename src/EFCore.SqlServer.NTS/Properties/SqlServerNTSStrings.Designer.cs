@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
     public static class SqlServerNTSStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerNTSStrings", typeof(SqlServerNTSStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.SqlServer.Properties.SqlServerNTSStrings", typeof(SqlServerNTSStrings).Assembly);
 
         /// <summary>
         ///     UseNetTopologySuite requires AddEntityFrameworkSqlServerNetTopologySuite to be called on the internal service provider used.

@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -584,7 +585,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetTemporaryValue([NotNull] IProperty property, object value, bool setModified = true)
+        public virtual void SetTemporaryValue([NotNull] IProperty property, [CanBeNull] object value, bool setModified = true)
         {
             if (property.GetStoreGeneratedIndex() == -1)
             {
@@ -716,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty());
+            Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
             return ((PropertyBase)propertyBase).Getter.GetClrValue(Entity);
         }
@@ -729,7 +730,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected virtual bool PropertyHasDefaultValue([NotNull] IPropertyBase propertyBase)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty());
+            Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
             return ((PropertyBase)propertyBase).Getter.HasDefaultValue(Entity);
         }
@@ -745,7 +746,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [CanBeNull] object value,
             bool forMaterialization)
         {
-            Debug.Assert(!propertyBase.IsShadowProperty());
+            Check.DebugAssert(!propertyBase.IsShadowProperty(), "propertyBase is shadow property");
 
             var concretePropertyBase = (PropertyBase)propertyBase;
 
@@ -764,7 +765,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual object GetOrCreateCollection([NotNull] INavigation navigation, bool forMaterialization)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
             return ((Navigation)navigation).CollectionAccessor.GetOrCreate(Entity, forMaterialization);
         }
@@ -777,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool CollectionContains([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
             return ((Navigation)navigation).CollectionAccessor.Contains(Entity, value.Entity);
         }
@@ -793,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] InternalEntityEntry value,
             bool forMaterialization)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
             return ((Navigation)navigation).CollectionAccessor.Add(Entity, value.Entity, forMaterialization);
         }
@@ -806,7 +807,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual bool RemoveFromCollection([NotNull] INavigation navigation, [NotNull] InternalEntityEntry value)
         {
-            Debug.Assert(!navigation.IsShadowProperty());
+            Check.DebugAssert(!navigation.IsShadowProperty(), "navigation is shadow property");
 
             return ((Navigation)navigation).CollectionAccessor.Remove(Entity, value.Entity);
         }
@@ -1012,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public object this[[NotNull] IPropertyBase propertyBase]
+        public object this[[NotNull] IPropertyBase propertyBase]  // Intentionally non-virtual
         {
             get
             {
@@ -1160,7 +1161,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     else
                     {
                         var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                        Debug.Assert(storeGeneratedIndex >= 0);
+                        Check.DebugAssert(storeGeneratedIndex >= 0, $"storeGeneratedIndex is {storeGeneratedIndex}");
 
                         if (valueType == CurrentValueType.StoreGenerated)
                         {
@@ -1454,7 +1455,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool HasDefaultValue(IProperty property)
+        public bool HasDefaultValue([NotNull] IProperty property) // Intentionally non-virtual
         {
             if (!PropertyHasDefaultValue(property))
             {

@@ -33,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private IServiceProvider _applicationServiceProvider;
         private IModel _model;
         private ILoggerFactory _loggerFactory;
+        private IDbContextLogger _contextLogger;
         private IMemoryCache _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
         private bool _detailedErrorsEnabled;
@@ -66,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _applicationServiceProvider = copyFrom.ApplicationServiceProvider;
             _model = copyFrom.Model;
             _loggerFactory = copyFrom.LoggerFactory;
+            _contextLogger = copyFrom.DbContextLogger;
             _memoryCache = copyFrom.MemoryCache;
             _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _detailedErrorsEnabled = copyFrom.DetailedErrorsEnabled;
@@ -164,6 +166,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var clone = Clone();
 
             clone._loggerFactory = loggerFactory;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+        ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+        /// </summary>
+        /// <param name="contextLogger"> The option to change. </param>
+        /// <returns> A new instance with the option changed. </returns>
+        public virtual CoreOptionsExtension WithDbContextLogger([CanBeNull] IDbContextLogger contextLogger)
+        {
+            var clone = Clone();
+
+            clone._contextLogger = contextLogger;
 
             return clone;
         }
@@ -317,6 +334,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseLoggerFactory" /> method.
         /// </summary>
         public virtual ILoggerFactory LoggerFactory => _loggerFactory;
+
+        /// <summary>
+        ///     The option set from the <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> method.
+        /// </summary>
+        public virtual IDbContextLogger DbContextLogger => _contextLogger;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseMemoryCache" /> method.

@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Assert.Equal(expected == null, actual == null);
 
             var expectedType = expected.GetType();
-            if (expectedType.GetTypeInfo().IsGenericType
+            if (expectedType.IsGenericType
                 && expectedType.GetTypeInfo().ImplementedInterfaces.Any(
                     i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
             {

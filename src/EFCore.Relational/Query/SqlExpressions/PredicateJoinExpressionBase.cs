@@ -2,14 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 {
     public abstract class PredicateJoinExpressionBase : JoinExpressionBase
     {
-        protected PredicateJoinExpressionBase(TableExpressionBase table, SqlExpression joinPredicate)
+        protected PredicateJoinExpressionBase([NotNull] TableExpressionBase table, [NotNull] SqlExpression joinPredicate)
             : base(table)
         {
+            Check.NotNull(joinPredicate, nameof(joinPredicate));
+
             JoinPredicate = joinPredicate;
         }
 

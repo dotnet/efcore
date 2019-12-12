@@ -31,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore
             serviceCollection.AddEntityFrameworkSqlServer();
         }
 
-        protected override Assembly TargetAssembly => typeof(SqlServerConnection).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(SqlServerConnection).Assembly;
     }
 }

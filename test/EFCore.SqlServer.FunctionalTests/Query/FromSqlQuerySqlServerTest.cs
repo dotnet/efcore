@@ -546,23 +546,22 @@ SELECT * FROM ""Customers"" WHERE ""CustomerID"" = @somename");
         [ConditionalFact]
         public virtual void FromSqlRaw_in_subquery_with_dbParameter()
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSqlRaw(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = @city",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@city", "London"))
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            using var context = CreateContext();
+            var actual = context.Orders.Where(
+                    o =>
+                        context.Customers
+                            .FromSqlRaw(
+                                @"SELECT * FROM ""Customers"" WHERE ""City"" = @city",
+                                // ReSharper disable once FormatStringProblem
+                                new SqlParameter("@city", "London"))
+                            .Select(c => c.CustomerID)
+                            .Contains(o.CustomerID))
+                .ToArray();
 
-                Assert.Equal(46, actual.Length);
+            Assert.Equal(46, actual.Length);
 
-                AssertSql(
-                    @"@city='London' (Nullable = false) (Size = 6)
+            AssertSql(
+                @"@city='London' (Nullable = false) (Size = 6)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -572,29 +571,27 @@ WHERE [o].[CustomerID] IN (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city
     ) AS [c]
 )");
-            }
         }
 
         [ConditionalFact]
         public virtual void FromSqlRaw_in_subquery_with_positional_dbParameter_without_name()
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSqlRaw(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter { Value = "London" })
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            using var context = CreateContext();
+            var actual = context.Orders.Where(
+                    o =>
+                        context.Customers
+                            .FromSqlRaw(
+                                @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
+                                // ReSharper disable once FormatStringProblem
+                                new SqlParameter { Value = "London" })
+                            .Select(c => c.CustomerID)
+                            .Contains(o.CustomerID))
+                .ToArray();
 
-                Assert.Equal(46, actual.Length);
+            Assert.Equal(46, actual.Length);
 
-                AssertSql(
-                    @"p0='London' (Nullable = false) (Size = 6)
+            AssertSql(
+                @"p0='London' (Nullable = false) (Size = 6)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -604,29 +601,27 @@ WHERE [o].[CustomerID] IN (
         SELECT * FROM ""Customers"" WHERE ""City"" = @p0
     ) AS [c]
 )");
-            }
         }
 
         [ConditionalFact]
         public virtual void FromSqlRaw_in_subquery_with_positional_dbParameter_with_name()
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSqlRaw(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@city", "London"))
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            using var context = CreateContext();
+            var actual = context.Orders.Where(
+                    o =>
+                        context.Customers
+                            .FromSqlRaw(
+                                @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
+                                // ReSharper disable once FormatStringProblem
+                                new SqlParameter("@city", "London"))
+                            .Select(c => c.CustomerID)
+                            .Contains(o.CustomerID))
+                .ToArray();
 
-                Assert.Equal(46, actual.Length);
+            Assert.Equal(46, actual.Length);
 
-                AssertSql(
-                    @"@city='London' (Nullable = false) (Size = 6)
+            AssertSql(
+                @"@city='London' (Nullable = false) (Size = 6)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
@@ -636,47 +631,45 @@ WHERE [o].[CustomerID] IN (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city
     ) AS [c]
 )");
-            }
         }
 
         [ConditionalFact]
         public virtual void FromSqlRaw_with_dbParameter_mixed_in_subquery()
         {
-            using (var context = CreateContext())
-            {
-                const string city = "London";
-                const string title = "Sales Representative";
+            using var context = CreateContext();
+            const string city = "London";
+            const string title = "Sales Representative";
 
-                var actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSqlRaw(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
-                                    city,
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@title", title))
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            var actual = context.Orders.Where(
+                    o =>
+                        context.Customers
+                            .FromSqlRaw(
+                                @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
+                                city,
+                                // ReSharper disable once FormatStringProblem
+                                new SqlParameter("@title", title))
+                            .Select(c => c.CustomerID)
+                            .Contains(o.CustomerID))
+                .ToArray();
 
-                Assert.Equal(26, actual.Length);
+            Assert.Equal(26, actual.Length);
 
-                actual = context.Orders.Where(
-                        o =>
-                            context.Customers
-                                .FromSqlRaw(
-                                    @"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
-                                    // ReSharper disable once FormatStringProblem
-                                    new SqlParameter("@city", city),
-                                    title)
-                                .Select(c => c.CustomerID)
-                                .Contains(o.CustomerID))
-                    .ToArray();
+            actual = context.Orders.Where(
+                    o =>
+                        context.Customers
+                            .FromSqlRaw(
+                                @"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
+                                // ReSharper disable once FormatStringProblem
+                                new SqlParameter("@city", city),
+                                title)
+                            .Select(c => c.CustomerID)
+                            .Contains(o.CustomerID))
+                .ToArray();
 
-                Assert.Equal(26, actual.Length);
+            Assert.Equal(26, actual.Length);
 
-                AssertSql(
-                    @"p0='London' (Size = 4000)
+            AssertSql(
+                @"p0='London' (Size = 4000)
 @title='Sales Representative' (Nullable = false) (Size = 20)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -687,8 +680,8 @@ WHERE [o].[CustomerID] IN (
         SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @title
     ) AS [c]
 )",
-                    //
-                    @"@city='London' (Nullable = false) (Size = 6)
+                //
+                @"@city='London' (Nullable = false) (Size = 6)
 p1='Sales Representative' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -699,7 +692,6 @@ WHERE [o].[CustomerID] IN (
         SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p1
     ) AS [c]
 )");
-            }
         }
 
         public override void FromSqlInterpolated_parameterization_issue_12213()

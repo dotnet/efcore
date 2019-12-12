@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
@@ -50,13 +52,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqliteGeometryMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteGeometryMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_methodToFunctionName.TryGetValue(method, out var functionName))
             {
                 SqlExpression translation = _sqlExpressionFactory.Function(

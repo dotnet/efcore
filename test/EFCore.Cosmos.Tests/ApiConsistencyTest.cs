@@ -24,6 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             serviceCollection.AddEntityFrameworkCosmos();
         }
 
-        protected override Assembly TargetAssembly => typeof(CosmosDatabaseWrapper).GetTypeInfo().Assembly;
+        protected override Assembly TargetAssembly => typeof(CosmosDatabaseWrapper).Assembly;
     }
 }

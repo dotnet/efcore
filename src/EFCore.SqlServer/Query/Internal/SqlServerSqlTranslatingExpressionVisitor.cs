@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -35,9 +37,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         public SqlServerSqlTranslatingExpressionVisitor(
-            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-            IModel model,
-            QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] IModel model,
+            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
         {
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
@@ -45,6 +47,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
+            Check.NotNull(binaryExpression, nameof(binaryExpression));
+
             var visitedExpression = (SqlExpression)base.VisitBinary(binaryExpression);
 
             if (visitedExpression == null)

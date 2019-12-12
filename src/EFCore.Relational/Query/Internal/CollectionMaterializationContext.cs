@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -11,7 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class CollectionMaterializationContext
     {
-        public CollectionMaterializationContext(object parent, object collection, object[] parentIdentifier, object[] outerIdentifier)
+        public CollectionMaterializationContext(
+            [NotNull] object parent,
+            [NotNull] object collection,
+            [NotNull] object[] parentIdentifier,
+            [NotNull] object[] outerIdentifier)
         {
             Parent = parent;
             Collection = collection;
@@ -27,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual object[] OuterIdentifier { get; }
         public virtual object[] SelfIdentifier { get; private set; }
 
-        public virtual void UpdateSelfIdentifier(object[] selfIdentifier)
+        public virtual void UpdateSelfIdentifier([NotNull] object[] selfIdentifier)
         {
             SelfIdentifier = selfIdentifier;
         }

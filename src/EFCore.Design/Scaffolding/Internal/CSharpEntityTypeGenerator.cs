@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private class AttributeWriter
+        private sealed class AttributeWriter
         {
             private readonly string _attributeName;
             private readonly List<string> _parameters = new List<string>();
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             private static string StripAttribute([NotNull] string attributeName)
                 => attributeName.EndsWith("Attribute", StringComparison.Ordinal)
-                    ? attributeName.Substring(0, attributeName.Length - 9)
+                    ? attributeName[..^9]
                     : attributeName;
         }
     }

@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlExpressionFactory(ITypeMappingSource typeMappingSource)
+        public SqlExpressionFactory([NotNull] ITypeMappingSource typeMappingSource)
         {
             _typeMappingSource = typeMappingSource;
             _boolTypeMapping = typeMappingSource.FindMapping(typeof(bool));
@@ -107,16 +109,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
-                case ExpressionType.Not:
+                case ExpressionType.Not
+                    when sqlUnaryExpression.IsLogicalNot():
+                {
                     resultTypeMapping = _boolTypeMapping;
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
+                }
 
                 case ExpressionType.Convert:
                     resultTypeMapping = typeMapping;
                     operand = ApplyDefaultTypeMapping(sqlUnaryExpression.Operand);
                     break;
 
+                case ExpressionType.Not:
                 case ExpressionType.Negate:
                     resultTypeMapping = typeMapping;
                     operand = ApplyTypeMapping(sqlUnaryExpression.Operand, typeMapping);
@@ -417,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlUnaryExpression Not(SqlExpression operand)
-            => MakeUnary(ExpressionType.Not, operand, typeof(bool));
+            => MakeUnary(ExpressionType.Not, operand, operand.Type, operand.TypeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

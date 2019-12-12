@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
@@ -24,27 +25,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IMemoryCache _memoryCache;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
         private readonly SelectExpression _selectExpression;
-        private readonly ParameterValueBasedSelectExpressionOptimizer _parameterValueBasedSelectExpressionOptimizer;
+        private readonly RelationalParameterBasedQueryTranslationPostprocessor _relationalParameterBasedQueryTranslationPostprocessor;
 
         public RelationalCommandCache(
-            IMemoryCache memoryCache,
-            ISqlExpressionFactory sqlExpressionFactory,
-            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] IMemoryCache memoryCache,
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            [NotNull] IRelationalParameterBasedQueryTranslationPostprocessorFactory relationalParameterBasedQueryTranslationPostprocessorFactory,
             bool useRelationalNulls,
-            SelectExpression selectExpression)
+            [NotNull] SelectExpression selectExpression)
         {
             _memoryCache = memoryCache;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
             _selectExpression = selectExpression;
-
-            _parameterValueBasedSelectExpressionOptimizer = new ParameterValueBasedSelectExpressionOptimizer(
-                sqlExpressionFactory,
-                parameterNameGeneratorFactory,
-                useRelationalNulls);
+            _relationalParameterBasedQueryTranslationPostprocessor = relationalParameterBasedQueryTranslationPostprocessorFactory.Create(useRelationalNulls);
         }
 
-        public virtual IRelationalCommand GetRelationalCommand(IReadOnlyDictionary<string, object> parameters)
+        public virtual IRelationalCommand GetRelationalCommand([NotNull] IReadOnlyDictionary<string, object> parameters)
         {
             var cacheKey = new CommandCacheKey(_selectExpression, parameters);
 
@@ -59,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 try
                 {
                     var (selectExpression, canCache) =
-                        _parameterValueBasedSelectExpressionOptimizer.Optimize(_selectExpression, parameters);
+                        _relationalParameterBasedQueryTranslationPostprocessor.Optimize(_selectExpression, parameters);
                     relationalCommand = _querySqlGeneratorFactory.Create().GetCommand(selectExpression);
 
                     if (canCache)

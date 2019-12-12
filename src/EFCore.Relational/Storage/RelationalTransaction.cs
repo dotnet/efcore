@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (_transactionOwned)
                 {
-                    await _dbTransaction.DisposeAsyncIfAvailable();
+                    await _dbTransaction.DisposeAsync();
 
                     Logger.TransactionDisposed(
                         Connection,
@@ -323,7 +323,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual void ClearTransaction()
         {
-            Debug.Assert(Connection.CurrentTransaction == null || Connection.CurrentTransaction == this);
+            Check.DebugAssert(
+                Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
+                "Connection.CurrentTransaction is unexpected instance");
 
             Connection.UseTransaction(null);
 
@@ -340,7 +342,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual async Task ClearTransactionAsync(CancellationToken cancellationToken = default)
         {
-            Debug.Assert(Connection.CurrentTransaction == null || Connection.CurrentTransaction == this);
+            Check.DebugAssert(
+                Connection.CurrentTransaction == null || Connection.CurrentTransaction == this,
+                "Connection.CurrentTransaction is unexpected instance");
 
             await Connection.UseTransactionAsync(null, cancellationToken);
 

@@ -455,17 +455,15 @@ Foos
         [ConditionalFact]
         public async Task Empty_Migration_Creates_Database()
         {
-            using (var context = new BloggingContext(
+            using var context = new BloggingContext(
                 Fixture.TestStore.AddProviderOptions(
-                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options))
-            {
-                var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
-                creator.RetryTimeout = TimeSpan.FromMinutes(10);
+                    new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
+            var creator = (SqlServerDatabaseCreator)context.GetService<IRelationalDatabaseCreator>();
+            creator.RetryTimeout = TimeSpan.FromMinutes(10);
 
-                await context.Database.MigrateAsync();
+            await context.Database.MigrateAsync();
 
-                Assert.True(creator.Exists());
-            }
+            Assert.True(creator.Exists());
         }
 
         private class BloggingContext : DbContext
@@ -500,10 +498,8 @@ Foos
 
         public override void Can_diff_against_2_2_model()
         {
-            using (var context = new ModelSnapshot22.BloggingContext())
-            {
-                DiffSnapshot(new BloggingContextModelSnapshot22(), context);
-            }
+            using var context = new ModelSnapshot22.BloggingContext();
+            DiffSnapshot(new BloggingContextModelSnapshot22(), context);
         }
 
         public class BloggingContextModelSnapshot22 : ModelSnapshot
@@ -568,10 +564,8 @@ Foos
 
         public override void Can_diff_against_2_1_ASP_NET_Identity_model()
         {
-            using (var context = new ApplicationDbContext())
-            {
-                DiffSnapshot(new AspNetIdentity21ModelSnapshot(), context);
-            }
+            using var context = new ApplicationDbContext();
+            DiffSnapshot(new AspNetIdentity21ModelSnapshot(), context);
         }
 
         public class AspNetIdentity21ModelSnapshot : ModelSnapshot
@@ -811,10 +805,8 @@ Foos
 
         public override void Can_diff_against_2_2_ASP_NET_Identity_model()
         {
-            using (var context = new ApplicationDbContext())
-            {
-                DiffSnapshot(new AspNetIdentity22ModelSnapshot(), context);
-            }
+            using var context = new ApplicationDbContext();
+            DiffSnapshot(new AspNetIdentity22ModelSnapshot(), context);
         }
 
         public class AspNetIdentity22ModelSnapshot : ModelSnapshot
@@ -1054,10 +1046,8 @@ Foos
 
         public override void Can_diff_against_3_0_ASP_NET_Identity_model()
         {
-            using (var context = new ApplicationDbContext())
-            {
-                DiffSnapshot(new AspNetIdentity30ModelSnapshot(), context);
-            }
+            using var context = new ApplicationDbContext();
+            DiffSnapshot(new AspNetIdentity30ModelSnapshot(), context);
         }
 
         public class AspNetIdentity30ModelSnapshot : ModelSnapshot

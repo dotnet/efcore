@@ -15,10 +15,6 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue #16323")]
-        public override void Query_with_keyless_type()
-            => base.Query_with_keyless_type();
-
         protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
 

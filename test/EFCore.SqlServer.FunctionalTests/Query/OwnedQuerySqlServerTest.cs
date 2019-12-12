@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override async Task Query_with_owned_entity_equality_operator(bool isAsync)
+        public override async Task Query_with_owned_entity_equality_operator(bool async)
         {
-            await base.Query_with_owned_entity_equality_operator(isAsync);
+            await base.Query_with_owned_entity_equality_operator(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t1].[Id], [t4].[Id], [t4].[PersonAddress_Country_Name], [t4].[PersonAddress_Country_PlanetId], [t6].[Id], [t9].[Id], [t9].[BranchAddress_Country_Name], [t9].[BranchAddress_Country_PlanetId], [t11].[Id], [t14].[Id], [t14].[LeafAAddress_Country_Name], [t14].[LeafAAddress_Country_PlanetId], [t].[Id], [o16].[ClientId], [o16].[Id]
@@ -101,9 +101,9 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)
 ORDER BY [o].[Id], [t].[Id], [o16].[ClientId], [o16].[Id]");
         }
 
-        public override async Task Query_for_base_type_loads_all_owned_navs(bool isAsync)
+        public override async Task Query_for_base_type_loads_all_owned_navs(bool async)
         {
-            await base.Query_for_base_type_loads_all_owned_navs(isAsync);
+            await base.Query_for_base_type_loads_all_owned_navs(async);
 
             // See issue #10067
             AssertSql(
@@ -206,9 +206,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [o20].[ClientId], [o20].[Id]");
         }
 
-        public override async Task No_ignored_include_warning_when_implicit_load(bool isAsync)
+        public override async Task No_ignored_include_warning_when_implicit_load(bool async)
         {
-            await base.No_ignored_include_warning_when_implicit_load(isAsync);
+            await base.No_ignored_include_warning_when_implicit_load(async);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -216,9 +216,9 @@ FROM [OwnedPerson] AS [o]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task Query_for_branch_type_loads_all_owned_navs(bool isAsync)
+        public override async Task Query_for_branch_type_loads_all_owned_navs(bool async)
         {
-            await base.Query_for_branch_type_loads_all_owned_navs(isAsync);
+            await base.Query_for_branch_type_loads_all_owned_navs(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafAAddress_Country_Name], [t13].[LeafAAddress_Country_PlanetId], [o15].[ClientId], [o15].[Id]
@@ -297,9 +297,9 @@ WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id], [o15].[ClientId], [o15].[Id]");
         }
 
-        public override async Task Query_for_branch_type_loads_all_owned_navs_tracking(bool isAsync)
+        public override async Task Query_for_branch_type_loads_all_owned_navs_tracking(bool async)
         {
-            await base.Query_for_branch_type_loads_all_owned_navs_tracking(isAsync);
+            await base.Query_for_branch_type_loads_all_owned_navs_tracking(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafAAddress_Country_Name], [t13].[LeafAAddress_Country_PlanetId], [o15].[ClientId], [o15].[Id]
@@ -378,9 +378,9 @@ WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id], [o15].[ClientId], [o15].[Id]");
         }
 
-        public override async Task Query_for_leaf_type_loads_all_owned_navs(bool isAsync)
+        public override async Task Query_for_leaf_type_loads_all_owned_navs(bool async)
         {
-            await base.Query_for_leaf_type_loads_all_owned_navs(isAsync);
+            await base.Query_for_leaf_type_loads_all_owned_navs(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafAAddress_Country_Name], [t13].[LeafAAddress_Country_PlanetId], [o15].[ClientId], [o15].[Id]
@@ -459,109 +459,9 @@ WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id], [o15].[ClientId], [o15].[Id]");
         }
 
-        public override async Task Query_when_group_by(bool isAsync)
+        public override async Task Query_when_subquery(bool async)
         {
-            await base.Query_when_group_by(isAsync);
-
-            AssertSql(
-                @"SELECT [op].[Id], [op].[Discriminator], [t].[Id], [t0].[Id], [t0].[LeafBAddress_Country_Name], [t0].[LeafBAddress_Country_PlanetId], [t1].[Id], [t2].[Id], [t2].[LeafAAddress_Country_Name], [t2].[LeafAAddress_Country_PlanetId], [t3].[Id], [t4].[Id], [t4].[BranchAddress_Country_Name], [t4].[BranchAddress_Country_PlanetId], [t5].[Id], [t6].[Id], [t6].[PersonAddress_Country_Name], [t6].[PersonAddress_Country_PlanetId]
-FROM [OwnedPerson] AS [op]
-LEFT JOIN (
-    SELECT [op.LeafBAddress].*
-    FROM [OwnedPerson] AS [op.LeafBAddress]
-    WHERE [op.LeafBAddress].[Discriminator] = N'LeafB'
-) AS [t] ON [op].[Id] = [t].[Id]
-LEFT JOIN (
-    SELECT [op.LeafBAddress.Country].*
-    FROM [OwnedPerson] AS [op.LeafBAddress.Country]
-    WHERE [op.LeafBAddress.Country].[Discriminator] = N'LeafB'
-) AS [t0] ON [t].[Id] = [t0].[Id]
-LEFT JOIN (
-    SELECT [op.LeafAAddress].*
-    FROM [OwnedPerson] AS [op.LeafAAddress]
-    WHERE [op.LeafAAddress].[Discriminator] = N'LeafA'
-) AS [t1] ON [op].[Id] = [t1].[Id]
-LEFT JOIN (
-    SELECT [op.LeafAAddress.Country].*
-    FROM [OwnedPerson] AS [op.LeafAAddress.Country]
-    WHERE [op.LeafAAddress.Country].[Discriminator] = N'LeafA'
-) AS [t2] ON [t1].[Id] = [t2].[Id]
-LEFT JOIN (
-    SELECT [op.BranchAddress].*
-    FROM [OwnedPerson] AS [op.BranchAddress]
-    WHERE [op.BranchAddress].[Discriminator] IN (N'LeafA', N'Branch')
-) AS [t3] ON [op].[Id] = [t3].[Id]
-LEFT JOIN (
-    SELECT [op.BranchAddress.Country].*
-    FROM [OwnedPerson] AS [op.BranchAddress.Country]
-    WHERE [op.BranchAddress.Country].[Discriminator] IN (N'LeafA', N'Branch')
-) AS [t4] ON [t3].[Id] = [t4].[Id]
-LEFT JOIN (
-    SELECT [op.PersonAddress].*
-    FROM [OwnedPerson] AS [op.PersonAddress]
-    WHERE [op.PersonAddress].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
-) AS [t5] ON [op].[Id] = [t5].[Id]
-LEFT JOIN (
-    SELECT [op.PersonAddress.Country].*
-    FROM [OwnedPerson] AS [op.PersonAddress.Country]
-    WHERE [op.PersonAddress.Country].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
-) AS [t6] ON [t5].[Id] = [t6].[Id]
-WHERE [op].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
-ORDER BY [op].[Id]",
-                //
-                @"SELECT [op.Orders].[Id], [op.Orders].[ClientId]
-FROM [Order] AS [op.Orders]
-INNER JOIN (
-    SELECT DISTINCT [op0].[Id]
-    FROM [OwnedPerson] AS [op0]
-    LEFT JOIN (
-        SELECT [op.LeafBAddress0].*
-        FROM [OwnedPerson] AS [op.LeafBAddress0]
-        WHERE [op.LeafBAddress0].[Discriminator] = N'LeafB'
-    ) AS [t7] ON [op0].[Id] = [t7].[Id]
-    LEFT JOIN (
-        SELECT [op.LeafBAddress.Country0].*
-        FROM [OwnedPerson] AS [op.LeafBAddress.Country0]
-        WHERE [op.LeafBAddress.Country0].[Discriminator] = N'LeafB'
-    ) AS [t8] ON [t7].[Id] = [t8].[Id]
-    LEFT JOIN (
-        SELECT [op.LeafAAddress0].*
-        FROM [OwnedPerson] AS [op.LeafAAddress0]
-        WHERE [op.LeafAAddress0].[Discriminator] = N'LeafA'
-    ) AS [t9] ON [op0].[Id] = [t9].[Id]
-    LEFT JOIN (
-        SELECT [op.LeafAAddress.Country0].*
-        FROM [OwnedPerson] AS [op.LeafAAddress.Country0]
-        WHERE [op.LeafAAddress.Country0].[Discriminator] = N'LeafA'
-    ) AS [t10] ON [t9].[Id] = [t10].[Id]
-    LEFT JOIN (
-        SELECT [op.BranchAddress0].*
-        FROM [OwnedPerson] AS [op.BranchAddress0]
-        WHERE [op.BranchAddress0].[Discriminator] IN (N'LeafA', N'Branch')
-    ) AS [t11] ON [op0].[Id] = [t11].[Id]
-    LEFT JOIN (
-        SELECT [op.BranchAddress.Country0].*
-        FROM [OwnedPerson] AS [op.BranchAddress.Country0]
-        WHERE [op.BranchAddress.Country0].[Discriminator] IN (N'LeafA', N'Branch')
-    ) AS [t12] ON [t11].[Id] = [t12].[Id]
-    LEFT JOIN (
-        SELECT [op.PersonAddress0].*
-        FROM [OwnedPerson] AS [op.PersonAddress0]
-        WHERE [op.PersonAddress0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
-    ) AS [t13] ON [op0].[Id] = [t13].[Id]
-    LEFT JOIN (
-        SELECT [op.PersonAddress.Country0].*
-        FROM [OwnedPerson] AS [op.PersonAddress.Country0]
-        WHERE [op.PersonAddress.Country0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
-    ) AS [t14] ON [t13].[Id] = [t14].[Id]
-    WHERE [op0].[Discriminator] IN (N'LeafB', N'LeafA', N'Branch', N'OwnedPerson')
-) AS [t15] ON [op.Orders].[ClientId] = [t15].[Id]
-ORDER BY [t15].[Id]");
-        }
-
-        public override async Task Query_when_subquery(bool isAsync)
-        {
-            await base.Query_when_subquery(isAsync);
+            await base.Query_when_subquery(async);
 
             AssertSql(
                 @"@__p_0='5'
@@ -681,9 +581,9 @@ LEFT JOIN [Order] AS [o22] ON [t0].[Id] = [o22].[ClientId]
 ORDER BY [t0].[Id], [o22].[ClientId], [o22].[Id]");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_projecting_scalar(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_projecting_scalar(async);
 
             AssertSql(
                 @"SELECT [t3].[PersonAddress_Country_Name]
@@ -714,9 +614,9 @@ LEFT JOIN (
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ([t3].[PersonAddress_Country_Name] = N'USA')");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_projecting_entity(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_projecting_entity(bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_projecting_entity(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_projecting_entity(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafBAddress_Country_Name], [t13].[LeafBAddress_Country_PlanetId], [t15].[Id], [t18].[Id], [t18].[LeafAAddress_Country_Name], [t18].[LeafAAddress_Country_PlanetId], [o20].[ClientId], [o20].[Id]
@@ -818,9 +718,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
 ORDER BY [o].[Id], [o20].[ClientId], [o20].[Id]");
         }
 
-        public override async Task Navigation_rewrite_on_owned_collection(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_collection(bool async)
         {
-            await base.Navigation_rewrite_on_owned_collection(isAsync);
+            await base.Navigation_rewrite_on_owned_collection(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id]
@@ -833,9 +733,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
         }
 
-        public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
         {
-            await base.Navigation_rewrite_on_owned_collection_with_composition(isAsync);
+            await base.Navigation_rewrite_on_owned_collection_with_composition(async);
 
             AssertSql(
                 @"SELECT (
@@ -851,9 +751,9 @@ WHERE [o0].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o0].[Id]");
         }
 
-        public override async Task Navigation_rewrite_on_owned_collection_with_composition_complex(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_collection_with_composition_complex(bool async)
         {
-            await base.Navigation_rewrite_on_owned_collection_with_composition_complex(isAsync);
+            await base.Navigation_rewrite_on_owned_collection_with_composition_complex(async);
 
             AssertSql(
                 @"SELECT (
@@ -893,9 +793,9 @@ FROM [OwnedPerson] AS [o6]
 WHERE [o6].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task SelectMany_on_owned_collection(bool isAsync)
+        public override async Task SelectMany_on_owned_collection(bool async)
         {
-            await base.SelectMany_on_owned_collection(isAsync);
+            await base.SelectMany_on_owned_collection(async);
 
             AssertSql(
                 @"SELECT [o0].[ClientId], [o0].[Id]
@@ -904,9 +804,9 @@ INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async);
 
             AssertSql(
                 @"SELECT [p].[Id], [p].[StarId]
@@ -938,9 +838,9 @@ LEFT JOIN [Planet] AS [p] ON [t3].[PersonAddress_Country_PlanetId] = [p].[Id]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool isAsync)
+        public override async Task Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(bool async)
         {
-            await base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(isAsync);
+            await base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o5].[ClientId], [o5].[Id]
@@ -974,9 +874,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
 ORDER BY [o].[Id], [o5].[ClientId], [o5].[Id]");
         }
 
-        public override async Task Project_multiple_owned_navigations(bool isAsync)
+        public override async Task Project_multiple_owned_navigations(bool async)
         {
-            await base.Project_multiple_owned_navigations(isAsync);
+            await base.Project_multiple_owned_navigations(async);
 
             AssertSql(
                 @"SELECT [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [p].[Id], [p].[StarId], [o].[Id], [o5].[ClientId], [o5].[Id]
@@ -1010,9 +910,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [o5].[ClientId], [o5].[Id]");
         }
 
-        public override async Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool isAsync)
+        public override async Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
         {
-            await base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(isAsync);
+            await base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
 
             AssertSql(
                 @"SELECT (
@@ -1078,9 +978,9 @@ WHERE [o6].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o6].[Id]");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafBAddress_Country_Name], [t13].[LeafBAddress_Country_PlanetId], [t15].[Id], [t18].[Id], [t18].[LeafAAddress_Country_Name], [t18].[LeafAAddress_Country_PlanetId], [o20].[ClientId], [o20].[Id]
@@ -1183,9 +1083,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
 ORDER BY [o].[Id], [o20].[ClientId], [o20].[Id]");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
 
             AssertSql(
                 @"SELECT [p].[Id]
@@ -1217,9 +1117,9 @@ LEFT JOIN [Planet] AS [p] ON [t3].[PersonAddress_Country_PlanetId] = [p].[Id]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [m].[Id], [m].[Diameter], [m].[PlanetId]
@@ -1253,9 +1153,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')
 ORDER BY [o].[Id], [m].[Id]");
         }
 
-        public override async Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool isAsync)
+        public override async Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
         {
-            await base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(isAsync);
+            await base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
             AssertSql(
                 @"SELECT [m].[Id], [m].[Diameter], [m].[PlanetId]
@@ -1288,9 +1188,9 @@ INNER JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool isAsync)
+        public override async Task SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(bool async)
         {
-            await base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(isAsync);
+            await base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async);
 
             AssertSql(
                 @"SELECT [e].[Id], [e].[Name], [e].[StarId]
@@ -1324,9 +1224,9 @@ INNER JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
 WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
-        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool isAsync)
+        public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
 
             AssertSql(
                 @"SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
@@ -1362,9 +1262,9 @@ ORDER BY [o].[Id], [e].[Id]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(
-            bool isAsync)
+            bool async)
         {
-            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(isAsync);
+            await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async);
 
             AssertSql(
                 @"SELECT [s].[Name]
@@ -1398,10 +1298,10 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA')");
         }
 
         public override async Task
-            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool isAsync)
+            Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
         {
             await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
-                isAsync);
+                async);
 
             AssertSql(
                 @"SELECT [s].[Id], [s].[Name], [o].[Id], [e].[Id], [e].[Name], [e].[StarId]
@@ -1436,9 +1336,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
 ORDER BY [o].[Id], [e].[Id]");
         }
 
-        public override async Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool isAsync)
+        public override async Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
         {
-            await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(isAsync);
+            await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafAAddress_Country_Name], [t13].[LeafAAddress_Country_PlanetId], [o15].[ClientId], [o15].[Id]
@@ -1517,9 +1417,9 @@ WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND
 ORDER BY [o].[Id], [o15].[ClientId], [o15].[Id]");
         }
 
-        public override async Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool isAsync)
+        public override async Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async)
         {
-            await base.Preserve_includes_when_applying_skip_take_after_anonymous_type_select(isAsync);
+            await base.Preserve_includes_when_applying_skip_take_after_anonymous_type_select(async);
 
             AssertSql(
                 @"SELECT COUNT(*)
@@ -1643,9 +1543,9 @@ LEFT JOIN [Order] AS [o22] ON [t].[Id] = [o22].[ClientId]
 ORDER BY [t].[Id], [o22].[ClientId], [o22].[Id]");
         }
 
-        public override async Task Unmapped_property_projection_loads_owned_navigations(bool isAsync)
+        public override async Task Unmapped_property_projection_loads_owned_navigations(bool async)
         {
-            await base.Unmapped_property_projection_loads_owned_navigations(isAsync);
+            await base.Unmapped_property_projection_loads_owned_navigations(async);
 
             AssertSql(
                 @"SELECT [o].[Id], [o].[Discriminator], [t0].[Id], [t3].[Id], [t3].[PersonAddress_Country_Name], [t3].[PersonAddress_Country_PlanetId], [t5].[Id], [t8].[Id], [t8].[BranchAddress_Country_Name], [t8].[BranchAddress_Country_PlanetId], [t10].[Id], [t13].[Id], [t13].[LeafBAddress_Country_Name], [t13].[LeafBAddress_Country_PlanetId], [t15].[Id], [t18].[Id], [t18].[LeafAAddress_Country_Name], [t18].[LeafAAddress_Country_PlanetId], [o20].[ClientId], [o20].[Id]

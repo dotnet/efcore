@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="values"> The list of values for this buffer. </param>
         public ValueBuffer([NotNull] object[] values)
         {
-            Debug.Assert(values != null);
+            Check.DebugAssert(values != null, "values is null");
 
             _values = values;
         }

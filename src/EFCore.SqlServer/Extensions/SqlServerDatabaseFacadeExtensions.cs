@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if SQL Server is being used; false otherwise. </returns>
         public static bool IsSqlServer([NotNull] this DatabaseFacade database)
             => database.ProviderName.Equals(
-                typeof(SqlServerOptionsExtension).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqlServerOptionsExtension).Assembly.GetName().Name,
                 StringComparison.Ordinal);
     }
 }

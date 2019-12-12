@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual IList<CollectionMaterializationContext> Collections { get; } = new List<CollectionMaterializationContext>();
 
         public virtual void SetCollectionMaterializationContext(
-            int collectionId, CollectionMaterializationContext collectionMaterializationContext)
+            int collectionId, [NotNull] CollectionMaterializationContext collectionMaterializationContext)
         {
             while (Collections.Count <= collectionId)
             {

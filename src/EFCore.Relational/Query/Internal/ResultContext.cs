@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
+
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     /// <summary>
@@ -11,6 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class ResultContext
     {
-        public virtual object[] Values { get; set; }
+        public virtual object[] Values { get; [param: NotNull] set; }
     }
 }

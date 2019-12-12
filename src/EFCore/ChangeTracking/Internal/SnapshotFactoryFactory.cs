@@ -99,10 +99,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateSnapshotExpression(
-            Type entityType,
-            ParameterExpression parameter,
-            Type[] types,
-            IList<IPropertyBase> propertyBases)
+            [CanBeNull] Type entityType,
+            [NotNull] ParameterExpression parameter,
+            [NotNull] Type[] types,
+            [NotNull] IList<IPropertyBase> propertyBases)
         {
             var count = types.Length;
 

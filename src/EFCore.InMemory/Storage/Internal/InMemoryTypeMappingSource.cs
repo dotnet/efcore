@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
-            Debug.Assert(clrType != null);
+            Check.DebugAssert(clrType != null, "ClrType is null");
 
             if (clrType.IsValueType
                 || clrType == typeof(string))

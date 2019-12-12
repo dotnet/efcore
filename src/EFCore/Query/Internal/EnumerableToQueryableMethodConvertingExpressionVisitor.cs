@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -14,6 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.Method.DeclaringType == typeof(Enumerable))
             {
                 if (methodCallExpression.Method.Name == nameof(Enumerable.SequenceEqual))

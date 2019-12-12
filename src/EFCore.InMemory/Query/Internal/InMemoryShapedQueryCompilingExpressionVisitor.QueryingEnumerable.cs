@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
     public partial class InMemoryShapedQueryCompilingExpressionVisitor
     {
-        private class QueryingEnumerable<T> : IAsyncEnumerable<T>, IEnumerable<T>
+        private sealed class QueryingEnumerable<T> : IAsyncEnumerable<T>, IEnumerable<T>
         {
             private readonly QueryContext _queryContext;
             private readonly IEnumerable<ValueBuffer> _innerEnumerable;

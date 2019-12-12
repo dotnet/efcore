@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -458,19 +459,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Run<T>(Func<T> func, ref ForeignKey foreignKey)
+        public virtual T Run<T>([NotNull] Func<T> func, [CanBeNull] ref ForeignKey foreignKey)
         {
             var batch = DelayConventions();
-            using (var foreignKeyReference = Tracker.Track(foreignKey))
-            {
-                var result = func();
-                batch.Dispose();
-                foreignKey = foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
-                return result;
-            }
+            using var foreignKeyReference = Tracker.Track(foreignKey);
+            var result = func();
+            batch.Dispose();
+            foreignKey = foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
+            return result;
         }
 
-        private class ConventionBatch : IConventionBatch
+        private sealed class ConventionBatch : IConventionBatch
         {
             private readonly ConventionDispatcher _dispatcher;
             private int? _runCount;
@@ -533,11 +532,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     return foreignKey;
                 }
 
-                using (var foreignKeyReference = _dispatcher.Tracker.Track(foreignKey))
-                {
-                    Run();
-                    return foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
-                }
+                using var foreignKeyReference = _dispatcher.Tracker.Track(foreignKey);
+                Run();
+                return foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
             }
 
             public void Dispose()

@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </returns>
         public virtual Task LoadAsync(CancellationToken cancellationToken = default)
             => IsLoaded
-                ? Task.FromResult(0)
+                ? Task.CompletedTask
                 : TargetFinder.LoadAsync(Metadata, InternalEntry, cancellationToken);
 
         /// <summary>

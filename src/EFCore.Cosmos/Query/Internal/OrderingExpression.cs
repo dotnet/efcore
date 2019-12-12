@@ -3,7 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -21,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public OrderingExpression(SqlExpression expression, bool ascending)
+        public OrderingExpression([NotNull] SqlExpression expression, bool ascending)
         {
             Expression = expression;
             IsAscending = ascending;
@@ -66,7 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update((SqlExpression)visitor.Visit(Expression));
+        {
+            Check.NotNull(visitor, nameof(visitor));
+
+            return Update((SqlExpression)visitor.Visit(Expression));
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,10 +80,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual OrderingExpression Update(SqlExpression expression)
-            => expression != Expression
+        public virtual OrderingExpression Update([NotNull] SqlExpression expression)
+        {
+            return expression != Expression
                 ? new OrderingExpression(expression, IsAscending)
                 : this;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,6 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Visit(Expression);
 
             expressionPrinter.Append(IsAscending ? " ASC" : " DESC");

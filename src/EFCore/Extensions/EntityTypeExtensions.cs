@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> True if the type is abstract, false otherwise. </returns>
         [DebuggerStepThrough]
         public static bool IsAbstract([NotNull] this ITypeBase type)
-            => type.ClrType?.GetTypeInfo().IsAbstract ?? false;
+            => type.ClrType?.IsAbstract ?? false;
 
         /// <summary>
         ///     Gets the root base type for a given entity type.
@@ -47,17 +47,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityType.BaseType?.GetRootType() ?? entityType;
         }
-
-        /// <summary>
-        ///     Gets the root base type for a given entity type.
-        /// </summary>
-        /// <param name="entityType"> The type to find the root of. </param>
-        /// <returns>
-        ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
-        /// </returns>
-        [Obsolete("Use GetRootType")]
-        public static IEntityType RootType([NotNull] this IEntityType entityType)
-            => entityType.GetRootType();
 
         /// <summary>
         ///     Gets all types in the model that derive from a given entity type.

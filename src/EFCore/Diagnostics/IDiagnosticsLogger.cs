@@ -47,5 +47,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The <see cref="DiagnosticSource" />.
         /// </summary>
         DiagnosticSource DiagnosticSource { get; }
+
+        /// <summary>
+        ///     The <see cref="IDbContextLogger" />.
+        /// </summary>
+        IDbContextLogger DbContextLogger { get; }
+
+        /// <summary>
+        ///     Holds registered interceptors, if any.
+        /// </summary>
+        IInterceptors Interceptors { get; }
     }
 }

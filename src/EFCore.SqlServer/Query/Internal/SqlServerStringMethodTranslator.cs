@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -64,13 +66,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private const char LikeEscapeChar = '\\';
 
-        public SqlServerStringMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerStringMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_indexOfMethodInfo.Equals(method))
             {
                 var argument = arguments[0];

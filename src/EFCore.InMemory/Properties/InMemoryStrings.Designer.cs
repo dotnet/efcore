@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
     public static class InMemoryStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryStrings).Assembly);
 
         /// <summary>
         ///     Attempted to update or delete an entity that does not exist in the store.
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
     public static class InMemoryResources
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryResources).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.InMemory.Properties.InMemoryStrings", typeof(InMemoryResources).Assembly);
 
         /// <summary>
         ///     Saved {count} entities to in-memory store.

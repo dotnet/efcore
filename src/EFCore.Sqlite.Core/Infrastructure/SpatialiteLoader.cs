@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -103,11 +104,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
             else
             {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = "SELECT load_extension('mod_spatialite');";
-                    command.ExecuteNonQuery();
-                }
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT load_extension('mod_spatialite');";
+                command.ExecuteNonQuery();
             }
         }
 
@@ -174,12 +173,24 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         }
                     }
 
-                    Debug.Assert(assetFullPath != null);
+                    Check.DebugAssert(assetFullPath != null, "assetFullPath is null");
 
                     var assetDirectory = Path.GetDirectoryName(assetFullPath);
 
+                    // GetEnvironmentVariable can sometimes return null when there is a race condition
+                    // with another thread setting it. Therefore we do a bit of back off and retry here.
+                    // Note that the result can be null if no path is set on the system.
+                    var delay = 1;
                     var currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
-                    if (!currentPath.Split(Path.PathSeparator).Any(
+                    while (currentPath == null && delay < 1000)
+                    {
+                        Thread.Sleep(delay);
+                        delay *= 2;
+                        currentPath = Environment.GetEnvironmentVariable(_pathVariableName);
+                    }
+
+                    if (currentPath == null
+                        || !currentPath.Split(Path.PathSeparator).Any(
                         p => string.Equals(
                             p.TrimEnd(Path.DirectorySeparatorChar),
                             assetDirectory,

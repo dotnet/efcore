@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -220,8 +219,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         // ReSharper restore CheckForReferenceEqualityInstead.3
                         // ReSharper restore CheckForReferenceEqualityInstead.1
                     }
-                    else if (targetSequenceType == null && propertyType.GetTypeInfo().IsInterface
-                        || targetSequenceType?.GetTypeInfo().IsInterface == true)
+                    else if (targetSequenceType == null && propertyType.IsInterface
+                        || targetSequenceType?.IsInterface == true)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InterfacePropertyNotAdded(
@@ -274,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     ignoredMember, entityType.DisplayName(), property.DeclaringEntityType.DisplayName()));
                         }
 
-                        Debug.Assert(false);
+                        Check.DebugAssert(false, "Should never get here...");
                     }
 
                     var navigation = entityType.FindNavigation(ignoredMember);
@@ -287,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                     ignoredMember, entityType.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
                         }
 
-                        Debug.Assert(false);
+                        Check.DebugAssert(false, "Should never get here...");
                     }
                 }
             }
@@ -477,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 && entityType.FindDeclaredOwnership() == null
                 && entityType.BaseType != null)
             {
-                var baseClrType = entityType.ClrType?.GetTypeInfo().BaseType;
+                var baseClrType = entityType.ClrType?.BaseType;
                 while (baseClrType != null)
                 {
                     var baseEntityType = model.FindEntityType(baseClrType);
@@ -492,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         break;
                     }
 
-                    baseClrType = baseClrType.GetTypeInfo().BaseType;
+                    baseClrType = baseClrType.BaseType;
                 }
             }
 
@@ -965,7 +964,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 CoreStrings.SeedDatumDefaultValue(
                                     entityType.DisplayName(), property.Name, property.ClrType.GetDefaultValue()));
                         }
-                        else if (!property.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                        else if (!property.ClrType.IsAssignableFrom(value.GetType().GetTypeInfo()))
                         {
                             if (sensitiveDataLogged)
                             {

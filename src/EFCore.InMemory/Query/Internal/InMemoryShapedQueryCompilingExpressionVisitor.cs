@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -19,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
         public InMemoryShapedQueryCompilingExpressionVisitor(
-            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            QueryCompilationContext queryCompilationContext)
+            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            [NotNull] QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
             _contextType = queryCompilationContext.ContextType;
@@ -29,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
                 case InMemoryQueryExpression inMemoryQueryExpression:
@@ -47,6 +51,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         protected override Expression VisitShapedQueryExpression(ShapedQueryExpression shapedQueryExpression)
         {
+            Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
+
             var inMemoryQueryExpression = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
 
             var shaper = new ShaperExpressionProcessingExpressionVisitor(

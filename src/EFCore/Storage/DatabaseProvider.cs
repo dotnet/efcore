@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
         ///     for the providers runtime.
         /// </summary>
-        public virtual string Name => typeof(TOptionsExtension).GetTypeInfo().Assembly.GetName().Name;
+        public virtual string Name => typeof(TOptionsExtension).Assembly.GetName().Name;
 
         /// <summary>
         ///     Gets a value indicating whether this database provider has been selected for a given context.

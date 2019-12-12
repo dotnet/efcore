@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>
+        private sealed class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>
         {
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;

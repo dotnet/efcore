@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteNetTopologySuiteMethodCallTranslatorPlugin : IMethodCallTranslatorPlugin
     {
-        public SqliteNetTopologySuiteMethodCallTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteNetTopologySuiteMethodCallTranslatorPlugin([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             Translators = new IMethodCallTranslator[]
             {

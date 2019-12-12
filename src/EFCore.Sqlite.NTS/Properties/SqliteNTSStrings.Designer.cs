@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
     public static class SqliteNTSStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteNTSStrings", typeof(SqliteNTSStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Sqlite.Properties.SqliteNTSStrings", typeof(SqliteNTSStrings).Assembly);
 
         /// <summary>
         ///     UseNetTopologySuite requires AddEntityFrameworkSqliteNetTopologySuite to be called on the internal service provider used.

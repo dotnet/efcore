@@ -1043,6 +1043,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<long>(""Day"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });"),
                 model => Assert.Equal(typeof(long), model.GetEntityTypes().First().GetDiscriminatorProperty().ClrType));
         }
@@ -1076,6 +1078,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToTable(""EntityWithEnumType"");
 
                     b.HasDiscriminator<string>(""Day"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(N'Sun', N'Mon', N'Tue', N'Wed', N'Thu', N'Fri', N'Sat')"");
                 });"),
                 model =>
                 {
@@ -1915,6 +1919,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });"),
                 o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
         }
@@ -1950,6 +1956,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(N'Sun', N'Mon', N'Tue', N'Wed', N'Thu', N'Fri', N'Sat')"");
 
                     b.HasData(
                         new
@@ -2014,6 +2022,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithEnumType"");
+
+                    b.HasCheckConstraint(""CK_EntityWithEnumType_Day_Enum_Constraint"", ""[Day] IN(CAST(0 AS bigint), CAST(1 AS bigint), CAST(2 AS bigint), CAST(3 AS bigint), CAST(4 AS bigint), CAST(5 AS bigint), CAST(6 AS bigint))"");
                 });", usingSystem: true),
                 o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
         }
@@ -3408,6 +3418,22 @@ namespace RootNamespace
 
                     b.ToTable(""EntityWithManyProperties"");
 
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum16_Enum_Constraint"", ""[Enum16] IN(CAST(1 AS smallint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum32_Enum_Constraint"", ""[Enum32] IN(1)"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum64_Enum_Constraint"", ""[Enum64] IN(CAST(1 AS bigint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_Enum8_Enum_Constraint"", ""[Enum8] IN(CAST(1 AS tinyint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumS8_Enum_Constraint"", ""[EnumS8] IN(CAST(-128 AS smallint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU16_Enum_Constraint"", ""[EnumU16] IN(65535)"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU32_Enum_Constraint"", ""[EnumU32] IN(CAST(4294967295 AS bigint))"");
+
+                    b.HasCheckConstraint(""CK_EntityWithManyProperties_EnumU64_Enum_Constraint"", ""[EnumU64] IN(1234567890123456789.0)"");
+
                     b.HasData(
                         new
                         {
@@ -3696,7 +3722,6 @@ namespace RootNamespace
                             codeHelper, sqlServerTypeMappingSource))));
 
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
-
             Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
 
             var build = new BuildSource { Sources = { code } };
@@ -3709,7 +3734,7 @@ namespace RootNamespace
             var assembly = build.BuildInMemory();
             var factoryType = assembly.GetType("RootNamespace.Snapshot");
 
-            var buildModelMethod = factoryType.GetTypeInfo().GetMethod(
+            var buildModelMethod = factoryType.GetMethod(
                 "BuildModel",
                 BindingFlags.Instance | BindingFlags.NonPublic,
                 null,
@@ -3739,13 +3764,9 @@ namespace RootNamespace
                             .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = serviceScope.ServiceProvider.GetService<DbContext>())
-                {
-                    return new ModelBuilder(ConventionSet.CreateConventionSet(context));
-                }
-            }
+            using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            return new ModelBuilder(ConventionSet.CreateConventionSet(context));
         }
     }
 }

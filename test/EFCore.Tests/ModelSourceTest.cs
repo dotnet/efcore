@@ -39,10 +39,8 @@ namespace Microsoft.EntityFrameworkCore
                 0, threadCount,
                 i =>
                 {
-                    using (var context = new SlowContext())
-                    {
-                        models[i] = context.Model;
-                    }
+                    using var context = new SlowContext();
+                    models[i] = context.Model;
                 });
 
             Assert.NotNull(models[0]);

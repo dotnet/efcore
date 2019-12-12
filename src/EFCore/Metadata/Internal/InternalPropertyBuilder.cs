@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -63,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         var removed = key.DeclaringEntityType.Builder.HasNoKey(key, configurationSource);
-                        Debug.Assert(removed != null);
+                        Check.DebugAssert(removed != null, "removed is null");
                     }
 
                     Metadata.SetIsNullable(true, configurationSource);
@@ -378,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return HasValueGenerator((Func<IProperty, IEntityType, ValueGenerator>)null, configurationSource);
             }
 
-            if (!typeof(ValueGenerator).GetTypeInfo().IsAssignableFrom(valueGeneratorType.GetTypeInfo()))
+            if (!typeof(ValueGenerator).IsAssignableFrom(valueGeneratorType))
             {
                 throw new ArgumentException(
                     CoreStrings.BadValueGeneratorType(valueGeneratorType.ShortDisplayName(), typeof(ValueGenerator).ShortDisplayName()));
@@ -427,7 +428,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetValueGenerator(
-            Func<IProperty, IEntityType, ValueGenerator> factory, ConfigurationSource? configurationSource)
+            [CanBeNull] Func<IProperty, IEntityType, ValueGenerator> factory, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetValueGeneratorFactoryConfigurationSource())
                 || Metadata.GetValueGeneratorFactory() == factory;
 

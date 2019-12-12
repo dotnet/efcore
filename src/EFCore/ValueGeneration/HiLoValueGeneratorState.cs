@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             return newValue;
         }
 
-        private class HiLoValue
+        private sealed class HiLoValue
         {
             public HiLoValue(long low, long high)
             {

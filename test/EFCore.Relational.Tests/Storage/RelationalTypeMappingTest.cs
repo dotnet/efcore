@@ -265,99 +265,87 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public void Can_create_simple_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int")
-                    .CreateParameter(command, "Name", 17, nullable: false);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int")
+                .CreateParameter(command, "Name", 17, nullable: false);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DefaultParameterType, parameter.DbType);
-                Assert.False(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DefaultParameterType, parameter.DbType);
+            Assert.False(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_simple_nullable_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int")
-                    .CreateParameter(command, "Name", 17, nullable: true);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int")
+                .CreateParameter(command, "Name", 17, nullable: true);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DefaultParameterType, parameter.DbType);
-                Assert.True(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DefaultParameterType, parameter.DbType);
+            Assert.True(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_simple_parameter_with_DbType()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int", DbType.Int32)
-                    .CreateParameter(command, "Name", 17, nullable: false);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int", DbType.Int32)
+                .CreateParameter(command, "Name", 17, nullable: false);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DbType.Int32, parameter.DbType);
-                Assert.False(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+            Assert.False(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_simple_nullable_parameter_with_DbType()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new IntTypeMapping("int", DbType.Int32)
-                    .CreateParameter(command, "Name", 17, nullable: true);
+            using var command = CreateTestCommand();
+            var parameter = new IntTypeMapping("int", DbType.Int32)
+                .CreateParameter(command, "Name", 17, nullable: true);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal(17, parameter.Value);
-                Assert.Equal(DbType.Int32, parameter.DbType);
-                Assert.True(parameter.IsNullable);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal(17, parameter.Value);
+            Assert.Equal(DbType.Int32, parameter.DbType);
+            Assert.True(parameter.IsNullable);
         }
 
         [ConditionalFact]
         public void Can_create_required_string_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
-                    .CreateParameter(command, "Name", "Value", nullable: false);
+            using var command = CreateTestCommand();
+            var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
+                .CreateParameter(command, "Name", "Value", nullable: false);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal("Value", parameter.Value);
-                Assert.Equal(DbType.String, parameter.DbType);
-                Assert.False(parameter.IsNullable);
-                Assert.Equal(5, parameter.Size);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal("Value", parameter.Value);
+            Assert.Equal(DbType.String, parameter.DbType);
+            Assert.False(parameter.IsNullable);
+            Assert.Equal(5, parameter.Size);
         }
 
         [ConditionalFact]
         public void Can_create_string_parameter()
         {
-            using (var command = CreateTestCommand())
-            {
-                var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
-                    .CreateParameter(command, "Name", "Value", nullable: true);
+            using var command = CreateTestCommand();
+            var parameter = new StringTypeMapping("nvarchar(23)", DbType.String, unicode: true, size: 23)
+                .CreateParameter(command, "Name", "Value", nullable: true);
 
-                Assert.Equal(ParameterDirection.Input, parameter.Direction);
-                Assert.Equal("Name", parameter.ParameterName);
-                Assert.Equal("Value", parameter.Value);
-                Assert.Equal(DbType.String, parameter.DbType);
-                Assert.True(parameter.IsNullable);
-                Assert.Equal(5, parameter.Size);
-            }
+            Assert.Equal(ParameterDirection.Input, parameter.Direction);
+            Assert.Equal("Name", parameter.ParameterName);
+            Assert.Equal("Value", parameter.Value);
+            Assert.Equal(DbType.String, parameter.DbType);
+            Assert.True(parameter.IsNullable);
+            Assert.Equal(5, parameter.Size);
         }
 
         protected virtual void Test_GenerateSqlLiteral_helper(
@@ -544,12 +532,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public virtual void Primary_key_type_mapping_is_picked_up_by_FK_without_going_through_store_type()
         {
-            using (var context = new FruityContext(ContextOptions))
-            {
-                Assert.Same(
-                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping(),
-                    context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").GetTypeMapping());
-            }
+            using var context = new FruityContext(ContextOptions);
+            Assert.Same(
+                context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping(),
+                context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").GetTypeMapping());
         }
 
         private class FruityContext : DbContext
@@ -566,13 +552,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public virtual void Primary_key_type_mapping_can_differ_from_FK()
         {
-            using (var context = new MismatchedFruityContext(ContextOptions))
-            {
-                Assert.Equal(
-                    typeof(short),
-                    context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping().Converter.ProviderClrType);
-                Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
-            }
+            using var context = new MismatchedFruityContext(ContextOptions);
+            Assert.Equal(
+                typeof(short),
+                context.Model.FindEntityType(typeof(Banana)).FindProperty("Id").GetTypeMapping().Converter.ProviderClrType);
+            Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
         }
 
         private class MismatchedFruityContext : FruityContext

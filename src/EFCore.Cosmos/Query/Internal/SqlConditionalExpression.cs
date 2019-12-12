@@ -3,7 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -22,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlConditionalExpression(
-            SqlExpression test,
-            SqlExpression ifTrue,
-            SqlExpression ifFalse)
+            [NotNull] SqlExpression test,
+            [NotNull] SqlExpression ifTrue,
+            [NotNull] SqlExpression ifFalse)
             : base(ifTrue.Type, ifTrue.TypeMapping ?? ifFalse.TypeMapping)
         {
             Test = test;
@@ -64,6 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            Check.NotNull(visitor, nameof(visitor));
+
             var test = (SqlExpression)visitor.Visit(Test);
             var ifTrue = (SqlExpression)visitor.Visit(IfTrue);
             var ifFalse = (SqlExpression)visitor.Visit(IfFalse);
@@ -78,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SqlConditionalExpression Update(
-            SqlExpression test,
-            SqlExpression ifTrue,
-            SqlExpression ifFalse)
+            [NotNull] SqlExpression test,
+            [NotNull] SqlExpression ifTrue,
+            [NotNull] SqlExpression ifFalse)
             => test != Test || ifTrue != IfTrue || ifFalse != IfFalse
                 ? new SqlConditionalExpression(test, ifTrue, ifFalse)
                 : this;
@@ -93,6 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public override void Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.Append("(");
             expressionPrinter.Visit(Test);
             expressionPrinter.Append(" ? ");

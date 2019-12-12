@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -174,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var added = entityTypesWithSameType.Add(entityType);
-                Debug.Assert(added);
+                Check.DebugAssert(added, "added is false");
             }
             else
             {
@@ -290,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 var removed = entityTypesWithSameType.Remove(entityType);
-                Debug.Assert(removed);
+                Check.DebugAssert(removed, "removed is false");
 
                 if (entityTypesWithSameType.Count == 0)
                 {
@@ -300,7 +299,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 var removed = _entityTypes.Remove(entityTypeName);
-                Debug.Assert(removed);
+                Check.DebugAssert(removed, "removed is false");
             }
 
             entityType.OnTypeRemoved();
@@ -373,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        public virtual string GetDisplayName(Type type)
+        public virtual string GetDisplayName([NotNull] Type type)
             => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
         /// <summary>
@@ -541,10 +540,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual IReadOnlyList<EntityType> FindLeastDerivedEntityTypes(
             [NotNull] Type type, [CanBeNull] Func<EntityType, bool> condition = null)
         {
-            var derivedLevels = new Dictionary<TypeInfo, int> { [type.GetTypeInfo()] = 0 };
+            var derivedLevels = new Dictionary<Type, int> { [type] = 0 };
 
             var leastDerivedTypesGroups = GetEntityTypes()
-                .GroupBy(t => GetDerivedLevel(t.ClrType.GetTypeInfo(), derivedLevels))
+                .GroupBy(t => GetDerivedLevel(t.ClrType, derivedLevels))
                 .Where(g => g.Key != int.MaxValue)
                 .OrderBy(g => g.Key);
 
@@ -565,7 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return new List<EntityType>();
         }
 
-        private static int GetDerivedLevel(TypeInfo derivedType, Dictionary<TypeInfo, int> derivedLevels)
+        private static int GetDerivedLevel(Type derivedType, Dictionary<Type, int> derivedLevels)
         {
             if (derivedType?.BaseType == null)
             {
@@ -577,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return level;
             }
 
-            var baseType = derivedType.BaseType.GetTypeInfo();
+            var baseType = derivedType.BaseType;
             level = GetDerivedLevel(baseType, derivedLevels);
             level += level == int.MaxValue ? 0 : 1;
             derivedLevels.Add(derivedType, level);
@@ -848,8 +847,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView<Model> DebugView
-            => new DebugView<Model>(this, m => m.ToDebugString());
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

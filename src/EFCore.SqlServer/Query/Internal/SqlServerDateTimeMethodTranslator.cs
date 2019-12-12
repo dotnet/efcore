@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -31,14 +33,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerDateTimeMethodTranslator(
-            ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerDateTimeMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
         {
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+
             if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
             {
                 return !datePart.Equals("year")

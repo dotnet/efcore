@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             return comparers.All(c => c != null)
                 ? new CompositeCustomComparer(comparers)
-                : properties.Any(p => typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(p.ClrType.GetTypeInfo()))
+                : properties.Any(p => typeof(IStructuralEquatable).IsAssignableFrom(p.ClrType))
                     ? (IEqualityComparer<object[]>)new StructuralCompositeComparer()
                     : new CompositeComparer();
         }

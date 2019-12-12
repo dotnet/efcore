@@ -54,24 +54,22 @@ namespace Microsoft.EntityFrameworkCore
         {
             Log.Clear();
 
-            using (var context = new InfoLogContext(useLoggerFactory, configureForDebug))
+            using var context = new InfoLogContext(useLoggerFactory, configureForDebug);
+            context.GetService<ILoggerFactory>().AddProvider(new MyLoggerProvider());
+
+            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+
+            logger.ServiceProviderCreated(new ServiceCollection().BuildServiceProvider());
+
+            var resultQuery = Log.Where(e => e.Id.Id == CoreEventId.ServiceProviderCreated.Id);
+
+            if (shouldLog)
             {
-                context.GetService<ILoggerFactory>().AddProvider(new MyLoggerProvider());
-
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
-
-                logger.ServiceProviderCreated(new ServiceCollection().BuildServiceProvider());
-
-                var resultQuery = Log.Where(e => e.Id.Id == CoreEventId.ServiceProviderCreated.Id);
-
-                if (shouldLog)
-                {
-                    Assert.Equal(LogLevel.Debug, resultQuery.Single().Level);
-                }
-                else
-                {
-                    Assert.Empty(resultQuery);
-                }
+                Assert.Equal(LogLevel.Debug, resultQuery.Single().Level);
+            }
+            else
+            {
+                Assert.Empty(resultQuery);
             }
         }
 
@@ -263,12 +261,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_use_GetInfrastructure_with_inferred_generic_to_get_service_provider()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.Same(
-                    context.GetService<IChangeDetector>(),
-                    context.GetInfrastructure().GetService<IChangeDetector>());
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.Same(
+                context.GetService<IChangeDetector>(),
+                context.GetInfrastructure().GetService<IChangeDetector>());
         }
 
         [ConditionalFact]
@@ -358,28 +354,22 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Default_services_are_registered_when_parameterless_constructor_used()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.IsType<DbSetFinder>(context.GetService<IDbSetFinder>());
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.IsType<DbSetFinder>(context.GetService<IDbSetFinder>());
         }
 
         [ConditionalFact]
         public void Default_context_scoped_services_are_registered_when_parameterless_constructor_used()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.IsType<InternalEntityEntryFactory>(context.GetService<IInternalEntityEntryFactory>());
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.IsType<InternalEntityEntryFactory>(context.GetService<IInternalEntityEntryFactory>());
         }
 
         [ConditionalFact]
         public void Can_get_singleton_service_from_scoped_configuration()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.IsType<StateManager>(context.GetService<IStateManager>());
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.IsType<StateManager>(context.GetService<IStateManager>());
         }
 
         [ConditionalFact]
@@ -392,10 +382,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<INavigationFixer>(service)
                 .BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(provider))
-            {
-                Assert.Same(service, context.GetService<INavigationFixer>());
-            }
+            using var context = new EarlyLearningCenter(provider);
+            Assert.Same(service, context.GetService<INavigationFixer>());
         }
 
         private class FakeNavigationFixer : INavigationFixer
@@ -469,10 +457,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<INavigationFixer>(service)
                 .BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(provider))
-            {
-                Assert.Same(service, context.GetService<INavigationFixer>());
-            }
+            using var context = new EarlyLearningCenter(provider);
+            Assert.Same(service, context.GetService<INavigationFixer>());
         }
 
         [ConditionalFact]
@@ -485,10 +471,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var provider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new EarlyLearningCenter(provider))
-            {
-                Assert.Same(modelSource, context.GetService<IModelSource>());
-            }
+            using var context = new EarlyLearningCenter(provider);
+            Assert.Same(modelSource, context.GetService<IModelSource>());
         }
 
         [ConditionalFact]
@@ -499,10 +483,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var provider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new EarlyLearningCenter(provider))
-            {
-                Assert.IsType<FakeModelSource>(context.GetService<IModelSource>());
-            }
+            using var context = new EarlyLearningCenter(provider);
+            Assert.IsType<FakeModelSource>(context.GetService<IModelSource>());
         }
 
         [ConditionalFact]
@@ -513,10 +495,8 @@ namespace Microsoft.EntityFrameworkCore
 
             var provider = InMemoryTestHelpers.Instance.CreateServiceProvider(services);
 
-            using (var context = new EarlyLearningCenter(provider))
-            {
-                Assert.IsType<FakeStateManager>(context.GetService<IStateManager>());
-            }
+            using var context = new EarlyLearningCenter(provider);
+            Assert.IsType<FakeStateManager>(context.GetService<IStateManager>());
         }
 
         [ConditionalFact]
@@ -561,10 +541,8 @@ namespace Microsoft.EntityFrameworkCore
                 .AddSingleton<IEntityMaterializerSource, FakeEntityMaterializerSource>()
                 .BuildServiceProvider();
 
-            using (var context = new EarlyLearningCenter(provider))
-            {
-                Assert.IsType<FakeEntityMaterializerSource>(context.GetService<IEntityMaterializerSource>());
-            }
+            using var context = new EarlyLearningCenter(provider);
+            Assert.IsType<FakeEntityMaterializerSource>(context.GetService<IEntityMaterializerSource>());
         }
 
         private class Category
@@ -2464,15 +2442,13 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(
-                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>()).Message);
-            }
+                .CreateScope();
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(
+                    () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>()).Message);
         }
 
         [ConditionalFact]
@@ -2495,15 +2471,13 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                Assert.Equal(
-                    CoreStrings.NoEfServices,
-                    Assert.Throws<InvalidOperationException>(
-                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
-            }
+                .CreateScope();
+            Assert.Equal(
+                CoreStrings.NoEfServices,
+                Assert.Throws<InvalidOperationException>(
+                    () => serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>()).Message);
         }
 
         [ConditionalFact]
@@ -2517,12 +2491,10 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
-            using (var context = new ConstructorTestContextWithSets(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new ConstructorTestContextWithSets(options);
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -2536,16 +2508,14 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextWithSets>();
 
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -2559,12 +2529,10 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInternalServiceProvider(serviceProvider)
                 .Options;
 
-            using (var context = new ConstructorTestContext1A(options))
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new ConstructorTestContext1A(options);
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -2578,27 +2546,23 @@ namespace Microsoft.EntityFrameworkCore
                     (p, b) => b.UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContext1A>();
 
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
         public void Throws_with_new_when_no_EF_services_because_parameterless_constructor()
         {
-            using (var context = new ConstructorTestContextNoConfigurationWithSets())
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new ConstructorTestContextNoConfigurationWithSets();
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -2608,27 +2572,23 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<ConstructorTestContextNoConfigurationWithSets>()
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfigurationWithSets>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfigurationWithSets>();
 
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
         public void Throws_with_new_when_no_EF_services_and_no_sets_because_parameterless_constructor()
         {
-            using (var context = new ConstructorTestContextNoConfiguration())
-            {
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new ConstructorTestContextNoConfiguration();
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -2638,16 +2598,14 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<ConstructorTestContextNoConfiguration>()
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
+                .CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<ConstructorTestContextNoConfiguration>();
 
-                Assert.Equal(
-                    CoreStrings.NoProviderConfigured,
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            Assert.Equal(
+                CoreStrings.NoProviderConfigured,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -2799,13 +2757,11 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Throws_replacing_services_in_OnConfiguring_when_UseInternalServiceProvider()
         {
-            using (var context = new ReplaceServiceContext2())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidReplaceService(
-                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new ReplaceServiceContext2();
+            Assert.Equal(
+                CoreStrings.InvalidReplaceService(
+                    nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         private class ReplaceServiceContext2 : DbContext
@@ -2852,30 +2808,26 @@ namespace Microsoft.EntityFrameworkCore
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidReplaceService(
-                        nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
-            }
+                .CreateScope();
+            Assert.Equal(
+                CoreStrings.InvalidReplaceService(
+                    nameof(DbContextOptionsBuilder.ReplaceService), nameof(DbContextOptionsBuilder.UseInternalServiceProvider)),
+                Assert.Throws<InvalidOperationException>(
+                    () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
         }
 
         [ConditionalFact]
         public void Throws_setting_LoggerFactory_in_OnConfiguring_when_UseInternalServiceProvider()
         {
-            using (var context = new SetLoggerFactoryContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidUseService(
-                        nameof(DbContextOptionsBuilder.UseLoggerFactory),
-                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
-                        nameof(ILoggerFactory)),
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new SetLoggerFactoryContext();
+            Assert.Equal(
+                CoreStrings.InvalidUseService(
+                    nameof(DbContextOptionsBuilder.UseLoggerFactory),
+                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
+                    nameof(ILoggerFactory)),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         private class SetLoggerFactoryContext : DbContext
@@ -2921,32 +2873,28 @@ namespace Microsoft.EntityFrameworkCore
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidUseService(
-                        nameof(DbContextOptionsBuilder.UseLoggerFactory),
-                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
-                        nameof(ILoggerFactory)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
-            }
+                .CreateScope();
+            Assert.Equal(
+                CoreStrings.InvalidUseService(
+                    nameof(DbContextOptionsBuilder.UseLoggerFactory),
+                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
+                    nameof(ILoggerFactory)),
+                Assert.Throws<InvalidOperationException>(
+                    () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
         }
 
         [ConditionalFact]
         public void Throws_setting_MemoryCache_in_OnConfiguring_when_UseInternalServiceProvider()
         {
-            using (var context = new SetMemoryCacheContext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidUseService(
-                        nameof(DbContextOptionsBuilder.UseMemoryCache),
-                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
-                        nameof(IMemoryCache)),
-                    Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-            }
+            using var context = new SetMemoryCacheContext();
+            Assert.Equal(
+                CoreStrings.InvalidUseService(
+                    nameof(DbContextOptionsBuilder.UseMemoryCache),
+                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
+                    nameof(IMemoryCache)),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         private class SetMemoryCacheContext : DbContext
@@ -2992,18 +2940,16 @@ namespace Microsoft.EntityFrameworkCore
                         .UseInternalServiceProvider(p))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidUseService(
-                        nameof(DbContextOptionsBuilder.UseMemoryCache),
-                        nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
-                        nameof(IMemoryCache)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
-            }
+                .CreateScope();
+            Assert.Equal(
+                CoreStrings.InvalidUseService(
+                    nameof(DbContextOptionsBuilder.UseMemoryCache),
+                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider),
+                    nameof(IMemoryCache)),
+                Assert.Throws<InvalidOperationException>(
+                    () => serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC3A>()).Message);
         }
 
         private class FakeMemoryCache : IMemoryCache
@@ -3464,19 +3410,17 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider();
 
-            using (var serviceScope = appServiceProvider
+            using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
-                .CreateScope())
-            {
-                Assert.Equal(
-                    CoreStrings.NonGenericOptions(nameof(NonGenericOptions2)),
-                    Assert.Throws<InvalidOperationException>(
-                        () =>
-                        {
-                            serviceScope.ServiceProvider.GetService<NonGenericOptions1>();
-                            serviceScope.ServiceProvider.GetService<NonGenericOptions2>();
-                        }).Message);
-            }
+                .CreateScope();
+            Assert.Equal(
+                CoreStrings.NonGenericOptions(nameof(NonGenericOptions2)),
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                    {
+                        serviceScope.ServiceProvider.GetService<NonGenericOptions1>();
+                        serviceScope.ServiceProvider.GetService<NonGenericOptions2>();
+                    }).Message);
         }
 
         private class NonGenericOptions1 : DbContext
@@ -3537,20 +3481,18 @@ namespace Microsoft.EntityFrameworkCore
                             .UseInMemoryDatabase(nameof(DerivedContext2)))
                 .BuildServiceProvider();
 
-            using (var scope = services.CreateScope())
-            {
-                var context1 = scope.ServiceProvider.GetService<DerivedContext1>();
-                Assert.IsType<DerivedContext1>(context1);
-                Assert.Equal(
-                    nameof(DerivedContext1),
-                    context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
+            using var scope = services.CreateScope();
+            var context1 = scope.ServiceProvider.GetService<DerivedContext1>();
+            Assert.IsType<DerivedContext1>(context1);
+            Assert.Equal(
+                nameof(DerivedContext1),
+                context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
 
-                var context2 = scope.ServiceProvider.GetService<DerivedContext2>();
-                Assert.IsType<DerivedContext2>(context2);
-                Assert.Equal(
-                    nameof(DerivedContext2),
-                    context2.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
-            }
+            var context2 = scope.ServiceProvider.GetService<DerivedContext2>();
+            Assert.IsType<DerivedContext2>(context2);
+            Assert.Equal(
+                nameof(DerivedContext2),
+                context2.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName);
         }
 
         private class DerivedContext1 : DbContext

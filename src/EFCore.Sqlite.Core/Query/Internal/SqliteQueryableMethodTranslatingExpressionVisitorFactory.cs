@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -12,14 +14,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         private readonly RelationalQueryableMethodTranslatingExpressionVisitorDependencies _relationalDependencies;
 
         public SqliteQueryableMethodTranslatingExpressionVisitorFactory(
-            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies)
+            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            [NotNull] RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies)
         {
             _dependencies = dependencies;
             _relationalDependencies = relationalDependencies;
         }
 
         public virtual QueryableMethodTranslatingExpressionVisitor Create(IModel model)
-            => new SqliteQueryableMethodTranslatingExpressionVisitor(_dependencies, _relationalDependencies, model);
+        {
+            Check.NotNull(model, nameof(model));
+
+            return new SqliteQueryableMethodTranslatingExpressionVisitor(_dependencies, _relationalDependencies, model);
+        }
     }
 }

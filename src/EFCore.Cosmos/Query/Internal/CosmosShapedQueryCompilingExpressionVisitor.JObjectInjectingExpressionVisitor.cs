@@ -4,18 +4,21 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class JObjectInjectingExpressionVisitor : ExpressionVisitor
+        private sealed class JObjectInjectingExpressionVisitor : ExpressionVisitor
         {
             private int _currentEntityIndex;
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
+                Check.NotNull(extensionExpression, nameof(extensionExpression));
+
                 switch (extensionExpression)
                 {
                     case EntityShaperExpression shaperExpression:

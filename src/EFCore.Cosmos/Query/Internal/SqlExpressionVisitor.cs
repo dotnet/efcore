@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
+using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -21,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
+
             switch (extensionExpression)
             {
                 case SelectExpression selectExpression:
@@ -78,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitOrdering(OrderingExpression orderingExpression);
+        protected abstract Expression VisitOrdering([NotNull] OrderingExpression orderingExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression);
+        protected abstract Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitIn(InExpression inExpression);
+        protected abstract Expression VisitIn([NotNull] InExpression inExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression);
+        protected abstract Expression VisitSqlParameter([NotNull] SqlParameterExpression sqlParameterExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -110,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSqlConditional(SqlConditionalExpression caseExpression);
+        protected abstract Expression VisitSqlConditional([NotNull] SqlConditionalExpression caseExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -118,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression);
+        protected abstract Expression VisitSqlUnary([NotNull] SqlUnaryExpression sqlUnaryExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -126,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression);
+        protected abstract Expression VisitSqlConstant([NotNull] SqlConstantExpression sqlConstantExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression);
+        protected abstract Expression VisitSqlBinary([NotNull] SqlBinaryExpression sqlBinaryExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -142,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitKeyAccess(KeyAccessExpression keyAccessExpression);
+        protected abstract Expression VisitKeyAccess([NotNull] KeyAccessExpression keyAccessExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -150,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression);
+        protected abstract Expression VisitObjectAccess([NotNull] ObjectAccessExpression objectAccessExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -158,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitRootReference(RootReferenceExpression rootReferenceExpression);
+        protected abstract Expression VisitRootReference([NotNull] RootReferenceExpression rootReferenceExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -166,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression);
+        protected abstract Expression VisitEntityProjection([NotNull] EntityProjectionExpression entityProjectionExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -174,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression);
+        protected abstract Expression VisitObjectArrayProjection([NotNull] ObjectArrayProjectionExpression objectArrayProjectionExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -182,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitProjection(ProjectionExpression projectionExpression);
+        protected abstract Expression VisitProjection([NotNull] ProjectionExpression projectionExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -190,6 +194,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract Expression VisitSelect(SelectExpression selectExpression);
+        protected abstract Expression VisitSelect([NotNull] SelectExpression selectExpression);
     }
 }

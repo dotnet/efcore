@@ -39,14 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var clrType = entityType.ClrType;
             Check.NotNull(clrType, nameof(entityType.ClrType));
 
-            var baseType = clrType.GetTypeInfo().BaseType;
+            var baseType = clrType.BaseType;
             IConventionEntityType baseEntityType = null;
 
             while (baseType != null
                 && baseEntityType == null)
             {
                 baseEntityType = entityType.Model.FindEntityType(baseType);
-                baseType = baseType.GetTypeInfo().BaseType;
+                baseType = baseType.BaseType;
             }
 
             return baseEntityType;

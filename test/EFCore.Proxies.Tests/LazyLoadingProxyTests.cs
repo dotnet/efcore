@@ -75,37 +75,31 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void CreateProxy_uses_parameterless_constructor()
         {
-            using (var context = new NeweyContext())
-            {
-                Assert.Same(typeof(March82GGtp), context.CreateProxy<March82GGtp>().GetType().BaseType);
-            }
+            using var context = new NeweyContext();
+            Assert.Same(typeof(March82GGtp), context.CreateProxy<March82GGtp>().GetType().BaseType);
         }
 
         [ConditionalFact]
         public void CreateProxy_uses_parameterized_constructor()
         {
-            using (var context = new NeweyContext())
-            {
-                var proxy = context.CreateProxy<March881>(77, "Leyton House");
+            using var context = new NeweyContext();
+            var proxy = context.CreateProxy<March881>(77, "Leyton House");
 
-                Assert.Same(typeof(March881), proxy.GetType().BaseType);
-                Assert.Equal(77, proxy.Id);
-                Assert.Equal("Leyton House", proxy.Sponsor);
-            }
+            Assert.Same(typeof(March881), proxy.GetType().BaseType);
+            Assert.Equal(77, proxy.Id);
+            Assert.Equal("Leyton House", proxy.Sponsor);
         }
 
         [ConditionalFact]
         public void CreateProxy_uses_parameterized_constructor_taking_context()
         {
-            using (var context = new NeweyContext())
-            {
-                var proxy = context.CreateProxy<WilliamsFw14>(context, 6, "Canon");
+            using var context = new NeweyContext();
+            var proxy = context.CreateProxy<WilliamsFw14>(context, 6, "Canon");
 
-                Assert.Same(typeof(WilliamsFw14), proxy.GetType().BaseType);
-                Assert.Same(context, proxy.Context);
-                Assert.Equal(6, proxy.Id);
-                Assert.Equal("Canon", proxy.Sponsor);
-            }
+            Assert.Same(typeof(WilliamsFw14), proxy.GetType().BaseType);
+            Assert.Same(context, proxy.Context);
+            Assert.Equal(6, proxy.Id);
+            Assert.Equal("Canon", proxy.Sponsor);
         }
 
         [ConditionalFact]
@@ -163,109 +157,89 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Throws_if_sealed_class()
         {
-            using (var context = new NeweyContextN1())
-            {
-                Assert.Equal(
-                    ProxiesStrings.ItsASeal(nameof(McLarenMp418)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Model).Message);
-            }
+            using var context = new NeweyContextN1();
+            Assert.Equal(
+                ProxiesStrings.ItsASeal(nameof(McLarenMp418)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Model).Message);
         }
 
         [ConditionalFact]
         public void Throws_if_non_virtual_navigation()
         {
-            using (var context = new NeweyContextN2())
-            {
-                Assert.Equal(
-                    ProxiesStrings.NonVirtualNavigation(nameof(McLarenMp419.SelfRef), nameof(McLarenMp419)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Model).Message);
-            }
+            using var context = new NeweyContextN2();
+            Assert.Equal(
+                ProxiesStrings.NonVirtualNavigation(nameof(McLarenMp419.SelfRef), nameof(McLarenMp419)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Model).Message);
         }
 
         [ConditionalFact]
         public void Throws_if_no_field_found()
         {
-            using (var context = new NeweyContextN3())
-            {
-                Assert.Equal(
-                    CoreStrings.NoBackingFieldLazyLoading(nameof(MarchCg901.SelfRef), nameof(MarchCg901)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.Model).Message);
-            }
+            using var context = new NeweyContextN3();
+            Assert.Equal(
+                CoreStrings.NoBackingFieldLazyLoading(nameof(MarchCg901.SelfRef), nameof(MarchCg901)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Model).Message);
         }
 
         [ConditionalFact]
         public void Throws_if_type_not_available_to_Castle()
         {
-            using (var context = new NeweyContextN4())
-            {
-                Assert.Throws<GeneratorException>(() => context.CreateProxy<McLarenMp421>());
-            }
+            using var context = new NeweyContextN4();
+            Assert.Throws<GeneratorException>(() => context.CreateProxy<McLarenMp421>());
         }
 
         [ConditionalFact]
         public void Throws_if_constructor_not_available_to_Castle()
         {
-            using (var context = new NeweyContextN5())
-            {
-                Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<RedBullRb3>());
-            }
+            using var context = new NeweyContextN5();
+            Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<RedBullRb3>());
         }
 
         [ConditionalFact]
         public void CreateProxy_throws_if_constructor_args_do_not_match()
         {
-            using (var context = new NeweyContext())
-            {
-                Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88));
-            }
+            using var context = new NeweyContext();
+            Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88));
         }
 
         [ConditionalFact]
         public void CreateProxy_throws_if_wrong_number_of_constructor_args()
         {
-            using (var context = new NeweyContext())
-            {
-                Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88, 99));
-            }
+            using var context = new NeweyContext();
+            Assert.Throws<InvalidProxyConstructorArgumentsException>(() => context.CreateProxy<March881>(77, 88, 99));
         }
 
         [ConditionalFact]
         public void Throws_if_create_proxy_for_non_mapped_type()
         {
-            using (var context = new NeweyContextN())
-            {
-                Assert.Equal(
-                    CoreStrings.EntityTypeNotFound(nameof(March82GGtp)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.CreateProxy<March82GGtp>()).Message);
-            }
+            using var context = new NeweyContextN();
+            Assert.Equal(
+                CoreStrings.EntityTypeNotFound(nameof(March82GGtp)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.CreateProxy<March82GGtp>()).Message);
         }
 
         [ConditionalFact]
         public void Throws_if_create_proxy_when_proxies_not_used()
         {
-            using (var context = new NeweyContextN6())
-            {
-                Assert.Equal(
-                    ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.CreateProxy<RedBullRb3>()).Message);
-            }
+            using var context = new NeweyContextN6();
+            Assert.Equal(
+                ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.CreateProxy<RedBullRb3>()).Message);
         }
 
         [ConditionalFact]
         public void Throws_if_create_proxy_when_proxies_not_enabled()
         {
-            using (var context = new NeweyContextN7())
-            {
-                Assert.Equal(
-                    ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.CreateProxy<RedBullRb3>()).Message);
-            }
+            using var context = new NeweyContextN7();
+            Assert.Equal(
+                ProxiesStrings.ProxiesNotEnabled(nameof(RedBullRb3)),
+                Assert.Throws<InvalidOperationException>(
+                    () => context.CreateProxy<RedBullRb3>()).Message);
         }
 
         [ConditionalFact]

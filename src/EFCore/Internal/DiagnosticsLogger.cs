@@ -37,10 +37,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             [NotNull] ILoggingOptions loggingOptions,
             [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] LoggingDefinitions loggingDefinitions,
+            [NotNull] IDbContextLogger contextLogger,
             [CanBeNull] IInterceptors interceptors = null)
         {
             DiagnosticSource = diagnosticSource;
             Definitions = loggingDefinitions;
+            DbContextLogger = contextLogger;
             Logger = loggerFactory.CreateLogger(new TLoggerCategory());
             Options = loggingOptions;
             Interceptors = interceptors;
@@ -85,6 +87,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual LoggingDefinitions Definitions { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IDbContextLogger DbContextLogger { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

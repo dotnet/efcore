@@ -3,11 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Versioning;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -49,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var memberDeclaringClrType = member.DeclaringType;
             if (expression != null
                 && memberDeclaringClrType != expression.Type
-                && expression.Type.GetTypeInfo().IsAssignableFrom(memberDeclaringClrType.GetTypeInfo()))
+                && expression.Type.IsAssignableFrom(memberDeclaringClrType))
             {
                 expression = Expression.Convert(expression, memberDeclaringClrType);
             }
@@ -70,19 +68,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (memberExpression.Member is FieldInfo fieldInfo
                 && fieldInfo.IsInitOnly)
             {
-                if (new FrameworkName(AppContext.TargetFrameworkName).Identifier == ".NETFramework")
-                {
-                    // On .NET Framework the compiler refuses to compile an expression tree with IsInitOnly access,
-                    // so use Reflection's SetValue instead.
-                    return Expression.Call(
-                        Expression.Constant(fieldInfo),
-                        _fieldInfoSetValueMethod,
-                        memberExpression.Expression,
-                        Expression.Convert(
-                            valueExpression,
-                            typeof(object)));
-                }
-
                 return (BinaryExpression)Activator.CreateInstance(
                     _assignBinaryExpressionType,
                     BindingFlags.NonPublic | BindingFlags.Instance,
@@ -96,12 +81,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static readonly Type _assignBinaryExpressionType
             = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression");
-
-        private static readonly MethodInfo _fieldInfoSetValueMethod
-            = typeof(FieldInfo)
-                .GetTypeInfo()
-                .GetDeclaredMethods(nameof(FieldInfo.SetValue))
-                .Single(m => m.GetParameters().Length == 2);
 
         /// <summary>
         ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
@@ -140,7 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <returns> The <see cref="PropertyInfo" />. </returns>
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
         {
-            Debug.Assert(propertyAccessExpression.Parameters.Count == 1);
+            Check.DebugAssert(
+                propertyAccessExpression.Parameters.Count == 1,
+                $"Parameters.Count is {propertyAccessExpression.Parameters.Count}");
 
             var parameterExpression = propertyAccessExpression.Parameters.Single();
             var propertyInfo = parameterExpression.MatchSimplePropertyAccess(propertyAccessExpression.Body);
@@ -157,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (declaringType != null
                 && declaringType != parameterType
-                && declaringType.GetTypeInfo().IsInterface
-                && declaringType.GetTypeInfo().IsAssignableFrom(parameterType.GetTypeInfo()))
+                && declaringType.IsInterface
+                && declaringType.IsAssignableFrom(parameterType))
             {
                 var propertyGetter = propertyInfo.GetMethod;
                 var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
@@ -215,32 +196,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
 
             return propertyPaths;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Returns a new expression with any see <see cref="ExpressionType.Convert" /> or
-        ///         <see cref="ExpressionType.ConvertChecked" /> nodes removed from the head of the
-        ///         given expression tree/
-        ///     </para>
-        ///     <para>
-        ///         This method is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <returns> A new expression with converts at the head removed. </returns>
-        [Obsolete("Unwrap each convert manually by evaluating how they are used.")]
-        public static Expression RemoveConvert([CanBeNull] this Expression expression)
-        {
-            while (expression != null
-                && (expression.NodeType == ExpressionType.Convert
-                    || expression.NodeType == ExpressionType.ConvertChecked))
-            {
-                expression = RemoveConvert(((UnaryExpression)expression).Operand);
-            }
-
-            return expression;
         }
     }
 }

@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static SqlServerUdtTypeMapping CreateSqlHierarchyIdMapping(Type udtType)
+        public static SqlServerUdtTypeMapping CreateSqlHierarchyIdMapping([NotNull] Type udtType)
             => new SqlServerUdtTypeMapping(
                 udtType,
                 "hierarchyid",
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static SqlServerUdtTypeMapping CreateSqlSpatialMapping(Type udtType, string storeName)
+        public static SqlServerUdtTypeMapping CreateSqlSpatialMapping([NotNull] Type udtType, [NotNull] string storeName)
             => new SqlServerUdtTypeMapping(
                 udtType,
                 storeName,

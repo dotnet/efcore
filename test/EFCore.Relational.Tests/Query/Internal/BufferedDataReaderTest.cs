@@ -112,14 +112,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public async Task Initialize_is_idempotent(bool isAsync)
+        public async Task Initialize_is_idempotent(bool async)
         {
             var reader = new FakeDbDataReader(new[] { "name" }, new[] { new[] { new object() } });
             var columns = new ReaderColumn[] { new ReaderColumn<object>(true, null, (r, _) => r.GetValue(0)) };
             var bufferedReader = new BufferedDataReader(reader);
 
             Assert.False(reader.IsClosed);
-            if (isAsync)
+            if (async)
             {
                 await bufferedReader.InitializeAsync(columns, CancellationToken.None);
             }
@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             Assert.True(reader.IsClosed);
 
-            if (isAsync)
+            if (async)
             {
                 await bufferedReader.InitializeAsync(columns, CancellationToken.None);
             }

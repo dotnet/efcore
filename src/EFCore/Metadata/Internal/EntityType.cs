@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] EntityType newBaseType,
             ConfigurationSource configurationSource)
         {
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
 
             if (_baseType == newBaseType)
             {
@@ -278,7 +278,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.NonClrBaseType(this.DisplayName(), newBaseType.DisplayName()));
                     }
 
-                    if (!newBaseType.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                    if (!newBaseType.ClrType.IsAssignableFrom(ClrType))
                     {
                         throw new InvalidOperationException(
                             CoreStrings.NotAssignableClrBaseType(
@@ -463,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString();
+        public override string ToString() => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> properties,
             ConfigurationSource configurationSource)
         {
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
 
             if (_baseType != null)
             {
@@ -804,7 +804,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Key RemoveKey([NotNull] Key key)
         {
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
+
             if (key.DeclaringEntityType != this)
             {
                 throw new InvalidOperationException(
@@ -820,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var removed = _keys.Remove(key.Properties);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
             key.Builder = null;
 
             foreach (var property in key.Properties)
@@ -915,10 +916,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void OnForeignKeyUpdating(ForeignKey foreignKey)
+        public virtual void OnForeignKeyUpdating([NotNull] ForeignKey foreignKey)
         {
             var removed = _foreignKeys.Remove(foreignKey);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
 
             foreach (var property in foreignKey.Properties)
             {
@@ -933,9 +934,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             removed = foreignKey.PrincipalKey.ReferencingForeignKeys.Remove(foreignKey);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
             removed = foreignKey.PrincipalEntityType.DeclaredReferencingForeignKeys.Remove(foreignKey);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
         }
 
         /// <summary>
@@ -944,10 +945,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void OnForeignKeyUpdated(ForeignKey foreignKey)
+        public virtual void OnForeignKeyUpdated([NotNull] ForeignKey foreignKey)
         {
             var added = _foreignKeys.Add(foreignKey);
-            Debug.Assert(added);
+            Check.DebugAssert(added, "added is false");
 
             foreach (var property in foreignKey.Properties)
             {
@@ -969,7 +970,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 added = principalKey.ReferencingForeignKeys.Add(foreignKey);
-                Debug.Assert(added);
+                Check.DebugAssert(added, "added is false");
             }
 
             var principalEntityType = foreignKey.PrincipalEntityType;
@@ -980,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 added = principalEntityType.DeclaredReferencingForeignKeys.Add(foreignKey);
-                Debug.Assert(added);
+                Check.DebugAssert(added, "added is false");
             }
         }
 
@@ -1346,11 +1347,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         duplicateProperty.DeclaringType.DisplayName()));
             }
 
-            Debug.Assert(
+            Check.DebugAssert(
                 !GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsDependentToPrincipal() == pointsToPrincipal),
                 "There is another navigation corresponding to the same foreign key and pointing in the same direction.");
 
-            Debug.Assert(
+            Check.DebugAssert(
                 (pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
                 "EntityType mismatch");
 
@@ -1649,7 +1650,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Index RemoveIndex(Index index)
+        public virtual Index RemoveIndex([NotNull] Index index)
         {
             if (!_indexes.Remove(index.Properties))
             {
@@ -1753,15 +1754,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Property AddProperty(
-            string name,
-            Type propertyType,
-            MemberInfo memberInfo,
+            [NotNull] string name,
+            [NotNull] Type propertyType,
+            [CanBeNull] MemberInfo memberInfo,
             ConfigurationSource? typeConfigurationSource,
             ConfigurationSource configurationSource)
         {
             Check.NotNull(name, nameof(name));
             Check.NotNull(propertyType, nameof(propertyType));
-            Debug.Assert(Builder != null);
+            Check.DebugAssert(Builder != null, "Builder is null");
 
             var conflictingMember = FindMembersInHierarchy(name).FirstOrDefault();
             if (conflictingMember != null)
@@ -1779,7 +1780,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(memberInfo.Name, this.DisplayName()));
                 }
 
-                if (memberInfo.DeclaringType?.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()) != true)
+                if (memberInfo.DeclaringType?.IsAssignableFrom(ClrType) != true)
                 {
                     throw new ArgumentException(
                         CoreStrings.PropertyWrongEntityClrType(
@@ -1949,7 +1950,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Property RemoveProperty(Property property)
+        public virtual Property RemoveProperty([NotNull] Property property)
         {
             if (property.DeclaringEntityType != this)
             {
@@ -1963,7 +1964,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             CheckPropertyNotInUse(property);
 
             var removed = _properties.Remove(property.Name);
-            Debug.Assert(removed);
+            Check.DebugAssert(removed, "removed is false");
             property.Builder = null;
 
             return property;
@@ -2343,7 +2344,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 if (ClrType != null
                     && ClrType != entity.GetType()
-                    && ClrType.GetTypeInfo().IsAssignableFrom(entity.GetType().GetTypeInfo()))
+                    && ClrType.IsAssignableFrom(entity.GetType()))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.SeedDatumDerivedType(
@@ -2390,14 +2391,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (ClrType != null)
             {
                 if (value != ChangeTrackingStrategy.Snapshot
-                    && !typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                    && !typeof(INotifyPropertyChanged).IsAssignableFrom(ClrType))
                 {
                     return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanged));
                 }
 
                 if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
                         || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
-                    && !typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                    && !typeof(INotifyPropertyChanging).IsAssignableFrom(ClrType))
                 {
                     return CoreStrings.ChangeTrackingInterfaceMissing(this.DisplayName(), value, nameof(INotifyPropertyChanging));
                 }
@@ -2497,7 +2498,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        public virtual void CheckDiscriminatorValue(IEntityType entityType, object value)
+        public virtual void CheckDiscriminatorValue([NotNull] IEntityType entityType, [CanBeNull] object value)
         {
             if (value != null
                 && entityType.GetDiscriminatorProperty() == null)
@@ -2507,7 +2508,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (value != null
-                && !entityType.GetDiscriminatorProperty().ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+                && !entityType.GetDiscriminatorProperty().ClrType.IsAssignableFrom(value.GetType()))
             {
                 throw new InvalidOperationException(
                     CoreStrings.DiscriminatorValueIncompatible(
@@ -3173,7 +3174,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ? Enumerable.Empty<T>()
                 : new[] { element };
 
-        private class PropertyComparer : IComparer<string>
+        private sealed class PropertyComparer : IComparer<string>
         {
             private readonly EntityType _entityType;
 
@@ -3305,7 +3306,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView<EntityType> DebugView
-            => new DebugView<EntityType>(this, m => m.ToDebugString(false));
+        public virtual DebugView DebugView
+            => new DebugView(
+                () => this.ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => this.ToDebugString(MetadataDebugStringOptions.LongDefault));
     }
 }
