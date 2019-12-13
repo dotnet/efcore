@@ -801,12 +801,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 useRelationalNulls: false);
         }
 
-        [ConditionalFact(Skip = "issue #18772")]
+        [ConditionalFact]
         public virtual void Select_IndexOf()
         {
             using var ctx = CreateContext();
             var query = ctx.Entities1.OrderBy(e => e.Id).Select(e => e.NullableStringA.IndexOf("oo")).ToList();
-            var expected = _clientData._entities1.OrderBy(e => e.Id).Select(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo"))).ToList();
+            var expected = _clientData._entities1.OrderBy(e => e.Id).Select(e => MaybeScalar<int>(e.NullableStringA, () => e.NullableStringA.IndexOf("oo")) ?? 0).ToList();
 
             for (var i = 0; i < query.Count; i++)
             {

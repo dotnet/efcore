@@ -1217,33 +1217,33 @@ FROM [Entities1] AS [e]");
 FROM [Entities1] AS [e]
 WHERE (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END = [e].[NullableIntA]) OR (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NULL AND [e].[NullableIntA] IS NULL)",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE (CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
 END = [e].[NullableIntA]) OR (CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
 END IS NULL AND [e].[NullableIntA] IS NULL)",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE ((CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END <> [e].[NullableIntB]) OR (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NULL OR [e].[NullableIntB] IS NULL)) AND (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
             // issue #18773
             //            AssertSql(
@@ -1268,6 +1268,19 @@ END IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
                 @"");
         }
 
+        public override void Select_IndexOf()
+        {
+            base.Select_IndexOf();
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN N'oo' = N'' THEN 0
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
+END
+FROM [Entities1] AS [e]
+ORDER BY [e].[Id]");
+        }
+
         public override void Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments()
         {
             base.Null_semantics_applied_when_comparing_two_functions_with_nullable_arguments();
@@ -1277,60 +1290,60 @@ END IS NOT NULL OR [e].[NullableIntB] IS NOT NULL)");
 FROM [Entities1] AS [e]
 WHERE (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END = CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringB]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
 END) OR (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NULL AND CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringB]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
 END IS NULL)",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE ((CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END <> CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringB]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
 END) OR (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NULL OR CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringB]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
 END IS NULL)) AND (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NOT NULL OR CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringB]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringB]) AS int) - 1
 END IS NOT NULL)",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE ((CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END <> CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
 END) OR (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NULL OR CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
 END IS NULL)) AND (CASE
     WHEN N'oo' = N'' THEN 0
-    ELSE CHARINDEX(N'oo', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'oo', [e].[NullableStringA]) AS int) - 1
 END IS NOT NULL OR CASE
     WHEN N'ar' = N'' THEN 0
-    ELSE CHARINDEX(N'ar', [e].[NullableStringA]) - 1
+    ELSE CAST(CHARINDEX(N'ar', [e].[NullableStringA]) AS int) - 1
 END IS NOT NULL)");
             // issue #18773
             //            AssertSql(

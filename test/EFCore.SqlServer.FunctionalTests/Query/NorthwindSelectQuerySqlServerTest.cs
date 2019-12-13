@@ -1169,7 +1169,7 @@ CROSS APPLY (
             AssertSql(
                 @"SELECT CASE
     WHEN N'' = N'' THEN 0
-    ELSE CHARINDEX(N'', [c].[ContactName]) - 1
+    ELSE CAST(CHARINDEX(N'', [c].[ContactName]) AS int) - 1
 END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");

@@ -669,10 +669,10 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
 FROM [Customers] AS [c]
 WHERE (CASE
     WHEN N'Sea' = N'' THEN 0
-    ELSE CHARINDEX(N'Sea', [c].[City]) - 1
+    ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
 END <> -1) OR CASE
     WHEN N'Sea' = N'' THEN 0
-    ELSE CHARINDEX(N'Sea', [c].[City]) - 1
+    ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
 END IS NULL");
         }
 
