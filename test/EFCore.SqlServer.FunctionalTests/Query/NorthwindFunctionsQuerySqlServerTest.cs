@@ -12,7 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        public NorthwindFunctionsQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        public NorthwindFunctionsQuerySqlServerTest(
+#pragma warning disable IDE0060 // Remove unused parameter
+            NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+#pragma warning restore IDE0060 // Remove unused parameter
             : base(fixture)
         {
             ClearLog();
@@ -1180,7 +1183,7 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND ((CHARINDEX(N'1997', CONVERT(nvarchar(ma
             AssertSql(
                 @"SELECT CASE
     WHEN N'' = N'' THEN 0
-    ELSE CHARINDEX(N'', [c].[ContactName]) - 1
+    ELSE CAST(CHARINDEX(N'', [c].[ContactName]) AS int) - 1
 END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
@@ -1245,7 +1248,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT SUBSTRING([c].[ContactName], CASE
     WHEN N'a' = N'' THEN 0
-    ELSE CHARINDEX(N'a', [c].[ContactName]) - 1
+    ELSE CAST(CHARINDEX(N'a', [c].[ContactName]) AS int) - 1
 END + 1, 3)
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");

@@ -82,12 +82,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, argument);
                 argument = _sqlExpressionFactory.ApplyTypeMapping(argument, stringTypeMapping);
 
-                var charIndexExpression = _sqlExpressionFactory.Subtract(
-                    _sqlExpressionFactory.Function(
+                SqlExpression charIndexExpression;
+                var storeType = stringTypeMapping.StoreType;
+                if (string.Equals(storeType, "nvarchar(max)", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(storeType, "varchar(max)", StringComparison.OrdinalIgnoreCase))
+                {
+                    charIndexExpression = _sqlExpressionFactory.Function(
                         "CHARINDEX",
                         new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
-                        method.ReturnType),
-                    _sqlExpressionFactory.Constant(1));
+                        typeof(long));
+
+                    charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
+                }
+                else
+                {
+                    charIndexExpression = _sqlExpressionFactory.Function(
+                        "CHARINDEX",
+                        new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
+                        method.ReturnType);
+                }
+
+                charIndexExpression = _sqlExpressionFactory.Subtract(charIndexExpression, _sqlExpressionFactory.Constant(1));
 
                 return _sqlExpressionFactory.Case(
                     new[]
@@ -218,7 +233,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 if (pattern is SqlConstantExpression constantPattern)
                 {
+                     // Intentionally string.Empty since we don't want to match nulls here.
+#pragma warning disable CA1820 // Test for empty strings using string length
                     if ((string)constantPattern.Value == string.Empty)
+#pragma warning restore CA1820 // Test for empty strings using string length
                     {
                         return _sqlExpressionFactory.Constant(true);
                     }

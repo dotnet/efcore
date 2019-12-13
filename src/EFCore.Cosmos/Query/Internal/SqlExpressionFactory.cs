@@ -46,13 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual SqlExpression ApplyDefaultTypeMapping(SqlExpression sqlExpression)
         {
-            if (sqlExpression == null
-                || sqlExpression.TypeMapping != null)
-            {
-                return sqlExpression;
-            }
-
-            return ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
+            return sqlExpression == null
+                || sqlExpression.TypeMapping != null
+                ? sqlExpression
+                : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
         }
 
         /// <summary>
@@ -69,7 +66,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return sqlExpression;
             }
 
+#pragma warning disable IDE0066 // Convert switch statement to expression
             switch (sqlExpression)
+#pragma warning restore IDE0066 // Convert switch statement to expression
             {
                 case SqlConditionalExpression sqlConditionalExpression:
                     return ApplyTypeMappingOnSqlConditional(sqlConditionalExpression, typeMapping);

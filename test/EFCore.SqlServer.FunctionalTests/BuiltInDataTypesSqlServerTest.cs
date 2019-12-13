@@ -88,6 +88,37 @@ WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
         }
 
         [ConditionalFact]
+        public void String_indexOf_over_varchar_max()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes { Int = 81, StringAsVarcharMax = string.Concat(Enumerable.Repeat("C", 8001)) });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            Fixture.TestSqlLoggerFactory.Clear();
+
+            using (var context = CreateContext())
+            {
+                var results = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.Int == 81)
+                    .Select(m => m.StringAsVarcharMax.IndexOf("a"))
+                    .ToList();
+
+                Assert.Equal(-1, Assert.Single(results));
+                AssertSql(
+                    @"SELECT CASE
+    WHEN 'a' = '' THEN 0
+    ELSE CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
+END
+FROM [MappedNullableDataTypes] AS [m]
+WHERE [m].[Int] = 81");
+            }
+        }
+
+        [ConditionalFact]
         public virtual void Can_query_using_DateDiffHour_using_TimeSpan()
         {
             using var context = CreateContext();
