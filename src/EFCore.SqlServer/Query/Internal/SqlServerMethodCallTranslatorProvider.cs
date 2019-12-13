@@ -9,10 +9,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTranslatorProvider
     {
-        public SqlServerMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies, [NotNull] IRelationalTypeMappingSource typeMappingSource)
+        public SqlServerMethodCallTranslatorProvider([NotNull] RelationalMethodCallTranslatorProviderDependencies dependencies)
             : base(dependencies)
         {
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
+            var typeMappingSource = dependencies.RelationalTypeMappingSource;
             AddTranslators(
                 new IMethodCallTranslator[]
                 {

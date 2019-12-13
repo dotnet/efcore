@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     "DATETIMEFROMPARTS",
                     arguments.Skip(1),
                     _methodInfo.ReturnType,
-                    _typeMappingSource.FindMapping(typeof(DateTime)))
+                    _typeMappingSource.FindMapping(typeof(DateTime), "datetime"))
                 : null;
         }
     }
