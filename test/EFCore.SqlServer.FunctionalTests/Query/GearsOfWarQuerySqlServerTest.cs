@@ -7343,7 +7343,7 @@ WHERE CHARINDEX(CAST(@__someByte_0 AS varbinary(max)), [s].[Banner]) > 0");
 
             AssertSql(@"SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-WHERE DATALENGTH([s].[Banner5]) = CAST(5 AS bigint)");
+WHERE DATALENGTH([s].[Banner5]) = 5");
         }
 
         public override async Task Conditional_expression_with_test_being_simplified_to_constant_simple(bool isAsync)
