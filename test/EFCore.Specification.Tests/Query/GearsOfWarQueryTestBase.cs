@@ -7362,7 +7362,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Squad>().Where(w => w.Banner5.Length == 5));
+                ss => ss.Set<Squad>().Where(w => w.Banner5.Length == 5),
+                ss => ss.Set<Squad>().Where(w => w.Banner5 != null && w.Banner5.Length == 5));
         }
 
         [ConditionalTheory]
@@ -7371,7 +7372,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Squad>().Where(w => w.Banner.Length == 1));
+                ss => ss.Set<Squad>().Where(w => w.Banner.Length == 1),
+                ss => ss.Set<Squad>().Where(w => w.Banner != null && w.Banner.Length == 1));
         }
 
         [ConditionalTheory]
@@ -7381,7 +7383,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var someByteArr = new[] { (byte)42 };
             return AssertQuery(
                 async,
-                ss => ss.Set<Squad>().Where(w => w.Banner.Length == someByteArr.Length));
+                ss => ss.Set<Squad>().Where(w => w.Banner.Length == someByteArr.Length),
+                ss => ss.Set<Squad>().Where(w => w.Banner != null && w.Banner.Length == someByteArr.Length));
         }
 
         [ConditionalTheory]
