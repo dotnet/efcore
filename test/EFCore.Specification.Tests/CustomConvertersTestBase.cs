@@ -120,7 +120,8 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
                         })
                     .Entity;
 
@@ -520,20 +521,45 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Collection_property_as_scalar()
+        public virtual void Collection_property_as_scalar_Any()
         {
             using var context = CreateContext();
             Assert.Equal(
                 @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
                 Assert.Throws<InvalidOperationException>(
                     () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
-                    .Message.Replace("\r","").Replace("\n",""));
+                    .Message.Replace("\r", "").Replace("\n", ""));
         }
 
         protected class CollectionScalar
         {
             public int Id { get; set; }
             public List<string> Tags { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_enum_as_string_Contains()
+        {
+            using var context = CreateContext();
+            var sameRole = Roles.Seller;
+            Assert.Equal(
+                @"The LINQ expression 'DbSet<CollectionEnum>    .Where(c => c.Roles.Contains(__sameRole_0))' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
+
+        }
+
+        protected class CollectionEnum
+        {
+            public int Id { get; set; }
+            public ICollection<Roles> Roles { get; set; }
+        }
+
+        protected enum Roles
+        {
+            Customer,
+            Seller
         }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
@@ -970,7 +996,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.Tags).HasConversion(
                             c => string.Join(",", c),
                             s => s.Split(',', StringSplitOptions.None).ToList()).Metadata
-                            .SetValueComparer(new ListOfStringComparer());
+                            .SetValueComparer(new ValueComparer<List<string>>(favorStructuralComparisons: true));
 
                         b.HasData(new CollectionScalar
                         {
@@ -978,14 +1004,19 @@ namespace Microsoft.EntityFrameworkCore
                             Tags = new List<string> { "A", "B", "C" }
                         });
                     });
-            }
 
-            private class ListOfStringComparer : ValueComparer<List<string>>
-            {
-                public ListOfStringComparer()
-                    : base(favorStructuralComparisons: true)
-                {
-                }
+                modelBuilder.Entity<CollectionEnum>(
+                    b =>
+                    {
+                        b.Property(e => e.Roles).HasConversion(new RolesToStringConveter()).Metadata
+                        .SetValueComparer(new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
+
+                        b.HasData(new CollectionEnum
+                        {
+                            Id = 1,
+                            Roles = new List<Roles> { Roles.Seller }
+                        });
+                    });
             }
 
             private static class StringToDictionarySerializer
@@ -1032,6 +1063,16 @@ namespace Microsoft.EntityFrameworkCore
                     : base(x => x.Remove(0, 7), x => "http://" + x)
                 {
                 }
+            }
+
+            private class RolesToStringConveter : ValueConverter<ICollection<Roles>, string>
+            {
+                public RolesToStringConveter()
+                    : base(v => string.Join(";", v.Select(f => f.ToString())),
+                          v => v.Length > 0
+                            ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
+                          : new List<Roles>())
+                { }
             }
         }
     }
