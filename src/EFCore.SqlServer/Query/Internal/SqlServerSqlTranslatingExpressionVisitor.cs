@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
                 var dataLengthSqlFunction = SqlExpressionFactory.Function(
-                    "DATALENGTH", new[] { sqlExpression }, isBinaryMaxDataType ? typeof(int) : typeof(long));
+                    "DATALENGTH", new[] { sqlExpression }, isBinaryMaxDataType ? typeof(long) : typeof(int));
 
                 return isBinaryMaxDataType
                     ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
