@@ -3,6 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Design;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -14,12 +16,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Generates a method chain used to configure provider-specific options.
         /// </summary>
         /// <returns> The method chain. May be null. </returns>
-        MethodCallCodeFragment GenerateProviderOptions();
+        MethodCallCodeFragment? GenerateProviderOptions();
 
         /// <summary>
         ///     Generates a method chain to configure additional context options.
         /// </summary>
         /// <returns> The method chain. May be null. </returns>
-        MethodCallCodeFragment GenerateContextOptions();
+        MethodCallCodeFragment? GenerateContextOptions();
     }
 }

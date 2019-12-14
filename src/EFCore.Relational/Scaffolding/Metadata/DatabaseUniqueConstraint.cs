@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     /// <summary>
@@ -12,10 +14,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseUniqueConstraint : Annotatable
     {
+        public DatabaseUniqueConstraint([NotNull] DatabaseTable table, [NotNull] string name)
+        {
+            Table = table;
+            Name = name;
+            Columns = new List<DatabaseColumn>();
+        }
+
         /// <summary>
         ///     The table on which the unique constraint is defined.
         /// </summary>
-        public virtual DatabaseTable Table { get; [param: CanBeNull] set; }
+        public virtual DatabaseTable Table { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The name of the constraint.
@@ -25,6 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The ordered list of columns that make up the constraint.
         /// </summary>
-        public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
+        public virtual IList<DatabaseColumn> Columns { get; }
     }
 }

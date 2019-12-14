@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
