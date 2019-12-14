@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -122,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
             string identifier,
-            ICollection<string> existingIdentifiers,
-            Func<string, string> singularizePluralizer)
+            ICollection<string>? existingIdentifiers,
+            Func<string, string>? singularizePluralizer)
             => GenerateCSharpIdentifier(identifier, existingIdentifiers, singularizePluralizer, Uniquifier);
 
         /// <summary>
@@ -134,9 +136,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// </summary>
         public virtual string GenerateCSharpIdentifier(
             string identifier,
-            ICollection<string> existingIdentifiers,
-            Func<string, string> singularizePluralizer,
-            Func<string, ICollection<string>, string> uniquifier)
+            ICollection<string>? existingIdentifiers,
+            Func<string, string>? singularizePluralizer,
+            Func<string, ICollection<string>?, string> uniquifier)
         {
             Check.NotNull(identifier, nameof(identifier));
             Check.NotNull(uniquifier, nameof(uniquifier));
@@ -177,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Uniquifier(
-            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
+            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string>? existingIdentifiers)
         {
             Check.NotEmpty(proposedIdentifier, nameof(proposedIdentifier));
 
@@ -203,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsValidIdentifier(string name)
+        public virtual bool IsValidIdentifier(string? name)
         {
             if (string.IsNullOrEmpty(name))
             {
