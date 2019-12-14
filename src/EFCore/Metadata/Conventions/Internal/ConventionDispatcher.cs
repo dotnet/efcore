@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                     // Capture all nested convention invocations to unwind the stack
                     _dispatcher._scope = new DelayedConventionScope(_dispatcher._immediateConventionScope);
-                    new RunVisitor(_dispatcher).VisitConventionScope(currentScope);
+                    currentScope.Run(_dispatcher);
                 }
             }
 

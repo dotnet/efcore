@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     {
         private abstract class ConventionNode
         {
-            public abstract ConventionNode Accept(ConventionVisitor visitor);
+            public abstract void Run(ConventionDispatcher dispatcher);
         }
     }
 }

@@ -50,10 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 _fieldInfoConventionContext = new ConventionContext<FieldInfo>(dispatcher);
             }
 
-            public override ConventionNode Accept(ConventionVisitor visitor)
-            {
-                throw new NotImplementedException("Immediate convention scope");
-            }
+            public override void Run(ConventionDispatcher dispatcher)
+                => throw new NotImplementedException("Immediate convention scope cannot be run again");
 
             public IConventionModelBuilder OnModelFinalized([NotNull] IConventionModelBuilder modelBuilder)
             {

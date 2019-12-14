@@ -51,33 +51,107 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             public abstract IConventionEntityTypeBuilder OnEntityTypeAdded([NotNull] IConventionEntityTypeBuilder entityTypeBuilder);
-            public abstract IConventionAnnotation OnEntityTypeAnnotationChanged([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] string name, [CanBeNull] IConventionAnnotation annotation, [CanBeNull] IConventionAnnotation oldAnnotation);
-            public abstract IConventionEntityType OnEntityTypeBaseTypeChanged([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] IConventionEntityType newBaseType, [CanBeNull] IConventionEntityType previousBaseType);
-            public abstract string OnEntityTypeIgnored([NotNull] IConventionModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type);
+
+            public abstract IConventionAnnotation OnEntityTypeAnnotationChanged(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull] IConventionAnnotation oldAnnotation);
+
+            public abstract IConventionEntityType OnEntityTypeBaseTypeChanged(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [CanBeNull] IConventionEntityType newBaseType,
+                [CanBeNull] IConventionEntityType previousBaseType);
+
+            public abstract string OnEntityTypeIgnored(
+                [NotNull] IConventionModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type);
+
             public abstract string OnEntityTypeMemberIgnored([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] string name);
-            public abstract IConventionKey OnEntityTypePrimaryKeyChanged([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [CanBeNull] IConventionKey newPrimaryKey, [CanBeNull] IConventionKey previousPrimaryKey);
-            public abstract IConventionEntityType OnEntityTypeRemoved([NotNull] IConventionModelBuilder modelBuilder, [NotNull] IConventionEntityType entityType);
+
+            public abstract IConventionKey OnEntityTypePrimaryKeyChanged(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
+                [CanBeNull] IConventionKey newPrimaryKey,
+                [CanBeNull] IConventionKey previousPrimaryKey);
+
+            public abstract IConventionEntityType OnEntityTypeRemoved(
+                [NotNull] IConventionModelBuilder modelBuilder, [NotNull] IConventionEntityType entityType);
+
             public abstract IConventionRelationshipBuilder OnForeignKeyAdded([NotNull] IConventionRelationshipBuilder relationshipBuilder);
-            public abstract IConventionAnnotation OnForeignKeyAnnotationChanged(IConventionRelationshipBuilder relationshipBuilder, string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation);
-            public abstract IConventionRelationshipBuilder OnForeignKeyOwnershipChanged([NotNull] IConventionRelationshipBuilder relationshipBuilder);
-            public abstract IConventionRelationshipBuilder OnForeignKeyPrincipalEndChanged([NotNull] IConventionRelationshipBuilder relationshipBuilder);
-            public abstract IConventionRelationshipBuilder OnForeignKeyPropertiesChanged([NotNull] IConventionRelationshipBuilder relationshipBuilder, [NotNull] IReadOnlyList<IConventionProperty> oldDependentProperties, [NotNull] IConventionKey oldPrincipalKey);
-            public abstract IConventionForeignKey OnForeignKeyRemoved([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionForeignKey foreignKey);
-            public abstract IConventionRelationshipBuilder OnForeignKeyRequirednessChanged([NotNull] IConventionRelationshipBuilder relationshipBuilder);
-            public abstract IConventionRelationshipBuilder OnForeignKeyUniquenessChanged([NotNull] IConventionRelationshipBuilder relationshipBuilder);
+
+            public abstract IConventionAnnotation OnForeignKeyAnnotationChanged(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull]IConventionAnnotation oldAnnotation);
+
+            public abstract IConventionRelationshipBuilder OnForeignKeyOwnershipChanged(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder);
+
+            public abstract IConventionRelationshipBuilder OnForeignKeyPrincipalEndChanged(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder);
+
+            public abstract IConventionRelationshipBuilder OnForeignKeyPropertiesChanged(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder,
+                [NotNull] IReadOnlyList<IConventionProperty> oldDependentProperties,
+                [NotNull] IConventionKey oldPrincipalKey);
+
+            public abstract IConventionForeignKey OnForeignKeyRemoved(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionForeignKey foreignKey);
+
+            public abstract IConventionRelationshipBuilder OnForeignKeyRequirednessChanged(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder);
+
+            public abstract IConventionRelationshipBuilder OnForeignKeyUniquenessChanged(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder);
+
             public abstract IConventionIndexBuilder OnIndexAdded([NotNull] IConventionIndexBuilder indexBuilder);
-            public abstract IConventionAnnotation OnIndexAnnotationChanged([NotNull] IConventionIndexBuilder indexBuilder, [NotNull] string name, [CanBeNull] IConventionAnnotation annotation, [CanBeNull] IConventionAnnotation oldAnnotation);
-            public abstract IConventionIndex OnIndexRemoved([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionIndex index);
+
+            public abstract IConventionAnnotation OnIndexAnnotationChanged(
+                [NotNull] IConventionIndexBuilder indexBuilder,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull] IConventionAnnotation oldAnnotation);
+
+            public abstract IConventionIndex OnIndexRemoved(
+                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionIndex index);
+
             public abstract IConventionIndexBuilder OnIndexUniquenessChanged([NotNull] IConventionIndexBuilder indexBuilder);
             public abstract IConventionKeyBuilder OnKeyAdded([NotNull] IConventionKeyBuilder keyBuilder);
-            public abstract IConventionAnnotation OnKeyAnnotationChanged(IConventionKeyBuilder keyBuilder, string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation);
+
+            public abstract IConventionAnnotation OnKeyAnnotationChanged(
+                [NotNull] IConventionKeyBuilder keyBuilder,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull] IConventionAnnotation oldAnnotation);
+
             public abstract IConventionKey OnKeyRemoved([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionKey key);
-            public abstract IConventionAnnotation OnModelAnnotationChanged([NotNull] IConventionModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] IConventionAnnotation annotation, [CanBeNull] IConventionAnnotation oldAnnotation);
-            public abstract IConventionNavigation OnNavigationAdded([NotNull] IConventionRelationshipBuilder relationshipBuilder, [NotNull] IConventionNavigation navigation);
-            public abstract string OnNavigationRemoved([NotNull] IConventionEntityTypeBuilder sourceEntityTypeBuilder, [NotNull] IConventionEntityTypeBuilder targetEntityTypeBuilder, [NotNull] string navigationName, [CanBeNull] MemberInfo memberInfo);
+
+            public abstract IConventionAnnotation OnModelAnnotationChanged(
+                [NotNull] IConventionModelBuilder modelBuilder,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull] IConventionAnnotation oldAnnotation);
+
+            public abstract IConventionNavigation OnNavigationAdded(
+                [NotNull] IConventionRelationshipBuilder relationshipBuilder, [NotNull] IConventionNavigation navigation);
+
+            public abstract string OnNavigationRemoved(
+                [NotNull] IConventionEntityTypeBuilder sourceEntityTypeBuilder,
+                [NotNull] IConventionEntityTypeBuilder targetEntityTypeBuilder,
+                [NotNull] string navigationName,
+                [CanBeNull] MemberInfo memberInfo);
+
             public abstract IConventionPropertyBuilder OnPropertyAdded([NotNull] IConventionPropertyBuilder propertyBuilder);
-            public abstract IConventionAnnotation OnPropertyAnnotationChanged([NotNull] IConventionPropertyBuilder propertyBuilder, [NotNull] string name, [CanBeNull] IConventionAnnotation annotation, [CanBeNull] IConventionAnnotation oldAnnotation);
-            public abstract FieldInfo OnPropertyFieldChanged([NotNull] IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo);
+
+            public abstract IConventionAnnotation OnPropertyAnnotationChanged(
+                [NotNull] IConventionPropertyBuilder propertyBuilder,
+                [NotNull] string name,
+                [CanBeNull] IConventionAnnotation annotation,
+                [CanBeNull] IConventionAnnotation oldAnnotation);
+
+            public abstract FieldInfo OnPropertyFieldChanged(
+                [NotNull] IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo);
+
             public abstract IConventionPropertyBuilder OnPropertyNullableChanged([NotNull] IConventionPropertyBuilder propertyBuilder);
         }
     }
