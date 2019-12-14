@@ -601,6 +601,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnName);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.ColumnType);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.MaxLength);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Precision);
+            RemoveAnnotation(ref annotations, CoreAnnotationNames.Scale);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.TypeMapping);
             RemoveAnnotation(ref annotations, CoreAnnotationNames.Unicode);
             RemoveAnnotation(ref annotations, RelationalAnnotationNames.DefaultValue);
@@ -645,6 +647,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     lines.Add(
                         $".{nameof(PropertyBuilder.HasMaxLength)}" +
                         $"({_code.Literal(maxLength.Value)})");
+                }
+
+                var precision = property.GetPrecision();
+                var scale = property.GetScale();
+
+                if (precision.HasValue || scale.HasValue)
+                {
+                    if(precision.HasValue && scale.HasValue)
+                    {
+                        lines.Add(
+                        $".{nameof(PropertyBuilder.HasPrecision)}" +
+                        $"({_code.Literal(precision.Value)},{_code.Literal(scale.Value)})");
+                    }
+                    else if(precision.HasValue)
+                    {
+                        lines.Add(
+                        $".{nameof(PropertyBuilder.HasPrecision)}" +
+                        $"({_code.Literal(precision.Value)}");
+                    }
+                    else
+                    {
+                        lines.Add(
+                        $".{nameof(PropertyBuilder.HasScale)}" +
+                        $"({_code.Literal(scale.Value)})");
+                    }
                 }
             }
 

@@ -445,6 +445,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 property.HasMaxLength(typeScaffoldingInfo.ScaffoldMaxLength.Value);
             }
 
+            if (typeScaffoldingInfo.ScaffoldPrecision.HasValue)
+            {
+                property.HasPrecision(typeScaffoldingInfo.ScaffoldPrecision.Value);
+            }
+
+            if (typeScaffoldingInfo.ScaffoldScale.HasValue)
+            {
+                property.HasScale(typeScaffoldingInfo.ScaffoldScale.Value);
+            }
+
             if (column.ValueGenerated == ValueGenerated.OnAdd)
             {
                 property.ValueGeneratedOnAdd();

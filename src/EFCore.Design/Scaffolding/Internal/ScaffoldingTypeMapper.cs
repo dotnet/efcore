@@ -55,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool? scaffoldUnicode = null;
             bool? scaffoldFixedLength = null;
             int? scaffoldMaxLength = null;
+            int? scaffoldPrecision = null;
+            int? scaffoldScale = null;
 
             if (mapping.ClrType == typeof(byte[]))
             {
@@ -145,6 +147,36 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     scaffoldMaxLength = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
                 }
             }
+            else if (mapping.ClrType == typeof(decimal))
+            {
+                // Check for inference
+                var decimalMapping = _typeMappingSource.FindMapping(
+                    typeof(decimal),
+                    null,
+                    keyOrIndex,
+                    unicode: mapping.IsUnicode,
+                    size: mapping.Precision,
+                    precision: mapping.Precision,
+                    scale: mapping.Scale,
+                    fixedLength: mapping.IsFixedLength);
+
+                if (decimalMapping.StoreType.Equals(storeType, StringComparison.OrdinalIgnoreCase))
+                {
+                    canInfer = true;
+
+                    // Check for precision and scale
+                    var precisionMapping = _typeMappingSource.FindMapping(
+                        typeof(string),
+                        null,
+                        keyOrIndex,
+                        unicode: false,
+                        size: mapping.Size,
+                        fixedLength: false);
+
+                    scaffoldPrecision = precisionMapping.Precision != decimalMapping.Precision ? decimalMapping.Precision : null;
+                    scaffoldScale = precisionMapping.Scale != decimalMapping.Scale ? decimalMapping.Scale : null;
+                }
+            }
             else
             {
                 var defaultMapping = _typeMappingSource.FindMapping(mapping.ClrType);
@@ -161,7 +193,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canInfer,
                 scaffoldUnicode,
                 scaffoldMaxLength,
-                scaffoldFixedLength);
+                scaffoldFixedLength,
+                scaffoldPrecision,
+                scaffoldScale);
         }
     }
 }
