@@ -5,6 +5,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
