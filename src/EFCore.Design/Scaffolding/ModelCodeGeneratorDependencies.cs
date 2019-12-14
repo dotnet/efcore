@@ -3,6 +3,8 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
