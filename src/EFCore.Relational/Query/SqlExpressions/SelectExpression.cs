@@ -1299,9 +1299,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             var partitions = new List<SqlExpression>();
                             GetPartitions(joinPredicate, partitions);
-                            var orderings = innerSelectExpression.Orderings.Any()
+                            var orderings = innerSelectExpression.Orderings.Count > 0
                                 ? innerSelectExpression.Orderings
-                                : innerSelectExpression._identifier.Select(e => new OrderingExpression(e, true));
+                                : innerSelectExpression._identifier.Count > 0
+                                    ? innerSelectExpression._identifier.Select(e => new OrderingExpression(e, true))
+                                    : new[] { new OrderingExpression(new SqlFragmentExpression("(SELECT 1)"), true) };
+
                             var rowNumberExpression = new RowNumberExpression(partitions, orderings.ToList(), limit.TypeMapping);
                             innerSelectExpression.ClearOrdering();
 

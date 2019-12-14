@@ -1635,5 +1635,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault())
                     .Select(e => MaybeScalar(e, () => e.EmployeeID)));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_keyless_entity_FirstOrDefault_without_orderby(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(c => ss.Set<CustomerView>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
+        }
     }
 }

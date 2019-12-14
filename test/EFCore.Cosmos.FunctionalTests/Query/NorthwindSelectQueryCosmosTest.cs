@@ -1056,6 +1056,12 @@ WHERE (c[""Discriminator""] = ""Order"")");
             return base.Project_uint_through_collection_FirstOrDefault(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Project_keyless_entity_FirstOrDefault_without_orderby(bool async)
+        {
+            return base.Project_keyless_entity_FirstOrDefault_without_orderby(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
