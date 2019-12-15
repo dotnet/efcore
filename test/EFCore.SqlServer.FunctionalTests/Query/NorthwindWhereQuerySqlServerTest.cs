@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -39,9 +40,9 @@ WHERE EXISTS (
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI'))");
         }
 
-        public override async Task Where_simple_closure(bool async)
+        public override async Task<string> Where_simple_closure(bool async)
         {
-            await base.Where_simple_closure(async);
+            var queryString = await base.Where_simple_closure(async);
 
             AssertSql(
                 @"@__city_0='London' (Size = 4000)
@@ -49,6 +50,14 @@ WHERE EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0");
+
+            Assert.Equal(
+                @"-- @__city_0='London' (Size = 4000)
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_0", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+
+            return null;
         }
 
         public override async Task Where_indexer_closure(bool async)

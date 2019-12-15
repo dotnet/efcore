@@ -24,6 +24,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Where_datetimeoffset_utcnow_component(bool async)
             => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
 
+        public override async Task<string> Where_simple_closure(bool async)
+        {
+            var queryString = await base.Where_simple_closure(async);
+
+            AssertSql(
+                @"@__city_0='London' (Size = 6)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""City"" = @__city_0");
+
+            Assert.Equal(
+                @"-- @__city_0='London' (Size = 6)
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""City"" = @__city_0", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+
+            return null;
+        }
+
         public override async Task Where_datetime_now(bool async)
         {
             await base.Where_datetime_now(async);

@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -12,9 +13,15 @@ using Newtonsoft.Json.Linq;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private sealed class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>
+        private sealed class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IQueryingEnumerable
         {
             private readonly CosmosQueryContext _cosmosQueryContext;
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -47,6 +54,32 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             public IEnumerator<T> GetEnumerator() => new Enumerator(this);
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public string ToQueryString()
+            {
+                var sqlQuery = _querySqlGeneratorFactory.Create().GetSqlQuery(
+                    (SelectExpression)new InExpressionValuesExpandingExpressionVisitor(
+                        _sqlExpressionFactory, _cosmosQueryContext.ParameterValues).Visit(_selectExpression),
+                    _cosmosQueryContext.ParameterValues);
+
+                if (sqlQuery.Parameters.Count == 0)
+                {
+                    return sqlQuery.Query;
+                }
+
+                var builder = new StringBuilder();
+                foreach (var parameter in sqlQuery.Parameters)
+                {
+                    builder
+                        .Append("-- ")
+                        .Append(parameter.Name)
+                        .Append("='")
+                        .Append(parameter.Value)
+                        .AppendLine("'");
+                }
+
+                return builder.Append(sqlQuery.Query).ToString();
+            }
 
             private sealed class Enumerator : IEnumerator<T>
             {

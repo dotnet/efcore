@@ -199,14 +199,19 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
-        public virtual void FromSqlRaw_queryable_composed()
+        public virtual string FromSqlRaw_queryable_composed()
         {
             using var context = CreateContext();
-            var actual = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
-                .Where(c => c.ContactName.Contains("z"))
-                .ToArray();
+            var queryable = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
+                .Where(c => c.ContactName.Contains("z"));
+
+            var queryString = queryable.ToQueryString();
+
+            var actual = queryable.ToArray();
 
             Assert.Equal(14, actual.Length);
+
+            return queryString;
         }
 
         [ConditionalFact]
@@ -541,20 +546,23 @@ FROM [Customers]"))
         }
 
         [ConditionalFact]
-        public virtual void FromSqlRaw_queryable_with_parameters_and_closure()
+        public virtual string FromSqlRaw_queryable_with_parameters_and_closure()
         {
             var city = "London";
             var contactTitle = "Sales Representative";
 
             using var context = CreateContext();
-            var actual = context.Set<Customer>().FromSqlRaw(
+            var queryable = context.Set<Customer>().FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
-                .Where(c => c.ContactTitle == contactTitle)
-                .ToArray();
+                .Where(c => c.ContactTitle == contactTitle);
+            var queryString = queryable.ToQueryString();
+            var actual = queryable.ToArray();
 
             Assert.Equal(3, actual.Length);
             Assert.True(actual.All(c => c.City == "London"));
             Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
+
+            return queryString;
         }
 
         [ConditionalFact]
