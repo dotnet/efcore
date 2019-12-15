@@ -53,14 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Where_simple_closure(bool async)
+        public virtual async Task<string> Where_simple_closure(bool async)
         {
             var city = "London";
 
-            return AssertQuery(
+            await AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.City == city),
                 entryCount: 6);
+
+            using var context = CreateContext();
+            return context.Set<Customer>().Where(c => c.City == city).ToQueryString();
         }
 
         [ConditionalTheory]

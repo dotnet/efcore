@@ -561,7 +561,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     <para>
-        ///         Template method called by the execute methods to
+        ///         Called by the execute methods to
         ///         create a <see cref="DbCommand" /> for the given <see cref="DbConnection" /> and configure
         ///         timeouts and transactions.
         ///     </para>
@@ -574,7 +574,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="commandId"> The command correlation ID. </param>
         /// <param name="commandMethod"> The method that will be called on the created command. </param>
         /// <returns> The created command. </returns>
-        protected virtual DbCommand CreateCommand(
+        public virtual DbCommand CreateCommand(
             RelationalCommandParameterObject parameterObject,
             Guid commandId,
             DbCommandMethod commandMethod)

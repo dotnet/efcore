@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.SqlClient;
@@ -42,16 +43,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 @"SELECT ""Region"", ""PostalCode"", ""PostalCode"" AS ""Foo"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""");
         }
 
-        public override void FromSqlRaw_queryable_composed()
+        public override string FromSqlRaw_queryable_composed()
         {
-            base.FromSqlRaw_queryable_composed();
+            var queryString = base.FromSqlRaw_queryable_composed();
 
-            AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            var expected = @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers""
 ) AS [c]
-WHERE CHARINDEX(N'z', [c].[ContactName]) > 0");
+WHERE CHARINDEX(N'z', [c].[ContactName]) > 0";
+
+            AssertSql(expected);
+            Assert.Equal(expected, queryString);
+
+            return null;
         }
 
         public override void FromSqlRaw_queryable_composed_after_removing_whitespaces()
@@ -327,9 +332,9 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }
 
-        public override void FromSqlRaw_queryable_with_parameters_and_closure()
+        public override string FromSqlRaw_queryable_with_parameters_and_closure()
         {
-            base.FromSqlRaw_queryable_with_parameters_and_closure();
+            var queryString = base.FromSqlRaw_queryable_with_parameters_and_closure();
 
             AssertSql(
                 @"p0='London' (Size = 4000)
@@ -340,6 +345,16 @@ FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 WHERE [c].[ContactTitle] = @__contactTitle_1");
+
+            Assert.Equal(@"-- p0='London' (Size = 4000)
+-- @__contactTitle_1='Sales Representative' (Size = 4000)
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM (
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
+) AS [c]
+WHERE [c].[ContactTitle] = @__contactTitle_1", queryString);
+
+            return null;
         }
 
         public override void FromSqlRaw_queryable_simple_cache_key_includes_query_string()

@@ -1,9 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -84,5 +87,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         Task<RelationalDataReader> ExecuteReaderAsync(
             RelationalCommandParameterObject parameterObject,
             CancellationToken cancellationToken = default);
+
+        /// <summary>
+        ///     <para>
+        ///         Called by the execute methods to create a <see cref="DbCommand" /> for the given <see cref="DbConnection" />
+        ///         and configure timeouts and transactions.
+        ///     </para>
+        ///     <para>
+        ///         This method is typically used by database providers (and other extensions). It is generally
+        ///         not used in application code.
+        ///     </para>
+        /// </summary>
+        /// <param name="parameterObject"> Parameters for this method. </param>
+        /// <param name="commandId"> The command correlation ID. </param>
+        /// <param name="commandMethod"> The method that will be called on the created command. </param>
+        /// <returns> The created command. </returns>
+        DbCommand CreateCommand(
+            RelationalCommandParameterObject parameterObject,
+            Guid commandId,
+            DbCommandMethod commandMethod) => throw new NotImplementedException();
     }
 }
