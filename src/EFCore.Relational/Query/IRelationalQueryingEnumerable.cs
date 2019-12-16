@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
+using System.Data.Common;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -15,17 +17,22 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IQueryingEnumerable
+    public interface IRelationalQueryingEnumerable : IQueryingEnumerable
     {
         /// <summary>
         ///     <para>
-        ///         A string representation of the query used.
+        ///         Creates a <see cref="DbCommand"/> set up to execute this query.
         ///     </para>
         ///     <para>
-        ///         Warning: this string may not be suitable for direct execution is intended only for use in debugging.
+        ///         Warning: there is no guarantee that executing this command directly will result in the same behavior as if EF Core had
+        ///         executed the command.
+        ///     </para>
+        ///     <para>
+        ///         Note that DbCommand is an <see cref="IDisposable"/> object. The caller is responsible for disposing the returned
+        ///         command.
         ///     </para>
         /// </summary>
-        /// <returns> The query string. </returns>
-        string ToQueryString();
+        /// <returns> The newly created command. </returns>
+        DbCommand CreateDbCommand();
     }
 }

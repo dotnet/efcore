@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IQueryingEnumerable
+    public class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalQueryingEnumerable
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
@@ -87,9 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ToQueryString()
-        {
-            using var command = _relationalCommandCache
+        public virtual DbCommand CreateDbCommand()
+            => _relationalCommandCache
                 .GetRelationalCommand(_relationalQueryContext.ParameterValues)
                 .CreateCommand(
                     new RelationalCommandParameterObject(
@@ -100,6 +99,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         null),
                     Guid.Empty,
                     (DbCommandMethod)(-1));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ToQueryString()
+        {
+            using var command = CreateDbCommand();
 
             if (command.Parameters.Count == 0)
             {
