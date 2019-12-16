@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -391,9 +393,12 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task<string> Where_simple_closure(bool async)
+        public override async Task<(string, IDictionary<string, object>)> Where_simple_closure(bool async)
         {
-            var queryString = await base.Where_simple_closure(async);
+            var (queryString, parameters) = await base.Where_simple_closure(async);
+
+            Assert.Single(parameters);
+            Assert.Equal(new JValue("London"), parameters["@__city_0"]);
 
             AssertSql(
                 @"@__city_0='London'
@@ -408,7 +413,7 @@ SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
 
-            return null;
+            return (null, null);
         }
 
         public override async Task Where_indexer_closure(bool async)

@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-            public string ToQueryString() => InMemoryStrings.NoQueryStrings;
+            public string ToQueryString(IDictionary<string, object> parameterValues = null) => InMemoryStrings.NoQueryStrings;
 
             private sealed class Enumerator : IEnumerator<T>
             {

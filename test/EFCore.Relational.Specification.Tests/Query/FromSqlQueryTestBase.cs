@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -205,7 +207,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             var queryable = context.Set<Customer>().FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"))
                 .Where(c => c.ContactName.Contains("z"));
 
-            var queryString = queryable.ToQueryString();
+            var parameters = new Dictionary<string, object>();
+            var queryString = queryable.ToQueryString(parameters);
+
+            Assert.Empty(parameters);
 
             var actual = queryable.ToArray();
 
@@ -546,7 +551,7 @@ FROM [Customers]"))
         }
 
         [ConditionalFact]
-        public virtual string FromSqlRaw_queryable_with_parameters_and_closure()
+        public virtual Task<(string, IDictionary<string, object>)> FromSqlRaw_queryable_with_parameters_and_closure()
         {
             var city = "London";
             var contactTitle = "Sales Representative";
@@ -555,14 +560,19 @@ FROM [Customers]"))
             var queryable = context.Set<Customer>().FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                 .Where(c => c.ContactTitle == contactTitle);
-            var queryString = queryable.ToQueryString();
+
+            var parameters = new Dictionary<string, object>();
+            var queryString = queryable.ToQueryString(parameters);
+
+            Assert.Equal(queryString, queryable.ToQueryString());
+
             var actual = queryable.ToArray();
 
             Assert.Equal(3, actual.Length);
             Assert.True(actual.All(c => c.City == "London"));
             Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
 
-            return queryString;
+            return Task.FromResult<(string, IDictionary<string, object>)>((queryString, parameters));
         }
 
         [ConditionalFact]

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -24,9 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Where_datetimeoffset_utcnow_component(bool async)
             => AssertTranslationFailed(() => base.Where_datetimeoffset_utcnow_component(async));
 
-        public override async Task<string> Where_simple_closure(bool async)
+        public override async Task<(string, IDictionary<string, object>)> Where_simple_closure(bool async)
         {
-            var queryString = await base.Where_simple_closure(async);
+            var (queryString, parameters) = await base.Where_simple_closure(async);
+
+            Assert.Single(parameters);
+            Assert.Equal("London", parameters["@__city_0"]);
 
             AssertSql(
                 @"@__city_0='London' (Size = 6)
@@ -41,7 +45,7 @@ SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyN
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""City"" = @__city_0", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
 
-            return null;
+            return (null, null);
         }
 
         public override async Task Where_datetime_now(bool async)

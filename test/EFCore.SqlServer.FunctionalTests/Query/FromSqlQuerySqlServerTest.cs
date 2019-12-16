@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -332,9 +334,13 @@ WHERE [c].[CustomerID] = [o].[CustomerID]");
 SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL AND @p0 IS NULL)");
         }
 
-        public override string FromSqlRaw_queryable_with_parameters_and_closure()
+        public override async Task<(string, IDictionary<string, object>)> FromSqlRaw_queryable_with_parameters_and_closure()
         {
-            var queryString = base.FromSqlRaw_queryable_with_parameters_and_closure();
+            var (queryString, parameters) = await base.FromSqlRaw_queryable_with_parameters_and_closure();
+
+            Assert.Equal(2, parameters.Count);
+            Assert.Equal("London", parameters["p0"]);
+            Assert.Equal("Sales Representative", parameters["@__contactTitle_1"]);
 
             AssertSql(
                 @"p0='London' (Size = 4000)
@@ -354,7 +360,7 @@ FROM (
 ) AS [c]
 WHERE [c].[ContactTitle] = @__contactTitle_1", queryString);
 
-            return null;
+            return (null, null);
         }
 
         public override void FromSqlRaw_queryable_simple_cache_key_includes_query_string()

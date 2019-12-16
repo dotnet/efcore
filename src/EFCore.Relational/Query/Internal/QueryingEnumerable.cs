@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string ToQueryString()
+        public virtual string ToQueryString(IDictionary<string, object> parameterValues = null)
         {
             using var command = _relationalCommandCache
                 .GetRelationalCommand(_relationalQueryContext.ParameterValues)
@@ -101,15 +101,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Guid.Empty,
                     (DbCommandMethod)(-1));
 
+            parameterValues?.Clear();
+
             if (command.Parameters.Count == 0)
             {
                 return command.CommandText;
             }
 
             var builder = new StringBuilder();
-            foreach (var parameter in command.Parameters.FormatParameterList(logParameterValues: true))
+            foreach (DbParameter parameter in command.Parameters)
             {
-                builder.Append("-- ").AppendLine(parameter);
+                builder.Append("-- ").AppendLine(parameter.FormatParameter(logParameterValues: true));
+
+                if (parameterValues != null)
+                {
+                    parameterValues[parameter.ParameterName] = parameter.Value;
+                }
             }
 
             return builder.Append(command.CommandText).ToString();

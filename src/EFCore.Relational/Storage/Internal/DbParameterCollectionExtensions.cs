@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
@@ -31,7 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public static string FormatParameters(
             [NotNull] this DbParameterCollection parameters,
             bool logParameterValues)
-            => FormatParameterList(parameters, logParameterValues).Join();
+            => parameters
+                .Cast<DbParameter>()
+                .Select(p => FormatParameter(p, logParameterValues)).Join();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,24 +40,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IEnumerable<string> FormatParameterList(
-            [NotNull] this DbParameterCollection parameters,
-            bool logParameterValues)
-        {
-            return parameters
-                .Cast<DbParameter>()
-                .Select(
-                    p => FormatParameter(
-                        p.ParameterName,
-                        logParameterValues ? p.Value : "?",
-                        logParameterValues,
-                        p.Direction,
-                        p.DbType,
-                        p.IsNullable,
-                        p.Size,
-                        p.Precision,
-                        p.Scale));
-        }
+        public static string FormatParameter([NotNull] this DbParameter parameter, bool logParameterValues)
+            => FormatParameter(
+                parameter.ParameterName,
+                logParameterValues ? parameter.Value : "?",
+                logParameterValues,
+                parameter.Direction,
+                parameter.DbType,
+                parameter.IsNullable,
+                parameter.Size,
+                parameter.Precision,
+                parameter.Scale);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

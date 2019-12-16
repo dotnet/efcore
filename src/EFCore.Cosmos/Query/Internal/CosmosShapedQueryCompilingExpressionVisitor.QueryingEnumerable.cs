@@ -64,13 +64,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         .Visit(_selectExpression),
                     _cosmosQueryContext.ParameterValues);
 
-            public string ToQueryString()
+            public string ToQueryString(IDictionary<string, object> parameterValues = null)
             {
                 var sqlQuery = GenerateQuery();
                 if (sqlQuery.Parameters.Count == 0)
                 {
                     return sqlQuery.Query;
                 }
+
+                parameterValues?.Clear();
 
                 var builder = new StringBuilder();
                 foreach (var parameter in sqlQuery.Parameters)
@@ -81,6 +83,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         .Append("='")
                         .Append(parameter.Value)
                         .AppendLine("'");
+
+                    if (parameterValues != null)
+                    {
+                        parameterValues[parameter.Name] = parameter.Value;
+                    }
                 }
 
                 return builder.Append(sqlQuery.Query).ToString();

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -38,13 +39,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Where_equals_on_null_nullable_int_types(async);
         }
-        public override async Task<string> Where_simple_closure(bool async)
+        public override async Task<(string, IDictionary<string, object>)> Where_simple_closure(bool async)
         {
-            var queryString = await base.Where_simple_closure(async);
+            var (queryString, parameters) = await base.Where_simple_closure(async);
 
+            Assert.Empty(parameters);
             Assert.Equal(InMemoryStrings.NoQueryStrings, queryString );
 
-            return null;
+            return (null, null);
         }
 
         // Casting int to object to string is invalid for InMemory

@@ -34,13 +34,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="source"> The query source. </param>
+        /// <param name="parameterValues"> If not null, then EF will populate the given dictionary with parameter name/value pairs. </param>
         /// <returns> The query string for debugging. </returns>
-        public static string ToQueryString([NotNull] this IQueryable source)
+        public static string ToQueryString([NotNull] this IQueryable source, [CanBeNull] IDictionary<string, object> parameterValues = null)
         {
             Check.NotNull(source, nameof(source));
 
             return source.Provider.Execute<IEnumerable>(source.Expression) is IQueryingEnumerable queryingEnumerable
-                ? queryingEnumerable.ToQueryString()
+                ? queryingEnumerable.ToQueryString(parameterValues)
                 : CoreStrings.NotQueryingEnumerable;
         }
 

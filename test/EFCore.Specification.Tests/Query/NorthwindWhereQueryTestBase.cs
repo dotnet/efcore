@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task<string> Where_simple_closure(bool async)
+        public virtual async Task<(string, IDictionary<string, object>)> Where_simple_closure(bool async)
         {
             var city = "London";
 
@@ -63,7 +62,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 6);
 
             using var context = CreateContext();
-            return context.Set<Customer>().Where(c => c.City == city).ToQueryString();
+
+            var queryable = context.Set<Customer>().Where(c => c.City == city);
+            var parameters = new Dictionary<string, object>();
+            var queryString = queryable.ToQueryString(parameters);
+
+            Assert.Equal(queryString, queryable.ToQueryString());
+
+            return (queryString, parameters);
         }
 
         [ConditionalTheory]
