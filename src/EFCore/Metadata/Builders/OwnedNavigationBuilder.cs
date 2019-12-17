@@ -76,11 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         protected virtual T UpdateBuilder<T>([NotNull] Func<T> configure)
         {
-            var foreignKey = _builder.Metadata;
+            IConventionForeignKey foreignKey = _builder.Metadata;
             var result = DependentEntityType.Model.ConventionDispatcher.Run(configure, ref foreignKey);
             if (foreignKey != null)
             {
-                _builder = foreignKey.Builder;
+                _builder = ((ForeignKey)foreignKey).Builder;
             }
 
             return result;

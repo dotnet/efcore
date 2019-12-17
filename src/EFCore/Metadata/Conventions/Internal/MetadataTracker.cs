@@ -14,10 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class MetadataTracker : IReferenceRoot<ForeignKey>
+    public class MetadataTracker : IReferenceRoot<IConventionForeignKey>
     {
-        private readonly Dictionary<ForeignKey, Reference<ForeignKey>> _trackedForeignKeys =
-            new Dictionary<ForeignKey, Reference<ForeignKey>>();
+        private readonly Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>> _trackedForeignKeys =
+            new Dictionary<IConventionForeignKey, Reference<IConventionForeignKey>>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Reference<ForeignKey> Track(ForeignKey foreignKey)
+        public virtual Reference<IConventionForeignKey> Track(IConventionForeignKey foreignKey)
         {
             if (_trackedForeignKeys.TryGetValue(foreignKey, out var reference))
             {
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return reference;
             }
 
-            reference = new Reference<ForeignKey>(foreignKey, this);
+            reference = new Reference<IConventionForeignKey>(foreignKey, this);
             _trackedForeignKeys.Add(foreignKey, reference);
 
             return reference;
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void IReferenceRoot<ForeignKey>.Release(Reference<ForeignKey> foreignKeyReference)
+        void IReferenceRoot<IConventionForeignKey>.Release(Reference<IConventionForeignKey> foreignKeyReference)
         {
             _trackedForeignKeys.Remove(foreignKeyReference.Object);
         }

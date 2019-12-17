@@ -3,323 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
     public partial class ConventionDispatcher
     {
-        private abstract class ConventionNode
-        {
-            public abstract ConventionNode Accept(ConventionVisitor visitor);
-        }
-
-        private class ConventionScope : ConventionNode
-        {
-            private List<ConventionNode> _children;
-#if DEBUG
-            private bool _readonly;
-#endif
-
-            public ConventionScope(ConventionScope parent, List<ConventionNode> children = null)
-            {
-                Parent = parent;
-                _children = children;
-            }
-
-            public ConventionScope Parent { [DebuggerStepThrough] get; }
-
-            public IReadOnlyList<ConventionNode> Children
-            {
-                [DebuggerStepThrough] get => _children;
-            }
-
-            public int GetLeafCount()
-            {
-                if (Children == null)
-                {
-                    return 0;
-                }
-
-                var scopesToVisit = new Queue<ConventionScope>();
-                scopesToVisit.Enqueue(this);
-                var leafCount = 0;
-                while (scopesToVisit.Count > 0)
-                {
-                    var scope = scopesToVisit.Dequeue();
-                    if (scope.Children == null)
-                    {
-                        continue;
-                    }
-
-                    foreach (var conventionNode in scope.Children)
-                    {
-                        if (conventionNode is ConventionScope nextScope)
-                        {
-                            scopesToVisit.Enqueue(nextScope);
-                        }
-                        else
-                        {
-                            leafCount++;
-                        }
-                    }
-                }
-
-                return leafCount;
-            }
-
-            private void Add(ConventionNode node)
-            {
-#if DEBUG
-                Check.DebugAssert(!_readonly, "_readonly is true");
-#endif
-
-                if (_children == null)
-                {
-                    _children = new List<ConventionNode>();
-                }
-
-                _children.Add(node);
-            }
-
-            public void MakeReadonly()
-            {
-#if DEBUG
-                _readonly = true;
-#endif
-            }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitConventionScope(this);
-
-            public virtual IConventionEntityTypeBuilder OnEntityTypeAdded([NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
-            {
-                Add(new OnEntityTypeAddedNode(entityTypeBuilder));
-                return entityTypeBuilder;
-            }
-
-            public virtual string OnEntityTypeIgnored(
-                [NotNull] IConventionModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
-            {
-                Add(new OnEntityTypeIgnoredNode(modelBuilder, name, type));
-                return name;
-            }
-
-            public virtual IConventionEntityType OnEntityTypeRemoved(
-                [NotNull] IConventionModelBuilder modelBuilder, [NotNull] IConventionEntityType entityType)
-            {
-                Add(new OnEntityTypeRemovedNode(modelBuilder, entityType));
-                return entityType;
-            }
-
-            public virtual string OnEntityTypeMemberIgnored(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-                [NotNull] string name)
-            {
-                Add(new OnEntityTypeMemberIgnoredNode(entityTypeBuilder, name));
-                return name;
-            }
-
-            public virtual IConventionEntityType OnEntityTypeBaseTypeChanged(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-                [CanBeNull] IConventionEntityType newBaseType,
-                [CanBeNull] IConventionEntityType previousBaseType)
-            {
-                Add(new OnEntityTypeBaseTypeChangedNode(entityTypeBuilder, newBaseType, previousBaseType));
-                return newBaseType;
-            }
-
-            public virtual IConventionAnnotation OnEntityTypeAnnotationChanged(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-                [NotNull] string name,
-                [CanBeNull] IConventionAnnotation annotation,
-                [CanBeNull] IConventionAnnotation oldAnnotation)
-            {
-                Add(new OnEntityTypeAnnotationChangedNode(entityTypeBuilder, name, annotation, oldAnnotation));
-                return annotation;
-            }
-
-            public virtual IConventionAnnotation OnModelAnnotationChanged(
-                [NotNull] IConventionModelBuilder modelBuilder,
-                [NotNull] string name,
-                [CanBeNull] IConventionAnnotation annotation,
-                [CanBeNull] IConventionAnnotation oldAnnotation)
-            {
-                Add(new OnModelAnnotationChangedNode(modelBuilder, name, annotation, oldAnnotation));
-                return annotation;
-            }
-
-            public virtual IConventionRelationshipBuilder OnForeignKeyAdded([NotNull] IConventionRelationshipBuilder relationshipBuilder)
-            {
-                Add(new OnForeignKeyAddedNode(relationshipBuilder));
-                return relationshipBuilder;
-            }
-
-            public virtual IConventionForeignKey OnForeignKeyRemoved(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionForeignKey foreignKey)
-            {
-                Add(new OnForeignKeyRemovedNode(entityTypeBuilder, foreignKey));
-                return foreignKey;
-            }
-
-            public virtual IConventionAnnotation OnForeignKeyAnnotationChanged(
-                IConventionRelationshipBuilder relationshipBuilder,
-                string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
-            {
-                Add(new OnForeignKeyAnnotationChangedNode(relationshipBuilder, name, annotation, oldAnnotation));
-                return annotation;
-            }
-
-            public virtual IConventionKeyBuilder OnKeyAdded([NotNull] IConventionKeyBuilder keyBuilder)
-            {
-                Add(new OnKeyAddedNode(keyBuilder));
-                return keyBuilder;
-            }
-
-            public virtual IConventionKey OnKeyRemoved(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionKey key)
-            {
-                Add(new OnKeyRemovedNode(entityTypeBuilder, key));
-                return key;
-            }
-
-            public virtual IConventionAnnotation OnKeyAnnotationChanged(
-                IConventionKeyBuilder keyBuilder,
-                string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
-            {
-                Add(new OnKeyAnnotationChangedNode(keyBuilder, name, annotation, oldAnnotation));
-                return annotation;
-            }
-
-            public virtual IConventionKey OnEntityTypePrimaryKeyChanged(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-                [CanBeNull] IConventionKey newPrimaryKey,
-                [CanBeNull] IConventionKey previousPrimaryKey)
-            {
-                Add(new OnEntityTypePrimaryKeyChangedNode(entityTypeBuilder, newPrimaryKey, previousPrimaryKey));
-                return newPrimaryKey;
-            }
-
-            public virtual IConventionIndexBuilder OnIndexAdded([NotNull] IConventionIndexBuilder indexBuilder)
-            {
-                Add(new OnIndexAddedNode(indexBuilder));
-                return indexBuilder;
-            }
-
-            public virtual IConventionIndex OnIndexRemoved(
-                [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionIndex index)
-            {
-                Add(new OnIndexRemovedNode(entityTypeBuilder, index));
-                return index;
-            }
-
-            public virtual IConventionIndexBuilder OnIndexUniquenessChanged([NotNull] IConventionIndexBuilder indexBuilder)
-            {
-                Add(new OnIndexUniquenessChangedNode(indexBuilder));
-                return indexBuilder;
-            }
-
-            public virtual IConventionAnnotation OnIndexAnnotationChanged(
-                [NotNull] IConventionIndexBuilder indexBuilder,
-                [NotNull] string name,
-                [CanBeNull] IConventionAnnotation annotation,
-                [CanBeNull] IConventionAnnotation oldAnnotation)
-            {
-                Add(new OnIndexAnnotationChangedNode(indexBuilder, name, annotation, oldAnnotation));
-                return annotation;
-            }
-
-            public virtual IConventionNavigation OnNavigationAdded(
-                [NotNull] IConventionRelationshipBuilder relationshipBuilder, [NotNull] IConventionNavigation navigation)
-            {
-                Add(new OnNavigationAddedNode(relationshipBuilder, navigation));
-                return navigation;
-            }
-
-            public virtual string OnNavigationRemoved(
-                [NotNull] IConventionEntityTypeBuilder sourceEntityTypeBuilder,
-                [NotNull] IConventionEntityTypeBuilder targetEntityTypeBuilder,
-                [NotNull] string navigationName,
-                [CanBeNull] MemberInfo memberInfo)
-            {
-                Add(new OnNavigationRemovedNode(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName, memberInfo));
-                return navigationName;
-            }
-
-            public virtual IConventionRelationshipBuilder OnForeignKeyPropertiesChanged(
-                [NotNull] IConventionRelationshipBuilder relationshipBuilder,
-                [NotNull] IReadOnlyList<IConventionProperty> oldDependentProperties,
-                [NotNull] IConventionKey oldPrincipalKey)
-            {
-                Add(new OnForeignKeyPropertiesChangedNode(relationshipBuilder, oldDependentProperties, oldPrincipalKey));
-                return relationshipBuilder;
-            }
-
-            public virtual IConventionRelationshipBuilder OnForeignKeyUniquenessChanged(
-                [NotNull] IConventionRelationshipBuilder relationshipBuilder)
-            {
-                Add(new OnForeignKeyUniquenessChangedNode(relationshipBuilder));
-                return relationshipBuilder;
-            }
-
-            public virtual IConventionRelationshipBuilder OnForeignKeyRequirednessChanged(
-                [NotNull] IConventionRelationshipBuilder relationshipBuilder)
-            {
-                Add(new OnForeignKeyRequirednessChangedNode(relationshipBuilder));
-                return relationshipBuilder;
-            }
-
-            public virtual IConventionRelationshipBuilder OnForeignKeyOwnershipChanged(
-                [NotNull] IConventionRelationshipBuilder relationshipBuilder)
-            {
-                Add(new OnForeignKeyOwnershipChangedNode(relationshipBuilder));
-                return relationshipBuilder;
-            }
-
-            public virtual IConventionRelationshipBuilder OnForeignKeyPrincipalEndChanged(
-                [NotNull] IConventionRelationshipBuilder relationshipBuilder)
-            {
-                Add(new OnForeignKeyPrincipalEndChangedNode(relationshipBuilder));
-                return relationshipBuilder;
-            }
-
-            public virtual IConventionPropertyBuilder OnPropertyAdded([NotNull] IConventionPropertyBuilder propertyBuilder)
-            {
-                Add(new OnPropertyAddedNode(propertyBuilder));
-                return propertyBuilder;
-            }
-
-            public virtual IConventionPropertyBuilder OnPropertyNullableChanged([NotNull] IConventionPropertyBuilder propertyBuilder)
-            {
-                Add(new OnPropertyNullableChangedNode(propertyBuilder));
-                return propertyBuilder;
-            }
-
-            public virtual FieldInfo OnPropertyFieldChanged(
-                [NotNull] IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
-            {
-                Add(new OnPropertyFieldChangedNode(propertyBuilder, newFieldInfo, oldFieldInfo));
-                return newFieldInfo;
-            }
-
-            public virtual IConventionAnnotation OnPropertyAnnotationChanged(
-                [NotNull] IConventionPropertyBuilder propertyBuilder,
-                [NotNull] string name,
-                [CanBeNull] IConventionAnnotation annotation,
-                [CanBeNull] IConventionAnnotation oldAnnotation)
-            {
-                Add(new OnPropertyAnnotationChangedNode(propertyBuilder, name, annotation, oldAnnotation));
-                return annotation;
-            }
-        }
-
         private sealed class ImmediateConventionScope : ConventionScope
         {
             private readonly ConventionSet _conventionSet;
@@ -340,7 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private readonly ConventionContext<FieldInfo> _fieldInfoConventionContext;
 
             public ImmediateConventionScope([NotNull] ConventionSet conventionSet, ConventionDispatcher dispatcher)
-                : base(parent: null)
             {
                 _conventionSet = conventionSet;
                 _dispatcher = dispatcher;
@@ -358,8 +48,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 _annotationConventionContext = new ConventionContext<IConventionAnnotation>(dispatcher);
                 _stringConventionContext = new ConventionContext<string>(dispatcher);
                 _fieldInfoConventionContext = new ConventionContext<FieldInfo>(dispatcher);
-                MakeReadonly();
             }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => throw new NotImplementedException("Immediate convention scope cannot be run again");
 
             public IConventionModelBuilder OnModelFinalized([NotNull] IConventionModelBuilder modelBuilder)
             {
@@ -407,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _annotationConventionContext.ResetState(annotation);
-                    foreach (var modelAnnotationSetConvention in _conventionSet.ModelAnnotationChangedConventions)
+                    foreach (var modelConvention in _conventionSet.ModelAnnotationChangedConventions)
                     {
-                        modelAnnotationSetConvention.ProcessModelAnnotationChanged(
+                        modelConvention.ProcessModelAnnotationChanged(
                             modelBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
 
                         if (_annotationConventionContext.ShouldStopProcessing())
@@ -455,14 +147,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _stringConventionContext.ResetState(name);
-                    foreach (var entityTypeIgnoredConvention in _conventionSet.EntityTypeIgnoredConventions)
+                    foreach (var entityTypeConvention in _conventionSet.EntityTypeIgnoredConventions)
                     {
                         if (!modelBuilder.Metadata.IsIgnored(name))
                         {
                             return null;
                         }
 
-                        entityTypeIgnoredConvention.ProcessEntityTypeIgnored(modelBuilder, name, type, _stringConventionContext);
+                        entityTypeConvention.ProcessEntityTypeIgnored(modelBuilder, name, type, _stringConventionContext);
                         if (_stringConventionContext.ShouldStopProcessing())
                         {
                             return _stringConventionContext.Result;
@@ -484,9 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _entityTypeConventionContext.ResetState(entityType);
-                    foreach (var entityTypeRemovedConvention in _conventionSet.EntityTypeRemovedConventions)
+                    foreach (var entityTypeConvention in _conventionSet.EntityTypeRemovedConventions)
                     {
-                        entityTypeRemovedConvention.ProcessEntityTypeRemoved(modelBuilder, entityType, _entityTypeConventionContext);
+                        entityTypeConvention.ProcessEntityTypeRemoved(modelBuilder, entityType, _entityTypeConventionContext);
                         if (_entityTypeConventionContext.ShouldStopProcessing())
                         {
                             return _entityTypeConventionContext.Result;
@@ -509,14 +201,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     _stringConventionContext.ResetState(name);
                     foreach (var entityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
                     {
-                        foreach (var entityTypeMemberIgnoredConvention in _conventionSet.EntityTypeMemberIgnoredConventions)
+                        foreach (var entityTypeConvention in _conventionSet.EntityTypeMemberIgnoredConventions)
                         {
                             if (!entityTypeBuilder.Metadata.IsIgnored(name))
                             {
                                 return null;
                             }
 
-                            entityTypeMemberIgnoredConvention.ProcessEntityTypeMemberIgnored(
+                            entityTypeConvention.ProcessEntityTypeMemberIgnored(
                                 entityType.Builder, name, _stringConventionContext);
                             if (_stringConventionContext.ShouldStopProcessing())
                             {
@@ -613,14 +305,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _annotationConventionContext.ResetState(annotation);
-                    foreach (var entityTypeAnnotationSetConvention in _conventionSet.EntityTypeAnnotationChangedConventions)
+                    foreach (var entityTypeConvention in _conventionSet.EntityTypeAnnotationChangedConventions)
                     {
                         if (entityTypeBuilder.Metadata.Builder == null)
                         {
                             return null;
                         }
 
-                        entityTypeAnnotationSetConvention.ProcessEntityTypeAnnotationChanged(
+                        entityTypeConvention.ProcessEntityTypeAnnotationChanged(
                             entityTypeBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
                         if (_annotationConventionContext.ShouldStopProcessing())
                         {
@@ -648,14 +340,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
-                    foreach (var relationshipConvention in _conventionSet.ForeignKeyAddedConventions)
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyAddedConventions)
                     {
                         if (relationshipBuilder.Metadata.Builder == null)
                         {
                             return null;
                         }
 
-                        relationshipConvention.ProcessForeignKeyAdded(relationshipBuilder, _relationshipBuilderConventionContext);
+                        foreignKeyConvention.ProcessForeignKeyAdded(relationshipBuilder, _relationshipBuilderConventionContext);
                         if (_relationshipBuilderConventionContext.ShouldStopProcessing())
                         {
                             return _relationshipBuilderConventionContext.Result;
@@ -703,16 +395,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
-                    foreach (var propertiesChangedConvention in _conventionSet.ForeignKeyPropertiesChangedConventions)
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyPropertiesChangedConventions)
                     {
                         // Some conventions rely on this running even if the relationship has been removed
-                        // This will be fixed by reference counting, see #214
+                        // This will be fixed by reference counting, see #15898
                         //if (relationshipBuilder.Metadata.Builder == null)
                         //{
                         //    return null;
                         //}
 
-                        propertiesChangedConvention.ProcessForeignKeyPropertiesChanged(
+                        foreignKeyConvention.ProcessForeignKeyPropertiesChanged(
                             relationshipBuilder, oldDependentProperties, oldPrincipalKey, _relationshipBuilderConventionContext);
 
                         if (_relationshipBuilderConventionContext.ShouldStopProcessing())
@@ -735,14 +427,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
-                    foreach (var uniquenessConvention in _conventionSet.ForeignKeyUniquenessChangedConventions)
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyUniquenessChangedConventions)
                     {
                         if (relationshipBuilder.Metadata.Builder == null)
                         {
                             return null;
                         }
 
-                        uniquenessConvention.ProcessForeignKeyUniquenessChanged(
+                        foreignKeyConvention.ProcessForeignKeyUniquenessChanged(
                             relationshipBuilder, _relationshipBuilderConventionContext);
 
                         if (_relationshipBuilderConventionContext.ShouldStopProcessing())
@@ -766,14 +458,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
-                    foreach (var requirednessConvention in _conventionSet.ForeignKeyRequirednessChangedConventions)
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyRequirednessChangedConventions)
                     {
                         if (relationshipBuilder.Metadata.Builder == null)
                         {
                             return null;
                         }
 
-                        requirednessConvention.ProcessForeignKeyRequirednessChanged(
+                        foreignKeyConvention.ProcessForeignKeyRequirednessChanged(
                             relationshipBuilder, _relationshipBuilderConventionContext);
 
                         if (_relationshipBuilderConventionContext.ShouldStopProcessing())
@@ -797,14 +489,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
-                    foreach (var ownershipConvention in _conventionSet.ForeignKeyOwnershipChangedConventions)
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyOwnershipChangedConventions)
                     {
                         if (relationshipBuilder.Metadata.Builder == null)
                         {
                             return null;
                         }
 
-                        ownershipConvention.ProcessForeignKeyOwnershipChanged(relationshipBuilder, _relationshipBuilderConventionContext);
+                        foreignKeyConvention.ProcessForeignKeyOwnershipChanged(relationshipBuilder, _relationshipBuilderConventionContext);
                         if (_relationshipBuilderConventionContext.ShouldStopProcessing())
                         {
                             return _relationshipBuilderConventionContext.Result;
@@ -826,14 +518,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _relationshipBuilderConventionContext.ResetState(relationshipBuilder);
-                    foreach (var relationshipConvention in _conventionSet.ForeignKeyPrincipalEndChangedConventions)
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyPrincipalEndChangedConventions)
                     {
                         if (relationshipBuilder.Metadata.Builder == null)
                         {
                             return null;
                         }
 
-                        relationshipConvention.ProcessForeignKeyPrincipalEndChanged(
+                        foreignKeyConvention.ProcessForeignKeyPrincipalEndChanged(
                             relationshipBuilder, _relationshipBuilderConventionContext);
                         if (_relationshipBuilderConventionContext.ShouldStopProcessing())
                         {
@@ -864,9 +556,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _annotationConventionContext.ResetState(annotation);
-                    foreach (var indexAnnotationSetConvention in _conventionSet.ForeignKeyAnnotationChangedConventions)
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyAnnotationChangedConventions)
                     {
-                        indexAnnotationSetConvention.ProcessForeignKeyAnnotationChanged(
+                        foreignKeyConvention.ProcessForeignKeyAnnotationChanged(
                             relationshipBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
                         if (_annotationConventionContext.ShouldStopProcessing())
                         {
@@ -881,18 +573,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public override IConventionNavigation OnNavigationAdded(
                 IConventionRelationshipBuilder relationshipBuilder, IConventionNavigation navigation)
             {
-                if (relationshipBuilder.Metadata.Builder == null)
+                if (relationshipBuilder.Metadata.Builder == null
+                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
                 {
                     return null;
                 }
 
                 using (_dispatcher.DelayConventions())
                 {
-                    if (relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
-                    {
-                        return null;
-                    }
-
                     _navigationConventionContext.ResetState(navigation);
                     foreach (var navigationConvention in _conventionSet.NavigationAddedConventions)
                     {
@@ -1021,9 +709,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _annotationConventionContext.ResetState(annotation);
-                    foreach (var keyAnnotationSetConvention in _conventionSet.KeyAnnotationChangedConventions)
+                    foreach (var keyConvention in _conventionSet.KeyAnnotationChangedConventions)
                     {
-                        keyAnnotationSetConvention.ProcessKeyAnnotationChanged(
+                        keyConvention.ProcessKeyAnnotationChanged(
                             keyBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
                         if (_annotationConventionContext.ShouldStopProcessing())
                         {
@@ -1096,14 +784,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _indexBuilderConventionContext.ResetState(indexBuilder);
-                    foreach (var indexUniquenessConvention in _conventionSet.IndexUniquenessChangedConventions)
+                    foreach (var indexConvention in _conventionSet.IndexUniquenessChangedConventions)
                     {
                         if (indexBuilder.Metadata.Builder == null)
                         {
                             return null;
                         }
 
-                        indexUniquenessConvention.ProcessIndexUniquenessChanged(indexBuilder, _indexBuilderConventionContext);
+                        indexConvention.ProcessIndexUniquenessChanged(indexBuilder, _indexBuilderConventionContext);
                         if (_indexBuilderConventionContext.ShouldStopProcessing())
                         {
                             return _indexBuilderConventionContext.Result;
@@ -1133,9 +821,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _annotationConventionContext.ResetState(annotation);
-                    foreach (var indexAnnotationSetConvention in _conventionSet.IndexAnnotationChangedConventions)
+                    foreach (var indexConvention in _conventionSet.IndexAnnotationChangedConventions)
                     {
-                        indexAnnotationSetConvention.ProcessIndexAnnotationChanged(
+                        indexConvention.ProcessIndexAnnotationChanged(
                             indexBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
                         if (_annotationConventionContext.ShouldStopProcessing())
                         {
@@ -1251,9 +939,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 using (_dispatcher.DelayConventions())
                 {
                     _annotationConventionContext.ResetState(annotation);
-                    foreach (var propertyAnnotationSetConvention in _conventionSet.PropertyAnnotationChangedConventions)
+                    foreach (var propertyConvention in _conventionSet.PropertyAnnotationChangedConventions)
                     {
-                        propertyAnnotationSetConvention.ProcessPropertyAnnotationChanged(
+                        propertyConvention.ProcessPropertyAnnotationChanged(
                             propertyBuilder, name, annotation, oldAnnotation, _annotationConventionContext);
 
                         if (_annotationConventionContext.ShouldStopProcessing())
@@ -1265,460 +953,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
                 return annotation;
             }
-        }
-
-        private sealed class OnModelAnnotationChangedNode : ConventionNode
-        {
-            public OnModelAnnotationChangedNode(
-                IConventionModelBuilder modelBuilder,
-                string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
-            {
-                ModelBuilder = modelBuilder;
-                Name = name;
-                Annotation = annotation;
-                OldAnnotation = oldAnnotation;
-            }
-
-            public IConventionModelBuilder ModelBuilder { get; }
-            public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnModelAnnotationChanged(this);
-        }
-
-        private sealed class OnEntityTypeAddedNode : ConventionNode
-        {
-            public OnEntityTypeAddedNode(IConventionEntityTypeBuilder entityTypeBuilder)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeAdded(this);
-        }
-
-        private sealed class OnEntityTypeIgnoredNode : ConventionNode
-        {
-            public OnEntityTypeIgnoredNode(IConventionModelBuilder modelBuilder, string name, Type type)
-            {
-                ModelBuilder = modelBuilder;
-                Name = name;
-                Type = type;
-            }
-
-            public IConventionModelBuilder ModelBuilder { get; }
-            public string Name { get; }
-            public Type Type { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeIgnored(this);
-        }
-
-        private sealed class OnEntityTypeRemovedNode : ConventionNode
-        {
-            public OnEntityTypeRemovedNode(IConventionModelBuilder modelBuilder, IConventionEntityType entityType)
-            {
-                ModelBuilder = modelBuilder;
-                EntityType = entityType;
-            }
-
-            public IConventionModelBuilder ModelBuilder { get; }
-            public IConventionEntityType EntityType { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeRemoved(this);
-        }
-
-        private sealed class OnEntityTypeMemberIgnoredNode : ConventionNode
-        {
-            public OnEntityTypeMemberIgnoredNode(IConventionEntityTypeBuilder entityTypeBuilder, string name)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-                Name = name;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public string Name { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeMemberIgnored(this);
-        }
-
-        private sealed class OnEntityTypeBaseTypeChangedNode : ConventionNode
-        {
-            public OnEntityTypeBaseTypeChangedNode(
-                IConventionEntityTypeBuilder entityTypeBuilder,
-                IConventionEntityType newBaseType,
-                IConventionEntityType previousBaseType)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-                NewBaseType = newBaseType;
-                PreviousBaseType = previousBaseType;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public IConventionEntityType NewBaseType { get; }
-            public IConventionEntityType PreviousBaseType { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnBaseEntityTypeChanged(this);
-        }
-
-        private sealed class OnEntityTypeAnnotationChangedNode : ConventionNode
-        {
-            public OnEntityTypeAnnotationChangedNode(
-                IConventionEntityTypeBuilder entityTypeBuilder,
-                string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-                Name = name;
-                Annotation = annotation;
-                OldAnnotation = oldAnnotation;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnEntityTypeAnnotationChanged(this);
-        }
-
-        private sealed class OnForeignKeyAddedNode : ConventionNode
-        {
-            public OnForeignKeyAddedNode(IConventionRelationshipBuilder relationshipBuilder)
-            {
-                RelationshipBuilder = relationshipBuilder;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyAdded(this);
-        }
-
-        private sealed class OnForeignKeyRemovedNode : ConventionNode
-        {
-            public OnForeignKeyRemovedNode(IConventionEntityTypeBuilder entityTypeBuilder, IConventionForeignKey foreignKey)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-                ForeignKey = foreignKey;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public IConventionForeignKey ForeignKey { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyRemoved(this);
-        }
-
-        private sealed class OnForeignKeyAnnotationChangedNode : ConventionNode
-        {
-            public OnForeignKeyAnnotationChangedNode(
-                IConventionRelationshipBuilder relationshipBuilder,
-                string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
-            {
-                RelationshipBuilder = relationshipBuilder;
-                Name = name;
-                Annotation = annotation;
-                OldAnnotation = oldAnnotation;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-            public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyAnnotationChanged(this);
-        }
-
-        private sealed class OnForeignKeyPropertiesChangedNode : ConventionNode
-        {
-            public OnForeignKeyPropertiesChangedNode(
-                IConventionRelationshipBuilder relationshipBuilder,
-                IReadOnlyList<IConventionProperty> oldDependentProperties,
-                IConventionKey oldPrincipalKey)
-            {
-                RelationshipBuilder = relationshipBuilder;
-                OldDependentProperties = oldDependentProperties;
-                OldPrincipalKey = oldPrincipalKey;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-            public IReadOnlyList<IConventionProperty> OldDependentProperties { get; }
-            public IConventionKey OldPrincipalKey { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyPropertiesChanged(this);
-        }
-
-        private sealed class OnForeignKeyUniquenessChangedNode : ConventionNode
-        {
-            public OnForeignKeyUniquenessChangedNode(IConventionRelationshipBuilder relationshipBuilder)
-            {
-                RelationshipBuilder = relationshipBuilder;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyUniquenessChanged(this);
-        }
-
-        private sealed class OnForeignKeyRequirednessChangedNode : ConventionNode
-        {
-            public OnForeignKeyRequirednessChangedNode(IConventionRelationshipBuilder relationshipBuilder)
-            {
-                RelationshipBuilder = relationshipBuilder;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyRequirednessChanged(this);
-        }
-
-        private sealed class OnForeignKeyOwnershipChangedNode : ConventionNode
-        {
-            public OnForeignKeyOwnershipChangedNode(IConventionRelationshipBuilder relationshipBuilder)
-            {
-                RelationshipBuilder = relationshipBuilder;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyOwnershipChanged(this);
-        }
-
-        private sealed class OnForeignKeyPrincipalEndChangedNode : ConventionNode
-        {
-            public OnForeignKeyPrincipalEndChangedNode(IConventionRelationshipBuilder relationshipBuilder)
-            {
-                RelationshipBuilder = relationshipBuilder;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnForeignKeyPrincipalEndChanged(this);
-        }
-
-        private sealed class OnNavigationAddedNode : ConventionNode
-        {
-            public OnNavigationAddedNode(IConventionRelationshipBuilder relationshipBuilder, IConventionNavigation navigation)
-            {
-                RelationshipBuilder = relationshipBuilder;
-                Navigation = navigation;
-            }
-
-            public IConventionRelationshipBuilder RelationshipBuilder { get; }
-            public IConventionNavigation Navigation { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnNavigationAdded(this);
-        }
-
-        private sealed class OnNavigationRemovedNode : ConventionNode
-        {
-            public OnNavigationRemovedNode(
-                IConventionEntityTypeBuilder sourceEntityTypeBuilder,
-                IConventionEntityTypeBuilder targetEntityTypeBuilder,
-                string navigationName,
-                MemberInfo memberInfo)
-            {
-                SourceEntityTypeBuilder = sourceEntityTypeBuilder;
-                TargetEntityTypeBuilder = targetEntityTypeBuilder;
-                NavigationName = navigationName;
-                MemberInfo = memberInfo;
-            }
-
-            public IConventionEntityTypeBuilder SourceEntityTypeBuilder { get; }
-            public IConventionEntityTypeBuilder TargetEntityTypeBuilder { get; }
-            public string NavigationName { get; }
-            public MemberInfo MemberInfo { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnNavigationRemoved(this);
-        }
-
-        private sealed class OnKeyAddedNode : ConventionNode
-        {
-            public OnKeyAddedNode(IConventionKeyBuilder keyBuilder)
-            {
-                KeyBuilder = keyBuilder;
-            }
-
-            public IConventionKeyBuilder KeyBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnKeyAdded(this);
-        }
-
-        private sealed class OnKeyRemovedNode : ConventionNode
-        {
-            public OnKeyRemovedNode(IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-                Key = key;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public IConventionKey Key { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnKeyRemoved(this);
-        }
-
-        private sealed class OnKeyAnnotationChangedNode : ConventionNode
-        {
-            public OnKeyAnnotationChangedNode(
-                IConventionKeyBuilder keyBuilder,
-                string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
-            {
-                KeyBuilder = keyBuilder;
-                Name = name;
-                Annotation = annotation;
-                OldAnnotation = oldAnnotation;
-            }
-
-            public IConventionKeyBuilder KeyBuilder { get; }
-            public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnKeyAnnotationChanged(this);
-        }
-
-        private sealed class OnEntityTypePrimaryKeyChangedNode : ConventionNode
-        {
-            public OnEntityTypePrimaryKeyChangedNode(
-                IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey newPrimaryKey, IConventionKey previousPrimaryKey)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-                NewPrimaryKey = newPrimaryKey;
-                PreviousPrimaryKey = previousPrimaryKey;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public IConventionKey NewPrimaryKey { get; }
-            public IConventionKey PreviousPrimaryKey { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPrimaryKeyChanged(this);
-        }
-
-        private sealed class OnIndexAddedNode : ConventionNode
-        {
-            public OnIndexAddedNode(IConventionIndexBuilder indexBuilder)
-            {
-                IndexBuilder = indexBuilder;
-            }
-
-            public IConventionIndexBuilder IndexBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnIndexAdded(this);
-        }
-
-        private sealed class OnIndexRemovedNode : ConventionNode
-        {
-            public OnIndexRemovedNode(IConventionEntityTypeBuilder entityTypeBuilder, IConventionIndex index)
-            {
-                EntityTypeBuilder = entityTypeBuilder;
-                Index = index;
-            }
-
-            public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-            public IConventionIndex Index { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnIndexRemoved(this);
-        }
-
-        private sealed class OnIndexUniquenessChangedNode : ConventionNode
-        {
-            public OnIndexUniquenessChangedNode(IConventionIndexBuilder indexBuilder)
-            {
-                IndexBuilder = indexBuilder;
-            }
-
-            public IConventionIndexBuilder IndexBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnIndexUniquenessChanged(this);
-        }
-
-        private sealed class OnIndexAnnotationChangedNode : ConventionNode
-        {
-            public OnIndexAnnotationChangedNode(
-                IConventionIndexBuilder indexBuilder, string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
-            {
-                IndexBuilder = indexBuilder;
-                Name = name;
-                Annotation = annotation;
-                OldAnnotation = oldAnnotation;
-            }
-
-            public IConventionIndexBuilder IndexBuilder { get; }
-            public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnIndexAnnotationChanged(this);
-        }
-
-        private sealed class OnPropertyAddedNode : ConventionNode
-        {
-            public OnPropertyAddedNode(IConventionPropertyBuilder propertyBuilder)
-            {
-                PropertyBuilder = propertyBuilder;
-            }
-
-            public IConventionPropertyBuilder PropertyBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPropertyAdded(this);
-        }
-
-        private sealed class OnPropertyNullableChangedNode : ConventionNode
-        {
-            public OnPropertyNullableChangedNode(IConventionPropertyBuilder propertyBuilder)
-            {
-                PropertyBuilder = propertyBuilder;
-            }
-
-            public IConventionPropertyBuilder PropertyBuilder { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPropertyNullableChanged(this);
-        }
-
-        private sealed class OnPropertyFieldChangedNode : ConventionNode
-        {
-            public OnPropertyFieldChangedNode(IConventionPropertyBuilder propertyBuilder, FieldInfo newFieldInfo, FieldInfo oldFieldInfo)
-            {
-                PropertyBuilder = propertyBuilder;
-                NewFieldInfo = newFieldInfo;
-                OldFieldInfo = oldFieldInfo;
-            }
-
-            public IConventionPropertyBuilder PropertyBuilder { get; }
-            public FieldInfo NewFieldInfo { get; }
-            public FieldInfo OldFieldInfo { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPropertyFieldChanged(this);
-        }
-
-        private sealed class OnPropertyAnnotationChangedNode : ConventionNode
-        {
-            public OnPropertyAnnotationChangedNode(
-                IConventionPropertyBuilder propertyBuilder,
-                string name,
-                IConventionAnnotation annotation,
-                IConventionAnnotation oldAnnotation)
-            {
-                PropertyBuilder = propertyBuilder;
-                Name = name;
-                Annotation = annotation;
-                OldAnnotation = oldAnnotation;
-            }
-
-            public IConventionPropertyBuilder PropertyBuilder { get; }
-            public string Name { get; }
-            public IConventionAnnotation Annotation { get; }
-            public IConventionAnnotation OldAnnotation { get; }
-
-            public override ConventionNode Accept(ConventionVisitor visitor) => visitor.VisitOnPropertyAnnotationChanged(this);
         }
     }
 }
