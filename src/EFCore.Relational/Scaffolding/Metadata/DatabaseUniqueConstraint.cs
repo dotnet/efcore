@@ -35,5 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     The ordered list of columns that make up the constraint.
         /// </summary>
         public virtual IList<DatabaseColumn> Columns { get; }
+
+        public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public virtual void Clear() => Logger.Clear();
         public CancellationToken CancelQuery() => Logger.CancelOnNextLogEntry();
+        public virtual IDisposable SuspendRecordingEvents() => Logger.SuspendRecordingEvents();
 
         public void SetTestOutputHelper(ITestOutputHelper testOutputHelper)
         {
@@ -68,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             private readonly object _sync = new object();
             private CancellationTokenSource _cancellationTokenSource;
+            protected bool IsRecordingSuspended { get; private set; }
 
             public ITestOutputHelper TestOutputHelper { get; set; }
 
@@ -98,6 +100,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 _cancellationTokenSource = null;
             }
 
+            public IDisposable SuspendRecordingEvents()
+            {
+                IsRecordingSuspended = true;
+                return new RecordingSuspensionHandle(this);
+            }
+
             public void Log<TState>(
                 LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             {
@@ -122,7 +130,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     TestOutputHelper?.WriteLine(message + Environment.NewLine);
                 }
 
-                LoggedEvents.Add((logLevel, eventId, message, state, exception));
+                if (!IsRecordingSuspended)
+                {
+                    LoggedEvents.Add((logLevel, eventId, message, state, exception));
+                }
             }
 
             public bool IsEnabled(LogLevel logLevel) => true;
@@ -130,6 +141,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public IDisposable BeginScope(object state) => null;
 
             public IDisposable BeginScope<TState>(TState state) => null;
+
+            private class RecordingSuspensionHandle : IDisposable
+            {
+                private readonly ListLogger _logger;
+                public RecordingSuspensionHandle(ListLogger logger) => _logger = logger;
+                public void Dispose() => _logger.IsRecordingSuspended = false;
+            }
         }
     }
 }
