@@ -45,5 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     The filter expression, or <c>null</c> if the index has no filter.
         /// </summary>
         public virtual string? Filter { get; [param: CanBeNull] set; }
+
+        public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

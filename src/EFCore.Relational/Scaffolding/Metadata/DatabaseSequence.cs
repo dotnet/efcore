@@ -63,5 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     Indicates whether or not the sequence will start over when the max value is reached, or <c>null</c> if not set.
         /// </summary>
         public virtual bool? IsCyclic { get; set; }
+
+        public override string ToString() => Schema == null ? Name : $"{Schema}.{Name}";
     }
 }

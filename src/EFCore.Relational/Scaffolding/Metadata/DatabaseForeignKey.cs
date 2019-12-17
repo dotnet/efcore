@@ -58,5 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     is deleted, or <c>null</c> if there is no action defined.
         /// </summary>
         public virtual ReferentialAction? OnDelete { get; set; }
+
+        public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

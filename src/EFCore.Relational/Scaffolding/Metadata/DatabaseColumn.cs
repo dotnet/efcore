@@ -61,5 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         ///     the database will not generate values.
         /// </summary>
         public virtual ValueGenerated? ValueGenerated { get; set; }
+
+        public override string ToString() => Name;
     }
 }

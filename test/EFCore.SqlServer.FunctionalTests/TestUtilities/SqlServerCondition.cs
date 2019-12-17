@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         SupportsAttach = 1 << 5,
         SupportsHiddenColumns = 1 << 6,
         IsNotCI = 1 << 7,
-        SupportsFullTextSearch = 1 << 8
+        SupportsFullTextSearch = 1 << 8,
+        SupportsOnlineIndexes = 1 << 9
     }
 }
