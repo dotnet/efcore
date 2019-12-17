@@ -686,14 +686,14 @@ WHERE CAST(ISDATE([o].[CustomerID] + CAST([o].[OrderID] AS nchar(5))) AS bit) = 
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => c.OrderDate > EF.Functions.DateTimeFromParts(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, DateTime.Now.Millisecond));
+                    .Count(c => c.OrderDate > EF.Functions.DateTimeFromParts(DateTime.Now.Year, 12, 31, 23, 59, 59, 999));
 
                 Assert.Equal(0, count);
 
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), DATEPART(month, GETDATE()), DATEPART(day, GETDATE()), DATEPART(hour, GETDATE()), DATEPART(minute, GETDATE()), DATEPART(second, GETDATE()), DATEPART(millisecond, GETDATE()))");
+WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999)");
             }
         }
 
@@ -703,33 +703,40 @@ WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), DATEPART(mo
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => new DateTime(2018, 12, 29, 23, 20, 40) > EF.Functions.DateTimeFromParts(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 10, 20, 15, 22));
+                    .Count(c => new DateTime(2018, 12, 29, 23, 20, 40) > EF.Functions.DateTimeFromParts(DateTime.Now.Year, 12, 31, 23, 59, 59, 999));
 
                 Assert.Equal(0, count);
 
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), DATEPART(month, GETDATE()), DATEPART(day, GETDATE()), 10, 20, 15, 22)");
+WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23, 59, 59, 999)");
             }
         }
 
         [ConditionalFact]
-        public virtual void DateTimeFromParts_constant_compare_to_column()
+        public virtual void DateTimeFromParts_compare_with_local_variable()
         {
+            var dateTime = new DateTime(1919, 12, 12, 10, 20, 15, 0);
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => c.OrderDate < EF.Functions.DateTimeFromParts(1919, 12, 12, 10, 20, 15, 22));
+                    .Count(c => dateTime > EF.Functions.DateTimeFromParts(DateTime.Now.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond));
 
                 Assert.Equal(0, count);
 
                 AssertSql(
-                    @"@__DateTimeFromParts_0='1919-12-12T10:20:15' (Nullable = true) (DbType = DateTime)
+                    @$"@__dateTime_0='1919-12-12T10:20:15' (DbType = DateTime)
+@__dateTime_Month_2='12'
+@__dateTime_Day_3='12'
+@__dateTime_Hour_4='10'
+@__dateTime_Minute_5='20'
+@__dateTime_Second_6='15'
+@__dateTime_Millisecond_7='0'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] < @__DateTimeFromParts_0");
+WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__dateTime_Millisecond_7)");
             }
         }
 

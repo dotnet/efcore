@@ -64,8 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             SqlExpressionFactory = sqlExpressionFactory;
-            RelationalTypeMappingSource = typeMappingSource;
             Plugins = plugins;
+            RelationalTypeMappingSource = typeMappingSource;
         }
 
         /// <summary>

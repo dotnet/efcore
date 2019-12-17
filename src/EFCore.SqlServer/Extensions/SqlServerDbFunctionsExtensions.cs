@@ -985,18 +985,18 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(IsDate)));
 
         /// <summary>
-        ///     Initializes a new instance of the System.DateTime structure to the specified year, month, day, hour, minute, second, and millisecond.
+        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, and millisecond.
         ///     Corresponds to the SQL Server's DATETIMEFROMPARTS(year, month, day, hour, minute, second, millisecond).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
-        /// <param name="year">The year (1 through 9999).</param>
+        /// <param name="year">The year (1753 through 9999).</param>
         /// <param name="month">The month (1 through 12).</param>
         /// <param name="day">The day (1 through the number of days in month).</param>
         /// <param name="hour">The hours (0 through 23).</param>
         /// <param name="minute">The minutes (0 through 59).</param>
         /// <param name="second">The seconds (0 through 59).</param>
         /// <param name="millisecond">The milliseconds (0 through 999).</param>
-        /// <returns>New instance of the System.DateTime structure to the specified year, month, day, hour, minute, second, and millisecond.</returns>
+        /// <returns>New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, and millisecond.</returns>
         public static DateTime DateTimeFromParts(
             [CanBeNull] this DbFunctions _,
             int year,
@@ -1006,6 +1006,6 @@ namespace Microsoft.EntityFrameworkCore
             int minute,
             int second,
             int millisecond)
-            => new DateTime(year, month, day, hour, minute, second, millisecond);
+            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateTimeFromParts)));
     }
 }
