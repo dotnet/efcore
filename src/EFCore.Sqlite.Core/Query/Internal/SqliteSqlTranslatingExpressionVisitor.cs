@@ -90,13 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             if (unaryExpression.NodeType == ExpressionType.ArrayLength
                  && unaryExpression.Operand.Type == typeof(byte[]))
             {
-return base.Visit(unaryExpression.Operand) is SqlExpression operandExpression
-    ? SqlExpressionFactory.Function("length", new[] { sqlExpression }, typeof(int))
-    : null;
-
-                return sqlExpression == null
-                    ? null
-                    : SqlExpressionFactory.Function("length", new[] { sqlExpression }, typeof(int));
+                return base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression
+                    ? SqlExpressionFactory.Function("length", new[] { sqlExpression }, typeof(int))
+                    : null;
             }
 
             var visitedExpression = base.VisitUnary(unaryExpression);
