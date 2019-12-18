@@ -1218,7 +1218,4 @@
   <data name="ClientProjectionCapturingConstantInTree" xml:space="preserve">
     <value>Client projection contains reference to constant expression of '{constantType}'. This could potentially cause memory leak. Consider assigning this constant to local variable and using the variable in the query instead. See https://go.microsoft.com/fwlink/?linkid=2103067 for more information.</value>
   </data>
-  <data name="ReverseRequiresExplicitOrdering" xml:space="preserve">
-    <value>Reverse can only be applied with explicit ordering</value>
-  </data>
 </root>
