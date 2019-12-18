@@ -201,8 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     if (source.PendingOrderings.Any()
                         && genericMethod != QueryableMethods.ThenBy
-                        && genericMethod != QueryableMethods.ThenByDescending
-                        && genericMethod != QueryableMethods.Reverse)
+                        && genericMethod != QueryableMethods.ThenByDescending)
                     {
                         ApplyPendingOrderings(source);
                     }
@@ -990,7 +989,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression ProcessReverse(NavigationExpansionExpression source)
         {
-            source.ReversePendingOrdering();
+            source.UpdateSource(
+                Expression.Call(
+                    QueryableMethods.Reverse.MakeGenericMethod(source.SourceElementType),
+                    source.Source));
 
             return source;
         }

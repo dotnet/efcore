@@ -622,7 +622,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(source, nameof(source));
 
-            return null;
+            ((SelectExpression)source.QueryExpression).ReverseOrderings();
+            return source;
         }
 
         /// <summary>

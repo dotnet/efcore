@@ -212,36 +212,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual void AppendPendingOrdering(MethodInfo orderingMethod, Expression keySelector)
                 => _pendingOrderings.Add((orderingMethod, keySelector));
 
-            public virtual void ReversePendingOrdering()
-            {
-                if (_pendingOrderings.Count == 0)
-                    throw new InvalidOperationException(CoreStrings.ReverseRequiresExplicitOrdering);
-
-                for (int i = 0; i < _pendingOrderings.Count; i++)
-                {
-                    var pendingOrdering = _pendingOrderings[i];
-                    pendingOrdering.OrderingMethod = reverseMethod(pendingOrdering.OrderingMethod);
-                    _pendingOrderings[i] = pendingOrdering;
-                }
-                
-                MethodInfo reverseMethod(MethodInfo method)
-                {
-                    if (method == QueryableMethods.OrderBy)
-                        return QueryableMethods.OrderByDescending;
-
-                    if (method == QueryableMethods.OrderByDescending)
-                        return QueryableMethods.OrderBy;
-
-                    if (method == QueryableMethods.ThenBy)
-                        return QueryableMethods.ThenByDescending;
-
-                    if (method == QueryableMethods.ThenByDescending)
-                        return QueryableMethods.ThenBy;
-
-                    throw new NotSupportedException($"Unexpected ordering method {method}");
-                }
-            }
-
             public virtual void ClearPendingOrderings()
                 => _pendingOrderings.Clear();
 

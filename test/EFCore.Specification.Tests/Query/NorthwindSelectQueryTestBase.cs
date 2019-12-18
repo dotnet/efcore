@@ -885,8 +885,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 actualQuery: ss => ss.Set<Employee>().OrderByDescending(e => e.EmployeeID)
-                    .Reverse()
-                    .Select(e => $"{e.EmployeeID}"),
+                    .Select(e => $"{e.EmployeeID}")
+                    .Reverse(),
                 expectedQuery: ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
                     .Select(e => $"{e.EmployeeID}"),
                 assertOrder: true
