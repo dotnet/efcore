@@ -605,14 +605,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                         }
                     }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
-                ;
 
-                QueryAsserter = new QueryAsserter<FunkyDataContext>(
+                QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+            }
+
+            protected virtual QueryAsserter<FunkyDataContext> CreateQueryAsserter(
+                Dictionary<Type, object> entitySorters,
+                Dictionary<Type, object> entityAsserters)
+                => new QueryAsserter<FunkyDataContext>(
                     CreateContext,
                     new FunkyDataData(),
                     entitySorters,
                     entityAsserters);
-            }
 
             protected override string StoreName { get; } = "FunkyDataQueryTest";
 

@@ -30,12 +30,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var entityAsserters = new Dictionary<Type, object>();
 
-            QueryAsserter = new QueryAsserter<NorthwindContext>(
+            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+        }
+
+        protected virtual QueryAsserter<NorthwindContext> CreateQueryAsserter(
+            Dictionary<Type, object> entitySorters,
+            Dictionary<Type, object> entityAsserters)
+            => new QueryAsserter<NorthwindContext>(
                 CreateContext,
                 new NorthwindData(),
                 entitySorters,
                 entityAsserters);
-        }
 
         protected override string StoreName { get; } = "Northwind";
 

@@ -15,12 +15,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected SpatialQueryFixtureBase()
         {
-            QueryAsserter = new QueryAsserter<SpatialContext>(
+            QueryAsserter = CreateQueryAsserter();
+        }
+
+        protected virtual QueryAsserter<SpatialContext> CreateQueryAsserter()
+            => new QueryAsserter<SpatialContext>(
                 CreateContext,
                 new SpatialData(GeometryFactory),
                 entitySorters: null,
                 entityAsserters: null);
-        }
 
         public QueryAsserterBase QueryAsserter { get; set; }
 

@@ -652,12 +652,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
                 ;
 
-                QueryAsserter = new QueryAsserter<PoolableDbContext>(
+                QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+            }
+
+            protected virtual QueryAsserter<PoolableDbContext> CreateQueryAsserter(
+                Dictionary<Type, object> entitySorters,
+                Dictionary<Type, object> entityAsserters)
+                => new QueryAsserter<PoolableDbContext>(
                     CreateContext,
                     new OwnedQueryData(),
                     entitySorters,
                     entityAsserters);
-            }
 
             protected override string StoreName { get; } = "OwnedQueryTest";
 

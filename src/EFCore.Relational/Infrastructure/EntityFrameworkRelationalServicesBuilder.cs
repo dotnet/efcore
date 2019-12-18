@@ -72,6 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IMethodCallTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMemberTranslatorProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlExpressionFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IRelationalQueryStringFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -167,6 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ISqlExpressionFactory, SqlExpressionFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, RelationalQueryTranslationPreprocessorFactory>();
             TryAdd<IRelationalParameterBasedQueryTranslationPostprocessorFactory, RelationalParameterBasedQueryTranslationPostprocessorFactory>();
+            TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()

@@ -6,13 +6,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
@@ -107,22 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string ToQueryString()
-        {
-            using var command = CreateDbCommand();
-
-            if (command.Parameters.Count == 0)
-            {
-                return command.CommandText;
-            }
-
-            var builder = new StringBuilder();
-            foreach (var parameter in command.Parameters.FormatParameterList(logParameterValues: true))
-            {
-                builder.Append("-- ").AppendLine(parameter);
-            }
-
-            return builder.Append(command.CommandText).ToString();
-        }
+            => _relationalQueryContext.RelationalQueryStringFactory.Create(CreateDbCommand());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

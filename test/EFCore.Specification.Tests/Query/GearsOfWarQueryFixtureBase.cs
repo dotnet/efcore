@@ -227,12 +227,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            QueryAsserter = new QueryAsserter<GearsOfWarContext>(
+            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+        }
+
+        protected virtual QueryAsserter<GearsOfWarContext> CreateQueryAsserter(
+            Dictionary<Type, object> entitySorters,
+            Dictionary<Type, object> entityAsserters)
+            => new QueryAsserter<GearsOfWarContext>(
                 CreateContext,
                 new GearsOfWarData(),
                 entitySorters,
                 entityAsserters);
-        }
 
         public QueryAsserterBase QueryAsserter { get; set; }
 
