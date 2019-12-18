@@ -39,14 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     collectionShaperExpression.ElementType);
             }
 
-            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
-            {
-                shapedQueryExpression.ShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
-
-                return shapedQueryExpression;
-            }
-
-            return base.VisitExtension(extensionExpression);
+            return extensionExpression is ShapedQueryExpression shapedQueryExpression
+                ? shapedQueryExpression.UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression))
+                : base.VisitExtension(extensionExpression);
         }
     }
 }

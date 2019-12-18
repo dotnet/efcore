@@ -21,6 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
+            {
+                return shapedQueryExpression.Update(Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+            }
+
             var visitedExpression = base.VisitExtension(extensionExpression);
             if (visitedExpression is TableExpressionBase tableExpressionBase
                 && !_visitedTableExpressionBases.Contains(tableExpressionBase)

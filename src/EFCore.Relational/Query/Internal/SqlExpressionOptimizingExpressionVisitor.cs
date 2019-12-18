@@ -47,12 +47,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-            return extensionExpression switch
+#pragma warning disable IDE0066 // Convert switch statement to expression
+            switch (extensionExpression)
+#pragma warning restore IDE0066 // Convert switch statement to expression
             {
-                SqlUnaryExpression sqlUnaryExpression => VisitSqlUnaryExpression(sqlUnaryExpression),
-                SqlBinaryExpression sqlBinaryExpression => VisitSqlBinaryExpression(sqlBinaryExpression),
-                SelectExpression selectExpression => VisitSelectExpression(selectExpression),
-                _ => base.VisitExtension(extensionExpression),
+                case ShapedQueryExpression shapedQueryExpression:
+                    return shapedQueryExpression.Update(
+                        Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+
+                case SqlUnaryExpression sqlUnaryExpression:
+                    return VisitSqlUnaryExpression(sqlUnaryExpression);
+
+                case SqlBinaryExpression sqlBinaryExpression:
+                    return VisitSqlBinaryExpression(sqlBinaryExpression);
+
+                case SelectExpression selectExpression:
+                    return VisitSelectExpression(selectExpression);
+
+                default:
+                    return base.VisitExtension(extensionExpression);
             };
         }
 
