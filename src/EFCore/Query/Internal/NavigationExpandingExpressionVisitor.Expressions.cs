@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -315,9 +313,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public virtual NavigationTreeNode Left { get; }
             public virtual NavigationTreeNode Right { get; }
             public virtual ParameterExpression CurrentParameter { get; private set; }
-
-            protected override Expression VisitChildren(ExpressionVisitor visitor)
-                => throw new InvalidOperationException(CoreStrings.QueryFailed(this.Print(), GetType().Name));
 
             public virtual void SetParameter(string parameterName) => CurrentParameter = Parameter(Type, parameterName);
 

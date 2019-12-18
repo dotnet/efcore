@@ -103,59 +103,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual void Throws_when_select_many()
         {
             using var context = CreateContext();
-            Assert.Equal(
-                CoreStrings.QueryFailed(
-                    "c1 => int[] { 1, 2, 3, }",
-                    "NavigationExpandingExpressionVisitor"),
-                Assert.Throws<InvalidOperationException>(
-                    () => (from c1 in context.Customers
-                           from i in new[] { 1, 2, 3 }
-                           select c1)
-                        .ToList()).Message);
+
+            AssertTranslationFailed(
+                () => (from c1 in context.Customers
+                       from i in new[] { 1, 2, 3 }
+                       select c1)
+                       .ToList());
         }
 
         [ConditionalFact]
         public virtual void Throws_when_join()
         {
             using var context = CreateContext();
-            var message = Assert.Throws<InvalidOperationException>(
+            AssertTranslationFailed(
                 () => (from e1 in context.Employees
                        join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i
                        select e1)
-                    .ToList()).Message;
-
-            Assert.Equal(
-                CoreStrings.QueryFailed(
-                    @"DbSet<Employee>
-    .Join(
-        inner: __p_0, 
-        outerKeySelector: e1 => e1.EmployeeID, 
-        innerKeySelector: i => i, 
-        resultSelector: (e1, i) => e1)",
-                    "NavigationExpandingExpressionVisitor"),
-                message, ignoreLineEndingDifferences: true);
+                    .ToList());
         }
 
         [ConditionalFact]
         public virtual void Throws_when_group_join()
         {
             using var context = CreateContext();
-            var message = Assert.Throws<InvalidOperationException>(
+            AssertTranslationFailed(
                 () => (from e1 in context.Employees
                        join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
                        select e1)
-                    .ToList()).Message;
-
-            Assert.Equal(
-                CoreStrings.QueryFailed(
-                    @"DbSet<Employee>
-    .GroupJoin(
-        inner: __p_0, 
-        outerKeySelector: e1 => e1.EmployeeID, 
-        innerKeySelector: i => i, 
-        resultSelector: (e1, g) => e1)",
-                    "NavigationExpandingExpressionVisitor"),
-                message, ignoreLineEndingDifferences: true);
+                    .ToList());
         }
 
         [ConditionalFact(Skip = "Issue#18923")]

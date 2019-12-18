@@ -246,11 +246,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var outerKeySelector = _navigationExpandingExpressionVisitor.GenerateLambda(
                     outerKey, _source.CurrentParameter);
-                var innerKeySelector = _navigationExpandingExpressionVisitor.GenerateLambda(
-                    _navigationExpandingExpressionVisitor.ExpandNavigationsInLambdaExpression(
-                        innerSource,
-                        Expression.Lambda(innerKey, innerParameter)),
-                    innerSource.CurrentParameter);
+                var innerKeySelector = _navigationExpandingExpressionVisitor.ProcessLambdaExpression(
+                    innerSource, Expression.Lambda(innerKey, innerParameter));
 
                 var resultSelectorOuterParameter = Expression.Parameter(_source.SourceElementType, "o");
                 var resultSelectorInnerParameter = Expression.Parameter(innerSource.SourceElementType, "i");
@@ -349,10 +346,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 Check.NotNull(memberExpression, nameof(memberExpression));
 
-                if (UnwrapEntityReference(memberExpression.Expression) is EntityReference entityReferece)
+                var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
+                if (UnwrapEntityReference(innerExpression) is EntityReference entityReference)
                 {
                     // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
-                    var property = entityReferece.EntityType.FindProperty(memberExpression.Member);
+                    var entityType = entityReference.EntityType;
+                    if (convertedType != null)
+                    {
+                        entityType = entityType.GetTypesInHierarchy()
+                            .FirstOrDefault(et => et.ClrType == convertedType);
+                        if (entityType == null)
+                        {
+                            return base.VisitMember(memberExpression);
+                        }
+                    }
+
+                    var property = entityType.FindProperty(memberExpression.Member);
                     if (property != null)
                     {
                         return memberExpression;
@@ -366,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-                if (methodCallExpression.TryGetEFPropertyArguments(out var _, out var __))
+                if (methodCallExpression.TryGetEFPropertyArguments(out _, out _))
                 {
                     // If it is EF.Property then, it would get converted to a column or throw
                     // so we don't need to expand includes.

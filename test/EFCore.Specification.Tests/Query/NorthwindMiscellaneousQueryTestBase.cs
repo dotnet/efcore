@@ -1993,24 +1993,22 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task SelectMany_mixed(bool async)
+        public virtual Task SelectMany_mixed(bool async)
         {
-            Assert.Equal(
-                CoreStrings.QueryFailed("e1 => string[] { \"a\", \"b\", }", "NavigationExpandingExpressionVisitor"),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => AssertQuery(
-                        async,
-                        ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
-                              from s in new[] { "a", "b" }
-                              from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
-                              select new
-                              {
-                                  e1,
-                                  s,
-                                  c
-                              },
-                        e => (e.e1.EmployeeID, e.c.CustomerID),
-                        entryCount: 4))).Message);
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    async,
+                    ss => from e1 in ss.Set<Employee>().OrderBy(e => e.EmployeeID).Take(2)
+                            from s in new[] { "a", "b" }
+                            from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(2)
+                            select new
+                            {
+                                e1,
+                                s,
+                                c
+                            },
+                    e => (e.e1.EmployeeID, e.c.CustomerID),
+                    entryCount: 4));
         }
 
         [ConditionalTheory]
@@ -2425,41 +2423,26 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Default_if_empty_top_level_arg(bool async)
+        public virtual Task Default_if_empty_top_level_arg(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                     async,
                     ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
                           select e,
-                    entryCount: 1))).Message;
+                    entryCount: 1));
 
-            Assert.Equal(
-                CoreStrings.QueryFailed(
-                    @"DbSet<Employee>
-    .Where(c => c.EmployeeID == 4294967295)
-    .DefaultIfEmpty(__p_0)",
-                    "NavigationExpandingExpressionVisitor"),
-                message, ignoreLineEndingDifferences: true);
         }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
+        public virtual Task Default_if_empty_top_level_arg_followed_by_projecting_constant(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQueryScalar(
                     async,
                     ss => from e in ss.Set<Employee>().Where(c => c.EmployeeID == NonExistentID).DefaultIfEmpty(new Employee())
-                          select 42))).Message;
-
-            Assert.Equal(
-                CoreStrings.QueryFailed(
-                    @"DbSet<Employee>
-    .Where(c => c.EmployeeID == 4294967295)
-    .DefaultIfEmpty(__p_0)",
-                    "NavigationExpandingExpressionVisitor"),
-                message, ignoreLineEndingDifferences: true);
+                          select 42));
         }
 
         [ConditionalTheory]
@@ -3300,7 +3283,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
             var orders
                 = (from o in context.Orders.OrderBy(o => o.OrderID).Take(1)
-                   // ReSharper disable once UseMethodAny.0
+                       // ReSharper disable once UseMethodAny.0
                    where (from od in context.OrderDetails.OrderBy(od => od.OrderID).Take(2)
                           where (from c in context.Set<Customer>()
                                  where c.CustomerID == o.CustomerID
@@ -5488,6 +5471,185 @@ namespace Microsoft.EntityFrameworkCore.Query
                           .Select(e => e.EmployeeID)
                           .DefaultIfEmpty()
                        select e));
+        }
+
+        // Issue#18374
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_skip_collection_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Item = o })
+                    .Skip(5)
+                    .Select(e => new
+                    {
+                        e.Item.OrderID,
+                        ProductIds = e.Item.OrderDetails.Select(od => od.ProductID).ToList()
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderID, a.OrderID);
+                    AssertCollection(e.ProductIds, a.ProductIds, ordered: true, elementAsserter: (ie, ia) => Assert.Equal(ie, ia));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_take_collection_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Item = o })
+                    .Take(10)
+                    .Select(e => new
+                    {
+                        e.Item.OrderID,
+                        ProductIds = e.Item.OrderDetails.Select(od => od.ProductID).ToList()
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderID, a.OrderID);
+                    AssertCollection(e.ProductIds, a.ProductIds, ordered: true, elementAsserter: (ie, ia) => Assert.Equal(ie, ia));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_skip_take_collection_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Item = o })
+                    .Skip(5)
+                    .Take(10)
+                    .Select(e => new
+                    {
+                        e.Item.OrderID,
+                        ProductIds = e.Item.OrderDetails.Select(od => od.ProductID).ToList()
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.OrderID, a.OrderID);
+                    AssertCollection(e.ProductIds, a.ProductIds, ordered: true, elementAsserter: (ie, ia) => Assert.Equal(ie, ia));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_skip_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Item = o })
+                    .Skip(5)
+                    .Select(e => new { e.Item.Customer.City }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_take_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Item = o })
+                    .Take(10)
+                    .Select(e => new { e.Item.Customer.City }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_skip_take_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new { Item = o })
+                    .Skip(5)
+                    .Take(10)
+                    .Select(e => new { e.Item.Customer.City }));
+        }
+
+        // Issue#19207
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_skip(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new
+                    {
+                        Order = o,
+                        o.OrderDetails
+                    })
+                    .Skip(5),
+                entryCount: 173,
+                assertOrder: true,
+                elementAsserter: (e, a) => { AssertEqual(e.Order, a.Order); AssertCollection(e.OrderDetails, a.OrderDetails); });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new
+                    {
+                        Order = o,
+                        o.OrderDetails
+                    })
+                    .Take(10),
+                entryCount: 39,
+                assertOrder: true,
+                elementAsserter: (e, a) => { AssertEqual(e.Order, a.Order); AssertCollection(e.OrderDetails, a.OrderDetails); });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Collection_projection_skip_take(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => new
+                    {
+                        Order = o,
+                        o.OrderDetails
+                    })
+                    .Skip(5)
+                    .Take(10),
+                entryCount: 39,
+                assertOrder: true,
+                elementAsserter: (e, a) => { AssertEqual(e.Order, a.Order); AssertCollection(e.OrderDetails, a.OrderDetails); });
         }
     }
 }

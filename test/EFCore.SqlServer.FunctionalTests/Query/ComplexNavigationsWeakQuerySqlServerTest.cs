@@ -172,7 +172,7 @@ LEFT JOIN (
 
 SELECT [t5].[Level2_Name]
 FROM (
-    SELECT TOP(@__p_0) [t1].[Id], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Optional_Id], [t1].[Level1_Required_Id], [t1].[Level2_Name], [t1].[OneToMany_Optional_Inverse2Id], [t1].[OneToMany_Required_Inverse2Id], [t1].[OneToOne_Optional_PK_Inverse2Id], [l].[Id] AS [Id0]
+    SELECT TOP(@__p_0) [l].[Id], [l].[Date], [l].[Name], [t0].[Id] AS [Id0], [t0].[Date] AS [Date0], [t0].[Name] AS [Name0]
     FROM [Level1] AS [l]
     LEFT JOIN (
         SELECT [l0].[Id], [l0].[Date], [l0].[Name], [t].[Id] AS [Id0], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id]
@@ -185,14 +185,14 @@ FROM (
         ) AS [t] ON [l0].[Id] = [t].[Id]
         WHERE [t].[Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
-    LEFT JOIN (
-        SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id], [l4].[Id] AS [Id0]
-        FROM [Level1] AS [l3]
-        INNER JOIN [Level1] AS [l4] ON [l3].[Id] = [l4].[Id]
-        WHERE [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToOne_Required_PK_Date] IS NOT NULL)
-    ) AS [t1] ON [t0].[Id] = [t1].[Id]
     ORDER BY [l].[Id]
-) AS [t2]
+) AS [t1]
+LEFT JOIN (
+    SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id], [l4].[Id] AS [Id0]
+    FROM [Level1] AS [l3]
+    INNER JOIN [Level1] AS [l4] ON [l3].[Id] = [l4].[Id]
+    WHERE [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToOne_Required_PK_Date] IS NOT NULL)
+) AS [t2] ON [t1].[Id0] = [t2].[Id]
 LEFT JOIN (
     SELECT [l5].[Id], [l5].[Date], [l5].[Name], [t3].[Id] AS [Id0], [t3].[OneToOne_Required_PK_Date], [t3].[Level1_Optional_Id], [t3].[Level1_Required_Id], [t3].[Level2_Name], [t3].[OneToMany_Optional_Inverse2Id], [t3].[OneToMany_Required_Inverse2Id], [t3].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l5]
@@ -210,7 +210,7 @@ LEFT JOIN (
     INNER JOIN [Level1] AS [l9] ON [l8].[Id] = [l9].[Id]
     WHERE [l8].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l8].[Level1_Required_Id] IS NOT NULL AND [l8].[OneToOne_Required_PK_Date] IS NOT NULL)
 ) AS [t5] ON [t4].[Id] = [t5].[Id]
-ORDER BY [t2].[Id0]");
+ORDER BY [t1].[Id]");
         }
 
         public override async Task Explicit_GroupJoin_in_subquery_with_unrelated_projection2(bool async)

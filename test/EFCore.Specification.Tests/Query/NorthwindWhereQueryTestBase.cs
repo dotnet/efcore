@@ -1252,7 +1252,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Product>().Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8));
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         private static bool ClientFunc(int id)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return false;
         }
@@ -1994,5 +1996,96 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(c => i + c.CustomerID + i == c.CompanyName)
                     .Select(c => c.CustomerID));
         }
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_ToList_Count(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>().Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToList())
+        //            .Where(e => e.Count() == 0),
+        //        entryCount: 6);
+        //}
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_ToList_Contains(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>()
+        //            .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).ToList())
+        //            .Where(e => e.Contains("ALFKI")),
+        //        entryCount: 6);
+        //}
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_ToArray_Count(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>().Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToArray())
+        //            .Where(e => e.Count() == 0),
+        //        entryCount: 6);
+        //}
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_ToArray_Contains(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>()
+        //            .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).ToArray())
+        //            .Where(e => e.Contains("ALFKI")),
+        //        entryCount: 6);
+        //}
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_AsEnumerable_Count(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>().Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).AsEnumerable())
+        //            .Where(e => e.Count() == 0),
+        //        entryCount: 6);
+        //}
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_AsEnumerable_Contains(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>()
+        //            .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).AsEnumerable())
+        //            .Where(e => e.Contains("ALFKI")),
+        //        entryCount: 6);
+        //}
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_ToList_Count_member(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>().Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToList())
+        //            .Where(e => e.Count == 0),
+        //        entryCount: 6);
+        //}
+
+        //[ConditionalTheory]
+        //[MemberData(nameof(IsAsyncData))]
+        //public virtual Task Where_ToArray_Length_member(bool async)
+        //{
+        //    return AssertQuery(
+        //        async,
+        //        ss => ss.Set<Customer>().Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToArray())
+        //            .Where(e => e.Length == 0),
+        //        entryCount: 6);
+        //}
     }
 }

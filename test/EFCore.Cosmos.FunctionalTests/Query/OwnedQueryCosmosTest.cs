@@ -236,6 +236,18 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
             return base.No_ignored_include_warning_when_implicit_load(async);
         }
 
+        [ConditionalTheory(Skip = "Skip withouth Take #18923")]
+        public override Task Client_method_skip_loads_owned_navigations(bool async)
+        {
+            return base.Client_method_skip_loads_owned_navigations(async);
+        }
+
+        [ConditionalTheory(Skip = "Skip withouth Take #18923")]
+        public override Task Client_method_skip_loads_owned_navigations_variation_2(bool async)
+        {
+            return base.Client_method_skip_loads_owned_navigations_variation_2(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
