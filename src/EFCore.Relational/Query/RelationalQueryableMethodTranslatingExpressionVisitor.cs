@@ -746,10 +746,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(source, nameof(source));
 
-            if (((SelectExpression)source.QueryExpression).Orderings.Count == 0)
-                return null;
+            var selectExpression = (SelectExpression)source.QueryExpression;
 
-            ((SelectExpression)source.QueryExpression).ReverseOrderings();
+            if (selectExpression.Orderings.Count == 0)
+            {
+                return null;
+            }
+
+            selectExpression.ReverseOrderings();
+
             return source;
         }
 
