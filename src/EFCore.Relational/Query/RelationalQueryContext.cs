@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -37,6 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Relational-specific dependencies.
         /// </summary>
         protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
+
+        /// <summary>
+        ///     A factory for creating a readable query string from a <see cref="DbCommand"/>
+        /// </summary>
+        public virtual IRelationalQueryStringFactory RelationalQueryStringFactory
+            => RelationalDependencies.RelationalQueryStringFactory;
 
         /// <summary>
         ///     Gets the active relational connection.

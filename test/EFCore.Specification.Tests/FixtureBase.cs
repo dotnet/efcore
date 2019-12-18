@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore
                         .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
                         .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
 
+
+        protected virtual bool CanExecuteQueryString => false;
+
         protected virtual void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
         }

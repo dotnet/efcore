@@ -346,8 +346,9 @@ FROM (
 ) AS [c]
 WHERE [c].[ContactTitle] = @__contactTitle_1");
 
-            Assert.Equal(@"-- p0='London' (Size = 4000)
--- @__contactTitle_1='Sales Representative' (Size = 4000)
+            Assert.Equal(@"DECLARE p0 nvarchar(4000) = N'London';
+DECLARE @__contactTitle_1 nvarchar(4000) = N'Sales Representative';
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0

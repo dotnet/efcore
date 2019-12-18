@@ -36,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _includeResultAsserter = new IncludeQueryResultAsserter(_entitySorters, _entityAsserters);
         }
 
+        protected virtual void AssertRogueExecution(int expectedCount, IQueryable queryable)
+        {
+        }
+
         public override async Task AssertSingleResultTyped<TResult>(
             Func<ISetSource, TResult> actualSyncQuery,
             Func<ISetSource, Task<TResult>> actualAsyncQuery,
@@ -87,6 +91,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var actual = async
                 ? await query.ToArrayAsync()
                 : query.ToArray();
+
+            AssertRogueExecution(actual.Length, query);
 
             var expected = expectedQuery(ExpectedData).ToArray();
 
@@ -156,6 +162,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ? await query.ToArrayAsync()
                 : query.ToArray();
 
+            AssertRogueExecution(actual.Length, query);
+
             var expected = expectedQuery(ExpectedData).ToArray();
 
             TestHelpers.AssertResults(
@@ -188,6 +196,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var actual = async
                 ? await query.ToArrayAsync()
                 : query.ToArray();
+
+            AssertRogueExecution(actual.Length, query);
 
             var expected = expectedQuery(ExpectedData).ToArray();
 
@@ -224,6 +234,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var actual = async
                 ? await query.ToListAsync()
                 : query.ToList();
+
+            AssertRogueExecution(actual.Count, query);
 
             var expected = expectedQuery(ExpectedData).ToList();
 
