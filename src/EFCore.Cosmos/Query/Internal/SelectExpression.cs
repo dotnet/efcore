@@ -348,11 +348,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             var existingOrderings = _orderings.ToArray();
 
-            if (existingOrderings.Length == 0)
-            {
-                throw new InvalidOperationException("Cosmos: Reverse can only be applied with explicit ordering");
-            }
-
             _orderings.Clear();
 
             foreach (var existingOrdering in existingOrderings)
