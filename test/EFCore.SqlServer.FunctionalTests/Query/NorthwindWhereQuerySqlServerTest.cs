@@ -1015,7 +1015,7 @@ WHERE (([c].[City] = N'London') AND ([c].[Country] = N'UK')) AND (([e].[City] = 
 
 SELECT [t].[EmployeeID]
 FROM (
-    SELECT TOP(@__p_0) [e].[EmployeeID]
+    SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
     FROM [Employees] AS [e]
 ) AS [t]
 WHERE [t].[EmployeeID] = 5");

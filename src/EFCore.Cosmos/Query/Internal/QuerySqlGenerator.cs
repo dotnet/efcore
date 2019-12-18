@@ -247,7 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(selectExpression.Print(), GetType().Name));
+                    // TODO: See Issue#18923
+                    throw new InvalidOperationException("Cosmos Sql API does not support Offset without Limit.");
                 }
             }
 

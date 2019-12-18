@@ -893,14 +893,18 @@ ORDER BY [c].[CustomerID]");
             AssertSql(
                 @"@__p_0='3'
 
-SELECT TOP(@__p_0) [o0].[OrderID], (
+SELECT [t].[OrderID], (
     SELECT TOP(1) [o].[OrderID]
     FROM [Order Details] AS [o]
-    WHERE [o0].[OrderID] = [o].[OrderID]
+    WHERE [t].[OrderID] = [o].[OrderID]
     ORDER BY [o].[OrderID], [o].[ProductID]) AS [OrderDetail], [c].[City]
-FROM [Orders] AS [o0]
-LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-ORDER BY [o0].[OrderID]");
+FROM (
+    SELECT TOP(@__p_0) [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+    ORDER BY [o0].[OrderID]
+) AS [t]
+LEFT JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]
+ORDER BY [t].[OrderID]");
         }
 
         public override async Task GroupJoin_with_complex_subquery_and_LOJ_gets_flattened(bool async)

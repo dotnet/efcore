@@ -3518,6 +3518,80 @@ namespace Microsoft.EntityFrameworkCore.Query
         private static string ClientMethod(Employee e)
             => e.FirstName + " reports to " + e.Manager.FirstName + e.Manager.LastName;
 
+        // Issue#18672
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Multi_level_includes_are_applied_with_skip(bool useString, bool async)
+        {
+            using var context = CreateContext();
+            var query = (from c in (useString
+                            ? context.Customers.Include("Orders.OrderDetails")
+                            : context.Customers.Include(e => e.Orders).ThenInclude(e => e.OrderDetails))
+                         where c.CustomerID.StartsWith("A")
+                         orderby c.CustomerID
+                         select new { c.CustomerID, Orders = c.Orders.ToList() })
+                        .Skip(1);
+
+            var result = async
+                ? await query.FirstAsync()
+                : query.First();
+
+            Assert.Equal("ANATR", result.CustomerID);
+            Assert.Equal(2, result.Orders.First().OrderDetails.Count);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Multi_level_includes_are_applied_with_take(bool useString, bool async)
+        {
+            using var context = CreateContext();
+            var query = (from c in (useString
+                            ? context.Customers.Include("Orders.OrderDetails")
+                            : context.Customers.Include(e => e.Orders).ThenInclude(e => e.OrderDetails))
+                         where c.CustomerID.StartsWith("A")
+                         orderby c.CustomerID
+                         select new { c.CustomerID, Orders = c.Orders.ToList() })
+                        .Take(1);
+
+            var result = async
+                ? await query.FirstAsync()
+                : query.First();
+
+            Assert.Equal("ALFKI", result.CustomerID);
+            Assert.Equal(3, result.Orders.First().OrderDetails.Count);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public virtual async Task Multi_level_includes_are_applied_with_skip_take(bool useString, bool async)
+        {
+            using var context = CreateContext();
+            var query = (from c in (useString
+                            ? context.Customers.Include("Orders.OrderDetails")
+                            : context.Customers.Include(e => e.Orders).ThenInclude(e => e.OrderDetails))
+                         where c.CustomerID.StartsWith("A")
+                         orderby c.CustomerID
+                         select new { c.CustomerID, Orders = c.Orders.ToList() })
+                        .Skip(1)
+                        .Take(1);
+
+            var result = async
+                ? await query.FirstAsync()
+                : query.First();
+
+            Assert.Equal("ANATR", result.CustomerID);
+            Assert.Equal(2, result.Orders.First().OrderDetails.Count);
+        }
+
         private static void CheckIsLoaded(
             NorthwindContext context,
             Customer customer,

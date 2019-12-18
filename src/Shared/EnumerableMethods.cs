@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     internal static class EnumerableMethods
     {
+        public static MethodInfo AsEnumerable { get; }
         public static MethodInfo Cast { get; }
         public static MethodInfo OfType { get; }
 
@@ -130,6 +131,8 @@ namespace Microsoft.EntityFrameworkCore
                 .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .ToList();
 
+            AsEnumerable = enumerableMethods.Single(
+                mi => mi.Name == nameof(Enumerable.AsEnumerable) && mi.IsGenericMethod && mi.GetParameters().Length == 1);
             Cast = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Cast) && mi.GetParameters().Length == 1);
             OfType = enumerableMethods.Single(

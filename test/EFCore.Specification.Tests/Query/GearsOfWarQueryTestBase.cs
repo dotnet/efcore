@@ -1559,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Gear>().Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed(
+                CoreStrings.TranslationFailed(
                     @"(MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
     subquery: (NavigationExpansionExpression
@@ -1588,7 +1588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Value: (EntityReference: Gear)
                 Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
                 Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
+                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))"),
                 message, ignoreLineEndingDifferences: true);
         }
 
@@ -1602,7 +1602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed(
+                CoreStrings.TranslationFailed(
                     @"(MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
     subquery: (NavigationExpansionExpression
@@ -1631,7 +1631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Value: (EntityReference: Gear)
                 Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
                 Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
+                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))"),
                 message, ignoreLineEndingDifferences: true);
         }
 
@@ -3106,19 +3106,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_method_on_collection_navigation_in_additional_from_clause(bool async)
+        public virtual Task Client_method_on_collection_navigation_in_additional_from_clause(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                     async,
                     ss => from g in ss.Set<Gear>().OfType<Officer>()
                           from v in Veterans(g.Reports)
                           select new { g = g.Nickname, v = v.Nickname },
-                    elementSorter: e => e.g + e.v))).Message;
-
-            Assert.StartsWith(
-                CoreStrings.QueryFailed("", "").Substring(0, 35),
-                message);
+                    elementSorter: e => e.g + e.v));
         }
 
         [ConditionalTheory(Skip = "Issue #17328")]
@@ -7397,7 +7393,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => MaybeScalar<bool>(g, () => g.IsAutomatic)),
                 assertOrder: true);
         }
-        
+
         [ConditionalFact]
         public virtual void Byte_array_filter_by_length_parameter_compiled()
         {

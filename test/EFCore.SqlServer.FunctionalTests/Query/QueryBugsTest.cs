@@ -1269,7 +1269,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                             select new { One = 1, Coalesce = eRootJoined ?? (eVersion ?? eRootJoined) };
 
                 var result = query.ToList();
@@ -1288,7 +1288,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once ConstantNullCoalescingCondition
+                                // ReSharper disable once ConstantNullCoalescingCondition
                             select new
                             {
                                 One = eRootJoined,
@@ -1312,7 +1312,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                                 on eVersion.RootEntityId equals eRoot.Id
                                 into RootEntities
                             from eRootJoined in RootEntities.DefaultIfEmpty()
-                            // ReSharper disable once MergeConditionalExpression
+                                // ReSharper disable once MergeConditionalExpression
 #pragma warning disable IDE0029 // Use coalesce expression
                             select eRootJoined != null ? eRootJoined : eVersion;
 #pragma warning restore IDE0029 // Use coalesce expression
@@ -6855,6 +6855,89 @@ WHERE [u].[Id] IS NOT NULL");
                 => modelBuilder.Entity<Person18759>().HasQueryFilter(p => p.UserDelete != null);
 
             public BugContext18759(DbContextOptions options)
+                : base(options)
+            {
+            }
+        }
+
+        #endregion
+
+        #region Issue19138
+
+        [ConditionalFact]
+        public void Accessing_scalar_property_in_derived_type_projection_does_not_load_owned_navigations()
+        {
+            using var _ = CreateDatabase19138();
+            using var context = new BugContext19138(_options);
+
+            var result = context.BaseEntities
+                .Select(b => context.OtherEntities.Where(o => o.OtherEntityData == ((SubEntity19138)b).Data).FirstOrDefault())
+                .ToList();
+
+            Assert.Equal("A", Assert.Single(result).OtherEntityData);
+
+            AssertSql(
+                @"SELECT [t0].[Id], [t0].[OtherEntityData]
+FROM [BaseEntities] AS [b]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[OtherEntityData]
+    FROM (
+        SELECT [o].[Id], [o].[OtherEntityData], ROW_NUMBER() OVER(PARTITION BY [o].[OtherEntityData] ORDER BY [o].[Id]) AS [row]
+        FROM [OtherEntities] AS [o]
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [b].[Data] = [t0].[OtherEntityData]
+WHERE [b].[Discriminator] IN (N'BaseEntity19138', N'SubEntity19138')");
+        }
+
+        private SqlServerTestStore CreateDatabase19138()
+            => CreateTestStore(
+                () => new BugContext19138(_options),
+                context =>
+                {
+                    context.Add(new OtherEntity19138 { OtherEntityData = "A" });
+                    context.Add(new SubEntity19138 { Data = "A" });
+
+                    context.SaveChanges();
+
+                    ClearLog();
+                });
+
+        private class BaseEntity19138
+        {
+            public int Id { get; set; }
+        }
+
+        private class SubEntity19138 : BaseEntity19138
+        {
+            public string Data { get; set; }
+            public Owned19138 Owned { get; set; }
+        }
+
+        private class Owned19138
+        {
+            public string OwnedData { get; set; }
+        }
+
+        private class OtherEntity19138
+        {
+            public int Id { get; set; }
+            public string OtherEntityData { get; set; }
+        }
+
+        private class BugContext19138 : DbContext
+        {
+            public DbSet<BaseEntity19138> BaseEntities { get; set; }
+            public DbSet<OtherEntity19138> OtherEntities { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<BaseEntity19138>();
+                modelBuilder.Entity<SubEntity19138>().OwnsOne(se => se.Owned);
+                modelBuilder.Entity<OtherEntity19138>();
+            }
+
+            public BugContext19138(DbContextOptions options)
                 : base(options)
             {
             }

@@ -56,13 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             ShapedQueryExpression CheckTranslated(ShapedQueryExpression translated)
             {
-                if (translated == null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.TranslationFailed(methodCallExpression.Print()));
-                }
-
-                return translated;
+                return translated ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
             }
 
             var method = methodCallExpression.Method;
