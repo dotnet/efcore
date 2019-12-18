@@ -1362,11 +1362,6 @@ FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]");
         }
 
-        public override Task Reverse_without_explicit_ordering_throws(bool async, string expectedMessage = "Reverse can only be applied with explicit ordering")
-        {
-            return base.Reverse_without_explicit_ordering_throws(async, expectedMessage);
-        }
-
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

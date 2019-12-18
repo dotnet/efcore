@@ -39,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             return base.SelectMany_correlated_with_outer_3(async);
         }
 
-        [ConditionalTheory(Skip = "No exception for InMemory")]
-        public override Task Reverse_without_explicit_ordering_throws(bool async, string expectedMessage = null)
+        [ConditionalTheory(Skip = "Issue#17386")]
+        public override Task Reverse_without_explicit_ordering_throws(bool async)
         {
-            return base.Reverse_without_explicit_ordering_throws(async, expectedMessage);
+            return base.Reverse_without_explicit_ordering_throws(async);
         }
     }
 }

@@ -895,16 +895,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Reverse_without_explicit_ordering_throws(bool async, string expectedMessage)
+        public virtual Task Reverse_without_explicit_ordering_throws(bool async)
         {
-            Assert.Equal(expectedMessage,
-                (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                     async,
                     ss => ss.Set<Employee>()
                         .Reverse()
                         .Select(e => $"{e.EmployeeID}")
-                ))).Message);
+                ));
         }
 
         [ConditionalTheory]
