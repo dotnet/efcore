@@ -1062,6 +1062,29 @@ WHERE (c[""Discriminator""] = ""Order"")");
             return base.Project_keyless_entity_FirstOrDefault_without_orderby(async);
         }
 
+        public override async Task Reverse_changes_asc_order_to_desc(bool async)
+        {
+            await base.Reverse_changes_asc_order_to_desc(async);
+
+            AssertSql(@"SELECT [""e""].[""EmployeeID""]
+FROM [""Employees""] AS [""e""]
+ORDER BY [""e""].[""EmployeeID""] DESC");
+        }
+
+        public override async Task Reverse_changes_desc_order_to_asc(bool async)
+        {
+            await base.Reverse_changes_desc_order_to_asc(async);
+
+            AssertSql(@"SELECT [""e""].[""EmployeeID""]
+FROM [""Employees""] AS [""e""]
+ORDER BY [""e""].[""EmployeeID""]");
+        }
+
+        public override Task Reverse_without_explicit_ordering_throws(bool async, string expectedMessage = "Cosmos: Reverse can only be applied with explicit ordering")
+        {
+            return base.Reverse_without_explicit_ordering_throws(async, expectedMessage);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

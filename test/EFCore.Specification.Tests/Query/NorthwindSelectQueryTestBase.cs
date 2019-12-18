@@ -895,9 +895,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Reverse_without_explicit_ordering_throws(bool async)
+        public virtual async Task Reverse_without_explicit_ordering_throws(bool async, string expectedMessage)
         {
-            Assert.Equal("Reverse can only be applied with explicit ordering",
+            Assert.Equal(expectedMessage,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => AssertQuery(
                     async,

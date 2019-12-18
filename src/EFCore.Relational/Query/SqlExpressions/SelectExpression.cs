@@ -377,7 +377,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             var existingOrdering = _orderings.ToArray();
 
             if (existingOrdering.Length == 0)
-                throw new InvalidOperationException("Reverse can only be applied with explicit ordering");//TODO: Tests, extract string
+            {
+                throw new InvalidOperationException("Reverse can only be applied with explicit ordering");
+            }
 
             _orderings.Clear();
 
