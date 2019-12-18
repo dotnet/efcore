@@ -16,6 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             switch (extensionExpression)
             {
+                case ShapedQueryExpression shapedQueryExpression:
+                    return shapedQueryExpression.Update(
+                        Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
+
                 case CaseExpression caseExpression:
                     return VisitCase(caseExpression);
 
