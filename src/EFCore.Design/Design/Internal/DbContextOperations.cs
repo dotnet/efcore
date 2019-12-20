@@ -229,9 +229,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var provider = context.GetService<IDatabaseProvider>();
             info.ProviderName = provider.Name;
 
-            var connection = context.Database.GetDbConnection();
-            info.DataSource = connection.DataSource;
-            info.DatabaseName = connection.Database;
+            if (((IDatabaseFacadeDependenciesAccessor)context.Database).Dependencies is IRelationalDatabaseFacadeDependencies)
+            {
+                try
+                {
+                    var connection = context.Database.GetDbConnection();
+                    info.DataSource = connection.DataSource;
+                    info.DatabaseName = connection.Database;
+                }
+                catch (Exception exception)
+                {
+                    info.DataSource = info.DatabaseName = DesignStrings.BadConnection(exception.Message);
+                }
+            }
+            else
+            {
+                info.DataSource = info.DatabaseName = DesignStrings.NoRelationalConnection;
+            }
 
             var options = context.GetService<IDbContextOptions>();
             info.Options = options.BuildOptionsFragment().Trim();
