@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

@@ -3,7 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 {

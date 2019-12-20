@@ -123,6 +123,9 @@
   <data name="NoDbCommand" xml:space="preserve">
     <value>Cannot create a 'DbCommand' for a non-relational query.</value>
   </data>
+  <data name="CannotChangeWhenOpen" xml:space="preserve">
+    <value>The 'DbConnection' is currently in use. The connection can only be changed when the existing connection is not being used.</value>
+  </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
   </data>
