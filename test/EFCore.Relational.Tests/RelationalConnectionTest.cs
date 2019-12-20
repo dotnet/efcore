@@ -138,6 +138,41 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Can_change_or_reset_connection_string()
+        {
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+
+            connection.ConnectionString = null;
+            Assert.Null(connection.ConnectionString);
+
+            connection.ConnectionString = "Database=SamLives";
+            Assert.Equal("Database=SamLives", connection.ConnectionString);
+
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            var dbConnection = connection.DbConnection;
+
+            Assert.Equal(1, connection.DbConnections.Count);
+            Assert.Equal("Database=SamLives", connection.ConnectionString);
+            Assert.Equal("Database=SamLives", dbConnection.ConnectionString);
+
+            connection.ConnectionString = null;
+
+            Assert.Equal(1, connection.DbConnections.Count);
+            Assert.Null(connection.ConnectionString);
+            Assert.Null(dbConnection.ConnectionString);
+
+            connection.ConnectionString = "Database=MerryLives";
+
+            dbConnection = connection.DbConnection;
+
+            Assert.Equal(1, connection.DbConnections.Count);
+            Assert.Equal("Database=MerryLives", connection.ConnectionString);
+            Assert.Equal("Database=MerryLives", dbConnection.ConnectionString);
+        }
+
+        [ConditionalFact]
         public void Lazy_connection_is_opened_and_closed_when_necessary()
         {
             using var connection = new FakeRelationalConnection(
@@ -437,6 +472,46 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.Equal(4, dbConnection.OpenCount);
             Assert.Equal(2, dbConnection.CloseCount);
+        }
+
+        [ConditionalFact]
+        public void Existing_connection_can_be_changed_and_reset()
+        {
+            var dbConnection = new FakeDbConnection("Database=FrodoLives");
+
+            using var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection)));
+
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            connection.DbConnection = null;
+            Assert.Null(connection.ConnectionString);
+
+            dbConnection = new FakeDbConnection("Database=SamLives");
+            connection.DbConnection = dbConnection;
+
+            Assert.Equal("Database=SamLives", connection.ConnectionString);
+
+            Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Same(dbConnection, connection.DbConnection);
+            Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Equal("Database=SamLives", connection.ConnectionString);
+
+            connection.DbConnection = null;
+
+            Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Null(connection.ConnectionString);
+
+            connection.ConnectionString = "Database=MerryLives";
+
+            dbConnection = new FakeDbConnection("Database=MerryLives");
+            connection.DbConnection = dbConnection;
+
+            Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Same(dbConnection, connection.DbConnection);
+            Assert.Equal(0, connection.DbConnections.Count);
+            Assert.Equal("Database=MerryLives", connection.ConnectionString);
+
         }
 
         [ConditionalFact]
@@ -812,27 +887,33 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Throws_if_no_connection_or_connection_string_is_specified()
+        public void Throws_if_no_connection_or_connection_string_is_specified_only_when_accessed()
         {
+            var connection = new FakeRelationalConnection(CreateOptions(new FakeRelationalOptionsExtension()));
+
             Assert.Equal(
                 RelationalStrings.NoConnectionOrConnectionString,
                 Assert.Throws<InvalidOperationException>(
-                    () => new FakeRelationalConnection(
-                        CreateOptions(
-                            new FakeRelationalOptionsExtension()))).Message);
+                    () => connection.DbConnection).Message);
+
+            Assert.Null(connection.ConnectionString);
+
+            Assert.Equal(
+                RelationalStrings.NoConnectionOrConnectionString,
+                Assert.Throws<InvalidOperationException>(
+                    () => connection.GetCheckedConnectionString()).Message);
         }
 
         [ConditionalFact]
-        public void Throws_if_both_connection_and_connection_string_are_specified()
+        public void Puts_connection_string_on_connection_if_both_are_specified()
         {
-            Assert.Equal(
-                RelationalStrings.ConnectionAndConnectionString,
-                Assert.Throws<InvalidOperationException>(
-                    () => new FakeRelationalConnection(
-                        CreateOptions(
-                            new FakeRelationalOptionsExtension()
-                                .WithConnection(new FakeDbConnection("Database=FrodoLives"))
-                                .WithConnectionString("Database=FrodoLives")))).Message);
+            var connection = new FakeRelationalConnection(
+                CreateOptions(
+                    new FakeRelationalOptionsExtension()
+                        .WithConnection(new FakeDbConnection("Database=FrodoLives"))
+                        .WithConnectionString("Database=SamLives")));
+
+            Assert.Equal("Database=SamLives", connection.DbConnection.ConnectionString);
         }
 
         [ConditionalFact]

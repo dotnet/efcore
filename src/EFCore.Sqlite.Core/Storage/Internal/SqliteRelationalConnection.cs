@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected override DbConnection CreateDbConnection()
         {
-            var connection = new SqliteConnection(ConnectionString);
+            var connection = new SqliteConnection(GetCheckedConnectionString());
 
             if (_loadSpatialite)
             {
@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public virtual ISqliteRelationalConnection CreateReadOnlyConnection()
         {
-            var connectionStringBuilder = new SqliteConnectionStringBuilder(ConnectionString) { Mode = SqliteOpenMode.ReadOnly };
+            var connectionStringBuilder = new SqliteConnectionStringBuilder(GetCheckedConnectionString()) { Mode = SqliteOpenMode.ReadOnly };
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
