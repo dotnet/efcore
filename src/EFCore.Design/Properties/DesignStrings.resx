@@ -213,6 +213,12 @@
   <data name="FindingContexts" xml:space="preserve">
     <value>Finding DbContext classes...</value>
   </data>
+  <data name="BadConnection" xml:space="preserve">
+    <value>Failed creating connection: {exceptionMessage}</value>
+  </data>
+  <data name="NoRelationalConnection" xml:space="preserve">
+    <value>Connection information is only available for relational database providers.</value>
+  </data>
   <data name="ForeignMigrations" xml:space="preserve">
     <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's recommend to put migrations for different DbContext classes into different namespaces.</value>
   </data>
