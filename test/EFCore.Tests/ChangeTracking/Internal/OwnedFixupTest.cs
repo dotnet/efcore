@@ -22,6 +22,72 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     public class OwnedFixupTest
     {
+        private class Thing
+        {
+            public Guid ThingId { get; set; }
+            public List<OwnedByThing> OwnedByThings { get; set; } = new List<OwnedByThing>();
+        }
+
+        private class OwnedByThing
+        {
+            public Guid OwnedByThingId { get; set; }
+            public Guid ThingId { get; set; }
+            public Thing Thing { get; set; }
+        }
+
+        [ConditionalTheory] // Issue #18982
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Detaching_owner_does_not_delete_owned_entities(bool delayCascade)
+        {
+            using var context = new FixupContext();
+
+            var thing = new Thing
+            {
+                ThingId = Guid.NewGuid(),
+                OwnedByThings = new List<OwnedByThing>
+                {
+                    new OwnedByThing
+                    {
+                        OwnedByThingId = Guid.NewGuid()
+                    },
+                    new OwnedByThing
+                    {
+                        OwnedByThingId = Guid.NewGuid()
+                    }
+                }
+            };
+
+            context.Attach(thing);
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(thing).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(thing.OwnedByThings[0]).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(thing.OwnedByThings[1]).State);
+
+            if (delayCascade)
+            {
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+            }
+
+            context.Entry(thing).State = EntityState.Detached;
+
+            if (delayCascade)
+            {
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Detached, context.Entry(thing).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(thing.OwnedByThings[0]).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(thing.OwnedByThings[1]).State);
+            }
+            else
+            {
+                Assert.Empty(context.ChangeTracker.Entries());
+                Assert.Equal(EntityState.Detached, context.Entry(thing).State);
+                Assert.Equal(EntityState.Detached, context.Entry(thing.OwnedByThings[0]).State);
+                Assert.Equal(EntityState.Detached, context.Entry(thing.OwnedByThings[1]).State);
+            }
+        }
+
         [ConditionalFact]
         public void Can_detach_Added_owner_referencing_detached_weak_owned_entity()
         {
@@ -4294,6 +4360,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                     });
                             });
                     });
+
+                modelBuilder.Entity<Thing>().OwnsMany(p => p.OwnedByThings, a =>
+                {
+                    a.WithOwner().HasForeignKey(e => e.ThingId);
+                    a.HasKey(e => e.OwnedByThingId);
+                });
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -2165,6 +2165,323 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
+        [ConditionalTheory] // Issue #17828
+        [InlineData(false)]
+        [InlineData(true)]
+        public void DetectChanges_reparents_even_when_immediate_cascade_enabled(bool delayCascade)
+        {
+            using var context = new EarlyLearningCenter();
+
+            // Construct initial state
+            var parent1 = new Category { Id = 1 };
+            var parent2 = new Category { Id = 2 };
+            var child = new Product { Id = 3, Category = parent1 };
+
+            context.AddRange(parent1, parent2, child);
+            context.ChangeTracker.AcceptAllChanges();
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+
+            if (delayCascade)
+            {
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+            }
+
+            child.Category = parent2;
+
+            context.ChangeTracker.DetectChanges();
+
+            context.Remove(parent1);
+
+            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(EntityState.Deleted, context.Entry(parent1).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(parent2).State);
+            Assert.Equal(EntityState.Modified, context.Entry(child).State);
+        }
+
+        [ConditionalTheory] // Issue #12590
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Dependents_are_detached_not_deleted_when_principal_is_detached(bool delayCascade, bool trackNewDependents)
+        {
+            using var context = new EarlyLearningCenter();
+
+            var category = new Category
+            {
+                Id = 1,
+                Products = new List<Product>
+                {
+                    new Product { Id = 1 },
+                    new Product { Id = 2 },
+                    new Product { Id = 3 }
+                }
+            };
+
+            context.Attach(category);
+
+            var categoryEntry = context.Entry(category);
+            var product0Entry = context.Entry(category.Products[0]);
+            var product1Entry = context.Entry(category.Products[1]);
+            var product2Entry = context.Entry(category.Products[2]);
+
+            Assert.Equal(EntityState.Unchanged, categoryEntry.State);
+            Assert.Equal(EntityState.Unchanged, product0Entry.State);
+            Assert.Equal(EntityState.Unchanged, product1Entry.State);
+            Assert.Equal(EntityState.Unchanged, product2Entry.State);
+
+            if (delayCascade)
+            {
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+            }
+
+            context.Entry(category).State = EntityState.Detached;
+
+            Assert.Equal(EntityState.Detached, categoryEntry.State);
+
+            if (delayCascade)
+            {
+                Assert.Equal(EntityState.Unchanged, product0Entry.State);
+                Assert.Equal(EntityState.Unchanged, product1Entry.State);
+                Assert.Equal(EntityState.Unchanged, product2Entry.State);
+            }
+            else
+            {
+                Assert.Equal(EntityState.Detached, product0Entry.State);
+                Assert.Equal(EntityState.Detached, product1Entry.State);
+                Assert.Equal(EntityState.Detached, product2Entry.State);
+            }
+
+            var newCategory = new Category { Id = 1, };
+
+            if (trackNewDependents)
+            {
+                newCategory.Products = new List<Product>
+                {
+                    new Product { Id = 1 },
+                    new Product { Id = 2 },
+                    new Product { Id = 3 }
+                };
+            }
+
+            var traversal = new List<string>();
+
+            if (delayCascade && trackNewDependents)
+            {
+                Assert.Equal(
+                    CoreStrings.IdentityConflict(nameof(Product), "{'Id'}"),
+                    Assert.Throws<InvalidOperationException>(TrackGraph).Message);
+            }
+            else
+            {
+                TrackGraph();
+
+                Assert.Equal(
+                    trackNewDependents
+                        ? new List<string>
+                        {
+                            "<None> -----> Category:1",
+                            "Category:1 ---Products--> Product:1",
+                            "Category:1 ---Products--> Product:2",
+                            "Category:1 ---Products--> Product:3"
+                        }
+                        : new List<string>
+                        {
+                            "<None> -----> Category:1"
+                        },
+                    traversal);
+
+                if (trackNewDependents || delayCascade)
+                {
+                    Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                    categoryEntry = context.Entry(newCategory);
+                    product0Entry = context.Entry(newCategory.Products[0]);
+                    product1Entry = context.Entry(newCategory.Products[1]);
+                    product2Entry = context.Entry(newCategory.Products[2]);
+
+                    Assert.Equal(EntityState.Modified, categoryEntry.State);
+
+                    if (trackNewDependents)
+                    {
+                        Assert.Equal(EntityState.Modified, product0Entry.State);
+                        Assert.Equal(EntityState.Modified, product1Entry.State);
+                        Assert.Equal(EntityState.Modified, product2Entry.State);
+
+                        Assert.NotSame(newCategory.Products[0], category.Products[0]);
+                        Assert.NotSame(newCategory.Products[1], category.Products[1]);
+                        Assert.NotSame(newCategory.Products[2], category.Products[2]);
+                    }
+                    else
+                    {
+                        Assert.Equal(EntityState.Unchanged, product0Entry.State);
+                        Assert.Equal(EntityState.Unchanged, product1Entry.State);
+                        Assert.Equal(EntityState.Unchanged, product2Entry.State);
+
+                        Assert.Same(newCategory.Products[0], category.Products[0]);
+                        Assert.Same(newCategory.Products[1], category.Products[1]);
+                        Assert.Same(newCategory.Products[2], category.Products[2]);
+                    }
+
+                    Assert.Same(newCategory, newCategory.Products[0].Category);
+                    Assert.Same(newCategory, newCategory.Products[1].Category);
+                    Assert.Same(newCategory, newCategory.Products[2].Category);
+
+                    Assert.Equal(newCategory.Id, product0Entry.Property("CategoryId").CurrentValue);
+                    Assert.Equal(newCategory.Id, product1Entry.Property("CategoryId").CurrentValue);
+                    Assert.Equal(newCategory.Id, product2Entry.Property("CategoryId").CurrentValue);
+                }
+                else
+                {
+                    Assert.Single(context.ChangeTracker.Entries());
+
+                    categoryEntry = context.Entry(newCategory);
+
+                    Assert.Equal(EntityState.Modified, categoryEntry.State);
+                    Assert.Null(newCategory.Products);
+                }
+            }
+
+            void TrackGraph()
+            {
+                context.ChangeTracker.TrackGraph(
+                    newCategory, n =>
+                    {
+                        n.Entry.State = EntityState.Modified;
+                        traversal.Add(NodeString(n));
+                    });
+            }
+        }
+
+        [ConditionalTheory] // Issue #16546
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Optional_relationship_with_cascade_still_cascades(bool delayCascade)
+        {
+            Kontainer detachedContainer;
+            var databaseName = "K" + delayCascade;
+            using (var context = new KontainerContext(databaseName))
+            {
+                context.Add(
+                    new Kontainer
+                    {
+                        Name = "C1",
+                        Rooms = { new KontainerRoom { Number = 1, Troduct = new Troduct { Description = "Heavy Engine XT3" } } }
+                    }
+                );
+
+                context.SaveChanges();
+
+                detachedContainer = context.Set<Kontainer>()
+                    .Include(container => container.Rooms)
+                    .ThenInclude(room => room.Troduct)
+                    .AsNoTracking()
+                    .Single();
+            }
+
+            using (var context = new KontainerContext(databaseName))
+            {
+                var attachedContainer = context.Set<Kontainer>()
+                    .Include(container => container.Rooms)
+                    .ThenInclude(room => room.Troduct)
+                    .Single();
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single()).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single().Troduct).State);
+
+                var detachedRoom = detachedContainer.Rooms.Single();
+                detachedRoom.Troduct = null;
+                detachedRoom.TroductId = null;
+
+                var attachedRoom = attachedContainer.Rooms.Single();
+
+                if (delayCascade)
+                {
+                    context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+                }
+
+                context.Entry(attachedRoom).CurrentValues.SetValues(detachedRoom);
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single().Troduct).State);
+
+                if (delayCascade)
+                {
+                    Assert.Equal(EntityState.Modified, context.Entry(attachedContainer.Rooms.Single()).State);
+                }
+                else
+                {
+                    // Deleted because FK with cascade has been set to null
+                    Assert.Equal(EntityState.Deleted, context.Entry(attachedContainer.Rooms.Single()).State);
+                }
+
+                context.ChangeTracker.CascadeChanges();
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single().Troduct).State);
+                Assert.Equal(EntityState.Deleted, context.Entry(attachedContainer.Rooms.Single()).State);
+
+                context.SaveChanges();
+            }
+        }
+
+        private class Kontainer
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public List<KontainerRoom> Rooms { get; set; } = new List<KontainerRoom>();
+        }
+
+        private class KontainerRoom
+        {
+            public int Id { get; set; }
+            public int Number { get; set; }
+            public int KontainerId { get; set; }
+            public Kontainer Kontainer { get; set; }
+            public int? TroductId { get; set; }
+            public Troduct Troduct { get; set; }
+        }
+
+        private class Troduct
+        {
+            public int Id { get; set; }
+            public string Description { get; set; }
+            public List<KontainerRoom> Rooms { get; set; } = new List<KontainerRoom>();
+        }
+
+        private class KontainerContext : DbContext
+        {
+            private readonly string _databaseName;
+
+            public KontainerContext(string databaseName)
+            {
+                _databaseName = databaseName;
+            }
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<KontainerRoom>()
+                    .HasOne(room => room.Troduct)
+                    .WithMany(product => product.Rooms)
+                    .HasForeignKey(room => room.TroductId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Cascade);
+            }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(_databaseName);
+        }
+
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]

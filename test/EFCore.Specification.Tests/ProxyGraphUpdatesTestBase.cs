@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Same(new1, new2.Back);
 
                     Assert.NotNull(old1.Root);
-                    Assert.Null(old2.Back);
+                    Assert.Same(old1, old2.Back);
                     Assert.Equal(old1.Id, old2.Id);
                 });
         }
