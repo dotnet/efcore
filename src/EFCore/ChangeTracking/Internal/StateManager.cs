@@ -959,6 +959,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null)
         {
             var doCascadeDelete = force || CascadeDeleteTiming != CascadeTiming.Never;
+            var principalIsDetached = entry.EntityState == EntityState.Detached;
 
             foreignKeys ??= entry.EntityType.GetReferencingForeignKeys();
             foreach (var fk in foreignKeys)
@@ -980,9 +981,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && doCascadeDelete)
                         {
-                            var cascadeState = dependent.EntityState == EntityState.Added
-                                ? EntityState.Detached
-                                : EntityState.Deleted;
+                            var cascadeState = principalIsDetached
+                                || dependent.EntityState == EntityState.Added
+                                    ? EntityState.Detached
+                                    : EntityState.Deleted;
 
                             if (SensitiveLoggingEnabled)
                             {
