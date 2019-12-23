@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private bool _sensitiveDataLoggingEnabled;
         private bool _detailedErrorsEnabled;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-        private IDictionary<Type, Type> _replacedServices;
+        private IDictionary<(Type, Type), Type> _replacedServices;
         private int? _maxPoolSize;
         private bool _serviceProviderCachingEnabled = true;
         private DbContextOptionsExtensionInfo _info;
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             if (copyFrom._replacedServices != null)
             {
-                _replacedServices = new Dictionary<Type, Type>(copyFrom._replacedServices);
+                _replacedServices = new Dictionary<(Type, Type), Type>(copyFrom._replacedServices);
             }
         }
 
@@ -235,18 +235,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
         /// <param name="serviceType"> The service contract. </param>
-        /// <param name="implementationType"> The implementation type to use for the service. </param>
+        /// <param name="newImplementationType"> The implementation type to use for the service. </param>
+        /// <param name="currentImplementationType"> The specific existing implementation type to replace. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithReplacedService([NotNull] Type serviceType, [NotNull] Type implementationType)
+        public virtual CoreOptionsExtension WithReplacedService(
+            [NotNull] Type serviceType,
+            [NotNull] Type newImplementationType,
+            [CanBeNull] Type currentImplementationType = null)
         {
             var clone = Clone();
 
             if (clone._replacedServices == null)
             {
-                clone._replacedServices = new Dictionary<Type, Type>();
+                clone._replacedServices = new Dictionary<(Type, Type), Type>();
             }
 
-            clone._replacedServices[serviceType] = implementationType;
+            clone._replacedServices[(serviceType, currentImplementationType)] = newImplementationType;
 
             return clone;
         }
@@ -373,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.ReplaceService{TService,TImplementation}" /> method.
         /// </summary>
-        public virtual IReadOnlyDictionary<Type, Type> ReplacedServices => (IReadOnlyDictionary<Type, Type>)_replacedServices;
+        public virtual IReadOnlyDictionary<(Type, Type), Type> ReplacedServices => (IReadOnlyDictionary<(Type, Type), Type>)_replacedServices;
 
         /// <summary>
         ///     The option set from the
@@ -508,7 +512,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var replacedService in Extension._replacedServices)
                     {
-                        debugInfo["Core:" + nameof(DbContextOptionsBuilder.ReplaceService) + ":" + replacedService.Key.DisplayName()]
+                        var (serviceType, implementationType) = replacedService.Key;
+
+                        debugInfo["Core:"
+                                + nameof(DbContextOptionsBuilder.ReplaceService)
+                                + ":"
+                                + serviceType.DisplayName()
+                                + (implementationType == null ? "" : ", " + implementationType.DisplayName())]
                             = replacedService.Value.GetHashCode().ToString(CultureInfo.InvariantCulture);
                     }
                 }
