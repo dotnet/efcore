@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -92,21 +91,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 var replacedServices = coreOptionsExtension?.ReplacedServices;
                 if (replacedServices != null)
                 {
-                    // For replaced services we use the service collection to obtain the lifetime of
-                    // the service to replace. The replaced services are added to a new collection, after
-                    // which provider and core services are applied. This ensures that any patching happens
-                    // to the replaced service.
                     var updatedServices = new ServiceCollection();
                     foreach (var descriptor in services)
                     {
-                        if (replacedServices.TryGetValue(descriptor.ServiceType, out var replacementType))
+                        if (replacedServices.TryGetValue((descriptor.ServiceType, descriptor.ImplementationType), out var replacementType))
                         {
                             ((IList<ServiceDescriptor>)updatedServices).Add(
                                 new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
                         }
+                        else if (replacedServices.TryGetValue((descriptor.ServiceType, null), out replacementType))
+                        {
+                            ((IList<ServiceDescriptor>)updatedServices).Add(
+                                new ServiceDescriptor(descriptor.ServiceType, replacementType, descriptor.Lifetime));
+                        }
+                        else
+                        {
+                            ((IList<ServiceDescriptor>)updatedServices).Add(descriptor);
+                        }
                     }
 
-                    ApplyServices(options, updatedServices);
                     services = updatedServices;
                 }
 

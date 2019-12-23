@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Replaces the internal Entity Framework implementation of a service contract with a different
+        ///         Replaces all internal Entity Framework implementations of a service contract with a different
         ///         implementation.
         ///     </para>
         ///     <para>
@@ -404,5 +404,85 @@ namespace Microsoft.EntityFrameworkCore
         public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TImplementation>()
             where TImplementation : TService
             => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TImplementation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Replaces the internal Entity Framework implementation of a specific implementation of a service contract
+        ///         with a different implementation.
+        ///     </para>
+        ///     <para>
+        ///         This method is useful for replacing a single instance of services that can be legitimately registered
+        ///         multiple times in the EF internal service provider.
+        ///     </para>
+        ///     <para>
+        ///         This method can only be used when EF is building and managing its internal service provider.
+        ///         If the service provider is being built externally and passed to
+        ///         <see cref="UseInternalServiceProvider" />, then replacement services should be configured on
+        ///         that service provider before it is passed to EF.
+        ///     </para>
+        ///     <para>
+        ///         The replacement service gets the same scope as the EF service that it is replacing.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TService"> The type (usually an interface) that defines the contract of the service to replace. </typeparam>
+        /// <typeparam name="TCurrentImplementation"> The current implementation type for the service. </typeparam>
+        /// <typeparam name="TNewImplementation"> The new implementation type for the service. </typeparam>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TCurrentImplementation, TNewImplementation>()
+            where TCurrentImplementation : TService
+            where TNewImplementation : TService
+            => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TCurrentImplementation, TNewImplementation>();
+
+        /// <summary>
+        ///     <para>
+        ///         Adds <see cref="IInterceptor" /> instances to those registered on the context.
+        ///     </para>
+        ///     <para>
+        ///         Interceptors can be used to view, change, or suppress operations taken by Entity Framework.
+        ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
+        ///     </para>
+        ///     <para>
+        ///         A single interceptor instance can implement multiple different interceptor interfaces. I will be registered as
+        ///         an interceptor for all interfaces that it implements.
+        ///     </para>
+        ///     <para>
+        ///         Extensions can also register multiple <see cref="IInterceptor" />s in the internal service provider.
+        ///         If both injected and application interceptors are found, then the injected interceptors are run in the
+        ///         order that they are resolved from the service provider, and then the application interceptors are run
+        ///         in the order that they were added to the context.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to add. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+            => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
+
+        /// <summary>
+        ///     <para>
+        ///         Adds <see cref="IInterceptor" /> instances to those registered on the context.
+        ///     </para>
+        ///     <para>
+        ///         Interceptors can be used to view, change, or suppress operations taken by Entity Framework.
+        ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
+        ///     </para>
+        ///     <para>
+        ///         Extensions can also register multiple <see cref="IInterceptor" />s in the internal service provider.
+        ///         If both injected and application interceptors are found, then the injected interceptors are run in the
+        ///         order that they are resolved from the service provider, and then the application interceptors are run
+        ///         in the order that they were added to the context.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
+        ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
+        ///     </para>
+        /// </summary>
+        /// <param name="interceptors"> The interceptors to add. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] params IInterceptor[] interceptors)
+            => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
     }
 }
