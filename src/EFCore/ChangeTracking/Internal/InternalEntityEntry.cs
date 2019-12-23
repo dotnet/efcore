@@ -1703,7 +1703,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             builder
                 .Append(EntityType.DisplayName())
                 .Append(' ')
-                .Append(SharedIdentityEntry == null ? "(Shared) " : "")
+                .Append(SharedIdentityEntry != null ? "(Shared) " : "")
                 .Append(keyString)
                 .Append(' ')
                 .Append(EntityState.ToString());
