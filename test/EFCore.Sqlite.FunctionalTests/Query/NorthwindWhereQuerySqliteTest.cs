@@ -36,7 +36,8 @@ FROM ""Customers"" AS ""c""
 WHERE ""c"".""City"" = @__city_0");
 
             Assert.Equal(
-                @"-- @__city_0='London' (Size = 6)
+                @".param set @__city_0 'London'
+
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
 WHERE ""c"".""City"" = @__city_0", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
