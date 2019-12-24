@@ -3,8 +3,6 @@
 
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -35,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <returns> The model files. </returns>
         SavedModelFiles Save(
             [NotNull] ScaffoldedModel scaffoldedModel,
-            [NotNull] string outputDir,
+            [CanBeNull] string outputDir,
             bool overwriteFiles);
     }
 }

@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     /// <summary>
@@ -14,17 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseIndex : Annotatable
     {
-        public DatabaseIndex([NotNull] DatabaseTable table, [NotNull] string name)
-        {
-            Table = table;
-            Name = name;
-            Columns = new List<DatabaseColumn>();
-        }
-
         /// <summary>
         ///     The table that contains the index.
         /// </summary>
-        public virtual DatabaseTable Table { get; [param: NotNull] set; }
+        public virtual DatabaseTable Table { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The index name.
@@ -34,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The ordered list of columns that make up the index.
         /// </summary>
-        public virtual IList<DatabaseColumn> Columns { get; }
+        public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
 
         /// <summary>
         ///     Indicates whether or not the index constrains uniqueness.
@@ -44,6 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The filter expression, or <c>null</c> if the index has no filter.
         /// </summary>
-        public virtual string? Filter { get; [param: CanBeNull] set; }
+        public virtual string Filter { get; [param: CanBeNull] set; }
     }
 }

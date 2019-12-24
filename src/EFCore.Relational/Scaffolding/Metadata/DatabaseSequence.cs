@@ -4,8 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     /// <summary>
@@ -13,12 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseSequence : Annotatable
     {
-        public DatabaseSequence([NotNull] DatabaseModel database, [NotNull] string name)
-        {
-            Database = database;
-            Name = name;
-        }
-
         /// <summary>
         ///     The database that contains the sequence.
         /// </summary>
@@ -32,12 +24,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The schema that contains the sequence, or <c>null</c> to use the default schema.
         /// </summary>
-        public virtual string? Schema { get; [param: CanBeNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The database/store type of the sequence, or <c>null</c> if not set.
         /// </summary>
-        public virtual string? StoreType { get; [param: CanBeNull] set; }
+        public virtual string StoreType { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The start value for the sequence, or <c>null</c> if not set.

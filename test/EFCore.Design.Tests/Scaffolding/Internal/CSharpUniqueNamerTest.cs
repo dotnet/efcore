@@ -14,9 +14,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Returns_unique_name_for_type()
         {
             var namer = new CSharpUniqueNamer<DatabaseColumn>(s => s.Name, new CSharpUtilities(), null);
-            var table = new DatabaseTable(new DatabaseModel(), "foo");
-            var input1 = new DatabaseColumn(table, "Id", "int");
-            var input2 = new DatabaseColumn(table, "Id", "int");
+            var input1 = new DatabaseColumn { Name = "Id" };
+            var input2 = new DatabaseColumn { Name = "Id" };
 
             Assert.Equal("Id", namer.GetName(input1));
             Assert.Equal("Id", namer.GetName(input1));
@@ -28,9 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Uses_comparer()
         {
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), null);
-            var database = new DatabaseModel();
-            var table1 = new DatabaseTable(database, "A B C");
-            var table2 = new DatabaseTable(database, "A_B_C");
+            var table1 = new DatabaseTable { Name = "A B C" };
+            var table2 = new DatabaseTable { Name = "A_B_C" };
             Assert.Equal("A_B_C", namer.GetName(table1));
             Assert.Equal("A_B_C1", namer.GetName(table2));
         }
@@ -42,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Singularize);
-            var table = new DatabaseTable(new DatabaseModel(), input);
+            var table = new DatabaseTable { Name = input };
             Assert.Equal(output, namer.GetName(table));
         }
 
@@ -53,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var fakePluralizer = new RelationalDatabaseModelFactoryTest.FakePluralizer();
             var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), fakePluralizer.Pluralize);
-            var table = new DatabaseTable(new DatabaseModel(), input);
+            var table = new DatabaseTable { Name = input };
             Assert.Equal(output, namer.GetName(table));
         }
     }

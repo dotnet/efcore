@@ -3,8 +3,6 @@
 
 using JetBrains.Annotations;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
     /// <summary>
@@ -12,12 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// </summary>
     public class ScaffoldedFile
     {
-        public ScaffoldedFile([NotNull] string path, [NotNull] string code)
-        {
-            Path = path;
-            Code = code;
-        }
-
         /// <summary>
         ///     Gets or sets the path.
         /// </summary>

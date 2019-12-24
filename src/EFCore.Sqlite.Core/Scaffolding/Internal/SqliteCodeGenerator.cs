@@ -5,8 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>
@@ -34,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         /// </summary>
         public override MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
-            MethodCallCodeFragment? providerOptions)
+            MethodCallCodeFragment providerOptions)
             => new MethodCallCodeFragment(
                 nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite),
                 providerOptions == null

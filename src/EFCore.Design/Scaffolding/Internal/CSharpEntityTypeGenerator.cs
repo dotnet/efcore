@@ -14,8 +14,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     /// <summary>
@@ -28,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     {
         private readonly ICSharpHelper _code;
 
-        private IndentedStringBuilder _sb = null!;
+        private IndentedStringBuilder _sb;
         private bool _useDataAnnotations;
 
         /// <summary>

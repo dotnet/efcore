@@ -1,13 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
-
-#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -77,20 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(model, nameof(model));
             Check.NotNull(options, nameof(options));
 
-            if (options.ContextName == null)
-            {
-                throw new ArgumentException($"{nameof(options.ContextName)} cannot be null", nameof(options));
-            }
-
-            if (options.ConnectionString == null)
-            {
-                throw new ArgumentException($"{nameof(options.ConnectionString)} cannot be null", nameof(options));
-            }
-
-            if (options.ModelNamespace == null)
-            {
-                throw new ArgumentException($"{nameof(options.ModelNamespace)} cannot be null", nameof(options));
-            }
+            var resultingFiles = new ScaffoldedModel();
 
             var generatedCode = CSharpDbContextGenerator.WriteCode(
                 model,
@@ -103,12 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             // output DbContext .cs file
             var dbContextFileName = options.ContextName + FileExtension;
-            var resultingFiles = new ScaffoldedModel(
-                new ScaffoldedFile(
-                    options.ContextDir != null
-                        ? Path.Combine(options.ContextDir, dbContextFileName)
-                        : dbContextFileName,
-                    generatedCode));
+            resultingFiles.ContextFile = new ScaffoldedFile
+            {
+                Path = options.ContextDir != null
+                    ? Path.Combine(options.ContextDir, dbContextFileName)
+                    : dbContextFileName,
+                Code = generatedCode
+            };
 
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -117,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
                 resultingFiles.AdditionalFiles.Add(
-                    new ScaffoldedFile(entityTypeFileName, generatedCode));
+                    new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
             }
 
             return resultingFiles;

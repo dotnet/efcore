@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-#nullable enable
-
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
 {
     /// <summary>
@@ -25,7 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static string DisplayName([NotNull] this DatabaseColumn column)
-            => column.Table.DisplayName() + "." + column.Name;
+        {
+            var tablePrefix = column.Table?.DisplayName();
+            return (!string.IsNullOrEmpty(tablePrefix) ? tablePrefix + "." : "") + column.Name;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
