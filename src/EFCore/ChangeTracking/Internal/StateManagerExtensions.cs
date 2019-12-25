@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -74,10 +74,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             public static EntityEntryComparer Instance = new EntityEntryComparer();
 
-            private EntityEntryComparer()
-            {
-            }
-
             public int Compare(InternalEntityEntry x, InternalEntityEntry y)
             {
                 var result = StringComparer.InvariantCulture.Compare(x.EntityType.Name, y.EntityType.Name);
@@ -92,16 +88,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var keyProperties = primaryKey.Properties;
                     foreach (var keyProperty in keyProperties)
                     {
-                        if (typeof(IComparable).IsAssignableFrom(keyProperty.ClrType))
+                        var comparer = keyProperty.GetCurrentValueComparer();
+                        result = comparer.Compare(x, y);
+                        if (result != 0)
                         {
-                            result = Comparer.DefaultInvariant.Compare(
-                                x.GetCurrentValue(keyProperty),
-                                y.GetCurrentValue(keyProperty));
-
-                            if (result != 0)
-                            {
-                                return result;
-                            }
+                            return result;
                         }
                     }
                 }
