@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerDateFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
+                    new SqlServerDateTime2FromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),

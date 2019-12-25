@@ -1023,5 +1023,32 @@ namespace Microsoft.EntityFrameworkCore
             int month,
             int day)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateFromParts)));
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, and precision.
+        ///     Corresponds to the SQL Server's DATETIME2FROMPARTS (year, month, day, hour, minute, seconds, fractions, precision).
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="year">The year (1753 through 9999).</param>
+        /// <param name="month">The month (1 through 12).</param>
+        /// <param name="day">The day (1 through the number of days in month).</param>
+        /// <param name="hour">The hours (0 through 23).</param>
+        /// <param name="minute">The minutes (0 through 59).</param>
+        /// <param name="second">The seconds (0 through 59).</param>
+        /// <param name="fractions">The fractional seconds.</param>
+        /// <param name="precision">The precision of the datetime2 value.</param>
+        /// <returns>New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, and precision.</returns>
+        public static DateTime DateTime2FromParts(
+            [CanBeNull] this DbFunctions _,
+            int year,
+            int month,
+            int day,
+            int hour,
+            int minute,
+            int second,
+            int fractions,
+            int precision
+            )
+            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateTime2FromParts)));
     }
 }
