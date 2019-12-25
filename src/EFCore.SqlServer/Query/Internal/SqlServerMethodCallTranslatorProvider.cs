@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -21,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     new SqlServerConvertTranslator(sqlExpressionFactory),
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
+                    new SqlServerDateFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),

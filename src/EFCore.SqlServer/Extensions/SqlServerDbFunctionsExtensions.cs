@@ -1007,5 +1007,21 @@ namespace Microsoft.EntityFrameworkCore
             int second,
             int millisecond)
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateTimeFromParts)));
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day.
+        ///     Corresponds to the SQL Server's DATEFROMPARTS(year, month, day).
+        /// </summary>
+        /// <param name="_">The DbFunctions instance.</param>
+        /// <param name="year">The year (1753 through 9999).</param>
+        /// <param name="month">The month (1 through 12).</param>
+        /// <param name="day">The day (1 through the number of days in month).</param>
+        /// <returns>New instance of the <see cref="DateTime" /> structure to the specified year, month, day.</returns>
+        public static DateTime DateFromParts(
+            [CanBeNull] this DbFunctions _,
+            int year,
+            int month,
+            int day)
+            => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateFromParts)));
     }
 }

@@ -698,6 +698,23 @@ WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23,
         }
 
         [ConditionalFact]
+        public virtual void DateFromParts_column_compare()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => c.OrderDate > EF.Functions.DateFromParts(DateTime.Now.Year, 12, 31));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
+            }
+        }
+
+        [ConditionalFact]
         public virtual void DateTimeFromParts_constant_compare()
         {
             using (var context = CreateContext())
