@@ -19,16 +19,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     new SqlServerByteArrayMethodTranslator(sqlExpressionFactory),
                     new SqlServerConvertTranslator(sqlExpressionFactory),
                     new SqlServerDateDiffFunctionsTranslator(sqlExpressionFactory),
-                    new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerDateFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerDateTime2FromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
+                    new SqlServerDateTimeFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerDateTimeMethodTranslator(sqlExpressionFactory),
+                    new SqlServerDateTimeOffsetFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
                     new SqlServerFullTextSearchFunctionsTranslator(sqlExpressionFactory),
                     new SqlServerIsDateFunctionTranslator(sqlExpressionFactory),
                     new SqlServerMathTranslator(sqlExpressionFactory),
                     new SqlServerNewGuidTranslator(sqlExpressionFactory),
                     new SqlServerObjectToStringTranslator(sqlExpressionFactory),
-                    new SqlServerStringMethodTranslator(sqlExpressionFactory)
+                    new SqlServerSmallDateTimeFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource),
+                    new SqlServerStringMethodTranslator(sqlExpressionFactory),
+                    new SqlServerTimeFromPartsFunctionTranslator(sqlExpressionFactory, typeMappingSource)
                 });
         }
     }
