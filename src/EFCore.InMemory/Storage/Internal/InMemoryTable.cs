@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                     _valueConverters.Add((property.GetIndex(), converter));
                 }
 
-                var comparer = GetStructuralComparer(property);
+                var comparer = property.GetStructuralValueComparer();
                 if (!comparer.HasDefaultBehavior)
                 {
                     if (_valueComparers == null)
@@ -147,13 +147,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         private static List<ValueComparer> GetStructuralComparers(IEnumerable<IProperty> properties)
-            => properties.Select(GetStructuralComparer).ToList();
-
-        private static ValueComparer GetStructuralComparer(IProperty p)
-            => p.GetStructuralValueComparer()
-                ?? p.GetKeyValueComparer()
-                ?? p.GetValueComparer()
-                ?? p.FindTypeMapping()?.StructuralComparer;
+            => properties.Select(p => p.GetStructuralValueComparer()).ToList();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -164,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         public virtual void Create(IUpdateEntry entry)
         {
             var row = entry.EntityType.GetProperties()
-                .Select(p => SnapshotValue(p, GetStructuralComparer(p), entry))
+                .Select(p => SnapshotValue(p, p.GetStructuralValueComparer(), entry))
                 .ToArray();
 
             _rows.Add(CreateKey(entry), row);
@@ -211,14 +205,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             object rowValue,
             Dictionary<IProperty, object> concurrencyConflicts)
         {
-            if (property.IsConcurrencyToken
-                && !StructuralComparisons.StructuralEqualityComparer.Equals(
-                    rowValue,
-                    entry.GetOriginalValue(property)))
+            if (property.IsConcurrencyToken)
             {
-                concurrencyConflicts.Add(property, rowValue);
+                var comparer = property.GetStructuralValueComparer();
+                var originalValue = entry.GetOriginalValue(property);
 
-                return true;
+                if ((comparer != null && !comparer.Equals(rowValue, originalValue))
+                    || (comparer == null && !StructuralComparisons.StructuralEqualityComparer.Equals(rowValue, originalValue)))
+                {
+                    concurrencyConflicts.Add(property, rowValue);
+
+                    return true;
+                }
             }
 
             return false;

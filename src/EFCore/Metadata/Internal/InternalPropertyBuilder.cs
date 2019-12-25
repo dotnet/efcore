@@ -501,7 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] ValueComparer comparer, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource())
-                || Metadata.GetValueComparer() == comparer)
+                || Metadata.GetValueComparer(fallback: false) == comparer)
             {
                 Metadata.SetValueComparer(comparer, configurationSource);
 
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource())
                     && Metadata.CheckValueComparer(comparer) == null)
-                || Metadata.GetValueComparer() == comparer;
+                || Metadata.GetValueComparer(fallback: false) == comparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -532,7 +532,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] ValueComparer comparer, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetKeyValueComparerConfigurationSource())
-                || Metadata.GetKeyValueComparer() == comparer)
+                || Metadata.GetKeyValueComparer(fallback: false) == comparer)
             {
                 Metadata.SetKeyValueComparer(comparer, configurationSource);
 
@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetKeyValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetKeyValueComparerConfigurationSource())
                     && Metadata.CheckValueComparer(comparer) == null)
-                || Metadata.GetKeyValueComparer() == comparer;
+                || Metadata.GetKeyValueComparer(fallback: false) == comparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -563,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [CanBeNull] ValueComparer comparer, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetStructuralValueComparerConfigurationSource())
-                || Metadata.GetStructuralValueComparer() == comparer)
+                || Metadata.GetStructuralValueComparer(fallback: false) == comparer)
             {
                 Metadata.SetStructuralValueComparer(comparer, configurationSource);
 
@@ -582,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetStructuralValueComparer([CanBeNull] ValueComparer comparer, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetStructuralValueComparerConfigurationSource())
                     && Metadata.CheckValueComparer(comparer) == null)
-                || Metadata.GetStructuralValueComparer() == comparer;
+                || Metadata.GetStructuralValueComparer(fallback: false) == comparer;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

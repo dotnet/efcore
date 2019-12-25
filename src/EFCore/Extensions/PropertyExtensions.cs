@@ -271,25 +271,58 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the <see cref="ValueComparer" /> for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="fallback"> If true, then the default comparer is returned when the explicit comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        public static ValueComparer GetValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueComparer];
+        public static ValueComparer GetValueComparer([NotNull] this IProperty property, bool fallback = true)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var comparer = (ValueComparer)property[CoreAnnotationNames.ValueComparer];
+
+            return comparer == null
+                && fallback
+                    ? property.FindTypeMapping()?.Comparer
+                    : comparer;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> to use with keys for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="fallback"> If true, then the regular comparer is returned when the key comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        public static ValueComparer GetKeyValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
+        public static ValueComparer GetKeyValueComparer([NotNull] this IProperty property, bool fallback = true)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var comparer = (ValueComparer)property[CoreAnnotationNames.KeyValueComparer];
+
+            return fallback
+                ? comparer
+                ?? (ValueComparer)property[CoreAnnotationNames.ValueComparer]
+                ?? property.FindTypeMapping()?.KeyComparer
+                : comparer;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="fallback"> If true, then the key comparer is returned when the structural comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.StructuralValueComparer];
+        public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property, bool fallback = true)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var comparer = (ValueComparer)property[CoreAnnotationNames.StructuralValueComparer];
+
+            return fallback
+                ? comparer
+                ?? (ValueComparer)property[CoreAnnotationNames.KeyValueComparer]
+                ?? (ValueComparer)property[CoreAnnotationNames.ValueComparer]
+                ?? property.FindTypeMapping()?.StructuralComparer
+                : comparer;
+        }
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties such as is useful

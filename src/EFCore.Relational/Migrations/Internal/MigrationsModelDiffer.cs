@@ -1803,8 +1803,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
                             var targetValue = entry.GetCurrentValue(targetProperty);
-                            var comparer = targetProperty.GetValueComparer()
-                                ?? sourceProperty.GetValueComparer()
+                            var comparer = targetProperty.GetValueComparer(fallback: false)
+                                ?? sourceProperty.GetValueComparer(fallback: false)
                                 ?? targetProperty.FindTypeMapping()?.Comparer ?? sourceProperty.FindTypeMapping()?.Comparer;
 
                             var modelValuesChanged

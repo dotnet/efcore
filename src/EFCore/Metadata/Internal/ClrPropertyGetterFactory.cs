@@ -88,7 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var property = propertyBase as IProperty;
                 var comparer = property?.GetValueComparer()
-                    ?? property?.FindTypeMapping()?.Comparer
                     ?? ValueComparer.CreateDefault(typeof(TValue), favorStructuralComparisons: false);
 
                 hasDefaultValueExpression = comparer.ExtractEqualsBody(
