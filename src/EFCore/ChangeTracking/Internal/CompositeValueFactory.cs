@@ -132,9 +132,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         protected static IEqualityComparer<object[]> CreateEqualityComparer([NotNull] IReadOnlyList<IProperty> properties)
         {
-            var comparers = properties.Select(p => p.GetKeyValueComparer()
-                ?? p.GetValueComparer()
-                ?? p.FindTypeMapping()?.KeyComparer).ToList();
+            var comparers = properties.Select(p => p.GetKeyValueComparer()).ToList();
 
             return comparers.All(c => c != null)
                 ? new CompositeCustomComparer(comparers)

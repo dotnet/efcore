@@ -861,7 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     var converter = property.GetValueConverter();
                     if (converter != null
-                        && property.GetValueComparer() == null)
+                        && property.GetValueComparer(fallback: false) == null)
                     {
                         var type = converter.ModelClrType;
                         if (type != typeof(string)
@@ -870,6 +870,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         {
                             logger.CollectionWithoutComparer(property);
                         }
+                    }
+
+                    if (property.IsKeyOrForeignKey()
+                        || property.IsUniqueIndex())
+                    {
+                        var _ = property.GetCurrentValueComparer(); // Will throw if there is no way to compare
                     }
                 }
             }

@@ -22,6 +22,67 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     public class ModelValidatorTest : ModelValidatorTestBase
     {
         [ConditionalFact]
+        public virtual void Detects_key_property_which_cannot_be_compared()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithNonComparableKey));
+            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithNonComparableKey.Id), typeof(NotComparable)));
+
+            VerifyError(
+                CoreStrings.NonComparableKeyType(nameof(WithNonComparableKey), nameof(WithNonComparableKey.Id), nameof(NotComparable)),
+                model);
+        }
+
+        private class WithNonComparableKey
+        {
+            public NotComparable Id { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_unique_index_property_which_cannot_be_compared()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithNonComparableUniqueIndex));
+            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithNonComparableUniqueIndex.Id), typeof(int)));
+            entityType.AddIndex(entityType.AddProperty(nameof(WithNonComparableUniqueIndex.Index), typeof(NotComparable))).IsUnique = true;
+
+            VerifyError(
+                CoreStrings.NonComparableKeyType(
+                    nameof(WithNonComparableUniqueIndex), nameof(WithNonComparableUniqueIndex.Index), nameof(NotComparable)),
+                model);
+        }
+
+        private class WithNonComparableUniqueIndex
+        {
+            public int Id { get; set; }
+            public NotComparable Index { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Ignores_normal__property_which_cannot_be_compared()
+        {
+            var model = CreateConventionlessModelBuilder().Model;
+
+            var entityType = model.AddEntityType(typeof(WithNonComparableNormalProperty));
+            entityType.SetPrimaryKey(entityType.AddProperty(nameof(WithNonComparableNormalProperty.Id), typeof(int)));
+            entityType.AddProperty(nameof(WithNonComparableNormalProperty.Foo), typeof(NotComparable));
+
+            Validate(model);
+        }
+
+        private class WithNonComparableNormalProperty
+        {
+            public int Id { get; set; }
+            public NotComparable Foo { get; set; }
+        }
+
+        private struct NotComparable
+        {
+        }
+
+        [ConditionalFact]
         public virtual void Detects_custom_converter_for_collection_type_without_comparer()
         {
             var convertedProperty = CreateConvertedCollectionProperty();
@@ -72,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public virtual void Ignores_binary_keys_and_strings_without_custom__comparer()
+        public virtual void Ignores_binary_keys_and_strings_without_custom_comparer()
         {
             var model = CreateConventionlessModelBuilder().Model;
 

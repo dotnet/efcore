@@ -167,8 +167,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             if (property != null)
             {
-                var comparer = property.GetValueComparer()
-                    ?? property.FindTypeMapping()?.Comparer;
+                var comparer = property.GetValueComparer();
 
                 if (comparer != null
                     && comparer.Type.IsAssignableFrom(newLeft.Type)
