@@ -698,23 +698,6 @@ WHERE [o].[OrderDate] > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 12, 31, 23,
         }
 
         [ConditionalFact]
-        public virtual void DateFromParts_column_compare()
-        {
-            using (var context = CreateContext())
-            {
-                var count = context.Orders
-                    .Count(c => c.OrderDate > EF.Functions.DateFromParts(DateTime.Now.Year, 12, 31));
-
-                Assert.Equal(0, count);
-
-                AssertSql(
-                    @"SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
-            }
-        }
-
-        [ConditionalFact]
         public virtual void DateTimeFromParts_constant_compare()
         {
             using (var context = CreateContext())
@@ -754,6 +737,62 @@ WHERE '2018-12-29T23:20:40.000' > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), 1
 SELECT COUNT(*)
 FROM [Orders] AS [o]
 WHERE @__dateTime_0 > DATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3, @__dateTime_Hour_4, @__dateTime_Minute_5, @__dateTime_Second_6, @__dateTime_Millisecond_7)");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateFromParts_column_compare()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => c.OrderDate > EF.Functions.DateFromParts(DateTime.Now.Year, 12, 31));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateFromParts_constant_compare()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => new DateTime(2018, 12, 29) > EF.Functions.DateFromParts(DateTime.Now.Year, 12, 31));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE '2018-12-29T00:00:00.000' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void DateFromParts_compare_with_local_variable()
+        {
+            var dateTime = new DateTime(1919, 12, 12);
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => dateTime > EF.Functions.DateFromParts(DateTime.Now.Year, dateTime.Month, dateTime.Day));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @$"@__dateTime_0='1919-12-12T00:00:00' (DbType = DateTime)
+@__dateTime_Month_2='12'
+@__dateTime_Day_3='12'
+
+SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE @__dateTime_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3)");
             }
         }
 
