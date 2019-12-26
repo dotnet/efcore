@@ -2011,6 +2011,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Lazy_loading_handles_shadow_nullable_GUID_FK_in_TPH_model()
+        {
+            using var context = CreateContext(lazyLoadingEnabled: true);
+
+            var tribes = context.Set<Tribe>().ToList();
+
+            Assert.Single(tribes);
+            Assert.IsAssignableFrom<Quest>(tribes[0]);
+            Assert.Equal(new DateTime(1973, 9, 3), ((Quest)tribes[0]).Birthday);
+        }
+
+        [ConditionalFact]
         public virtual void Lazy_loading_finds_correct_entity_type_with_alternate_model()
         {
             using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2314,12 +2326,30 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Parson : Entity
         {
+            public DateTime Birthday { set; get; }
+
             public virtual ICollection<Nose> ParsonNoses { get; set; }
         }
 
         public class Host
         {
             public string HostName { get; set; }
+        }
+
+        public abstract class Tribe
+        {
+            public Guid Id { get; set; }
+        }
+
+        public class Called : Tribe
+        {
+            public string Name { set; get; }
+        }
+
+        public class Quest : Tribe
+        {
+            public DateTime Birthday { set; get; }
+            public virtual Called Called { set; get; }
         }
 
         protected DbContext CreateContext(bool lazyLoadingEnabled = false)
@@ -2375,6 +2405,10 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
+                modelBuilder.Entity<Tribe>();
+                modelBuilder.Entity<Called>();
+                modelBuilder.Entity<Quest>();
+
                 modelBuilder.Entity<Entity>();
                 modelBuilder.Entity<Company>();
                 modelBuilder.Entity<Parson>();
@@ -2516,6 +2550,8 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(DbContext context)
             {
+                context.Add(new Quest { Birthday = new DateTime(1973, 9, 3) });
+
                 context.Add(
                     new Parent
                     {
