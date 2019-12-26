@@ -515,6 +515,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, state);
 
         /// <summary>
+        ///     The value of '{entityType}.{property}' is unknown when attempting to save changes. This is because the property is also part of a foreign key for which the principal entity in the relationship is not known.
+        /// </summary>
+        public static string UnknownKeyValue([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("UnknownKeyValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     The EF.Property&lt;T&gt; method may only be used within LINQ queries.
         /// </summary>
         public static string PropertyMethodInvoked

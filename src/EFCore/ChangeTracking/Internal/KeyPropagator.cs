@@ -71,6 +71,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         entry[property] = value;
                     }
+
+                    entry.MarkUnknown(property);
                 }
             }
 
@@ -108,6 +110,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         entry[property] = value;
                     }
+
+                    entry.MarkUnknown(property);
                 }
             }
 
