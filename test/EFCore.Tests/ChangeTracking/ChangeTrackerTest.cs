@@ -26,6 +26,57 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class ChangeTrackerTest
     {
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Keys_generated_on_behalf_of_a_principal_are_not_saved(bool async)
+        {
+            using var context = new WeakHerosContext();
+
+            var entity = new Weak { Id = Guid.NewGuid() };
+
+            if (async)
+            {
+                await context.AddAsync(entity);
+            }
+            else
+            {
+                context.Add(entity);
+            }
+
+            Assert.Equal(
+                CoreStrings.UnknownKeyValue(nameof(Weak), nameof(Weak.HeroId)),
+                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+        }
+
+        public class Hero
+        {
+            public Guid Id { get; set; }
+            public ICollection<Weak> Weaks { get; set; }
+        }
+
+        public class Weak
+        {
+            public Guid Id { get; set; }
+            public Guid HeroId { get; set; }
+
+            public Hero Hero { get; set; }
+        }
+
+        public class WeakHerosContext : DbContext
+        {
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Weak>(
+                    b =>
+                    {
+                        b.HasKey(e => new { e.Id, e.HeroId });
+                        b.HasOne(e => e.Hero).WithMany(e => e.Weaks).HasForeignKey(e => e.HeroId);
+                    });
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(WeakHerosContext));
+        }
+
         [ConditionalFact]
         public void DetectChanges_is_logged()
         {
