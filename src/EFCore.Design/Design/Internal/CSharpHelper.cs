@@ -575,77 +575,87 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             builder.Append("new");
 
-            var byteArray = type == typeof(byte);
-            if (byteArray)
-            {
-                builder.Append(" byte");
-            }
-            else if (type == typeof(object))
-            {
-                builder.Append(" object");
-            }
+            var valuesList = values.OfType<object>().ToList();
 
-            builder.Append("[]");
-
-            if (vertical)
+            if (valuesList.Count == 0)
             {
-                builder.AppendLine();
+                builder
+                    .Append(' ')
+                    .Append(Reference(type))
+                    .Append("[0]");
             }
             else
             {
-                builder.Append(" ");
-            }
-
-            builder.Append("{");
-
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.IncrementIndent();
-            }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            var first = true;
-            foreach (var value in values)
-            {
-                if (first)
+                var byteArray = type == typeof(byte);
+                if (byteArray)
                 {
-                    first = false;
+                    builder.Append(" byte");
+                }
+                else if (type == typeof(object))
+                {
+                    builder.Append(" object");
+                }
+
+                if (vertical)
+                {
+                    builder.AppendLine("[]");
                 }
                 else
                 {
-                    builder.Append(",");
+                    builder.Append("[] ");
+                }
 
-                    if (vertical)
+                builder.Append("{");
+
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.IncrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+
+                var first = true;
+                foreach (var value in valuesList)
+                {
+                    if (first)
                     {
-                        builder.AppendLine();
+                        first = false;
                     }
                     else
                     {
-                        builder.Append(" ");
+                        builder.Append(",");
+
+                        if (vertical)
+                        {
+                            builder.AppendLine();
+                        }
+                        else
+                        {
+                            builder.Append(" ");
+                        }
                     }
+
+                    builder.Append(
+                        byteArray
+                            ? Literal((int)(byte)value)
+                            : UnknownLiteral(value));
                 }
 
-                builder.Append(
-                    byteArray
-                        ? Literal((int)(byte)value)
-                        : UnknownLiteral(value));
-            }
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.DecrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
 
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.DecrementIndent();
+                builder.Append("}");
             }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            builder.Append("}");
 
             return builder.ToString();
         }

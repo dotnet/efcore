@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public void Literal_works_when_empty_ByteArray() =>
             Literal_works(
                 Array.Empty<byte>(),
-                "new byte[] {  }");
+                "new byte[0]");
 
         [ConditionalFact]
         public void Literal_works_when_single_ByteArray() =>
@@ -190,6 +190,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             var literal = new CSharpHelper(TypeMappingSource).Literal(new[] { "A", "B" });
             Assert.Equal("new[] { \"A\", \"B\" }", literal);
+        }
+
+        [ConditionalFact]
+        public void Literal_works_when_empty_StringArray()
+        {
+            var literal = new CSharpHelper(TypeMappingSource).Literal(new string[] { });
+            Assert.Equal("new string[0]", literal);
         }
 
         [ConditionalFact]
