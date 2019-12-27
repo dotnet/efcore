@@ -76,6 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     A tree structure of includes for a given entity type in <see cref="EntityReference"/>.
+        /// </summary>
         protected class IncludeTreeNode : Dictionary<INavigation, IncludeTreeNode>
         {
             private EntityReference _entityReference;
@@ -160,6 +163,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), EntityType);
         }
 
+        /// <summary>
+        ///     Stores information about the current queryable, its source, structure of projection, parameter type etc.
+        ///     This is needed because once navigations are expanded we still remember these to avoid expanding again.
+        /// </summary>
         protected class NavigationExpansionExpression : Expression, IPrintableExpression
         {
             private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
@@ -248,6 +255,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     A leaf node on navigation tree, representing projection structures of
+        ///     <see cref="NavigationExpansionExpression"/>. Contains <see cref="NavigationTreeExpression.Value"/>,
+        ///     which can be <see cref="NewExpression"/> or <see cref="EntityReference"/>.
+        /// </summary>
         protected class NavigationTreeExpression : NavigationTreeNode, IPrintableExpression
         {
             public NavigationTreeExpression(Expression value)
@@ -256,6 +268,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Value = value;
             }
 
+            /// <summary>
+            ///     Either <see cref="NewExpression"/> or <see cref="EntityReference"/>.
+            /// </summary>
             public virtual Expression Value { get; private set; }
 
             protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -285,6 +300,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     A node in navigation binary tree. A navigation tree is a structure of the current parameter, which
+        ///     would be transparent identifier (hence it's a binary structure). This allows us to easily condense to
+        ///     inner/outer member access.
+        /// </summary>
         protected class NavigationTreeNode : Expression
         {
             private NavigationTreeNode _parent;
@@ -333,6 +353,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
+        /// <summary>
+        ///     Owned navigations are not expanded, since they map differently in different providers.
+        ///     This remembers such references so that they can still be treated like navigations.
+        /// </summary>
         protected class OwnedNavigationReference : Expression
         {
             public OwnedNavigationReference(Expression parent, INavigation navigation, EntityReference entityReference)
