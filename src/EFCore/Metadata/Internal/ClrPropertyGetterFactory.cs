@@ -89,9 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var property = propertyBase as IProperty;
                 var comparer = property?.GetValueComparer()
                     ?? property?.FindTypeMapping()?.Comparer
-                    ?? (ValueComparer)Activator.CreateInstance(
-                        typeof(ValueComparer<>).MakeGenericType(typeof(TValue)),
-                        new object[] { false });
+                    ?? ValueComparer.CreateDefault(typeof(TValue), favorStructuralComparisons: false);
 
                 hasDefaultValueExpression = comparer.ExtractEqualsBody(
                     comparer.Type != typeof(TValue)

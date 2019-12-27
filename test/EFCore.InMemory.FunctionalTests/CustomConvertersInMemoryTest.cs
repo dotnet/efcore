@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -18,12 +17,6 @@ namespace Microsoft.EntityFrameworkCore
         // Disabled: In-memory database is case-sensitive
         public override void Can_insert_and_read_back_with_case_insensitive_string_key()
         {
-        }
-
-        [ConditionalTheory(Skip = "Issue#14042")]
-        public override Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
-        {
-            return base.Can_query_custom_type_not_mapped_by_default_equality(async);
         }
 
         [ConditionalFact(Skip = "Issue#17050")]

@@ -51,7 +51,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (propertyBase is IProperty property)
                 {
-                    var comparer = property.GetKeyValueComparer() ?? property.GetTypeMapping().KeyComparer;
+                    var comparer = property.GetKeyValueComparer()
+                        ?? property.GetValueComparer()
+                        ?? property.GetTypeMapping().KeyComparer;
 
                     if (comparer != null)
                     {

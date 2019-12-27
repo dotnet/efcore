@@ -4,8 +4,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
@@ -14,6 +16,64 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ValueConverterTest
     {
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Value_converters_are_run_for_in_memory_database(bool async)
+        {
+            using (var context = new InMemoryConvertersContext())
+            {
+                context.Add(
+                    new Person
+                    {
+                        Id = async ? 1 : 2,
+                        ConvertedGoingIn = new DateTime(2015, 1, 10, 8, 8, 8, DateTimeKind.Local),
+                        ConvertedComingOut = new DateTime(2015, 1, 10, 9, 9, 9, DateTimeKind.Local)
+                    });
+
+                Assert.Equal(1, async ? await context.SaveChangesAsync() : context.SaveChanges());
+            }
+
+            using (var context = new InMemoryConvertersContext())
+            {
+                var person = context.Set<Person>().Find(async ? 1L : 2L);
+
+                Assert.Equal(DateTimeKind.Utc, person.ConvertedGoingIn.Kind);
+                Assert.Equal(new DateTime(2015, 1, 10, 8, 8, 8, DateTimeKind.Utc), person.ConvertedGoingIn);
+
+                Assert.Equal(DateTimeKind.Utc, person.ConvertedComingOut.Kind);
+                Assert.Equal(new DateTime(2015, 1, 10, 9, 9, 9, DateTimeKind.Utc), person.ConvertedComingOut);
+            }
+        }
+
+        private class InMemoryConvertersContext : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(nameof(ValueComparerTest));
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Person>(
+                    b =>
+                    {
+                        b.Property(o => o.ConvertedComingOut)
+                            .HasConversion(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+                        b.Property(o => o.ConvertedGoingIn)
+                            .HasConversion(v => DateTime.SpecifyKind(v, DateTimeKind.Utc), v => v);
+                    });
+            }
+        }
+
+        private class Person
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public long Id { get; set; }
+
+            public DateTime ConvertedGoingIn { get; set; }
+            public DateTime ConvertedComingOut { get; set; }
+        }
+
         private static readonly ValueConverter<uint, int> _uIntToInt
             = new CastingConverter<uint, int>();
 

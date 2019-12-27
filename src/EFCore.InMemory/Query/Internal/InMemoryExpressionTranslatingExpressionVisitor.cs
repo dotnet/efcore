@@ -61,6 +61,67 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
         }
 
+        private sealed class PropertyFindingExpressionVisitor : ExpressionVisitor
+        {
+            private IProperty _property;
+
+            public IProperty Find(Expression expression)
+            {
+                Visit(expression);
+
+                return _property;
+            }
+
+            protected override Expression VisitMember(MemberExpression memberExpression)
+            {
+                var entityType = FindEntityType(memberExpression.Expression);
+                if (entityType != null)
+                {
+                    _property = GetProperty(entityType, MemberIdentity.Create(memberExpression.Member));
+                }
+
+                return memberExpression;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.TryGetEFPropertyArguments(out var _, out var propertyName))
+                {
+                    var entityType = FindEntityType(methodCallExpression.Object);
+                    if (entityType != null)
+                    {
+                        _property = GetProperty(entityType, MemberIdentity.Create(propertyName));
+                    }
+                }
+
+                return methodCallExpression;
+            }
+
+            private static IProperty GetProperty(IEntityType entityType, MemberIdentity memberIdentity)
+                => memberIdentity.MemberInfo != null
+                    ? entityType.FindProperty(memberIdentity.MemberInfo)
+                    : entityType.FindProperty(memberIdentity.Name);
+
+            private static IEntityType FindEntityType(Expression source)
+            {
+                source = source.UnwrapTypeConversion(out var convertedType);
+
+                if (source is EntityShaperExpression entityShaperExpression)
+                {
+                    var entityType = entityShaperExpression.EntityType;
+                    if (convertedType != null)
+                    {
+                        entityType = entityType.GetRootType().GetDerivedTypesInclusive()
+                            .FirstOrDefault(et => et.ClrType == convertedType);
+                    }
+
+                    return entityType;
+                }
+
+                return null;
+            }
+        }
+
         public virtual Expression Translate([NotNull] Expression expression)
         {
             var result = Visit(expression);
@@ -88,6 +149,31 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 newLeft = ConvertToNullable(newLeft);
                 newRight = ConvertToNullable(newRight);
+            }
+
+            var propertyFindingExpressionVisitor = new PropertyFindingExpressionVisitor();
+            var property = propertyFindingExpressionVisitor.Find(binaryExpression.Left)
+                ?? propertyFindingExpressionVisitor.Find(binaryExpression.Right);
+
+            if (property != null)
+            {
+                var comparer = property.GetValueComparer()
+                    ?? property.FindTypeMapping()?.Comparer;
+
+                if (comparer != null
+                    && comparer.Type.IsAssignableFrom(newLeft.Type)
+                    && comparer.Type.IsAssignableFrom(newRight.Type))
+                {
+                    if (binaryExpression.NodeType == ExpressionType.Equal)
+                    {
+                        return comparer.ExtractEqualsBody(newLeft, newRight);
+                    }
+
+                    if (binaryExpression.NodeType == ExpressionType.NotEqual)
+                    {
+                        return Expression.IsFalse(comparer.ExtractEqualsBody(newLeft, newRight));
+                    }
+                }
             }
 
             return Expression.MakeBinary(
@@ -653,9 +739,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             = typeof(InMemoryExpressionTranslatingExpressionVisitor)
                 .GetTypeInfo().GetDeclaredMethod(nameof(GetParameterValue));
 
-#pragma warning disable IDE0052 // Remove unread private members
+        [UsedImplicitly]
         private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
-#pragma warning restore IDE0052 // Remove unread private members
             => (T)queryContext.ParameterValues[parameterName];
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
