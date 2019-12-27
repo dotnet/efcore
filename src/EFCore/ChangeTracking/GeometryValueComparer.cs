@@ -28,11 +28,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var left = Expression.Parameter(typeof(TGeometry), "left");
             var right = Expression.Parameter(typeof(TGeometry), "right");
 
+            var x = Expression.Variable(typeof(TGeometry), "x");
+            var y = Expression.Variable(typeof(TGeometry), "y");
+            var xNull = Expression.Variable(typeof(bool), "xNull");
+            var yNull = Expression.Variable(typeof(bool), "yNull");
+            var nullExpression = Expression.Constant(null, typeof(TGeometry));
+
             return Expression.Lambda<Func<TGeometry, TGeometry, bool>>(
-                Expression.Call(
-                    left,
-                    typeof(TGeometry).GetRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) }),
-                    right),
+                Expression.Block(
+                    typeof(bool),
+                    new[] { x, y, xNull, yNull },
+                    Expression.Assign(x, left),
+                    Expression.Assign(y, right),
+                    Expression.Assign(xNull, Expression.ReferenceEqual(x, nullExpression)),
+                    Expression.Assign(yNull, Expression.ReferenceEqual(y, nullExpression)),
+                    Expression.OrElse(
+                        Expression.AndAlso(xNull, yNull),
+                        Expression.AndAlso(
+                            Expression.IsFalse(xNull),
+                            Expression.AndAlso(
+                                Expression.IsFalse(yNull),
+                                Expression.Call(
+                                    x,
+                                    typeof(TGeometry).GetRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) }),
+                                    y))))),
                 left,
                 right);
         }

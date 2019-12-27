@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
         public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
+            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.StructuralValueComparer];
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties such as is useful

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -85,10 +84,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private static IEnumerable<ValueBuffer> Table(
             QueryContext queryContext,
             IEntityType entityType)
-        {
-            return ((InMemoryQueryContext)queryContext).Store
-                .GetTables(entityType)
-                .SelectMany(t => t.Rows.Select(vs => new ValueBuffer(vs)));
-        }
+            => ((InMemoryQueryContext)queryContext).GetValueBuffers(entityType);
     }
 }
