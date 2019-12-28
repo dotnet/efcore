@@ -1651,7 +1651,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual void Property_fixedlengthness_is_stored_in_snapshot()
         {
             Test(
-                builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength(),
+                builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").IsFixedLength().HasMaxLength(100),
                 AddBoilerPlate(
                     GetHeading()
                     + @"
@@ -1663,8 +1663,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>(""Name"")
-                        .HasColumnType(""nvarchar(max)"")
-                        .IsFixedLength(true);
+                        .HasColumnType(""nchar(100)"")
+                        .IsFixedLength(true)
+                        .HasMaxLength(100);
 
                     b.HasKey(""Id"");
 

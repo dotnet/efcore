@@ -1200,7 +1200,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (operation.IsUnicode == property.IsUnicode()
                     && operation.MaxLength == property.GetMaxLength()
-                    && (operation.IsFixedLength ?? false) == property.IsFixedLength()
+                    && operation.IsFixedLength == property.IsFixedLength()
                     && operation.IsRowVersion == (property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate))
                 {
                     return Dependencies.TypeMappingSource.FindMapping(property).StoreType;

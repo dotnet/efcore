@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void AddColumnOperation_with_fixed_length()
             => Generate(
-                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").IsFixedLength(),
+                modelBuilder => modelBuilder.Entity("Person").Property<string>("Name").HasMaxLength(100).IsFixedLength(),
                 new AddColumnOperation
                 {
                     Table = "Person",
@@ -131,7 +131,8 @@ namespace Microsoft.EntityFrameworkCore
                     ClrType = typeof(string),
                     IsUnicode = true,
                     IsNullable = true,
-                    IsFixedLength = true
+                    IsFixedLength = true,
+                    MaxLength = 100
                 });
 
         [ConditionalFact]
@@ -144,7 +145,8 @@ namespace Microsoft.EntityFrameworkCore
                     ClrType = typeof(string),
                     IsUnicode = false,
                     IsNullable = true,
-                    IsFixedLength = true
+                    IsFixedLength = true,
+                    MaxLength = 100
                 });
 
         [ConditionalFact]
