@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.False(property.IsFixedLength());
+            Assert.Null(property.IsFixedLength());
 
             property.SetIsFixedLength(true);
 
@@ -30,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             property.SetIsFixedLength(false);
 
             Assert.False(property.IsFixedLength());
+
+            property.SetIsFixedLength(null);
+
+            Assert.Null(property.IsFixedLength());
         }
 
         [ConditionalFact]

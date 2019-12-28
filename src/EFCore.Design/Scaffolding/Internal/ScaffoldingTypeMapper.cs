@@ -134,13 +134,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         ? (bool?)stringMapping.IsFixedLength
                         : null;
 
-                    // Check for size
                     var sizedMapping = _typeMappingSource.FindMapping(
                         typeof(string),
                         null,
                         keyOrIndex,
                         unicode: mapping.IsUnicode,
-                        fixedLength: mapping.IsFixedLength);
+                        fixedLength: false); // Fixed length with no size is not valid
 
                     scaffoldMaxLength = sizedMapping.Size != stringMapping.Size ? stringMapping.Size : null;
                 }

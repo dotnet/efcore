@@ -664,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $"({(property.IsUnicode() == false ? "false" : "")})");
             }
 
-            if (property.IsFixedLength())
+            if (property.IsFixedLength() != null)
             {
                 lines.Add(
                     $".{nameof(RelationalPropertyBuilderExtensions.IsFixedLength)}()");
