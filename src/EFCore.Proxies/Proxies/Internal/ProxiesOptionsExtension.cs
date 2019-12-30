@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             public override bool IsDatabaseProvider => false;
 
             public override string LogFragment
-                => _logFragment ??= Extension.UseProxies
+                => _logFragment ??= Extension.UseLazyLoadingProxies && Extension.UseChangeDetectionProxies
                     ? "using lazy-loading and change detection proxies "
                     : Extension.UseLazyLoadingProxies
                     ? "using lazy-loading proxies "
