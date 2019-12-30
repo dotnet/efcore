@@ -2001,7 +2001,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     The invoked method is cannot be used for the entity type '{entityType}' because it does not have a primary key.
+        ///     The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key.
         /// </summary>
         public static string InvalidSetKeylessOperation([CanBeNull] object entityType)
             => string.Format(
