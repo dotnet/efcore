@@ -386,7 +386,7 @@ WHERE CAST([e].[ReportsTo] AS bigint) = @__p_0");
             base.Where_subquery_closure_via_query_cache();
 
             AssertSql(
-                @"@__customerID_0='ALFKI' (Size = 5)
+                @"@__customerID_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -395,7 +395,7 @@ WHERE EXISTS (
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = @__customerID_0) AND ([o].[CustomerID] = [c].[CustomerID]))",
                 //
-                @"@__customerID_0='ANATR' (Size = 5)
+                @"@__customerID_0='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -1545,7 +1545,7 @@ WHERE [o0].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)");
             await base.Where_array_index(async);
 
             AssertSql(
-                @"@__p_0='ALFKI' (Size = 5)
+                @"@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]

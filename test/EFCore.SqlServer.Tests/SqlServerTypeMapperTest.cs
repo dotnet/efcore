@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(3, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
             Assert.False(typeMapping.IsFixedLength);
-            Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+            Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
         [ConditionalTheory]
@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode, fixedLength: true);
 
-            Assert.Equal(DbType.String, typeMapping.DbType);
+            Assert.Equal(DbType.StringFixedLength, typeMapping.DbType);
             Assert.Equal("nchar(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Value");
             Assert.Equal(DbType.String, parameter.DbType);
-            Assert.Equal(-1, parameter.Size);
+            Assert.Equal(4000, parameter.Size);
         }
 
         [ConditionalTheory]
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode, fixedLength: true);
 
-            Assert.Equal(DbType.String, typeMapping.DbType);
+            Assert.Equal(DbType.StringFixedLength, typeMapping.DbType);
             Assert.Equal("nchar(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -220,14 +220,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode, fixedLength: true);
 
-            Assert.Equal(DbType.String, typeMapping.DbType);
+            Assert.Equal(DbType.StringFixedLength, typeMapping.DbType);
             Assert.Equal("nchar(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
             Assert.True(typeMapping.IsFixedLength);
 
             var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Val");
-            Assert.Equal(DbType.String, parameter.DbType);
+            Assert.Equal(DbType.StringFixedLength, parameter.DbType);
             Assert.Equal(3, parameter.Size);
         }
 
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(3, typeMapping.Size);
             Assert.False(typeMapping.IsUnicode);
             Assert.False(typeMapping.IsFixedLength);
-            Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+            Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
         }
 
         [ConditionalFact]
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: true);
 
-            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
             Assert.Equal("char(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.False(typeMapping.IsUnicode);
@@ -442,7 +442,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Value");
             Assert.Equal(DbType.AnsiString, parameter.DbType);
-            Assert.Equal(-1, parameter.Size);
+            Assert.Equal(8000, parameter.Size);
         }
 
         [ConditionalFact]
@@ -450,7 +450,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: true);
 
-            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
             Assert.Equal("char(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.False(typeMapping.IsUnicode);
@@ -466,14 +466,14 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: true);
 
-            Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+            Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
             Assert.Equal("char(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.False(typeMapping.IsUnicode);
             Assert.True(typeMapping.IsFixedLength);
 
             var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Val");
-            Assert.Equal(DbType.AnsiString, parameter.DbType);
+            Assert.Equal(DbType.AnsiStringFixedLength, parameter.DbType);
             Assert.Equal(3, parameter.Size);
         }
 
@@ -696,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", new byte[10]);
             Assert.Equal(DbType.Binary, parameter.DbType);
-            Assert.Equal(100, parameter.Size);
+            Assert.Equal(10, parameter.Size);
         }
 
         [ConditionalTheory]
@@ -732,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", new byte[101]);
             Assert.Equal(DbType.Binary, parameter.DbType);
-            Assert.Equal(-1, parameter.Size);
+            Assert.Equal(101, parameter.Size);
         }
 
         [ConditionalTheory]

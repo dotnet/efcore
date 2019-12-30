@@ -81,11 +81,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected override void ConfigureParameter(DbParameter parameter)
         {
-            // For strings and byte arrays, set the max length to the size facet if specified, or
-            // 8000 bytes if no size facet specified, if the data will fit so as to avoid query cache
-            // fragmentation by setting lots of different Size values otherwise always set to
-            // -1 (unbounded) to avoid SQL client size inference.
-
             var value = parameter.Value;
             var length = (value as byte[])?.Length;
             var maxSpecificSize = CalculateSize(Size);
@@ -96,9 +91,29 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 sqlParameter.SqlDbType = _sqlDbType.Value;
             }
 
-            parameter.Size = value == null || value == DBNull.Value || length != null && length <= maxSpecificSize
-                ? maxSpecificSize
-                : -1;
+            if (value == null
+                || value == DBNull.Value)
+            {
+                parameter.Size = maxSpecificSize;
+            }
+            else
+            {
+                if (length != null
+                    && length <= maxSpecificSize)
+                {
+                    // Fixed-sized parameters get exact length to avoid padding/truncation.
+                    parameter.Size = IsFixedLength ? length.Value : maxSpecificSize;
+                }
+                else if (length != null
+                    && length <= MaxSize)
+                {
+                    parameter.Size = IsFixedLength ? length.Value : MaxSize;
+                }
+                else
+                {
+                    parameter.Size = -1;
+                }
+            }
         }
 
         /// <summary>

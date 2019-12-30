@@ -66,13 +66,13 @@ FROM [Customers] AS [c]");
             base.Query_with_single_parameter();
 
             AssertSql(
-                @"@__customerID='ALFKI' (Size = 5)
+                @"@__customerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__customerID",
                 //
-                @"@__customerID='ANATR' (Size = 5)
+                @"@__customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -84,13 +84,13 @@ WHERE [c].[CustomerID] = @__customerID");
             base.First_query_with_single_parameter();
 
             AssertSql(
-                @"@__customerID='ALFKI' (Size = 5)
+                @"@__customerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__customerID",
                 //
-                @"@__customerID='ANATR' (Size = 5)
+                @"@__customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -102,13 +102,13 @@ WHERE [c].[CustomerID] = @__customerID");
             base.Query_with_two_parameters();
 
             AssertSql(
-                @"@__customerID='ALFKI' (Size = 5)
+                @"@__customerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__customerID",
                 //
-                @"@__customerID='ANATR' (Size = 5)
+                @"@__customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -120,13 +120,13 @@ WHERE [c].[CustomerID] = @__customerID");
             base.Query_with_three_parameters();
 
             AssertSql(
-                @"@__customerID='ALFKI' (Size = 5)
+                @"@__customerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__customerID",
                 //
-                @"@__customerID='ANATR' (Size = 5)
+                @"@__customerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -166,7 +166,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             base.Compiled_query_when_does_not_end_in_query_operator();
 
             AssertSql(
-                @"@__customerID='ALFKI' (Size = 5)
+                @"@__customerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT COUNT(*)
 FROM [Customers] AS [c]
