@@ -999,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             CascadeDelete(dependent, force);
                         }
-                        else
+                        else if (!principalIsDetached)
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {

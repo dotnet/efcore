@@ -2357,6 +2357,100 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
+        [ConditionalTheory] // Issue #19203
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public void Dependent_FKs_are_not_nulled_when_principal_is_detached(bool delayCascade, bool trackNewDependents)
+        {
+            using var context = new EarlyLearningCenter();
+
+            var category = new OptionalCategory
+            {
+                Id = 1,
+                Products = new List<OptionalProduct>
+                {
+                    new OptionalProduct { Id = 1 },
+                    new OptionalProduct { Id = 2 },
+                    new OptionalProduct { Id = 3 }
+                }
+            };
+
+            context.Attach(category);
+
+            var categoryEntry = context.Entry(category);
+            var product0Entry = context.Entry(category.Products[0]);
+            var product1Entry = context.Entry(category.Products[1]);
+            var product2Entry = context.Entry(category.Products[2]);
+
+            Assert.Equal(EntityState.Unchanged, categoryEntry.State);
+            Assert.Equal(EntityState.Unchanged, product0Entry.State);
+            Assert.Equal(EntityState.Unchanged, product1Entry.State);
+            Assert.Equal(EntityState.Unchanged, product2Entry.State);
+
+            if (delayCascade)
+            {
+                context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.OnSaveChanges;
+            }
+
+            context.Entry(category).State = EntityState.Detached;
+
+            Assert.Equal(EntityState.Detached, categoryEntry.State);
+
+            Assert.Equal(EntityState.Unchanged, product0Entry.State);
+            Assert.Equal(EntityState.Unchanged, product1Entry.State);
+            Assert.Equal(EntityState.Unchanged, product2Entry.State);
+
+            var newCategory = new OptionalCategory { Id = 1, };
+
+            if (trackNewDependents)
+            {
+                newCategory.Products = new List<OptionalProduct>
+                {
+                    new OptionalProduct { Id = 1 },
+                    new OptionalProduct { Id = 2 },
+                    new OptionalProduct { Id = 3 }
+                };
+            }
+
+            if (trackNewDependents)
+            {
+                Assert.Equal(
+                    CoreStrings.IdentityConflict(nameof(OptionalProduct), "{'Id'}"),
+                    Assert.Throws<InvalidOperationException>(() => context.Attach(newCategory)).Message);
+            }
+            else
+            {
+                context.Update(newCategory);
+
+                Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                categoryEntry = context.Entry(newCategory);
+                product0Entry = context.Entry(newCategory.Products[0]);
+                product1Entry = context.Entry(newCategory.Products[1]);
+                product2Entry = context.Entry(newCategory.Products[2]);
+
+                Assert.Equal(EntityState.Modified, categoryEntry.State);
+
+                Assert.Equal(EntityState.Unchanged, product0Entry.State);
+                Assert.Equal(EntityState.Unchanged, product1Entry.State);
+                Assert.Equal(EntityState.Unchanged, product2Entry.State);
+
+                Assert.Same(newCategory.Products[0], category.Products[0]);
+                Assert.Same(newCategory.Products[1], category.Products[1]);
+                Assert.Same(newCategory.Products[2], category.Products[2]);
+
+                Assert.Same(newCategory, newCategory.Products[0].Category);
+                Assert.Same(newCategory, newCategory.Products[1].Category);
+                Assert.Same(newCategory, newCategory.Products[2].Category);
+
+                Assert.Equal(newCategory.Id, product0Entry.Property("CategoryId").CurrentValue);
+                Assert.Equal(newCategory.Id, product1Entry.Property("CategoryId").CurrentValue);
+                Assert.Equal(newCategory.Id, product2Entry.Property("CategoryId").CurrentValue);
+            }
+        }
+
         [ConditionalTheory] // Issue #16546
         [InlineData(false)]
         [InlineData(true)]
@@ -3305,6 +3399,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public List<OrderDetails> OrderDetails { get; set; }
         }
 
+        private class OptionalCategory
+        {
+            public int Id { get; set; }
+
+            public List<OptionalProduct> Products { get; set; }
+        }
+
+        private class OptionalProduct
+        {
+            public int Id { get; set; }
+
+            public int? CategoryId { get; set; }
+            public OptionalCategory Category { get; set; }
+        }
+
         private class SpecialProduct : Product
         {
         }
@@ -3475,6 +3584,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
                         b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
                     });
+
+                modelBuilder.Entity<OptionalProduct>();
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
