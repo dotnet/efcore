@@ -137,7 +137,7 @@ ORDER BY [t0].[CustomerID]");
             await base.Local_dictionary(async);
 
             AssertSql(
-                @"@__p_0='ALFKI' (Size = 5)
+                @"@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT TOP(2) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -158,7 +158,7 @@ FROM [Customers] AS [c]");
             await base.Entity_equality_local(async);
 
             AssertSql(
-                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5)
+                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -183,7 +183,7 @@ WHERE ([o].[OrderID] = @__entity_equality_local_0_OrderID) AND ([o].[ProductID] 
             await base.Entity_equality_local_double_check(async);
 
             AssertSql(
-                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5)
+                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -195,7 +195,7 @@ WHERE ([c].[CustomerID] = @__entity_equality_local_0_CustomerID) AND (@__entity_
             await base.Join_with_entity_equality_local_on_both_sources(async);
 
             AssertSql(
-                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5)
+                @"@__entity_equality_local_0_CustomerID='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]

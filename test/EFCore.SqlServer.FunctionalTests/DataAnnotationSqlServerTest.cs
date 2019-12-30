@@ -238,7 +238,7 @@ SELECT [UniqueNo]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [UniqueNo] = scope_identity();",
                 //
-                @"@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = -1)
+                @"@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = 4000)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000002'
 @p3='Third Additional Name' (Size = 4000)
@@ -324,7 +324,7 @@ SELECT [Id], [Timestamp]
 FROM [Two]
 WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();",
                 //
-                @"@p0='ValidButLongString' (Size = -1)
+                @"@p0='ValidButLongString' (Size = 4000)
 
 SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
