@@ -2580,10 +2580,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Index").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(4, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(5, entityType.FindProperty("UniqueIndex").GetOriginalValueIndex());
 
-            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(6, entityType.OriginalValueCount());
         }
 
         [ConditionalFact]
@@ -2595,8 +2597,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Index").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("UniqueIndex").GetRelationshipIndex());
             Assert.Equal(2, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
             Assert.Equal(3, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
 
@@ -2612,10 +2616,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Index").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(4, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(5, entityType.FindProperty("UniqueIndex").GetOriginalValueIndex());
 
-            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(6, entityType.OriginalValueCount());
         }
 
         [ConditionalFact]
@@ -2627,8 +2633,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Index").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("UniqueIndex").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
             Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
 
@@ -2636,7 +2644,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Only_concurrency_and_key_properties_have_original_value_indexes_when_using_full_notifications()
+        public void Only_concurrency_index_and_key_properties_have_original_value_indexes_when_using_full_notifications()
         {
             var entityType = BuildFullNotificationEntityModel().FindEntityType(typeof(FullNotificationEntity));
             entityType.SetChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
@@ -2645,9 +2653,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Index").GetOriginalValueIndex());
             Assert.Equal(2, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("UniqueIndex").GetOriginalValueIndex());
 
-            Assert.Equal(3, entityType.OriginalValueCount());
+            Assert.Equal(4, entityType.OriginalValueCount());
         }
 
         [ConditionalFact]
@@ -2659,8 +2669,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Index").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("UniqueIndex").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
             Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
 
@@ -2676,10 +2688,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
-            Assert.Equal(3, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Index").GetOriginalValueIndex());
+            Assert.Equal(3, entityType.FindProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(4, entityType.FindProperty("Token").GetOriginalValueIndex());
+            Assert.Equal(5, entityType.FindProperty("UniqueIndex").GetOriginalValueIndex());
 
-            Assert.Equal(4, entityType.OriginalValueCount());
+            Assert.Equal(6, entityType.OriginalValueCount());
         }
 
         [ConditionalFact]
@@ -2691,8 +2705,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Equal(0, entityType.FindProperty("Id").GetRelationshipIndex());
             Assert.Equal(1, entityType.FindProperty("AnotherEntityId").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("Index").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Name").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindProperty("Token").GetRelationshipIndex());
+            Assert.Equal(-1, entityType.FindProperty("UniqueIndex").GetRelationshipIndex());
             Assert.Equal(-1, entityType.FindNavigation("CollectionNav").GetRelationshipIndex());
             Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
 
@@ -2869,6 +2885,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         .WithOne();
 
                     b.Property(e => e.Token).IsConcurrencyToken();
+
+                    b.HasIndex(e => e.Index);
+
+                    b.HasIndex(e => e.UniqueIndex).IsUnique();
                 });
 
             return (Model)builder.Model;
@@ -2880,6 +2900,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public int Id { get; set; }
             public string Name { get; set; }
             public int Token { get; set; }
+            public int Index { get; set; }
+            public int UniqueIndex { get; set; }
 
             public AnotherEntity ReferenceNav { get; set; }
             public int AnotherEntityId { get; set; }

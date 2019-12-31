@@ -98,6 +98,16 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(property, nameof(property)).AsProperty().Indexes != null;
 
         /// <summary>
+        ///     Gets a value indicating whether this property is used as a unique index (or part of a unique composite index).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns>
+        ///     <c>true</c> if the property is used as an uniqueindex, otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsUniqueIndex([NotNull] this IProperty property)
+            => Check.NotNull(property, nameof(property)).AsProperty().Indexes?.Any(e => e.IsUnique) == true;
+
+        /// <summary>
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
         /// </summary>
         /// <param name="property"> The property to check. </param>
