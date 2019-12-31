@@ -25,6 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
             = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
 
+        private bool _indexerPropertyInitialized;
+        private PropertyInfo _indexerPropertyInfo;
         private Dictionary<string, PropertyInfo> _runtimeProperties;
         private Dictionary<string, FieldInfo> _runtimeFields;
 
@@ -174,6 +176,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual PropertyInfo FindIndexerPropertyInfo()
+        {
+            if (ClrType == null)
+            {
+                return null;
+            }
+
+            if (!_indexerPropertyInitialized)
+            {
+                var indexerPropertyInfo = GetRuntimeProperties().Values.FirstOrDefault(pi => pi.IsIndexerProperty());
+
+                Interlocked.CompareExchange(ref _indexerPropertyInfo, indexerPropertyInfo, null);
+                _indexerPropertyInitialized = true;
+            }
+
+            return _indexerPropertyInfo;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void SetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
             => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
@@ -187,19 +213,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual void SetNavigationAccessMode(
             PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
             => this.SetOrRemoveAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ClearCaches()
-        {
-            _runtimeProperties = null;
-            _runtimeFields = null;
-            Thread.MemoryBarrier();
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -83,6 +83,18 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() == null;
 
         /// <summary>
+        ///     Gets a value indicating whether this is an indexer property. An indexer property is one that is accessed through
+        ///     an indexer on the entity class.
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns>
+        ///     <c>True</c> if the property is an indexer property, otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsIndexerProperty([NotNull] this IPropertyBase property)
+            => Check.NotNull(property, nameof(property)).GetIdentifyingMemberInfo() is PropertyInfo propertyInfo
+                && propertyInfo == property.DeclaringType.FindIndexerPropertyInfo();
+
+        /// <summary>
         ///     <para>
         ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
         ///         <c>null</c> indicates that the default property access mode is being used.

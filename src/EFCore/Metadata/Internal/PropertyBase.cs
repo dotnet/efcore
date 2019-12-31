@@ -80,8 +80,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual FieldInfo FieldInfo
         {
-            [DebuggerStepThrough] get => _fieldInfo;
-            [DebuggerStepThrough] set => SetField(value, ConfigurationSource.Explicit);
+            [DebuggerStepThrough]
+            get => _fieldInfo;
+            [DebuggerStepThrough]
+            set => SetField(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>

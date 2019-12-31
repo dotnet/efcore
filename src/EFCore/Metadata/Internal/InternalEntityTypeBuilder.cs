@@ -682,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var memberInfo = Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             if (memberInfo != null
                 && propertyType != memberInfo.GetMemberType()
-                && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true
+                && memberInfo != Metadata.FindIndexerPropertyInfo()
                 && typeConfigurationSource != null)
             {
                 return false;

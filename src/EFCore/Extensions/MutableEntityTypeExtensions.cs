@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -402,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return entityType.FindProperty(propertyInfo.GetSimpleMemberName());
+            return propertyInfo.IsIndexerProperty() ? null : entityType.FindProperty(propertyInfo.GetSimpleMemberName());
         }
 
         /// <summary>
@@ -462,6 +464,28 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableProperty AddProperty(
             [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
             => entityType.AddProperty(name, propertyType, null);
+
+        /// <summary>
+        ///     Adds an indexed property to this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to add the property to. </param>
+        /// <param name="name"> The name of the property to add. </param>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <returns> The newly created property. </returns>
+        public static IMutableProperty AddIndexedProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var indexerPropertyInfo = entityType.FindIndexerPropertyInfo();
+            if (indexerPropertyInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NonIndexerEntityType(name, entityType.DisplayName(), typeof(string).ShortDisplayName()));
+            }
+
+            return entityType.AddProperty(name, propertyType, indexerPropertyInfo);
+        }
 
         /// <summary>
         ///     Gets the index defined on the given property. Returns null if no index is defined.
