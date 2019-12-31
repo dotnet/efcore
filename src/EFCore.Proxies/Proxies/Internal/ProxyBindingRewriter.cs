@@ -130,8 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                         ProxiesStrings.FieldProperty(prop.Name, entityType.DisplayName()));
                                 }
 
-                                if (!prop.PropertyInfo.GetMethod.IsVirtual
-                                    || !prop.PropertyInfo.SetMethod.IsVirtual)
+                                if (!prop.PropertyInfo.SetMethod.IsVirtual)
                                 {
                                     throw new InvalidOperationException(
                                         ProxiesStrings.NonVirtualProperty(prop.Name, entityType.DisplayName()));
@@ -147,13 +146,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     ProxiesStrings.FieldProperty(navigation.Name, entityType.DisplayName()));
                             }
 
-                            if (_options.UseLazyLoadingProxies
-                                && !navigation.PropertyInfo.GetMethod.IsVirtual)
-                            {
-                                throw new InvalidOperationException(
-                                    ProxiesStrings.NonVirtualProperty(navigation.Name, entityType.DisplayName()));
-                            }
-
                             if (_options.UseChangeDetectionProxies
                                 && !navigation.PropertyInfo.SetMethod.IsVirtual)
                             {
@@ -163,6 +155,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                             if (_options.UseLazyLoadingProxies)
                             {
+                                if (!navigation.PropertyInfo.GetMethod.IsVirtual)
+                                {
+                                    throw new InvalidOperationException(
+                                    ProxiesStrings.NonVirtualProperty(navigation.Name, entityType.DisplayName()));
+                                }
+
                                 navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
                             }
                         }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using Castle.DynamicProxy;
 using JetBrains.Annotations;
@@ -46,11 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// </summary>
         public virtual void Intercept(IInvocation invocation)
         {
-            if (_proxyType == null)
-            {
-                _proxyType = invocation.Proxy.GetType();
-            }
-
             var methodName = invocation.Method.Name;
 
             if (invocation.Method.DeclaringType.Equals(_notifyChangedInterface))
@@ -96,6 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
         private void HandleChanged(IInvocation invocation, string propertyName)
         {
+            var newValue = invocation.Arguments[^1];
+
             if (_checkEquality)
             {
                 if (_proxyType == null)
@@ -107,7 +105,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 if (property != null)
                 {
                     var oldValue = property.GetValue(invocation.Proxy);
-                    var newValue = invocation.Arguments[^1];
 
                     invocation.Proceed();
 
@@ -115,6 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     {
                         NotifyPropertyChanged(propertyName, invocation.Proxy);
                     }
+
+                    CheckForObservableCollection();
                 }
                 else
                 {
@@ -125,7 +124,22 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             {
                 invocation.Proceed();
                 NotifyPropertyChanged(propertyName, invocation.Proxy);
-            } 
+                CheckForObservableCollection();
+            }
+
+            void CheckForObservableCollection()
+            {
+                if (newValue is INotifyCollectionChanged observableCollection)
+                {
+                    observableCollection.CollectionChanged += (_, e) =>
+                    {
+                        if (e.Action != NotifyCollectionChangedAction.Move)
+                        {
+                            NotifyPropertyChanged(propertyName, invocation.Proxy);
+                        }
+                    };
+                }
+            }
         }
 
         private void NotifyPropertyChanged(string propertyName, object proxy)
