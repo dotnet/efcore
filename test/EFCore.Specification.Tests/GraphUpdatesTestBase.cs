@@ -727,6 +727,34 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Notification_entities_can_have_indexes()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var produce = new Produce { Name = "Apple", BarCode = 77 };
+                    context.Add(produce);
+
+                    Assert.Equal(EntityState.Added, context.Entry(produce).State);
+
+                    context.SaveChanges();
+
+                    Assert.Equal(EntityState.Unchanged, context.Entry(produce).State);
+                    Assert.NotEqual(Guid.Empty, context.Entry(produce).Property(e => e.ProduceId).OriginalValue);
+                    Assert.Equal(77, context.Entry(produce).Property(e => e.BarCode).OriginalValue);
+
+                    context.Remove(produce);
+                    Assert.Equal(EntityState.Deleted, context.Entry(produce).State);
+                    Assert.NotEqual(Guid.Empty, context.Entry(produce).Property(e => e.ProduceId).OriginalValue);
+                    Assert.Equal(77, context.Entry(produce).Property(e => e.BarCode).OriginalValue);
+
+                    context.SaveChanges();
+
+                    Assert.Equal(EntityState.Detached, context.Entry(produce).State);
+                });
+        }
+
+        [ConditionalFact]
         public virtual void Resetting_a_deleted_reference_fixes_up_again()
         {
             ExecuteWithStrategyInTransaction(

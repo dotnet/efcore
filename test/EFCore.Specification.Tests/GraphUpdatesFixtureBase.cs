@@ -365,6 +365,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<Poost>();
                 modelBuilder.Entity<Bloog>();
+
+                modelBuilder.Entity<Produce>()
+                    .HasIndex(e => e.BarCode)
+                    .IsUnique();
             }
 
             protected virtual object CreateFullGraph()
@@ -2703,6 +2707,31 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _choices;
                 set => SetWithNotify(value, ref _choices);
+            }
+        }
+
+        protected class Produce : NotifyingEntity
+        {
+            private Guid _produceId;
+            private string _name;
+            private int _barCode;
+
+            public Guid ProduceId
+            {
+                get => _produceId;
+                set => SetWithNotify(value, ref _produceId);
+            }
+
+            public string Name
+            {
+                get => _name;
+                set => SetWithNotify(value, ref _name);
+            }
+
+            public int BarCode
+            {
+                get => _barCode;
+                set => SetWithNotify(value, ref _barCode);
             }
         }
 
