@@ -1765,6 +1765,236 @@ FROM [Customers] AS [c]
 WHERE ((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]");
         }
 
+        public override async Task Where_Queryable_ToList_Count(bool async)
+        {
+            await base.Where_Queryable_ToList_Count(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]) = 0
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_ToList_Contains(bool async)
+        {
+            await base.Where_Queryable_ToList_Contains(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE N'ALFKI' IN (
+    SELECT [o0].[CustomerID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]
+)
+
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_ToArray_Count(bool async)
+        {
+            await base.Where_Queryable_ToArray_Count(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]) = 0
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_ToArray_Contains(bool async)
+        {
+            await base.Where_Queryable_ToArray_Contains(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE N'ALFKI' IN (
+    SELECT [o0].[CustomerID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]
+)
+
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_AsEnumerable_Count(bool async)
+        {
+            await base.Where_Queryable_AsEnumerable_Count(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]) = 0
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_AsEnumerable_Contains(bool async)
+        {
+            await base.Where_Queryable_AsEnumerable_Contains(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[CustomerID], [o].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE N'ALFKI' IN (
+    SELECT [o0].[CustomerID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]
+)
+
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_ToList_Count_member(bool async)
+        {
+            await base.Where_Queryable_ToList_Count_member(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [c].[CustomerID]) = 0
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_Queryable_ToArray_Length_member(bool async)
+        {
+            await base.Where_Queryable_ToArray_Length_member(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Where_collection_navigation_ToList_Count(bool async)
+        {
+            await base.Where_collection_navigation_ToList_Count(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Orders] AS [o]
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE ([o].[OrderID] < 10300) AND ((
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]) = 0)
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
+        public override async Task Where_collection_navigation_ToList_Contains(bool async)
+        {
+            await base.Where_collection_navigation_ToList_Contains(async);
+
+            AssertSql(
+                @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
+
+SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE @__entity_equality_order_0_OrderID IN (
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+)
+
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_collection_navigation_ToArray_Count(bool async)
+        {
+            await base.Where_collection_navigation_ToArray_Count(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Orders] AS [o]
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE ([o].[OrderID] < 10300) AND ((
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]) = 0)
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
+        public override async Task Where_collection_navigation_ToArray_Contains(bool async)
+        {
+            await base.Where_collection_navigation_ToArray_Contains(async);
+
+            AssertSql(" ");
+        }
+
+        public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
+        {
+            await base.Where_collection_navigation_AsEnumerable_Count(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Orders] AS [o]
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE ([o].[OrderID] < 10300) AND ((
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]) = 0)
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
+        public override async Task Where_collection_navigation_AsEnumerable_Contains(bool async)
+        {
+            await base.Where_collection_navigation_AsEnumerable_Contains(async);
+
+            AssertSql(
+                @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
+
+SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE @__entity_equality_order_0_OrderID IN (
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [c].[CustomerID] = [o0].[CustomerID]
+)
+
+ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Where_collection_navigation_ToList_Count_member(bool async)
+        {
+            await base.Where_collection_navigation_ToList_Count_member(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+FROM [Orders] AS [o]
+LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+WHERE ([o].[OrderID] < 10300) AND ((
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o].[OrderID] = [o1].[OrderID]) = 0)
+ORDER BY [o].[OrderID], [o0].[OrderID], [o0].[ProductID]");
+        }
+
+        public override async Task Where_collection_navigation_ToArray_Length_member(bool async)
+        {
+            await base.Where_collection_navigation_ToArray_Length_member(async);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

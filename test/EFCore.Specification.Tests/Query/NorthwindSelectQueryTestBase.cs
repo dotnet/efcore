@@ -1681,5 +1681,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Customer>().Select(c => ss.Set<CustomerView>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_AsEnumerable_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .OrderBy(c => c.CustomerID)
+                .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).AsEnumerable())
+                .Where(e => e.Where(o => o.OrderID < 11000).Count() > 0)
+                .Select(e => e.Where(o => o.OrderID < 10750)),
+                assertOrder: true,
+                entryCount: 18);
+        }
     }
 }

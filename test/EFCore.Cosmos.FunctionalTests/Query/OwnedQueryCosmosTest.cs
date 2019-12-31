@@ -248,6 +248,36 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
             return base.Client_method_skip_loads_owned_navigations_variation_2(async);
         }
 
+        [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+        public override Task Where_owned_collection_navigation_ToList_Count(bool async)
+        {
+            return base.Where_owned_collection_navigation_ToList_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+        public override Task Where_collection_navigation_ToArray_Count(bool async)
+        {
+            return base.Where_collection_navigation_ToArray_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+        public override Task Where_collection_navigation_AsEnumerable_Count(bool async)
+        {
+            return base.Where_collection_navigation_AsEnumerable_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+        public override Task Where_collection_navigation_ToList_Count_member(bool async)
+        {
+            return base.Where_collection_navigation_ToList_Count_member(async);
+        }
+
+        [ConditionalTheory(Skip = "Composition over embedded collection #16926")]
+        public override Task Where_collection_navigation_ToArray_Length_member(bool async)
+        {
+            return base.Where_collection_navigation_ToArray_Length_member(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -4016,11 +4016,13 @@ ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
             await base.Correlated_collections_naked_navigation_with_ToList_followed_by_projecting_count(async);
 
             AssertSql(
-                @"SELECT [g].[Nickname], [g].[SquadId], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Weapons] AS [w]
+    WHERE [g].[FullName] = [w].[OwnerFullName])
 FROM [Gears] AS [g]
-LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND ([g].[Nickname] <> N'Marcus')
-ORDER BY [g].[Nickname], [g].[SquadId], [w].[Id]");
+ORDER BY [g].[Nickname]");
         }
 
         public override async Task Correlated_collections_naked_navigation_with_ToArray(bool async)

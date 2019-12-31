@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         public static MethodInfo Contains { get; }
 
         public static MethodInfo ToList { get; }
+        public static MethodInfo ToArray { get; }
 
         public static MethodInfo Concat { get; }
         public static MethodInfo Except { get; }
@@ -153,6 +154,8 @@ namespace Microsoft.EntityFrameworkCore
 
             ToList = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.ToList) && mi.GetParameters().Length == 1);
+            ToArray = enumerableMethods.Single(
+                mi => mi.Name == nameof(Enumerable.ToArray) && mi.GetParameters().Length == 1);
 
             Concat = enumerableMethods.Single(
                 mi => mi.Name == nameof(Enumerable.Concat) && mi.GetParameters().Length == 2);

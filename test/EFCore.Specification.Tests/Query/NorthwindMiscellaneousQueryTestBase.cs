@@ -5279,7 +5279,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                           group o by o.CustomerID
                           into g
                           orderby g.Key
-                          select g.OrderByDescending(x => x.OrderID),
+                          select g.OrderByDescending(x => x.OrderID).ToList(),
                     assertOrder: true,
                     elementAsserter: (e, a) => AssertCollection(e, a, ordered: true)));
         }

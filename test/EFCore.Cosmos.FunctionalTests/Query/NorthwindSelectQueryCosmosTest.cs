@@ -1082,6 +1082,12 @@ WHERE (c[""Discriminator""] = ""Employee"")
 ORDER BY c[""EmployeeID""]");
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Projection_AsEnumerable_projection(bool async)
+        {
+            return base.Projection_AsEnumerable_projection(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

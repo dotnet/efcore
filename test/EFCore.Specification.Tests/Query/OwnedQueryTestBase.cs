@@ -476,9 +476,77 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<OwnedPerson>().OrderBy(e => e.Id).Select(e => Identity(e)).Skip(1).Take(2));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_owned_collection_navigation_ToList_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>()
+                    .OrderBy(p => p.Id)
+                    .Select(p => p.Orders.ToList())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToArray_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>()
+                    .OrderBy(p => p.Id)
+                    .Select(p => p.Orders.ToArray())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_AsEnumerable_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>()
+                    .OrderBy(p => p.Id)
+                    .Select(p => p.Orders.AsEnumerable())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToList_Count_member(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>()
+                    .OrderBy(p => p.Id)
+                    .Select(p => p.Orders.ToList())
+                    .Where(e => e.Count == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory(Skip = "Issue#19431")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToArray_Length_member(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>()
+                    .OrderBy(p => p.Id)
+                    .Select(p => p.Orders.ToArray())
+                    .Where(e => e.Length == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
         private static OwnedPerson Identity(OwnedPerson person) => person;
-
-
 
         protected virtual DbContext CreateContext() => Fixture.CreateContext();
 

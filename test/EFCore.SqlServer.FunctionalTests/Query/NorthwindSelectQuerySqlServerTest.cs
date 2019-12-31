@@ -1362,6 +1362,25 @@ FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]");
         }
 
+        public override async Task Projection_AsEnumerable_projection(bool async)
+        {
+            await base.Projection_AsEnumerable_projection(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 10750
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE ([c].[CustomerID] LIKE N'A%') AND ((
+    SELECT COUNT(*)
+    FROM [Orders] AS [o0]
+    WHERE ([o0].[CustomerID] = [c].[CustomerID]) AND ([o0].[OrderID] < 11000)) > 0)
+ORDER BY [c].[CustomerID], [t].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
