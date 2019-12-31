@@ -2366,6 +2366,73 @@ LEFT JOIN [Order] AS [o22] ON [t].[Id] = [o22].[ClientId]
 ORDER BY [t].[Id], [o22].[ClientId], [o22].[Id]");
         }
 
+        public override async Task Where_owned_collection_navigation_ToList_Count(bool async)
+        {
+            await base.Where_owned_collection_navigation_ToList_Count(async);
+
+            AssertSql(
+                @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+    SELECT COUNT(*)
+    FROM [Order] AS [o1]
+    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
+        }
+
+        public override async Task Where_collection_navigation_ToArray_Count(bool async)
+        {
+            await base.Where_collection_navigation_ToArray_Count(async);
+
+            AssertSql(
+                @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [Order] AS [o0] ON ([o].[Id] = [o0].[ClientId]) AND ([o].[Id] = [o0].[ClientId])
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+    SELECT COUNT(*)
+    FROM [Order] AS [o1]
+    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
+        }
+
+        public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
+        {
+            await base.Where_collection_navigation_AsEnumerable_Count(async);
+
+            AssertSql(
+                @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+    SELECT COUNT(*)
+    FROM [Order] AS [o1]
+    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
+        }
+
+        public override async Task Where_collection_navigation_ToList_Count_member(bool async)
+        {
+            await base.Where_collection_navigation_ToList_Count_member(async);
+
+            AssertSql(
+                @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id]
+FROM [OwnedPerson] AS [o]
+LEFT JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+WHERE [o].[Discriminator] IN (N'OwnedPerson', N'Branch', N'LeafB', N'LeafA') AND ((
+    SELECT COUNT(*)
+    FROM [Order] AS [o1]
+    WHERE [o].[Id] = [o1].[ClientId]) = 0)
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
+        }
+
+        public override async Task Where_collection_navigation_ToArray_Length_member(bool async)
+        {
+            await base.Where_collection_navigation_ToArray_Length_member(async);
+
+            AssertSql(" ");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

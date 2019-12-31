@@ -526,15 +526,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 Check.NotNull(node, nameof(node));
 
-                if (node is ProjectionBindingExpression projectionBindingExpression)
-                {
-                    return new ProjectionBindingExpression(
+                return node is ProjectionBindingExpression projectionBindingExpression
+                    ? new ProjectionBindingExpression(
                         _queryExpression,
                         projectionBindingExpression.ProjectionMember.Prepend(_memberShift),
-                        projectionBindingExpression.Type);
-                }
-
-                return base.VisitExtension(node);
+                        projectionBindingExpression.Type)
+                    : base.VisitExtension(node);
             }
         }
 

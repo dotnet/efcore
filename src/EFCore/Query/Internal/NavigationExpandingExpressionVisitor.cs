@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -150,24 +151,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var innerExpression = Visit(memberExpression.Expression);
 
-            // Convert CollectionNavigation.Count to subquery.Count()
-            if (innerExpression is MaterializeCollectionNavigationExpression materializeCollectionNavigation
-                && memberExpression.Member.Name == nameof(List<int>.Count))
+            // Convert ICollection<T>.Count to Count<T>()
+            if (memberExpression.Expression != null
+                && memberExpression.Member.Name == nameof(ICollection<int>.Count)
+                && memberExpression.Expression.Type.GetInterfaces().Append(memberExpression.Expression.Type)
+                    .Any(e => e.IsGenericType && e.GetGenericTypeDefinition() == typeof(ICollection<>)))
             {
-                var subquery = materializeCollectionNavigation.Subquery;
-                var elementType = subquery.Type.TryGetSequenceType();
-                if (subquery is OwnedNavigationReference ownedNavigationReference
-                    && ownedNavigationReference.Navigation.IsCollection())
-                {
-                    subquery = Expression.Call(
-                        QueryableMethods.AsQueryable.MakeGenericMethod(elementType),
-                        subquery);
-                }
+                var innerQueryable = UnwrapCollectionMaterialization(innerExpression);
 
                 return Visit(
                     Expression.Call(
-                        QueryableMethods.CountWithoutPredicate.MakeGenericMethod(elementType),
-                        subquery));
+                        QueryableMethods.CountWithoutPredicate.MakeGenericMethod(innerQueryable.Type.TryGetSequenceType()),
+                        innerQueryable));
             }
 
             var updatedExpression = (Expression)memberExpression.Update(innerExpression);
@@ -493,30 +488,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (genericMethod == QueryableMethods.AsQueryable)
                 {
-                    if (firstArgument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
-                    {
-                        var subquery = materializeCollectionNavigationExpression.Subquery;
-
-                        return subquery is OwnedNavigationReference innerOwnedNavigationReference
-                            && innerOwnedNavigationReference.Navigation.IsCollection()
-                                ? Visit(
-                                    Expression.Call(
-                                        QueryableMethods.AsQueryable.MakeGenericMethod(subquery.Type.TryGetSequenceType()),
-                                        subquery))
-                                : subquery;
-                    }
-
-                    if (firstArgument is OwnedNavigationReference ownedNavigationReference
-                        && ownedNavigationReference.Navigation.IsCollection())
-                    {
-                        var parameterName = GetParameterName("o");
-                        var entityReference = ownedNavigationReference.EntityReference;
-                        var currentTree = new NavigationTreeExpression(entityReference);
-
-                        return new NavigationExpansionExpression(methodCallExpression, currentTree, currentTree, parameterName);
-                    }
-
-                    return firstArgument;
+                    return UnwrapCollectionMaterialization(firstArgument);
                 }
 
                 if (firstArgument.Type.TryGetElementType(typeof(IQueryable<>)) == null)
@@ -531,8 +503,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
             }
 
+            // Remove MaterializeCollectionNavigationExpression when applying ToList/ToArray
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition() == EnumerableMethods.ToList)
+                && (method.GetGenericMethodDefinition() == EnumerableMethods.ToList
+                    || method.GetGenericMethodDefinition() == EnumerableMethods.ToArray))
             {
                 var argument = Visit(methodCallExpression.Arguments[0]);
                 if (argument is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
@@ -562,6 +536,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             return ProcessUnknownMethod(methodCallExpression);
+        }
+
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            var operand = Visit(unaryExpression.Operand);
+            // Convert Array.Length to Count()
+            if (unaryExpression.Operand.Type.IsArray
+                && unaryExpression.NodeType == ExpressionType.ArrayLength)
+            {
+                var innerQueryable = UnwrapCollectionMaterialization(operand);
+                // Only if inner is queryable as array properties could also have Length access
+                if (innerQueryable.Type.TryGetElementType(typeof(IQueryable<>)) is Type elementType)
+                {
+                    return Visit(Expression.Call(QueryableMethods.CountWithoutPredicate.MakeGenericMethod(elementType), innerQueryable));
+                }
+            }
+
+            return unaryExpression.Update(operand);
         }
 
         private Expression ProcessAllAnyCountLongCount(
@@ -757,7 +749,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     source.Source,
                     Expression.Quote(keySelector),
                     Expression.Quote(elementSelector),
-                    Expression.Quote(resultSelector));
+                    Expression.Quote(Visit(resultSelector)));
 
             var navigationTree = new NavigationTreeExpression(Expression.Default(result.Type.TryGetSequenceType()));
             var parameterName = GetParameterName("e");
@@ -1278,7 +1270,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var enumerableMethod = EnumerableMethods.GetMinWithSelector(resultType);
 
                     enumerableMethod = IsNumericType(resultType)
-                        ? enumerableMethod.MakeGenericMethod(resultType)
+                        ? enumerableMethod.MakeGenericMethod(genericTypeArguments[0])
                         : enumerableMethod.MakeGenericMethod(genericTypeArguments);
 
                     return Expression.Call(enumerableMethod, enumerableArguments);
@@ -1306,7 +1298,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var enumerableMethod = EnumerableMethods.GetMaxWithSelector(resultType);
 
                     enumerableMethod = IsNumericType(resultType)
-                        ? enumerableMethod.MakeGenericMethod(resultType)
+                        ? enumerableMethod.MakeGenericMethod(genericTypeArguments[0])
                         : enumerableMethod.MakeGenericMethod(genericTypeArguments);
 
                     return Expression.Call(enumerableMethod, enumerableArguments);
@@ -1376,6 +1368,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
         }
 
+        private NavigationExpansionExpression CreateNavigationExpansionExpression(
+            Expression sourceExpression, OwnedNavigationReference ownedNavigationReference)
+        {
+            var parameterName = GetParameterName("o");
+            var entityReference = ownedNavigationReference.EntityReference;
+            var currentTree = new NavigationTreeExpression(entityReference);
+
+            return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
+        }
+
         private Expression ExpandNavigationsForSource(NavigationExpansionExpression source, Expression expression)
         {
             expression = new ExpandingExpressionVisitor(this, source).Visit(expression);
@@ -1411,6 +1413,35 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private LambdaExpression GenerateLambda(Expression body, ParameterExpression currentParameter)
             => Expression.Lambda(Reduce(body), currentParameter);
+
+        private Expression UnwrapCollectionMaterialization(Expression expression)
+        {
+            if (expression is MethodCallExpression innerMethodCall
+                && innerMethodCall.Method.IsGenericMethod)
+            {
+                var innerGenericMethod = innerMethodCall.Method.GetGenericMethodDefinition();
+                if (innerGenericMethod == EnumerableMethods.AsEnumerable
+                    || innerGenericMethod == EnumerableMethods.ToList
+                    || innerGenericMethod == EnumerableMethods.ToArray)
+                {
+                    expression = innerMethodCall.Arguments[0];
+                }
+            }
+
+            if (expression is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
+            {
+                expression = materializeCollectionNavigationExpression.Subquery;
+            }
+
+            return expression is OwnedNavigationReference ownedNavigationReference
+                && ownedNavigationReference.Navigation.IsCollection()
+                ? CreateNavigationExpansionExpression(
+                    Expression.Call(
+                        QueryableMethods.AsQueryable.MakeGenericMethod(ownedNavigationReference.Type.TryGetSequenceType()),
+                        ownedNavigationReference),
+                    ownedNavigationReference)
+                : expression;
+        }
 
         private string GetParameterName(string prefix)
         {
