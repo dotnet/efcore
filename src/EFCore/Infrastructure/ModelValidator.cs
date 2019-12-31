@@ -783,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .GetDeclaredProperties()
                         .Cast<IPropertyBase>()
                         .Concat(entityType.GetDeclaredNavigations())
-                        .Where(p => !p.IsShadowProperty()));
+                        .Where(p => !p.IsShadowProperty() && !p.IsIndexerProperty()));
 
                 var constructorBinding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 

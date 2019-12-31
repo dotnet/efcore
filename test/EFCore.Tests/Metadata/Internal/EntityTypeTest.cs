@@ -2009,6 +2009,72 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Can_add_indexed_property()
+        {
+            var model = CreateModel();
+            var mutatbleEntityType = model.AddEntityType(typeof(Customer));
+            var mutableProperty = mutatbleEntityType.AddIndexedProperty("Nation", typeof(string));
+
+            Assert.False(mutableProperty.IsShadowProperty());
+            Assert.True(mutableProperty.IsIndexerProperty());
+            Assert.Equal("Nation", mutableProperty.Name);
+            Assert.Same(typeof(string), mutableProperty.ClrType);
+            Assert.Same(mutatbleEntityType, mutableProperty.DeclaringEntityType);
+
+            Assert.True(new[] { mutableProperty }.SequenceEqual(mutatbleEntityType.GetProperties()));
+
+            Assert.Same(mutableProperty, mutatbleEntityType.RemoveProperty("Nation"));
+            Assert.Empty(mutatbleEntityType.GetProperties());
+
+            var conventionEntityType = (IConventionEntityType)mutatbleEntityType;
+            var conventionProperty = conventionEntityType.AddIndexedProperty("Country", typeof(string));
+
+            Assert.False(conventionProperty.IsShadowProperty());
+            Assert.True(conventionProperty.IsIndexerProperty());
+            Assert.Equal("Country", conventionProperty.Name);
+            Assert.Same(typeof(string), conventionProperty.ClrType);
+            Assert.Same(mutatbleEntityType, conventionProperty.DeclaringEntityType);
+
+            Assert.True(new[] { conventionProperty }.SequenceEqual(conventionEntityType.GetProperties()));
+
+            Assert.Same(conventionProperty, conventionEntityType.RemoveProperty("Country"));
+            Assert.Empty(conventionEntityType.GetProperties());
+        }
+
+        [ConditionalFact]
+        public void FindProperty_return_null_when_passed_indexer_property_info()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            var property = entityType.AddIndexedProperty("Nation", typeof(string));
+            var itemProperty = entityType.AddProperty("Item", typeof(string));
+            var indexerPropertyInfo = typeof(Customer).GetRuntimeProperty("Item");
+            Assert.NotNull(indexerPropertyInfo);
+
+            Assert.Same(property, entityType.FindProperty("Nation"));
+
+            Assert.Null(((IEntityType)entityType).FindProperty(indexerPropertyInfo));
+            Assert.Null(entityType.FindProperty(indexerPropertyInfo));
+            Assert.Null(((IConventionEntityType)entityType).FindProperty(indexerPropertyInfo));
+        }
+
+        [ConditionalFact]
+        public void AddIndexedProperty_throws_when_entitytype_does_not_have_indexer()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Order));
+
+            Assert.Equal(
+                CoreStrings.NonIndexerEntityType("Nation", entityType.DisplayName(), typeof(string).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("Nation", typeof(string))).Message);
+
+            Assert.Equal(
+                CoreStrings.NonIndexerEntityType("Nation", entityType.DisplayName(), typeof(string).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => ((IConventionEntityType)entityType).AddIndexedProperty("Nation", typeof(string))).Message);
+        }
+
+        [ConditionalFact]
         public void Can_get_property_indexes()
         {
             var model = CreateModel();

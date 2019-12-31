@@ -1599,7 +1599,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (name != memberInfo.GetSimpleMemberName())
             {
-                if ((memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
+                if (memberInfo != FindIndexerPropertyInfo())
                 {
                     if (throwOnNameMismatch)
                     {
@@ -2066,7 +2066,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (memberInfo != null
                 && propertyType != memberInfo.GetMemberType()
-                && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
+                && memberInfo != FindIndexerPropertyInfo())
             {
                 if (typeConfigurationSource != null)
                 {
