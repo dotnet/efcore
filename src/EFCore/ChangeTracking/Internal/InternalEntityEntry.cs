@@ -1150,11 +1150,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         WritePropertyValue(propertyBase, value, isMaterialization);
 
                         if (currentValueType != CurrentValueType.Normal
-                            && !_temporaryValues.IsEmpty
-                            && equals(value, asProperty.ClrType.GetDefaultValue()))
+                            && !_temporaryValues.IsEmpty)
                         {
+                            var defaultValue = asProperty.ClrType.GetDefaultValue();
                             var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                            _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
+                            _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
                         }
                     }
                     else
