@@ -165,6 +165,22 @@ namespace System
             return singleImplementation?.GenericTypeArguments.FirstOrDefault();
         }
 
+        public static bool IsCompatibleWith(this Type propertyType, Type fieldType)
+        {
+            if (propertyType.IsAssignableFrom(fieldType)
+                || fieldType.IsAssignableFrom(propertyType))
+            {
+                return true;
+            }
+
+            var propertyElementType = propertyType.TryGetSequenceType();
+            var fieldElementType = fieldType.TryGetSequenceType();
+
+            return propertyElementType != null
+                && fieldElementType != null
+                && IsCompatibleWith(propertyElementType, fieldElementType);
+        }
+
         public static IEnumerable<Type> GetGenericTypeImplementations(this Type type, Type interfaceOrBaseType)
         {
             var typeInfo = type.GetTypeInfo();
