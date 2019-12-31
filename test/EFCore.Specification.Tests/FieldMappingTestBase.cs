@@ -381,6 +381,63 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
+        public virtual void Simple_query_props_with_IReadOnlyCollection(bool tracking)
+        {
+            using var context = CreateContext();
+            AssertBlogs(context.Set<BlogWithReadOnlyCollection>().AsTracking(tracking).ToList());
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_collection_props_with_IReadOnlyCollection(bool tracking)
+        {
+            using var context = CreateContext();
+            AssertGraph(context.Set<BlogWithReadOnlyCollection>().Include(e => e.Posts).AsTracking(tracking).ToList());
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Include_reference_props_with_IReadOnlyCollection(bool tracking)
+        {
+            using var context = CreateContext();
+            AssertGraph(context.Set<PostWithReadOnlyCollection>().Include(e => e.Blog).AsTracking(tracking).ToList(), tracking);
+        }
+
+        [ConditionalFact]
+        public virtual void Load_collection_props_with_IReadOnlyCollection()
+            => Load_collection<BlogWithReadOnlyCollection>("Posts");
+
+        [ConditionalFact]
+        public virtual void Load_reference_props_with_IReadOnlyCollection()
+            => Load_reference<PostWithReadOnlyCollection>("Blog");
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_constant_props_with_IReadOnlyCollection(bool tracking)
+            => Query_with_conditional_constant<PostWithReadOnlyCollection>("BlogId", tracking);
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Query_with_conditional_param_props_with_IReadOnlyCollection(bool tracking)
+            => Query_with_conditional_param<PostWithReadOnlyCollection>("Title", tracking);
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Projection_props_with_IReadOnlyCollection(bool tracking)
+            => Projection<PostWithReadOnlyCollection>("Id", "Title", tracking);
+
+        [ConditionalFact]
+        public virtual void Update_props_with_IReadOnlyCollection()
+            => Update<BlogWithReadOnlyCollection>("Posts");
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
         public virtual void Simple_query_read_only_props_with_named_fields(bool tracking)
         {
             using var context = CreateContext();
@@ -1279,6 +1336,79 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class BlogWithReadOnlyCollection : IBlogAccessor
+        {
+            private int _id;
+            private string _title;
+            private ICollection<PostWithReadOnlyCollection> _posts;
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id => _id;
+
+            public string Title => _title;
+
+            public IReadOnlyCollection<PostWithReadOnlyCollection> Posts => (IReadOnlyCollection<PostWithReadOnlyCollection>)_posts;
+
+            int IBlogAccessor.AccessId
+            {
+                get => Id;
+                set => _id = value;
+            }
+
+            string IBlogAccessor.AccessTitle
+            {
+                get => Title;
+                set => _title = value;
+            }
+
+            IEnumerable<IPostAccessor> IBlogAccessor.AccessPosts
+            {
+                get => Posts;
+                set => _posts = (ICollection<PostWithReadOnlyCollection>)value;
+            }
+        }
+
+        protected class PostWithReadOnlyCollection : IPostAccessor
+        {
+            private int _id;
+            private string _title;
+            private int _blogId;
+            private BlogWithReadOnlyCollection _blog;
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id => _id;
+
+            public string Title => _title;
+
+            public int BlogId => _blogId;
+
+            public BlogWithReadOnlyCollection Blog => _blog;
+
+            int IPostAccessor.AccessId
+            {
+                get => Id;
+                set => _id = value;
+            }
+
+            string IPostAccessor.AccessTitle
+            {
+                get => Title;
+                set => _title = value;
+            }
+
+            int IPostAccessor.AccessBlogId
+            {
+                get => BlogId;
+                set => _blogId = value;
+            }
+
+            IBlogAccessor IPostAccessor.AccessBlog
+            {
+                get => Blog;
+                set => _blog = (BlogWithReadOnlyCollection)value;
+            }
+        }
+
         protected class BlogReadOnlyExplicit : IBlogAccessor
         {
             private int _myid;
@@ -1826,6 +1956,22 @@ namespace Microsoft.EntityFrameworkCore
                             b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
                         });
 
+                    modelBuilder.Entity<PostWithReadOnlyCollection>(
+                        b =>
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Title);
+                            b.Property(e => e.BlogId);
+                        });
+
+                    modelBuilder.Entity<BlogWithReadOnlyCollection>(
+                        b =>
+                        {
+                            b.HasKey(e => e.Id);
+                            b.Property(e => e.Title);
+                            b.HasMany(e => e.Posts).WithOne(e => e.Blog).HasForeignKey(e => e.BlogId);
+                        });
+
                     modelBuilder.Entity<PostReadOnlyExplicit>(
                         b =>
                         {
@@ -1943,6 +2089,9 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         context.Add(CreateBlogAndPosts<BlogReadOnly, PostReadOnly>(new ObservableCollection<PostReadOnly>()));
                         context.AddRange(CreatePostsAndBlog<BlogReadOnly, PostReadOnly>());
+
+                        context.Add(CreateBlogAndPosts<BlogWithReadOnlyCollection, PostWithReadOnlyCollection>(new ObservableCollection<PostWithReadOnlyCollection>()));
+                        context.AddRange(CreatePostsAndBlog<BlogWithReadOnlyCollection, PostWithReadOnlyCollection>());
 
                         context.Add(CreateBlogAndPosts<BlogReadOnlyExplicit, PostReadOnlyExplicit>(new Collection<PostReadOnlyExplicit>()));
                         context.AddRange(CreatePostsAndBlog<BlogReadOnlyExplicit, PostReadOnlyExplicit>());

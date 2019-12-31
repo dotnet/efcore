@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var newMatch = typeInfo == null
                         ? currentValue.Value
-                        : (IsConvertible(typeInfo, currentValue.Value)
+                        : (typeInfo.IsCompatibleWith(currentValue.Value.FieldType)
                             ? currentValue.Value
                             : null);
 
@@ -238,14 +238,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 right = middle - 1;
             }
-        }
-
-        private static bool IsConvertible(Type typeInfo, FieldInfo fieldInfo)
-        {
-            var fieldTypeInfo = fieldInfo.FieldType;
-
-            return typeInfo.IsAssignableFrom(fieldTypeInfo)
-                || fieldTypeInfo.IsAssignableFrom(typeInfo);
         }
 
         /// <summary>

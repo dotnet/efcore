@@ -202,10 +202,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var fieldTypeInfo = fieldInfo.FieldType;
+            var fieldType = fieldInfo.FieldType;
             if (propertyType != null
-                && !fieldTypeInfo.IsAssignableFrom(propertyType)
-                && !propertyType.IsAssignableFrom(fieldTypeInfo))
+                && !propertyType.IsCompatibleWith(fieldType))
             {
                 if (shouldThrow)
                 {
