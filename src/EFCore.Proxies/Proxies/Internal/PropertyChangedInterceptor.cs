@@ -107,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                     invocation.Proceed();
 
-                    if (!oldValue.Equals(newValue))
+                    if ((oldValue is null ^ newValue is null)
+                        || oldValue?.Equals(newValue) == false)
                     {
                         NotifyPropertyChanged(propertyName, invocation.Proxy);
                     }
