@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ProxyServicesMissing");
 
         /// <summary>
-        ///     Entity type '{entityType}' is sealed. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        ///     Entity type '{entityType}' is sealed. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.
         /// </summary>
         public static string ItsASeal([CanBeNull] object entityType)
             => string.Format(
@@ -33,7 +33,15 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is not virtual. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        ///     Property '{property}' on entity type '{entityType}' has no setter. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.
+        /// </summary>
+        public static string NoSetterProperty([CanBeNull] object property, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("NoSetterProperty", nameof(property), nameof(entityType)),
+                property, entityType);
+
+        /// <summary>
+        ///     Property '{property}' on entity type '{entityType}' is not virtual. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.
         /// </summary>
         public static string NonVirtualProperty([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(
@@ -41,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 property, entityType);
 
         /// <summary>
-        ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.
+        ///     Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.
         /// </summary>
         public static string FieldProperty([CanBeNull] object property, [CanBeNull] object entityType)
             => string.Format(

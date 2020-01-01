@@ -62,6 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             if (_options?.UseProxies == true)
             {
+                if (_options.UseChangeDetectionProxies)
+                {
+                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+                }
+
                 foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
                 {
                     if (entityType.ClrType?.IsAbstract == false)
@@ -73,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                         var proxyType = _proxyFactory.CreateProxyType(entityType);
 
-                        if (_options.UseLazyLoadingProxies == true)
+                        if (_options.UseLazyLoadingProxies)
                         {
                             foreach (var conflictingProperty in entityType.GetDerivedTypes()
                                 .SelectMany(e => e.GetDeclaredServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
@@ -130,6 +135,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                         ProxiesStrings.FieldProperty(prop.Name, entityType.DisplayName()));
                                 }
 
+                                if (prop.PropertyInfo.SetMethod == null)
+                                {
+                                    throw new InvalidOperationException(
+                                        ProxiesStrings.NoSetterProperty(prop.Name, entityType.DisplayName()));
+                                }
+
                                 if (!prop.PropertyInfo.SetMethod.IsVirtual)
                                 {
                                     throw new InvalidOperationException(
@@ -146,11 +157,19 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     ProxiesStrings.FieldProperty(navigation.Name, entityType.DisplayName()));
                             }
 
-                            if (_options.UseChangeDetectionProxies
-                                && !navigation.PropertyInfo.SetMethod.IsVirtual)
+                            if (_options.UseChangeDetectionProxies)
                             {
-                                throw new InvalidOperationException(
-                                    ProxiesStrings.NonVirtualProperty(navigation.Name, entityType.DisplayName()));
+                                if (navigation.PropertyInfo.SetMethod == null)
+                                {
+                                    throw new InvalidOperationException(
+                                        ProxiesStrings.NoSetterProperty(navigation.Name, entityType.DisplayName()));
+                                }
+
+                                if (!navigation.PropertyInfo.SetMethod.IsVirtual)
+                                {
+                                    throw new InvalidOperationException(
+                                        ProxiesStrings.NonVirtualProperty(navigation.Name, entityType.DisplayName()));
+                                }
                             }
 
                             if (_options.UseLazyLoadingProxies)

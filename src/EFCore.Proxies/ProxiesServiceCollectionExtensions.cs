@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.DependencyInjection
             new EntityFrameworkServicesBuilder(serviceCollection)
                 .TryAdd<IConventionSetPlugin, ProxiesConventionSetPlugin>()
                 .TryAddProviderSpecificServices(
-                    b => b.TryAddSingleton<IProxyFactory, ProxyFactory>());
+                    b => b.TryAddScoped<IProxyFactory, ProxyFactory>());
 
             return serviceCollection;
         }

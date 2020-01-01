@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class March82GGtp
         {
-            public int Id { get; set; }
+            public virtual int Id { get; set; }
         }
 
         public class March881
@@ -232,8 +232,9 @@ namespace Microsoft.EntityFrameworkCore
                 Sponsor = sponsor;
             }
 
-            public int Id { get; }
-            public string Sponsor { get; }
+            public virtual int Id { get; set; }
+
+            public virtual string Sponsor { get; set; }
         }
 
         public class WilliamsFw14
@@ -245,9 +246,11 @@ namespace Microsoft.EntityFrameworkCore
                 Sponsor = sponsor;
             }
 
-            public DbContext Context { get; }
-            public int Id { get; }
-            public string Sponsor { get; }
+            public DbContext Context { get; set; }
+
+            public virtual int Id { get; set; }
+
+            public virtual string Sponsor { get; set; }
         }
 
         private class NeweyContext : DbContext
@@ -332,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore
 
         internal class McLarenMp421
         {
-            public int Id { get; set; }
+            public virtual int Id { get; set; }
         }
 
         private class NeweyContextN4 : NeweyContextN
@@ -347,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public int Id { get; set; }
+            public virtual int Id { get; set; }
         }
 
         private class NeweyContextN5 : NeweyContextN
