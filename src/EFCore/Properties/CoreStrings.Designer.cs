@@ -2316,6 +2316,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("NonIndexerEntityType", nameof(property), nameof(entity), nameof(type)),
                 property, entity, type);
 
+        /// <summary>
+        ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Indexer properties are not allowed to use a backing field.
+        /// </summary>
+        public static string BackingFieldOnIndexer([CanBeNull] object field, [CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("BackingFieldOnIndexer", nameof(field), nameof(entityType), nameof(property)),
+                field, entityType, property);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

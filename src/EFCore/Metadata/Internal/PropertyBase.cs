@@ -151,6 +151,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (fieldInfo != null)
             {
                 IsCompatible(fieldInfo, ClrType, DeclaringType.ClrType, Name, shouldThrow: true);
+
+                if (PropertyInfo != null
+                    && PropertyInfo.IsIndexerProperty())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.BackingFieldOnIndexer(fieldInfo.GetSimpleMemberName(), DeclaringType.DisplayName(), Name));
+                }
             }
 
             if (PropertyInfo == null
