@@ -517,6 +517,8 @@ namespace Microsoft.EntityFrameworkCore
                     var product = new OptionalProduct();
                     context.Add(product);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     var productEntry = context.Entry(product);
                     Assert.Equal(EntityState.Added, productEntry.State);
 
@@ -529,6 +531,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.False(productEntry.Property(e => e.CategoryId).IsTemporary);
 
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     productEntry = context.Entry(product);
                     Assert.Equal(EntityState.Unchanged, productEntry.State);
@@ -543,6 +547,8 @@ namespace Microsoft.EntityFrameworkCore
 
                     var category = new OptionalCategory();
                     product.Category = category;
+
+                    Assert.True(context.ChangeTracker.HasChanges());
 
                     productEntry = context.Entry(product);
                     Assert.Equal(EntityState.Modified, productEntry.State);
@@ -562,6 +568,8 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.True(categoryEntry.Property(e => e.Id).IsTemporary);
 
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     productEntry = context.Entry(product);
                     Assert.Equal(EntityState.Unchanged, productEntry.State);
@@ -598,7 +606,11 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(1, category.Id);
                     Assert.Equal(1, categoryEntry.Property(e => e.Id).CurrentValue);
 
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
+
+                    Assert.False(context.ChangeTracker.HasChanges());
 
                     productEntry = context.Entry(product);
                     Assert.Equal(EntityState.Unchanged, productEntry.State);

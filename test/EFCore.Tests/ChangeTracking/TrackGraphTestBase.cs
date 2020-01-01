@@ -123,6 +123,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         category, node => node.Entry.State = node.Entry.IsKeySet ? EntityState.Unchanged : EntityState.Added));
             }
 
+            Assert.Equal(!setKeys, context.ChangeTracker.HasChanges());
+
             Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
             var categoryEntry = context.Entry(category);
@@ -176,6 +178,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         context,
                         category, node => node.Entry.State = node.Entry.IsKeySet ? EntityState.Unchanged : EntityState.Added));
             }
+
+            Assert.Equal(!setKeys, context.ChangeTracker.HasChanges());
 
             Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
@@ -246,6 +250,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var expectedPrincipalState = setPrincipalKey ? EntityState.Unchanged : EntityState.Added;
             var expectedDependentState = setPrincipalKey || (setDependentKey && useAttach) ? EntityState.Unchanged : EntityState.Added;
 
+            Assert.Equal(
+                expectedPrincipalState == EntityState.Added || expectedDependentState == EntityState.Added,
+                context.ChangeTracker.HasChanges());
+
             Assert.Equal(expectedPrincipalState, context.Entry(sweet).State);
             Assert.Equal(expectedDependentState, dependentEntry.State);
             Assert.Equal(expectedDependentState, dependentEntry2a.State);
@@ -302,6 +310,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
+            Assert.Equal(!setDependentKey, context.ChangeTracker.HasChanges());
+
             var dependentEntry = context.Entry(dreams);
             var dependentEntry2a = context.Entry(dreams.Are);
             var dependentEntry2b = context.Entry(dreams.Made);
@@ -349,6 +359,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             Assert.Equal(EntityState.Modified, context.Entry(category).State);
             Assert.Equal(EntityState.Modified, context.Entry(category.Products[0]).State);
             Assert.Equal(EntityState.Modified, context.Entry(category.Products[1]).State);
@@ -378,6 +390,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Assert.Equal(2, context.ChangeTracker.Entries().Count());
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             Assert.Equal(EntityState.Modified, context.Entry(product).State);
             Assert.Equal(EntityState.Modified, context.Entry(product.Category).State);
 
@@ -404,6 +418,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     node => node.Entry.State = EntityState.Unchanged));
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+            Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(product.Details).State);
@@ -432,6 +448,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     node => node.Entry.State = EntityState.Unchanged));
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+            Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Equal(EntityState.Unchanged, context.Entry(tag).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(tag.Details).State);
@@ -465,6 +483,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     node => node.Entry.State = EntityState.Unchanged));
 
             Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+            Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Equal(EntityState.Unchanged, context.Entry(details).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(details.Product).State);
@@ -505,6 +525,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     node => node.Entry.State = EntityState.Modified));
 
             Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+            Assert.True(context.ChangeTracker.HasChanges());
 
             Assert.Equal(EntityState.Modified, context.Entry(category).State);
             Assert.Equal(EntityState.Modified, context.Entry(category.Products[0]).State);
@@ -574,6 +596,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Assert.Equal(5, context.ChangeTracker.Entries().Count(e => e.State != EntityState.Detached));
 
+            Assert.False(context.ChangeTracker.HasChanges());
+
             Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0]).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[0].Details).State);
@@ -610,6 +634,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     e => { }));
 
             Assert.Equal(0, context.ChangeTracker.Entries().Count(e => e.State != EntityState.Detached));
+
+            Assert.False(context.ChangeTracker.HasChanges());
         }
 
         [ConditionalTheory]
@@ -660,6 +686,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Assert.Equal(4, context.ChangeTracker.Entries().Count());
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             var dependentEntry = context.Entry(dreams);
             var dependentEntry2a = context.Entry(dreams.Are);
             var dependentEntry2b = context.Entry(dreams.Made);
@@ -700,6 +728,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             context.Attach(category);
 
+            Assert.False(context.ChangeTracker.HasChanges());
+
             var categoryEntry = context.Entry(category);
             var product0Entry = context.Entry(category.Products[0]);
             var product1Entry = context.Entry(category.Products[1]);
@@ -716,6 +746,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             context.Entry(category).State = EntityState.Detached;
+
+            Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Equal(EntityState.Detached, categoryEntry.State);
 
@@ -770,6 +802,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 if (trackNewDependents || delayCascade)
                 {
                     Assert.Equal(4, context.ChangeTracker.Entries().Count());
+
+                    Assert.True(context.ChangeTracker.HasChanges());
 
                     categoryEntry = context.Entry(newCategory);
                     product0Entry = context.Entry(newCategory.Products[0]);
@@ -892,6 +926,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             Assert.Equal(7, visited.Count);
 
+            Assert.False(context.ChangeTracker.HasChanges());
+
             foreach (var entity in new object[] { category }
                 .Concat(category.Products)
                 .Concat(category.Products.Select(e => e.Details)))
@@ -960,6 +996,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             };
 
             tracker(category, context.ChangeTracker);
+
+            Assert.True(context.ChangeTracker.HasChanges());
 
             Assert.Equal(4, context.ChangeTracker.Entries().Count());
 

@@ -43,6 +43,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 context.Add(entity);
             }
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             Assert.Equal(
                 CoreStrings.UnknownKeyValue(nameof(Weak), nameof(Weak.HeroId)),
                 Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
@@ -751,12 +753,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             context.Attach(new Cat(1));
 
+            Assert.False(context.ChangeTracker.HasChanges());
+
             Assert.Single(tracked);
             Assert.Empty(changed);
 
             AssertTrackedEvent(context, 1, EntityState.Unchanged, tracked[0], fromQuery: false);
 
             context.Entry(new Cat(2)).State = EntityState.Unchanged;
+
+            Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Equal(2, tracked.Count);
             Assert.Empty(changed);
@@ -777,12 +783,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             context.Add(new Cat(1));
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             Assert.Single(tracked);
             Assert.Empty(changed);
 
             AssertTrackedEvent(context, 1, EntityState.Added, tracked[0], fromQuery: false);
 
             context.Entry(new Cat(2)).State = EntityState.Added;
+
+            Assert.True(context.ChangeTracker.HasChanges());
 
             Assert.Equal(2, tracked.Count);
             Assert.Empty(changed);
@@ -803,12 +813,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             context.Update(new Cat(1));
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             Assert.Single(tracked);
             Assert.Empty(changed);
 
             AssertTrackedEvent(context, 1, EntityState.Modified, tracked[0], fromQuery: false);
 
             context.Entry(new Cat(2)).State = EntityState.Modified;
+
+            Assert.True(context.ChangeTracker.HasChanges());
 
             Assert.Equal(2, tracked.Count);
             Assert.Empty(changed);
@@ -830,6 +844,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 context.AddRange(new Cat(1), new Cat(2));
 
+                Assert.True(context.ChangeTracker.HasChanges());
+
                 Assert.Equal(2, tracked.Count);
                 Assert.Empty(changed);
 
@@ -841,6 +857,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 Assert.Equal(2, tracked.Count);
                 Assert.Equal(2, changed.Count);
+
+                Assert.True(context.ChangeTracker.HasChanges());
 
                 AssertChangedEvent(context, 1, EntityState.Added, EntityState.Unchanged, changed[0]);
                 AssertChangedEvent(context, 2, EntityState.Added, EntityState.Modified, changed[1]);
@@ -856,6 +874,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
                 context.Remove(context.Cats.Find(1));
                 context.Entry(context.Cats.Find(2)).State = EntityState.Detached;
+
+                Assert.False(context.ChangeTracker.HasChanges());
 
                 Assert.Equal(2, tracked.Count);
                 Assert.Equal(6, changed.Count);
@@ -915,7 +935,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             AssertTrackedEvent(context, 3, EntityState.Added, tracked[1], fromQuery: false);
             AssertChangedEvent(context, 1, EntityState.Unchanged, EntityState.Modified, changed[0]);
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             context.SaveChanges();
+
+            Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Equal(2, tracked.Count);
             Assert.Equal(3, changed.Count);
@@ -940,6 +964,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var cat = context.Attach(
                 new Cat(3) { Name = "Achilles" }).Entity;
 
+            Assert.False(context.ChangeTracker.HasChanges());
+
             Assert.Single(tracked);
             Assert.Empty(changed);
 
@@ -947,12 +973,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             context.Entry(cat).Property(e => e.Name).IsModified = true;
 
+            Assert.True(context.ChangeTracker.HasChanges());
+
             Assert.Single(tracked);
             Assert.Single(changed);
 
             AssertChangedEvent(context, 3, EntityState.Unchanged, EntityState.Modified, changed[0]);
 
             context.Entry(cat).Property(e => e.Name).IsModified = false;
+
+            Assert.False(context.ChangeTracker.HasChanges());
 
             Assert.Single(tracked);
             Assert.Equal(2, changed.Count);
@@ -2253,11 +2283,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 _serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
             }
 
-            public EarlyLearningCenter(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
-
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Sweet>().OwnsOne(
@@ -2302,24 +2327,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 => optionsBuilder
                     .UseInternalServiceProvider(_serviceProvider)
                     .UseInMemoryDatabase(nameof(EarlyLearningCenter));
-        }
-
-        public class KeyValueEntityTracker
-        {
-            private readonly bool _updateExistingEntities;
-
-            public KeyValueEntityTracker(bool updateExistingEntities)
-            {
-                _updateExistingEntities = updateExistingEntities;
-            }
-
-            public virtual void TrackEntity(EntityEntryGraphNode node)
-                => node.Entry.GetInfrastructure().SetEntityState(DetermineState(node.Entry), acceptChanges: true);
-
-            public virtual EntityState DetermineState(EntityEntry entry)
-                => entry.IsKeySet
-                    ? (_updateExistingEntities ? EntityState.Modified : EntityState.Unchanged)
-                    : EntityState.Added;
         }
     }
 }
