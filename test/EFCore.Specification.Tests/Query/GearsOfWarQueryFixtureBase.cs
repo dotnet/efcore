@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             Assert.Equal(e.Name, a.Name);
                             Assert.Equal(e.Location, a.Location);
-                            Assert.Equal(e.Nation, a.Nation);
+                            Assert.Equal(e["Nation"], a["Nation"]);
                         }
                     }
                 },
@@ -243,7 +243,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            modelBuilder.Entity<City>().HasKey(c => c.Name);
+            modelBuilder.Entity<City>(
+                b =>
+                {
+                    b.HasKey(c => c.Name);
+                    b.Metadata.AddIndexedProperty("Nation", typeof(string));
+                });
 
             modelBuilder.Entity<Gear>(
                 b =>

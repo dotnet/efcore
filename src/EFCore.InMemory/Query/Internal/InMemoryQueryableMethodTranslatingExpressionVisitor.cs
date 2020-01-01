@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             [NotNull] IModel model)
             : base(dependencies, subquery: false)
         {
-            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(this);
+            _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(this, model);
             _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_expressionTranslator);
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
             _model = model;
@@ -992,6 +992,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     return TryExpand(source, MemberIdentity.Create(navigationName))
                         ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                }
+
+                if (methodCallExpression.TryGetEFPropertyArguments(out source, out navigationName))
+                {
+                    source = Visit(source);
+
+                    return TryExpand(source, MemberIdentity.Create(navigationName))
+                        ?? methodCallExpression.Update(source, new[] { methodCallExpression.Arguments[0] });
                 }
 
                 return base.VisitMethodCall(methodCallExpression);

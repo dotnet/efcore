@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -99,6 +100,33 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 && methodCallExpression.Arguments[1] is ConstantExpression propertyNameExpression)
             {
                 entityExpression = methodCallExpression.Arguments[0];
+                propertyName = (string)propertyNameExpression.Value;
+                return true;
+            }
+
+            (entityExpression, propertyName) = (null, null);
+            return false;
+        }
+
+        /// <summary>
+        ///     If the given a method-call expression represents a call to indexer on the entity, then this
+        ///     method extracts the entity expression and property name.
+        /// </summary>
+        /// <param name="methodCallExpression"> The method-call expression for indexer. </param>
+        /// <param name="model"> The model to use. </param>
+        /// <param name="entityExpression"> The extracted entity access expression. </param>
+        /// <param name="propertyName"> The accessed property name. </param>
+        /// <returns> True if the method-call was for indexer; false otherwise. </returns>
+        public static bool TryGetIndexerArguments(
+            [NotNull] this MethodCallExpression methodCallExpression,
+            [NotNull] IModel model,
+            out Expression entityExpression,
+            out string propertyName)
+        {
+            if (model.IsIndexerMethod(methodCallExpression.Method)
+                && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
+            {
+                entityExpression = methodCallExpression.Object;
                 propertyName = (string)propertyNameExpression.Value;
                 return true;
             }

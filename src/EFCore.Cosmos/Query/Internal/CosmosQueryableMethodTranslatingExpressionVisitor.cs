@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 sqlExpressionFactory,
                 memberTranslatorProvider,
                 methodCallTranslatorProvider);
-            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_sqlTranslator);
+            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _model = parentVisitor._model;
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _sqlTranslator = parentVisitor._sqlTranslator;
-            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_sqlTranslator);
+            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
         }
 
         /// <summary>

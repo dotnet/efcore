@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new GroupJoinFlatteningExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new EntityEqualityRewritingExpressionVisitor(_queryCompilationContext).Rewrite(query);
-            query = new SubqueryMemberPushdownExpressionVisitor().Visit(query);
+            query = new SubqueryMemberPushdownExpressionVisitor(_queryCompilationContext.Model).Visit(query);
             query = new NavigationExpandingExpressionVisitor(_queryCompilationContext, Dependencies.EvaluatableExpressionFilter).Expand(
                 query);
             query = new FunctionPreprocessingExpressionVisitor().Visit(query);

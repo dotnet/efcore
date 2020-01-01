@@ -334,6 +334,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 throw new InvalidOperationException("EF.Property called with wrong property name.");
             }
 
+            // EF Indexer property
+            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+            {
+                return TryBindMember(source, MemberIdentity.Create(propertyName), out var result) ? result : null;
+            }
+
             // GroupBy Aggregate case
             if (methodCallExpression.Object == null
                 && methodCallExpression.Method.DeclaringType == typeof(Enumerable)

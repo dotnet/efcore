@@ -140,9 +140,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     continue;
                 }
 
-                var memberAccess = (Expression)Expression.MakeMemberAccess(
-                    entityVariable,
-                    propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
+                var memberAccess = propertyBase.IsIndexerProperty()
+                    ? Expression.MakeIndex(entityVariable, (PropertyInfo)memberInfo, new[] { Expression.Constant(propertyBase.Name) })
+                    : (Expression)Expression.MakeMemberAccess(entityVariable, memberInfo);
 
                 if (memberAccess.Type != propertyBase.ClrType)
                 {

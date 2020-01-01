@@ -30,51 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool TryGetEFIndexerArguments(
-            [NotNull] this MethodCallExpression methodCallExpression,
-            [CanBeNull] out Expression entityExpression,
-            [CanBeNull] out string propertyName)
-        {
-            if (IsEFIndexer(methodCallExpression)
-                && methodCallExpression.Arguments[0] is ConstantExpression propertyNameExpression)
-            {
-                entityExpression = methodCallExpression.Object;
-                propertyName = (string)propertyNameExpression.Value;
-                return true;
-            }
-
-            (entityExpression, propertyName) = (null, null);
-            return false;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsEFIndexer([NotNull] this MethodCallExpression methodCallExpression)
-            => IsEFIndexer(methodCallExpression.Method);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public static bool IsEFIndexer([NotNull] this MethodInfo methodInfo)
-            => !methodInfo.IsStatic
-                && "get_Item".Equals(methodInfo.Name, StringComparison.Ordinal)
-                && typeof(object) == methodInfo.ReturnType
-                && methodInfo.GetParameters()?.Count() == 1
-                && typeof(string) == methodInfo.GetParameters().First().ParameterType;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public static Expression CreateKeyAccessExpression(
             [NotNull] this Expression target,
             [NotNull] IReadOnlyList<IProperty> properties,

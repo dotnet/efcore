@@ -277,12 +277,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     ?? methodCallExpression.Update(null, new[] { Unwrap(newLeft), Unwrap(newRight) });
             }
 
-            // Navigation via EF.Property() or via an indexer property
-            if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName)
-                || methodCallExpression.TryGetEFIndexerArguments(out _, out propertyName))
+            // Navigation via EF.Property()
+            if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
             {
                 newSource = Visit(arguments[0]);
                 var newMethodCall = methodCallExpression.Update(null, new[] { Unwrap(newSource), arguments[1] });
+                return newSource is EntityReferenceExpression entityWrapper
+                    ? entityWrapper.TraverseProperty(propertyName, newMethodCall)
+                    : newMethodCall;
+            }
+
+            // Navigation via an indexer property
+            if (methodCallExpression.TryGetIndexerArguments(_queryCompilationContext.Model, out _, out propertyName))
+            {
+                newSource = Visit(methodCallExpression.Object);
+                var newMethodCall = methodCallExpression.Update(Unwrap(newSource), new[] { arguments[0] });
                 return newSource is EntityReferenceExpression entityWrapper
                     ? entityWrapper.TraverseProperty(propertyName, newMethodCall)
                     : newMethodCall;
@@ -1071,7 +1080,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public static EntityOrDtoType FromEntityReferenceExpression(EntityReferenceExpression ere)
                 => new EntityOrDtoType
                 {
-                    EntityType = ere.IsEntityType ? ere.EntityType : null, DtoType = ere.IsDtoType ? ere.DtoType : null
+                    EntityType = ere.IsEntityType ? ere.EntityType : null,
+                    DtoType = ere.IsDtoType ? ere.DtoType : null
                 };
 
             public static EntityOrDtoType FromDtoType(Dictionary<string, EntityOrDtoType> dtoType)

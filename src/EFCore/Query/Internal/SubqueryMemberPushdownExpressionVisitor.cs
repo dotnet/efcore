@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -40,6 +41,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { QueryableMethods.LastWithPredicate, QueryableMethods.LastWithoutPredicate },
             { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate }
         };
+
+        private readonly IModel _model;
+
+        public SubqueryMemberPushdownExpressionVisitor([NotNull] IModel model)
+        {
+            _model = model;
+        }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -92,6 +100,37 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 EF.PropertyMethod.MakeGenericMethod(propertyType),
                                 target,
                                 methodCallExpression.Arguments[1]);
+                        },
+                        methodCallExpression.Type);
+                }
+            }
+
+            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out _))
+            {
+                source = Visit(source);
+
+                if (source is MethodCallExpression innerMethodCall
+                    && innerMethodCall.Method.IsGenericMethod
+                    && _supportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
+                {
+                    return PushdownMember(
+                        innerMethodCall,
+                        (target, nullable) =>
+                        {
+                            var propertyType = methodCallExpression.Type;
+                            if (nullable && !propertyType.IsNullableType())
+                            {
+                                propertyType = propertyType.MakeNullable();
+                            }
+
+                            var indexerExpression = Expression.Call(
+                                target,
+                                methodCallExpression.Method,
+                                new[] { methodCallExpression.Arguments[0] });
+
+                            return nullable && !indexerExpression.Type.IsNullableType()
+                                ? Expression.Convert(indexerExpression, indexerExpression.Type.MakeNullable())
+                                : (Expression)indexerExpression;
                         },
                         methodCallExpression.Type);
                 }

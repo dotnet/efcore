@@ -7412,6 +7412,98 @@ FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0");
         }
 
+        public override async Task Can_query_on_indexed_properties(bool async)
+        {
+            await base.Can_query_on_indexed_properties(async);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] = N'Tyrus'");
+        }
+
+        public override async Task Can_query_on_indexed_property_when_property_name_from_closure(bool async)
+        {
+            await base.Can_query_on_indexed_property_when_property_name_from_closure(async);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] = N'Tyrus'");
+        }
+
+        public override async Task Can_project_indexed_properties(bool async)
+        {
+            await base.Can_project_indexed_properties(async);
+
+            AssertSql(
+                @"SELECT [c].[Nation]
+FROM [Cities] AS [c]");
+        }
+
+        public override async Task Can_OrderBy_indexed_properties(bool async)
+        {
+            await base.Can_OrderBy_indexed_properties(async);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c].[Location], [c].[Nation]
+FROM [Cities] AS [c]
+WHERE [c].[Nation] IS NOT NULL
+ORDER BY [c].[Nation], [c].[Name]");
+        }
+
+        public override async Task Can_group_by_indexed_property_on_query(bool isAsync)
+        {
+            await base.Can_group_by_indexed_property_on_query(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Cities] AS [c]
+GROUP BY [c].[Nation]");
+        }
+
+        public override async Task Can_group_by_converted_indexed_property_on_query(bool isAsync)
+        {
+            await base.Can_group_by_converted_indexed_property_on_query(isAsync);
+
+            AssertSql(
+                @"SELECT COUNT(*)
+FROM [Cities] AS [c]
+GROUP BY [c].[Nation]");
+        }
+
+        public override async Task Can_join_on_indexed_property_on_query(bool isAsync)
+        {
+            await base.Can_join_on_indexed_property_on_query(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Name], [c0].[Location]
+FROM [Cities] AS [c]
+INNER JOIN [Cities] AS [c0] ON [c].[Nation] = [c0].[Nation]");
+        }
+
+        public override async Task Projecting_index_property_ignores_include(bool isAsync)
+        {
+            await base.Projecting_index_property_ignores_include(isAsync);
+
+            AssertSql(
+                @"SELECT [c].[Nation]
+FROM [Cities] AS [c]");
+        }
+
+        public override async Task Indexer_property_is_pushdown_into_subquery(bool isAsync)
+        {
+            await base.Indexer_property_is_pushdown_into_subquery(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (
+    SELECT TOP(1) [c].[Nation]
+    FROM [Cities] AS [c]
+    WHERE [c].[Name] = [g].[CityOfBirthName]) IS NULL");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

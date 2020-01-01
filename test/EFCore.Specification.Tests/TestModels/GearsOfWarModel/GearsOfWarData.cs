@@ -151,15 +151,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
             {
                 Location = "Jacinto's location",
                 Name = "Jacinto",
-                Nation = "Tyrus"
             };
+            jacinto["Nation"] = "Tyrus";
 
             var ephyra = new City
             {
                 Location = "Ephyra's location",
                 Name = "Ephyra",
-                Nation = "Tyrus"
             };
+            ephyra["Nation"] = "Tyrus";
 
             var hanover = new City { Location = "Hanover's location", Name = "Hanover" };
 

@@ -126,6 +126,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     TryBindMember(innerSource, MemberIdentity.Create(innerPropertyName), out visitedExpression);
                     break;
 
+                case MethodCallExpression methodCallExpression
+                    when methodCallExpression.TryGetIndexerArguments(_model, out var innerSource, out var innerPropertyName):
+                    TryBindMember(innerSource, MemberIdentity.Create(innerPropertyName), out visitedExpression);
+                    break;
+
                 default:
                     visitedExpression = null;
                     break;
@@ -160,6 +165,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 return TryBindMember(source, MemberIdentity.Create(propertyName), out var result)
                     ? result
                     : null;
+            }
+
+            // EF Indexer property
+            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+            {
+                return TryBindMember(source, MemberIdentity.Create(propertyName), out var result) ? result : null;
             }
 
             if (TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out var sqlObject))
