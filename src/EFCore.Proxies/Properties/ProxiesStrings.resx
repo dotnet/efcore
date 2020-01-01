@@ -121,18 +121,15 @@
     <value>UseChangeDetectionProxies and UseLazyLoadingProxies each require AddEntityFrameworkProxies to be called on the internal service provider used.</value>
   </data>
   <data name="ItsASeal" xml:space="preserve">
-    <value>Entity type '{entityType}' is sealed. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.</value>
+    <value>Entity type '{entityType}' is sealed. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
   </data>
   <data name="NonVirtualProperty" xml:space="preserve">
-    <value>Property '{property}' on entity type '{entityType}' is not virtual. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.</value>
+    <value>Property '{property}' on entity type '{entityType}' is not virtual. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
   </data>
   <data name="FieldProperty" xml:space="preserve">
-    <value>Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.</value>
+    <value>Property '{property}' on entity type '{entityType}' is mapped without a CLR property. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties, and have a public or protected constructor. UseLazyLoadingProxies requires only the navigation properties be virtual.</value>
   </data>
   <data name="ProxiesNotEnabled" xml:space="preserve">
     <value>Unable to create proxy for '{entityType}' because proxies are not enabled. Call 'DbContextOptionsBuilder.UseChangeDetectionProxies' or 'DbContextOptionsBuilder.UseLazyLoadingProxies' to enable proxies.</value>
-  </data>
-  <data name="NoSetterProperty" xml:space="preserve">
-    <value>Property '{property}' on entity type '{entityType}' has no setter. UseChangeDetectionProxies requires all entity types to be public, unsealed, have virtual properties with getters and setters, and have a public or protected constructor. UseLazyLoadingProxies requires only getters on the navigation properties be virtual.</value>
   </data>
 </root>

@@ -30,6 +30,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private static readonly PropertyInfo _lazyLoaderProperty
             = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader));
 
+        private static readonly MethodInfo _createProxyMethod
+            = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateProxy));
+
         private readonly ConstructorBindingConvention _directBindingConvention;
         private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
         private readonly IProxyFactory _proxyFactory;
@@ -65,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 if (_options.UseChangeDetectionProxies)
                 {
                     modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
+                    modelBuilder.HasAnnotation(ModelValidator.SkipChangeTrackingStrategyValidationAnnotation, "true");
                 }
 
                 foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
@@ -76,7 +80,17 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                             throw new InvalidOperationException(ProxiesStrings.ItsASeal(entityType.DisplayName()));
                         }
 
-                        var proxyType = _proxyFactory.CreateProxyType(entityType);
+                        var proxyType = _proxyFactory.CreateProxyType(_options, entityType);
+
+                        // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
+                        var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+                        if (binding == null)
+                        {
+                            _directBindingConvention.ProcessModelFinalized(modelBuilder, context);
+                        }
+
+                        // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
+                        binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
 
                         if (_options.UseLazyLoadingProxies)
                         {
@@ -100,16 +114,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                             nameof(IProxyLazyLoader.LazyLoader)));
                             }
 
-                            // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
-                            var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
-                            if (binding == null)
-                            {
-                                _directBindingConvention.ProcessModelFinalized(modelBuilder, context);
-                            }
-
-                            // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
-                            binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
-
                             entityType.SetAnnotation(
                                 // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
                                 CoreAnnotationNames.ConstructorBinding,
@@ -118,8 +122,25 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     _createLazyLoadingProxyMethod,
                                     new List<ParameterBinding>
                                     {
+                                        new DependencyInjectionParameterBinding(typeof(IDbContextOptions), typeof(IDbContextOptions)),
                                         new EntityTypeParameterBinding(),
                                         new DependencyInjectionParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
+                                        new ObjectArrayParameterBinding(binding.ParameterBindings)
+                                    },
+                                    proxyType));
+                        }
+                        else
+                        {
+                            entityType.SetAnnotation(
+                                // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
+                                CoreAnnotationNames.ConstructorBinding,
+                                new FactoryMethodBinding(
+                                    _proxyFactory,
+                                    _createProxyMethod,
+                                    new List<ParameterBinding>
+                                    {
+                                        new DependencyInjectionParameterBinding(typeof(IDbContextOptions), typeof(IDbContextOptions)),
+                                        new EntityTypeParameterBinding(),
                                         new ObjectArrayParameterBinding(binding.ParameterBindings)
                                     },
                                     proxyType));
@@ -127,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                         if (_options.UseChangeDetectionProxies)
                         {
-                            foreach (var prop in entityType.GetProperties())
+                            foreach (var prop in entityType.GetProperties().Where(p => !p.IsShadowProperty()))
                             {
                                 if (prop.PropertyInfo == null)
                                 {
@@ -135,13 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                         ProxiesStrings.FieldProperty(prop.Name, entityType.DisplayName()));
                                 }
 
-                                if (prop.PropertyInfo.SetMethod == null)
-                                {
-                                    throw new InvalidOperationException(
-                                        ProxiesStrings.NoSetterProperty(prop.Name, entityType.DisplayName()));
-                                }
-
-                                if (!prop.PropertyInfo.SetMethod.IsVirtual)
+                                if (prop.PropertyInfo.SetMethod?.IsVirtual == false)
                                 {
                                     throw new InvalidOperationException(
                                         ProxiesStrings.NonVirtualProperty(prop.Name, entityType.DisplayName()));
@@ -157,19 +172,11 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                     ProxiesStrings.FieldProperty(navigation.Name, entityType.DisplayName()));
                             }
 
-                            if (_options.UseChangeDetectionProxies)
+                            if (_options.UseChangeDetectionProxies
+                                && navigation.PropertyInfo.SetMethod?.IsVirtual == false)
                             {
-                                if (navigation.PropertyInfo.SetMethod == null)
-                                {
-                                    throw new InvalidOperationException(
-                                        ProxiesStrings.NoSetterProperty(navigation.Name, entityType.DisplayName()));
-                                }
-
-                                if (!navigation.PropertyInfo.SetMethod.IsVirtual)
-                                {
-                                    throw new InvalidOperationException(
+                                throw new InvalidOperationException(
                                         ProxiesStrings.NonVirtualProperty(navigation.Name, entityType.DisplayName()));
-                                }
                             }
 
                             if (_options.UseLazyLoadingProxies)

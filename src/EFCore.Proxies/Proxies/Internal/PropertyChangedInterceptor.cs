@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using Castle.DynamicProxy;
 using JetBrains.Annotations;
@@ -108,12 +107,10 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
                     invocation.Proceed();
 
-                    if (oldValue != newValue)
+                    if (!oldValue.Equals(newValue))
                     {
                         NotifyPropertyChanged(propertyName, invocation.Proxy);
                     }
-
-                    CheckForObservableCollection();
                 }
                 else
                 {
@@ -124,21 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             {
                 invocation.Proceed();
                 NotifyPropertyChanged(propertyName, invocation.Proxy);
-                CheckForObservableCollection();
-            }
-
-            void CheckForObservableCollection()
-            {
-                if (newValue is INotifyCollectionChanged observableCollection)
-                {
-                    observableCollection.CollectionChanged += (_, e) =>
-                    {
-                        if (e.Action != NotifyCollectionChangedAction.Move)
-                        {
-                            NotifyPropertyChanged(propertyName, invocation.Proxy);
-                        }
-                    };
-                }
             }
         }
 

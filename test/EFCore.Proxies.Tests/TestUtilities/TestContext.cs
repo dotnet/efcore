@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,13 +11,21 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     internal abstract class TestContext<TEntity> : DbContext
             where TEntity : class
     {
-        private readonly IServiceProvider _internalServiceProvider;
         private static readonly InMemoryDatabaseRoot _dbRoot = new InMemoryDatabaseRoot();
+
+        private readonly IServiceProvider _internalServiceProvider;
+        private readonly string _dbName;
         private readonly bool _useLazyLoadingProxies;
         private readonly bool _useChangeDetectionProxies;
-        private readonly string _dbName;
+        private readonly bool _checkEquality;
+        private readonly ChangeTrackingStrategy? _changeTrackingStrategy;
 
-        protected TestContext(string dbName = null, bool useLazyLoading = false, bool useChangeDetection = false)
+        protected TestContext(
+            string dbName = null,
+            bool useLazyLoading = false,
+            bool useChangeDetection = false,
+            bool checkEquality = true,
+            ChangeTrackingStrategy? changeTrackingStrategy = null)
         {
             _internalServiceProvider
                 = new ServiceCollection()
@@ -27,12 +36,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             _dbName = dbName;
             _useLazyLoadingProxies = useLazyLoading;
             _useChangeDetectionProxies = useChangeDetection;
-        }
-
-        protected TestContext(IServiceProvider internalServiceProvider, string dbName = null, bool useLazyLoading = false, bool useChangeDetection = false)
-            : this(dbName, useLazyLoading, useChangeDetection)
-        {
-            _internalServiceProvider = internalServiceProvider;
+            _checkEquality = checkEquality;
+            _changeTrackingStrategy = changeTrackingStrategy;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -44,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (_useChangeDetectionProxies)
             {
-                optionsBuilder.UseChangeDetectionProxies();
+                optionsBuilder.UseChangeDetectionProxies(checkEquality: _checkEquality);
             }
 
             if (_internalServiceProvider != null)
@@ -57,6 +62,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            if (_changeTrackingStrategy.HasValue)
+            {
+                modelBuilder.HasChangeTrackingStrategy(_changeTrackingStrategy.Value);
+            }
+
             modelBuilder.Entity<TEntity>();
         }
     }
