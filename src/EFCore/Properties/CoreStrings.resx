@@ -1248,4 +1248,7 @@
   <data name="NonIndexerEntityType" xml:space="preserve">
     <value>Cannot add property '{property}' on entity type '{entity}' since there is no indexer on '{entity}' taking a single argument of type '{type}'.</value>
   </data>
+  <data name="BackingFieldOnIndexer" xml:space="preserve">
+    <value>Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Indexer properties are not allowed to use a backing field.</value>
+  </data>
 </root>

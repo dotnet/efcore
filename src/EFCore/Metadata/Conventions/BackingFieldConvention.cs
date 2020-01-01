@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private FieldInfo GetFieldToSet(IConventionPropertyBase propertyBase)
         {
             if (propertyBase == null
-                || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
+                || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource())
+                || propertyBase.IsIndexerProperty())
             {
                 return null;
             }
