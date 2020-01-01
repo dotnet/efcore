@@ -325,6 +325,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             FireStateChanged(oldState);
 
+            if (newState == EntityState.Unchanged)
+            {
+                SharedIdentityEntry?.SetEntityState(EntityState.Detached);
+            }
+
             if ((newState == EntityState.Deleted
                     || newState == EntityState.Detached)
                 && StateManager.CascadeDeleteTiming == CascadeTiming.Immediate)
