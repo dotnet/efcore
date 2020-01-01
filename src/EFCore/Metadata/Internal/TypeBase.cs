@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -185,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (!_indexerPropertyInitialized)
             {
-                var indexerPropertyInfo = GetRuntimeProperties().Values.FirstOrDefault(pi => pi.IsIndexerProperty());
+                var indexerPropertyInfo = ClrType.FindIndexerProperty();
 
                 Interlocked.CompareExchange(ref _indexerPropertyInfo, indexerPropertyInfo, null);
                 _indexerPropertyInitialized = true;

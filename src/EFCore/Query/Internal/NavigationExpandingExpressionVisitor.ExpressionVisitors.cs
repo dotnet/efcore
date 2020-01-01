@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _navigationExpandingExpressionVisitor = navigationExpandingExpressionVisitor;
                 _source = source;
+                Model = navigationExpandingExpressionVisitor._queryCompilationContext.Model;
             }
 
             public Expression Expand(Expression expression, bool applyIncludes = false)
@@ -39,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return expression;
             }
+
+            protected IModel Model { get; }
 
             protected override Expression VisitExtension(Expression expression)
             {
@@ -73,6 +76,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     source = Visit(source);
                     return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
                         ?? methodCallExpression.Update(null, new[] { source, methodCallExpression.Arguments[1] });
+                }
+
+                if (methodCallExpression.TryGetIndexerArguments(Model, out source, out navigationName))
+                {
+                    source = Visit(source);
+                    return TryExpandNavigation(source, MemberIdentity.Create(navigationName))
+                        ?? methodCallExpression.Update(source, new[] { methodCallExpression.Arguments[0] });
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
@@ -380,6 +390,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // If it is EF.Property then, it would get converted to a column or throw
                     // so we don't need to expand includes.
                     return methodCallExpression;
+                }
+
+                if (methodCallExpression.TryGetIndexerArguments(Model, out var source, out var propertyName))
+                {
+                    if (UnwrapEntityReference(source) is EntityReference entityReferece)
+                    {
+                        // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
+                        var property = entityReferece.EntityType.FindProperty(propertyName);
+                        if (property != null)
+                        {
+                            return methodCallExpression;
+                        }
+                    }
                 }
 
                 return base.VisitMethodCall(methodCallExpression);

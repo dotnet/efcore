@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Expression.Property(entryParameter, "Entity"),
                     entityClrType);
 
-                currentValueExpression = Expression.MakeMemberAccess(
+                currentValueExpression = CreateMemberAccess(
                     convertedExpression,
                     propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
 
@@ -108,6 +109,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     currentValueExpression,
                     entryParameter)
                 .Compile();
+
+            Expression CreateMemberAccess(Expression parameter, MemberInfo memberInfo)
+            {
+                return propertyBase?.IsIndexerProperty() == true
+                    ? Expression.MakeIndex(
+                        parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(propertyBase.Name) })
+                    : (Expression)Expression.MakeMemberAccess(parameter, memberInfo);
+            }
         }
 
         private static Func<InternalEntityEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)

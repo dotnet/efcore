@@ -213,5 +213,20 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryable<>));
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static PropertyInfo FindIndexerProperty([NotNull] this Type type)
+        {
+            var defaultPropertyAttribute = type.GetCustomAttributes<DefaultMemberAttribute>().FirstOrDefault();
+
+            return defaultPropertyAttribute == null
+                ? null
+                : type.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == defaultPropertyAttribute.MemberName && pi.IsIndexerProperty());
+        }
     }
 }

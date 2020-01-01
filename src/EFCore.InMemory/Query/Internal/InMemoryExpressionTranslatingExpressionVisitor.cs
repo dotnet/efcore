@@ -23,12 +23,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
         private readonly EntityProjectionFindingExpressionVisitor _entityProjectionFindingExpressionVisitor;
+        private readonly IModel _model;
 
         public InMemoryExpressionTranslatingExpressionVisitor(
-            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
+            [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+            [NotNull] IModel model)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _entityProjectionFindingExpressionVisitor = new EntityProjectionFindingExpressionVisitor();
+            _model = model;
         }
 
         private sealed class EntityProjectionFindingExpressionVisitor : ExpressionVisitor
@@ -63,7 +66,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private sealed class PropertyFindingExpressionVisitor : ExpressionVisitor
         {
+            private readonly IModel _model;
             private IProperty _property;
+
+            public PropertyFindingExpressionVisitor(IModel model)
+            {
+                _model = model;
+            }
 
             public IProperty Find(Expression expression)
             {
@@ -85,9 +94,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.TryGetEFPropertyArguments(out var _, out var propertyName))
+                if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
+                    || methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
                 {
-                    var entityType = FindEntityType(methodCallExpression.Object);
+                    var entityType = FindEntityType(source);
                     if (entityType != null)
                     {
                         _property = GetProperty(entityType, MemberIdentity.Create(propertyName));
@@ -151,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 newRight = ConvertToNullable(newRight);
             }
 
-            var propertyFindingExpressionVisitor = new PropertyFindingExpressionVisitor();
+            var propertyFindingExpressionVisitor = new PropertyFindingExpressionVisitor(_model);
             var property = propertyFindingExpressionVisitor.Find(binaryExpression.Left)
                 ?? propertyFindingExpressionVisitor.Find(binaryExpression.Right);
 
@@ -375,6 +385,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 throw new InvalidOperationException("EF.Property called with wrong property name.");
+            }
+
+            // EF Indexer property
+            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName))
+            {
+                return TryBindMember(source, MemberIdentity.Create(propertyName), methodCallExpression.Type, out var result) ? result : null;
             }
 
             // GroupBy Aggregate case

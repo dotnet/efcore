@@ -133,17 +133,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                             property.GetIndex(),
                             property);
 
-                blockExpressions.Add(
-                    Expression.MakeMemberAccess(
-                        instanceVariable,
-                        memberInfo).Assign(
-                        readValueExpression));
+                blockExpressions.Add(CreateMemberAssignment(instanceVariable, memberInfo, property, readValueExpression));
             }
 
             blockExpressions.Add(instanceVariable);
 
-            return Expression.Block(
-                new[] { instanceVariable }, blockExpressions);
+            return Expression.Block(new[] { instanceVariable }, blockExpressions);
+
+            static Expression CreateMemberAssignment(Expression parameter, MemberInfo memberInfo, IPropertyBase property, Expression value)
+            {
+                return property.IsIndexerProperty()
+                    ? Expression.Assign(
+                        Expression.MakeIndex(
+                            parameter, (PropertyInfo)memberInfo, new List<Expression>() { Expression.Constant(property.Name) }),
+                        value)
+                    : Expression.MakeMemberAccess(parameter, memberInfo).Assign(value);
+            }
         }
 
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> Materializers
