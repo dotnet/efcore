@@ -4039,6 +4039,24 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Collection_projection_skip_take(async);
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Anonymous_projection_skip_empty_collection_FirstOrDefault(bool async)
+        {
+            return base.Anonymous_projection_skip_empty_collection_FirstOrDefault(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Anonymous_projection_take_empty_collection_FirstOrDefault(bool async)
+        {
+            return base.Anonymous_projection_take_empty_collection_FirstOrDefault(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Anonymous_projection_skip_take_empty_collection_FirstOrDefault(bool async)
+        {
+            return base.Anonymous_projection_skip_take_empty_collection_FirstOrDefault(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
