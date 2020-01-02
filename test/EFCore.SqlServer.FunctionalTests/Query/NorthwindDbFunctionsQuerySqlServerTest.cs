@@ -770,7 +770,7 @@ WHERE [o].[OrderDate] > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE '2018-12-29T00:00:00.000' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
+WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
             }
         }
 
@@ -786,13 +786,13 @@ WHERE '2018-12-29T00:00:00.000' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 3
                 Assert.Equal(0, count);
 
                 AssertSql(
-                    @$"@__dateTime_0='1919-12-12T00:00:00' (DbType = DateTime)
-@__dateTime_Month_2='12'
-@__dateTime_Day_3='12'
+                    @$"@__date_0='1919-12-12' (DbType = Date)
+@__date_Month_2='12'
+@__date_Day_3='12'
 
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE @__dateTime_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__dateTime_Month_2, @__dateTime_Day_3)");
+WHERE @__date_0 > DATEFROMPARTS(DATEPART(year, GETDATE()), @__date_Month_2, @__date_Day_3)");
             }
         }
 
