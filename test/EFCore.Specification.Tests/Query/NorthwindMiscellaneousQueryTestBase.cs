@@ -5651,5 +5651,45 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 elementAsserter: (e, a) => { AssertEqual(e.Order, a.Order); AssertCollection(e.OrderDetails, a.OrderDetails); });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Anonymous_projection_skip_empty_collection_FirstOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID == "FISSA")
+                    .Select(c => new { Customer = c })
+                    .Skip(0)
+                    .Select(e => e.Customer.Orders.FirstOrDefault()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Anonymous_projection_take_empty_collection_FirstOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID == "FISSA")
+                    .Select(c => new { Customer = c })
+                    .Take(1)
+                    .Select(e => e.Customer.Orders.FirstOrDefault()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Anonymous_projection_skip_take_empty_collection_FirstOrDefault(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID == "FISSA")
+                    .Select(c => new { Customer = c })
+                    .Skip(0)
+                    .Take(1)
+                    .Select(e => e.Customer.Orders.FirstOrDefault()));
+        }
     }
 }
