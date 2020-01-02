@@ -777,11 +777,11 @@ WHERE '2018-12-29' > DATEFROMPARTS(DATEPART(year, GETDATE()), 12, 31)");
         [ConditionalFact]
         public virtual void DateFromParts_compare_with_local_variable()
         {
-            var dateTime = new DateTime(1919, 12, 12);
+            var date = new DateTime(1919, 12, 12);
             using (var context = CreateContext())
             {
                 var count = context.Orders
-                    .Count(c => dateTime > EF.Functions.DateFromParts(DateTime.Now.Year, dateTime.Month, dateTime.Day));
+                    .Count(c => date.Date > EF.Functions.DateFromParts(DateTime.Now.Year, date.Month, date.Day));
 
                 Assert.Equal(0, count);
 
