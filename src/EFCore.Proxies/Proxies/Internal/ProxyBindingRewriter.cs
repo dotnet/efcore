@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -65,12 +66,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             if (_options?.UseProxies == true)
             {
-                if (_options.UseChangeDetectionProxies)
-                {
-                    modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications);
-                    modelBuilder.HasAnnotation(ModelValidator.SkipChangeTrackingStrategyValidationAnnotation, "true");
-                }
-
                 foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
                 {
                     if (entityType.ClrType?.IsAbstract == false)
@@ -144,10 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                                         new ObjectArrayParameterBinding(binding.ParameterBindings)
                                     },
                                     proxyType));
-                        }
 
-                        if (_options.UseChangeDetectionProxies)
-                        {
                             foreach (var prop in entityType.GetProperties().Where(p => !p.IsShadowProperty()))
                             {
                                 if (prop.PropertyInfo == null)
