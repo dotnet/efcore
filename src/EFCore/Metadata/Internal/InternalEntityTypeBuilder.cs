@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -438,6 +439,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual InternalPropertyBuilder Property([NotNull] MemberInfo memberInfo, ConfigurationSource? configurationSource)
             => Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual InternalPropertyBuilder IndexedProperty(
+            [CanBeNull] Type propertyType,
+            [NotNull] string propertyName,
+            ConfigurationSource? configurationSource)
+        {
+            var indexerPropertyInfo = Metadata.FindIndexerPropertyInfo();
+            if (indexerPropertyInfo == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
+            }
+
+            return Property(propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource);
+        }
+
         private InternalPropertyBuilder Property(
             [CanBeNull] Type propertyType,
             [NotNull] string propertyName,
@@ -596,9 +618,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
 
-                    property = clrProperty != null
-                        ? Metadata.AddProperty(clrProperty, configurationSource.Value)
-                        : Metadata.AddProperty(propertyName, propertyType, typeConfigurationSource, configurationSource.Value);
+                    property = Metadata.AddProperty(
+                        propertyName, propertyType, clrProperty, typeConfigurationSource, configurationSource.Value);
                 }
             }
             else
@@ -618,9 +639,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         var detachedProperties = DetachProperties(
                             new[] { existingProperty });
 
-                        property = clrProperty != null
-                            ? Metadata.AddProperty(clrProperty, configurationSource.Value)
-                            : Metadata.AddProperty(propertyName, propertyType, typeConfigurationSource, configurationSource.Value);
+                        property = Metadata.AddProperty(
+                            propertyName, propertyType, clrProperty, typeConfigurationSource, configurationSource.Value);
 
                         detachedProperties.Attach(this);
                     }
@@ -3471,7 +3491,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionEntityTypeBuilder.Metadata
         {
-            [DebuggerStepThrough] get => Metadata;
+            [DebuggerStepThrough]
+            get => Metadata;
         }
 
         /// <summary>

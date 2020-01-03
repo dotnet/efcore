@@ -1081,9 +1081,6 @@
   <data name="FkAttributeOnNonUniquePrincipal" xml:space="preserve">
     <value>The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.</value>
   </data>
-  <data name="NoIndexer" xml:space="preserve">
-    <value>An indexed property was added to entity type '{entity}'. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.</value>
-  </data>
   <data name="ConstructorBindingFailed" xml:space="preserve">
     <value>cannot bind '{failedBinds}' in '{parameters}'</value>
   </data>

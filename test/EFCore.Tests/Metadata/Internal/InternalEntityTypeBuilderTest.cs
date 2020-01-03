@@ -1421,6 +1421,93 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Can_add_indexed_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(IndexedClass), ConfigurationSource.Explicit);
+
+            var propertyBuilder = entityBuilder.IndexedProperty(
+                typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(propertyBuilder);
+        }
+
+        [ConditionalFact]
+        public void Property_returns_same_instance_for_existing_index_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(IndexedClass), ConfigurationSource.Explicit);
+
+            var propertyBuilder = entityBuilder.IndexedProperty(
+                typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(propertyBuilder);
+            Assert.Same(
+                propertyBuilder,
+                entityBuilder.Property(typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.Convention));
+
+            Assert.Same(
+                propertyBuilder,
+                entityBuilder.Property(IndexedClass.IndexedPropertyName, ConfigurationSource.Convention));
+
+            Assert.Null(entityBuilder.Property(typeof(int), IndexedClass.IndexedPropertyName, ConfigurationSource.Convention));
+        }
+
+        [ConditionalFact]
+        public void Property_removes_existing_index_property_for_higher_source_if_type_mismatch()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(IndexedClass), ConfigurationSource.Explicit);
+
+            var propertyBuilder = entityBuilder.IndexedProperty(
+                typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.Convention);
+
+            Assert.NotNull(propertyBuilder);
+
+            var replacedPropertyBuilder = entityBuilder.Property(
+                typeof(int), IndexedClass.IndexedPropertyName, ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(replacedPropertyBuilder);
+            Assert.NotSame(propertyBuilder, replacedPropertyBuilder);
+            Assert.False(replacedPropertyBuilder.Metadata.IsIndexerProperty());
+            Assert.True(replacedPropertyBuilder.Metadata.IsShadowProperty());
+        }
+
+        [ConditionalFact]
+        public void Indexer_property_removes_existing_shadow_property_for_higher_source()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(IndexedClass), ConfigurationSource.Explicit);
+
+            var shadowPropertyBuilder = entityBuilder.Property(
+                typeof(int), IndexedClass.IndexedPropertyName, ConfigurationSource.Convention);
+
+            Assert.NotNull(shadowPropertyBuilder);
+            Assert.True(shadowPropertyBuilder.Metadata.IsShadowProperty());
+
+            var replacedPropertyBuilder = entityBuilder.IndexedProperty(
+                typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.DataAnnotation);
+
+            Assert.NotNull(replacedPropertyBuilder);
+            Assert.NotSame(shadowPropertyBuilder, replacedPropertyBuilder);
+            Assert.True(replacedPropertyBuilder.Metadata.IsIndexerProperty());
+            Assert.False(replacedPropertyBuilder.Metadata.IsShadowProperty());
+        }
+
+        [ConditionalFact]
+        public void Indexed_property_throws_when_entityType_is_not_indexer()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.NonIndexerEntityType(IndexedClass.IndexedPropertyName, nameof(Order), typeof(string).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityBuilder.IndexedProperty(
+                        typeof(string), IndexedClass.IndexedPropertyName, ConfigurationSource.Convention)).Message);
+        }
+
+        [ConditionalFact]
         public void Property_throws_for_navigation()
         {
             var modelBuilder = CreateModelBuilder();
@@ -3058,6 +3145,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class Splod : Splow
         {
+        }
+
+        private class IndexedClass
+        {
+            public static readonly string IndexedPropertyName = "Indexer";
+
+            public object this[string name] => null;
         }
     }
 }

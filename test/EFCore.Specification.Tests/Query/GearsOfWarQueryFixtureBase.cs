@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 b =>
                 {
                     b.HasKey(c => c.Name);
-                    b.Metadata.AddIndexedProperty("Nation", typeof(string));
+                    b.IndexedProperty<string>("Nation");
                 });
 
             modelBuilder.Entity<Gear>(

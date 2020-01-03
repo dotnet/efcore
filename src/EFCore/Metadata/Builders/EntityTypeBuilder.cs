@@ -181,6 +181,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
 
         /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a property of the entity type.
+        ///         If no property with the given name exists, then a new property will be added.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <returns> An object that can be used to configure the property. </returns>
+        public virtual PropertyBuilder<TProperty> IndexedProperty<TProperty>([NotNull] string propertyName)
+            => new PropertyBuilder<TProperty>(
+                Builder.IndexedProperty(
+                    typeof(TProperty),
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a property of the entity type.
+        ///         If no property with the given name exists, then a new property will be added.
+        ///     </para>
+        ///     <para>
+        ///         Indexed properties are stored in the entity using an indexer supplying the provided property name.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyType"> The type of the property to be configured. </param>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <returns> An object that can be used to configure the property. </returns>
+        public virtual PropertyBuilder IndexedProperty([NotNull] Type propertyType, [NotNull] string propertyName)
+            => new PropertyBuilder(
+                Builder.IndexedProperty(
+                    Check.NotNull(propertyType, nameof(propertyType)),
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit).Metadata);
+
+        /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
         ///     and navigations from the entity type that were added by convention.
         /// </summary>

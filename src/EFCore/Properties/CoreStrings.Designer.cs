@@ -1929,14 +1929,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, principalType, dependentType);
 
         /// <summary>
-        ///     An indexed property was added to entity type '{entity}'. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.
-        /// </summary>
-        public static string NoIndexer([CanBeNull] object entity)
-            => string.Format(
-                GetString("NoIndexer", nameof(entity)),
-                entity);
-
-        /// <summary>
         ///     cannot bind '{failedBinds}' in '{parameters}'
         /// </summary>
         public static string ConstructorBindingFailed([CanBeNull] object failedBinds, [CanBeNull] object parameters)
