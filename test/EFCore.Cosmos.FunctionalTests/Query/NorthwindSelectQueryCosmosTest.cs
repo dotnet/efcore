@@ -1088,6 +1088,17 @@ ORDER BY c[""EmployeeID""]");
             return base.Projection_AsEnumerable_projection(async);
         }
 
+        public override async Task Projection_custom_type_in_both_sides_of_ternary(bool async)
+        {
+            await base.Projection_custom_type_in_both_sides_of_ternary(async);
+
+            AssertSql(
+                @"SELECT (c[""City""] = ""Seattle"") AS c
+FROM root c
+WHERE (c[""Discriminator""] = ""Customer"")
+ORDER BY c[""CustomerID""]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

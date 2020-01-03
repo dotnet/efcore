@@ -1697,5 +1697,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true,
                 entryCount: 18);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_custom_type_in_both_sides_of_ternary(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.City == "Seattle"
+                        ? new IdName<string> { Id = "PAY", Name = "Pay" }
+                        : new IdName<string> { Id = "REC", Name = "Receive" }),
+                assertOrder: true,
+                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); Assert.Equal(e.Name, a.Name); });
+        }
+
+        private class IdName<T>
+        {
+            public T Id { get; set; }
+            public string Name { get; set; }
+        }
     }
 }
