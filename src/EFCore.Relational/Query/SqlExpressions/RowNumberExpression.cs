@@ -14,15 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public class RowNumberExpression : SqlExpression
     {
         public RowNumberExpression(
-            [NotNull] IReadOnlyList<SqlExpression> partitions,
+            [CanBeNull] IReadOnlyList<SqlExpression> partitions,
             [NotNull] IReadOnlyList<OrderingExpression> orderings,
             [CanBeNull] RelationalTypeMapping typeMapping)
             : base(typeof(long), typeMapping)
         {
-            Check.NotNull(partitions, nameof(partitions));
             Check.NotEmpty(orderings, nameof(orderings));
 
-            Partitions = partitions;
+            Partitions = partitions ?? Array.Empty<SqlExpression>();
             Orderings = orderings;
         }
 
