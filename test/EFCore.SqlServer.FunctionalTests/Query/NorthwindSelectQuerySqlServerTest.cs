@@ -1381,6 +1381,19 @@ WHERE ([c].[CustomerID] LIKE N'A%') AND ((
 ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
+        public override async Task Projection_custom_type_in_both_sides_of_ternary(bool async)
+        {
+            await base.Projection_custom_type_in_both_sides_of_ternary(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN ([c].[City] = N'Seattle') AND [c].[City] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Customers] AS [c]
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
