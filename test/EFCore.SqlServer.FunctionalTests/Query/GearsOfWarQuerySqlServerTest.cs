@@ -7550,6 +7550,18 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (CASE
 END = CAST(1 AS bit))");
         }
 
+        public override async Task DateTimeOffset_Date_returns_datetime(bool async)
+        {
+            await base.DateTimeOffset_Date_returns_datetime(async);
+
+            AssertSql(
+                @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00'
+
+SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
