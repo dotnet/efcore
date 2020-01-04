@@ -45,6 +45,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
             {
+                // DateAdd does not accept number argument outside of int range
+                // AddYears/AddMonths take int argument so no need to check for range
                 return !datePart.Equals("year")
                     && !datePart.Equals("month")
                     && arguments[0] is SqlConstantExpression sqlConstant

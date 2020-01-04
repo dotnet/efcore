@@ -60,7 +60,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             "CONVERT",
                             new[] { _sqlExpressionFactory.Fragment("date"), instance },
                             returnType,
-                            instance.TypeMapping);
+                            declaringType == typeof(DateTime)
+                                ? instance.TypeMapping
+                                : _sqlExpressionFactory.FindMapping(typeof(DateTime)));
 
                     case nameof(DateTime.TimeOfDay):
                         return _sqlExpressionFactory.Convert(instance, returnType);

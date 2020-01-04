@@ -7400,6 +7400,18 @@ LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 ORDER BY [w0].[IsAutomatic]");
         }
 
+        public override async Task DateTimeOffset_Date_returns_datetime(bool async)
+        {
+            await base.DateTimeOffset_Date_returns_datetime(async);
+
+            AssertSql(
+                @"@__dateTimeOffset_Date_0='0002-03-01T00:00:00'
+
+SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

@@ -52,6 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task DateTimeOffset_Contains_Less_than_Greater_than(bool async)
             => AssertTranslationFailed(() => base.DateTimeOffset_Contains_Less_than_Greater_than(async));
 
+        public override Task DateTimeOffset_Date_returns_datetime(bool async)
+            => AssertTranslationFailed(() => base.DateTimeOffset_Date_returns_datetime(async));
+
         // Sqlite does not support cross/outer apply
         public override Task Correlated_collections_inner_subquery_predicate_references_outer_qsre(bool async) => null;
 
