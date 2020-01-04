@@ -7407,6 +7407,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(2, query(context, byteQueryParam));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DateTimeOffset_Date_returns_datetime(bool async)
+        {
+            var dateTimeOffset = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0));
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Timeline.Date >= dateTimeOffset.Date));
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
