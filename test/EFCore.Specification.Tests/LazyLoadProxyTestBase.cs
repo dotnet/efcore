@@ -25,6 +25,39 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
+        [ConditionalTheory] // Issue #13138
+        [InlineData(EntityState.Unchanged)]
+        [InlineData(EntityState.Modified)]
+        [InlineData(EntityState.Deleted)]
+        public virtual void Lazy_load_one_to_one_reference_with_recursive_property(EntityState state)
+        {
+            using (var context = CreateContext(lazyLoadingEnabled: true))
+            {
+                var child = context.Set<WithRecursiveProperty>().Single();
+
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                context.Entry(child).State = state;
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                Assert.NotNull(child.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                Assert.Equal(parent.Id, child.IdLoadedFromParent);
+
+                Assert.Same(parent, child.Parent);
+                Assert.Same(child, parent.WithRecursiveProperty);
+            }
+        }
+
         [ConditionalTheory]
         [InlineData(EntityState.Unchanged, false)]
         [InlineData(EntityState.Modified, false)]
@@ -2134,8 +2167,33 @@ namespace Microsoft.EntityFrameworkCore
             public virtual SingleShadowFk SingleShadowFk { get; set; }
             public virtual IEnumerable<ChildCompositeKey> ChildrenCompositeKey { get; set; }
             public virtual SingleCompositeKey SingleCompositeKey { get; set; }
+            public virtual WithRecursiveProperty WithRecursiveProperty { get; set; }
         }
 
+        public class WithRecursiveProperty
+        {
+            private int _backing;
+
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
+            public int Id { get; set; }
+
+            public int? ParentId { get; set; }
+            public virtual Parent Parent { get; set; }
+
+            public int IdLoadedFromParent
+            {
+                get
+                {
+                    if (Parent != null)
+                    {
+                        _backing = Parent.Id;
+                    }
+
+                    return _backing;
+                }
+                set => _backing = value;
+            }
+        }
         public class Child
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -2474,7 +2532,8 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             new ChildCompositeKey { Id = 51 }, new ChildCompositeKey { Id = 52 }
                         },
-                        SingleCompositeKey = new SingleCompositeKey { Id = 62 }
+                        SingleCompositeKey = new SingleCompositeKey { Id = 62 },
+                        WithRecursiveProperty = new WithRecursiveProperty { Id = 8086 }
                     });
 
                 context.Add(

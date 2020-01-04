@@ -871,6 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             innerSelectExpression.ApplyProjection();
             var projectionCount = innerSelectExpression.Projection.Count;
+            var pendingCollectionOffset = _pendingCollections.Count;
             AddOuterApply(innerSelectExpression, null);
 
             // Joined SelectExpression may different based on left join or outer apply
@@ -885,7 +886,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 AddToProjection(MakeNullable(addedSelectExperssion.GenerateOuterColumn(projection.Expression)));
             }
 
-            return new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset)
+            // We move pendingCollectionOffset if one was lifted from inner.
+            return new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset, pendingCollectionOffset)
                 .Visit(shaperExpression);
 
             static Expression RemoveConvert(Expression expression)
@@ -980,7 +982,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
             }
 
-            var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset);
+            // Inner should not have pendingCollection since we apply them first.
+            // Shaper should not have CollectionShaperExpression as any collection would get converted to RelationalCollectionShaperExpression.
+            var shaperRemapper = new ShaperRemappingExpressionVisitor(this, innerSelectExpression, indexOffset, pendingCollectionOffset: 0);
             innerShaper = shaperRemapper.Visit(innerShaper);
             selfIdentifier = shaperRemapper.Visit(selfIdentifier);
 
@@ -1014,43 +1018,54 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             private readonly SelectExpression _queryExpression;
             private readonly SelectExpression _innerSelectExpression;
-            private readonly int _offset;
+            private readonly int _projectionOffset;
+            private readonly int _pendingCollectionOffset;
 
-            public ShaperRemappingExpressionVisitor(SelectExpression queryExpression, SelectExpression innerSelectExpression, int offset)
+            public ShaperRemappingExpressionVisitor(
+                SelectExpression queryExpression, SelectExpression innerSelectExpression, int projectionOffset, int pendingCollectionOffset)
             {
                 _queryExpression = queryExpression;
                 _innerSelectExpression = innerSelectExpression;
-                _offset = offset;
+                _projectionOffset = projectionOffset;
+                _pendingCollectionOffset = pendingCollectionOffset;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
             {
                 Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-                if (extensionExpression is ProjectionBindingExpression projectionBindingExpression)
+                switch (extensionExpression)
                 {
-                    var oldIndex = (int)GetProjectionIndex(projectionBindingExpression);
+                    case ProjectionBindingExpression projectionBindingExpression:
+                        var oldIndex = (int)GetProjectionIndex(projectionBindingExpression);
 
-                    return new ProjectionBindingExpression(_queryExpression, oldIndex + _offset, projectionBindingExpression.Type);
+                        return new ProjectionBindingExpression(
+                            _queryExpression, oldIndex + _projectionOffset, projectionBindingExpression.Type);
+
+                    case EntityShaperExpression entityShaperExpression:
+                        var oldIndexMap = (IDictionary<IProperty, int>)GetProjectionIndex(
+                            (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression);
+                        var indexMap = new Dictionary<IProperty, int>();
+                        foreach (var keyValuePair in oldIndexMap)
+                        {
+                            indexMap[keyValuePair.Key] = keyValuePair.Value + _projectionOffset;
+                        }
+
+                        return new EntityShaperExpression(
+                            entityShaperExpression.EntityType,
+                            new ProjectionBindingExpression(_queryExpression, indexMap),
+                            nullable: true);
+
+                    case CollectionShaperExpression collectionShaperExpression:
+                        var collectionIndex = (int)GetProjectionIndex((ProjectionBindingExpression)collectionShaperExpression.Projection);
+
+                        return collectionShaperExpression.Update(
+                            new ProjectionBindingExpression(_queryExpression, collectionIndex + _pendingCollectionOffset, typeof(object)),
+                            collectionShaperExpression.InnerShaper);
+
+                    default:
+                        return base.VisitExtension(extensionExpression);
                 }
-
-                if (extensionExpression is EntityShaperExpression entityShaper)
-                {
-                    var oldIndexMap = (IDictionary<IProperty, int>)GetProjectionIndex(
-                        (ProjectionBindingExpression)entityShaper.ValueBufferExpression);
-                    var indexMap = new Dictionary<IProperty, int>();
-                    foreach (var keyValuePair in oldIndexMap)
-                    {
-                        indexMap[keyValuePair.Key] = keyValuePair.Value + _offset;
-                    }
-
-                    return new EntityShaperExpression(
-                        entityShaper.EntityType,
-                        new ProjectionBindingExpression(_queryExpression, indexMap),
-                        nullable: true);
-                }
-
-                return base.VisitExtension(extensionExpression);
             }
 
             private object GetProjectionIndex(ProjectionBindingExpression projectionBindingExpression)
@@ -1299,9 +1314,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             var partitions = new List<SqlExpression>();
                             GetPartitions(joinPredicate, partitions);
-                            var orderings = innerSelectExpression.Orderings.Any()
+                            var orderings = innerSelectExpression.Orderings.Count > 0
                                 ? innerSelectExpression.Orderings
-                                : innerSelectExpression._identifier.Select(e => new OrderingExpression(e, true));
+                                : innerSelectExpression._identifier.Count > 0
+                                    ? innerSelectExpression._identifier.Select(e => new OrderingExpression(e, true))
+                                    : new[] { new OrderingExpression(new SqlFragmentExpression("(SELECT 1)"), true) };
+
                             var rowNumberExpression = new RowNumberExpression(partitions, orderings.ToList(), limit.TypeMapping);
                             innerSelectExpression.ClearOrdering();
 
@@ -1360,6 +1378,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             var innerTable = innerSelectExpression.Tables.Single();
+            // Copy over pending collection if in join else that info would be lost.
+            _pendingCollections.AddRange(innerSelectExpression._pendingCollections);
+
             var joinTable = joinType switch
             {
                 JoinType.InnerJoin => new InnerJoinExpression(innerTable, joinPredicate),

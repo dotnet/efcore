@@ -2,16 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     Formatting options for use with <see cref="SimpleLogger" />
-    ///     and <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" />.
+    ///     Formatting options for use with <see cref="FormattingDbContextLogger" />
+    ///     and <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />.
     /// </summary>
     [Flags]
-    public enum SimpleLoggerFormatOptions
+    public enum DbContextLoggerOptions
     {
         /// <summary>
         ///     The raw log message with no additional metadata or formatting.
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         The default used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" />.
+        ///         The default used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />.
         ///     </para>
         ///     <para>
         ///         Includes <see cref="Level" />, <see cref="Category" />, <see cref="Id" />, <see cref="LocalTime" />.
@@ -61,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         The same defaults as used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" />,
+        ///         The same defaults as used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />,
         ///         but with UTC timestamps.
         ///     </para>
         ///     <para>

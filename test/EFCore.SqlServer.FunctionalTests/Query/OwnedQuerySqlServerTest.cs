@@ -1653,6 +1653,8 @@ ORDER BY [o].[Id], [o20].[ClientId], [o20].[Id]");
         public class OwnedQuerySqlServerFixture : RelationalOwnedQueryFixture
         {
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            protected override bool CanExecuteQueryString => true;
         }
     }
 }

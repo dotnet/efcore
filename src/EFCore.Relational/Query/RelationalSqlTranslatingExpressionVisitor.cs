@@ -20,8 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly IModel _model;
         private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
+
+        protected virtual ISqlExpressionFactory SqlExpressionFactory { get; }
 
         public RelationalSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
@@ -33,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryableMethodTranslatingExpressionVisitor, nameof(queryableMethodTranslatingExpressionVisitor));
 
             Dependencies = dependencies;
+            SqlExpressionFactory = dependencies.SqlExpressionFactory;
 
             _model = model;
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
-            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         }
 
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     translation = sqlUnaryExpression.Operand;
                 }
 
-                translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
+                translation = SqlExpressionFactory.ApplyDefaultTypeMapping(translation);
 
                 if ((translation is SqlConstantExpression
                         || translation is SqlParameterExpression)
@@ -93,17 +94,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (inputType == typeof(int)
                 || inputType == typeof(long))
             {
-                sqlExpression = _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                    _sqlExpressionFactory.Convert(sqlExpression, typeof(double)));
+                sqlExpression = SqlExpressionFactory.ApplyDefaultTypeMapping(
+                    SqlExpressionFactory.Convert(sqlExpression, typeof(double)));
             }
 
             return inputType == typeof(float)
-                ? _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function(
+                ? SqlExpressionFactory.Convert(
+                    SqlExpressionFactory.Function(
                         "AVG", new[] { sqlExpression }, typeof(double)),
                     sqlExpression.Type,
                     sqlExpression.TypeMapping)
-                : (SqlExpression)_sqlExpressionFactory.Function(
+                : (SqlExpression)SqlExpressionFactory.Function(
                     "AVG", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping);
         }
 
@@ -115,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(int)));
+            return SqlExpressionFactory.ApplyDefaultTypeMapping(
+                SqlExpressionFactory.Function("COUNT", new[] { SqlExpressionFactory.Fragment("*") }, typeof(int)));
         }
 
         public virtual SqlExpression TranslateLongCount([CanBeNull] Expression expression = null)
@@ -127,8 +128,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 return null;
             }
 
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+            return SqlExpressionFactory.ApplyDefaultTypeMapping(
+                SqlExpressionFactory.Function("COUNT", new[] { SqlExpressionFactory.Fragment("*") }, typeof(long)));
         }
 
         public virtual SqlExpression TranslateMax([NotNull] Expression expression)
@@ -141,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return sqlExpression != null
-                ? _sqlExpressionFactory.Function("MAX", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping)
+                ? SqlExpressionFactory.Function("MAX", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping)
                 : null;
         }
 
@@ -155,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             return sqlExpression != null
-                ? _sqlExpressionFactory.Function("MIN", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping)
+                ? SqlExpressionFactory.Function("MIN", new[] { sqlExpression }, sqlExpression.Type, sqlExpression.TypeMapping)
                 : null;
         }
 
@@ -176,11 +177,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             var inputType = sqlExpression.Type.UnwrapNullableType();
 
             return inputType == typeof(float)
-                ? _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function("SUM", new[] { sqlExpression }, typeof(double)),
+                ? SqlExpressionFactory.Convert(
+                    SqlExpressionFactory.Function("SUM", new[] { sqlExpression }, typeof(double)),
                     inputType,
                     sqlExpression.TypeMapping)
-                : (SqlExpression)_sqlExpressionFactory.Function(
+                : (SqlExpression)SqlExpressionFactory.Function(
                     "SUM", new[] { sqlExpression }, inputType, sqlExpression.TypeMapping);
         }
 
@@ -257,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var entityType = entityProjectionExpression.EntityType;
                 if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
                 {
-                    return _sqlExpressionFactory.Constant(true);
+                    return SqlExpressionFactory.Constant(true);
                 }
 
                 var derivedType = entityType.GetDerivedTypes().SingleOrDefault(et => et.ClrType == typeBinaryExpression.TypeOperand);
@@ -267,16 +268,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var discriminatorColumn = entityProjectionExpression.BindProperty(entityType.GetDiscriminatorProperty());
 
                     return concreteEntityTypes.Count == 1
-                        ? _sqlExpressionFactory.Equal(
+                        ? SqlExpressionFactory.Equal(
                             discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                        : (Expression)_sqlExpressionFactory.In(
+                            SqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                        : (Expression)SqlExpressionFactory.In(
                             discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
+                            SqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
                             negated: false);
                 }
 
-                return _sqlExpressionFactory.Constant(false);
+                return SqlExpressionFactory.Constant(false);
             }
 
             return null;
@@ -511,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return TranslationFailed(binaryExpression.Left, Visit(left), out var sqlLeft)
                 || TranslationFailed(binaryExpression.Right, Visit(right), out var sqlRight)
                 ? null
-                : _sqlExpressionFactory.MakeBinary(
+                : SqlExpressionFactory.MakeBinary(
                     binaryExpression.NodeType,
                     sqlLeft,
                     sqlRight,
@@ -643,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || TranslationFailed(conditionalExpression.IfTrue, ifTrue, out var sqlIfTrue)
                 || TranslationFailed(conditionalExpression.IfFalse, ifFalse, out var sqlIfFalse)
                 ? null
-                : _sqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest, sqlIfTrue) }, sqlIfFalse);
+                : SqlExpressionFactory.Case(new[] { new CaseWhenClause(sqlTest, sqlIfTrue) }, sqlIfFalse);
         }
 
         protected override Expression VisitUnary(UnaryExpression unaryExpression)
@@ -660,12 +661,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             switch (unaryExpression.NodeType)
             {
                 case ExpressionType.Not:
-                    return _sqlExpressionFactory.Not(sqlOperand);
+                    return SqlExpressionFactory.Not(sqlOperand);
 
                 case ExpressionType.Negate:
-                    return _sqlExpressionFactory.Negate(sqlOperand);
+                    return SqlExpressionFactory.Negate(sqlOperand);
 
                 case ExpressionType.Convert:
+                case ExpressionType.TypeAs:
                     // Object convert needs to be converted to explicit cast when mismatching types
                     if (operand.Type.IsInterface
                         && unaryExpression.Type.GetInterfaces().Any(e => e == operand.Type)
@@ -677,11 +679,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     // Introduce explicit cast only if the target type is mapped else we need to client eval
                     if (unaryExpression.Type == typeof(object)
-                        || _sqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
+                        || SqlExpressionFactory.FindMapping(unaryExpression.Type) != null)
                     {
-                        sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
+                        sqlOperand = SqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 
-                        return _sqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
+                        return SqlExpressionFactory.Convert(sqlOperand, unaryExpression.Type);
                     }
 
                     break;

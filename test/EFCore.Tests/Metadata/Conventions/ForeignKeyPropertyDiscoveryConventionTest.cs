@@ -1155,7 +1155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 options,
                 new DiagnosticListener("Fake"),
                 new TestLoggingDefinitions(),
-                new NullSimpleLogger());
+                new NullDbContextLogger());
             return modelLogger;
         }
 

@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             base.OnModelCreating(modelBuilder, context);
 
             modelBuilder.Entity<City>().Property(g => g.Location).HasColumnType("varchar(100)");
+
         }
+
+        protected override bool CanExecuteQueryString => true;
     }
 }

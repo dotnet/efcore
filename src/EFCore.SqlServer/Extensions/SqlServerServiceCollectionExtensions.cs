@@ -68,6 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IRelationalDatabaseCreator, SqlServerDatabaseCreator>()
                 .TryAdd<IHistoryRepository, SqlServerHistoryRepository>()
                 .TryAdd<IExecutionStrategyFactory, SqlServerExecutionStrategyFactory>()
+                .TryAdd<IRelationalQueryStringFactory, SqlServerQueryStringFactory>()
 
                 // New Query Pipeline
                 .TryAdd<IMethodCallTranslatorProvider, SqlServerMethodCallTranslatorProvider>()

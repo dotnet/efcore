@@ -35,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     Dispatches the given <see cref="EventData" /> to a <see cref="DiagnosticSource" />, if enabled, and
-        ///     a <see cref="ISimpleLogger" />, if enabled.
+        ///     a <see cref="IDbContextLogger" />, if enabled.
         /// </summary>
         /// <param name="diagnostics"> The <see cref="IDiagnosticsLogger" /> being used. </param>
         /// <param name="definition"> The definition of the event to log. </param>
         /// <param name="eventData"> The event data. </param>
         /// <param name="diagnosticSourceEnabled"> True to dispatch to a <see cref="DiagnosticSource" />; false otherwise. </param>
-        /// <param name="simpleLogEnabled"> True to dispatch to a <see cref="ISimpleLogger" />; false otherwise. </param>
+        /// <param name="simpleLogEnabled"> True to dispatch to a <see cref="IDbContextLogger" />; false otherwise. </param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         public static void DispatchEventData(
             [NotNull] this IDiagnosticsLogger diagnostics,
@@ -59,20 +59,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (simpleLogEnabled)
             {
-                diagnostics.SimpleLogger.Log(eventData);
+                diagnostics.DbContextLogger.Log(eventData);
             }
         }
 
         /// <summary>
         ///     Determines whether or not an <see cref="EventData" /> instance is needed based on whether or
-        ///     not there is a <see cref="DiagnosticSource" /> or an <see cref="ISimpleLogger" /> enabled for
+        ///     not there is a <see cref="DiagnosticSource" /> or an <see cref="IDbContextLogger" /> enabled for
         ///     the given event.
         /// </summary>
         /// <param name="diagnostics"> The <see cref="IDiagnosticsLogger" /> being used. </param>
         /// <param name="definition"> The definition of the event. </param>
         /// <param name="diagnosticSourceEnabled"> Set to true if a <see cref="DiagnosticSource" /> is enabled; false otherwise. </param>
-        /// <param name="simpleLogEnabled"> True to true if a <see cref="ISimpleLogger" /> is enabled; false otherwise. </param>
-        /// <returns> True if either a diagnostic source or a simple logger is enabled; false otherwise. </returns>
+        /// <param name="simpleLogEnabled"> True to true if a <see cref="IDbContextLogger" /> is enabled; false otherwise. </param>
+        /// <returns> True if either a diagnostic source or a LogTo logger is enabled; false otherwise. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         public static bool NeedsEventData(
             [NotNull] this IDiagnosticsLogger diagnostics,
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             diagnosticSourceEnabled = diagnostics.DiagnosticSource.IsEnabled(definition.EventId.Name);
 
             simpleLogEnabled = definition.WarningBehavior == WarningBehavior.Log
-                && diagnostics.SimpleLogger.ShouldLog(definition.EventId, definition.Level);
+                && diagnostics.DbContextLogger.ShouldLog(definition.EventId, definition.Level);
 
             return diagnosticSourceEnabled
                 || simpleLogEnabled;
@@ -93,15 +93,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     Determines whether or not an <see cref="EventData" /> instance is needed based on whether or
-        ///     not there is a <see cref="DiagnosticSource" />, an <see cref="ISimpleLogger" />, or an <see cref="IInterceptor" /> enabled for
+        ///     not there is a <see cref="DiagnosticSource" />, an <see cref="IDbContextLogger" />, or an <see cref="IInterceptor" /> enabled for
         ///     the given event.
         /// </summary>
         /// <param name="diagnostics"> The <see cref="IDiagnosticsLogger" /> being used. </param>
         /// <param name="definition"> The definition of the event. </param>
         /// <param name="interceptor"> The <see cref="IInterceptor" /> to use if enabled; otherwise null. </param>
         /// <param name="diagnosticSourceEnabled"> Set to true if a <see cref="DiagnosticSource" /> is enabled; false otherwise. </param>
-        /// <param name="simpleLogEnabled"> True to true if a <see cref="ISimpleLogger" /> is enabled; false otherwise. </param>
-        /// <returns> True if either a diagnostic source, a simple logger, or an interceptor is enabled; false otherwise. </returns>
+        /// <param name="simpleLogEnabled"> True to true if a <see cref="IDbContextLogger" /> is enabled; false otherwise. </param>
+        /// <returns> True if either a diagnostic source, a LogTo logger, or an interceptor is enabled; false otherwise. </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // Because hot path for logging
         public static bool NeedsEventData<TInterceptor>(
             [NotNull] this IDiagnosticsLogger diagnostics,
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             interceptor = diagnostics.Interceptors?.Aggregate<TInterceptor>();
 
             simpleLogEnabled = definition.WarningBehavior == WarningBehavior.Log
-                && diagnostics.SimpleLogger.ShouldLog(definition.EventId, definition.Level);
+                && diagnostics.DbContextLogger.ShouldLog(definition.EventId, definition.Level);
 
             return diagnosticSourceEnabled
                 || simpleLogEnabled

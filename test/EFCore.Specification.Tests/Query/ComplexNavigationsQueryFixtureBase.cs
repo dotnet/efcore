@@ -163,12 +163,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            QueryAsserter = new QueryAsserter<ComplexNavigationsContext>(
+            QueryAsserter = CreateQueryAsserter(entitySorters, entityAsserters);
+        }
+
+        protected virtual QueryAsserter<ComplexNavigationsContext> CreateQueryAsserter(
+            Dictionary<Type, object> entitySorters,
+            Dictionary<Type, object> entityAsserters)
+            => new QueryAsserter<ComplexNavigationsContext>(
                 CreateContext,
                 new ComplexNavigationsDefaultData(),
                 entitySorters,
                 entityAsserters);
-        }
 
         public QueryAsserterBase QueryAsserter { get; set; }
 
@@ -293,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return context;
         }
 
-        private class ComplexNavigationsDefaultData : ComplexNavigationsData
+        protected class ComplexNavigationsDefaultData : ComplexNavigationsData
         {
             public override IQueryable<TEntity> Set<TEntity>()
             {

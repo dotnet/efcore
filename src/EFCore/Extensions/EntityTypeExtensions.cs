@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property to find the foreign keys on. </param>
         /// <returns> The foreign keys. </returns>
         public static IEnumerable<IForeignKey> FindForeignKeys([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => entityType.FindForeignKeys(new[] { property });
+            => property.GetContainingForeignKeys();
 
         /// <summary>
         ///     Gets the foreign keys defined on the given properties. Only foreign keys that are defined on exactly the specified
@@ -413,13 +413,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
 
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                if (PropertyListComparer.Instance.Equals(foreignKey.Properties, properties))
-                {
-                    yield return foreignKey;
-                }
-            }
+            return entityType.GetForeignKeys()
+                .Where(foreignKey => PropertyListComparer.Instance.Equals(foreignKey.Properties, properties));
         }
 
         /// <summary>

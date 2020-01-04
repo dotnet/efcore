@@ -3,7 +3,7 @@
 
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.SqlClient; // Note: Hard reference to SqlClient here.
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
+        protected override DbConnection CreateDbConnection() => new SqlConnection(GetCheckedConnectionString());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public virtual ISqlServerConnection CreateMasterConnection()
         {
-            var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString) { InitialCatalog = "master" };
+            var connectionStringBuilder = new SqlConnectionStringBuilder(GetCheckedConnectionString()) { InitialCatalog = "master" };
             connectionStringBuilder.Remove("AttachDBFilename");
 
             var contextOptions = new DbContextOptionsBuilder()

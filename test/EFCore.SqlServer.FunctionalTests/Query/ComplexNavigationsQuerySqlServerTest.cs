@@ -3097,7 +3097,7 @@ ORDER BY [l].[Id], [t].[Id], [t].[Id0]");
             await base.Select_optional_navigation_property_string_concat(async);
 
             AssertSql(
-                @"SELECT ([l].[Name] + N' ') + CASE
+                @"SELECT (COALESCE([l].[Name], N'') + N' ') + CASE
     WHEN [t].[Id] IS NOT NULL THEN [t].[Name]
     ELSE N'NULL'
 END
@@ -4326,6 +4326,83 @@ LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToMany_Required_Inverse3Id]
 WHERE [l].[Name] IN (N'L1 01', N'L1 02')
 ORDER BY [l].[Id], [l1].[Id]");
+        }
+
+        public override async Task Sum_with_selector_cast_using_as(bool async)
+        {
+            await base.Sum_with_selector_cast_using_as(async);
+
+            AssertSql(
+                @"SELECT SUM([l].[Id])
+FROM [LevelOne] AS [l]");
+        }
+
+        public override async Task Sum_with_filter_with_include_selector_cast_using_as(bool async)
+        {
+            await base.Sum_with_filter_with_include_selector_cast_using_as(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+WHERE [l].[Id] > (
+    SELECT SUM([l1].[Id])
+    FROM [LevelTwo] AS [l1]
+    WHERE [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id])
+ORDER BY [l].[Id], [l0].[Id]");
+        }
+
+        public override async Task Select_with_joined_where_clause_cast_using_as(bool async)
+        {
+            await base.Select_with_joined_where_clause_cast_using_as(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+WHERE [l].[Id] = [l0].[Id]");
+        }
+
+        public override async Task Select_subquery_single_nested_subquery(bool async)
+        {
+            await base.Select_subquery_single_nested_subquery(async);
+
+            AssertSql(
+                @"SELECT [t0].[c], [l].[Id], [l1].[Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN (
+    SELECT [t].[c], [t].[Id], [t].[OneToMany_Optional_Inverse2Id]
+    FROM (
+        SELECT 1 AS [c], [l0].[Id], [l0].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
+        FROM [LevelTwo] AS [l0]
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
+LEFT JOIN [LevelThree] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+ORDER BY [l].[Id], [l1].[Id]");
+        }
+
+        public override async Task Select_subquery_single_nested_subquery2(bool async)
+        {
+            await base.Select_subquery_single_nested_subquery2(async);
+
+            AssertSql(
+                @"SELECT [l].[Id], [t1].[c], [t1].[Id], [t1].[Id0]
+FROM [LevelOne] AS [l]
+LEFT JOIN (
+    SELECT [t0].[c], [l0].[Id], [l2].[Id] AS [Id0], [l0].[OneToMany_Optional_Inverse2Id]
+    FROM [LevelTwo] AS [l0]
+    LEFT JOIN (
+        SELECT [t].[c], [t].[Id], [t].[OneToMany_Optional_Inverse3Id]
+        FROM (
+            SELECT 1 AS [c], [l1].[Id], [l1].[OneToMany_Optional_Inverse3Id], ROW_NUMBER() OVER(PARTITION BY [l1].[OneToMany_Optional_Inverse3Id] ORDER BY [l1].[Id]) AS [row]
+            FROM [LevelThree] AS [l1]
+        ) AS [t]
+        WHERE [t].[row] <= 1
+    ) AS [t0] ON [l0].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
+    LEFT JOIN [LevelFour] AS [l2] ON [t0].[Id] = [l2].[OneToMany_Optional_Inverse4Id]
+) AS [t1] ON [l].[Id] = [t1].[OneToMany_Optional_Inverse2Id]
+ORDER BY [l].[Id], [t1].[Id], [t1].[Id0]");
         }
 
         private void AssertSql(params string[] expected) => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

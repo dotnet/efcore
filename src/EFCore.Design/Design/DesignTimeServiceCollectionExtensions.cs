@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                 .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                 .AddSingleton<IValueConverterSelector, ValueConverterSelector>()
-                .AddSingleton<ISimpleLogger, NullSimpleLogger>()
+                .AddSingleton<IDbContextLogger, NullDbContextLogger>()
                 .AddTransient<MigrationsScaffolderDependencies>()
                 .AddTransient<IMigrationsScaffolder, MigrationsScaffolder>()
                 .AddTransient<ISnapshotModelProcessor, SnapshotModelProcessor>()

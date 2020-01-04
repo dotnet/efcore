@@ -391,9 +391,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task Where_simple_closure(bool async)
+        public override async Task<string> Where_simple_closure(bool async)
         {
-            await base.Where_simple_closure(async);
+            var queryString = await base.Where_simple_closure(async);
 
             AssertSql(
                 @"@__city_0='London'
@@ -401,6 +401,14 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
 SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))");
+
+            Assert.Equal(
+                @"-- @__city_0='London'
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+
+            return null;
         }
 
         public override async Task Where_indexer_closure(bool async)

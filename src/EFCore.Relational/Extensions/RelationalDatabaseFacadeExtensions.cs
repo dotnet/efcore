@@ -386,6 +386,43 @@ namespace Microsoft.EntityFrameworkCore
             => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection;
 
         /// <summary>
+        ///     <para>
+        ///         Sets the underlying ADO.NET <see cref="DbConnection" /> for this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         The connection can only be set when the existing connection, if any, is not open.
+        ///     </para>
+        ///     <para>
+        ///         Note that the given connection must be disposed by application code since it was not created by Entity Framework.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="connection"> The connection. </param>
+        public static void SetDbConnection([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] DbConnection connection)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection = connection;
+
+        /// <summary>
+        ///     Gets the underlying connection string configured for this <see cref="DbContext" />.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <returns> The connection string. </returns>
+        public static string GetConnectionString([NotNull] this DatabaseFacade databaseFacade)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString;
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the underlying connection string configured for this <see cref="DbContext" />.
+        ///     </para>
+        ///     <para>
+        ///         It may not be possible to change the connection string if existing connection, if any, is open.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
+        /// <param name="connectionString"> The connection string. </param>
+        public static void SetConnectionString([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] string connectionString)
+            => GetFacadeDependencies(databaseFacade).RelationalConnection.ConnectionString = connectionString;
+
+        /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>

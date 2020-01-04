@@ -1,7 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit.Abstractions;
 
@@ -454,6 +457,18 @@ END <> [f].[NullableBool]) OR [f].[NullableBool] IS NULL");
             public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            protected override bool CanExecuteQueryString => true;
+
+            protected override QueryAsserter<FunkyDataContext> CreateQueryAsserter(
+                Dictionary<Type, object> entitySorters,
+                Dictionary<Type, object> entityAsserters)
+                => new RelationalQueryAsserter<FunkyDataContext>(
+                    CreateContext,
+                    new FunkyDataData(),
+                    entitySorters,
+                    entityAsserters,
+                    CanExecuteQueryString);
         }
     }
 }

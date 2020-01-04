@@ -403,14 +403,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private IEntityFinder Finder
             => InternalEntry.StateManager.CreateEntityFinder(InternalEntry.EntityType);
 
-        #region Hidden System.Object members
-
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string ToString() => InternalEntry.ToString();
+
+        #region Hidden System.Object members
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.

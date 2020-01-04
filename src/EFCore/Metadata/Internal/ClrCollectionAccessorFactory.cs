@@ -49,25 +49,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
+            => !navigation.IsCollection() || navigation.IsShadowProperty() ? null : Create(navigation, navigation.GetTargetType());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IClrCollectionAccessor Create([NotNull] ISkipNavigation navigation)
+            => !navigation.IsCollection || navigation.IsShadowProperty() ? null : Create(navigation, navigation.TargetEntityType);
+
+        private IClrCollectionAccessor Create(IPropertyBase navigation, IEntityType targetType)
         {
-            MemberInfo GetMostDerivedMemberInfo()
-            {
-                var propertyInfo = navigation.PropertyInfo;
-                var fieldInfo = navigation.FieldInfo;
-
-                return fieldInfo == null
-                    ? propertyInfo
-                    : propertyInfo == null
-                        ? fieldInfo
-                        : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
-                            ? (MemberInfo)propertyInfo
-                            : fieldInfo;
-            }
-
             // ReSharper disable once SuspiciousTypeConversion.Global
             if (navigation is IClrCollectionAccessor accessor)
             {
                 return accessor;
+            }
+
+            if (targetType == null)
+            {
+                return null;
             }
 
             var memberInfo = GetMostDerivedMemberInfo();
@@ -79,9 +82,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.NavigationBadType(
                         navigation.Name,
-                        navigation.DeclaringEntityType.DisplayName(),
+                        navigation.DeclaringType.DisplayName(),
                         propertyType.ShortDisplayName(),
-                        navigation.GetTargetType().DisplayName()));
+                        targetType.DisplayName()));
             }
 
             if (propertyType.IsArray)
@@ -89,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 throw new InvalidOperationException(
                     CoreStrings.NavigationArray(
                         navigation.Name,
-                        navigation.DeclaringEntityType.DisplayName(),
+                        navigation.DeclaringType.DisplayName(),
                         propertyType.ShortDisplayName()));
             }
 
@@ -104,6 +107,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             catch (TargetInvocationException invocationException)
             {
                 throw invocationException.InnerException;
+            }
+
+            MemberInfo GetMostDerivedMemberInfo()
+            {
+                var propertyInfo = navigation.PropertyInfo;
+                var fieldInfo = navigation.FieldInfo;
+
+                return fieldInfo == null
+                    ? propertyInfo
+                    : propertyInfo == null
+                        ? fieldInfo
+                        : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
+                            ? (MemberInfo)propertyInfo
+                            : fieldInfo;
             }
         }
 

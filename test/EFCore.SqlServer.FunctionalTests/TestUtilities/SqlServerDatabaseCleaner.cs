@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     new LoggingOptions(),
                     new DiagnosticListener("Fake"),
                     new SqlServerLoggingDefinitions(),
-                    new NullSimpleLogger()));
+                    new NullDbContextLogger()));
 
         protected override bool AcceptTable(DatabaseTable table) => !(table is DatabaseView);
 

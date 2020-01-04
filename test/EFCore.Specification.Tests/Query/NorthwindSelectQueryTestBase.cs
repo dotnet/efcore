@@ -865,6 +865,43 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_changes_asc_order_to_desc(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
+                    .Reverse()
+                    .Select(e => $"{e.EmployeeID}"),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_changes_desc_order_to_asc(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Employee>().OrderByDescending(e => e.EmployeeID)
+                    .Select(e => $"{e.EmployeeID}")
+                    .Reverse(),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Reverse_without_explicit_ordering_throws(bool async)
+        {
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Employee>()
+                        .Reverse()
+                        .Select(e => $"{e.EmployeeID}")
+                ));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Projection_containing_DateTime_subtraction(bool async)
         {
             return AssertQueryScalar(
@@ -1169,7 +1206,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Order>().Select(o => o.OrderDate.GetValueOrDefault()));
         }
 
-        [ConditionalTheory(Skip = "issue #13004")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_GetValueOrDefault_on_DateTime_with_null_values(bool async)
         {
@@ -1614,6 +1651,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Assert.Equal(e.CustomerID, a.CustomerID);
                     AssertCollection(e.Orders, a.Orders, elementSorter: i => i, elementAsserter: (ie, ia) => Assert.Equal(ie, ia));
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Coalesce_over_nullable_uint(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.EmployeeID ?? 0));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_uint_through_collection_FirstOrDefault(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault()).Select(e => e.EmployeeID),
+                ss => ss.Set<Customer>().Select(c => c.Orders.OrderBy(o => o.OrderID).FirstOrDefault())
+                    .Select(e => MaybeScalar(e, () => e.EmployeeID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Project_keyless_entity_FirstOrDefault_without_orderby(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Select(c => ss.Set<CustomerView>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
         }
     }
 }

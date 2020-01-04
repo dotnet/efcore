@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (mutableMethod.ReturnType != expectedReturnTypes.Mutable)
                     {
-                        return
-                            $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have {expectedReturnTypes.Mutable} return type";
+                        return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}"
+                            + $" expected to have {expectedReturnTypes.Mutable} return type";
                     }
                 }
                 else
@@ -157,8 +157,8 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         if (mutableMethod.ReturnType.TryGetSequenceType() != expectedReturnTypes.Mutable)
                         {
-                            return
-                                $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name} expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
+                            return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}"
+                                + $" expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";
                         }
                     }
                 }

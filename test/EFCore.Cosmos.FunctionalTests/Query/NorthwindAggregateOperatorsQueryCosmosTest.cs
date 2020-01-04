@@ -1273,7 +1273,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue#17246 (Contains not implemented)")]
+        [ConditionalFact(Skip = "Issue#17246 (Contains over subquery is not supported)")]
         public override void Contains_over_entityType_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_should_rewrite_to_identity_equality();
@@ -1284,7 +1284,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
+        [ConditionalTheory(Skip = "Issue#17246 (Contains over subquery is not supported)")]
         public override async Task List_Contains_over_entityType_should_rewrite_to_identity_equality(bool async)
         {
             await base.List_Contains_over_entityType_should_rewrite_to_identity_equality(async);
@@ -1295,7 +1295,6 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task List_Contains_with_constant_list(bool async)
         {
             await base.List_Contains_with_constant_list(async);
@@ -1303,10 +1302,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI"", ""ANATR""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task List_Contains_with_parameter_list(bool async)
         {
             await base.List_Contains_with_parameter_list(async);
@@ -1314,10 +1312,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI"", ""ANATR""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task Contains_with_parameter_list_value_type_id(bool async)
         {
             await base.Contains_with_parameter_list_value_type_id(async);
@@ -1325,10 +1322,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task Contains_with_constant_list_value_type_id(bool async)
         {
             await base.Contains_with_constant_list_value_type_id(async);
@@ -1336,10 +1332,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task HashSet_Contains_with_parameter(bool async)
         {
             await base.HashSet_Contains_with_parameter(async);
@@ -1347,10 +1342,9 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI""))");
         }
 
-        [ConditionalTheory(Skip = "Issue#17246 (Contains not implemented)")]
         public override async Task ImmutableHashSet_Contains_with_parameter(bool async)
         {
             await base.ImmutableHashSet_Contains_with_parameter(async);
@@ -1358,10 +1352,10 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI""))");
         }
 
-        [ConditionalFact(Skip = "Issue#17246 (Contains not implemented)")]
+        [ConditionalFact(Skip = "Issue#17246 (Contains over subquery is not supported)")]
         public override void Contains_over_entityType_with_null_should_rewrite_to_identity_equality()
         {
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
@@ -1370,17 +1364,6 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
                 @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] = 10248))");
-        }
-
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Contains_over_entityType_should_materialize_when_composite()
-        {
-            base.Contains_over_entityType_should_materialize_when_composite();
-
-            AssertSql(
-                @"SELECT c
-FROM root c
-WHERE ((c[""Discriminator""] = ""OrderDetail"") AND ((c[""OrderID""] = 10248) AND (c[""ProductID""] = 42)))");
         }
 
         public override async Task String_FirstOrDefault_in_projection_does_client_eval(bool async)

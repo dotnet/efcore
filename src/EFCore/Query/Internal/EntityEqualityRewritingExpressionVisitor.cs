@@ -301,7 +301,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     when genericMethod == QueryableMethods.OrderByDescending:
                 case nameof(Queryable.ThenBy)
                     when genericMethod == QueryableMethods.ThenBy:
-                case nameof(Queryable.ThenByDescending) when genericMethod == QueryableMethods.ThenByDescending:
+                case nameof(Queryable.ThenByDescending)
+                    when genericMethod == QueryableMethods.ThenByDescending:
                     return VisitOrderingMethodCall(methodCallExpression);
 
                 // The following are projecting methods, which flow the entity type from *within* the lambda outside.

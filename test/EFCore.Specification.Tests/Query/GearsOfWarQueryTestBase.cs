@@ -1140,6 +1140,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_null_propagation_negative9(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().Select(g => g.LeaderNickname != null
+                        ? (bool?)(g.Nickname.Length == 5) ?? default(bool)
+                        : (bool?)null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_null_propagation_works_for_navigations_with_composite_keys(bool async)
         {
             return AssertQuery(
@@ -5886,6 +5897,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task String_concat_nullable_expressions_are_coalesced(bool async)
+        {
+            object nullableParam = null;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(w => w.FullName + null + w.LeaderNickname + nullableParam),
+                ss => ss.Set<Gear>().Select(w => w.FullName + string.Empty + w.LeaderNickname ?? string.Empty + nullableParam ?? string.Empty));
+        }
+
         [ConditionalTheory(Skip = "issue #14205")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task String_concat_on_various_types(bool async)
@@ -7335,6 +7358,37 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_length_literal_does_not_cast_on_varbinary_n(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(w => w.Banner5.Length == 5),
+                ss => ss.Set<Squad>().Where(w => w.Banner5 != null && w.Banner5.Length == 5));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_length_literal(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(w => w.Banner.Length == 1),
+                ss => ss.Set<Squad>().Where(w => w.Banner != null && w.Banner.Length == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_length_parameter(bool async)
+        {
+            var someByteArr = new[] { (byte)42 };
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(w => w.Banner.Length == someByteArr.Length),
+                ss => ss.Set<Squad>().Where(w => w.Banner != null && w.Banner.Length == someByteArr.Length));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_bool_coming_from_optional_navigation(bool async)
         {
             return AssertQuery(
@@ -7342,6 +7396,19 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => g.IsAutomatic),
                 ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => MaybeScalar<bool>(g, () => g.IsAutomatic)),
                 assertOrder: true);
+        }
+        
+        [ConditionalFact]
+        public virtual void Byte_array_filter_by_length_parameter_compiled()
+        {
+            var query = EF.CompileQuery(
+                (GearsOfWarContext context, byte[] byteArrayParam)
+                    => context.Squads.Where(w => w.Banner.Length == byteArrayParam.Length).Count());
+
+            using var context = CreateContext();
+            var byteQueryParam = new[] { (byte)42, (byte)128 };
+
+            Assert.Equal(2, query(context, byteQueryParam));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

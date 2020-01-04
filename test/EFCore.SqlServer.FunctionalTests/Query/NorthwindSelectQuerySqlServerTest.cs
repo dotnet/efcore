@@ -956,7 +956,7 @@ FROM [Orders] AS [o]");
             await base.Select_GetValueOrDefault_on_DateTime_with_null_values(async);
 
             AssertSql(
-                @"SELECT COALESCE([o].[OrderDate], '1753-01-01T00:00:00.000')
+                @"SELECT [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
         }
@@ -1169,7 +1169,7 @@ CROSS APPLY (
             AssertSql(
                 @"SELECT CASE
     WHEN N'' = N'' THEN 0
-    ELSE CHARINDEX(N'', [c].[ContactName]) - 1
+    ELSE CAST(CHARINDEX(N'', [c].[ContactName]) AS int) - 1
 END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
@@ -1301,6 +1301,65 @@ WHERE [c].[CustomerID] = N'ALFKI'");
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID], [o].[OrderID]");
+        }
+
+        public override async Task Coalesce_over_nullable_uint(bool async)
+        {
+            await base.Coalesce_over_nullable_uint(async);
+
+            AssertSql(
+                @"SELECT COALESCE([o].[EmployeeID], 0)
+FROM [Orders] AS [o]");
+        }
+
+        public override async Task Project_uint_through_collection_FirstOrDefault(bool async)
+        {
+            await base.Project_uint_through_collection_FirstOrDefault(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT TOP(1) [o].[EmployeeID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY [o].[OrderID])
+FROM [Customers] AS [c]");
+        }
+
+        public override async Task Project_keyless_entity_FirstOrDefault_without_orderby(bool async)
+        {
+            await base.Project_keyless_entity_FirstOrDefault_without_orderby(async);
+
+            AssertSql(
+                @"SELECT [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle]
+    FROM (
+        SELECT [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], ROW_NUMBER() OVER(PARTITION BY [c0].[CompanyName] ORDER BY (SELECT 1)) AS [row]
+        FROM (
+            SELECT [c].[CustomerID] + N'' as [CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+        ) AS [c0]
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [c].[CompanyName] = [t0].[CompanyName]");
+        }
+
+        public override async Task Reverse_changes_asc_order_to_desc(bool async)
+        {
+            await base.Reverse_changes_asc_order_to_desc(async);
+
+            AssertSql(@"SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID] DESC");
+        }
+
+        public override async Task Reverse_changes_desc_order_to_asc(bool async)
+        {
+            await base.Reverse_changes_desc_order_to_asc(async);
+
+            AssertSql(@"SELECT [e].[EmployeeID]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID]");
         }
 
         private void AssertSql(params string[] expected)

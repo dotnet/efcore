@@ -5587,5 +5587,95 @@ namespace Microsoft.EntityFrameworkCore.Query
                           OneToMany_Required2 = l2 == null ? null : l2.OneToMany_Required2
                       });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_selector_cast_using_as(bool async)
+        {
+            return AssertSum(
+                async,
+                ss => ss.Set<Level1>().Select(s => s.Id as int?));
+        }
+
+        [ConditionalTheory(Skip = "Issue#12657")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Sum_with_filter_with_include_selector_cast_using_as(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Where(l1 => l1.Id > l1.OneToMany_Optional1.Select(l2 => l2.Id as int?).Sum()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_with_joined_where_clause_cast_using_as(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Where(w => w.Id == w.OneToOne_Optional_FK1.Id as int?),
+                ss => ss.Set<Level1>()
+                    .Where(w => w.Id == (MaybeScalar<int>(w.OneToOne_Optional_FK1, () => w.OneToOne_Optional_FK1.Id) as int?)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_subquery_single_nested_subquery(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().OrderBy(l1 => l1.Id).Select(l1 => new
+                {
+                    Level2 = l1.OneToMany_Optional1.OrderBy(l2 => l2.Id).Select(l2 => new
+                    {
+                        Level3s = l2.OneToMany_Optional2.OrderBy(l3 => l3.Id).Select(l3 => new { l3.Id }).ToList()
+                    }).FirstOrDefault()
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    if (e.Level2 == null)
+                    {
+                        Assert.Null(a.Level2);
+                    }
+                    else
+                    {
+                        AssertCollection(e.Level2.Level3s, a.Level2.Level3s, ordered: true);
+                    }
+                });
+
+        }
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_subquery_single_nested_subquery2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().OrderBy(l1 => l1.Id).Select(l1 => new
+                {
+                    Level2s = l1.OneToMany_Optional1.OrderBy(l2 => l2.Id).Select(l2 => new
+                    {
+                        Level3 = l2.OneToMany_Optional2.OrderBy(l3 => l3.Id).Select(l3 => new
+                        {
+                            Level4s = l3.OneToMany_Optional3.OrderBy(l4 => l4.Id).Select(l4 => new { l4.Id }).ToList()
+                        }).FirstOrDefault()
+                    })
+                }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    AssertCollection(e.Level2s, a.Level2s, ordered: true, elementAsserter:
+                        (e2, a2) =>
+                        {
+                            if (e2.Level3 == null)
+                            {
+                                Assert.Null(a2.Level3);
+                            }
+                            else
+                            {
+                                AssertCollection(e2.Level3.Level4s, a2.Level3.Level4s, ordered: true);
+                            }
+                        });
+                });
+        }
     }
 }

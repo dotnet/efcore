@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>
+    public class QueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, IRelationalQueryingEnumerable
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly RelationalCommandCache _relationalCommandCache;
@@ -30,6 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _logger;
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] RelationalCommandCache relationalCommandCache,
@@ -48,12 +54,65 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _logger = logger;
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new AsyncEnumerator(this, cancellationToken);
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual IEnumerator<T> GetEnumerator() => new Enumerator(this);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual DbCommand CreateDbCommand()
+            => _relationalCommandCache
+                .GetRelationalCommand(_relationalQueryContext.ParameterValues)
+                .CreateCommand(
+                    new RelationalCommandParameterObject(
+                        _relationalQueryContext.Connection,
+                        _relationalQueryContext.ParameterValues,
+                        null,
+                        null,
+                        null),
+                    Guid.Empty,
+                    (DbCommandMethod)(-1));
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string ToQueryString()
+            => _relationalQueryContext.RelationalQueryStringFactory.Create(CreateDbCommand());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static int[] BuildIndexMap([CanBeNull] IReadOnlyList<string> columnNames, [NotNull] DbDataReader dataReader)
         {
             if (columnNames == null)

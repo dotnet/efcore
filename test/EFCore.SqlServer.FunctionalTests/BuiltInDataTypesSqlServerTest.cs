@@ -51,21 +51,6 @@ FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = '00:01:02'");
         }
 
-        [ConditionalFact(Skip = "Issue#13487")]
-        public void Translate_array_length()
-        {
-            using var db = CreateContext();
-            db.Set<MappedDataTypesWithIdentity>()
-                .Where(p => p.BytesAsImage.Length == 0)
-                .Select(p => p.BytesAsImage.Length)
-                .FirstOrDefault();
-
-            AssertSql(
-                @"SELECT TOP(1) CAST(DATALENGTH([p].[BytesAsImage]) AS int)
-FROM [MappedDataTypesWithIdentity] AS [p]
-WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
-        }
-
         [ConditionalFact]
         public void Sql_translation_uses_type_mapper_when_parameter()
         {
@@ -85,6 +70,37 @@ WHERE CAST(DATALENGTH([p].[BytesAsImage]) AS int) = 0");
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
 WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
+        }
+
+        [ConditionalFact]
+        public void String_indexOf_over_varchar_max()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<MappedNullableDataTypes>().Add(
+                    new MappedNullableDataTypes { Int = 81, StringAsVarcharMax = string.Concat(Enumerable.Repeat("C", 8001)) });
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            Fixture.TestSqlLoggerFactory.Clear();
+
+            using (var context = CreateContext())
+            {
+                var results = context.Set<MappedNullableDataTypes>()
+                    .Where(e => e.Int == 81)
+                    .Select(m => m.StringAsVarcharMax.IndexOf("a"))
+                    .ToList();
+
+                Assert.Equal(-1, Assert.Single(results));
+                AssertSql(
+                    @"SELECT CASE
+    WHEN 'a' = '' THEN 0
+    ELSE CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
+END
+FROM [MappedNullableDataTypes] AS [m]
+WHERE [m].[Int] = 81");
+            }
         }
 
         [ConditionalFact]

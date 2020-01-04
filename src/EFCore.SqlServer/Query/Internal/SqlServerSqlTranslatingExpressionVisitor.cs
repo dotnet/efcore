@@ -33,16 +33,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 ExpressionType.Modulo
             };
 
-        // TODO: Possibly make this protected in base
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
-
         public SqlServerSqlTranslatingExpressionVisitor(
             [NotNull] RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             [NotNull] IModel model,
             [NotNull] QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             : base(dependencies, model, queryableMethodTranslatingExpressionVisitor)
         {
-            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -64,6 +60,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     : visitedExpression;
         }
 
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        {
+            if (unaryExpression.NodeType == ExpressionType.ArrayLength
+                && unaryExpression.Operand.Type == typeof(byte[]))
+            {
+                var sqlExpression = base.Visit(unaryExpression.Operand) as SqlExpression;
+
+                if (sqlExpression == null)
+                {
+                    return null;
+                }
+
+                var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
+                var dataLengthSqlFunction = SqlExpressionFactory.Function(
+                    "DATALENGTH", new[] { sqlExpression }, isBinaryMaxDataType ? typeof(long) : typeof(int));
+
+                return isBinaryMaxDataType
+                    ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+                    : dataLengthSqlFunction;
+            }
+
+            return base.VisitUnary(unaryExpression);
+        }
+
         public override SqlExpression TranslateLongCount(Expression expression = null)
         {
             if (expression != null)
@@ -72,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return null;
             }
 
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-                _sqlExpressionFactory.Function("COUNT_BIG", new[] { _sqlExpressionFactory.Fragment("*") }, typeof(long)));
+            return SqlExpressionFactory.ApplyDefaultTypeMapping(
+                SqlExpressionFactory.Function("COUNT_BIG", new[] { SqlExpressionFactory.Fragment("*") }, typeof(long)));
         }
 
         private static string GetProviderType(SqlExpression expression)

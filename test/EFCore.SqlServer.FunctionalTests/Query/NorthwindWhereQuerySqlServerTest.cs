@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -39,9 +40,9 @@ WHERE EXISTS (
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI'))");
         }
 
-        public override async Task Where_simple_closure(bool async)
+        public override async Task<string> Where_simple_closure(bool async)
         {
-            await base.Where_simple_closure(async);
+            var queryString = await base.Where_simple_closure(async);
 
             AssertSql(
                 @"@__city_0='London' (Size = 4000)
@@ -49,6 +50,15 @@ WHERE EXISTS (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0");
+
+            Assert.Equal(
+                @"DECLARE @__city_0 nvarchar(4000) = N'London';
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[City] = @__city_0", queryString, ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);
+
+            return null;
         }
 
         public override async Task Where_indexer_closure(bool async)
@@ -669,10 +679,10 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
 FROM [Customers] AS [c]
 WHERE (CASE
     WHEN N'Sea' = N'' THEN 0
-    ELSE CHARINDEX(N'Sea', [c].[City]) - 1
+    ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
 END <> -1) OR CASE
     WHEN N'Sea' = N'' THEN 0
-    ELSE CHARINDEX(N'Sea', [c].[City]) - 1
+    ELSE CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1
 END IS NULL");
         }
 
@@ -1333,7 +1343,7 @@ WHERE ((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) 
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
+WHERE (COALESCE(@__i_0, N'') + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_string_concat_method_comparison(bool async)
@@ -1345,7 +1355,7 @@ WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
+WHERE (COALESCE(@__i_0, N'') + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool async)

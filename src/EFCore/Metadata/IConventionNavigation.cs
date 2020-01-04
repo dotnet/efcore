@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public interface IConventionNavigation : INavigation, IConventionPropertyBase
     {
         /// <summary>
-        ///     Gets the type that this property belongs to.
+        ///     Gets the type that this navigation property belongs to.
         /// </summary>
         new IConventionEntityType DeclaringEntityType { get; }
 

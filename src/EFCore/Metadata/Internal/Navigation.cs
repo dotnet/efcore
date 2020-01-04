@@ -65,13 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalNavigationBuilder Builder
-        {
-            [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
-        }
+        public virtual InternalNavigationBuilder Builder { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -204,7 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         public virtual Navigation FindInverse()
-            => (Navigation)((INavigation)this).FindInverse();
+            => this.IsDependentToPrincipal()
+                ? ForeignKey.PrincipalToDependent
+                : ForeignKey.DependentToPrincipal;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -214,7 +210,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         public virtual EntityType GetTargetType()
-            => (EntityType)((INavigation)this).GetTargetType();
+            => this.IsDependentToPrincipal()
+                ? ForeignKey.PrincipalEntityType
+                : ForeignKey.DeclaringEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -224,10 +222,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IClrCollectionAccessor CollectionAccessor
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _collectionAccessor, this, n =>
-                    !n.IsCollection() || n.IsShadowProperty()
-                        ? null
-                        : new ClrCollectionAccessorFactory().Create(n));
+                ref _collectionAccessor, this, n => new ClrCollectionAccessorFactory().Create(n));
+
+        /// <summary>
+        ///     Runs the conventions when an annotation was set or removed.
+        /// </summary>
+        /// <param name="name"> The key of the set annotation. </param>
+        /// <param name="annotation"> The annotation set. </param>
+        /// <param name="oldAnnotation"> The old annotation. </param>
+        /// <returns> The annotation that was set. </returns>
+        protected override IConventionAnnotation OnAnnotationSet(
+            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+            => DeclaringType.Model.ConventionDispatcher.OnNavigationAnnotationChanged(
+                ForeignKey.Builder, this, name, annotation, oldAnnotation);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -298,7 +305,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityType IConventionNavigation.DeclaringEntityType => DeclaringEntityType;
+        IConventionEntityType IConventionNavigation.DeclaringEntityType
+        {
+            [DebuggerStepThrough] get => DeclaringEntityType;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -306,6 +316,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionForeignKey IConventionNavigation.ForeignKey => ForeignKey;
+        IConventionForeignKey IConventionNavigation.ForeignKey
+        {
+            [DebuggerStepThrough] get => ForeignKey;
+        }
     }
 }

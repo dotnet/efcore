@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
                 options,
                 new DiagnosticListener("Fake"),
                 new InMemoryLoggingDefinitions(),
-                new NullSimpleLogger());
+                new NullDbContextLogger());
             return logger;
         }
     }

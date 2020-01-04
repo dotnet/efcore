@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     A simple logging interface for Entity Framework events.
-    ///     Used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,SimpleLoggerFormatOptions?)" />
+    ///     Used by <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />
     /// </summary>
-    public interface ISimpleLogger
+    public interface IDbContextLogger
     {
         /// <summary>
         ///     <para>

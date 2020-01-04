@@ -1257,7 +1257,8 @@ namespace Microsoft.EntityFrameworkCore
             else
             {
                 Assert.Equal(EntityState.Detached, entry.State);
-                Assert.Null(mailRoom.Building);
+                Assert.Same(mailRoom, building.PrincipalMailRoom);
+                Assert.Contains(office, building.Offices);
 
                 Assert.Equal(EntityState.Detached, context.Entry(office.Building).State);
                 Assert.Same(building, office.Building);

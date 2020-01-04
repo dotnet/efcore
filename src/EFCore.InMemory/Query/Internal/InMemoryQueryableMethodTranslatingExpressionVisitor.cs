@@ -673,7 +673,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(source, nameof(source));
 
-            return null;
+            var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
+
+            inMemoryQueryExpression.ServerQueryExpression
+                = Expression.Call(
+                    EnumerableMethods.Reverse
+                    .MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type),
+                    inMemoryQueryExpression.ServerQueryExpression);
+
+            return source;
         }
 
         protected override ShapedQueryExpression TranslateSelect(ShapedQueryExpression source, LambdaExpression selector)

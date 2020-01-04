@@ -27,6 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             return optionsBuilder;
         }
 
+        protected override bool CanExecuteQueryString => true;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);

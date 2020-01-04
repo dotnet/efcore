@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
@@ -32,18 +33,25 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             bool logParameterValues)
             => parameters
                 .Cast<DbParameter>()
-                .Select(
-                    p => FormatParameter(
-                        p.ParameterName,
-                        logParameterValues ? p.Value : "?",
-                        logParameterValues,
-                        p.Direction,
-                        p.DbType,
-                        p.IsNullable,
-                        p.Size,
-                        p.Precision,
-                        p.Scale))
-                .Join();
+                .Select(p => FormatParameter(p, logParameterValues)).Join();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static string FormatParameter([NotNull] this DbParameter parameter, bool logParameterValues)
+            => FormatParameter(
+                parameter.ParameterName,
+                logParameterValues ? parameter.Value : "?",
+                logParameterValues,
+                parameter.Direction,
+                parameter.DbType,
+                parameter.IsNullable,
+                parameter.Size,
+                parameter.Precision,
+                parameter.Scale);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

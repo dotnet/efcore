@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _comparer,
                 this,
-                c => CreateComparer(c.ClrType, favorStructuralComparisons: false));
+                c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: false));
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _keyComparer,
                 this,
-                c => CreateComparer(c.ClrType, favorStructuralComparisons: true));
+                c => ValueComparer.CreateDefault(c.ClrType, favorStructuralComparisons: true));
 
         /// <summary>
         ///     A <see cref="ValueComparer" /> adds custom value comparison for use when
@@ -190,11 +190,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual ValueComparer StructuralComparer
             => _structuralComparer ?? KeyComparer;
-
-        private static ValueComparer CreateComparer(Type clrType, bool favorStructuralComparisons)
-            => (ValueComparer)Activator.CreateInstance(
-                typeof(ValueComparer<>).MakeGenericType(clrType),
-                new object[] { favorStructuralComparisons });
 
         /// <summary>
         ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
