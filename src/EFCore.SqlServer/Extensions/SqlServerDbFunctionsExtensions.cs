@@ -1051,7 +1051,7 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(DateTime2FromParts)));
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.
+        ///     Initializes a new instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.
         ///     Corresponds to the SQL Server's DATETIMEOFFSETFROMPARTS (year, month, day, hour, minute, seconds, fractions, hour_offset, minute_offset, precision).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
@@ -1065,7 +1065,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="hourOffset">The hour portion of the time zone offset.</param>
         ///  <param name="minuteOffset">The minute portion of the time zone offset.</param>
         /// <param name="precision">The precision of the datetime2 value.</param>
-        /// <returns>New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.</returns>
+        /// <returns>New instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.</returns>
         public static DateTimeOffset DateTimeOffsetFromParts(
             [CanBeNull] this DbFunctions _,
             int year,
@@ -1101,7 +1101,7 @@ namespace Microsoft.EntityFrameworkCore
             => throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(SmallDateTimeFromParts)));
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DateTime" /> structure to the specified hour, minute, second, fractions, and precision.
+        ///     Initializes a new instance of the <see cref="TimeSpan" /> structure to the specified hour, minute, second, fractions, and precision.
         ///     Corresponds to the SQL Server's TIMEFROMPARTS (hour, minute, seconds, fractions, precision).
         /// </summary>
         /// <param name="_">The DbFunctions instance.</param>
@@ -1110,7 +1110,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="second">The seconds (0 through 59).</param>
         /// <param name="fractions">The fractional seconds.</param>
         /// <param name="precision">The precision of the time value.</param>
-        /// <returns>New instance of the <see cref="DateTime" /> structure to the specified hour, minute, second, fractions, and precision.</returns>
+        /// <returns>New instance of the <see cref="TimeSpan" /> structure to the specified hour, minute, second, fractions, and precision.</returns>
         public static TimeSpan TimeFromParts(
             [CanBeNull] this DbFunctions _,
             int hour,
