@@ -30,7 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             _options = options;
         }
 
-        public void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <summary>
+        ///     Called after a model is finalized.
+        /// </summary>
+        /// <param name="modelBuilder"> The builder for the model. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessModelInitialized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
         {
             if (_options?.UseChangeDetectionProxies == true)
             {

@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -49,6 +50,21 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 ChangeTrackingStrategy.ChangingAndChangedNotifications,
                 context.Model.GetChangeTrackingStrategy());
+        }
+
+        [ConditionalFact]
+        public void Default_change_tracking_strategy_doesnt_overwrite_entity_strategy()
+        {
+            using var context = new ChangeContext<ChangeValueEntity>(
+                entityBuilderAction: b =>
+                {
+                    b.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
+                });
+
+            var entityType = context.Model.FindEntityType(typeof(ChangeValueEntity));
+            Assert.Equal(
+                ChangeTrackingStrategy.Snapshot,
+                entityType.GetChangeTrackingStrategy());
         }
 
         private static readonly Type changeInterface = typeof(INotifyPropertyChanged);
@@ -102,17 +118,17 @@ namespace Microsoft.EntityFrameworkCore
         public void Raises_changed_event_when_changed()
         {
             using var context = new ChangeContext<ChangeValueEntity>();
-            context.Add(new ChangeValueEntity());
+            var proxy = context.CreateProxy<ChangeValueEntity>();
+            context.Add(proxy);
             context.SaveChanges();
 
             var eventRaised = false;
 
-            var entity = context.Set<ChangeValueEntity>().Single();
-            ((INotifyPropertyChanged)entity).PropertyChanged += (s, e) =>
+            ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) =>
             {
                 eventRaised = true;
 
-                Assert.Equal(entity, s);
+                Assert.Equal(proxy, s);
 
                 Assert.Equal(
                     nameof(ChangeValueEntity.Value),
@@ -123,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore
                     ((ChangeValueEntity)s).Value);
             };
 
-            entity.Value = 10;
+            proxy.Value = 10;
             Assert.True(eventRaised);
         }
 
@@ -131,17 +147,18 @@ namespace Microsoft.EntityFrameworkCore
         public void Raises_changing_event_before_change()
         {
             using var context = new ChangeContext<ChangeValueEntity>();
-            context.Add(new ChangeValueEntity { Value = 5 });
+            var proxy = context.CreateProxy<ChangeValueEntity>();
+            proxy.Value = 5;
+            context.Add(proxy);
             context.SaveChanges();
 
             var eventRaised = false;
 
-            var entity = context.Set<ChangeValueEntity>().Single();
-            ((INotifyPropertyChanging)entity).PropertyChanging += (s, e) =>
+            ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) =>
             {
                 eventRaised = true;
 
-                Assert.Equal(entity, s);
+                Assert.Equal(proxy, s);
 
                 Assert.Equal(
                     nameof(ChangeValueEntity.Value),
@@ -152,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
                     ((ChangeValueEntity)s).Value);
             };
 
-            entity.Value = 10;
+            proxy.Value = 10;
             Assert.True(eventRaised);
         }
 
@@ -160,18 +177,19 @@ namespace Microsoft.EntityFrameworkCore
         public void Doesnt_raise_change_event_when_equal_and_check_equality_true()
         {
             using var context = new ChangeContext<ChangeValueEntity>(checkEquality: true);
-            context.Add(new ChangeValueEntity { Value = 10 });
+            var proxy = context.CreateProxy<ChangeValueEntity>();
+            proxy.Value = 10;
+            context.Add(proxy);
             context.SaveChanges();
 
             var eventRaised = false;
 
-            var entity = context.Set<ChangeValueEntity>().Single();
-            ((INotifyPropertyChanged)entity).PropertyChanged += (s, e) =>
+            ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) =>
             {
                 eventRaised = true;
             };
 
-            entity.Value = 10;
+            proxy.Value = 10;
             Assert.False(eventRaised);
         }
 
@@ -179,18 +197,19 @@ namespace Microsoft.EntityFrameworkCore
         public void Doesnt_raise_changing_event_when_equal_and_check_equality_true()
         {
             using var context = new ChangeContext<ChangeValueEntity>(checkEquality: true);
-            context.Add(new ChangeValueEntity { Value = 10 });
+            var proxy = context.CreateProxy<ChangeValueEntity>();
+            proxy.Value = 10;
+            context.Add(proxy);
             context.SaveChanges();
 
             var eventRaised = false;
 
-            var entity = context.Set<ChangeValueEntity>().Single();
-            ((INotifyPropertyChanging)entity).PropertyChanging += (s, e) =>
+            ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) =>
             {
                 eventRaised = true;
             };
 
-            entity.Value = 10;
+            proxy.Value = 10;
             Assert.False(eventRaised);
         }
 
@@ -198,18 +217,19 @@ namespace Microsoft.EntityFrameworkCore
         public void Raises_change_event_when_equal_and_check_equality_false()
         {
             using var context = new ChangeContext<ChangeValueEntity>(checkEquality: false);
-            context.Add(new ChangeValueEntity { Value = 10 });
+            var proxy = context.CreateProxy<ChangeValueEntity>();
+            proxy.Value = 10;
+            context.Add(proxy);
             context.SaveChanges();
 
             var eventRaised = false;
 
-            var entity = context.Set<ChangeValueEntity>().Single();
-            ((INotifyPropertyChanged)entity).PropertyChanged += (s, e) =>
+            ((INotifyPropertyChanged)proxy).PropertyChanged += (s, e) =>
             {
                 eventRaised = true;
             };
 
-            entity.Value = 10;
+            proxy.Value = 10;
             Assert.True(eventRaised);
         }
 
@@ -217,27 +237,39 @@ namespace Microsoft.EntityFrameworkCore
         public void Raises_changing_event_when_equal_and_check_equality_false()
         {
             using var context = new ChangeContext<ChangeValueEntity>(checkEquality: false);
-            context.Add(new ChangeValueEntity { Value = 10 });
+            var proxy = context.CreateProxy<ChangeValueEntity>();
+            proxy.Value = 10;
+            context.Add(proxy);
             context.SaveChanges();
 
             var eventRaised = false;
 
-            var entity = context.Set<ChangeValueEntity>().Single();
-            ((INotifyPropertyChanging)entity).PropertyChanging += (s, e) =>
+            ((INotifyPropertyChanging)proxy).PropertyChanging += (s, e) =>
             {
                 eventRaised = true;
             };
 
-            entity.Value = 10;
+            proxy.Value = 10;
             Assert.True(eventRaised);
         }
 
         private class ChangeContext<TEntity> : TestContext<TEntity>
             where TEntity : class
         {
-            public ChangeContext(bool checkEquality = true)
+            private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
+
+            public ChangeContext(bool checkEquality = true, Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null)
                 : base(dbName: "ChangeDetectionContext", useLazyLoading: false, useChangeDetection: true, checkEquality: checkEquality)
             {
+                _entityBuilderAction = entityBuilderAction;
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                var builder = modelBuilder.Entity<TEntity>();
+                _entityBuilderAction?.Invoke(builder);
             }
         }
 
