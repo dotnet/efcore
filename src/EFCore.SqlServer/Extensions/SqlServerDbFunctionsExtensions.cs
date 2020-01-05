@@ -1066,7 +1066,7 @@ namespace Microsoft.EntityFrameworkCore
         ///  <param name="minuteOffset">The minute portion of the time zone offset.</param>
         /// <param name="precision">The precision of the datetime2 value.</param>
         /// <returns>New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions, hourOffset, minuteOffset and precision.</returns>
-        public static DateTime DateTimeOffsetFromParts(
+        public static DateTimeOffset DateTimeOffsetFromParts(
             [CanBeNull] this DbFunctions _,
             int year,
             int month,
@@ -1111,7 +1111,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="fractions">The fractional seconds.</param>
         /// <param name="precision">The precision of the time value.</param>
         /// <returns>New instance of the <see cref="DateTime" /> structure to the specified hour, minute, second, fractions, and precision.</returns>
-        public static DateTime TimeFromParts(
+        public static TimeSpan TimeFromParts(
             [CanBeNull] this DbFunctions _,
             int hour,
             int minute,

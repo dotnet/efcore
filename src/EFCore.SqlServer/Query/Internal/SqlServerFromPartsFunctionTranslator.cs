@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     "DATETIMEOFFSETFROMPARTS",
                     arguments.Skip(1),
                     _dateTimeOffsetFromPartsMethodInfo.ReturnType,
-                    _typeMappingSource.FindMapping(typeof(DateTime), "datetimeoffset"));
+                    _typeMappingSource.FindMapping(typeof(DateTimeOffset), "datetimeoffset"));
             }
 
             if (_smallDateTimeFromPartsMethodInfo.Equals(method))
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     "TIMEFROMPARTS",
                     arguments.Skip(1),
                     _timeFromPartsMethodInfo.ReturnType,
-                    _typeMappingSource.FindMapping(typeof(DateTime), "time"));
+                    _typeMappingSource.FindMapping(typeof(TimeSpan), "time"));
             }
 
             return null;
