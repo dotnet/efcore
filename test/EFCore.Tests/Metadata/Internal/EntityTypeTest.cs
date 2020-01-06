@@ -2053,6 +2053,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void AddIndexedProperty_throws_when_entitytype_have_property_with_same_name()
+        {
+            var model = CreateModel();
+            var entityType = model.AddEntityType(typeof(Customer));
+            entityType.AddProperty("Nation", typeof(string));
+
+            Assert.Equal(
+                CoreStrings.ConflictingPropertyOrNavigation("Nation", entityType.DisplayName(), entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("Nation", typeof(string))).Message);
+
+            Assert.Equal(
+                CoreStrings.PropertyClashingNonIndexer("Name", entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.AddIndexedProperty("Name", typeof(string))).Message);
+        }
+
+        [ConditionalFact]
         public void Can_get_property_indexes()
         {
             var model = CreateModel();

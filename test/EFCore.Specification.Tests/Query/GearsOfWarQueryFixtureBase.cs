@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                             Assert.Equal(ee.Name, aa.Name);
                             Assert.Equal(ee.Location, aa.Location);
-                            Assert.Equal(ee["Nation"], aa["Nation"]);
+                            Assert.Equal(ee.Nation, aa.Nation);
                         }
                     }
                 },
@@ -285,7 +285,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 b =>
                 {
                     b.HasKey(c => c.Name);
-                    b.IndexedProperty<string>("Nation");
                 });
 
             modelBuilder.Entity<Gear>(
