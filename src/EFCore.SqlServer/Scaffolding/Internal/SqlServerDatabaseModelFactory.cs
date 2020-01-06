@@ -1108,10 +1108,10 @@ WHERE name = '{connection.Database}';";
             return result != null ? Convert.ToByte(result) : (byte)0;
         }
 
-        private static string DisplayName(string? schema, string name)
+        private static string DisplayName(string? schema, string? name)
             => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
 
-        private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)
+        private static ReferentialAction? ConvertToReferentialAction(string? onDeleteAction)
         {
             switch (onDeleteAction)
             {

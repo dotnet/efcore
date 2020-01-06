@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseIndex : Annotatable
     {
-        public DatabaseIndex([NotNull] DatabaseTable table, [NotNull] string name)
+        public DatabaseIndex([NotNull] DatabaseTable table, [CanBeNull] string? name)
         {
             Table = table;
             Name = name;
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The index name.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string? Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The ordered list of columns that make up the index.
