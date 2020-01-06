@@ -185,6 +185,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Returns an object that can be used to configure a property of the entity type.
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
+        ///     <para>
+        ///         Indexed properties are stored in the entity using
+        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///         supplying the provided property name.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TProperty"> The type of the property to be configured. </typeparam>
         /// <param name="propertyName"> The name of the property to be configured. </param>
@@ -201,7 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         If no property with the given name exists, then a new property will be added.
         ///     </para>
         ///     <para>
-        ///         Indexed properties are stored in the entity using an indexer supplying the provided property name.
+        ///         Indexed properties are stored in the entity using
+        ///         <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
+        ///         supplying the provided property name.
         ///     </para>
         /// </summary>
         /// <param name="propertyType"> The type of the property to be configured. </param>

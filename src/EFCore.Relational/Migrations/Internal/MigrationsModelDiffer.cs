@@ -673,8 +673,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
         private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType)
         {
-            var shadowProperties = new List<IProperty>();
-            var shadowPrimaryKeyProperties = new List<IProperty>();
+            var leastPriorityProperties = new List<IProperty>();
+            var leastPriorityPrimaryKeyProperties = new List<IProperty>();
             var primaryKeyPropertyGroups = new Dictionary<PropertyInfo, IProperty>();
             var groups = new Dictionary<PropertyInfo, List<IProperty>>();
             var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<int, IProperty>>();
@@ -683,11 +683,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             foreach (var property in entityType.GetDeclaredProperties())
             {
                 var clrProperty = property.PropertyInfo;
-                if (clrProperty == null)
+                if (clrProperty == null
+                    || clrProperty.IsIndexerProperty())
                 {
                     if (property.IsPrimaryKey())
                     {
-                        shadowPrimaryKeyProperties.Add(property);
+                        leastPriorityPrimaryKeyProperties.Add(property);
 
                         continue;
                     }
@@ -696,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         .FirstOrDefault(fk => fk.DependentToPrincipal?.PropertyInfo != null);
                     if (foreignKey == null)
                     {
-                        shadowProperties.Add(property);
+                        leastPriorityProperties.Add(property);
 
                         continue;
                     }
@@ -746,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 var properties = GetSortedProperties(definingForeignKey.DeclaringEntityType).ToList();
                 if (clrProperty == null)
                 {
-                    shadowProperties.AddRange(properties);
+                    leastPriorityProperties.AddRange(properties);
 
                     continue;
                 }
@@ -792,9 +793,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return sortedPropertyInfos
                 .Select(pi => primaryKeyPropertyGroups.ContainsKey(pi) ? primaryKeyPropertyGroups[pi] : null)
                 .Where(e => e != null)
-                .Concat(shadowPrimaryKeyProperties)
+                .Concat(leastPriorityPrimaryKeyProperties)
                 .Concat(sortedPropertyInfos.Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi)).SelectMany(p => groups[p]))
-                .Concat(shadowProperties)
+                .Concat(leastPriorityProperties)
                 .Concat(entityType.GetDirectlyDerivedTypes().SelectMany(GetSortedProperties));
         }
 

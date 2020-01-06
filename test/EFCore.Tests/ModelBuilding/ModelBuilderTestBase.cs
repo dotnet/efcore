@@ -192,6 +192,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TEntity, TProperty>> propertyExpression);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+            public abstract TestPropertyBuilder<TProperty> IndexedProperty<TProperty>(string propertyName);
 
             public abstract TestEntityTypeBuilder<TEntity> Ignore(
                 Expression<Func<TEntity, object>> propertyExpression);
@@ -469,6 +470,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
+            public abstract TestPropertyBuilder<TProperty> IndexedProperty<TProperty>(string propertyName);
 
             public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
                 Expression<Func<TDependentEntity, TProperty>> propertyExpression);

@@ -2612,40 +2612,86 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var seed = new Dictionary<string, object>(StringComparer.Ordinal);
                 data.Add(seed);
                 var type = rawSeed.GetType();
-                foreach (var memberInfo in type.GetMembersInHierarchy())
-                {
-                    if (!properties.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
-                    {
-                        continue;
-                    }
 
-                    ValueConverter valueConverter = null;
-                    if (providerValues
-                        && !valueConverters.TryGetValue(memberInfo.Name, out valueConverter))
+                if (type == ClrType)
+                {
+                    // non-anonymous type
+                    foreach (var propertyBase in properties.Values)
                     {
-                        if (propertyBase is IProperty property)
+                        ValueConverter valueConverter = null;
+                        if (providerValues
+                            && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
                         {
-                            valueConverter = property.FindTypeMapping()?.Converter
-                                ?? property.GetValueConverter();
+                            if (propertyBase is IProperty property)
+                            {
+                                valueConverter = property.FindTypeMapping()?.Converter
+                                    ?? property.GetValueConverter();
+                            }
+
+                            valueConverters[propertyBase.Name] = valueConverter;
                         }
 
-                        valueConverters[memberInfo.Name] = valueConverter;
-                    }
+                        object value = null;
+                        switch (propertyBase.GetIdentifyingMemberInfo())
+                        {
+                            case PropertyInfo propertyInfo:
+                                if (propertyBase.IsIndexerProperty())
+                                {
+                                    try
+                                    {
+                                        value = propertyInfo.GetValue(rawSeed, new[] { propertyBase.Name });
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // Swallow if the property value is not set on the seed data
+                                    }
+                                }
+                                else
+                                {
+                                    value = propertyInfo.GetValue(rawSeed);
+                                }
 
-                    object value = null;
-                    switch (memberInfo)
+                                break;
+                            case FieldInfo fieldInfo:
+                                value = fieldInfo.GetValue(rawSeed);
+                                break;
+                        }
+
+                        seed[propertyBase.Name] = valueConverter == null
+                            ? value
+                            : valueConverter.ConvertToProvider(value);
+                    }
+                }
+                else
+                {
+                    // anonymous type
+                    foreach (var memberInfo in type.GetMembersInHierarchy())
                     {
-                        case PropertyInfo propertyInfo:
-                            value = propertyInfo.GetValue(rawSeed);
-                            break;
-                        case FieldInfo fieldInfo:
-                            value = fieldInfo.GetValue(rawSeed);
-                            break;
-                    }
+                        if (!properties.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
+                        {
+                            continue;
+                        }
 
-                    seed[memberInfo.Name] = valueConverter == null
-                        ? value
-                        : valueConverter.ConvertToProvider(value);
+                        ValueConverter valueConverter = null;
+                        if (providerValues
+                            && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
+                        {
+                            if (propertyBase is IProperty property)
+                            {
+                                valueConverter = property.FindTypeMapping()?.Converter
+                                    ?? property.GetValueConverter();
+                            }
+
+                            valueConverters[propertyBase.Name] = valueConverter;
+                        }
+
+                        // All memberInfos are PropertyInfo in anonymous type
+                        var value = ((PropertyInfo)memberInfo).GetValue(rawSeed);
+
+                        seed[propertyBase.Name] = valueConverter == null
+                            ? value
+                            : valueConverter.ConvertToProvider(value);
+                    }
                 }
             }
 
@@ -2865,7 +2911,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IModel ITypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -2876,7 +2923,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableModel IMutableTypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -2887,7 +2935,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableModel IMutableEntityType.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -2910,7 +2959,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IEntityType IEntityType.BaseType
         {
-            [DebuggerStepThrough] get => _baseType;
+            [DebuggerStepThrough]
+            get => _baseType;
         }
 
         /// <summary>
@@ -2945,7 +2995,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IEntityType IEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough] get => DefiningEntityType;
+            [DebuggerStepThrough]
+            get => DefiningEntityType;
         }
 
         /// <summary>
@@ -2956,7 +3007,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableEntityType IMutableEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough] get => DefiningEntityType;
+            [DebuggerStepThrough]
+            get => DefiningEntityType;
         }
 
         /// <summary>
@@ -2967,7 +3019,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough] get => DefiningEntityType;
+            [DebuggerStepThrough]
+            get => DefiningEntityType;
         }
 
         /// <summary>

@@ -584,10 +584,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                newPropertyBuilder = Metadata.GetIdentifyingMemberInfo() == null
+                var identifyingMemberInfo = Metadata.GetIdentifyingMemberInfo();
+
+                newPropertyBuilder = identifyingMemberInfo == null
                     ? entityTypeBuilder.Property(
                         Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)
-                    : entityTypeBuilder.Property(Metadata.GetIdentifyingMemberInfo(), configurationSource);
+                    : (identifyingMemberInfo as PropertyInfo)?.IsIndexerProperty() == true
+                        ? entityTypeBuilder.IndexedProperty(Metadata.ClrType, Metadata.Name, configurationSource)
+                        : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource);
             }
 
             if (newProperty == Metadata)
@@ -658,7 +662,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionProperty IConventionPropertyBuilder.Metadata
         {
-            [DebuggerStepThrough] get => Metadata;
+            [DebuggerStepThrough]
+            get => Metadata;
         }
 
         /// <summary>
