@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     {
         public DatabaseForeignKey(
             [NotNull] DatabaseTable table,
-            [NotNull] string name,
+            [CanBeNull] string? name,
             [NotNull] DatabaseTable principalTable)
         {
             Table = table;
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The foreign key constraint name.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string? Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The action performed by the database when a row constrained by this foreign key
