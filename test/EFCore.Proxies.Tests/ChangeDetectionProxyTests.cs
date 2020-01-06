@@ -114,10 +114,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(changingInterface.IsAssignableFrom(proxyType));
         }
 
-        [ConditionalFact]
-        public void Raises_changed_event_when_changed()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Raises_changed_event_when_changed(bool useLazyLoading)
         {
-            using var context = new ChangeContext<ChangeValueEntity>();
+            using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading);
             var proxy = context.CreateProxy<ChangeValueEntity>();
             context.Add(proxy);
             context.SaveChanges();
@@ -143,10 +145,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(eventRaised);
         }
 
-        [ConditionalFact]
-        public void Raises_changing_event_before_change()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Raises_changing_event_before_change(bool useLazyLoading)
         {
-            using var context = new ChangeContext<ChangeValueEntity>();
+            using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading);
             var proxy = context.CreateProxy<ChangeValueEntity>();
             proxy.Value = 5;
             context.Add(proxy);
@@ -173,10 +177,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(eventRaised);
         }
 
-        [ConditionalFact]
-        public void Doesnt_raise_change_event_when_equal_and_check_equality_true()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Doesnt_raise_change_event_when_equal_and_check_equality_true(bool useLazyLoading)
         {
-            using var context = new ChangeContext<ChangeValueEntity>(checkEquality: true);
+            using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: true);
             var proxy = context.CreateProxy<ChangeValueEntity>();
             proxy.Value = 10;
             context.Add(proxy);
@@ -193,10 +199,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(eventRaised);
         }
 
-        [ConditionalFact]
-        public void Doesnt_raise_changing_event_when_equal_and_check_equality_true()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Doesnt_raise_changing_event_when_equal_and_check_equality_true(bool useLazyLoading)
         {
-            using var context = new ChangeContext<ChangeValueEntity>(checkEquality: true);
+            using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: true);
             var proxy = context.CreateProxy<ChangeValueEntity>();
             proxy.Value = 10;
             context.Add(proxy);
@@ -213,10 +221,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(eventRaised);
         }
 
-        [ConditionalFact]
-        public void Raises_change_event_when_equal_and_check_equality_false()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Raises_change_event_when_equal_and_check_equality_false(bool useLazyLoading)
         {
-            using var context = new ChangeContext<ChangeValueEntity>(checkEquality: false);
+            using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: false);
             var proxy = context.CreateProxy<ChangeValueEntity>();
             proxy.Value = 10;
             context.Add(proxy);
@@ -233,10 +243,12 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(eventRaised);
         }
 
-        [ConditionalFact]
-        public void Raises_changing_event_when_equal_and_check_equality_false()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Raises_changing_event_when_equal_and_check_equality_false(bool useLazyLoading)
         {
-            using var context = new ChangeContext<ChangeValueEntity>(checkEquality: false);
+            using var context = new ChangeContext<ChangeValueEntity>(useLazyLoading: useLazyLoading, checkEquality: false);
             var proxy = context.CreateProxy<ChangeValueEntity>();
             proxy.Value = 10;
             context.Add(proxy);
@@ -251,6 +263,40 @@ namespace Microsoft.EntityFrameworkCore
 
             proxy.Value = 10;
             Assert.True(eventRaised);
+        }
+
+        [ConditionalFact]
+        public void Navigational_property_marked_modified_without_being_loaded()
+        {
+            var id = 0;
+
+            using (var context = new ChangeContext<ChangeSelfRefEntity>(checkEquality: false))
+            {
+                var parent = context.CreateProxy<ChangeSelfRefEntity>();
+                parent.SelfRef = context.CreateProxy<ChangeSelfRefEntity>();
+                context.Add(parent);
+                context.SaveChanges();
+                id = parent.Id;
+            }
+
+            using (var context = new ChangeContext<ChangeSelfRefEntity>(checkEquality: false))
+            {
+                var parent = context.Set<ChangeSelfRefEntity>().Find(id);
+
+                Assert.Null(parent.SelfRef);
+
+                parent.SelfRef = null;
+
+                var entry = context.Entry(parent);
+
+                Assert.Equal(
+                    EntityState.Modified,
+                    entry.State);
+
+                var fKey = entry.Property($"{nameof(ChangeSelfRefEntity.SelfRef)}Id");
+
+                Assert.True(fKey.IsModified);
+            }
         }
 
         private class ChangeContext<TEntity> : TestContext<TEntity>
@@ -258,8 +304,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             private readonly Action<EntityTypeBuilder<TEntity>> _entityBuilderAction;
 
-            public ChangeContext(bool checkEquality = true, Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null)
-                : base(dbName: "ChangeDetectionContext", useLazyLoading: false, useChangeDetection: true, checkEquality: checkEquality)
+            public ChangeContext(bool useLazyLoading = false, bool checkEquality = true, Action<EntityTypeBuilder<TEntity>> entityBuilderAction = null)
+                : base(dbName: "ChangeDetectionContext", useLazyLoading: useLazyLoading, useChangeDetection: true, checkEquality: checkEquality)
             {
                 _entityBuilderAction = entityBuilderAction;
             }
@@ -297,6 +343,13 @@ namespace Microsoft.EntityFrameworkCore
             public virtual int Id { get; set; }
 
             public virtual int Value { get; set; }
+        }
+
+        public class ChangeSelfRefEntity
+        {
+            public virtual int Id { get; set; }
+
+            public virtual ChangeSelfRefEntity SelfRef { get; set; }
         }
 
         private class ProxyGenerationContext : TestContext<ChangeValueEntity>
