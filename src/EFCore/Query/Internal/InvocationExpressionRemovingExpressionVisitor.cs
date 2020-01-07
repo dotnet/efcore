@@ -1,7 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,8 +14,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var invokedExpression = StripTrivialConversions(invocationExpression.Expression);
 
+
             return invokedExpression is LambdaExpression lambdaExpression
-                ? InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments)
+                ? AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19511", out var isEnabled) && isEnabled
+                    ? InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments)
+                    : Visit(InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments))
                 : base.VisitInvocation(invocationExpression);
         }
 
