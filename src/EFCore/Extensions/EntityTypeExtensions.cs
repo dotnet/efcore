@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AsEntityType().GetDeclaredIndexes();
 
         private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null
+            => type.ClrType != null && !type.IsSharedType
                 ? type.ClrType.ShortDisplayName()
                 : type.Name;
 
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null)
+            if (type.ClrType != null && !type.IsSharedType)
             {
                 return type.ClrType.ShortDisplayName();
             }

@@ -44,6 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(model, nameof(model));
 
             Name = name;
+            IsSharedType = false;
         }
 
         /// <summary>
@@ -59,6 +60,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Name = model.GetDisplayName(clrType);
             ClrType = clrType;
+            IsSharedType = false;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected TypeBase([NotNull] string name, [NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
+            : this(model, configurationSource)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(clrType, nameof(clrType));
+            Check.NotNull(model, nameof(model));
+
+            Name = name;
+            ClrType = clrType;
+            IsSharedType = true;
         }
 
         private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)
@@ -90,6 +110,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Name { [DebuggerStepThrough] get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsSharedType { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

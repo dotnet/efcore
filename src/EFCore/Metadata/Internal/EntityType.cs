@@ -104,6 +104,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public EntityType([NotNull] string name, [NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
+            : base(name, clrType, model, configurationSource)
+        {
+            if (!clrType.IsValidEntityType())
+            {
+                throw new ArgumentException(CoreStrings.InvalidEntityType(clrType));
+            }
+
+            _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+            Builder = new InternalEntityTypeBuilder(this, model.Builder);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public EntityType(
             [NotNull] string name,
             [NotNull] Model model,
