@@ -1561,6 +1561,16 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        public override async Task Where_expression_invoke_3(bool async)
+        {
+            await base.Where_expression_invoke_3(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_concat_string_int_comparison1(bool async)
         {
