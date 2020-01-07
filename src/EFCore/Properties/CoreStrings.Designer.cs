@@ -2348,6 +2348,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetString("BackingFieldOnIndexer", nameof(field), nameof(entityType), nameof(property)),
                 field, entityType, property);
 
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be added to the model because a shared entity type with the same clr type already exists.
+        /// </summary>
+        public static string ClashingSharedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingSharedType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Cannot find entity type with type '{clrType}' since model contains shared entity type(s) with same type.
+        /// </summary>
+        public static string CannotFindEntityWithClrTypeWhenShared([CanBeNull] object clrType)
+            => string.Format(
+                GetString("CannotFindEntityWithClrTypeWhenShared", nameof(clrType)),
+                clrType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

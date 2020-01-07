@@ -64,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IEnumerable<IAnnotation> GetAnnotations() => throw new NotImplementedException();
             public IModel Model { get; }
             public string Name { get; }
+            public bool IsSharedType { get; }
             public Type ClrType { get; }
             public IEntityType BaseType { get; }
             public string DefiningNavigationName { get; }
@@ -101,6 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => Assert.Equal(
                 "Everything.Is+Awesome<When.We, re.Living<Our.Dream>>",
                 CreateModel().AddEntityType("Everything.Is+Awesome<When.We, re.Living<Our.Dream>>").DisplayName());
+
+        [ConditionalFact]
+        public void Display_name_is_entity_type_name_when_shared_entity_type()
+            => Assert.Equal("PostTag", CreateModel().AddEntityType("PostTag", typeof(Dictionary<string, object>)).DisplayName());
 
         [ConditionalFact]
         public void Name_is_prettified_CLR_full_name()
