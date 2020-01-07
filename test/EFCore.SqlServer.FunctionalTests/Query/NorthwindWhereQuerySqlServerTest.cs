@@ -1287,6 +1287,16 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
+        public override async Task Where_expression_invoke_3(bool async)
+        {
+            await base.Where_expression_invoke_3(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
         public override async Task Where_concat_string_int_comparison1(bool async)
         {
             await base.Where_concat_string_int_comparison1(async);
