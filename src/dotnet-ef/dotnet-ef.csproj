@@ -27,6 +27,7 @@ dotnet ef database update
       which maximizes the machines on which this tool will be compatible.
     -->
     <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
+    <RollForward>Major</RollForward>
   </PropertyGroup>
 
   <ItemGroup>
