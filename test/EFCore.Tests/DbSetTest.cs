@@ -88,6 +88,15 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Set<Category>());
         }
 
+        [Fact]
+        public void Direct_use_of_Set_for_shared_type_throws_if_context_disposed()
+        {
+            var context = new EarlyLearningCenter();
+            context.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => context.Set<Dictionary<string, object>>("SharedTypeEntityTypeName"));
+        }
+
         [ConditionalFact]
         public void Use_of_LocalView_throws_if_context_is_disposed()
         {
