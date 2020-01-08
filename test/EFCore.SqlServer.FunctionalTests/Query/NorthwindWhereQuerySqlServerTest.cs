@@ -1969,7 +1969,6 @@ WHERE @__entity_equality_order_0_OrderID IN (
     FROM [Orders] AS [o0]
     WHERE [c].[CustomerID] = [o0].[CustomerID]
 )
-
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 

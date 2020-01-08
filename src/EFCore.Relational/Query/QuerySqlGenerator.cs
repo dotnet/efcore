@@ -637,7 +637,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Visit(inExpression.Subquery);
                 }
 
-                _relationalCommandBuilder.AppendLine().AppendLine(")");
+                _relationalCommandBuilder.AppendLine().Append(")");
             }
 
             return inExpression;
