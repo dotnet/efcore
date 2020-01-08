@@ -9,7 +9,7 @@ If you believe you have an issue that affects the security of the platform, plea
 Bugs & Feature Requests
 -----------------------
 
-If you encounter a bug while using the product or would like to request a new feature, please [submit an issue](https://github.com/aspnet/EntityFrameworkCore/issues/new) on our GitHub repository.
+If you encounter a bug while using the product or would like to request a new feature, please [submit an issue](https://github.com/dotnet/efcore/issues/new) on our GitHub repository.
 
 Documentation
 -------------
