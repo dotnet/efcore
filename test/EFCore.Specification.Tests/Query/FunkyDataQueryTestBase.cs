@@ -584,10 +584,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public FunkyDataQueryFixtureBase()
             {
-                var entitySorters =
-                    new Dictionary<Type, Func<dynamic, object>> { { typeof(FunkyCustomer), e => e?.Id } }.ToDictionary(
-                        e => e.Key, e => (object)e.Value);
-                ;
+                var entitySorters = new Dictionary<Type, Func<dynamic, object>> { { typeof(FunkyCustomer), e => e?.Id } }
+                    .ToDictionary(e => e.Key, e => (object)e.Value);
 
                 var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
                 {
