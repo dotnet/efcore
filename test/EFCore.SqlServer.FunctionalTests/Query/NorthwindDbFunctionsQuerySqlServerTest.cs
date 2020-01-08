@@ -980,6 +980,23 @@ WHERE @__dateTime_0 > SMALLDATETIMEFROMPARTS(DATEPART(year, GETDATE()), @__dateT
             }
         }
 
+        [ConditionalFact]
+        public virtual void TimeFromParts_constant_compare()
+        {
+            using (var context = CreateContext())
+            {
+                var count = context.Orders
+                    .Count(c => new TimeSpan(23, 59, 0) > EF.Functions.TimeFromParts(23, 59, 59, c.OrderID % 60, 2));
+
+                Assert.Equal(0, count);
+
+                AssertSql(
+                    @"SELECT COUNT(*)
+FROM [Orders] AS [o]
+WHERE '23:59:00' > TIMEFROMPARTS(23, 59, 59, [o].[OrderID] % 60, 2)");
+            }
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
