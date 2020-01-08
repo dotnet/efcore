@@ -38,7 +38,7 @@ stages:
         enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
         enablePublishTestResults: true
         enableTelemetry: true
-        helixRepo: aspnet/EntityFrameworkCore
+        helixRepo: dotnet/efcore
         jobs:
           - job: Windows
             pool:

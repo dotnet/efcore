@@ -1,6 +1,6 @@
 # Master branch
 
-Following instructions are for current **master** branch only. For building release/2.x branches go to [Earlier versions](https://github.com/aspnet/EntityFrameworkCore/wiki/Getting-and-Building-the-Code#earlier-versions).
+Following instructions are for current **master** branch only. For building release/2.x branches go to [Earlier versions](https://github.com/dotnet/efcore/wiki/Getting-and-Building-the-Code#earlier-versions).
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ EF Core does not generally need any prerequisites installed to build the code. H
 Using your favorite [git](http://git-scm.com/) client, clone the repository.
 
 ```console
-git clone https://github.com/aspnet/EntityFrameworkCore.git
+git clone https://github.com/dotnet/efcore.git
 ```
 
 ## Build
@@ -70,7 +70,7 @@ The following prerequisites are required to work with the EF Core code:
 Using your favorite [git](http://git-scm.com/) client, clone the repository.
 
 ```console
-git clone https://github.com/aspnet/EntityFrameworkCore.git
+git clone https://github.com/dotnet/efcore.git
 ```
 
 ## Build initialization

@@ -27,7 +27,7 @@ dotnet add package Microsoft.EntityFrameworkCore.Cosmos
 
 Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) to install.
 
-Use the [daily builds](https://github.com/aspnet/AspNetCore/blob/master/docs/DailyBuilds.md) to verify bug fixes and provide early feedback.
+Use the [daily builds](https://github.com/dotnet/aspnetcore/blob/master/docs/DailyBuilds.md) to verify bug fixes and provide early feedback.
 
 ### Usage
 
@@ -78,7 +78,7 @@ dotnet add package Microsoft.Data.Sqlite
 
 Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.Data.Sqlite/absoluteLatest) to install.
 
-Use the [daily builds](https://github.com/aspnet/AspNetCore/blob/master/docs/DailyBuilds.md) to verify bug fixes and provide early feedback.
+Use the [daily builds](https://github.com/dotnet/aspnetcore/blob/master/docs/DailyBuilds.md) to verify bug fixes and provide early feedback.
 
 ### Usage
 
@@ -105,7 +105,7 @@ using (var connection = new SqliteConnection("Data Source=Blogs.db"))
 Getting support
 ---------------
 
-If you have a specific question about using these projects, we encourage you to [ask it on Stack Overflow](https://stackoverflow.com/questions/tagged/entity-framework-core*?tab=Votes). If you encounter a bug or would like to request a feature, [submit an issue](https://github.com/aspnet/EntityFrameworkCore/issues/new/choose). For more details, see [getting support](.github/SUPPORT.md).
+If you have a specific question about using these projects, we encourage you to [ask it on Stack Overflow](https://stackoverflow.com/questions/tagged/entity-framework-core*?tab=Votes). If you encounter a bug or would like to request a feature, [submit an issue](https://github.com/dotnet/efcore/issues/new/choose). For more details, see [getting support](.github/SUPPORT.md).
 
 Contributing
 ------------
@@ -117,7 +117,7 @@ See also
 
 * [Documentation](https://docs.microsoft.com/ef/core/)
 * [Roadmap](https://docs.microsoft.com/ef/core/what-is-new/roadmap)
-* [Weekly status updates](https://github.com/aspnet/EntityFrameworkCore/issues/15403)
+* [Weekly status updates](https://github.com/dotnet/efcore/issues/15403)
 * [Release planning process](https://docs.microsoft.com/ef/core/what-is-new/#release-planning-process)
 * [How to write an EF Core provider](https://docs.microsoft.com/ef/core/providers/writing-a-provider)
 * [Security](./docs/security.md)
