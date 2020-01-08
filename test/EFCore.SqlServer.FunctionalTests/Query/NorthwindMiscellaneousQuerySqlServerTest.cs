@@ -234,7 +234,7 @@ WHERE ([o].[OrderID] = 10248) AND ([o].[ProductID] = 11)");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Entity_equality_null_composite_key(bool async)
@@ -244,7 +244,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Entity_equality_not_null(bool async)
@@ -307,7 +307,7 @@ WHERE (
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Entity_equality_orderby(bool async)
@@ -1460,7 +1460,7 @@ END");
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ([c].[ContactName] IS NULL OR ([c].[ContactName] IS NULL OR ((LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName]) OR LEFT([c].[ContactName], LEN([c].[ContactName])) IS NULL)))) THEN CAST(1 AS bit)
+        WHERE (([c].[ContactName] <> N'') OR [c].[ContactName] IS NULL) AND ([c].[ContactName] IS NULL OR ((LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName]) OR LEFT([c].[ContactName], LEN([c].[ContactName])) IS NULL))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -3035,7 +3035,7 @@ WHERE ([o].[OrderID] < 10400) AND (([o].[OrderDate] IS NOT NULL AND (DATEPART(mo
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Parameter_extraction_short_circuits_3(bool async)
@@ -4258,7 +4258,7 @@ ORDER BY [c].[CustomerID]");
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Comparing_entity_to_null_using_Equals(bool async)
@@ -4308,7 +4308,7 @@ ORDER BY [o].[OrderID], [o0].[OrderID]");
                 @"SELECT [c].[CustomerID] AS [Id1], [o].[OrderID] AS [Id2]
 FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Comparing_non_matching_collection_navigations_using_Equals(bool async)
@@ -4319,7 +4319,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
                 @"SELECT [c].[CustomerID] AS [Id1], [o].[OrderID] AS [Id2]
 FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Comparing_collection_navigation_to_null(bool async)
@@ -4329,7 +4329,7 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Comparing_collection_navigation_to_null_complex(bool async)

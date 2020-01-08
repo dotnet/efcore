@@ -708,5 +708,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                       from o in lo.Where(x => x.CustomerID.StartsWith("A"))
                       select new { c.CustomerID, o.OrderID });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(10)
+                      join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(10) on 1 equals 1 
+                      select new { c.CustomerID, o.OrderID });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Left_join_with_tautology_predicate_doesnt_convert_to_cross_join(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(10)
+                      join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(10) on c.CustomerID != null equals true into grouping
+                      from o in grouping.DefaultIfEmpty()
+                      select new { c.CustomerID, o.OrderID });
+        }
     }
 }

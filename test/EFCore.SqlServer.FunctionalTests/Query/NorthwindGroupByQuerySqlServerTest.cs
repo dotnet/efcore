@@ -1675,7 +1675,7 @@ FROM (
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING CAST(0 AS bit) = CAST(1 AS bit)) THEN CAST(1 AS bit)
+        HAVING 0 = 1) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1690,7 +1690,7 @@ END");
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING SUM([o].[OrderID]) < 0) THEN CAST(1 AS bit)
+        HAVING NOT (SUM([o].[OrderID]) >= 0)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }

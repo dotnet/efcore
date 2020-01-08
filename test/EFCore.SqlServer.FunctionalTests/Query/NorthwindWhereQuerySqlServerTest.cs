@@ -522,7 +522,7 @@ WHERE [e].[EmployeeID] = 1");
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
 
             // See issue#17498
             //Assert.Contains(
@@ -549,11 +549,11 @@ WHERE [e].[EmployeeID] = @__p_0");
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
 
             // See issue#17498
             //Assert.Contains(
@@ -572,11 +572,11 @@ WHERE CAST(0 AS bit) = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
 
             // See issue#17498
             //Assert.Contains(
@@ -898,7 +898,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Where_is_not_null(bool async)
@@ -918,7 +918,7 @@ WHERE [c].[City] IS NOT NULL");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Where_constant_is_not_null(bool async)
@@ -1121,10 +1121,10 @@ FROM [Products] AS [p]");
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE CASE
-    WHEN [p].[ProductID] > 50 THEN CAST(1 AS bit)
+    WHEN [p].[ProductID] <= 50 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CASE
-    WHEN [p].[ProductID] > 20 THEN CAST(1 AS bit)
+    WHEN [p].[ProductID] <= 20 THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1253,7 +1253,7 @@ FROM [Customers] AS [c]");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Where_default(bool async)
@@ -1353,7 +1353,7 @@ WHERE ((CAST([o].[OrderID] AS nchar(5)) + [o].[CustomerID]) = [o].[CustomerID]) 
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (COALESCE(@__i_0, N'') + [c].[CustomerID]) = [c].[CompanyName]");
+WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_string_concat_method_comparison(bool async)
@@ -1365,7 +1365,7 @@ WHERE (COALESCE(@__i_0, N'') + [c].[CustomerID]) = [c].[CompanyName]");
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (COALESCE(@__i_0, N'') + [c].[CustomerID]) = [c].[CompanyName]");
+WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]");
         }
 
         public override async Task Where_ternary_boolean_condition_true(bool async)
@@ -1417,7 +1417,7 @@ WHERE [p].[UnitsInStock] >= CAST(20 AS smallint)");
             AssertSql(
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Where_compare_constructed_equal(bool async)
@@ -1672,7 +1672,7 @@ WHERE @__p_0 = CAST(1 AS bit)");
                 @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
 WHERE CASE
-    WHEN CAST(1 AS bit) = CAST(1 AS bit) THEN CAST(0 AS bit)
+    WHEN 1 = 1 THEN CAST(0 AS bit)
     ELSE CAST(1 AS bit)
 END = CAST(1 AS bit)");
         }

@@ -54,11 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            var newItem = (SqlExpression)visitor.Visit(Item);
+            var item = (SqlExpression)visitor.Visit(Item);
             var subquery = (SelectExpression)visitor.Visit(Subquery);
             var values = (SqlExpression)visitor.Visit(Values);
 
-            return Update(newItem, values, subquery);
+            return Update(item, values, subquery);
         }
 
         public virtual InExpression Negate() => new InExpression(Item, !IsNegated, Values, Subquery, TypeMapping);

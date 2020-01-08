@@ -497,7 +497,7 @@ FROM (
     FROM [Animal] AS [a0]
     WHERE [a0].[Discriminator] = N'Eagle'
 ) AS [t]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override void Member_access_on_intermediate_type_works()

@@ -4567,7 +4567,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(l1 => Math.Max(l1.OneToOne_Optional_PK1.Level1_Required_Id, 7)));
         }
 
-        [ConditionalTheory(Skip = "See issue#11464")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Accessing_optional_property_inside_result_operator_subquery(bool async)
         {

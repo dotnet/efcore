@@ -74,7 +74,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IMethodCallTranslatorProvider, SqlServerMethodCallTranslatorProvider>()
                 .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
-                .TryAdd<IQueryTranslationPostprocessorFactory, SqlServerQueryTranslationPostprocessorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
                 .TryAdd<IRelationalParameterBasedQueryTranslationPostprocessorFactory, SqlServerParameterBasedQueryTranslationPostprocessorFactory>()
                 .TryAddProviderSpecificServices(

@@ -97,7 +97,7 @@ LEFT JOIN (
     WHERE [o13].[LeafAAddress_Country_PlanetId] IS NOT NULL
 ) AS [t14] ON [t11].[Id] = [t14].[Id]
 LEFT JOIN [Order] AS [o16] ON [o].[Id] = [o16].[ClientId]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)
+WHERE 0 = 1
 ORDER BY [o].[Id], [t].[Id], [o16].[ClientId], [o16].[Id]");
         }
 

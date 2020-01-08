@@ -45,15 +45,15 @@ WHERE CHARINDEX(N'_Ba_', [f].[FirstName]) > 0",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(N'%B%a%r', [f].[FirstName]) <= 0",
+WHERE NOT (CHARINDEX(N'%B%a%r', [f].[FirstName]) > 0)",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(NULL, [f].[FirstName]) <= 0");
+WHERE NOT (CHARINDEX(NULL, [f].[FirstName]) > 0)");
         }
 
         public override async Task String_contains_on_argument_with_wildcard_parameter(bool async)
@@ -73,11 +73,9 @@ SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE (@__prm2_0 = N'') OR (CHARINDEX(@__prm2_0, [f].[FirstName]) > 0)",
                 //
-                @"@__prm3_0=NULL (Size = 4000)
-
-SELECT [f].[FirstName]
+                @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(@__prm3_0, [f].[FirstName]) > 0",
+WHERE CHARINDEX(NULL, [f].[FirstName]) > 0",
                 //
                 @"@__prm4_0='' (Size = 4000)
 
@@ -95,19 +93,17 @@ WHERE (@__prm5_0 = N'') OR (CHARINDEX(@__prm5_0, [f].[FirstName]) > 0)",
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm6_0 <> N'') AND (CHARINDEX(@__prm6_0, [f].[FirstName]) <= 0)",
+WHERE NOT ((@__prm6_0 = N'') OR (CHARINDEX(@__prm6_0, [f].[FirstName]) > 0))",
                 //
                 @"@__prm7_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm7_0 <> N'') AND (CHARINDEX(@__prm7_0, [f].[FirstName]) <= 0)",
+WHERE NOT ((@__prm7_0 = N'') OR (CHARINDEX(@__prm7_0, [f].[FirstName]) > 0))",
                 //
-                @"@__prm8_0=NULL (Size = 4000)
-
-SELECT [f].[FirstName]
+                @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CHARINDEX(@__prm8_0, [f].[FirstName]) <= 0");
+WHERE NOT (CHARINDEX(NULL, [f].[FirstName]) > 0)");
         }
 
         public override async Task String_contains_on_argument_with_wildcard_column(bool async)
@@ -129,7 +125,7 @@ WHERE ([f0].[LastName] = N'') OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
-WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND (CHARINDEX([f0].[LastName], [f].[FirstName]) <= 0)");
+WHERE NOT ((([f0].[LastName] = N'') AND [f0].[LastName] IS NOT NULL) OR (CHARINDEX([f0].[LastName], [f].[FirstName]) > 0))");
         }
 
         public override async Task String_starts_with_on_argument_with_wildcard_constant(bool async)
@@ -147,7 +143,7 @@ WHERE [f].[FirstName] IS NOT NULL AND ([f].[FirstName] LIKE N'a\_%' ESCAPE N'\')
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]",
@@ -162,11 +158,11 @@ WHERE [f].[FirstName] IS NOT NULL AND NOT ([f].[FirstName] LIKE N'\%B\%a\%r%' ES
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task String_starts_with_on_argument_with_wildcard_parameter(bool async)
@@ -188,7 +184,7 @@ WHERE (@__prm2_0 = N'') OR ([f].[FirstName] IS NOT NULL AND (LEFT([f].[FirstName
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"@__prm4_0='' (Size = 4000)
 
@@ -216,7 +212,7 @@ WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstN
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task String_starts_with_on_argument_with_bracket(bool async)
@@ -296,7 +292,7 @@ WHERE [f].[FirstName] IS NOT NULL AND ([f].[FirstName] LIKE N'%a\_' ESCAPE N'\')
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]",
@@ -311,11 +307,11 @@ WHERE [f].[FirstName] IS NOT NULL AND NOT ([f].[FirstName] LIKE N'%\%B\%a\%r' ES
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task String_ends_with_on_argument_with_wildcard_parameter(bool async)
@@ -337,7 +333,7 @@ WHERE (@__prm2_0 = N'') OR ([f].[FirstName] IS NOT NULL AND (RIGHT([f].[FirstNam
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)",
+WHERE 0 = 1",
                 //
                 @"@__prm4_0='' (Size = 4000)
 
@@ -365,7 +361,7 @@ WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[First
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task String_ends_with_on_argument_with_wildcard_column(bool async)
