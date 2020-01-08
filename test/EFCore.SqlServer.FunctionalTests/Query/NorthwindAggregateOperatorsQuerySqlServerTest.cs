@@ -965,8 +965,7 @@ SELECT CASE
     WHEN @__p_0 IN (
         SELECT [c].[CustomerID]
         FROM [Customers] AS [c]
-    )
-     THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1084,8 +1083,7 @@ SELECT CASE
         SELECT [o].[OrderID]
         FROM [Orders] AS [o]
         WHERE [o].[CustomerID] = N'VINET'
-    )
-     THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1178,8 +1176,7 @@ SELECT CASE
         SELECT [o].[OrderID]
         FROM [Orders] AS [o]
         WHERE [o].[CustomerID] = N'VINET'
-    )
-     THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
