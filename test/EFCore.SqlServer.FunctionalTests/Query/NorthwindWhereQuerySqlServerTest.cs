@@ -1563,8 +1563,7 @@ WHERE [o].[ProductID] IN (
     SELECT TOP(1) [p].[ProductID]
     FROM [Products] AS [p]
     ORDER BY [p].[ProductID]
-)
- OR [o].[OrderID] IN (
+) OR [o].[OrderID] IN (
     SELECT TOP(1) [o0].[OrderID]
     FROM [Orders] AS [o0]
     ORDER BY [o0].[OrderID]
@@ -1582,8 +1581,7 @@ WHERE [o].[ProductID] IN (
     SELECT TOP(20) [p].[ProductID]
     FROM [Products] AS [p]
     ORDER BY [p].[ProductID]
-)
- AND [o].[OrderID] IN (
+) AND [o].[OrderID] IN (
     SELECT TOP(10) [o0].[OrderID]
     FROM [Orders] AS [o0]
     ORDER BY [o0].[OrderID]
@@ -1604,8 +1602,7 @@ WHERE EXISTS (
         SELECT [o0].[OrderID]
         FROM [Orders] AS [o0]
         WHERE [c].[CustomerID] = [o0].[CustomerID]
-    )
-)");
+    ))");
         }
 
         public override async Task Where_subquery_FirstOrDefault_is_null(bool async)
@@ -1793,7 +1790,6 @@ WHERE N'ALFKI' IN (
     FROM [Orders] AS [o0]
     WHERE [o0].[CustomerID] = [c].[CustomerID]
 )
-
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -1825,7 +1821,6 @@ WHERE N'ALFKI' IN (
     FROM [Orders] AS [o0]
     WHERE [o0].[CustomerID] = [c].[CustomerID]
 )
-
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -1857,7 +1852,6 @@ WHERE N'ALFKI' IN (
     FROM [Orders] AS [o0]
     WHERE [o0].[CustomerID] = [c].[CustomerID]
 )
-
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
@@ -1913,7 +1907,6 @@ WHERE @__entity_equality_order_0_OrderID IN (
     FROM [Orders] AS [o0]
     WHERE [c].[CustomerID] = [o0].[CustomerID]
 )
-
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
