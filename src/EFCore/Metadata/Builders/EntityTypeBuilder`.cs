@@ -165,6 +165,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
 
         /// <summary>
+        ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+        ///     this entity type.
+        /// </summary>
+        /// <param name="filter"> The factory for the LINQ predicate expression. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual EntityTypeBuilder<TEntity> HasQueryFilter([CanBeNull] Func<Expression<Func<TEntity, bool>>> filter)
+            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
+
+        /// <summary>
         ///     Configures a query used to provide data for a keyless entity type.
         /// </summary>
         /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>

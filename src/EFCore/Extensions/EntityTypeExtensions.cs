@@ -11,6 +11,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -612,11 +613,47 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to get the query filter for. </param>
         /// <returns> The LINQ expression filter. </returns>
+        public static LambdaExpression GetOrBuildQueryFilter([NotNull] this IEntityType entityType)
+        {
+            return entityType.GetQueryFilter() ?? entityType.TryGetQueryFilterFromFactory();
+        }
+
+        /// <summary>
+        ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the query filter for. </param>
+        /// <returns> The LINQ expression filter. </returns>
         public static LambdaExpression GetQueryFilter([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             return (LambdaExpression)entityType[CoreAnnotationNames.QueryFilter];
+        }
+
+        /// <summary>
+        ///     Gets the LINQ expression filter automatically applied to queries for this entity type.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the query filter for. </param>
+        /// <returns> The LINQ expression filter factory. </returns>
+        public static LambdaExpression TryGetQueryFilterFromFactory([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var factory = entityType[CoreAnnotationNames.QueryFilter] as Func<LambdaExpression>;
+
+            if(factory != null)
+            {
+                var lambda = factory();
+                if (entityType is EntityType)
+                {
+                    var dbSetAccessRewriter = new DbSetAccessRewritingExpressionVisitor(entityType.ClrType);
+                    var annotation = entityType.GetAnnotation(CoreAnnotationNames.QueryFilter);
+                    ((Annotation)annotation).Value = dbSetAccessRewriter.Visit(lambda);
+                }
+                return lambda;
+            }
+
+            return null;
         }
 
         /// <summary>

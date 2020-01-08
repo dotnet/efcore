@@ -62,48 +62,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
         }
+    }
+    public class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
+    {
+        private readonly Type _contextType;
 
-        protected class DbSetAccessRewritingExpressionVisitor : ExpressionVisitor
+        public DbSetAccessRewritingExpressionVisitor(Type contextType)
         {
-            private readonly Type _contextType;
+            _contextType = contextType;
+        }
 
-            public DbSetAccessRewritingExpressionVisitor(Type contextType)
+        protected override Expression VisitMember(MemberExpression memberExpression)
+        {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
+            if (memberExpression.Expression != null
+                && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
+                    || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
+                && memberExpression.Type.IsGenericType
+                && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
             {
-                _contextType = contextType;
+                return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(memberExpression.Type.GetGenericArguments()[0]);
             }
 
-            protected override Expression VisitMember(MemberExpression memberExpression)
+            return base.VisitMember(memberExpression);
+        }
+
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            if (methodCallExpression.Method.Name == nameof(DbContext.Set)
+                && methodCallExpression.Object != null
+                && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)
+                && methodCallExpression.Type.IsGenericType
+                && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
             {
-                Check.NotNull(memberExpression, nameof(memberExpression));
-
-                if (memberExpression.Expression != null
-                    && (memberExpression.Expression.Type.IsAssignableFrom(_contextType)
-                        || _contextType.IsAssignableFrom(memberExpression.Expression.Type))
-                    && memberExpression.Type.IsGenericType
-                    && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
-                {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(memberExpression.Type.GetGenericArguments()[0]);
-                }
-
-                return base.VisitMember(memberExpression);
+                return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(
+                    methodCallExpression.Type.GetGenericArguments()[0]);
             }
 
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
-            {
-                Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
-                if (methodCallExpression.Method.Name == nameof(DbContext.Set)
-                    && methodCallExpression.Object != null
-                    && typeof(DbContext).IsAssignableFrom(methodCallExpression.Object.Type)
-                    && methodCallExpression.Type.IsGenericType
-                    && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>))
-                {
-                    return NullAsyncQueryProvider.Instance.CreateEntityQueryableExpression(
-                        methodCallExpression.Type.GetGenericArguments()[0]);
-                }
-
-                return base.VisitMethodCall(methodCallExpression);
-            }
+            return base.VisitMethodCall(methodCallExpression);
         }
     }
 }

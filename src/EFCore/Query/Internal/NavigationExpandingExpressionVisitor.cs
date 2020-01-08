@@ -1157,7 +1157,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
                 var entityType = _queryCompilationContext.Model.FindEntityType(sequenceType);
                 var rootEntityType = entityType.GetRootType();
-                var queryFilter = rootEntityType.GetQueryFilter();
+                var queryFilter = rootEntityType.GetOrBuildQueryFilter();
                 if (queryFilter != null)
                 {
                     if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))

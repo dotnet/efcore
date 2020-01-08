@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // Parametrize
             // Filters defined in OnModelCreating
             modelBuilder.Entity<FieldFilter>().HasQueryFilter(e => e.IsEnabled == Field);
-            modelBuilder.Entity<PropertyFilter>().HasQueryFilter(e => e.IsEnabled == Property);
+            modelBuilder.Entity<PropertyFilter>().HasQueryFilter(() => e => e.IsEnabled == Property);
             modelBuilder.Entity<MethodCallFilter>().HasQueryFilter(e => e.Tenant == GetId());
             modelBuilder.Entity<ListFilter>().HasQueryFilter(e => TenantIds.Contains(e.Tenant));
             modelBuilder.Entity<PropertyChainFilter>().HasQueryFilter(e => e.IsEnabled == IndirectionFlag.Enabled);

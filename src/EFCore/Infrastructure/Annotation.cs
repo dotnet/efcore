@@ -38,6 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the value assigned to this annotation.
         /// </summary>
-        public virtual object Value { get; }
+        public virtual object Value { get; internal set; }
     }
 }

@@ -241,6 +241,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
+        ///     this entity type.
+        /// </summary>
+        /// <param name="filter"> The factory for the LINQ predicate expression. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual EntityTypeBuilder HasQueryFilter([CanBeNull] Func<LambdaExpression> filter)
+        {
+            Builder.HasQueryFilter(filter, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
         ///     Configures an index on the specified properties. If there is an existing index on the given
         ///     set of properties, then the existing index will be returned for configuration.
         /// </summary>
