@@ -14,10 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public NullSemanticsQueryFixtureBase()
         {
-            var entitySorters = new Dictionary<Type, Func<dynamic, object>> { { typeof(NullSemanticsEntity1), e => e?.Id }, { typeof(NullSemanticsEntity2), e => e?.Id } }
-                .ToDictionary(e => e.Key, e => (object)e.Value);
+            var entitySorters = new Dictionary<Type, Func<object, object>>
+                {
+                    { typeof(NullSemanticsEntity1), e => ((NullSemanticsEntity1)e)?.Id },
+                    { typeof(NullSemanticsEntity2), e => ((NullSemanticsEntity2)e)?.Id }
+                }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+            var entityAsserters = new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(NullSemanticsEntity1), (e, a) =>
@@ -25,25 +28,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.BoolA, a.BoolA);
-                                Assert.Equal(e.BoolB, a.BoolB);
-                                Assert.Equal(e.BoolC, a.BoolC);
-                                Assert.Equal(e.IntA, a.IntA);
-                                Assert.Equal(e.IntB, a.IntB);
-                                Assert.Equal(e.IntC, a.IntC);
-                                Assert.Equal(e.StringA, a.StringA);
-                                Assert.Equal(e.StringB, a.StringB);
-                                Assert.Equal(e.StringC, a.StringC);
-                                Assert.Equal(e.NullableBoolA, a.NullableBoolA);
-                                Assert.Equal(e.NullableBoolB, a.NullableBoolB);
-                                Assert.Equal(e.NullableBoolC, a.NullableBoolC);
-                                Assert.Equal(e.NullableIntA, a.NullableIntA);
-                                Assert.Equal(e.NullableIntB, a.NullableIntB);
-                                Assert.Equal(e.NullableIntC, a.NullableIntC);
-                                Assert.Equal(e.NullableStringA, a.NullableStringA);
-                                Assert.Equal(e.NullableStringB, a.NullableStringB);
-                                Assert.Equal(e.NullableStringC, a.NullableStringC);
+                                var ee = (NullSemanticsEntity1)e;
+                                var aa = (NullSemanticsEntity1)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.BoolA, aa.BoolA);
+                                Assert.Equal(ee.BoolB, aa.BoolB);
+                                Assert.Equal(ee.BoolC, aa.BoolC);
+                                Assert.Equal(ee.IntA, aa.IntA);
+                                Assert.Equal(ee.IntB, aa.IntB);
+                                Assert.Equal(ee.IntC, aa.IntC);
+                                Assert.Equal(ee.StringA, aa.StringA);
+                                Assert.Equal(ee.StringB, aa.StringB);
+                                Assert.Equal(ee.StringC, aa.StringC);
+                                Assert.Equal(ee.NullableBoolA, aa.NullableBoolA);
+                                Assert.Equal(ee.NullableBoolB, aa.NullableBoolB);
+                                Assert.Equal(ee.NullableBoolC, aa.NullableBoolC);
+                                Assert.Equal(ee.NullableIntA, aa.NullableIntA);
+                                Assert.Equal(ee.NullableIntB, aa.NullableIntB);
+                                Assert.Equal(ee.NullableIntC, aa.NullableIntC);
+                                Assert.Equal(ee.NullableStringA, aa.NullableStringA);
+                                Assert.Equal(ee.NullableStringB, aa.NullableStringB);
+                                Assert.Equal(ee.NullableStringC, aa.NullableStringC);
                             }
                         }
                     },
@@ -53,25 +59,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.BoolA, a.BoolA);
-                                Assert.Equal(e.BoolB, a.BoolB);
-                                Assert.Equal(e.BoolC, a.BoolC);
-                                Assert.Equal(e.IntA, a.IntA);
-                                Assert.Equal(e.IntB, a.IntB);
-                                Assert.Equal(e.IntC, a.IntC);
-                                Assert.Equal(e.StringA, a.StringA);
-                                Assert.Equal(e.StringB, a.StringB);
-                                Assert.Equal(e.StringC, a.StringC);
-                                Assert.Equal(e.NullableBoolA, a.NullableBoolA);
-                                Assert.Equal(e.NullableBoolB, a.NullableBoolB);
-                                Assert.Equal(e.NullableBoolC, a.NullableBoolC);
-                                Assert.Equal(e.NullableIntA, a.NullableIntA);
-                                Assert.Equal(e.NullableIntB, a.NullableIntB);
-                                Assert.Equal(e.NullableIntC, a.NullableIntC);
-                                Assert.Equal(e.NullableStringA, a.NullableStringA);
-                                Assert.Equal(e.NullableStringB, a.NullableStringB);
-                                Assert.Equal(e.NullableStringC, a.NullableStringC);
+                                var ee = (NullSemanticsEntity2)e;
+                                var aa = (NullSemanticsEntity2)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.BoolA, aa.BoolA);
+                                Assert.Equal(ee.BoolB, aa.BoolB);
+                                Assert.Equal(ee.BoolC, aa.BoolC);
+                                Assert.Equal(ee.IntA, aa.IntA);
+                                Assert.Equal(ee.IntB, aa.IntB);
+                                Assert.Equal(ee.IntC, aa.IntC);
+                                Assert.Equal(ee.StringA, aa.StringA);
+                                Assert.Equal(ee.StringB, aa.StringB);
+                                Assert.Equal(ee.StringC, aa.StringC);
+                                Assert.Equal(ee.NullableBoolA, aa.NullableBoolA);
+                                Assert.Equal(ee.NullableBoolB, aa.NullableBoolB);
+                                Assert.Equal(ee.NullableBoolC, aa.NullableBoolC);
+                                Assert.Equal(ee.NullableIntA, aa.NullableIntA);
+                                Assert.Equal(ee.NullableIntB, aa.NullableIntB);
+                                Assert.Equal(ee.NullableIntC, aa.NullableIntC);
+                                Assert.Equal(ee.NullableStringA, aa.NullableStringA);
+                                Assert.Equal(ee.NullableStringB, aa.NullableStringB);
+                                Assert.Equal(ee.NullableStringC, aa.NullableStringC);
                             }
                         }
                     },

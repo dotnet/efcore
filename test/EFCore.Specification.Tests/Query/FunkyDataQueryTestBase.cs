@@ -584,10 +584,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public FunkyDataQueryFixtureBase()
             {
-                var entitySorters = new Dictionary<Type, Func<dynamic, object>> { { typeof(FunkyCustomer), e => e?.Id } }
+                var entitySorters = new Dictionary<Type, Func<object, object>> { { typeof(FunkyCustomer), e => ((FunkyCustomer)e)?.Id } }
                     .ToDictionary(e => e.Key, e => (object)e.Value);
 
-                var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+                var entityAsserters = new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(FunkyCustomer), (e, a) =>
@@ -595,10 +595,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.FirstName, a.FirstName);
-                                Assert.Equal(e.LastName, a.LastName);
-                                Assert.Equal(e.NullableBool, a.NullableBool);
+                                var ee = (FunkyCustomer)e;
+                                var aa = (FunkyCustomer)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.FirstName, aa.FirstName);
+                                Assert.Equal(ee.LastName, aa.LastName);
+                                Assert.Equal(ee.NullableBool, aa.NullableBool);
                             }
                         }
                     }

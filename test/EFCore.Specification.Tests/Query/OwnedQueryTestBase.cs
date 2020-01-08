@@ -570,28 +570,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             public OwnedQueryFixtureBase()
             {
-                var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+                var entitySorters = new Dictionary<Type, Func<object, object>>
                 {
-                    { typeof(OwnedPerson), e => e?.Id },
-                    { typeof(Branch), e => e?.Id },
-                    { typeof(LeafA), e => e?.Id },
-                    { typeof(LeafB), e => e?.Id },
-                    { typeof(Planet), e => e?.Id },
-                    { typeof(Star), e => e?.Id },
-                    { typeof(Moon), e => e?.Id },
-                    { typeof(Fink), e => e?.Id },
-                    { typeof(Barton), e => e?.Id },
+                    { typeof(OwnedPerson), e => ((OwnedPerson)e)?.Id },
+                    { typeof(Branch), e => ((Branch)e)?.Id },
+                    { typeof(LeafA), e => ((LeafA)e)?.Id },
+                    { typeof(LeafB), e => ((LeafB)e)?.Id },
+                    { typeof(Planet), e => ((Planet)e)?.Id },
+                    { typeof(Star), e => ((Star)e)?.Id },
+                    { typeof(Moon), e => ((Moon)e)?.Id },
+                    { typeof(Fink), e => ((Fink)e)?.Id },
+                    { typeof(Barton), e => ((Barton)e)?.Id },
 
                     // owned entities - still need comparers in case they are projected directly
-                    { typeof(Order), e => e?.Id },
-                    { typeof(OwnedAddress), e => e?.Country.Name },
-                    { typeof(OwnedCountry), e => e?.Name },
-                    { typeof(Element), e => e?.Id },
-                    { typeof(Throned), e => e?.Property }
+                    { typeof(Order), e => ((Order)e)?.Id },
+                    { typeof(OwnedAddress), e => ((OwnedAddress)e)?.Country.Name },
+                    { typeof(OwnedCountry), e => ((OwnedCountry)e)?.Name },
+                    { typeof(Element), e => ((Element)e)?.Id },
+                    { typeof(Throned), e => ((Throned)e)?.Property }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
                 ;
 
-                var entityAsserters = new Dictionary<Type, Action<dynamic, dynamic>>
+                var entityAsserters = new Dictionary<Type, Action<object, object>>
                 {
                     {
                         typeof(OwnedPerson), (e, a) =>
@@ -599,9 +599,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                AssertAddress(e.PersonAddress, a.PersonAddress);
-                                AssertOrders(e.Orders, a.Orders);
+                                var ee = (OwnedPerson)e;
+                                var aa = (OwnedPerson)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                                AssertOrders(ee.Orders, aa.Orders);
                             }
 
                             if (e is Branch branch)
@@ -626,10 +629,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                AssertAddress(e.PersonAddress, a.PersonAddress);
-                                AssertAddress(e.BranchAddress, a.BranchAddress);
-                                AssertOrders(e.Orders, a.Orders);
+                                var ee = (Branch)e;
+                                var aa = (Branch)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                                AssertAddress(ee.BranchAddress, aa.BranchAddress);
+                                AssertOrders(ee.Orders, aa.Orders);
                             }
 
                             if (e is LeafA leafA)
@@ -644,11 +650,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                AssertAddress(e.PersonAddress, a.PersonAddress);
-                                AssertAddress(e.BranchAddress, a.BranchAddress);
-                                AssertAddress(e.LeafAAddress, a.LeafAAddress);
-                                AssertOrders(e.Orders, a.Orders);
+                                var ee = (LeafA)e;
+                                var aa = (LeafA)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                                AssertAddress(ee.BranchAddress, aa.BranchAddress);
+                                AssertAddress(ee.LeafAAddress, aa.LeafAAddress);
+                                AssertOrders(ee.Orders, aa.Orders);
                             }
                         }
                     },
@@ -658,10 +667,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                AssertAddress(e.PersonAddress, a.PersonAddress);
-                                AssertAddress(e.LeafBAddress, a.LeafBAddress);
-                                AssertOrders(e.Orders, a.Orders);
+                                var ee = (LeafB)e;
+                                var aa = (LeafB)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                                AssertAddress(ee.LeafBAddress, aa.LeafBAddress);
+                                AssertOrders(ee.Orders, aa.Orders);
                             }
                         }
                     },
@@ -671,8 +683,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.StarId, a.StarId);
+                                var ee = (Planet)e;
+                                var aa = (Planet)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.StarId, aa.StarId);
                             }
                         }
                     },
@@ -682,14 +697,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.Name, a.Name);
-                                Assert.Equal(e.Composition.Count, a.Composition.Count);
-                                for (var i = 0; i < e.Composition.Count; i++)
+                                var ee = (Star)e;
+                                var aa = (Star)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.Name, aa.Name);
+                                Assert.Equal(ee.Composition.Count, aa.Composition.Count);
+                                for (var i = 0; i < ee.Composition.Count; i++)
                                 {
-                                    Assert.Equal(e.Composition[i].Id, a.Composition[i].Id);
-                                    Assert.Equal(e.Composition[i].Name, a.Composition[i].Name);
-                                    Assert.Equal(e.Composition[i].StarId, a.Composition[i].StarId);
+                                    Assert.Equal(ee.Composition[i].Id, aa.Composition[i].Id);
+                                    Assert.Equal(ee.Composition[i].Name, aa.Composition[i].Name);
+                                    Assert.Equal(ee.Composition[i].StarId, aa.Composition[i].StarId);
                                 }
                             }
                         }
@@ -700,9 +718,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.PlanetId, a.PlanetId);
-                                Assert.Equal(e.Diameter, a.Diameter);
+                                var ee = (Moon)e;
+                                var aa = (Moon)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.PlanetId, aa.PlanetId);
+                                Assert.Equal(ee.Diameter, aa.Diameter);
                             }
                         }
                     },
@@ -712,7 +733,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(((Fink)e).Id, ((Fink)a).Id);
                             }
                         }
                     },
@@ -722,9 +743,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.Simple, a.Simple);
-                                Assert.Equal(e.Throned.Property, a.Throned.Property);
+                                var ee = (Barton)e;
+                                var aa = (Barton)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.Simple, aa.Simple);
+                                Assert.Equal(ee.Throned.Property, aa.Throned.Property);
                             }
                         }
                     },
@@ -736,14 +760,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
+                                Assert.Equal(((Order)e).Id, ((Order)a).Id);
                             }
                         }
                     },
                     {
                         typeof(OwnedAddress), (e, a) =>
                         {
-                            AssertAddress(e, a);
+                            AssertAddress(((OwnedAddress)e), ((OwnedAddress)a));
                         }
                     },
                     {
@@ -752,8 +776,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Name, a.Name);
-                                Assert.Equal(e.PlanetId, a.PlanetId);
+                                var ee = (OwnedCountry)e;
+                                var aa = (OwnedCountry)a;
+
+                                Assert.Equal(ee.Name, aa.Name);
+                                Assert.Equal(ee.PlanetId, aa.PlanetId);
                             }
                         }
                     },
@@ -763,9 +790,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Id, a.Id);
-                                Assert.Equal(e.Name, a.Name);
-                                Assert.Equal(e.StarId, a.StarId);
+                                var ee = (Element)e;
+                                var aa = (Element)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.Name, aa.Name);
+                                Assert.Equal(ee.StarId, aa.StarId);
                             }
                         }
                     },
@@ -775,7 +805,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(e == null, a == null);
                             if (a != null)
                             {
-                                Assert.Equal(e.Property, a.Property);
+                                Assert.Equal(((Throned)e).Property, ((Throned)a).Property);
                             }
                         }
                     }
