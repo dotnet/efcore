@@ -612,10 +612,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> True if a relational database provider is being used; false otherwise. </returns>
         public static bool IsRelational([NotNull] this DatabaseFacade databaseFacade)
-        {
-            var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
-            return dependencies is IRelationalDatabaseFacadeDependencies;
-        }
+            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies is IRelationalDatabaseFacadeDependencies;
 
         private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
         {
