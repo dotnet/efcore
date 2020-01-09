@@ -604,6 +604,16 @@ namespace Microsoft.EntityFrameworkCore
         public static string GenerateCreateScript([NotNull] this DatabaseFacade databaseFacade)
             => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript();
 
+        /// <summary>
+        ///     <para>
+        ///         Returns true if the database provider currently in use is a relational database.
+        ///     </para>
+        /// </summary>
+        /// <param name="databaseFacade"> The facade from <see cref="DbContext.Database" />. </param>
+        /// <returns> True if a relational database provider is being used; false otherwise. </returns>
+        public static bool IsRelational([NotNull] this DatabaseFacade databaseFacade)
+            => ((IDatabaseFacadeDependenciesAccessor)Check.NotNull(databaseFacade, nameof(databaseFacade))).Dependencies is IRelationalDatabaseFacadeDependencies;
+
         private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
         {
             var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
