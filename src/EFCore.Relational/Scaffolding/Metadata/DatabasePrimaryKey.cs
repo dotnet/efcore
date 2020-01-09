@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabasePrimaryKey : Annotatable
     {
-        public DatabasePrimaryKey([NotNull] DatabaseTable table, [NotNull] string name)
+        public DatabasePrimaryKey([NotNull] DatabaseTable table, [CanBeNull] string? name)
         {
             Table = table;
             Name = name;
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
         /// <summary>
         ///     The name of the primary key.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string? Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The ordered list of columns that make up the primary key.

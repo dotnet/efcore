@@ -5,6 +5,8 @@ using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using JB = JetBrains.Annotations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
     /// <summary>
