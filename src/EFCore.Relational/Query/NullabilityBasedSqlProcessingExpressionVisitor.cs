@@ -101,19 +101,69 @@ namespace Microsoft.EntityFrameworkCore.Query
             var operand = VisitInternal<SqlExpression>(caseExpression.Operand).ResultExpression;
             var whenClauses = new List<CaseWhenClause>();
             var testIsCondition = caseExpression.Operand == null;
+
+            var testEvaluatesToTrue = false;
             foreach (var whenClause in caseExpression.WhenClauses)
             {
                 // we can use non-nullable column information we got from visiting Test, in the Result
-                var newTest = VisitInternal<SqlExpression>(whenClause.Test, allowOptimizedExpansion: testIsCondition, restoreNonNullableColumnInformation: false).ResultExpression;
+                var test = VisitInternal<SqlExpression>(whenClause.Test, allowOptimizedExpansion: testIsCondition, restoreNonNullableColumnInformation: false).ResultExpression;
+
+                if (test is SqlConstantExpression testConstant
+                    && testConstant.Value is bool testConstantBool)
+                {
+                    if (testConstantBool)
+                    {
+                        testEvaluatesToTrue = true;
+                    }
+                    else
+                    {
+                        // if test evaluates to 'false' we can remove the WhenClause
+                        RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
+
+                        continue;
+                    }
+                }
+
                 var (newResult, resultNullable) = VisitInternal<SqlExpression>(whenClause.Result);
 
                 nullable |= resultNullable;
-                whenClauses.Add(new CaseWhenClause(newTest, newResult));
+                whenClauses.Add(new CaseWhenClause(test, newResult));
                 RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
+
+                // if test evaluates to 'true' we can remove every condition that comes after, including ElseResult
+                if (testEvaluatesToTrue)
+                {
+                    break;
+                }
             }
 
-            var (elseResult, elseResultNullable) = VisitInternal<SqlExpression>(caseExpression.ElseResult);
-            _nullable = nullable || elseResultNullable;
+            SqlExpression elseResult = null;
+            if (!testEvaluatesToTrue)
+            {
+                bool elseResultNullable;
+                (elseResult, elseResultNullable) = VisitInternal<SqlExpression>(caseExpression.ElseResult);
+                _nullable = nullable || elseResultNullable;
+            }
+
+            // if there are no whenClauses left (e.g. their tests evaluated to false):
+            // - if there is Else block, return it
+            // - if there is no Else block, return null 
+            if (whenClauses.Count == 0)
+            {
+                return elseResult == null
+                    ? SqlExpressionFactory.Constant(null, caseExpression.TypeMapping)
+                    : elseResult;
+            }
+
+            // if there is only one When clause and it's test evaluates to 'true' AND there is no else block, simply return the result
+            if (elseResult == null
+                && whenClauses.Count == 1
+                && whenClauses[0].Test is SqlConstantExpression singleTestConstant
+                && singleTestConstant.Value is bool boolConstant
+                && boolConstant)
+            {
+                return whenClauses[0].Result;
+            }
 
             return caseExpression.Update(operand, whenClauses, elseResult);
         }

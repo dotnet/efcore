@@ -7518,6 +7518,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => ss.Set<City>().Where(c => c.Name == g.CityOfBirthName).FirstOrDefault()["Nation"] == null));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Select(g => g.Nickname == null && g.Nickname != null ? g.CityOfBirthName : g.FullName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_with_conditions_evaluating_to_true_gets_optimized(bool isAsync)
+        {
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Gear>().Select(g => g.Nickname == null || g.Nickname != null ? g.CityOfBirthName : g.FullName));
+        }
+
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()

@@ -1181,10 +1181,7 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND ((CHARINDEX(N'1997', CONVERT(nvarchar(ma
             await base.Indexof_with_emptystring(async);
 
             AssertSql(
-                @"SELECT CASE
-    WHEN 1 = 1 THEN 0
-    ELSE CAST(CHARINDEX(N'', [c].[ContactName]) AS int) - 1
-END
+                @"SELECT 0
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }

@@ -7495,6 +7495,26 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer') AND (
     WHERE [c].[Name] = [g].[CityOfBirthName]) IS NULL");
         }
 
+        public override async Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool isAsync)
+        {
+            await base.Conditional_with_conditions_evaluating_to_false_gets_optimized(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[FullName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
+        public override async Task Conditional_with_conditions_evaluating_to_true_gets_optimized(bool isAsync)
+        {
+            await base.Conditional_with_conditions_evaluating_to_true_gets_optimized(isAsync);
+
+            AssertSql(
+                @"SELECT [g].[CityOfBirthName]
+FROM [Gears] AS [g]
+WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

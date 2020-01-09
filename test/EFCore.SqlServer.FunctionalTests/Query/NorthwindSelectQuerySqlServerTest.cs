@@ -1167,10 +1167,7 @@ CROSS APPLY (
             await base.Select_with_complex_expression_that_can_be_funcletized(async);
 
             AssertSql(
-                @"SELECT CASE
-    WHEN 1 = 1 THEN 0
-    ELSE CAST(CHARINDEX(N'', [c].[ContactName]) AS int) - 1
-END
+                @"SELECT 0
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
