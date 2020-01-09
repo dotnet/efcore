@@ -265,40 +265,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(eventRaised);
         }
 
-        [ConditionalFact]
-        public void Navigational_property_marked_modified_without_being_loaded()
-        {
-            var id = 0;
-
-            using (var context = new ChangeContext<ChangeSelfRefEntity>(checkEquality: false))
-            {
-                var parent = context.CreateProxy<ChangeSelfRefEntity>();
-                parent.SelfRef = context.CreateProxy<ChangeSelfRefEntity>();
-                context.Add(parent);
-                context.SaveChanges();
-                id = parent.Id;
-            }
-
-            using (var context = new ChangeContext<ChangeSelfRefEntity>(checkEquality: false))
-            {
-                var parent = context.Set<ChangeSelfRefEntity>().Find(id);
-
-                Assert.Null(parent.SelfRef);
-
-                parent.SelfRef = null;
-
-                var entry = context.Entry(parent);
-
-                Assert.Equal(
-                    EntityState.Modified,
-                    entry.State);
-
-                var fKey = entry.Property($"{nameof(ChangeSelfRefEntity.SelfRef)}Id");
-
-                Assert.True(fKey.IsModified);
-            }
-        }
-
         private class ChangeContext<TEntity> : TestContext<TEntity>
             where TEntity : class
         {
