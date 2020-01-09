@@ -24,11 +24,17 @@ namespace Microsoft.EntityFrameworkCore
     public class RelationalDatabaseFacadeExtensionsTest
     {
         [ConditionalFact]
-        public void IsRelational_returns_if_relational()
+        public void Return_true_if_relational()
         {
-            var dbConnection = new FakeDbConnection("A=B");
-            var context = RelationalTestHelpers.Instance.CreateContext();
+            using var context = RelationalTestHelpers.Instance.CreateContext();
             Assert.True(context.Database.IsRelational());
+        }
+
+        [ConditionalFact]
+        public void Return_false_if_inMemory()
+        {
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.False(context.Database.IsRelational());
         }
 
 
