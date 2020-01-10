@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
         /// <summary>
         ///     <para>
-        ///         Configures this as a one-to-many relationship.
+        ///         Configures this as a one-to-one relationship.
         ///     </para>
         ///     <para>
         ///         Note that calling this method with no parameters will explicitly configure this side
