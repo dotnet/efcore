@@ -74,8 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return _sqlExpressionFactory.Function(
                 function,
                 new[] { instance, pattern },
-                returnType,
-                ExpressionExtensions.InferTypeMapping(instance, pattern));
+                returnType);
         }
     }
 }
