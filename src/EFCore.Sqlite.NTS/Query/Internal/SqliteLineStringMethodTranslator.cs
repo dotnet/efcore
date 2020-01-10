@@ -39,6 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
                     },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true, true },
                     method.ReturnType);
             }
 

@@ -50,20 +50,30 @@ FROM [PolygonEntity] AS [p]");
         {
             await base.AsBinary(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[Point].STAsBinary() AS [Binary]
-//FROM [PointEntity] AS [e]");
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Point].STAsBinary() AS [Binary]
+FROM [PointEntity] AS [p]");
+        }
+
+        public override async Task AsBinary_with_null_check(bool async)
+        {
+            await base.AsBinary_with_null_check(async);
+
+            AssertSql(
+                @"SELECT [p].[Id], CASE
+    WHEN [p].[Point] IS NULL THEN NULL
+    ELSE [p].[Point].STAsBinary()
+END AS [Binary]
+FROM [PointEntity] AS [p]");
         }
 
         public override async Task AsText(bool async)
         {
             await base.AsText(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[Point].AsTextZM() AS [Text]
-//FROM [PointEntity] AS [e]");
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Point].AsTextZM() AS [Text]
+FROM [PointEntity] AS [p]");
         }
 
         // No SqlServer Translation
@@ -76,10 +86,9 @@ FROM [PolygonEntity] AS [p]");
         {
             await base.Buffer(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[Polygon].STBuffer(1.0E0) AS [Buffer]
-//FROM [PolygonEntity] AS [e]");
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Polygon].STBuffer(1.0E0) AS [Buffer]
+FROM [PolygonEntity] AS [p]");
         }
 
         // No SqlServer Translation
@@ -98,22 +107,20 @@ FROM [PolygonEntity] AS [p]");
         {
             await base.Contains(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__point_0='0xE6100000010C000000000000D03F000000000000D03F' (Size = 22) (DbType = Binary)
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000D03F000000000000D03F' (Size = 22) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Polygon].STContains(@__point_0) AS [Contains]
-//FROM [PolygonEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STContains(@__point_0) AS [Contains]
+FROM [PolygonEntity] AS [p]");
         }
 
         public override async Task ConvexHull(bool async)
         {
             await base.ConvexHull(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[Polygon].STConvexHull() AS [ConvexHull]
-//FROM [PolygonEntity] AS [e]");
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Polygon].STConvexHull() AS [ConvexHull]
+FROM [PolygonEntity] AS [p]");
         }
 
         public override async Task IGeometryCollection_Count(bool async)
@@ -156,12 +163,11 @@ FROM [LineStringEntity] AS [l]");
         {
             await base.Difference(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Binary)
+            AssertSql(
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Polygon].STDifference(@__polygon_0) AS [Difference]
-//FROM [PolygonEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STDifference(@__polygon_0) AS [Difference]
+FROM [PolygonEntity] AS [p]");
         }
 
         public override async Task Dimension(bool async)
@@ -173,40 +179,84 @@ FROM [LineStringEntity] AS [l]");
 FROM [PointEntity] AS [p]");
         }
 
-        public override async Task Disjoint(bool async)
+        public override async Task Disjoint_with_cast_to_nullable(bool async)
         {
-            await base.Disjoint(async);
+            await base.Disjoint_with_cast_to_nullable(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__point_0='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Binary)
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
-//FROM [PolygonEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
+FROM [PolygonEntity] AS [p]");
         }
 
-        public override async Task Distance(bool async)
+        public override async Task Disjoint_without_cast_to_nullable(bool async)
         {
-            await base.Distance(async);
+            await base.Disjoint_without_cast_to_nullable(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Point].STDistance(@__point_0) AS [Distance]
-//FROM [PointEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STDisjoint(@__point_0) AS [Disjoint]
+FROM [PolygonEntity] AS [p]");
+        }
+
+        public override async Task Disjoint_with_null_check(bool async)
+        {
+            await base.Disjoint_with_null_check(async);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F000000000000F03F' (Size = 22) (DbType = Object)
+
+SELECT [p].[Id], CASE
+    WHEN [p].[Polygon] IS NULL THEN NULL
+    ELSE [p].[Polygon].STDisjoint(@__point_0)
+END AS [Disjoint]
+FROM [PolygonEntity] AS [p]");
+        }
+
+        public override async Task Distance_without_null_check(bool async)
+        {
+            await base.Distance_without_null_check(async);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
+
+SELECT [p].[Id], [p].[Point].STDistance(@__point_0) AS [Distance]
+FROM [PointEntity] AS [p]");
+        }
+
+        public override async Task Distance_with_null_check(bool async)
+        {
+            await base.Distance_with_null_check(async);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
+
+SELECT [p].[Id], [p].[Point].STDistance(@__point_0) AS [Distance]
+FROM [PointEntity] AS [p]");
+        }
+
+        public override async Task Distance_with_cast_to_nullable(bool async)
+        {
+            await base.Distance_with_cast_to_nullable(async);
+
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
+
+SELECT [p].[Id], [p].[Point].STDistance(@__point_0) AS [Distance]
+FROM [PointEntity] AS [p]");
         }
 
         public override async Task Distance_geometry(bool async)
         {
             await base.Distance_geometry(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Binary)
+            AssertSql(
+                @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Geometry].STDistance(@__point_0) AS [Distance]
-//FROM [PointEntity] AS [e]");
+SELECT [p].[Id], [p].[Geometry].STDistance(@__point_0) AS [Distance]
+FROM [PointEntity] AS [p]");
         }
 
         // Mixing SRIDs not supported
@@ -219,10 +269,9 @@ FROM [PointEntity] AS [p]");
         {
             await base.Distance_constant_srid_4326(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[Point].STDistance('POINT (1 1)') AS [Distance]
-//FROM [PointEntity] AS [e]");
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Point].STDistance('POINT (1 1)') AS [Distance]
+FROM [PointEntity] AS [p]");
         }
 
         // Mixing SRIDs not supported
@@ -284,12 +333,11 @@ FROM [LineStringEntity] AS [l]");
         {
             await base.EqualsTopologically(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__point_0='0xE6100000010C00000000000000000000000000000000' (Size = 22) (DbType = Object)
+            AssertSql(
+                @"@__point_0='0xE6100000010C00000000000000000000000000000000' (Size = 22) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Point].STEquals(@__point_0) AS [EqualsTopologically]
-//FROM [PointEntity] AS [e]");
+SELECT [p].[Id], [p].[Point].STEquals(@__point_0) AS [EqualsTopologically]
+FROM [PointEntity] AS [p]");
         }
 
         public override async Task ExteriorRing(bool async)
@@ -314,10 +362,15 @@ FROM [PointEntity] AS [p]");
         {
             await base.GetGeometryN(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[MultiLineString].STGeometryN(0 + 1) AS [Geometry0]
-//FROM [MultiLineStringEntity] AS [e]");
+            AssertSql(
+                @"SELECT [m].[Id], [m].[MultiLineString].STGeometryN(0 + 1) AS [Geometry0]
+FROM [MultiLineStringEntity] AS [m]");
+        }
+
+        public override Task GetGeometryN_with_null_argument(bool async)
+        {
+            // 'geometry::STGeometryN' failed because parameter 1 is not allowed to be null.
+            return Task.CompletedTask;
         }
 
         public override async Task GetInteriorRingN(bool async)
@@ -326,7 +379,7 @@ FROM [PointEntity] AS [p]");
 
             AssertSql(
                 @"SELECT [p].[Id], CASE
-    WHEN [p].[Polygon] IS NULL OR (([p].[Polygon].NumRings() - 1) = 0) THEN NULL
+    WHEN ([p].[Polygon].NumRings() - 1) = 0 THEN NULL
     ELSE [p].[Polygon].RingN(0 + 2)
 END AS [InteriorRing0]
 FROM [PolygonEntity] AS [p]");
@@ -336,10 +389,9 @@ FROM [PolygonEntity] AS [p]");
         {
             await base.GetPointN(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[LineString].STPointN(0 + 1) AS [Point0]
-//FROM [LineStringEntity] AS [e]");
+            AssertSql(
+                @"SELECT [l].[Id], [l].[LineString].STPointN(0 + 1) AS [Point0]
+FROM [LineStringEntity] AS [l]");
         }
 
         // No SqlServer Translation
@@ -352,24 +404,22 @@ FROM [PolygonEntity] AS [p]");
         {
             await base.Intersection(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+            AssertSql(
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Polygon].STIntersection(@__polygon_0) AS [Intersection]
-//FROM [PolygonEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STIntersection(@__polygon_0) AS [Intersection]
+FROM [PolygonEntity] AS [p]");
         }
 
         public override async Task Intersects(bool async)
         {
             await base.Intersects(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__lineString_0='0xE61000000114000000000000E0BF000000000000E03F000000000000E03F0000...' (Size = 38) (DbType = Object)
+            AssertSql(
+                @"@__lineString_0='0xE61000000114000000000000E0BF000000000000E03F000000000000E03F0000...' (Size = 38) (DbType = Object)
 
-//SELECT [e].[Id], [e].[LineString].STIntersects(@__lineString_0) AS [Intersects]
-//FROM [LineStringEntity] AS [e]");
+SELECT [l].[Id], [l].[LineString].STIntersects(@__lineString_0) AS [Intersects]
+FROM [LineStringEntity] AS [l]");
         }
 
         public override async Task ICurve_IsClosed(bool async)
@@ -428,11 +478,8 @@ FROM [PointEntity] AS [p]");
                 @"@__point_0='0xE6100000010C000000000000F03F0000000000000000' (Size = 22) (DbType = Object)
 
 SELECT [p].[Id], CASE
-    WHEN [p].[Point] IS NULL THEN NULL
-    ELSE CASE
-        WHEN [p].[Point].STDistance(@__point_0) <= 1.0E0 THEN CAST(1 AS bit)
-        ELSE CAST(0 AS bit)
-    END
+    WHEN [p].[Point].STDistance(@__point_0) <= 1.0E0 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
 END AS [IsWithinDistance]
 FROM [PointEntity] AS [p]");
         }
@@ -441,10 +488,9 @@ FROM [PointEntity] AS [p]");
         {
             await base.Item(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[MultiLineString].STGeometryN(0 + 1) AS [Item0]
-//FROM [MultiLineStringEntity] AS [e]");
+            AssertSql(
+                @"SELECT [m].[Id], [m].[MultiLineString].STGeometryN(0 + 1) AS [Item0]
+FROM [MultiLineStringEntity] AS [m]");
         }
 
         public override async Task Length(bool async)
@@ -517,12 +563,11 @@ FROM [PointEntity] AS [p]");
         {
             await base.Overlaps(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+            AssertSql(
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Polygon].STOverlaps(@__polygon_0) AS [Overlaps]
-//FROM [PolygonEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STOverlaps(@__polygon_0) AS [Overlaps]
+FROM [PolygonEntity] AS [p]");
         }
 
         // No SqlServer Translation
@@ -574,32 +619,29 @@ FROM [LineStringEntity] AS [l]");
         {
             await base.SymmetricDifference(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+            AssertSql(
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Polygon].STSymDifference(@__polygon_0) AS [SymmetricDifference]
-//FROM [PolygonEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STSymDifference(@__polygon_0) AS [SymmetricDifference]
+FROM [PolygonEntity] AS [p]");
         }
 
         public override async Task ToBinary(bool async)
         {
             await base.ToBinary(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[Point].STAsBinary() AS [Binary]
-//FROM [PointEntity] AS [e]");
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Point].STAsBinary() AS [Binary]
+FROM [PointEntity] AS [p]");
         }
 
         public override async Task ToText(bool async)
         {
             await base.ToText(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"SELECT [e].[Id], [e].[Point].AsTextZM() AS [Text]
-//FROM [PointEntity] AS [e]");
+            AssertSql(
+                @"SELECT [p].[Id], [p].[Point].AsTextZM() AS [Text]
+FROM [PointEntity] AS [p]");
         }
 
         // No SqlServer Translation
@@ -612,12 +654,11 @@ FROM [LineStringEntity] AS [l]");
         {
             await base.Union(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
+            AssertSql(
+                @"@__polygon_0='0xE610000001040400000000000000000000000000000000000000000000000000...' (Size = 96) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Polygon].STUnion(@__polygon_0) AS [Union]
-//FROM [PolygonEntity] AS [e]");
+SELECT [p].[Id], [p].[Polygon].STUnion(@__polygon_0) AS [Union]
+FROM [PolygonEntity] AS [p]");
         }
 
         // No SqlServer Translation
@@ -630,12 +671,11 @@ FROM [LineStringEntity] AS [l]");
         {
             await base.Within(async);
 
-            // issue #16050
-//            AssertSql(
-//                @"@__polygon_0='0xE6100000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Object)
+            AssertSql(
+                @"@__polygon_0='0xE6100000010405000000000000000000F0BF000000000000F0BF000000000000...' (Size = 112) (DbType = Object)
 
-//SELECT [e].[Id], [e].[Point].STWithin(@__polygon_0) AS [Within]
-//FROM [PointEntity] AS [e]");
+SELECT [p].[Id], [p].[Point].STWithin(@__polygon_0) AS [Within]
+FROM [PointEntity] AS [p]");
         }
 
         public override async Task X(bool async)
@@ -663,6 +703,54 @@ FROM [PointEntity] AS [p]");
             AssertSql(
                 @"SELECT [p].[Id], [p].[Point].Z AS [Z]
 FROM [PointEntity] AS [p]");
+        }
+
+        public override async Task IsEmpty_equal_to_null(bool async)
+        {
+            await base.IsEmpty_equal_to_null(async);
+
+            AssertSql(
+                @"SELECT [p].[Id]
+FROM [PointEntity] AS [p]
+WHERE [p].[Point] IS NULL");
+        }
+
+        public override async Task IsEmpty_not_equal_to_null(bool async)
+        {
+            await base.IsEmpty_not_equal_to_null(async);
+
+            AssertSql(
+                @"SELECT [p].[Id]
+FROM [PointEntity] AS [p]
+WHERE [p].[Point] IS NOT NULL");
+        }
+
+        public override async Task Intersects_equal_to_null(bool async)
+        {
+            await base.Intersects_equal_to_null(async);
+
+            AssertSql(
+                @"SELECT [l].[Id]
+FROM [LineStringEntity] AS [l]
+WHERE [l].[LineString] IS NULL",
+                //
+                @"SELECT [l].[Id]
+FROM [LineStringEntity] AS [l]
+WHERE [l].[LineString] IS NULL");
+        }
+
+        public override async Task Intersects_not_equal_to_null(bool async)
+        {
+            await base.Intersects_not_equal_to_null(async);
+
+            AssertSql(
+                @"SELECT [l].[Id]
+FROM [LineStringEntity] AS [l]
+WHERE [l].[LineString] IS NOT NULL",
+                //
+                @"SELECT [l].[Id]
+FROM [LineStringEntity] AS [l]
+WHERE [l].[LineString] IS NOT NULL");
         }
 
         private void AssertSql(params string[] expected)

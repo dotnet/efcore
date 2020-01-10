@@ -50,6 +50,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "DATEFROMPARTS",
                     arguments.Skip(1),
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: arguments.Skip(1).Select(a => true),
                     _dateFromPartsMethodInfo.ReturnType,
                     _typeMappingSource.FindMapping(typeof(DateTime), "date"));
             }
@@ -59,6 +61,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "DATETIMEFROMPARTS",
                     arguments.Skip(1),
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: arguments.Skip(1).Select(a => true),
                     _dateTimeFromPartsMethodInfo.ReturnType,
                     _typeMappingSource.FindMapping(typeof(DateTime), "datetime"));
             }
@@ -68,6 +72,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "DATETIME2FROMPARTS",
                     arguments.Skip(1),
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: arguments.Skip(1).Select(a => true),
                     _dateTime2FromPartsMethodInfo.ReturnType,
                     _typeMappingSource.FindMapping(typeof(DateTime), "datetime2"));
             }
@@ -77,6 +83,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "DATETIMEOFFSETFROMPARTS",
                     arguments.Skip(1),
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: arguments.Skip(1).Select(a => true),
                     _dateTimeOffsetFromPartsMethodInfo.ReturnType,
                     _typeMappingSource.FindMapping(typeof(DateTimeOffset), "datetimeoffset"));
             }
@@ -86,6 +94,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "SMALLDATETIMEFROMPARTS",
                     arguments.Skip(1),
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: arguments.Skip(1).Select(a => true),
                     _smallDateTimeFromPartsMethodInfo.ReturnType,
                     _typeMappingSource.FindMapping(typeof(DateTime), "smalldatetime"));
             }
@@ -95,6 +105,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "TIMEFROMPARTS",
                     arguments.Skip(1),
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: arguments.Skip(1).Select(a => true),
                     _timeFromPartsMethodInfo.ReturnType,
                     _typeMappingSource.FindMapping(typeof(TimeSpan), "time"));
             }

@@ -50,6 +50,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 arguments[0],
                                 _sqlExpressionFactory.Constant(2))
                         },
+                        nullResultAllowed: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability: new[] { true },
                         method.ReturnType,
                         _typeMappingSource.FindMapping(method.ReturnType, storeType));
                 }
@@ -63,6 +66,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
                     },
+                    nullResultAllowed: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: new[] { true },
                     method.ReturnType,
                     _typeMappingSource.FindMapping(method.ReturnType, storeType));
             }

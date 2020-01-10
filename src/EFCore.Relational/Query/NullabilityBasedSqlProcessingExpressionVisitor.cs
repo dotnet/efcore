@@ -898,8 +898,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return sqlBinaryExpression.Update(left, right);
         }
 
-        private SqlExpression SimplifyLogicalSqlBinaryExpression(
-            SqlBinaryExpression sqlBinaryExpression)
+        private SqlExpression SimplifyLogicalSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
         {
             var leftUnary = sqlBinaryExpression.Left as SqlUnaryExpression;
             var rightUnary = sqlBinaryExpression.Right as SqlUnaryExpression;
@@ -1253,37 +1252,96 @@ namespace Microsoft.EntityFrameworkCore.Query
                             sqlUnaryExpression.TypeMapping));
                 }
 
-                case SqlFunctionExpression sqlFunctionExpression
-                    when sqlFunctionExpression.IsBuiltIn && string.Equals("COALESCE", sqlFunctionExpression.Name, StringComparison.OrdinalIgnoreCase):
+                case SqlFunctionExpression sqlFunctionExpression:
                 {
-                    // for coalesce:
-                    // (a ?? b) == null -> a == null && b == null
-                    // (a ?? b) != null -> a != null || b != null
-                    var left = ProcessNullNotNull(
-                        SqlExpressionFactory.MakeUnary(
-                            sqlUnaryExpression.OperatorType,
-                            sqlFunctionExpression.Arguments[0],
-                            typeof(bool),
-                            sqlUnaryExpression.TypeMapping),
-                        operandNullable: null);
+                    if (sqlFunctionExpression.IsBuiltIn && string.Equals("COALESCE", sqlFunctionExpression.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // for coalesce:
+                        // (a ?? b) == null -> a == null && b == null
+                        // (a ?? b) != null -> a != null || b != null
+                        var left = ProcessNullNotNull(
+                            SqlExpressionFactory.MakeUnary(
+                                sqlUnaryExpression.OperatorType,
+                                sqlFunctionExpression.Arguments[0],
+                                typeof(bool),
+                                sqlUnaryExpression.TypeMapping),
+                            operandNullable: null);
 
-                    var right = ProcessNullNotNull(
-                        SqlExpressionFactory.MakeUnary(
-                            sqlUnaryExpression.OperatorType,
-                            sqlFunctionExpression.Arguments[1],
-                            typeof(bool),
-                            sqlUnaryExpression.TypeMapping),
-                        operandNullable: null);
+                        var right = ProcessNullNotNull(
+                            SqlExpressionFactory.MakeUnary(
+                                sqlUnaryExpression.OperatorType,
+                                sqlFunctionExpression.Arguments[1],
+                                typeof(bool),
+                                sqlUnaryExpression.TypeMapping),
+                            operandNullable: null);
 
-                    return SimplifyLogicalSqlBinaryExpression(
-                        SqlExpressionFactory.MakeBinary(
-                            sqlUnaryExpression.OperatorType == ExpressionType.Equal
-                                ? ExpressionType.AndAlso
-                                : ExpressionType.OrElse,
-                            left,
-                            right,
-                            sqlUnaryExpression.TypeMapping));
+                        return SimplifyLogicalSqlBinaryExpression(
+                            SqlExpressionFactory.MakeBinary(
+                                sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                                    ? ExpressionType.AndAlso
+                                    : ExpressionType.OrElse,
+                                left,
+                                right,
+                                sqlUnaryExpression.TypeMapping));
+                    }
+
+                    if (!sqlFunctionExpression.NullResultAllowed)
+                    {
+                        // when we know that function can't be nullable:
+                        // non_nullable_function() is null-> false
+                        // non_nullable_function() is not null -> true
+                        return SqlExpressionFactory.Constant(
+                            sqlUnaryExpression.OperatorType == ExpressionType.NotEqual,
+                            sqlUnaryExpression.TypeMapping);
+                    }
+
+                    // see if we can derive function nullability from it's instance and/or arguments
+                    // rather than evaluating nullability of the entire function
+                    var nullabilityPropagationElements = new List<SqlExpression>();
+                    if (sqlFunctionExpression.Instance != null
+                        && sqlFunctionExpression.InstancPropagatesNullability == true)
+                    {
+                        nullabilityPropagationElements.Add(sqlFunctionExpression.Instance);
+                    }
+
+                    for (var i = 0; i < sqlFunctionExpression.Arguments.Count; i++)
+                    {
+                        if (sqlFunctionExpression.ArgumentsPropagateNullability[i])
+                        {
+                            nullabilityPropagationElements.Add(sqlFunctionExpression.Arguments[i]);
+                        }
+                    }
+
+                    if (nullabilityPropagationElements.Count > 0)
+                    {
+                        var result = ProcessNullNotNull(
+                            SqlExpressionFactory.MakeUnary(
+                                sqlUnaryExpression.OperatorType,
+                                nullabilityPropagationElements[0],
+                                sqlUnaryExpression.Type,
+                                sqlUnaryExpression.TypeMapping),
+                            operandNullable: null);
+
+                        foreach (var element in nullabilityPropagationElements.Skip(1))
+                        {
+                            result = SimplifyLogicalSqlBinaryExpression(
+                                sqlUnaryExpression.OperatorType == ExpressionType.Equal
+                                    ? SqlExpressionFactory.OrElse(
+                                        result,
+                                        ProcessNullNotNull(
+                                            SqlExpressionFactory.IsNull(element),
+                                            operandNullable: null))
+                                    : SqlExpressionFactory.AndAlso(
+                                        result,
+                                        ProcessNullNotNull(
+                                            SqlExpressionFactory.IsNotNull(element),
+                                            operandNullable: null)));
+                        }
+
+                        return result;
+                    }
                 }
+                break;
             }
 
             return sqlUnaryExpression;

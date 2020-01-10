@@ -202,13 +202,13 @@ WHERE (@__prm5_0 = N'') OR ([f].[FirstName] IS NOT NULL AND (LEFT([f].[FirstName
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm6_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0) OR LEFT([f].[FirstName], LEN(@__prm6_0)) IS NULL))",
+WHERE (@__prm6_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND (LEFT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0))",
                 //
                 @"@__prm7_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR LEFT([f].[FirstName], LEN(@__prm7_0)) IS NULL))",
+WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND (LEFT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0))",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -274,7 +274,7 @@ WHERE ([f0].[LastName] = N'') OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastNam
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
-WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND ((LEFT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName]) OR LEFT([f].[FirstName], LEN([f0].[LastName])) IS NULL)))");
+WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (LEFT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName])))");
         }
 
         public override async Task String_ends_with_on_argument_with_wildcard_constant(bool async)
@@ -351,13 +351,13 @@ WHERE (@__prm5_0 = N'') OR ([f].[FirstName] IS NOT NULL AND (RIGHT([f].[FirstNam
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm6_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0) OR RIGHT([f].[FirstName], LEN(@__prm6_0)) IS NULL))",
+WHERE (@__prm6_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN(@__prm6_0)) <> @__prm6_0))",
                 //
                 @"@__prm7_0='' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0) OR RIGHT([f].[FirstName], LEN(@__prm7_0)) IS NULL))",
+WHERE (@__prm7_0 <> N'') AND ([f].[FirstName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN(@__prm7_0)) <> @__prm7_0))",
                 //
                 @"SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
@@ -383,7 +383,7 @@ WHERE ([f0].[LastName] = N'') OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastNam
                 @"SELECT [f].[FirstName] AS [fn], [f0].[LastName] AS [ln]
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
-WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName]) OR RIGHT([f].[FirstName], LEN([f0].[LastName])) IS NULL)))");
+WHERE (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName])))");
         }
 
         public override async Task String_ends_with_inside_conditional(bool async)
@@ -409,7 +409,7 @@ END = CAST(1 AS bit)");
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE CASE
-    WHEN (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName]) OR RIGHT([f].[FirstName], LEN([f0].[LastName])) IS NULL))) THEN CAST(1 AS bit)
+    WHEN (([f0].[LastName] <> N'') OR [f0].[LastName] IS NULL) AND ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN([f0].[LastName])) <> [f0].[LastName]))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CAST(1 AS bit)");
         }
@@ -423,7 +423,7 @@ END = CAST(1 AS bit)");
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE CASE
-    WHEN (([f0].[LastName] = N'') AND [f0].[LastName] IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName]) AND RIGHT([f].[FirstName], LEN([f0].[LastName])) IS NOT NULL))) THEN CAST(1 AS bit)
+    WHEN (([f0].[LastName] = N'') AND [f0].[LastName] IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName]))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = [f].[NullableBool]");
         }
@@ -437,7 +437,7 @@ END = [f].[NullableBool]");
 FROM [FunkyCustomers] AS [f]
 CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE (CASE
-    WHEN (([f0].[LastName] = N'') AND [f0].[LastName] IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND ((RIGHT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName]) AND RIGHT([f].[FirstName], LEN([f0].[LastName])) IS NOT NULL))) THEN CAST(1 AS bit)
+    WHEN (([f0].[LastName] = N'') AND [f0].[LastName] IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName]))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END <> [f].[NullableBool]) OR [f].[NullableBool] IS NULL");
         }

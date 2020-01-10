@@ -28,10 +28,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
                 var value = arguments[1] is SqlConstantExpression constantValue
                     ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value }, source.TypeMapping)
-                    : _sqlExpressionFactory.Function("char", new[] { arguments[1] }, typeof(string));
+                    : _sqlExpressionFactory.Function(
+                        "char",
+                        new[] { arguments[1] },
+                        nullResultAllowed: false,
+                        argumentsPropagateNullability: new[] { false },
+                        typeof(string));
 
                 return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function("instr", new[] { source, value }, typeof(int)),
+                    _sqlExpressionFactory.Function(
+                        "instr",
+                        new[] { source, value },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
 

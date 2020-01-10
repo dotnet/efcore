@@ -959,7 +959,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
             AssertSql(
                 @"SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN (CAST(LEN([g].[Nickname]) AS int) = 5) AND LEN([g].[Nickname]) IS NOT NULL THEN CAST(1 AS bit)
+        WHEN CAST(LEN([g].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     ELSE NULL
@@ -1053,7 +1053,7 @@ ORDER BY [t].[Nickname]");
             AssertSql(
                 @"SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN ((CAST(LEN([g].[LeaderNickname]) AS int) <> CAST(LEN([g].[LeaderNickname]) AS int)) OR LEN([g].[LeaderNickname]) IS NULL) AND LEN([g].[LeaderNickname]) IS NOT NULL THEN CAST(1 AS bit)
+        WHEN CAST(LEN([g].[LeaderNickname]) AS int) <> CAST(LEN([g].[LeaderNickname]) AS int) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     ELSE NULL
@@ -1101,7 +1101,7 @@ LEFT JOIN [Cities] AS [c] ON [t0].[AssignedCityName] = [c].[Name]");
             AssertSql(
                 @"SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN COALESCE(CASE
-        WHEN (CAST(LEN([g].[Nickname]) AS int) = 5) AND LEN([g].[Nickname]) IS NOT NULL THEN CAST(1 AS bit)
+        WHEN CAST(LEN([g].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END, CAST(0 AS bit))
     ELSE NULL
@@ -2628,7 +2628,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
             AssertSql(
                 @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE ([m].[Timeline] <> SYSDATETIMEOFFSET()) OR SYSDATETIMEOFFSET() IS NULL");
+WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()");
         }
 
         public override async Task Where_datetimeoffset_utcnow(bool async)
@@ -2638,7 +2638,7 @@ WHERE ([m].[Timeline] <> SYSDATETIMEOFFSET()) OR SYSDATETIMEOFFSET() IS NULL");
             AssertSql(
                 @"SELECT [m].[Id], [m].[CodeName], [m].[Rating], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE ([m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)) OR SYSUTCDATETIME() IS NULL");
+WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
 
         public override async Task Where_datetimeoffset_date_component(bool async)
@@ -6224,7 +6224,7 @@ ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId], [t].[Id]");
             AssertSql(
                 @"SELECT CASE
     WHEN [g].[LeaderNickname] IS NOT NULL THEN CASE
-        WHEN (CAST(LEN([g].[Nickname]) AS int) = 5) AND LEN([g].[Nickname]) IS NOT NULL THEN CAST(1 AS bit)
+        WHEN CAST(LEN([g].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     ELSE NULL
@@ -6234,7 +6234,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ORDER BY CASE
     WHEN CASE
         WHEN [g].[LeaderNickname] IS NOT NULL THEN CASE
-            WHEN (CAST(LEN([g].[Nickname]) AS int) = 5) AND LEN([g].[Nickname]) IS NOT NULL THEN CAST(1 AS bit)
+            WHEN CAST(LEN([g].[Nickname]) AS int) = 5 THEN CAST(1 AS bit)
             ELSE CAST(0 AS bit)
         END
         ELSE NULL
@@ -6355,7 +6355,7 @@ LEFT JOIN (
     WHERE [g].[Discriminator] IN (N'Gear', N'Officer')
 ) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
 LEFT JOIN [Squads] AS [s] ON [t0].[SquadId] = [s].[Id]
-WHERE (SUBSTRING([t].[Note], 0 + 1, CAST(LEN([s].[Name]) AS int)) = [t].[GearNickName]) OR (SUBSTRING([t].[Note], 0 + 1, CAST(LEN([s].[Name]) AS int)) IS NULL AND [t].[GearNickName] IS NULL)");
+WHERE (SUBSTRING([t].[Note], 0 + 1, CAST(LEN([s].[Name]) AS int)) = [t].[GearNickName]) OR (([t].[Note] IS NULL OR [s].[Name] IS NULL) AND [t].[GearNickName] IS NULL)");
         }
 
         public override async Task Filter_with_new_Guid(bool async)
@@ -7316,7 +7316,7 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = @__p_0");
 
 SELECT COUNT(*)
 FROM [Squads] AS [s]
-WHERE (CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam) AS int)) OR (DATALENGTH([s].[Banner]) IS NULL AND DATALENGTH(@__byteArrayParam) IS NULL)");
+WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam) AS int)");
         }
 
         public override async Task Byte_array_contains_parameter(bool async)

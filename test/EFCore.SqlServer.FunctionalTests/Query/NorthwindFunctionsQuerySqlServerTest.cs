@@ -873,7 +873,7 @@ WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE (NEWID() <> '00000000-0000-0000-0000-000000000000') OR NEWID() IS NULL");
+WHERE NEWID() <> '00000000-0000-0000-0000-000000000000'");
         }
 
         public override async Task Where_string_to_upper(bool async)
@@ -1141,35 +1141,35 @@ WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(bigint, CONVERT(nvarchar(max), 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CONVERT(tinyint, [o].[OrderID] % 1)) <> N'10') OR CONVERT(nvarchar(max), CONVERT(tinyint, [o].[OrderID] % 1)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(tinyint, [o].[OrderID] % 1)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CONVERT(decimal(18, 2), [o].[OrderID] % 1)) <> N'10') OR CONVERT(nvarchar(max), CONVERT(decimal(18, 2), [o].[OrderID] % 1)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(decimal(18, 2), [o].[OrderID] % 1)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CONVERT(float, [o].[OrderID] % 1)) <> N'10') OR CONVERT(nvarchar(max), CONVERT(float, [o].[OrderID] % 1)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(float, [o].[OrderID] % 1)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) <> N'10') OR CONVERT(nvarchar(max), CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CAST(CONVERT(float, [o].[OrderID] % 1) AS real)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CONVERT(smallint, [o].[OrderID] % 1)) <> N'10') OR CONVERT(nvarchar(max), CONVERT(smallint, [o].[OrderID] % 1)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(smallint, [o].[OrderID] % 1)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CONVERT(int, [o].[OrderID] % 1)) <> N'10') OR CONVERT(nvarchar(max), CONVERT(int, [o].[OrderID] % 1)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(int, [o].[OrderID] % 1)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CONVERT(bigint, [o].[OrderID] % 1)) <> N'10') OR CONVERT(nvarchar(max), CONVERT(bigint, [o].[OrderID] % 1)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(bigint, [o].[OrderID] % 1)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = N'ALFKI') AND ((CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10') OR CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) IS NULL)",
+WHERE ([o].[CustomerID] = N'ALFKI') AND (CONVERT(nvarchar(max), CONVERT(nvarchar(max), [o].[OrderID] % 1)) <> N'10')",
                 //
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]

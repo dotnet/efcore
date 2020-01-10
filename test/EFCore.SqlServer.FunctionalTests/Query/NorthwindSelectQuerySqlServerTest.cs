@@ -407,7 +407,7 @@ WHERE [c].[CustomerID] LIKE N'A%'");
     SELECT TOP(1) (
         SELECT TOP(1) [o].[ProductID]
         FROM [Order Details] AS [o]
-        WHERE ([o0].[OrderID] = [o].[OrderID]) AND (([o].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)) OR LEN([c].[CustomerID]) IS NULL))
+        WHERE ([o0].[OrderID] = [o].[OrderID]) AND ([o].[OrderID] <> CAST(LEN([c].[CustomerID]) AS int)))
     FROM [Orders] AS [o0]
     WHERE ([c].[CustomerID] = [o0].[CustomerID]) AND ([o0].[OrderID] < 10500)) AS [Order]
 FROM [Customers] AS [c]

@@ -100,7 +100,7 @@ WHERE ((([d].[DateTime2_2] = GETDATE()) OR ([d].[DateTime2_7] = GETDATE())) OR (
                 AssertSql(
                     @"SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE (((([d].[DateTime2_2] <> GETDATE()) OR GETDATE() IS NULL) AND (([d].[DateTime2_7] <> GETDATE()) OR GETDATE() IS NULL)) AND (([d].[DateTime] <> GETDATE()) OR GETDATE() IS NULL)) AND (([d].[SmallDateTime] <> GETDATE()) OR GETDATE() IS NULL)");
+WHERE ((([d].[DateTime2_2] <> GETDATE()) AND ([d].[DateTime2_7] <> GETDATE())) AND ([d].[DateTime] <> GETDATE())) AND ([d].[SmallDateTime] <> GETDATE())");
             }
         }
 

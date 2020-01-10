@@ -134,7 +134,7 @@ WHERE length(""s"".""Banner"") = @__p_0");
 
 SELECT COUNT(*)
 FROM ""Squads"" AS ""s""
-WHERE (length(""s"".""Banner"") = length(@__byteArrayParam)) OR (length(""s"".""Banner"") IS NULL AND length(@__byteArrayParam) IS NULL)");
+WHERE length(""s"".""Banner"") = length(@__byteArrayParam)");
         }
 
         private void AssertSql(params string[] expected)

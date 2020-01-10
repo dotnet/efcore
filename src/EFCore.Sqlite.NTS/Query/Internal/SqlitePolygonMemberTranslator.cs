@@ -34,7 +34,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(returnType, nameof(returnType));
 
             return _memberToFunctionName.TryGetValue(member, out var functionName)
-                ? _sqlExpressionFactory.Function(functionName, new[] { instance }, returnType)
+                ? _sqlExpressionFactory.Function(
+                    functionName,
+                    new[] { instance },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true },
+                    returnType)
                 : null;
         }
     }

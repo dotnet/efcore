@@ -74,7 +74,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
                 var dataLengthSqlFunction = SqlExpressionFactory.Function(
-                    "DATALENGTH", new[] { sqlExpression }, isBinaryMaxDataType ? typeof(long) : typeof(int));
+                    "DATALENGTH",
+                    new[] { sqlExpression },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new bool[] { true },
+                    isBinaryMaxDataType ? typeof(long) : typeof(int));
 
                 return isBinaryMaxDataType
                     ? (Expression)SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
@@ -93,7 +97,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             return SqlExpressionFactory.ApplyDefaultTypeMapping(
-                SqlExpressionFactory.Function("COUNT_BIG", new[] { SqlExpressionFactory.Fragment("*") }, typeof(long)));
+                SqlExpressionFactory.Function(
+                    "COUNT_BIG",
+                    new[] { SqlExpressionFactory.Fragment("*") },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { false },
+                    typeof(long)));
         }
 
         private static string GetProviderType(SqlExpression expression)

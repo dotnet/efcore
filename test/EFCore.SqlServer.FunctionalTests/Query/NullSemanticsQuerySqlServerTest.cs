@@ -1370,11 +1370,11 @@ END IS NOT NULL)");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) = [e].[NullableStringA]) OR (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) IS NULL AND [e].[NullableStringA] IS NULL)",
+WHERE (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) = [e].[NullableStringA]) OR ((([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) AND [e].[NullableStringA] IS NULL)",
                 //
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) <> [e].[NullableStringA]) OR (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) IS NULL OR [e].[NullableStringA] IS NULL)) AND (REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) IS NOT NULL OR [e].[NullableStringA] IS NOT NULL)");
+WHERE ((REPLACE([e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC]) <> [e].[NullableStringA]) OR ((([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR [e].[NullableStringC] IS NULL) OR [e].[NullableStringA] IS NULL)) AND ((([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL) AND [e].[NullableStringC] IS NOT NULL) OR [e].[NullableStringA] IS NOT NULL)");
         }
 
         public override async Task Null_semantics_coalesce(bool async)
@@ -1442,7 +1442,7 @@ END = CAST(1 AS bit)");
             AssertSql(
                 @"SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ((SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) <> [e].[NullableStringB]) OR (SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) IS NULL OR [e].[NullableStringB] IS NULL)) AND (SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) IS NOT NULL OR [e].[NullableStringB] IS NOT NULL)");
+WHERE ((SUBSTRING([e].[NullableStringA], 0 + 1, [e].[IntA]) <> [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL)");
         }
 
         public override async Task Null_semantics_join_with_composite_key(bool async)

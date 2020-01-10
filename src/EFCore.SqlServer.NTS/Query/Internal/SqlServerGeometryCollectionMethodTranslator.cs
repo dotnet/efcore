@@ -42,6 +42,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             arguments[0],
                             _sqlExpressionFactory.Constant(1))
                     },
+                    nullResultAllowed: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: new[] { false },
                     method.ReturnType,
                     _typeMappingSource.FindMapping(typeof(Geometry), instance.TypeMapping.StoreType));
             }

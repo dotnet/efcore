@@ -53,6 +53,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             instance,
                             "RingN",
                             new[] { _sqlExpressionFactory.Constant(1) },
+                            nullResultAllowed: true,
+                            instancePropagatesNullability: true,
+                            argumentsPropagateNullability: new[] { false },
                             returnType,
                             _typeMappingSource.FindMapping(returnType, storeType));
                     }
@@ -64,6 +67,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 instance,
                                 "NumRings",
                                 Array.Empty<SqlExpression>(),
+                                nullResultAllowed: true,
+                                instancePropagatesNullability: true,
+                                argumentsPropagateNullability: Array.Empty<bool>(),
                                 returnType),
                             _sqlExpressionFactory.Constant(1));
                     }
@@ -79,6 +85,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         instance,
                         functionName,
                         Array.Empty<SqlExpression>(),
+                        nullResultAllowed: true,
+                        instancePropagatesNullability: true,
+                        argumentsPropagateNullability: Array.Empty<bool>(),
                         returnType,
                         resultTypeMapping);
                 }

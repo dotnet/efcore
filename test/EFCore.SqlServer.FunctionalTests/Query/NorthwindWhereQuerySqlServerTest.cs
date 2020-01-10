@@ -715,7 +715,7 @@ WHERE SUBSTRING([c].[City], 1 + 1, 2) = N'ea'");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (GETDATE() <> @__myDatetime_0) OR GETDATE() IS NULL");
+WHERE GETDATE() <> @__myDatetime_0");
         }
 
         public override async Task Where_datetime_utcnow(bool async)
@@ -727,7 +727,7 @@ WHERE (GETDATE() <> @__myDatetime_0) OR GETDATE() IS NULL");
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (GETUTCDATE() <> @__myDatetime_0) OR GETUTCDATE() IS NULL");
+WHERE GETUTCDATE() <> @__myDatetime_0");
         }
 
         public override async Task Where_datetime_today(bool async)
@@ -737,7 +737,7 @@ WHERE (GETUTCDATE() <> @__myDatetime_0) OR GETUTCDATE() IS NULL");
             AssertSql(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-WHERE (CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())) OR CONVERT(date, GETDATE()) IS NULL");
+WHERE CONVERT(date, GETDATE()) = CONVERT(date, GETDATE())");
         }
 
         public override async Task Where_datetime_date_component(bool async)
@@ -849,7 +849,7 @@ WHERE DATEPART(millisecond, [o].[OrderDate]) = 88");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (CAST([o].[OrderDate] AS datetimeoffset) = SYSDATETIMEOFFSET()) OR ([o].[OrderDate] IS NULL AND SYSDATETIMEOFFSET() IS NULL)");
+WHERE CAST([o].[OrderDate] AS datetimeoffset) = SYSDATETIMEOFFSET()");
         }
 
         public override async Task Where_datetimeoffset_utcnow_component(bool async)
@@ -859,7 +859,7 @@ WHERE (CAST([o].[OrderDate] AS datetimeoffset) = SYSDATETIMEOFFSET()) OR ([o].[O
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE (CAST([o].[OrderDate] AS datetimeoffset) = CAST(SYSUTCDATETIME() AS datetimeoffset)) OR ([o].[OrderDate] IS NULL AND SYSUTCDATETIME() IS NULL)");
+WHERE CAST([o].[OrderDate] AS datetimeoffset) = CAST(SYSUTCDATETIME() AS datetimeoffset)");
         }
 
         public override async Task Where_simple_reversed(bool async)

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
@@ -75,9 +76,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     typeMapping = arguments[0].TypeMapping;
                 }
 
+                var finalArguments = newArguments ?? arguments;
+
                 return _sqlExpressionFactory.Function(
                     sqlFunctionName,
-                    newArguments ?? arguments,
+                    finalArguments,
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: finalArguments.Select(a => true).ToList(),
                     method.ReturnType,
                     typeMapping);
             }

@@ -36,7 +36,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
                 return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function("CHARINDEX", new[] { value, source }, typeof(int)),
+                    _sqlExpressionFactory.Function(
+                        "CHARINDEX",
+                        new[] { value, source },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
 

@@ -376,6 +376,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SqlFunctionExpression.Create(
                 "COALESCE",
                 typeMappedArguments,
+                nullResultAllowed: true,
+                // COALESCE is handled separately since it's only nullable if *both* arguments are null
+                argumentsPropagateNullability: new[] { false, false },
                 resultType,
                 inferredTypeMapping);
         }
@@ -485,7 +488,52 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         public virtual SqlFunctionExpression Function(
-            string name, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null)
+            string name,
+            IEnumerable<SqlExpression> arguments,
+            Type returnType,
+            RelationalTypeMapping typeMapping = null)
+            => Function(name, arguments, nullResultAllowed: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
+
+        public virtual SqlFunctionExpression Function(
+            string schema,
+            string name,
+            IEnumerable<SqlExpression> arguments,
+            Type returnType,
+            RelationalTypeMapping typeMapping = null)
+            => Function(schema, name, arguments, nullResultAllowed: true, argumentsPropagateNullability: arguments.Select(a => false), returnType, typeMapping);
+
+        public virtual SqlFunctionExpression Function(
+            SqlExpression instance,
+            string name,
+            IEnumerable<SqlExpression> arguments,
+            Type returnType,
+            RelationalTypeMapping typeMapping = null)
+            => Function(
+                instance,
+                name,
+                arguments,
+                nullResultAllowed: true,
+                instancePropagatesNullability: false,
+                argumentsPropagateNullability: arguments.Select(a => false),
+                returnType,
+                typeMapping);
+
+        public virtual SqlFunctionExpression Function(string name, Type returnType, RelationalTypeMapping typeMapping = null)
+            => Function(name, nullResultAllowed: true, returnType, typeMapping);
+
+        public virtual SqlFunctionExpression Function(string schema, string name, Type returnType, RelationalTypeMapping typeMapping = null)
+            => Function(schema, name, nullResultAllowed: true, returnType, typeMapping);
+
+        public virtual SqlFunctionExpression Function(SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null)
+            => Function(instance, name, nullResultAllowed: true, instancePropagatesNullability: false, returnType, typeMapping);
+
+        public virtual SqlFunctionExpression Function(
+            string name,
+            IEnumerable<SqlExpression> arguments,
+            bool nullResultAllowed,
+            IEnumerable<bool> argumentsPropagateNullability,
+            Type returnType,
+            RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(arguments, nameof(arguments));
@@ -501,12 +549,20 @@ namespace Microsoft.EntityFrameworkCore.Query
             return SqlFunctionExpression.Create(
                 name,
                 typeMappedArguments,
+                nullResultAllowed,
+                argumentsPropagateNullability,
                 returnType,
                 typeMapping);
         }
 
         public virtual SqlFunctionExpression Function(
-            string schema, string name, IEnumerable<SqlExpression> arguments, Type returnType, RelationalTypeMapping typeMapping = null)
+            string schema,
+            string name,
+            IEnumerable<SqlExpression> arguments,
+            bool nullResultAllowed,
+            IEnumerable<bool> argumentsPropagateNullability,
+            Type returnType,
+            RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(arguments, nameof(arguments));
@@ -522,12 +578,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 schema,
                 name,
                 typeMappedArguments,
+                nullResultAllowed,
+                argumentsPropagateNullability,
                 returnType,
                 typeMapping);
         }
 
         public virtual SqlFunctionExpression Function(
-            SqlExpression instance, string name, IEnumerable<SqlExpression> arguments, Type returnType,
+            SqlExpression instance,
+            string name,
+            IEnumerable<SqlExpression> arguments,
+            bool nullResultAllowed,
+            bool instancePropagatesNullability,
+            IEnumerable<bool> argumentsPropagateNullability,
+            Type returnType,
             RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(name, nameof(name));
@@ -545,34 +609,48 @@ namespace Microsoft.EntityFrameworkCore.Query
                 instance,
                 name,
                 typeMappedArguments,
+                nullResultAllowed,
+                instancePropagatesNullability,
+                argumentsPropagateNullability,
                 returnType,
                 typeMapping);
         }
 
-        public virtual SqlFunctionExpression Function(string name, Type returnType, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression Function(string name, bool nullResultAllowed, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(returnType, nameof(returnType));
 
-            return SqlFunctionExpression.CreateNiladic(name, returnType, typeMapping);
+            return SqlFunctionExpression.CreateNiladic(name, nullResultAllowed, returnType, typeMapping);
         }
 
-        public virtual SqlFunctionExpression Function(string schema, string name, Type returnType, RelationalTypeMapping typeMapping = null)
+        public virtual SqlFunctionExpression Function(string schema, string name, bool nullResultAllowed, Type returnType, RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(schema, nameof(schema));
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(returnType, nameof(returnType));
 
-            return SqlFunctionExpression.CreateNiladic(schema, name, returnType, typeMapping);
+            return SqlFunctionExpression.CreateNiladic(schema, name, nullResultAllowed, returnType, typeMapping);
         }
 
         public virtual SqlFunctionExpression Function(
-            SqlExpression instance, string name, Type returnType, RelationalTypeMapping typeMapping = null)
+            SqlExpression instance,
+            string name,
+            bool nullResultAllowed,
+            bool instancePropagatesNullability,
+            Type returnType,
+            RelationalTypeMapping typeMapping = null)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(returnType, nameof(returnType));
 
-            return SqlFunctionExpression.CreateNiladic(ApplyDefaultTypeMapping(instance), name, returnType, typeMapping);
+            return SqlFunctionExpression.CreateNiladic(
+                ApplyDefaultTypeMapping(instance),
+                name,
+                nullResultAllowed,
+                instancePropagatesNullability,
+                returnType,
+                typeMapping);
         }
 
         public virtual ExistsExpression Exists(SelectExpression subquery, bool negated)
