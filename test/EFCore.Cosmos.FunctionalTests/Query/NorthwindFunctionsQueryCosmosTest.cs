@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_StartsWith_Literal(bool async)
         {
             await base.String_StartsWith_Literal(async);
@@ -27,10 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""M"" != null) AND STARTSWITH(c[""ContactName""], ""M""))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_StartsWith_Identity(bool async)
         {
             await base.String_StartsWith_Identity(async);
@@ -38,10 +36,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND STARTSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_StartsWith_Column(bool async)
         {
             await base.String_StartsWith_Column(async);
@@ -49,10 +46,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND STARTSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_StartsWith_MethodCall(bool async)
         {
             await base.String_StartsWith_MethodCall(async);
@@ -60,10 +56,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""M"" != null) AND STARTSWITH(c[""ContactName""], ""M""))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_EndsWith_Literal(bool async)
         {
             await base.String_EndsWith_Literal(async);
@@ -71,10 +66,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""b"" != null) AND ENDSWITH(c[""ContactName""], ""b""))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_EndsWith_Identity(bool async)
         {
             await base.String_EndsWith_Identity(async);
@@ -82,10 +76,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND ENDSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_EndsWith_Column(bool async)
         {
             await base.String_EndsWith_Column(async);
@@ -93,10 +86,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND ENDSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_EndsWith_MethodCall(bool async)
         {
             await base.String_EndsWith_MethodCall(async);
@@ -104,10 +96,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""m"" != null) AND ENDSWITH(c[""ContactName""], ""m""))))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_Contains_Literal(bool async)
         {
             await base.String_Contains_Literal(async);
@@ -115,21 +106,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], ""M""))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_Contains_Identity(bool async)
         {
             await base.String_Contains_Identity(async);
-
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], c[""ContactName""]))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_Contains_Column(bool async)
         {
             await base.String_Contains_Column(async);
@@ -137,10 +125,9 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], c[""ContactName""]))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task String_Contains_MethodCall(bool async)
         {
             await base.String_Contains_MethodCall(async);
@@ -148,7 +135,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], ""M""))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]

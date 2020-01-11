@@ -85,6 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case SqlParameterExpression sqlParameterExpression:
                     return sqlParameterExpression.ApplyTypeMapping(typeMapping);
 
+                case SqlFunctionExpression sqlFunctionExpression:
+                    return sqlFunctionExpression.ApplyTypeMapping(typeMapping);
+
                 default:
                     return sqlExpression;
             }
