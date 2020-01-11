@@ -302,13 +302,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] string collectionId,
             [NotNull] string documentId,
             [NotNull] JObject document,
+            [NotNull] CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
-                (collectionId, documentId, document, partitionKey), ReplaceItemOnce, null);
+                (collectionId, documentId, document, concurrencyToken, partitionKey),
+                ReplaceItemOnce,
+                null);
 
         private bool ReplaceItemOnce(
             DbContext context,
-            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters)
+            (string ContainerId, string ItemId, JObject Document, CosmosConcurrencyToken concurrencyToken, string PartitionKey) parameters)
             => ReplaceItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -321,14 +324,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] string collectionId,
             [NotNull] string documentId,
             [NotNull] JObject document,
+            [NotNull] CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (collectionId, documentId, document, partitionKey), ReplaceItemOnceAsync, null, cancellationToken);
+                (collectionId, documentId, document, concurrencyToken, partitionKey),
+                ReplaceItemOnceAsync,
+                null,
+                cancellationToken);
 
         private async Task<bool> ReplaceItemOnceAsync(
             DbContext _,
-            (string ContainerId, string ItemId, JObject Document, string PartitionKey) parameters,
+            (string ContainerId, string ItemId, JObject Document, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
             using var stream = new MemoryStream();
@@ -338,9 +345,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             await jsonWriter.FlushAsync(cancellationToken);
 
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+
             using var response = await container.ReplaceItemStreamAsync(
-                stream, parameters.ItemId, partitionKey, null, cancellationToken);
+                stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
             response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.OK;
         }
@@ -406,6 +415,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             => partitionKey == null
                 ? PartitionKey.None
                 : new PartitionKey(partitionKey);
+
+        private ItemRequestOptions CreateItemRequestOptions(CosmosConcurrencyToken concurrencyToken)
+        {
+            return concurrencyToken.Mode switch
+            {
+                CosmosConcurrencyMode.None => new ItemRequestOptions(),
+                CosmosConcurrencyMode.IfMatch => new ItemRequestOptions { IfMatchEtag = concurrencyToken.Value },
+                CosmosConcurrencyMode.IfNoneMatch => new ItemRequestOptions { IfNoneMatchEtag = concurrencyToken.Value },
+                _ => throw new InvalidOperationException(),
+            };
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

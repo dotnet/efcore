@@ -215,7 +215,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     }
 
                     return _cosmosClient.ReplaceItem(
-                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, GetPartitionKey(entry));
+                        collectionId,
+                        documentSource.GetId(entry.SharedIdentityEntry ?? entry),
+                        document,
+                        GetConcurrencyToken(entry),
+                        GetPartitionKey(entry));
+
                 case EntityState.Deleted:
                     return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry), GetPartitionKey(entry));
                 default:
@@ -270,8 +275,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     }
 
                     return _cosmosClient.ReplaceItemAsync(
-                        collectionId, documentSource.GetId(entry.SharedIdentityEntry ?? entry), document, GetPartitionKey(entry),
+                        collectionId,
+                        documentSource.GetId(entry.SharedIdentityEntry ?? entry),
+                        document,
+                        GetConcurrencyToken(entry),
+                        GetPartitionKey(entry),
                         cancellationToken);
+
                 case EntityState.Deleted:
                     return _cosmosClient.DeleteItemAsync(
                         collectionId, documentSource.GetId(entry), GetPartitionKey(entry), cancellationToken);
@@ -320,6 +330,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
 
             return principal.EntityType.IsDocumentRoot() ? principal : GetRootDocument(principal);
+        }
+
+        private static CosmosConcurrencyToken GetConcurrencyToken(IUpdateEntry entry)
+        {
+            foreach (var property in entry.EntityType.GetProperties())
+            {
+                if (property.IsConcurrencyToken)
+                {
+                    return CosmosConcurrencyToken.IfMatch((string)entry.GetCurrentValue(property));
+                }
+            }
+
+            return CosmosConcurrencyToken.None;
         }
 
         private static string GetPartitionKey(IUpdateEntry entry)
