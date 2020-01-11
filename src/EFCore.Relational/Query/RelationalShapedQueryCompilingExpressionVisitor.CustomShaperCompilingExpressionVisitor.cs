@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         {
                             fixup(includingEntity, relatedEntity);
                             if (inverseNavigation != null
-                                && !inverseNavigation.IsCollection())
+                                && !inverseNavigation.IsCollection)
                             {
                                 SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                             }
@@ -86,6 +87,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 Func<QueryContext, DbDataReader, object[]> selfIdentifier,
+                IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
+                IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
+                IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
                 Func<QueryContext, DbDataReader, ResultContext, ResultCoordinator, TRelatedEntity> innerShaper)
                 where TRelatedEntity : TElement
                 where TCollection : class, ICollection<TElement>
@@ -104,13 +108,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     return;
                 }
 
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(
+                if (!CompareIdentifiers(outerIdentifierValueComparers,
                     outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
                 {
                     // Outer changed so collection has ended. Materialize last element.
                     GenerateCurrentElementIfPending();
                     // If parent also changed then this row is now pointing to element of next collection
-                    if (!StructuralComparisons.StructuralEqualityComparer.Equals(
+                    if (!CompareIdentifiers(parentIdentifierValueComparers,
                         parentIdentifier(queryContext, dbDataReader), collectionMaterializationContext.ParentIdentifier))
                     {
                         resultCoordinator.HasNext = true;
@@ -128,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (collectionMaterializationContext.SelfIdentifier != null)
                 {
-                    if (StructuralComparisons.StructuralEqualityComparer.Equals(
+                    if (CompareIdentifiers(selfIdentifierValueComparers,
                         innerKey, collectionMaterializationContext.SelfIdentifier))
                     {
                         // repeated row for current element
@@ -197,6 +201,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Func<QueryContext, DbDataReader, object[]> parentIdentifier,
                 Func<QueryContext, DbDataReader, object[]> outerIdentifier,
                 Func<QueryContext, DbDataReader, object[]> selfIdentifier,
+                IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
+                IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
+                IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
                 Func<QueryContext, DbDataReader, ResultContext, ResultCoordinator, TIncludedEntity> innerShaper,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
@@ -212,13 +219,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return;
                     }
 
-                    if (!StructuralComparisons.StructuralEqualityComparer.Equals(
+                    if (!CompareIdentifiers(outerIdentifierValueComparers,
                         outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
                     {
                         // Outer changed so collection has ended. Materialize last element.
                         GenerateCurrentElementIfPending();
                         // If parent also changed then this row is now pointing to element of next collection
-                        if (!StructuralComparisons.StructuralEqualityComparer.Equals(
+                        if (!CompareIdentifiers(parentIdentifierValueComparers,
                             parentIdentifier(queryContext, dbDataReader), collectionMaterializationContext.ParentIdentifier))
                         {
                             resultCoordinator.HasNext = true;
@@ -236,8 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     if (collectionMaterializationContext.SelfIdentifier != null)
                     {
-                        if (StructuralComparisons.StructuralEqualityComparer.Equals(
-                            innerKey, collectionMaterializationContext.SelfIdentifier))
+                        if (CompareIdentifiers(selfIdentifierValueComparers, innerKey, collectionMaterializationContext.SelfIdentifier))
                         {
                             // repeated row for current element
                             // If it is pending materialization then it may have nested elements
@@ -299,6 +305,27 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     collectionMaterializationContext.UpdateSelfIdentifier(null);
                 }
+            }
+
+            private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
+            {
+                if (valueComparers != null)
+                {
+                    // Ignoring size check on all for perf as they should be same unless bug in code.
+                    for (var i = 0; i < left.Length; i++)
+                    {
+                        if (valueComparers[i] != null
+                            ? !valueComparers[i].Equals(left[i], right[i])
+                            : !Equals(left[i], right[i]))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                return StructuralComparisons.StructuralEqualityComparer.Equals(left, right);
             }
 
             private static readonly MethodInfo _initializeIncludeCollectionMethodInfo
@@ -382,12 +409,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (extensionExpression is IncludeExpression includeExpression)
                 {
                     Check.DebugAssert(
-                        !includeExpression.Navigation.IsCollection(),
+                        !includeExpression.Navigation.IsCollection,
                         "Only reference include should be present in tree");
                     var entityClrType = includeExpression.EntityExpression.Type;
                     var includingClrType = includeExpression.Navigation.DeclaringEntityType.ClrType;
-                    var inverseNavigation = includeExpression.Navigation.FindInverse();
-                    var relatedEntityClrType = includeExpression.Navigation.GetTargetType().ClrType;
+                    var inverseNavigation = includeExpression.Navigation.Inverse;
+                    var relatedEntityClrType = includeExpression.Navigation.TargetEntityType.ClrType;
                     if (includingClrType != entityClrType
                         && includingClrType.IsAssignableFrom(entityClrType))
                     {
@@ -475,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     if (collectionPopulatingExpression.IsInclude)
                     {
                         var entityClrType = collectionShaper.Navigation.DeclaringEntityType.ClrType;
-                        var inverseNavigation = collectionShaper.Navigation.FindInverse();
+                        var inverseNavigation = collectionShaper.Navigation.Inverse;
 
                         return Expression.Call(
                             _populateIncludeCollectionMethodInfo.MakeGenericMethod(entityClrType, relatedEntityClrType),
@@ -498,6 +525,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     collectionShaper.SelfIdentifier,
                                     QueryCompilationContext.QueryContextParameter,
                                     _dbDataReaderParameter).Compile()),
+                            Expression.Constant(collectionShaper.ParentIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
+                            Expression.Constant(collectionShaper.OuterIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
+                            Expression.Constant(collectionShaper.SelfIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
                             Expression.Constant(((LambdaExpression)Visit(collectionShaper.InnerShaper)).Compile()),
                             Expression.Constant(inverseNavigation, typeof(INavigation)),
                             Expression.Constant(
@@ -530,6 +560,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 collectionShaper.SelfIdentifier,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dbDataReaderParameter).Compile()),
+                        Expression.Constant(collectionShaper.ParentIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
+                        Expression.Constant(collectionShaper.OuterIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
+                        Expression.Constant(collectionShaper.SelfIdentifierValueComparers, typeof(IReadOnlyList<ValueComparer>)),
                         Expression.Constant(((LambdaExpression)Visit(collectionShaper.InnerShaper)).Compile()));
                 }
 
@@ -551,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
                 var expressions = new List<Expression>
                 {
-                    navigation.IsCollection()
+                    navigation.IsCollection
                         ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
                         : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
                 };
@@ -559,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (inverseNavigation != null)
                 {
                     expressions.Add(
-                        inverseNavigation.IsCollection()
+                        inverseNavigation.IsCollection
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
                 }

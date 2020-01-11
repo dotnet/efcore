@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
+        public void CreateContext_gets_service_without_AddDbContext()
+        {
+            CreateOperations(typeof(TestProgramWithoutAddDbContext)).CreateContext(typeof(TestContext).FullName);
+        }
+
+        [ConditionalFact]
         public void GetContextInfo_returns_correct_info()
         {
             var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(nameof(TestContext));
@@ -65,6 +71,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             private static TestWebHost BuildWebHost(string[] args)
                 => CreateWebHost(b => b.UseInMemoryDatabase("In-memory test database"));
+        }
+
+        private static class TestProgramWithoutAddDbContext
+        {
+            private static TestWebHost BuildWebHost(string[] args)
+                => new TestWebHost(
+                    new ServiceCollection()
+                        .AddSingleton(
+                            new TestContext(
+                                new DbContextOptionsBuilder<TestContext>()
+                                    .UseInMemoryDatabase("In-memory test database")
+                                    .EnableServiceProviderCaching(false)
+                                    .Options))
+                        .BuildServiceProvider());
         }
 
         private static class TestProgramRelational

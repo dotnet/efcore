@@ -3,11 +3,9 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -38,7 +36,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
 
                 return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function("CHARINDEX", new[] { value, source }, typeof(int)),
+                    _sqlExpressionFactory.Function(
+                        "CHARINDEX",
+                        new[] { value, source },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true, true },
+                        typeof(int)),
                     _sqlExpressionFactory.Constant(0));
             }
 

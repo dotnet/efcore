@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -15,32 +16,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="ISkipNavigation" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IMutableSkipNavigation : ISkipNavigation, IMutablePropertyBase
+    public interface IMutableSkipNavigation : ISkipNavigation, IMutableNavigationBase
     {
-        /// <summary>
-        ///     Gets the type that this navigation property belongs to.
-        /// </summary>
-        new IMutableEntityType DeclaringEntityType => IsOnPrincipal ? ForeignKey.PrincipalEntityType : ForeignKey.DeclaringEntityType;
-
         /// <summary>
         ///     Gets the association type used by the foreign key.
         /// </summary>
-        new IMutableEntityType AssociationEntityType => IsOnPrincipal ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
-
-        /// <summary>
-        ///     Gets the entity type that this navigation property will hold an instance(s) of.
-        /// </summary>
-        new IMutableEntityType TargetEntityType { get; }
+        new IMutableEntityType AssociationEntityType
+        {
+            [DebuggerStepThrough]
+            get => (IMutableEntityType)((ISkipNavigation)this).AssociationEntityType;
+        }
 
         /// <summary>
         ///     Gets the foreign key to the association type.
         /// </summary>
-        new IMutableForeignKey ForeignKey { get; }
+        new IMutableForeignKey ForeignKey
+        {
+            [DebuggerStepThrough]
+            get => (IMutableForeignKey)((ISkipNavigation)this).ForeignKey;
+        }
+
+        /// <summary>
+        ///     Sets the foreign key.
+        /// </summary>
+        /// <param name="foreignKey">
+        ///     The foreign key. Passing <c>null</c> will result in there being no foreign key associated.
+        /// </param>
+        IMutableForeignKey SetForeignKey([CanBeNull] IMutableForeignKey foreignKey);
 
         /// <summary>
         ///     Gets the inverse skip navigation.
         /// </summary>
-        new IMutableSkipNavigation Inverse { get; }
+        new IMutableSkipNavigation Inverse
+        {
+            [DebuggerStepThrough]
+            get => (IMutableSkipNavigation)((ISkipNavigation)this).Inverse;
+        }
 
         /// <summary>
         ///     Sets the inverse skip navigation.
@@ -48,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="inverse">
         ///     The inverse skip navigation. Passing <c>null</c> will result in there being no inverse navigation property defined.
         /// </param>
-        IConventionSkipNavigation SetInverse([CanBeNull] IMutableSkipNavigation inverse);
+        [DebuggerStepThrough]
+        IMutableSkipNavigation SetInverse([CanBeNull] IMutableSkipNavigation inverse);
     }
 }

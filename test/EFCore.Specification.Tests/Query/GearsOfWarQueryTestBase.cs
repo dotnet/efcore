@@ -1559,7 +1559,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Gear>().Where(g => !g.HasSoulPatch).Select(g => g.Weapons.Concat(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed(
+                CoreStrings.TranslationFailed(
                     @"(MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
     subquery: (NavigationExpansionExpression
@@ -1588,7 +1588,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Value: (EntityReference: Gear)
                 Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
                 Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
+                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))"),
                 message, ignoreLineEndingDifferences: true);
         }
 
@@ -1602,7 +1602,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Gear>().Where(g => g.HasSoulPatch).Select(g => g.Weapons.Union(g.Weapons).Count())))).Message;
 
             Assert.Equal(
-                CoreStrings.QueryFailed(
+                CoreStrings.TranslationFailed(
                     @"(MaterializeCollectionNavigation(
     navigation: Navigation: Gear.Weapons,
     subquery: (NavigationExpansionExpression
@@ -1631,7 +1631,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Value: (EntityReference: Gear)
                 Expression: g), ""FullName"") != null && EF.Property<string>((NavigationTreeExpression
                 Value: (EntityReference: Gear)
-                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))", "NavigationExpandingExpressionVisitor"),
+                Expression: g), ""FullName"") == EF.Property<string>(i, ""OwnerFullName""))))"),
                 message, ignoreLineEndingDifferences: true);
         }
 
@@ -3106,19 +3106,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Client_method_on_collection_navigation_in_additional_from_clause(bool async)
+        public virtual Task Client_method_on_collection_navigation_in_additional_from_clause(bool async)
         {
-            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            return AssertTranslationFailed(
                 () => AssertQuery(
                     async,
                     ss => from g in ss.Set<Gear>().OfType<Officer>()
                           from v in Veterans(g.Reports)
                           select new { g = g.Nickname, v = v.Nickname },
-                    elementSorter: e => e.g + e.v))).Message;
-
-            Assert.StartsWith(
-                CoreStrings.QueryFailed("", "").Substring(0, 35),
-                message);
+                    elementSorter: e => e.g + e.v));
         }
 
         [ConditionalTheory(Skip = "Issue #17328")]
@@ -7109,7 +7105,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Select(g => new { g.Key, Aggregate = g.Max() })));
         }
 
-        [ConditionalTheory(Skip = "issue #19020")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
         {
@@ -7117,7 +7113,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return AssertQueryScalar(
                 async,
-                ss => ss.Set<Gear>().GroupBy(g => g.FullName.StartsWith(prm)).Select(g => g.Key));
+                ss => ss.Set<Gear>().GroupBy(g => g.FullName.StartsWith(prm)).Select(g => g.Key),
+                ss => ss.Set<Gear>().Select(g => false));
         }
 
         [ConditionalTheory]
@@ -7168,7 +7165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().Where(g => false));
         }
 
-        [ConditionalTheory(Skip = "issue #19019")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_StartsWith_with_null_parameter_as_argument(bool async)
         {
@@ -7179,6 +7176,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>().OrderBy(g => g.FullName.StartsWith(prm)).ThenBy(g => g.Nickname),
                 ss => ss.Set<Gear>().OrderBy(g => false).ThenBy(g => g.Nickname),
                 assertOrder: true);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task OrderBy_Contains_empty_list(bool async)
+        {
+            var ids = new List<int>();
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().OrderBy(g => ids.Contains(g.SquadId)).Select(g => g),
+                ss => ss.Set<Gear>().OrderBy(g => ids.Contains(g.SquadId)).Select(g => g));
         }
 
         [ConditionalTheory]
@@ -7397,7 +7406,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(g => MaybeScalar<bool>(g, () => g.IsAutomatic)),
                 assertOrder: true);
         }
-        
+
         [ConditionalFact]
         public virtual void Byte_array_filter_by_length_parameter_compiled()
         {
@@ -7409,6 +7418,79 @@ namespace Microsoft.EntityFrameworkCore.Query
             var byteQueryParam = new[] { (byte)42, (byte)128 };
 
             Assert.Equal(2, query(context, byteQueryParam));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task DateTimeOffset_Date_returns_datetime(bool async)
+        {
+            var dateTimeOffset = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0));
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Timeline.Date >= dateTimeOffset.Date));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_with_conditions_evaluating_to_false_gets_optimized(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(g => g.Nickname == null && g.Nickname != null ? g.CityOfBirthName : g.FullName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Conditional_with_conditions_evaluating_to_true_gets_optimized(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>().Select(g => g.Nickname == null || g.Nickname != null ? g.CityOfBirthName : g.FullName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projecting_required_string_column_compared_to_null_parameter(bool async)
+        {
+            var nullParameter = default(string);
+
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Gear>().Select(g => g.Nickname == nullParameter));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Byte_array_filter_by_SequenceEqual(bool async)
+        {
+            var byteArrayParam = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Squad>().Where(s => s.Banner5.SequenceEqual(byteArrayParam)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_nullable_property_HasValue_and_project_the_grouping_key(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Weapon>()
+                    .GroupBy(w => w.SynergyWithId.HasValue)
+                    .Select(g => g.Key));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Group_by_nullable_property_and_project_the_grouping_key_HasValue(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Weapon>()
+                    .GroupBy(w => w.SynergyWithId)
+                    .Select(g => g.Key.HasValue));
         }
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();

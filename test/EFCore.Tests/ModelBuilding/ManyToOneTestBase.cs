@@ -1662,7 +1662,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var existingFk = navigation.ForeignKey;
                 Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);
                 Assert.Equal(nameof(ToastedBun.Whoopper), navigation.Name);
-                Assert.Equal(nameof(Whoopper.ToastedBun), navigation.FindInverse().Name);
+                Assert.Equal(nameof(Whoopper.ToastedBun), navigation.Inverse.Name);
                 Assert.Equal(existingFk.DeclaringEntityType == dependentType ? 0 : 1, principalType.GetForeignKeys().Count());
                 Assert.Equal(2, principalType.GetKeys().Count());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1740,14 +1740,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     CoreStrings.ConflictingRelationshipNavigation(
-                        principalType.DisplayName(),
-                        nameof(Nob.Hobs),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob),
-                        principalType.DisplayName(),
-                        nameof(Nob.Hob),
-                        dependentType.DisplayName(),
-                        nameof(Hob.Nob)),
+                        principalType.DisplayName() + "." + nameof(Nob.Hobs),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob),
+                        principalType.DisplayName() + "." + nameof(Nob.Hob),
+                        dependentType.DisplayName() + "." + nameof(Hob.Nob)),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             modelBuilder.Entity<Hob>().HasOne(e => e.Nob).WithMany(e => e.Hobs)).Message);

@@ -90,6 +90,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     charIndexExpression = _sqlExpressionFactory.Function(
                         "CHARINDEX",
                         new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new [] { true, true },
                         typeof(long));
 
                     charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
@@ -99,6 +101,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     charIndexExpression = _sqlExpressionFactory.Function(
                         "CHARINDEX",
                         new[] { argument, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true, true },
                         method.ReturnType);
                 }
 
@@ -129,6 +133,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "REPLACE",
                     new[] { instance, firstArgument, secondArgument },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true, true, true },
                     method.ReturnType,
                     stringTypeMapping);
             }
@@ -139,6 +145,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     _toLowerMethodInfo.Equals(method) ? "LOWER" : "UPPER",
                     new[] { instance },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true },
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -155,6 +163,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                             _sqlExpressionFactory.Constant(1)),
                         arguments[1]
                     },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true, true, true },
                     method.ReturnType,
                     instance.TypeMapping);
             }
@@ -173,9 +183,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                                 _sqlExpressionFactory.Function(
                                     "RTRIM",
                                     new[] { argument },
+                                    nullResultAllowed: true,
+                                    argumentsPropagateNullability: new[] { true },
                                     argument.Type,
                                     argument.TypeMapping)
                             },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true },
                             argument.Type,
                             argument.TypeMapping),
                         _sqlExpressionFactory.Constant(string.Empty, argument.TypeMapping)));
@@ -189,6 +203,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "LTRIM",
                     new[] { instance },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true },
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -201,6 +217,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     "RTRIM",
                     new[] { instance },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true },
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -217,9 +235,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         _sqlExpressionFactory.Function(
                             "RTRIM",
                             new[] { instance },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true },
                             instance.Type,
                             instance.TypeMapping)
                     },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true },
                     instance.Type,
                     instance.TypeMapping);
             }
@@ -245,6 +267,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         _sqlExpressionFactory.Function(
                             "CHARINDEX",
                             new[] { pattern, instance },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true, true },
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0));
                 }
@@ -257,6 +281,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         _sqlExpressionFactory.Function(
                             "CHARINDEX",
                             new[] { pattern, instance },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true, true },
                             typeof(int)),
                         _sqlExpressionFactory.Constant(0)));
             }
@@ -312,7 +338,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Equal(
                     _sqlExpressionFactory.Function(
                         "LEFT",
-                        new[] { instance, _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int)) },
+                        new[]
+                        {
+                            instance,
+                            _sqlExpressionFactory.Function(
+                                "LEN",
+                                new[] { pattern },
+                                nullResultAllowed: true,
+                                argumentsPropagateNullability: new[] { true },
+                                typeof(int))
+                        },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true, true },
                         typeof(string),
                         stringTypeMapping),
                     pattern);
@@ -321,7 +358,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return _sqlExpressionFactory.Equal(
                 _sqlExpressionFactory.Function(
                     "RIGHT",
-                    new[] { instance, _sqlExpressionFactory.Function("LEN", new[] { pattern }, typeof(int)) },
+                    new[]
+                    {
+                        instance,
+                        _sqlExpressionFactory.Function(
+                            "LEN",
+                            new[] { pattern },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true },
+                            typeof(int))
+                    },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true, true },
                     typeof(string),
                     stringTypeMapping),
                 pattern);

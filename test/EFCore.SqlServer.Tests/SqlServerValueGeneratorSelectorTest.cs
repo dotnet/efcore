@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -196,9 +197,11 @@ namespace Microsoft.EntityFrameworkCore
             public Something Random { get; set; }
         }
 
-        private struct Something
+        private struct Something : IComparable<Something>
         {
             public int Id { get; set; }
+
+            public int CompareTo(Something other) => throw new NotImplementedException();
         }
 
         private class CustomValueGenerator : ValueGenerator<int>

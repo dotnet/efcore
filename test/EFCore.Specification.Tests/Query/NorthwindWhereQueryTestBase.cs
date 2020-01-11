@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1252,7 +1251,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Product>().Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8));
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         private static bool ClientFunc(int id)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             return false;
         }
@@ -1524,6 +1525,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Order>().Where(exp),
                 entryCount: 6);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_expression_invoke_3(bool async)
+        {
+            Expression<Func<Customer, bool>> lambda3 = c => c.CustomerID == "ALFKI";
+            var customerParameter2 = Expression.Parameter(typeof(Customer));
+            var lambda2 = Expression.Lambda<Func<Customer, bool>>(
+                Expression.Invoke(lambda3, customerParameter2),
+                customerParameter2);
+
+            var customerParameter = Expression.Parameter(typeof(Customer));
+            var lambda = Expression.Lambda<Func<Customer, bool>>(
+                Expression.Invoke(lambda2, customerParameter),
+                customerParameter);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(lambda),
+                entryCount: 1);
         }
 
         [ConditionalTheory]
@@ -1993,6 +2014,221 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Customer>().Where(c => i + c.CustomerID + i == c.CompanyName)
                     .Select(c => c.CustomerID));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_ToList_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToList())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_ToList_Contains(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).ToList())
+                    .Where(e => e.Contains("ALFKI")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_ToArray_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToArray())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_ToArray_Contains(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).ToArray())
+                    .Where(e => e.Contains("ALFKI")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_AsEnumerable_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).AsEnumerable())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_AsEnumerable_Contains(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).Select(o => o.CustomerID).AsEnumerable())
+                    .Where(e => e.Contains("ALFKI")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_ToList_Count_member(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToList())
+                    .Where(e => e.Count == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory(Skip = "Issue#19431")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_Queryable_ToArray_Length_member(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().OrderBy(c => c.CustomerID)
+                    .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).ToArray())
+                    .Where(e => e.Length == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToList_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.OrderDetails.ToList())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToList_Contains(bool async)
+        {
+            var order = new Order { OrderID = 10248 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => c.Orders.ToList())
+                    .Where(e => e.Contains(order)),
+                entryCount: 5);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToArray_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.OrderDetails.ToArray())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory(Skip = "Issue#19433")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToArray_Contains(bool async)
+        {
+            var order = new Order { OrderID = 10248 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => c.Orders.ToArray())
+                    .Where(e => e.Contains(order)),
+                entryCount: 5);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_AsEnumerable_Count(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.OrderDetails.AsEnumerable())
+                    .Where(e => e.Count() == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_AsEnumerable_Contains(bool async)
+        {
+            var order = new Order { OrderID = 10248 };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => c.Orders.AsEnumerable())
+                    .Where(e => e.Contains(order)),
+                entryCount: 5);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToList_Count_member(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.OrderDetails.ToList())
+                    .Where(e => e.Count == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
+        }
+
+        [ConditionalTheory(Skip = "Issue#19431")]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_collection_navigation_ToArray_Length_member(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10300)
+                    .OrderBy(o => o.OrderID)
+                    .Select(o => o.OrderDetails.ToArray())
+                    .Where(e => e.Length == 0),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertCollection(e, a));
         }
     }
 }

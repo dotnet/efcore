@@ -515,6 +515,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, state);
 
         /// <summary>
+        ///     The value of '{entityType}.{property}' is unknown when attempting to save changes. This is because the property is also part of a foreign key for which the principal entity in the relationship is not known.
+        /// </summary>
+        public static string UnknownKeyValue([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("UnknownKeyValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     The EF.Property&lt;T&gt; method may only be used within LINQ queries.
         /// </summary>
         public static string PropertyMethodInvoked
@@ -969,14 +977,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.
-        /// </summary>
-        public static string DuplicateNavigationsOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object navigations)
-            => string.Format(
-                GetString("DuplicateNavigationsOnBase", nameof(entityType), nameof(baseType), nameof(navigations)),
-                entityType, baseType, navigations);
-
-        /// <summary>
         ///     The entity types '{firstEntityType}' and '{secondEntityType}' do not belong to the same model.
         /// </summary>
         public static string EntityTypeModelMismatch([CanBeNull] object firstEntityType, [CanBeNull] object secondEntityType)
@@ -1367,12 +1367,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Cannot create a relationship between '{newPrincipalEntityType}.{newPrincipalNavigation}' and '{newDependentEntityType}.{newDependentNavigation}', because there already is a relationship between '{existingPrincipalEntityType}.{existingPrincipalNavigation}' and '{existingDependentEntityType}.{existingDependentNavigation}'. Navigation properties can only participate in a single relationship.
+        ///     Cannot create a relationship between '{newPrincipalNavigationSpecification}' and '{newDependentNavigationSpecification}', because there already is a relationship between '{existingPrincipalNavigationSpecification}' and '{existingDependentNavigationSpecification}'. Navigation properties can only participate in a single relationship. If you want to override an existing relationship call Ignore on the navigation first.
         /// </summary>
-        public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalEntityType, [CanBeNull] object newPrincipalNavigation, [CanBeNull] object newDependentEntityType, [CanBeNull] object newDependentNavigation, [CanBeNull] object existingPrincipalEntityType, [CanBeNull] object existingPrincipalNavigation, [CanBeNull] object existingDependentEntityType, [CanBeNull] object existingDependentNavigation)
+        public static string ConflictingRelationshipNavigation([CanBeNull] object newPrincipalNavigationSpecification, [CanBeNull] object newDependentNavigationSpecification, [CanBeNull] object existingPrincipalNavigationSpecification, [CanBeNull] object existingDependentNavigationSpecification)
             => string.Format(
-                GetString("ConflictingRelationshipNavigation", nameof(newPrincipalEntityType), nameof(newPrincipalNavigation), nameof(newDependentEntityType), nameof(newDependentNavigation), nameof(existingPrincipalEntityType), nameof(existingPrincipalNavigation), nameof(existingDependentEntityType), nameof(existingDependentNavigation)),
-                newPrincipalEntityType, newPrincipalNavigation, newDependentEntityType, newDependentNavigation, existingPrincipalEntityType, existingPrincipalNavigation, existingDependentEntityType, existingDependentNavigation);
+                GetString("ConflictingRelationshipNavigation", nameof(newPrincipalNavigationSpecification), nameof(newDependentNavigationSpecification), nameof(existingPrincipalNavigationSpecification), nameof(existingDependentNavigationSpecification)),
+                newPrincipalNavigationSpecification, newDependentNavigationSpecification, existingPrincipalNavigationSpecification, existingDependentNavigationSpecification);
 
         /// <summary>
         ///     Error generated for warning '{eventName}': {message} This exception can be suppressed or logged by passing event ID '{eventId}' to the 'ConfigureWarnings' method in 'DbContext.OnConfiguring' or 'AddDbContext'.
@@ -1519,12 +1519,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependentType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be removed because it is referencing '{referencedEntityType}' by foreign key {foreignKey}. All foreign keys must be removed before the entity type can be removed.
+        ///     The entity type '{entityType}' cannot be removed because it is being referenced by the skip navigation '{skipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before the entity type can be removed.
         /// </summary>
-        public static string EntityTypeInUseByForeignKey([CanBeNull] object entityType, [CanBeNull] object referencedEntityType, [CanBeNull] object foreignKey)
+        public static string EntityTypeInUseByReferencingSkipNavigation([CanBeNull] object entityType, [CanBeNull] object skipNavigation, [CanBeNull] object referencingEntityType)
             => string.Format(
-                GetString("EntityTypeInUseByForeignKey", nameof(entityType), nameof(referencedEntityType), nameof(foreignKey)),
-                entityType, referencedEntityType, foreignKey);
+                GetString("EntityTypeInUseByReferencingSkipNavigation", nameof(entityType), nameof(skipNavigation), nameof(referencingEntityType)),
+                entityType, skipNavigation, referencingEntityType);
 
         /// <summary>
         ///     The entity type '{entityType}' cannot be added to the model because a weak entity type with the same name already exists.
@@ -1675,6 +1675,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComparerPropertyMismatch", nameof(type), nameof(entityType), nameof(propertyName), nameof(propertyType)),
                 type, entityType, propertyName, propertyType);
+
+        /// <summary>
+        ///     Property '{entityType}.{property}' cannot be used as a key because it has type '{providerType}' which does not implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Use 'HasConversion()' in 'OnModelCreating()' to wrap '{providerType}' with a type that can be compared.
+        /// </summary>
+        public static string NonComparableKeyType([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object providerType)
+            => string.Format(
+                GetString("NonComparableKeyType", nameof(entityType), nameof(property), nameof(providerType)),
+                entityType, property, providerType);
+
+        /// <summary>
+        ///     Property '{entityType}.{property}' cannot be used as a key because it has type '{modelType}' and provider type '{providerType}' neither of which implement 'IComparable&lt;T&gt;', 'IComparable' or 'IStructuralComparable'. Make '{modelType}' implement one of these interfaces to use it as a key.
+        /// </summary>
+        public static string NonComparableKeyTypes([CanBeNull] object entityType, [CanBeNull] object property, [CanBeNull] object modelType, [CanBeNull] object providerType)
+            => string.Format(
+                GetString("NonComparableKeyTypes", nameof(entityType), nameof(property), nameof(modelType), nameof(providerType)),
+                entityType, property, modelType, providerType);
 
         /// <summary>
         ///     The Include operation '{include}' is not supported. '{invalidNavigation}' must be a navigation property defined on an entity type.
@@ -1905,12 +1921,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ownedType);
 
         /// <summary>
-        ///     Unable to determine the owner for the relationship between '{entityType}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        ///     Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
         /// </summary>
-        public static string AmbiguousOwnedNavigation([CanBeNull] object entityType, [CanBeNull] object otherEntityType)
+        public static string AmbiguousOwnedNavigation([CanBeNull] object entityTypeNavigationSpecification, [CanBeNull] object otherEntityType)
             => string.Format(
-                GetString("AmbiguousOwnedNavigation", nameof(entityType), nameof(otherEntityType)),
-                entityType, otherEntityType);
+                GetString("AmbiguousOwnedNavigation", nameof(entityTypeNavigationSpecification), nameof(otherEntityType)),
+                entityTypeNavigationSpecification, otherEntityType);
 
         /// <summary>
         ///     The ForeignKeyAttribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the ForeignKeyAttribute to a property on '{dependentType}'.
@@ -1919,14 +1935,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("FkAttributeOnNonUniquePrincipal", nameof(navigation), nameof(principalType), nameof(dependentType)),
                 navigation, principalType, dependentType);
-
-        /// <summary>
-        ///     An indexed property was added to entity type '{entity}'. But there is no public indexer on '{entity}' taking a single argument of type 'string' and returning type 'object'.
-        /// </summary>
-        public static string NoIndexer([CanBeNull] object entity)
-            => string.Format(
-                GetString("NoIndexer", nameof(entity)),
-                entity);
 
         /// <summary>
         ///     cannot bind '{failedBinds}' in '{parameters}'
@@ -1993,7 +2001,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 typeName);
 
         /// <summary>
-        ///     The invoked method is cannot be used for the entity type '{entityType}' because it does not have a primary key.
+        ///     The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key.
         /// </summary>
         public static string InvalidSetKeylessOperation([CanBeNull] object entityType)
             => string.Format(
@@ -2245,28 +2253,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 foreigKey, entityType, navigation, navigationEntityType);
 
         /// <summary>
-        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}' of the foreign key {foreigKey}.
-        /// </summary>
-        public static string SkipNavigationWrongDependentType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType, [CanBeNull] object foreigKey)
-            => string.Format(
-                GetString("SkipNavigationWrongDependentType", nameof(navigation), nameof(entityType), nameof(dependentEntityType), nameof(foreigKey)),
-                navigation, entityType, dependentEntityType, foreigKey);
-
-        /// <summary>
         ///     The skip navigation '{inverse}' declared on the entity type '{inverseEntityType}' cannot be set as the inverse of '{navigation}' that targets '{targetEntityType}'. The inverse should be declared on the target entity type.
         /// </summary>
         public static string SkipNavigationWrongInverse([CanBeNull] object inverse, [CanBeNull] object inverseEntityType, [CanBeNull] object navigation, [CanBeNull] object targetEntityType)
             => string.Format(
                 GetString("SkipNavigationWrongInverse", nameof(inverse), nameof(inverseEntityType), nameof(navigation), nameof(targetEntityType)),
                 inverse, inverseEntityType, navigation, targetEntityType);
-
-        /// <summary>
-        ///     The skip navigation property '{navigation}' cannot be added to entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}' of the foreign key {foreigKey}.
-        /// </summary>
-        public static string SkipNavigationWrongPrincipalType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType, [CanBeNull] object foreigKey)
-            => string.Format(
-                GetString("SkipNavigationWrongPrincipalType", nameof(navigation), nameof(entityType), nameof(principalEntityType), nameof(foreigKey)),
-                navigation, entityType, principalEntityType, foreigKey);
 
         /// <summary>
         ///     The skip navigation property '{navigation}' cannot be removed from the entity type '{entityType}' because it is defined on the entity type '{otherEntityType}'.
@@ -2299,6 +2291,86 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SkipNavigationNonCollection", nameof(navigation), nameof(entityType)),
                 navigation, entityType);
+
+        /// <summary>
+        ///     The foreign key '{foreignKey}' cannot be set for the skip navigation '{navigation}' as it uses the association entity type '{associationType}' while the inverse skip navigation '{inverse}' is using the association entity type '{inverseAssociationType}'. The inverse should use the same association entity type.
+        /// </summary>
+        public static string SkipInverseMismatchedForeignKey([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object associationType, [CanBeNull] object inverse, [CanBeNull] object inverseAssociationType)
+            => string.Format(
+                GetString("SkipInverseMismatchedForeignKey", nameof(foreignKey), nameof(navigation), nameof(associationType), nameof(inverse), nameof(inverseAssociationType)),
+                foreignKey, navigation, associationType, inverse, inverseAssociationType);
+
+        /// <summary>
+        ///     The skip navigation '{navigation}' on entity type '{entityType}' doesn't have a foreign key associated with it. Every skip navigation should have a configured foreign key.
+        /// </summary>
+        public static string SkipNavigationNoForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType)
+            => string.Format(
+                GetString("SkipNavigationNoForeignKey", nameof(navigation), nameof(entityType)),
+                navigation, entityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the dependent entity type '{dependentEntityType}'.
+        /// </summary>
+        public static string SkipNavigationForeignKeyWrongDependentType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object dependentEntityType)
+            => string.Format(
+                GetString("SkipNavigationForeignKeyWrongDependentType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(dependentEntityType)),
+                foreignKey, navigation, entityType, dependentEntityType);
+
+        /// <summary>
+        ///     The foreign key {foreignKey} cannot be used for the skip navigation property '{navigation}' on the entity type '{entityType}' because it is expected to be on the principal entity type '{principalEntityType}'.
+        /// </summary>
+        public static string SkipNavigationForeignKeyWrongPrincipalType([CanBeNull] object foreignKey, [CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object principalEntityType)
+            => string.Format(
+                GetString("SkipNavigationForeignKeyWrongPrincipalType", nameof(foreignKey), nameof(navigation), nameof(entityType), nameof(principalEntityType)),
+                foreignKey, navigation, entityType, principalEntityType);
+
+        /// <summary>
+        ///     Cannot add property '{property}' on entity type '{entity}' since there is no indexer on '{entity}' taking a single argument of type '{type}'.
+        /// </summary>
+        public static string NonIndexerEntityType([CanBeNull] object property, [CanBeNull] object entity, [CanBeNull] object type)
+            => string.Format(
+                GetString("NonIndexerEntityType", nameof(property), nameof(entity), nameof(type)),
+                property, entity, type);
+
+        /// <summary>
+        ///     Cannot set backing field '{field}' for the indexer property '{entityType}.{property}'. Indexer properties are not allowed to use a backing field.
+        /// </summary>
+        public static string BackingFieldOnIndexer([CanBeNull] object field, [CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("BackingFieldOnIndexer", nameof(field), nameof(entityType), nameof(property)),
+                field, entityType, property);
+
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be added to the model because a shared entity type with the same clr type already exists.
+        /// </summary>
+        public static string ClashingSharedType([CanBeNull] object entityType)
+            => string.Format(
+                GetString("ClashingSharedType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Cannot find entity type with type '{clrType}' since model contains shared entity type(s) with same type.
+        /// </summary>
+        public static string CannotFindEntityWithClrTypeWhenShared([CanBeNull] object clrType)
+            => string.Format(
+                GetString("CannotFindEntityWithClrTypeWhenShared", nameof(clrType)),
+                clrType);
+
+        /// <summary>
+        ///     The skip navigation '{skipNavigation}' cannot be removed because it is set as the inverse of the skip navigation '{inverseSkipNavigation}' on '{referencingEntityType}'. All referencing skip navigations must be removed before this skip navigation can be removed.
+        /// </summary>
+        public static string SkipNavigationInUseBySkipNavigation([CanBeNull] object skipNavigation, [CanBeNull] object inverseSkipNavigation, [CanBeNull] object referencingEntityType)
+            => string.Format(
+                GetString("SkipNavigationInUseBySkipNavigation", nameof(skipNavigation), nameof(inverseSkipNavigation), nameof(referencingEntityType)),
+                skipNavigation, inverseSkipNavigation, referencingEntityType);
+
+        /// <summary>
+        ///     Queries performing '{method}' operation must have a deterministic sort order. Rewrite the query to apply an OrderBy clause on the sequence before calling '{method}'.
+        /// </summary>
+        public static string LastUsedWithoutOrderBy([CanBeNull] object method)
+            => string.Format(
+                GetString("LastUsedWithoutOrderBy", nameof(method)),
+                method);
 
         private static string GetString(string name, params string[] formatterNames)
         {

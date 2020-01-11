@@ -36,6 +36,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             _sqlExpressionFactory.Function(
                                 "IsClosed",
                                 new[] { instance },
+                                nullResultAllowed: false,
+                                argumentsPropagateNullability: new[] { false },
                                 returnType))
                     },
                     null);

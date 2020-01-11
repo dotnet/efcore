@@ -77,14 +77,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var field = GetFieldToSet(navigation);
             if (field != null)
             {
-                relationshipBuilder.HasField(field, navigation.IsDependentToPrincipal());
+                relationshipBuilder.HasField(field, navigation.IsOnDependent);
             }
         }
 
         private FieldInfo GetFieldToSet(IConventionPropertyBase propertyBase)
         {
             if (propertyBase == null
-                || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource()))
+                || !ConfigurationSource.Convention.Overrides(propertyBase.GetFieldInfoConfigurationSource())
+                || propertyBase.IsIndexerProperty())
             {
                 return null;
             }
@@ -178,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var newMatch = typeInfo == null
                         ? currentValue.Value
-                        : (IsConvertible(typeInfo, currentValue.Value)
+                        : (typeInfo.IsCompatibleWith(currentValue.Value.FieldType)
                             ? currentValue.Value
                             : null);
 
@@ -238,14 +239,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 right = middle - 1;
             }
-        }
-
-        private static bool IsConvertible(Type typeInfo, FieldInfo fieldInfo)
-        {
-            var fieldTypeInfo = fieldInfo.FieldType;
-
-            return typeInfo.IsAssignableFrom(fieldTypeInfo)
-                || fieldTypeInfo.IsAssignableFrom(typeInfo);
         }
 
         /// <summary>

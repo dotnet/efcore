@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             {
                 var fk = embeddedNavigation.ForeignKey;
                 if (!fk.IsOwnership
-                    || embeddedNavigation.IsDependentToPrincipal()
+                    || embeddedNavigation.IsOnDependent
                     || fk.DeclaringEntityType.IsDocumentRoot())
                 {
                     continue;
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Update.Internal
             {
                 var fk = ownedNavigation.ForeignKey;
                 if (!fk.IsOwnership
-                    || ownedNavigation.IsDependentToPrincipal()
+                    || ownedNavigation.IsOnDependent
                     || fk.DeclaringEntityType.IsDocumentRoot())
                 {
                     continue;

@@ -11,6 +11,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -24,13 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class EntityQueryable<TResult>
         : IOrderedQueryable<TResult>,
             IAsyncEnumerable<TResult>,
-            IDetachableContext,
+            IEntityQueryable,
             IListSource
     {
-        private static readonly EntityQueryable<TResult> _detached
-            = new EntityQueryable<TResult>(NullAsyncQueryProvider.Instance);
-
         private readonly IAsyncQueryProvider _queryProvider;
+        private readonly IEntityType _entityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,11 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityQueryable([NotNull] IAsyncQueryProvider queryProvider)
+        public EntityQueryable([NotNull] IAsyncQueryProvider queryProvider, [NotNull] IEntityType entityType)
         {
             Check.NotNull(queryProvider, nameof(queryProvider));
+            Check.NotNull(entityType, nameof(entityType));
 
             _queryProvider = queryProvider;
+            _entityType = entityType;
             Expression = Expression.Constant(this);
         }
 
@@ -118,7 +119,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IDetachableContext IDetachableContext.DetachContext() => _detached;
+        IEntityQueryable IEntityQueryable.DetachContext()
+            => new EntityQueryable<TResult>(NullAsyncQueryProvider.Instance, _entityType);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IEntityType IEntityQueryable.EntityType => _entityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

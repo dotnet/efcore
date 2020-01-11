@@ -821,7 +821,7 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Contains_with_local_list_inline(bool async)
@@ -942,7 +942,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ABC'')); GO; DROP TABLE Orders; GO; --') 
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE CAST(0 AS bit) = CAST(1 AS bit)");
+WHERE 0 = 1");
         }
 
         public override async Task Contains_with_local_collection_empty_inline(bool async)
@@ -965,8 +965,7 @@ SELECT CASE
     WHEN @__p_0 IN (
         SELECT [c].[CustomerID]
         FROM [Customers] AS [c]
-    )
-     THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1084,8 +1083,7 @@ SELECT CASE
         SELECT [o].[OrderID]
         FROM [Orders] AS [o]
         WHERE [o].[CustomerID] = N'VINET'
-    )
-     THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }
@@ -1171,15 +1169,12 @@ WHERE [c].[CustomerID] IN (N'ALFKI')");
             base.Contains_over_entityType_with_null_should_rewrite_to_identity_equality();
 
             AssertSql(
-                @"@__entity_equality_p_0_OrderID=NULL (DbType = Int32)
-
-SELECT CASE
-    WHEN @__entity_equality_p_0_OrderID IN (
+                @"SELECT CASE
+    WHEN NULL IN (
         SELECT [o].[OrderID]
         FROM [Orders] AS [o]
         WHERE [o].[CustomerID] = N'VINET'
-    )
-     THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END");
         }

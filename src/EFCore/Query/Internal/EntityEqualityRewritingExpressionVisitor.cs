@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return constantExpression.IsEntityQueryable()
                 ? new EntityReferenceExpression(
                     constantExpression,
-                    _queryCompilationContext.Model.FindEntityType(((IQueryable)constantExpression.Value).ElementType))
+                    ((IEntityQueryable)constantExpression.Value).EntityType)
                 : (Expression)constantExpression;
         }
 
@@ -277,12 +277,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     ?? methodCallExpression.Update(null, new[] { Unwrap(newLeft), Unwrap(newRight) });
             }
 
-            // Navigation via EF.Property() or via an indexer property
-            if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName)
-                || methodCallExpression.TryGetEFIndexerArguments(out _, out propertyName))
+            // Navigation via EF.Property()
+            if (methodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
             {
                 newSource = Visit(arguments[0]);
                 var newMethodCall = methodCallExpression.Update(null, new[] { Unwrap(newSource), arguments[1] });
+                return newSource is EntityReferenceExpression entityWrapper
+                    ? entityWrapper.TraverseProperty(propertyName, newMethodCall)
+                    : newMethodCall;
+            }
+
+            // Navigation via an indexer property
+            if (methodCallExpression.TryGetIndexerArguments(_queryCompilationContext.Model, out _, out propertyName))
+            {
+                newSource = Visit(methodCallExpression.Object);
+                var newMethodCall = methodCallExpression.Update(Unwrap(newSource), new[] { arguments[0] });
                 return newSource is EntityReferenceExpression entityWrapper
                     ? entityWrapper.TraverseProperty(propertyName, newMethodCall)
                     : newMethodCall;
@@ -857,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Expression nonNullExpression,
             [CanBeNull] INavigation lastNavigation)
         {
-            if (lastNavigation?.IsCollection() == true)
+            if (lastNavigation?.IsCollection == true)
             {
                 // collection navigation is only null if its parent entity is null (null propagation thru navigation)
                 // it is probable that user wanted to see if the collection is (not) empty
@@ -889,8 +898,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             [NotNull] Expression right, [CanBeNull] INavigation rightNavigation,
             bool subqueryTraversed)
         {
-            if (leftNavigation?.IsCollection() == true
-                || rightNavigation?.IsCollection() == true)
+            if (leftNavigation?.IsCollection == true
+                || rightNavigation?.IsCollection == true)
             {
                 if (leftNavigation?.Equals(rightNavigation) == true)
                 {
@@ -1071,7 +1080,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public static EntityOrDtoType FromEntityReferenceExpression(EntityReferenceExpression ere)
                 => new EntityOrDtoType
                 {
-                    EntityType = ere.IsEntityType ? ere.EntityType : null, DtoType = ere.IsDtoType ? ere.DtoType : null
+                    EntityType = ere.IsEntityType ? ere.EntityType : null,
+                    DtoType = ere.IsDtoType ? ere.DtoType : null
                 };
 
             public static EntityOrDtoType FromDtoType(Dictionary<string, EntityOrDtoType> dtoType)
@@ -1158,7 +1168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return EntityType.FindNavigation(propertyName) is INavigation navigation
                         ? new EntityReferenceExpression(
                             destinationExpression,
-                            navigation.GetTargetType(),
+                            navigation.TargetEntityType,
                             navigation,
                             null,
                             SubqueryTraversed)

@@ -17,6 +17,7 @@ namespace Microsoft.Data.Sqlite
     ///     Provides a simple way to create and manage the contents of connection strings used by
     ///     <see cref="SqliteConnection" />.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/connection-strings">Connection Strings</seealso>
     public class SqliteConnectionStringBuilder : DbConnectionStringBuilder
     {
         private const string DataSourceKeyword = "Data Source";
@@ -139,7 +140,6 @@ namespace Microsoft.Data.Sqlite
         ///     Gets or sets the caching mode used by the connection.
         /// </summary>
         /// <value>The caching mode used by the connection.</value>
-        /// <seealso href="http://sqlite.org/sharedcache.html">SQLite Shared-Cache Mode</seealso>
         public virtual SqliteCacheMode Cache
         {
             get => _cache;
@@ -151,6 +151,7 @@ namespace Microsoft.Data.Sqlite
         ///     support encryption. When specified, <c>PRAGMA key</c> is sent immediately after opening the connection.
         /// </summary>
         /// <value>The encryption key.</value>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/encryption">Encryption</seealso>
         public string Password
         {
             get => _password;

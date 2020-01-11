@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
@@ -80,6 +81,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Function(
                     functionName,
                     functionArguments,
+                    nullResultAllowed: true,
+                    // TODO: don't propagate for now
+                    argumentsPropagateNullability: functionArguments.Select(a => false).ToList(),
                     typeof(bool));
             }
 

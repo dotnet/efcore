@@ -87,9 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     new[] { modifier }),
                                 _sqlExpressionFactory.Constant("0")
                             },
+                            nullResultAllowed: true,
+                            argumentsPropagateNullability: new[] { true, false },
                             method.ReturnType),
                         _sqlExpressionFactory.Constant(".")
                     },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { true, false },
                     method.ReturnType);
             }
 

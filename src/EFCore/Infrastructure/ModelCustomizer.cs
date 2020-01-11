@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     <para>
     ///         Builds the model for a given context. This implementation builds the model by calling
-    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context.
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on the context.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Performs additional configuration of the model in addition to what is discovered by convention. This default implementation
-        ///     builds the model for a given context by calling <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />
+        ///     builds the model for a given context by calling <see cref="DbContext.OnModelCreating(ModelBuilder)" />
         ///     on the context.
         /// </summary>
         /// <param name="modelBuilder">

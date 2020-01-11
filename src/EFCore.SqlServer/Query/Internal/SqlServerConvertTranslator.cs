@@ -62,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 ? _sqlExpressionFactory.Function(
                     "CONVERT",
                     new[] { _sqlExpressionFactory.Fragment(_typeMapping[method.Name]), arguments[0] },
+                    nullResultAllowed: true,
+                    argumentsPropagateNullability: new[] { false, true },
                     method.ReturnType)
                 : null;
         }

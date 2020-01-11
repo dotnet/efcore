@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -213,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     var lambda = (LambdaExpression)methodCallExpression.Arguments[1];
                     if (lambda.Body is IncludeExpression includeExpression)
                     {
-                        if (includeExpression.Navigation.IsDependentToPrincipal()
+                        if (includeExpression.Navigation.IsOnDependent
                             || includeExpression.Navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
                             throw new InvalidOperationException(
@@ -221,6 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         }
 
                         _pendingIncludes.Add(includeExpression);
+
+                        Visit(includeExpression.EntityExpression);
 
                         // Includes on collections are processed when visiting CollectionShaperExpression
                         return Visit(methodCallExpression.Arguments[0]);
@@ -285,14 +288,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                         var navigation = collectionShaperExpression.Navigation;
                         return Expression.Call(
-                            _populateCollectionMethodInfo.MakeGenericMethod(navigation.GetTargetType().ClrType, navigation.ClrType),
+                            _populateCollectionMethodInfo.MakeGenericMethod(navigation.TargetEntityType.ClrType, navigation.ClrType),
                             Expression.Constant(navigation.GetCollectionAccessor()),
                             entities);
                     }
 
                     case IncludeExpression includeExpression:
                     {
-                        if (includeExpression.Navigation.IsDependentToPrincipal()
+                        if (includeExpression.Navigation.IsOnDependent
                             || includeExpression.Navigation.ForeignKey.DeclaringEntityType.IsDocumentRoot())
                         {
                             throw new InvalidOperationException(
@@ -302,12 +305,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         var isFirstInclude = _pendingIncludes.Count == 0;
                         _pendingIncludes.Add(includeExpression);
 
-                        var jObjectBlock = (BlockExpression)Visit(includeExpression.EntityExpression);
+                        var jObjectBlock = Visit(includeExpression.EntityExpression) as BlockExpression;
 
                         if (!isFirstInclude)
                         {
                             return jObjectBlock;
                         }
+
+                        Check.DebugAssert(jObjectBlock != null, "The first include must end up on a valid shaper block");
 
                         // These are the expressions added by JObjectInjectingExpressionVisitor
                         var jObjectCondition = (ConditionalExpression)jObjectBlock.Expressions[jObjectBlock.Expressions.Count - 1];
@@ -359,14 +364,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Expression instanceVariable)
             {
                 var navigation = includeExpression.Navigation;
-                var includeMethod = navigation.IsCollection() ? _includeCollectionMethodInfo : _includeReferenceMethodInfo;
+                var includeMethod = navigation.IsCollection ? _includeCollectionMethodInfo : _includeReferenceMethodInfo;
                 var includingClrType = navigation.DeclaringEntityType.ClrType;
-                var relatedEntityClrType = navigation.GetTargetType().ClrType;
+                var relatedEntityClrType = navigation.TargetEntityType.ClrType;
                 var entityEntryVariable = _trackQueryResults
                     ? shaperBlock.Variables.Single(v => v.Type == typeof(InternalEntityEntry))
                     : (Expression)Expression.Constant(null, typeof(InternalEntityEntry));
                 var concreteEntityTypeVariable = shaperBlock.Variables.Single(v => v.Type == typeof(IEntityType));
-                var inverseNavigation = navigation.FindInverse();
+                var inverseNavigation = navigation.Inverse;
                 var fixup = GenerateFixup(
                     includingClrType, relatedEntityClrType, navigation, inverseNavigation);
                 var initialize = GenerateInitialize(includingClrType, navigation);
@@ -398,7 +403,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 INavigation navigation,
                 INavigation inverseNavigation,
                 Action<TIncludingEntity, TIncludedEntity> fixup,
-                Action<TIncludingEntity> initialize)
+                Action<TIncludingEntity> _)
             {
                 if (entity == null
                     || !navigation.DeclaringEntityType.IsAssignableFrom(entityType))
@@ -414,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     {
                         fixup(includingEntity, relatedEntity);
                         if (inverseNavigation != null
-                            && !inverseNavigation.IsCollection())
+                            && !inverseNavigation.IsCollection)
                         {
                             SetIsLoadedNoTracking(relatedEntity, inverseNavigation);
                         }
@@ -503,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var relatedEntityParameter = Expression.Parameter(relatedEntityType);
                 var expressions = new List<Expression>
                 {
-                    navigation.IsCollection()
+                    navigation.IsCollection
                         ? AddToCollectionNavigation(entityParameter, relatedEntityParameter, navigation)
                         : AssignReferenceNavigation(entityParameter, relatedEntityParameter, navigation)
                 };
@@ -511,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 if (inverseNavigation != null)
                 {
                     expressions.Add(
-                        inverseNavigation.IsCollection()
+                        inverseNavigation.IsCollection
                             ? AddToCollectionNavigation(relatedEntityParameter, entityParameter, inverseNavigation)
                             : AssignReferenceNavigation(relatedEntityParameter, entityParameter, inverseNavigation));
                 }
@@ -524,7 +529,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Type entityType,
                 INavigation navigation)
             {
-                if (!navigation.IsCollection())
+                if (!navigation.IsCollection)
                 {
                     return null;
                 }

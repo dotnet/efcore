@@ -11,10 +11,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class IncludeExpression : Expression, IPrintableExpression
     {
-        private Expression _entityExpression;
-        private Expression _navigationExpression;
-        private INavigation _navigation;
-
         public IncludeExpression(
             [NotNull] Expression entityExpression,
             [NotNull] Expression navigationExpression,
@@ -30,23 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             Type = EntityExpression.Type;
         }
 
-        public virtual Expression EntityExpression
-        {
-            get => _entityExpression;
-            [param: NotNull] set => _entityExpression = Check.NotNull(value, nameof(value));
-        }
-
-        public virtual Expression NavigationExpression
-        {
-            get => _navigationExpression;
-            [param: NotNull] set => _navigationExpression = Check.NotNull(value, nameof(value));
-        }
-
-        public virtual INavigation Navigation
-        {
-            get => _navigation;
-            [param: NotNull] set => _navigation = Check.NotNull(value, nameof(value));
-        }
+        public virtual Expression EntityExpression { get; }
+        public virtual Expression NavigationExpression { get; }
+        public virtual INavigation Navigation { get; }
 
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
         public override Type Type { get; }

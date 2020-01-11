@@ -141,7 +141,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
                 || property.IsConcurrencyToken
                 || property.IsKey()
-                || property.IsForeignKey();
+                || property.IsForeignKey()
+                || property.IsUniqueIndex();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

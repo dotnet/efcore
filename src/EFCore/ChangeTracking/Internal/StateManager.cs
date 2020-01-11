@@ -999,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             CascadeDelete(dependent, force);
                         }
-                        else
+                        else if (!principalIsDetached)
                         {
                             foreach (var dependentProperty in fk.Properties)
                             {
@@ -1037,12 +1037,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static bool KeyValuesEqual(IProperty property, object value, object currentValue)
-            => (property.GetKeyValueComparer()
-                    ?? property.GetValueComparer()
-                    ?? property.FindTypeMapping()?.KeyComparer)
+            => (property.GetKeyValueComparer())
                 ?.Equals(currentValue, value)
                 ?? Equals(currentValue, value);
-
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

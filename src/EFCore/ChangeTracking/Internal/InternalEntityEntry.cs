@@ -325,6 +325,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             FireStateChanged(oldState);
 
+            if (newState == EntityState.Unchanged)
+            {
+                SharedIdentityEntry?.SetEntityState(EntityState.Detached);
+            }
+
             if ((newState == EntityState.Deleted
                     || newState == EntityState.Detached)
                 && StateManager.CascadeDeleteTiming == CascadeTiming.Immediate)
@@ -638,6 +643,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void MarkUnknown([NotNull] IProperty property)
+            => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
 
         internal static readonly MethodInfo ReadShadowValueMethod
             = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue));
@@ -1154,11 +1168,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         WritePropertyValue(propertyBase, value, isMaterialization);
 
                         if (currentValueType != CurrentValueType.Normal
-                            && !_temporaryValues.IsEmpty
-                            && equals(value, asProperty.ClrType.GetDefaultValue()))
+                            && !_temporaryValues.IsEmpty)
                         {
+                            var defaultValue = asProperty.ClrType.GetDefaultValue();
                             var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                            _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
+                            _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
                         }
                     }
                     else
@@ -1197,7 +1211,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (propertyBase is INavigation navigation)
                     {
-                        if (!navigation.IsCollection())
+                        if (!navigation.IsCollection)
                         {
                             SetIsLoaded(navigation, value != null);
                         }
@@ -1210,8 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static Func<object, object, bool> ValuesEqualFunc(IProperty property)
         {
-            var comparer = property.GetValueComparer()
-                ?? property.FindTypeMapping()?.Comparer;
+            var comparer = property.GetValueComparer();
 
             return comparer != null
                 ? (Func<object, object, bool>)((l, r) => comparer.Equals(l, r))
@@ -1285,6 +1298,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             CoreStrings.PropertyReadOnlyBeforeSave(
                                 property.Name,
                                 EntityType.DisplayName()));
+                    }
+
+                    if (property.IsKey()
+                        && property.IsForeignKey()
+                        && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
+                    {
+                        throw new InvalidOperationException(CoreStrings.UnknownKeyValue(entityType.DisplayName(), property.Name));
                     }
                 }
             }
@@ -1602,7 +1622,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             [NotNull] object sender,
             [NotNull] NotifyCollectionChangedEventArgs eventArgs)
         {
-            var navigation = EntityType.GetNavigations().FirstOrDefault(n => n.IsCollection() && this[n] == sender);
+            var navigation = EntityType.GetNavigations().FirstOrDefault(n => n.IsCollection && this[n] == sender);
             if (navigation != null)
             {
                 switch (eventArgs.Action)
@@ -1644,7 +1664,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void SetIsLoaded([NotNull] INavigation navigation, bool loaded = true)
         {
             if (!loaded
-                && !navigation.IsCollection()
+                && !navigation.IsCollection
                 && this[navigation] != null)
             {
                 throw new InvalidOperationException(
@@ -1782,7 +1802,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     builder.AppendLine();
 
                     var currentValue = GetCurrentValue(navigation);
-                    var targetType = navigation.GetTargetType();
+                    var targetType = navigation.TargetEntityType;
 
                     builder
                         .Append("  ")
@@ -1793,7 +1813,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         builder.Append("<null>");
                     }
-                    else if (navigation.IsCollection())
+                    else if (navigation.IsCollection)
                     {
                         builder.Append('[');
 

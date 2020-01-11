@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
         IDbSetCache,
         IDbContextPoolable
     {
-        private IDictionary<Type, object> _sets;
+        private IDictionary<(Type Type, string Name), object> _sets;
         private readonly DbContextOptions _options;
 
         private IDbContextServices _contextServices;
@@ -157,7 +157,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IDbSetSource IDbContextDependencies.SetSource => DbContextDependencies.SetSource;
 
         /// <summary>
@@ -166,7 +165,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IEntityFinderFactory IDbContextDependencies.EntityFinderFactory => DbContextDependencies.EntityFinderFactory;
 
         /// <summary>
@@ -175,7 +173,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IAsyncQueryProvider IDbContextDependencies.QueryProvider => DbContextDependencies.QueryProvider;
 
         /// <summary>
@@ -184,7 +181,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IStateManager IDbContextDependencies.StateManager => DbContextDependencies.StateManager;
 
         /// <summary>
@@ -193,7 +189,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IChangeDetector IDbContextDependencies.ChangeDetector => DbContextDependencies.ChangeDetector;
 
         /// <summary>
@@ -202,7 +197,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IEntityGraphAttacher IDbContextDependencies.EntityGraphAttacher => DbContextDependencies.EntityGraphAttacher;
 
         /// <summary>
@@ -211,7 +205,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Update> IDbContextDependencies.UpdateLogger => DbContextDependencies.UpdateLogger;
 
         /// <summary>
@@ -220,7 +213,6 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         IDiagnosticsLogger<DbLoggerCategory.Infrastructure> IDbContextDependencies.InfrastructureLogger
             => DbContextDependencies.InfrastructureLogger;
 
@@ -230,20 +222,43 @@ namespace Microsoft.EntityFrameworkCore
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
         object IDbSetCache.GetOrAddSet(IDbSetSource source, Type type)
         {
             CheckDisposed();
 
             if (_sets == null)
             {
-                _sets = new Dictionary<Type, object>();
+                _sets = new Dictionary<(Type Type, string Name), object>();
             }
 
-            if (!_sets.TryGetValue(type, out var set))
+            if (!_sets.TryGetValue((type, null), out var set))
             {
                 set = source.Create(this, type);
-                _sets[type] = set;
+                _sets[(type, null)] = set;
+            }
+
+            return set;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        object IDbSetCache.GetOrAddSet(IDbSetSource source, string name, Type type)
+        {
+            CheckDisposed();
+
+            if (_sets == null)
+            {
+                _sets = new Dictionary<(Type Type, string Name), object>();
+            }
+
+            if (!_sets.TryGetValue((type, name), out var set))
+            {
+                set = source.Create(this, name, type);
+                _sets[(type, name)] = set;
             }
 
             return set;
@@ -257,6 +272,15 @@ namespace Microsoft.EntityFrameworkCore
         public virtual DbSet<TEntity> Set<TEntity>()
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
+
+        /// <summary>
+        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
+        /// <returns> A set for the given entity type. </returns>
+        public virtual DbSet<TEntity> Set<TEntity>([NotNull] string name)
+            where TEntity : class
+            => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, name, typeof(TEntity));
 
         private IEntityFinder Finder(Type type)
         {

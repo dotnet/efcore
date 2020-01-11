@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -1680,6 +1679,43 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Select(c => ss.Set<CustomerView>().FirstOrDefault(cv => cv.CompanyName == c.CompanyName)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_AsEnumerable_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                .Where(c => c.CustomerID.StartsWith("A"))
+                .OrderBy(c => c.CustomerID)
+                .Select(c => ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).AsEnumerable())
+                .Where(e => e.Where(o => o.OrderID < 11000).Count() > 0)
+                .Select(e => e.Where(o => o.OrderID < 10750)),
+                assertOrder: true,
+                entryCount: 18);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Projection_custom_type_in_both_sides_of_ternary(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .OrderBy(c => c.CustomerID)
+                    .Select(c => c.City == "Seattle"
+                        ? new IdName<string> { Id = "PAY", Name = "Pay" }
+                        : new IdName<string> { Id = "REC", Name = "Receive" }),
+                assertOrder: true,
+                elementAsserter: (e, a) => { Assert.Equal(e.Id, a.Id); Assert.Equal(e.Name, a.Name); });
+        }
+
+        private class IdName<T>
+        {
+            public T Id { get; set; }
+            public string Name { get; set; }
         }
     }
 }

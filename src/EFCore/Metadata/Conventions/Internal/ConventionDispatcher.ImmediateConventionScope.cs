@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IConventionRelationshipBuilder relationshipBuilder, IConventionNavigation navigation)
             {
                 if (relationshipBuilder.Metadata.Builder == null
-                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
+                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent) != navigation)
                 {
                     return null;
                 }
@@ -599,7 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
                 }
 
-                if (relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
+                if (relationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent) != navigation)
                 {
                     return null;
                 }
@@ -615,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 IConventionAnnotation oldAnnotation)
             {
                 if (relationshipBuilder.Metadata.Builder == null
-                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsDependentToPrincipal()) != navigation)
+                    || relationshipBuilder.Metadata.GetNavigation(navigation.IsOnDependent) != navigation)
                 {
                     return null;
                 }
@@ -744,6 +744,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 return annotation;
+            }
+
+            public override IConventionForeignKey OnSkipNavigationForeignKeyChanged(
+                IConventionSkipNavigationBuilder navigationBuilder,
+                IConventionForeignKey foreignKey,
+                IConventionForeignKey oldForeignKey)
+            {
+                if (navigationBuilder.Metadata.DeclaringEntityType.Builder == null)
+                {
+                    return null;
+                }
+
+                using (_dispatcher.DelayConventions())
+                {
+                    _foreignKeyConventionContext.ResetState(foreignKey);
+                    foreach (var skipNavigationConvention in _conventionSet.SkipNavigationForeignKeyChangedConventions)
+                    {
+                        if (navigationBuilder.Metadata.Builder == null
+                            || navigationBuilder.Metadata.ForeignKey != foreignKey)
+                        {
+                            Check.DebugAssert(false, "Foreign key changed");
+                            return null;
+                        }
+
+                        skipNavigationConvention.ProcessSkipNavigationForeignKeyChanged(
+                            navigationBuilder, foreignKey, oldForeignKey, _foreignKeyConventionContext);
+                        if (_foreignKeyConventionContext.ShouldStopProcessing())
+                        {
+                            return _foreignKeyConventionContext.Result;
+                        }
+                    }
+                }
+
+                if (navigationBuilder.Metadata.Builder == null)
+                {
+                    return null;
+                }
+
+                return foreignKey;
             }
 
             public override IConventionSkipNavigation OnSkipNavigationInverseChanged(

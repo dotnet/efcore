@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore
             => entityType.AsEntityType().GetDeclaredIndexes();
 
         private static string DisplayNameDefault(this ITypeBase type)
-            => type.ClrType != null
+            => type.ClrType != null && !type.IsSharedType
                 ? type.ClrType.ShortDisplayName()
                 : type.Name;
 
@@ -345,7 +345,7 @@ namespace Microsoft.EntityFrameworkCore
         [DebuggerStepThrough]
         public static string ShortName([NotNull] this ITypeBase type)
         {
-            if (type.ClrType != null)
+            if (type.ClrType != null && !type.IsSharedType)
             {
                 return type.ClrType.ShortDisplayName();
             }
@@ -511,7 +511,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var definingNavigation = entityType.DefiningEntityType.FindNavigation(entityType.DefiningNavigationName);
-            return definingNavigation?.GetTargetType() == entityType ? definingNavigation : null;
+            return definingNavigation?.TargetEntityType == entityType ? definingNavigation : null;
         }
 
         /// <summary>
@@ -539,7 +539,9 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(memberInfo, nameof(memberInfo));
 
-            return entityType.FindProperty(memberInfo.GetSimpleMemberName());
+            return (memberInfo as PropertyInfo)?.IsIndexerProperty() == true
+                ? null
+                : entityType.FindProperty(memberInfo.GetSimpleMemberName());
         }
 
         /// <summary>

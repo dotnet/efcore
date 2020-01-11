@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     index: navigationIndex++,
                     originalValueIndex: -1,
                     shadowIndex: navigation.IsShadowProperty() ? shadowIndex++ : -1,
-                    relationshipIndex: navigation.IsCollection() && isNotifying ? -1 : relationshipIndex++,
+                    relationshipIndex: ((INavigation)navigation).IsCollection && isNotifying ? -1 : relationshipIndex++,
                     storeGenerationIndex: -1);
 
                 navigation.PropertyIndexes = indexes;

@@ -26,15 +26,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public CosmosTypeMapping(
             [NotNull] Type clrType,
             [CanBeNull] ValueComparer comparer = null,
-            [CanBeNull] ValueComparer keyComparer = null,
-            [CanBeNull] ValueComparer structuralComparer = null)
+            [CanBeNull] ValueComparer keyComparer = null)
             : base(
                 new CoreTypeMappingParameters(
                     clrType,
                     converter: null,
                     comparer,
-                    keyComparer,
-                    structuralComparer))
+                    keyComparer))
         {
         }
 

@@ -9,16 +9,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
     public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVisitor
     {
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitExtension(Expression extensionExpression)
         {
-            Check.NotNull(node, nameof(node));
+            Check.NotNull(extensionExpression, nameof(extensionExpression));
 
-            if (node is SelectExpression selectExpression)
+            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
             {
-                selectExpression.ApplyProjection();
+                return shapedQueryExpression.Update(Visit(shapedQueryExpression.QueryExpression), shapedQueryExpression.ShaperExpression);
             }
 
-            return base.VisitExtension(node);
+            if (extensionExpression is SelectExpression selectExpression)
+            {
+                selectExpression.ApplyProjection();
+                // We visit base to apply projection to inner SelectExpressions
+            }
+
+            return base.VisitExtension(extensionExpression);
         }
     }
 }

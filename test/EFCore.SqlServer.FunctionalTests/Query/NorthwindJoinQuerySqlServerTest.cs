@@ -209,11 +209,11 @@ INNER JOIN [Orders] AS [o] ON ([c].[CustomerID] = [o].[CustomerID]) AND ([c].[Cu
             AssertSql(
                 @"SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-INNER JOIN (
+CROSS JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10250
-) AS [t] ON CAST(1 AS bit) = CAST(1 AS bit)
+) AS [t]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
@@ -467,6 +467,48 @@ INNER JOIN (
     ) AS [t]
     WHERE [t].[CustomerID] IS NOT NULL AND ([t].[CustomerID] LIKE N'A%')
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]");
+        }
+
+        public override async Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
+        {
+            await base.Inner_join_with_tautology_predicate_converts_to_cross_join(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT [t].[CustomerID], [t0].[OrderID]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+CROSS JOIN (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t0]
+ORDER BY [t].[CustomerID]");
+        }
+
+        public override async Task Left_join_with_tautology_predicate_doesnt_convert_to_cross_join(bool async)
+        {
+            await base.Left_join_with_tautology_predicate_doesnt_convert_to_cross_join(async);
+
+            AssertSql(
+                @"@__p_0='10'
+
+SELECT [t].[CustomerID], [t0].[OrderID]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+LEFT JOIN (
+    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderID]
+) AS [t0] ON 1 = 1
+ORDER BY [t].[CustomerID]");
         }
 
         private void AssertSql(params string[] expected)

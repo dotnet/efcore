@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (selectExpression.IsDistinct
                     || selectExpression.Limit != null
                     || selectExpression.Offset != null
-                    || selectExpression.GroupBy.Count > 1)
+                    || selectExpression.GroupBy.Count > 0)
                 {
                     selectExpression.PushdownIntoSubquery();
                 }
@@ -39,14 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     collectionShaperExpression.ElementType);
             }
 
-            if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
-            {
-                shapedQueryExpression.ShaperExpression = Visit(shapedQueryExpression.ShaperExpression);
-
-                return shapedQueryExpression;
-            }
-
-            return base.VisitExtension(extensionExpression);
+            return extensionExpression is ShapedQueryExpression shapedQueryExpression
+                ? shapedQueryExpression.UpdateShaperExpression(Visit(shapedQueryExpression.ShaperExpression))
+                : base.VisitExtension(extensionExpression);
         }
     }
 }

@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -254,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
-            if (constantExpression.Value is IDetachableContext detachableContext)
+            if (constantExpression.Value is IEntityQueryable detachableContext)
             {
                 var queryProvider = ((IQueryable)constantExpression.Value).Provider;
                 if (_currentQueryProvider == null)
@@ -592,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (_evaluatableExpressions.ContainsKey(methodCallExpression.Arguments[i]))
                     {
                         if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null
-                            || methodCallExpression.Method.IsEFIndexer())
+                            || _model.IsIndexerMethod(methodCallExpression.Method))
                         {
                             _evaluatableExpressions[methodCallExpression.Arguments[i]] = false;
                         }
@@ -630,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 Check.NotNull(constantExpression, nameof(constantExpression));
 
-                _evaluatable = !(constantExpression.Value is IDetachableContext)
+                _evaluatable = !(constantExpression.Value is IEntityQueryable)
                     && !(constantExpression.Value is IQueryable);
 
 #pragma warning disable RCS1096 // Use bitwise operation instead of calling 'HasFlag'.

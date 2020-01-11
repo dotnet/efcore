@@ -360,14 +360,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> A flag indicating if the property as capable of storing only fixed-length data, such as strings. </returns>
-        public static bool IsFixedLength([NotNull] this IProperty property)
-            => (bool?)property[RelationalAnnotationNames.IsFixedLength] ?? GetDefaultIsFixedLength(property);
-
-        private static bool GetDefaultIsFixedLength(IProperty property)
-        {
-            var sharedTablePrincipalPrimaryKeyProperty = property.FindSharedTableRootPrimaryKeyProperty();
-            return sharedTablePrincipalPrimaryKeyProperty != null && IsFixedLength(sharedTablePrincipalPrimaryKeyProperty);
-        }
+        public static bool? IsFixedLength([NotNull] this IProperty property)
+            => (bool?)property[RelationalAnnotationNames.IsFixedLength];
 
         /// <summary>
         ///     Sets a flag indicating whether the property as capable of storing only fixed-length data, such as strings.
@@ -375,9 +369,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
         public static void SetIsFixedLength([NotNull] this IMutableProperty property, bool? fixedLength)
-            => property.SetOrRemoveAnnotation(
-                RelationalAnnotationNames.IsFixedLength,
-                fixedLength);
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength);
 
         /// <summary>
         ///     Sets a flag indicating whether the property as capable of storing only fixed-length data, such as strings.

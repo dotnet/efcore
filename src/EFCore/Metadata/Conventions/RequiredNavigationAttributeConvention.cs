@@ -43,15 +43,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(attribute, nameof(attribute));
 
-            if (navigation.IsCollection())
+            if (navigation.IsCollection)
             {
                 Dependencies.Logger.RequiredAttributeOnCollection(navigation.ForeignKey.DependentToPrincipal);
                 return;
             }
 
-            if (!navigation.IsDependentToPrincipal())
+            if (!navigation.IsOnDependent)
             {
-                var inverse = navigation.FindInverse();
+                var inverse = navigation.Inverse;
                 if (inverse != null)
                 {
                     var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse);

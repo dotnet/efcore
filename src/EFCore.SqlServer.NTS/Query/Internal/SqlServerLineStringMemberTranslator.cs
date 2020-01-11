@@ -60,6 +60,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     instance,
                     functionName,
                     Enumerable.Empty<SqlExpression>(),
+                    nullResultAllowed: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: Enumerable.Empty<bool>(),
                     returnType,
                     resultTypeMapping);
             }

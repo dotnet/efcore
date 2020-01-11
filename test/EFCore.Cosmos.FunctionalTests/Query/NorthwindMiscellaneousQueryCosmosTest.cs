@@ -3988,6 +3988,75 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             return base.Subquery_DefaultIfEmpty_Any(async);
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Projection_skip_collection_projection(bool async)
+        {
+            return base.Projection_skip_collection_projection(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Projection_take_collection_projection(bool async)
+        {
+            return base.Projection_take_collection_projection(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Projection_skip_take_collection_projection(bool async)
+        {
+            return base.Projection_skip_take_collection_projection(async);
+        }
+
+        public override Task Projection_skip_projection(bool async)
+        {
+            return AssertTranslationFailed(() => base.Projection_skip_projection(async));
+        }
+
+        public override Task Projection_take_projection(bool async)
+        {
+            return AssertTranslationFailed(() => base.Projection_take_projection(async));
+        }
+
+        public override Task Projection_skip_take_projection(bool async)
+        {
+            return AssertTranslationFailed(() => base.Projection_skip_take_projection(async));
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Collection_projection_skip(bool async)
+        {
+            return base.Collection_projection_skip(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Collection_projection_take(bool async)
+        {
+            return base.Collection_projection_take(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Collection_projection_skip_take(bool async)
+        {
+            return base.Collection_projection_skip_take(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Anonymous_projection_skip_empty_collection_FirstOrDefault(bool async)
+        {
+            return base.Anonymous_projection_skip_empty_collection_FirstOrDefault(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Anonymous_projection_take_empty_collection_FirstOrDefault(bool async)
+        {
+            return base.Anonymous_projection_take_empty_collection_FirstOrDefault(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Anonymous_projection_skip_take_empty_collection_FirstOrDefault(bool async)
+        {
+            return base.Anonymous_projection_skip_take_empty_collection_FirstOrDefault(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

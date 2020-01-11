@@ -145,6 +145,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             = new List<ISkipNavigationAnnotationChangedConvention>();
 
         /// <summary>
+        ///     Conventions to run when a skip navigation foreign key is changed.
+        /// </summary>
+        public virtual IList<ISkipNavigationForeignKeyChangedConvention> SkipNavigationForeignKeyChangedConventions { get; }
+            = new List<ISkipNavigationForeignKeyChangedConvention>();
+
+        /// <summary>
         ///     Conventions to run when a skip navigation inverse is changed.
         /// </summary>
         public virtual IList<ISkipNavigationInverseChangedConvention> SkipNavigationInverseChangedConventions { get; }

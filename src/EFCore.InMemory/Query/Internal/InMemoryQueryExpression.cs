@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private ParameterExpression _groupingParameter;
 
         public virtual IReadOnlyList<Expression> Projection => _valueBufferSlots;
-        public virtual Expression ServerQueryExpression { get; [param: NotNull] set; }
+        public virtual Expression ServerQueryExpression { get; private set; }
         public virtual ParameterExpression CurrentParameter => _groupingParameter ?? _valueBufferParameter;
         public override Type Type => typeof(IEnumerable<ValueBuffer>);
         public sealed override ExpressionType NodeType => ExpressionType.Extension;
@@ -198,6 +198,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public virtual Expression GetMappedProjection([NotNull] ProjectionMember member)
             => _projectionMapping[member];
 
+        public virtual void UpdateServerQueryExpression([NotNull] Expression serverQueryExpression)
+            => ServerQueryExpression = serverQueryExpression;
+
         public virtual void PushdownIntoSubquery()
         {
             var clientProjection = _valueBufferSlots.Count != 0;
@@ -317,16 +320,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private static IPropertyBase InferPropertyFromInner(Expression expression)
-        {
-            if (expression is MethodCallExpression methodCallExpression
+            => expression is MethodCallExpression methodCallExpression
                 && methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod)
-            {
-                return (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value;
-            }
-
-            return null;
-        }
+                && methodCallExpression.Method.GetGenericMethodDefinition() == EntityMaterializerSource.TryReadValueMethod
+                ? (IPropertyBase)((ConstantExpression)methodCallExpression.Arguments[2]).Value
+                : null;
 
         public virtual void ApplyProjection()
         {

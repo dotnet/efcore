@@ -98,6 +98,16 @@ namespace Microsoft.EntityFrameworkCore
             => Check.NotNull(property, nameof(property)).AsProperty().Indexes != null;
 
         /// <summary>
+        ///     Gets a value indicating whether this property is used as a unique index (or part of a unique composite index).
+        /// </summary>
+        /// <param name="property"> The property to check. </param>
+        /// <returns>
+        ///     <c>true</c> if the property is used as an uniqueindex, otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsUniqueIndex([NotNull] this IProperty property)
+            => Check.NotNull(property, nameof(property)).AsProperty().Indexes?.Any(e => e.IsUnique) == true;
+
+        /// <summary>
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
         /// </summary>
         /// <param name="property"> The property to check. </param>
@@ -261,25 +271,48 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the <see cref="ValueComparer" /> for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="fallback"> If true, then the default comparer is returned when the explicit comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        public static ValueComparer GetValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.ValueComparer];
+        public static ValueComparer GetValueComparer([NotNull] this IProperty property, bool fallback = true)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var comparer = (ValueComparer)property[CoreAnnotationNames.ValueComparer];
+
+            return comparer == null
+                && fallback
+                    ? property.FindTypeMapping()?.Comparer
+                    : comparer;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> to use with keys for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="fallback"> If true, then the regular comparer is returned when the key comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        public static ValueComparer GetKeyValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.KeyValueComparer];
+        public static ValueComparer GetKeyValueComparer([NotNull] this IProperty property, bool fallback = true)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var comparer = (ValueComparer)property[CoreAnnotationNames.KeyValueComparer];
+
+            return fallback
+                ? comparer
+                ?? (ValueComparer)property[CoreAnnotationNames.ValueComparer]
+                ?? property.FindTypeMapping()?.KeyComparer
+                : comparer;
+        }
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> to use for structural copies for this property, or <c>null</c> if none is set.
         /// </summary>
         /// <param name="property"> The property. </param>
+        /// <param name="fallback"> If true, then the key comparer is returned when the structural comparer is not set. </param>
         /// <returns> The comparer, or <c>null</c> if none has been set. </returns>
-        public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property)
-            => (ValueComparer)Check.NotNull(property, nameof(property))[CoreAnnotationNames.StructuralValueComparer];
+        [Obsolete("Use GetKeyValueComparer. Starting with EF Core 5.0, key comparers must implement structural comparisons and deep copies.")]
+        public static ValueComparer GetStructuralValueComparer([NotNull] this IProperty property, bool fallback = true)
+            => property.GetKeyValueComparer(fallback);
 
         /// <summary>
         ///     Creates a formatted string representation of the given properties such as is useful

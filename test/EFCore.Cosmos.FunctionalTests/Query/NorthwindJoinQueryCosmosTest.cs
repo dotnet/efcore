@@ -492,6 +492,18 @@ WHERE (c[""Discriminator""] = ""Order"")");
             return base.GroupJoin_Subquery_with_Take_Then_SelectMany_Where(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Inner_join_with_tautology_predicate_converts_to_cross_join(bool async)
+        {
+            return base.Inner_join_with_tautology_predicate_converts_to_cross_join(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override Task Left_join_with_tautology_predicate_doesnt_convert_to_cross_join(bool async)
+        {
+            return base.Left_join_with_tautology_predicate_doesnt_convert_to_cross_join(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore
         public CustomConvertersSqliteTest(CustomConvertersSqliteFixture fixture)
             : base(fixture)
         {
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         // Disabled: SQLite database is case-sensitive
@@ -19,23 +20,67 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        [ConditionalFact(Skip = "Issue#18147")]
+        [ConditionalFact]
         public override void Value_conversion_is_appropriately_used_for_join_condition()
         {
             base.Value_conversion_is_appropriately_used_for_join_condition();
+
+            AssertSql(
+                @"@__blogId_0='1' (DbType = String)
+
+SELECT ""b"".""Url""
+FROM ""Blog"" AS ""b""
+INNER JOIN ""Post"" AS ""p"" ON ((""b"".""BlogId"" = ""p"".""BlogId"") AND (""b"".""IsVisible"" = 'Y')) AND (""b"".""BlogId"" = @__blogId_0)
+WHERE ""b"".""Discriminator"" IN ('Blog', 'RssBlog') AND (""b"".""IsVisible"" = 'Y')");
         }
 
-        [ConditionalFact(Skip = "Issue#18147")]
+        [ConditionalFact]
         public override void Value_conversion_is_appropriately_used_for_left_join_condition()
         {
             base.Value_conversion_is_appropriately_used_for_left_join_condition();
+
+            AssertSql(
+                @"@__blogId_0='1' (DbType = String)
+
+SELECT ""b"".""Url""
+FROM ""Blog"" AS ""b""
+LEFT JOIN ""Post"" AS ""p"" ON ((""b"".""BlogId"" = ""p"".""BlogId"") AND (""b"".""IsVisible"" = 'Y')) AND (""b"".""BlogId"" = @__blogId_0)
+WHERE ""b"".""Discriminator"" IN ('Blog', 'RssBlog') AND (""b"".""IsVisible"" = 'Y')");
         }
 
-        [ConditionalFact(Skip = "Issue#18147")]
+        [ConditionalFact]
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
+
+            AssertSql(
+                @"SELECT ""b"".""BlogId"", ""b"".""Discriminator"", ""b"".""IndexerVisible"", ""b"".""IsVisible"", ""b"".""Url"", ""b"".""RssUrl""
+FROM ""Blog"" AS ""b""
+WHERE ""b"".""Discriminator"" IN ('Blog', 'RssBlog') AND (""b"".""IsVisible"" = 'Y')");
         }
+
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
+
+            AssertSql(
+                @"SELECT ""b"".""BlogId"", ""b"".""Discriminator"", ""b"".""IndexerVisible"", ""b"".""IsVisible"", ""b"".""Url"", ""b"".""RssUrl""
+FROM ""Blog"" AS ""b""
+WHERE ""b"".""Discriminator"" IN ('Blog', 'RssBlog') AND (""b"".""IsVisible"" = 'Y')");
+        }
+
+        public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+        {
+            base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
+
+            AssertSql(
+                @"SELECT ""b"".""BlogId"", ""b"".""Discriminator"", ""b"".""IndexerVisible"", ""b"".""IsVisible"", ""b"".""Url"", ""b"".""RssUrl""
+FROM ""Blog"" AS ""b""
+WHERE ""b"".""Discriminator"" IN ('Blog', 'RssBlog') AND (""b"".""IndexerVisible"" <> 'Aye')");
+        }
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         public class CustomConvertersSqliteFixture : CustomConvertersFixtureBase
         {

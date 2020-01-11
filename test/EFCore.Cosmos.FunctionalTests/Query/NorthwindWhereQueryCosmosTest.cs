@@ -1561,6 +1561,16 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        public override async Task Where_expression_invoke_3(bool async)
+        {
+            await base.Where_expression_invoke_3(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_concat_string_int_comparison1(bool async)
         {
@@ -1945,6 +1955,102 @@ WHERE ((c[""Discriminator""] = ""Order"") AND @__p_0)");
             await base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async);
 
             AssertSql(" ");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_ToList_Count(bool async)
+        {
+            return base.Where_Queryable_ToList_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_ToList_Contains(bool async)
+        {
+            return base.Where_Queryable_ToList_Contains(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_ToArray_Count(bool async)
+        {
+            return base.Where_Queryable_ToArray_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_ToArray_Contains(bool async)
+        {
+            return base.Where_Queryable_ToArray_Contains(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_AsEnumerable_Count(bool async)
+        {
+            return base.Where_Queryable_AsEnumerable_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_AsEnumerable_Contains(bool async)
+        {
+            return base.Where_Queryable_AsEnumerable_Contains(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_ToList_Count_member(bool async)
+        {
+            return base.Where_Queryable_ToList_Count_member(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_Queryable_ToArray_Length_member(bool async)
+        {
+            return base.Where_Queryable_ToArray_Length_member(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_ToList_Count(bool async)
+        {
+            return base.Where_collection_navigation_ToList_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_ToList_Contains(bool async)
+        {
+            return base.Where_collection_navigation_ToList_Contains(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_ToArray_Count(bool async)
+        {
+            return base.Where_collection_navigation_ToArray_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_ToArray_Contains(bool async)
+        {
+            return base.Where_collection_navigation_ToArray_Contains(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_AsEnumerable_Count(bool async)
+        {
+            return base.Where_collection_navigation_AsEnumerable_Count(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_AsEnumerable_Contains(bool async)
+        {
+            return base.Where_collection_navigation_AsEnumerable_Contains(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_ToList_Count_member(bool async)
+        {
+            return base.Where_collection_navigation_ToList_Count_member(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override Task Where_collection_navigation_ToArray_Length_member(bool async)
+        {
+            return base.Where_collection_navigation_ToArray_Length_member(async);
         }
 
         private void AssertSql(params string[] expected)

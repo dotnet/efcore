@@ -22,7 +22,7 @@ namespace System.Reflection
                 && (!publicOnly || propertyInfo.GetMethod.IsPublic)
                 && propertyInfo.GetIndexParameters().Length == 0;
 
-        public static bool IsEFIndexerProperty([NotNull] this PropertyInfo propertyInfo)
+        public static bool IsIndexerProperty([NotNull] this PropertyInfo propertyInfo)
         {
             if (propertyInfo.PropertyType == typeof(object))
             {

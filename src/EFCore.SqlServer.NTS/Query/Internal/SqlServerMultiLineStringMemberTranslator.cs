@@ -32,6 +32,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     instance,
                     "STIsClosed",
                     Array.Empty<SqlExpression>(),
+                    nullResultAllowed: true,
+                    instancePropagatesNullability: true,
+                    argumentsPropagateNullability: Array.Empty<bool>(),
                     returnType);
             }
 

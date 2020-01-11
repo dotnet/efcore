@@ -91,7 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                  && unaryExpression.Operand.Type == typeof(byte[]))
             {
                 return base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression
-                    ? SqlExpressionFactory.Function("length", new[] { sqlExpression }, typeof(int))
+                    ? SqlExpressionFactory.Function(
+                        "length",
+                        new[] { sqlExpression },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true },
+                        typeof(int))
                     : null;
             }
 

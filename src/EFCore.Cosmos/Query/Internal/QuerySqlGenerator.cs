@@ -8,8 +8,6 @@ using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
@@ -60,10 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             // Unary
             { ExpressionType.UnaryPlus, "+" },
             { ExpressionType.Negate, "-" },
-            { ExpressionType.Not, "~" },
-
-            // Others
-            { ExpressionType.Coalesce, " ?? " }
+            { ExpressionType.Not, "~" }
         };
 
         /// <summary>
@@ -247,7 +242,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(selectExpression.Print(), GetType().Name));
+                    // TODO: See Issue#18923
+                    throw new InvalidOperationException("Cosmos Sql API does not support Offset without Limit.");
                 }
             }
 

@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 Check.DebugAssert(!IsEmpty, "relationship snapshot is empty");
                 Check.DebugAssert(
-                    !(propertyBase is INavigation) || !((INavigation)propertyBase).IsCollection(),
+                    !(propertyBase is INavigation) || !((INavigation)propertyBase).IsCollection,
                     $"property {propertyBase} is is not reference navigation");
 
                 _values[propertyBase.GetRelationshipIndex()] = SnapshotValue(propertyBase, value);
@@ -51,9 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 if (propertyBase is IProperty property)
                 {
-                    var comparer = property.GetKeyValueComparer()
-                        ?? property.GetValueComparer()
-                        ?? property.GetTypeMapping().KeyComparer;
+                    var comparer = property.GetKeyValueComparer();
 
                     if (comparer != null)
                     {

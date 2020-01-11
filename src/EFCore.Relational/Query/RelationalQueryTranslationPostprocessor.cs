@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -11,8 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class RelationalQueryTranslationPostprocessor : QueryTranslationPostprocessor
     {
-        private readonly SqlExpressionOptimizingExpressionVisitor _sqlExpressionOptimizingExpressionVisitor;
-
         public RelationalQueryTranslationPostprocessor(
             [NotNull] QueryTranslationPostprocessorDependencies dependencies,
             [NotNull] RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
@@ -25,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             RelationalDependencies = relationalDependencies;
             UseRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
             SqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
-            _sqlExpressionOptimizingExpressionVisitor
-                = new SqlExpressionOptimizingExpressionVisitor(SqlExpressionFactory, UseRelationalNulls);
         }
 
         protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
@@ -42,22 +39,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = new CollectionJoinApplyingExpressionVisitor().Visit(query);
             query = new TableAliasUniquifyingExpressionVisitor().Visit(query);
             query = new CaseWhenFlatteningExpressionVisitor(SqlExpressionFactory).Visit(query);
-
-            if (!UseRelationalNulls)
-            {
-                query = new NullSemanticsRewritingExpressionVisitor(SqlExpressionFactory).Visit(query);
-            }
-
+#pragma warning disable CS0618 // Type or member is obsolete
             query = OptimizeSqlExpression(query);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             return query;
         }
 
+        [Obsolete("Use 'Optimize' method on " + nameof(RelationalParameterBasedQueryTranslationPostprocessor) + " instead. If you have a case for optimizations to be performed here, please file an issue on github.com/dotnet/efcore.")]
         protected virtual Expression OptimizeSqlExpression([NotNull] Expression query)
-        {
-            Check.NotNull(query, nameof(query));
-
-            return _sqlExpressionOptimizingExpressionVisitor.Visit(query);
-        }
+            => query;
     }
 }

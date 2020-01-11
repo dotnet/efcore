@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 sqlExpressionFactory,
                 memberTranslatorProvider,
                 methodCallTranslatorProvider);
-            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_sqlTranslator);
+            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _model = parentVisitor._model;
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _sqlTranslator = parentVisitor._sqlTranslator;
-            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_sqlTranslator);
+            _projectionBindingExpressionVisitor = new CosmosProjectionBindingExpressionVisitor(_model, _sqlTranslator);
         }
 
         /// <summary>
@@ -96,11 +96,35 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [Obsolete("Use overload which takes IEntityType.")]
         protected override ShapedQueryExpression CreateShapedQueryExpression(Type elementType)
         {
             Check.NotNull(elementType, nameof(elementType));
 
             var entityType = _model.FindEntityType(elementType);
+            var selectExpression = _sqlExpressionFactory.Select(entityType);
+
+            return new ShapedQueryExpression(
+                selectExpression,
+                new EntityShaperExpression(
+                    entityType,
+                    new ProjectionBindingExpression(
+                        selectExpression,
+                        new ProjectionMember(),
+                        typeof(ValueBuffer)),
+                    false));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
             var selectExpression = _sqlExpressionFactory.Select(entityType);
 
             return new ShapedQueryExpression(
@@ -184,14 +208,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(source, nameof(source));
             Check.NotNull(resultType, nameof(resultType));
 
-            if (source.ShaperExpression.Type == resultType)
-            {
-                return source;
-            }
-
-            source.ShaperExpression = Expression.Convert(source.ShaperExpression, resultType);
-
-            return source;
+            return source.ShaperExpression.Type != resultType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
+                : source;
         }
 
         /// <summary>
@@ -256,9 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int));
-
-            return source;
+            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(int)));
         }
 
         /// <summary>
@@ -342,12 +359,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
-            if (source.ShaperExpression.Type != returnType)
-            {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
-            }
-
-            return source;
+            return source.ShaperExpression.Type != returnType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+                : source;
         }
 
         /// <summary>
@@ -449,12 +463,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             selectExpression.ReverseOrderings();
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1)));
 
-            if (source.ShaperExpression.Type != returnType)
-            {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
-            }
-
-            return source;
+            return source.ShaperExpression.Type != returnType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+                : source;
         }
 
         /// <summary>
@@ -510,9 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             selectExpression.ClearOrdering();
             selectExpression.ReplaceProjectionMapping(projectionMapping);
-            source.ShaperExpression = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long));
-
-            return source;
+            return source.UpdateShaperExpression(new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(long)));
         }
 
         /// <summary>
@@ -657,10 +666,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             var newSelectorBody = ReplacingExpressionVisitor.Replace(selector.Parameters.Single(), source.ShaperExpression, selector.Body);
 
-            source.ShaperExpression = _projectionBindingExpressionVisitor
-                .Translate(selectExpression, newSelectorBody);
-
-            return source;
+            return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody));
         }
 
         /// <summary>
@@ -717,12 +723,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var selectExpression = (SelectExpression)source.QueryExpression;
             selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(2)));
 
-            if (source.ShaperExpression.Type != returnType)
-            {
-                source.ShaperExpression = Expression.Convert(source.ShaperExpression, returnType);
-            }
-
-            return source;
+            return source.ShaperExpression.Type != returnType
+                ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, returnType))
+                : source;
         }
 
         /// <summary>
@@ -948,9 +951,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 shaper = Expression.Convert(shaper, resultType);
             }
 
-            source.ShaperExpression = shaper;
-
-            return source;
+            return source.UpdateShaperExpression(shaper);
         }
     }
 }

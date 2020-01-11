@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         private readonly CosmosSqlTranslatingExpressionVisitor _sqlTranslator;
+        private readonly IModel _model;
         private SelectExpression _selectExpression;
         private bool _clientEval;
 
@@ -46,8 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosProjectionBindingExpressionVisitor([NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
+        public CosmosProjectionBindingExpressionVisitor(
+            [NotNull] IModel model, [NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
         {
+            _model = model;
             _sqlTranslator = sqlTranslator;
         }
 
@@ -232,14 +235,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 case EntityProjectionExpression entityProjection:
                     return new EntityShaperExpression(
-                        navigation.GetTargetType(),
+                        navigation.TargetEntityType,
                         Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
                         nullable: true);
 
                 case ObjectArrayProjectionExpression objectArrayProjectionExpression:
                 {
                     var innerShaperExpression = new EntityShaperExpression(
-                        navigation.GetTargetType(),
+                        navigation.TargetEntityType,
                         Expression.Convert(
                             Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                         nullable: true);
@@ -260,7 +263,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var memberName))
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var memberName)
+                || methodCallExpression.TryGetIndexerArguments(_model, out source, out memberName))
             {
                 if (!_clientEval)
                 {
@@ -339,14 +343,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 {
                     case EntityProjectionExpression entityProjection:
                         return new EntityShaperExpression(
-                            navigation.GetTargetType(),
+                            navigation.TargetEntityType,
                             Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
                             nullable: true);
 
                     case ObjectArrayProjectionExpression objectArrayProjectionExpression:
                     {
                         var innerShaperExpression = new EntityShaperExpression(
-                            navigation.GetTargetType(),
+                            navigation.TargetEntityType,
                             Expression.Convert(
                                 Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                             nullable: true);

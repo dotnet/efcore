@@ -27,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public static readonly SkipNavigationComparer Instance = new SkipNavigationComparer();
 
         public int Compare(SkipNavigation x, SkipNavigation y)
-            => StringComparer.Ordinal.Compare(x.Name, y.Name);
+        {
+            var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
+
+            return result != 0 ? result : EntityTypePathComparer.Instance.Compare(x.DeclaringEntityType, y.DeclaringEntityType);
+        }
     }
 }

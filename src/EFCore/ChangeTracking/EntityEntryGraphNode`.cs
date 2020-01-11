@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets or sets state that will be available to all nodes that are visited after this node.
         /// </summary>
-        public virtual TState NodeState { get; }
+        public virtual TState NodeState { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.

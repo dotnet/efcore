@@ -26,7 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             return instance?.Type == typeof(string)
                 && member.Name == nameof(string.Length)
-                    ? _sqlExpressionFactory.Function("length", new[] { instance }, returnType)
+                    ? _sqlExpressionFactory.Function(
+                        "length",
+                        new[] { instance },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true },
+                        returnType)
                     : null;
         }
     }

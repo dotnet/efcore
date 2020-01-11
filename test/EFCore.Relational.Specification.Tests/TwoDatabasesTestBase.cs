@@ -20,10 +20,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_query_from_one_connection_string_and_save_changes_to_another()
+        public virtual void Can_query_from_one_connection_string_and_save_changes_to_another()
         {
             using var context1 = CreateBackingContext("TwoDatabasesOne");
             using var context2 = CreateBackingContext("TwoDatabasesTwo");
+
+            var connectionString1 = context1.Database.GetConnectionString();
+            var connectionString2 = context2.Database.GetConnectionString();
 
             Assert.NotEqual(context1.Database.GetConnectionString(), context2.Database.GetConnectionString());
 
@@ -32,13 +35,13 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = new TwoDatabasesContext(CreateTestOptions(new DbContextOptionsBuilder()).Options))
             {
-                context.Database.SetConnectionString(context1.Database.GetConnectionString());
+                context.Database.SetConnectionString(connectionString1);
 
                 var data = context.Foos.ToList();
                 data[0].Bar = "Modified One";
                 data[1].Bar = "Modified Two";
 
-                context.Database.SetConnectionString(context2.Database.GetConnectionString());
+                context.Database.SetConnectionString(connectionString2);
 
                 context.SaveChanges();
             }
@@ -48,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_query_from_one_connection_and_save_changes_to_another()
+        public virtual void Can_query_from_one_connection_and_save_changes_to_another()
         {
             using var context1 = CreateBackingContext("TwoDatabasesOneB");
             using var context2 = CreateBackingContext("TwoDatabasesTwoB");
@@ -76,16 +79,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Can_set_connection_string_in_interceptor()
+        public virtual void Can_set_connection_string_in_interceptor()
         {
             using var context1 = CreateBackingContext("TwoDatabasesIntercept");
+
+            var connectionString1 = context1.Database.GetConnectionString();
 
             context1.Database.EnsureCreatedResiliently();
 
             using (var context = new TwoDatabasesContext(
                 CreateTestOptions(new DbContextOptionsBuilder(), withConnectionString: true)
                     .AddInterceptors(new ConnectionStringConnectionInterceptor(
-                        context1.Database.GetConnectionString(), DummyConnectionString))
+                        connectionString1, DummyConnectionString))
                     .Options))
             {
                 var data = context.Foos.ToList();

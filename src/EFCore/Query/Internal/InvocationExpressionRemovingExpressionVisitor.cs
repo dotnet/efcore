@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var invokedExpression = StripTrivialConversions(invocationExpression.Expression);
 
             return invokedExpression is LambdaExpression lambdaExpression
-                ? InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments)
+                ? Visit(InlineLambdaExpression(lambdaExpression, invocationExpression.Arguments))
                 : base.VisitInvocation(invocationExpression);
         }
 

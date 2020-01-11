@@ -23,24 +23,24 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             _sqlExpressionFactory = sqlExpressionFactory;
         }
 
-        private Expression ApplyConversion(SqlExpression sqlExpression, bool condition)
+        private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool condition)
             => _isSearchCondition
                 ? ConvertToSearchCondition(sqlExpression, condition)
                 : ConvertToValue(sqlExpression, condition);
 
-        private Expression ConvertToSearchCondition(SqlExpression sqlExpression, bool condition)
+        private SqlExpression ConvertToSearchCondition(SqlExpression sqlExpression, bool condition)
             => condition
                 ? sqlExpression
                 : BuildCompareToExpression(sqlExpression);
 
-        private Expression ConvertToValue(SqlExpression sqlExpression, bool condition)
+        private SqlExpression ConvertToValue(SqlExpression sqlExpression, bool condition)
         {
             return condition
                 ? _sqlExpressionFactory.Case(
                     new[]
                     {
                         new CaseWhenClause(
-                            sqlExpression,
+                            SimplifyNegatedBinary(sqlExpression),
                             _sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(true)))
                     },
                     _sqlExpressionFactory.Constant(false))
@@ -48,9 +48,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         private SqlExpression BuildCompareToExpression(SqlExpression sqlExpression)
-        {
-            return _sqlExpressionFactory.Equal(sqlExpression, _sqlExpressionFactory.Constant(true));
-        }
+            => sqlExpression is SqlConstantExpression sqlConstantExpression
+                && sqlConstantExpression.Value is bool boolValue
+                ? _sqlExpressionFactory.Equal(
+                    boolValue
+                        ? _sqlExpressionFactory.Constant(1)
+                        : _sqlExpressionFactory.Constant(0),
+                    _sqlExpressionFactory.Constant(1))
+                : _sqlExpressionFactory.Equal(
+                    sqlExpression,
+                    _sqlExpressionFactory.Constant(true));
+
+        // !(a == b) -> (a != b)
+        // !(a != b) -> (a == b)
+        private SqlExpression SimplifyNegatedBinary(SqlExpression sqlExpression)
+            => sqlExpression is SqlUnaryExpression sqlUnaryExpression
+                && sqlUnaryExpression.IsLogicalNot()
+                && sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
+                && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual)
+                ? _sqlExpressionFactory.MakeBinary(
+                    sqlBinaryOperand.OperatorType == ExpressionType.Equal
+                        ? ExpressionType.NotEqual
+                        : ExpressionType.Equal,
+                    sqlBinaryOperand.Left,
+                    sqlBinaryOperand.Right,
+                    sqlBinaryOperand.TypeMapping)
+                : sqlExpression;
 
         protected override Expression VisitCase(CaseExpression caseExpression)
         {
@@ -273,9 +296,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             }
 
             var operand = (SqlExpression)Visit(sqlUnaryExpression.Operand);
+
             _isSearchCondition = parentSearchCondition;
 
-            return ApplyConversion(sqlUnaryExpression.Update(operand), condition: resultCondition);
+            return SimplifyNegatedBinary(
+                ApplyConversion(
+                    sqlUnaryExpression.Update(operand),
+                    condition: resultCondition));
         }
 
         protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)

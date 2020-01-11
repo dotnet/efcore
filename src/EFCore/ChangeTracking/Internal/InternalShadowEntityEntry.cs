@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public override bool AddToCollection(INavigation navigation, InternalEntityEntry value, bool forMaterialization)
         {
-            if (navigation.GetTargetType().ClrType == null)
+            if (navigation.TargetEntityType.ClrType == null)
             {
                 return false;
             }

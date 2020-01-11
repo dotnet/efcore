@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         // Other
-        SqlBinaryExpression Coalesce(
+        SqlFunctionExpression Coalesce(
             [NotNull] SqlExpression left, [NotNull] SqlExpression right, [CanBeNull] RelationalTypeMapping typeMapping = null);
 
         SqlUnaryExpression IsNull([NotNull] SqlExpression operand);
@@ -128,6 +128,54 @@ namespace Microsoft.EntityFrameworkCore.Query
         SqlFunctionExpression Function(
             [CanBeNull] SqlExpression instance,
             [NotNull] string name,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlFunctionExpression Function(
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullResultAllowed,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlFunctionExpression Function(
+            [CanBeNull] string schema,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullResultAllowed,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlFunctionExpression Function(
+            [CanBeNull] SqlExpression instance,
+            [NotNull] string name,
+            [NotNull] IEnumerable<SqlExpression> arguments,
+            bool nullResultAllowed,
+            bool instancePropagatesNullability,
+            [NotNull] IEnumerable<bool> argumentsPropagateNullability,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlFunctionExpression Function(
+            [NotNull] string name,
+            bool nullResultAllowed,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlFunctionExpression Function(
+            [NotNull] string schema,
+            [NotNull] string name,
+            bool nullResultAllowed,
+            [NotNull] Type returnType,
+            [CanBeNull] RelationalTypeMapping typeMapping = null);
+
+        SqlFunctionExpression Function(
+            [CanBeNull] SqlExpression instance,
+            [NotNull] string name,
+            bool nullResultAllowed,
+            bool instancePropagatesNullability,
             [NotNull] Type returnType,
             [CanBeNull] RelationalTypeMapping typeMapping = null);
 

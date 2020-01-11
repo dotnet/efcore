@@ -19,6 +19,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 {
     /// <summary>
@@ -94,23 +96,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 databaseModel.DatabaseName = GetDatabaseName(connection);
 
-                foreach (var table in GetTables(connection, options.Tables))
-                {
-                    table.Database = databaseModel;
-                    databaseModel.Tables.Add(table);
-                }
+                GetTables(connection, databaseModel, options.Tables);
 
                 foreach (var table in databaseModel.Tables)
                 {
-                    foreach (var foreignKey in GetForeignKeys(connection, table, databaseModel.Tables))
-                    {
-                        foreignKey.Table = table;
-                        table.ForeignKeys.Add(foreignKey);
-                    }
+                    GetForeignKeys(connection, table, databaseModel.Tables);
                 }
 
                 var nullableKeyColumns = databaseModel.Tables
-                    .Where(t => t.PrimaryKey != null).SelectMany(t => t.PrimaryKey.Columns)
+                    .SelectMany(t => t.PrimaryKey?.Columns ?? Array.Empty<DatabaseColumn>())
                     .Concat(databaseModel.Tables.SelectMany(t => t.ForeignKeys).SelectMany(fk => fk.PrincipalColumns))
                     .Where(c => c.IsNullable)
                     .Distinct();
@@ -142,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             return name;
         }
 
-        private IEnumerable<DatabaseTable> GetTables(DbConnection connection, IEnumerable<string> tables)
+        private void GetTables(DbConnection connection, DatabaseModel databaseModel, IEnumerable<string> tables)
         {
             var tablesToSelect = new HashSet<string>(tables.ToList(), StringComparer.OrdinalIgnoreCase);
             var selectedTables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -177,37 +171,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                     var type = reader.GetString(1);
                     var table = type == "table"
-                        ? new DatabaseTable()
-                        : new DatabaseView();
+                        ? new DatabaseTable(databaseModel, name)
+                        : new DatabaseView(databaseModel, name);
 
-                    table.Name = name;
+                    GetColumns(connection, table);
+                    GetPrimaryKey(connection, table);
+                    GetUniqueConstraints(connection, table);
+                    GetIndexes(connection, table);
 
-                    foreach (var column in GetColumns(connection, name))
-                    {
-                        column.Table = table;
-                        table.Columns.Add(column);
-                    }
-
-                    var primaryKey = GetPrimaryKey(connection, name, table.Columns);
-                    if (primaryKey != null)
-                    {
-                        primaryKey.Table = table;
-                        table.PrimaryKey = primaryKey;
-                    }
-
-                    foreach (var uniqueConstraints in GetUniqueConstraints(connection, name, table.Columns))
-                    {
-                        uniqueConstraints.Table = table;
-                        table.UniqueConstraints.Add(uniqueConstraints);
-                    }
-
-                    foreach (var index in GetIndexes(connection, name, table.Columns))
-                    {
-                        index.Table = table;
-                        table.Indexes.Add(index);
-                    }
-
-                    yield return table;
+                    databaseModel.Tables.Add(table);
                 }
             }
 
@@ -233,7 +205,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             return false;
         }
 
-        private IEnumerable<DatabaseColumn> GetColumns(DbConnection connection, string table)
+        private void GetColumns(DbConnection connection, DatabaseTable table)
         {
             using var command = connection.CreateCommand();
             command.CommandText = new StringBuilder()
@@ -244,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var parameter = command.CreateParameter();
             parameter.ParameterName = "@table";
-            parameter.Value = table;
+            parameter.Value = table.Name;
             command.Parameters.Add(parameter);
 
             using var reader = command.ExecuteReader();
@@ -257,19 +229,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     ? FilterClrDefaults(dataType, notNull, reader.GetString(3))
                     : null;
 
-                _logger.ColumnFound(table, columnName, dataType, notNull, defaultValue);
+                _logger.ColumnFound(table.Name, columnName, dataType, notNull, defaultValue);
 
-                yield return new DatabaseColumn
+                table.Columns.Add(new DatabaseColumn(table, columnName, dataType)
                 {
-                    Name = columnName,
-                    StoreType = dataType,
                     IsNullable = !notNull,
                     DefaultValueSql = defaultValue
-                };
+                });
             }
         }
 
-        private string FilterClrDefaults(string dataType, bool notNull, string defaultValue)
+        private string? FilterClrDefaults(string dataType, bool notNull, string defaultValue)
         {
             if (string.Equals(defaultValue, "null", StringComparison.OrdinalIgnoreCase))
             {
@@ -289,65 +259,62 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             return defaultValue;
         }
 
-        private DatabasePrimaryKey GetPrimaryKey(DbConnection connection, string table, IList<DatabaseColumn> columns)
+        private void GetPrimaryKey(DbConnection connection, DatabaseTable table)
         {
-            var primaryKey = new DatabasePrimaryKey();
+            using var command = connection.CreateCommand();
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\"")
+                .AppendLine("FROM pragma_index_list(@table)")
+                .AppendLine("WHERE \"origin\" = 'pk'")
+                .AppendLine("ORDER BY \"seq\";")
+                .ToString();
 
-            using (var command = connection.CreateCommand())
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@table";
+            parameter.Value = table.Name;
+            command.Parameters.Add(parameter);
+
+            var name = (string)command.ExecuteScalar();
+            if (name == null)
             {
-                command.CommandText = new StringBuilder()
-                    .AppendLine("SELECT \"name\"")
-                    .AppendLine("FROM pragma_index_list(@table)")
-                    .AppendLine("WHERE \"origin\" = 'pk'")
-                    .AppendLine("ORDER BY \"seq\";")
-                    .ToString();
-
-                var parameter = command.CreateParameter();
-                parameter.ParameterName = "@table";
-                parameter.Value = table;
-                command.Parameters.Add(parameter);
-
-                var name = (string)command.ExecuteScalar();
-                if (name == null)
-                {
-                    return GetRowidPrimaryKey(connection, table, columns);
-                }
-
-                if (!name.StartsWith("sqlite_", StringComparison.Ordinal))
-                {
-                    primaryKey.Name = name;
-                }
-
-                _logger.PrimaryKeyFound(name, table);
-
-                command.CommandText = new StringBuilder()
-                    .AppendLine("SELECT \"name\"")
-                    .AppendLine("FROM pragma_index_info(@index)")
-                    .AppendLine("ORDER BY \"seqno\";")
-                    .ToString();
-
-                parameter.ParameterName = "@index";
-                parameter.Value = name;
-
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    var columnName = reader.GetString(0);
-                    var column = columns.FirstOrDefault(c => c.Name == columnName)
-                        ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                    Check.DebugAssert(column != null, "column is null.");
-
-                    primaryKey.Columns.Add(column);
-                }
+                GetRowidPrimaryKey(connection, table);
+                return;
             }
 
-            return primaryKey;
+            var primaryKey = new DatabasePrimaryKey(
+                table,
+                name.StartsWith("sqlite_", StringComparison.Ordinal)
+                    ? string.Empty
+                    : name);
+
+            _logger.PrimaryKeyFound(name, table.Name);
+
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT \"name\"")
+                .AppendLine("FROM pragma_index_info(@index)")
+                .AppendLine("ORDER BY \"seqno\";")
+                .ToString();
+
+            parameter.ParameterName = "@index";
+            parameter.Value = name;
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                var columnName = reader.GetString(0);
+                var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
+                    ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                Check.DebugAssert(column != null, "column is null.");
+
+                primaryKey.Columns.Add(column);
+            }
+
+            table.PrimaryKey = primaryKey;
         }
 
-        private static DatabasePrimaryKey GetRowidPrimaryKey(
+        private static void GetRowidPrimaryKey(
             DbConnection connection,
-            string table,
-            IList<DatabaseColumn> columns)
+            DatabaseTable table)
         {
             using var command = connection.CreateCommand();
             command.CommandText = new StringBuilder()
@@ -358,29 +325,26 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var parameter = command.CreateParameter();
             parameter.ParameterName = "@table";
-            parameter.Value = table;
+            parameter.Value = table.Name;
             command.Parameters.Add(parameter);
 
             using var reader = command.ExecuteReader();
             if (!reader.Read())
             {
-                return null;
+                return;
             }
 
             var columnName = reader.GetString(0);
-            var column = columns.FirstOrDefault(c => c.Name == columnName)
-                ?? columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+            var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
+                ?? table.Columns.FirstOrDefault(c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
             Check.DebugAssert(column != null, "column is null.");
 
             Check.DebugAssert(!reader.Read(), "Unexpected composite primary key.");
 
-            return new DatabasePrimaryKey { Columns = { column } };
+            table.PrimaryKey = new DatabasePrimaryKey(table, string.Empty) { Columns = { column } };
         }
 
-        private IEnumerable<DatabaseUniqueConstraint> GetUniqueConstraints(
-            DbConnection connection,
-            string table,
-            IList<DatabaseColumn> columns)
+        private void GetUniqueConstraints(DbConnection connection, DatabaseTable table)
         {
             using var command1 = connection.CreateCommand();
             command1.CommandText = new StringBuilder()
@@ -392,20 +356,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var parameter1 = command1.CreateParameter();
             parameter1.ParameterName = "@table";
-            parameter1.Value = table;
+            parameter1.Value = table.Name;
             command1.Parameters.Add(parameter1);
 
             using var reader1 = command1.ExecuteReader();
             while (reader1.Read())
             {
-                var uniqueConstraint = new DatabaseUniqueConstraint();
-                var name = reader1.GetString(0);
-                if (!name.StartsWith("sqlite_", StringComparison.Ordinal))
-                {
-                    uniqueConstraint.Name = name;
-                }
+                var constraintName = reader1.GetString(0);
+                var uniqueConstraint = new DatabaseUniqueConstraint(
+                    table,
+                    constraintName.StartsWith("sqlite_", StringComparison.Ordinal)
+                        ? string.Empty
+                        : constraintName);
 
-                _logger.UniqueConstraintFound(name, table);
+                _logger.UniqueConstraintFound(constraintName, table.Name);
 
                 using (var command2 = connection.CreateCommand())
                 {
@@ -417,15 +381,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                     var parameter2 = command2.CreateParameter();
                     parameter2.ParameterName = "@index";
-                    parameter2.Value = name;
+                    parameter2.Value = constraintName;
                     command2.Parameters.Add(parameter2);
 
                     using var reader2 = command2.ExecuteReader();
                     while (reader2.Read())
                     {
                         var columnName = reader2.GetString(0);
-                        var column = columns.FirstOrDefault(c => c.Name == columnName)
-                            ?? columns.FirstOrDefault(
+                        var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
+                            ?? table.Columns.FirstOrDefault(
                                 c => c.Name.Equals(columnName, StringComparison.OrdinalIgnoreCase));
                         Check.DebugAssert(column != null, "column is null.");
 
@@ -433,14 +397,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     }
                 }
 
-                yield return uniqueConstraint;
+                table.UniqueConstraints.Add(uniqueConstraint);
             }
         }
 
-        private IEnumerable<DatabaseIndex> GetIndexes(
-            DbConnection connection,
-            string table,
-            IList<DatabaseColumn> columns)
+        private void GetIndexes(DbConnection connection, DatabaseTable table)
         {
             using var command1 = connection.CreateCommand();
             command1.CommandText = new StringBuilder()
@@ -452,15 +413,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
             var parameter1 = command1.CreateParameter();
             parameter1.ParameterName = "@table";
-            parameter1.Value = table;
+            parameter1.Value = table.Name;
             command1.Parameters.Add(parameter1);
 
             using var reader1 = command1.ExecuteReader();
             while (reader1.Read())
             {
-                var index = new DatabaseIndex { Name = reader1.GetString(0), IsUnique = reader1.GetBoolean(1) };
+                var index = new DatabaseIndex(table, reader1.GetString(0)) { IsUnique = reader1.GetBoolean(1) };
 
-                _logger.IndexFound(index.Name, table, index.IsUnique);
+                _logger.IndexFound(index.Name, table.Name, index.IsUnique);
 
                 using (var command2 = connection.CreateCommand())
                 {
@@ -479,19 +440,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     while (reader2.Read())
                     {
                         var name = reader2.GetString(0);
-                        var column = columns.FirstOrDefault(c => c.Name == name)
-                            ?? columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
+                        var column = table.Columns.FirstOrDefault(c => c.Name == name)
+                            ?? table.Columns.FirstOrDefault(c => c.Name.Equals(name, StringComparison.Ordinal));
                         Check.DebugAssert(column != null, "column is null.");
 
                         index.Columns.Add(column);
                     }
                 }
 
-                yield return index;
+                table.Indexes.Add(index);
             }
         }
 
-        private IEnumerable<DatabaseForeignKey> GetForeignKeys(DbConnection connection, DatabaseTable table, IList<DatabaseTable> tables)
+        private void GetForeignKeys(DbConnection connection, DatabaseTable table, IList<DatabaseTable> tables)
         {
             using var command1 = connection.CreateCommand();
             command1.CommandText = new StringBuilder()
@@ -511,11 +472,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                 var id = reader1.GetInt64(0);
                 var principalTableName = reader1.GetString(1);
                 var onDelete = reader1.GetString(2);
-                var foreignKey = new DatabaseForeignKey
+                var principalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
+                    ?? tables.FirstOrDefault(
+                        t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                var foreignKey = new DatabaseForeignKey(table, string.Empty, principalTable)
                 {
-                    PrincipalTable = tables.FirstOrDefault(t => t.Name == principalTableName)
-                        ?? tables.FirstOrDefault(
-                            t => t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase)),
                     OnDelete = ConvertToReferentialAction(onDelete)
                 };
 
@@ -577,7 +538,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
 
                 if (!invalid)
                 {
-                    yield return foreignKey;
+                    table.ForeignKeys.Add(foreignKey);
                 }
             }
         }

@@ -178,7 +178,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             => expression is ConstantExpression
                 || expression is MemberInitExpression
                 || expression is NewExpression
-                || expression is ParameterExpression;
+                || (expression is ParameterExpression parameter
+                    && parameter.Name.StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal));
 
         private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
         {
@@ -198,19 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             enumerableType = enumerableType.GetGenericTypeDefinition();
             queryableType = queryableType.GetGenericTypeDefinition();
 
-            if (enumerableType == typeof(IEnumerable<>)
-                && queryableType == typeof(IQueryable<>))
-            {
-                return true;
-            }
-
-            if (enumerableType == typeof(IOrderedEnumerable<>)
-                && queryableType == typeof(IOrderedQueryable<>))
-            {
-                return true;
-            }
-
-            return false;
+            return enumerableType == typeof(IEnumerable<>) && queryableType == typeof(IQueryable<>)
+                || enumerableType == typeof(IOrderedEnumerable<>) && queryableType == typeof(IOrderedQueryable<>);
         }
     }
 }

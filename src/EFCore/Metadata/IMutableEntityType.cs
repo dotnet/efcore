@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -140,19 +139,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </param>
         /// <param name="targetEntityType"> The entity type that the skip navigation property will hold an instance(s) of.</param>
-        /// <param name="foreignKey"> The foreign key to the association type. </param>
         /// <param name="collection"> Whether the navigation property is a collection property. </param>
-        /// <param name="onPrincipal">
-        ///     Whether the navigation property is defined on the principal side of the underlying foreign key.
+        /// <param name="onDependent">
+        ///     Whether the navigation property is defined on the dependent side of the underlying foreign key.
         /// </param>
         /// <returns> The newly created skip navigation property. </returns>
         IMutableSkipNavigation AddSkipNavigation(
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] IMutableEntityType targetEntityType,
-            [NotNull] IMutableForeignKey foreignKey,
             bool collection,
-            bool onPrincipal);
+            bool onDependent);
 
         /// <summary>
         ///     Gets a skip navigation property on this entity type. Returns <c>null</c> if no navigation property is found.

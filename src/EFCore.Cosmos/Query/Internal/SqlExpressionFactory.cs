@@ -85,6 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case SqlParameterExpression sqlParameterExpression:
                     return sqlParameterExpression.ApplyTypeMapping(typeMapping);
 
+                case SqlFunctionExpression sqlFunctionExpression:
+                    return sqlFunctionExpression.ApplyTypeMapping(typeMapping);
+
                 default:
                     return sqlExpression;
             }
@@ -179,7 +182,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ExpressionType.Modulo:
                 case ExpressionType.LeftShift:
                 case ExpressionType.RightShift:
-                case ExpressionType.Coalesce:
                 case ExpressionType.And:
                 case ExpressionType.Or:
                 {
@@ -372,15 +374,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual SqlBinaryExpression Or(SqlExpression left, SqlExpression right, CoreTypeMapping typeMapping = null)
             => MakeBinary(ExpressionType.Or, left, right, typeMapping);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual SqlBinaryExpression Coalesce(SqlExpression left, SqlExpression right, CoreTypeMapping typeMapping = null)
-            => MakeBinary(ExpressionType.Coalesce, left, right, typeMapping);
 
         private SqlUnaryExpression MakeUnary(
             ExpressionType operatorType, SqlExpression operand, Type type, CoreTypeMapping typeMapping = null)

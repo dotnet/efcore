@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             if (collection
-                && !navigation.IsCollection())
+                && !navigation.IsCollection)
             {
                 throw new InvalidOperationException(
                     CoreStrings.CollectionIsReference(
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             if (!collection
-                && navigation.IsCollection())
+                && navigation.IsCollection)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ReferenceIsCollection(
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         }
 
         private IEntityFinder TargetFinder
-            => InternalEntry.StateManager.CreateEntityFinder(Metadata.GetTargetType());
+            => InternalEntry.StateManager.CreateEntityFinder(Metadata.TargetEntityType);
 
         /// <summary>
         ///     Gets or sets a value indicating whether any of foreign key property values associated
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
             get
             {
-                if (Metadata.IsDependentToPrincipal())
+                if (Metadata.IsOnDependent)
                 {
                     return AnyFkPropertiesModified(InternalEntry);
                 }
@@ -194,13 +194,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 var navigationValue = CurrentValue;
 
                 return navigationValue != null
-                    && (Metadata.IsCollection()
+                    && (Metadata.IsCollection
                         ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
                         : AnyFkPropertiesModified(navigationValue));
             }
             set
             {
-                if (Metadata.IsDependentToPrincipal())
+                if (Metadata.IsOnDependent)
                 {
                     SetFkPropertiesModified(InternalEntry, value);
                 }
@@ -209,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     var navigationValue = CurrentValue;
                     if (navigationValue != null)
                     {
-                        if (Metadata.IsCollection())
+                        if (Metadata.IsCollection)
                         {
                             foreach (var relatedEntity in (IEnumerable)navigationValue)
                             {
@@ -227,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private bool CollectionContainsNewOrChangedRelationships(object relatedEntity)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
 
             return relatedEntry != null
                 && (relatedEntry.EntityState == EntityState.Added
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private bool AnyFkPropertiesModified(object relatedEntity)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
 
             return relatedEntry != null
                 && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private void SetFkPropertiesModified(object relatedEntity, bool modified)
         {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
+            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.TargetEntityType);
             if (relatedEntry != null)
             {
                 SetFkPropertiesModified(relatedEntry, modified);

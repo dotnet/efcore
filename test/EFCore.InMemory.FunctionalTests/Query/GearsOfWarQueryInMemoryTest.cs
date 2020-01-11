@@ -76,5 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return base.Select_subquery_projecting_single_constant_inside_anonymous(async);
         }
+
+        [ConditionalTheory(Skip = "issue #19683")]
+        public override Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
+        {
+            return base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
+        }
     }
 }

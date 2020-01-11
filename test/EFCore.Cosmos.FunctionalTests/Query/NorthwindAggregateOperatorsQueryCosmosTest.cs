@@ -896,6 +896,17 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task LastOrDefault_when_no_order_by(bool async)
+        {
+            await base.LastOrDefault_when_no_order_by(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
         public override async Task Last_Predicate(bool async)
         {
             await base.Last_Predicate(async);

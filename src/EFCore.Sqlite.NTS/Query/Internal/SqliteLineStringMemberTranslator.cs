@@ -38,22 +38,26 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
-                SqlExpression translation = _sqlExpressionFactory.Function(
-                    functionName, new[] { instance }, returnType);
-
-                if (returnType == typeof(bool))
-                {
-                    translation = _sqlExpressionFactory.Case(
+                return returnType == typeof(bool)
+                    ? _sqlExpressionFactory.Case(
                         new[]
                         {
                             new CaseWhenClause(
                                 _sqlExpressionFactory.IsNotNull(instance),
-                                translation)
+                                _sqlExpressionFactory.Function(
+                                    functionName,
+                                    new[] { instance },
+                                    nullResultAllowed: false,
+                                    argumentsPropagateNullability: new[] { false },
+                                    returnType))
                         },
-                        null);
-                }
-
-                return translation;
+                        null)
+                    : (SqlExpression)_sqlExpressionFactory.Function(
+                        functionName,
+                        new[] { instance },
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: new[] { true },
+                        returnType);
             }
 
             return null;

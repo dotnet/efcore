@@ -68,9 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(visitor, nameof(visitor));
 
-            var outerExpression = visitor.Visit(AccessExpression);
-
-            return Update(outerExpression);
+            return Update(visitor.Visit(AccessExpression));
         }
 
         /// <summary>

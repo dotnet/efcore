@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         <see cref="DbSet{TEntity}" /> objects are usually obtained from a <see cref="DbSet{TEntity}" />
-    ///         property on a derived <see cref="DbContext" /> or from the <see cref="DbContext.Set{TEntity}" />
+    ///         property on a derived <see cref="DbContext" /> or from the <see cref="DbContext.Set{TEntity}()" />
     ///         method.
     ///     </para>
     /// </summary>

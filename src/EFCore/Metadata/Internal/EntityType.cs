@@ -104,6 +104,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public EntityType([NotNull] string name, [NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
+            : base(name, clrType, model, configurationSource)
+        {
+            if (!clrType.IsValidEntityType())
+            {
+                throw new ArgumentException(CoreStrings.InvalidEntityType(clrType));
+            }
+
+            _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
+            Builder = new InternalEntityTypeBuilder(this, model.Builder);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public EntityType(
             [NotNull] string name,
             [NotNull] Model model,
@@ -312,36 +330,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotBeKeyless(this.DisplayName()));
                 }
 
-                var propertyCollisions = newBaseType.GetProperties()
+                var conflictingMember = newBaseType.GetMembers()
                     .Select(p => p.Name)
-                    .SelectMany(FindDerivedPropertiesInclusive)
-                    .ToList();
+                    .SelectMany(FindMembersInHierarchy)
+                    .FirstOrDefault();
 
-                if (propertyCollisions.Count > 0)
+                if (conflictingMember != null)
                 {
-                    var derivedProperty = propertyCollisions.First();
-                    var baseProperty = newBaseType.FindProperty(derivedProperty.Name);
+                    var baseProperty = newBaseType.FindMembersInHierarchy(conflictingMember.Name).Single();
                     throw new InvalidOperationException(
                         CoreStrings.DuplicatePropertiesOnBase(
                             this.DisplayName(),
                             newBaseType.DisplayName(),
-                            derivedProperty.DeclaringEntityType.DisplayName(),
-                            derivedProperty.Name,
-                            baseProperty.DeclaringEntityType.DisplayName(),
+                            conflictingMember.DeclaringType.DisplayName(),
+                            conflictingMember.Name,
+                            baseProperty.DeclaringType.DisplayName(),
                             baseProperty.Name));
-                }
-
-                var navigationCollisions = newBaseType.GetNavigations()
-                    .Select(p => p.Name)
-                    .SelectMany(FindNavigationsInHierarchy)
-                    .ToList();
-                if (navigationCollisions.Count > 0)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.DuplicateNavigationsOnBase(
-                            this.DisplayName(),
-                            newBaseType.DisplayName(),
-                            string.Join(", ", navigationCollisions.Select(p => p.Name))));
                 }
 
                 _baseType = newBaseType;
@@ -374,8 +378,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual ConfigurationSource? GetBaseTypeConfigurationSource() => _baseTypeConfigurationSource;
 
+        [DebuggerStepThrough]
         private void UpdateBaseTypeConfigurationSource(ConfigurationSource configurationSource)
             => _baseTypeConfigurationSource = configurationSource.Max(_baseTypeConfigurationSource);
 
@@ -388,6 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         // Note this is ISet because there is no suitable readonly interface in the profiles we are using
+        [DebuggerStepThrough]
         public virtual ISet<EntityType> GetDirectlyDerivedTypes() => _directlyDerivedTypes;
 
         /// <summary>
@@ -419,6 +426,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual IEnumerable<EntityType> GetDerivedTypesInclusive()
             => new[] { this }.Concat(GetDerivedTypes());
 
@@ -428,6 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        [DebuggerStepThrough]
         public virtual IEnumerable<ForeignKey> GetForeignKeysInHierarchy()
             => GetForeignKeys().Concat(GetDerivedForeignKeys());
 
@@ -474,6 +483,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         protected override IConventionAnnotation OnAnnotationSet(
             string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
             => Model.ConventionDispatcher.OnEntityTypeAnnotationChanged(Builder, name, annotation, oldAnnotation);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<PropertyBase> GetMembers()
+            => GetProperties().Cast<PropertyBase>()
+                .Concat(GetServiceProperties())
+                .Concat(GetNavigations())
+                .Concat(GetSkipNavigations());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<PropertyBase> GetDeclaredMembers()
+            => GetDeclaredProperties().Cast<PropertyBase>()
+                .Concat(GetDeclaredServiceProperties())
+                .Concat(GetDeclaredNavigations())
+                .Concat(GetDeclaredSkipNavigations());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1226,7 +1259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         foreignKey.Properties.Format(),
                         this.DisplayName(),
                         referencingSkipNavigation.Name,
-                        referencingSkipNavigation.DeclaringType.DisplayName()));
+                        referencingSkipNavigation.DeclaringEntityType.DisplayName()));
             }
 
             if (foreignKey.DependentToPrincipal != null)
@@ -1362,7 +1395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Check.DebugAssert(
-                !GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsDependentToPrincipal() == pointsToPrincipal),
+                !GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsOnDependent == pointsToPrincipal),
                 "There is another navigation corresponding to the same foreign key and pointing in the same direction.");
 
             Check.DebugAssert(
@@ -1453,15 +1486,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<Navigation> GetDerivedNavigationsInclusive()
-            => GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredNavigations());
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
         public virtual IEnumerable<Navigation> FindDerivedNavigations([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
@@ -1518,14 +1542,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] EntityType targetEntityType,
-            [NotNull] ForeignKey foreignKey,
             bool collection,
-            bool onPrincipal,
+            bool onDependent,
             ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(targetEntityType, nameof(targetEntityType));
-            Check.NotNull(foreignKey, nameof(foreignKey));
 
             var duplicateProperty = FindMembersInHierarchy(name).FirstOrDefault();
             if (duplicateProperty != null)
@@ -1555,36 +1577,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     shouldThrow: true);
             }
 
-            var expectedEntityType = onPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
-            if (expectedEntityType != this)
-            {
-                var message = onPrincipal
-                    ? CoreStrings.SkipNavigationWrongPrincipalType(
-                        name, this.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format())
-                    : CoreStrings.SkipNavigationWrongDependentType(
-                        name, this.DisplayName(), expectedEntityType.DisplayName(), foreignKey.Properties.Format());
-                throw new InvalidOperationException(message);
-            }
-
             var skipNavigation = new SkipNavigation(
                 name,
                 memberInfo as PropertyInfo,
                 memberInfo as FieldInfo,
+                this,
                 targetEntityType,
-                foreignKey,
                 collection,
-                onPrincipal,
+                onDependent,
                 configurationSource);
 
             _skipNavigations.Add(name, skipNavigation);
 
-            if (foreignKey.ReferencingSkipNavigations == null)
+            if (targetEntityType.DeclaredReferencingSkipNavigations == null)
             {
-                foreignKey.ReferencingSkipNavigations = new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
+                targetEntityType.DeclaredReferencingSkipNavigations = new SortedSet<SkipNavigation>(SkipNavigationComparer.Instance) { skipNavigation };
             }
             else
             {
-                foreignKey.ReferencingSkipNavigations.Add(skipNavigation);
+                var added = targetEntityType.DeclaredReferencingSkipNavigations.Add(skipNavigation);
+                Check.DebugAssert(added, "added is false");
             }
 
             return (SkipNavigation)Model.ConventionDispatcher.OnSkipNavigationAdded(skipNavigation.Builder)?.Metadata;
@@ -1599,7 +1611,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (name != memberInfo.GetSimpleMemberName())
             {
-                if ((memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
+                if (memberInfo != FindIndexerPropertyInfo())
                 {
                     if (throwOnNameMismatch)
                     {
@@ -1684,8 +1696,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<SkipNavigation> GetDerivedSkipNavigationsInclusive()
-            => GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredSkipNavigations());
+        public virtual IEnumerable<SkipNavigation> FindDerivedSkipNavigations([NotNull] string name)
+        {
+            Check.NotNull(name, nameof(name));
+
+            return GetDerivedTypes().Select(et => et.FindDeclaredSkipNavigation(name)).Where(n => n != null);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1693,12 +1709,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<SkipNavigation> FindDerivedSkipNavigations([NotNull] string name)
-        {
-            Check.NotNull(name, nameof(name));
-
-            return GetDerivedTypes().Select(et => et.FindDeclaredSkipNavigation(name)).Where(n => n != null);
-        }
+        public virtual IEnumerable<SkipNavigation> FindDerivedSkipNavigationsInclusive([NotNull] string name)
+            => ToEnumerable(FindDeclaredSkipNavigation(name)).Concat(FindDerivedSkipNavigations(name));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1734,16 +1746,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(navigation, nameof(navigation));
             Check.DebugAssert(Builder != null, "Builder is null");
 
-            if (navigation.DeclaringType != this)
+            if (navigation.DeclaringEntityType != this)
             {
                 throw new InvalidOperationException(CoreStrings.SkipNavigationWrongType(
-                    navigation.Name, this.DisplayName(), navigation.DeclaringType.DisplayName()));
+                    navigation.Name, this.DisplayName(), navigation.DeclaringEntityType.DisplayName()));
+            }
+
+            if (navigation.Inverse?.Inverse == navigation)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.SkipNavigationInUseBySkipNavigation(
+                        navigation.Name,
+                        navigation.Inverse.Name,
+                        navigation.Inverse.DeclaringEntityType.DisplayName()));
             }
 
             var removed = _skipNavigations.Remove(navigation.Name);
             Check.DebugAssert(removed, "Expected the navigation to be removed");
 
-            navigation.ForeignKey.ReferencingSkipNavigations.Remove(navigation);
+            removed = navigation.ForeignKey?.ReferencingSkipNavigations.Remove(navigation) ?? true;
+            Check.DebugAssert(removed, "removed is false");
+
+            removed = navigation.TargetEntityType.DeclaredReferencingSkipNavigations.Remove(navigation);
+            Check.DebugAssert(removed, "removed is false");
 
             navigation.Builder = null;
 
@@ -1758,6 +1783,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<SkipNavigation> GetSkipNavigations()
             => _baseType?.GetSkipNavigations().Concat(_skipNavigations.Values) ?? _skipNavigations.Values;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<SkipNavigation> GetReferencingSkipNavigations()
+            => _baseType?.GetReferencingSkipNavigations().Concat(GetDeclaredReferencingSkipNavigations())
+                ?? GetDeclaredReferencingSkipNavigations();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<SkipNavigation> GetDeclaredReferencingSkipNavigations()
+            => DeclaredReferencingSkipNavigations ?? Enumerable.Empty<SkipNavigation>();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<SkipNavigation> GetDerivedReferencingSkipNavigations()
+            => GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingSkipNavigations());
+
+        private SortedSet<SkipNavigation> DeclaredReferencingSkipNavigations { get; set; }
 
         #endregion
 
@@ -2066,7 +2121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (memberInfo != null
                 && propertyType != memberInfo.GetMemberType()
-                && (memberInfo as PropertyInfo)?.IsEFIndexerProperty() != true)
+                && memberInfo != FindIndexerPropertyInfo())
             {
                 if (typeConfigurationSource != null)
                 {
@@ -2557,40 +2612,86 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var seed = new Dictionary<string, object>(StringComparer.Ordinal);
                 data.Add(seed);
                 var type = rawSeed.GetType();
-                foreach (var memberInfo in type.GetMembersInHierarchy())
-                {
-                    if (!properties.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
-                    {
-                        continue;
-                    }
 
-                    ValueConverter valueConverter = null;
-                    if (providerValues
-                        && !valueConverters.TryGetValue(memberInfo.Name, out valueConverter))
+                if (type == ClrType)
+                {
+                    // non-anonymous type
+                    foreach (var propertyBase in properties.Values)
                     {
-                        if (propertyBase is IProperty property)
+                        ValueConverter valueConverter = null;
+                        if (providerValues
+                            && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
                         {
-                            valueConverter = property.FindTypeMapping()?.Converter
-                                ?? property.GetValueConverter();
+                            if (propertyBase is IProperty property)
+                            {
+                                valueConverter = property.FindTypeMapping()?.Converter
+                                    ?? property.GetValueConverter();
+                            }
+
+                            valueConverters[propertyBase.Name] = valueConverter;
                         }
 
-                        valueConverters[memberInfo.Name] = valueConverter;
-                    }
+                        object value = null;
+                        switch (propertyBase.GetIdentifyingMemberInfo())
+                        {
+                            case PropertyInfo propertyInfo:
+                                if (propertyBase.IsIndexerProperty())
+                                {
+                                    try
+                                    {
+                                        value = propertyInfo.GetValue(rawSeed, new[] { propertyBase.Name });
+                                    }
+                                    catch (Exception)
+                                    {
+                                        // Swallow if the property value is not set on the seed data
+                                    }
+                                }
+                                else
+                                {
+                                    value = propertyInfo.GetValue(rawSeed);
+                                }
 
-                    object value = null;
-                    switch (memberInfo)
+                                break;
+                            case FieldInfo fieldInfo:
+                                value = fieldInfo.GetValue(rawSeed);
+                                break;
+                        }
+
+                        seed[propertyBase.Name] = valueConverter == null
+                            ? value
+                            : valueConverter.ConvertToProvider(value);
+                    }
+                }
+                else
+                {
+                    // anonymous type
+                    foreach (var memberInfo in type.GetMembersInHierarchy())
                     {
-                        case PropertyInfo propertyInfo:
-                            value = propertyInfo.GetValue(rawSeed);
-                            break;
-                        case FieldInfo fieldInfo:
-                            value = fieldInfo.GetValue(rawSeed);
-                            break;
-                    }
+                        if (!properties.TryGetValue(memberInfo.GetSimpleMemberName(), out var propertyBase))
+                        {
+                            continue;
+                        }
 
-                    seed[memberInfo.Name] = valueConverter == null
-                        ? value
-                        : valueConverter.ConvertToProvider(value);
+                        ValueConverter valueConverter = null;
+                        if (providerValues
+                            && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
+                        {
+                            if (propertyBase is IProperty property)
+                            {
+                                valueConverter = property.FindTypeMapping()?.Converter
+                                    ?? property.GetValueConverter();
+                            }
+
+                            valueConverters[propertyBase.Name] = valueConverter;
+                        }
+
+                        // All memberInfos are PropertyInfo in anonymous type
+                        var value = ((PropertyInfo)memberInfo).GetValue(rawSeed);
+
+                        seed[propertyBase.Name] = valueConverter == null
+                            ? value
+                            : valueConverter.ConvertToProvider(value);
+                    }
                 }
             }
 
@@ -2810,7 +2911,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IModel ITypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -2821,7 +2923,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableModel IMutableTypeBase.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -2832,7 +2935,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableModel IMutableEntityType.Model
         {
-            [DebuggerStepThrough] get => Model;
+            [DebuggerStepThrough]
+            get => Model;
         }
 
         /// <summary>
@@ -2855,7 +2959,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IEntityType IEntityType.BaseType
         {
-            [DebuggerStepThrough] get => _baseType;
+            [DebuggerStepThrough]
+            get => _baseType;
         }
 
         /// <summary>
@@ -2890,7 +2995,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IEntityType IEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough] get => DefiningEntityType;
+            [DebuggerStepThrough]
+            get => DefiningEntityType;
         }
 
         /// <summary>
@@ -2901,7 +3007,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableEntityType IMutableEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough] get => DefiningEntityType;
+            [DebuggerStepThrough]
+            get => DefiningEntityType;
         }
 
         /// <summary>
@@ -2912,7 +3019,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionEntityType IConventionEntityType.DefiningEntityType
         {
-            [DebuggerStepThrough] get => DefiningEntityType;
+            [DebuggerStepThrough]
+            get => DefiningEntityType;
         }
 
         /// <summary>
@@ -3207,10 +3315,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] IMutableEntityType targetEntityType,
-            [NotNull] IMutableForeignKey foreignKey,
             bool collection,
-            bool onPrincipal)
-            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, (ForeignKey)foreignKey, collection, onPrincipal,
+            bool onDependent)
+            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, collection, onDependent,
                 ConfigurationSource.Explicit);
 
         /// <summary>
@@ -3224,11 +3331,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             [NotNull] string name,
             [CanBeNull] MemberInfo memberInfo,
             [NotNull] IConventionEntityType targetEntityType,
-            [NotNull] IConventionForeignKey foreignKey,
             bool collection,
-            bool onPrincipal,
+            bool onDependent,
             bool fromDataAnnotation)
-            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, (ForeignKey)foreignKey, collection, onPrincipal,
+            => AddSkipNavigation(name, memberInfo, (EntityType)targetEntityType, collection, onDependent,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -3654,7 +3760,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 [CanBeNull] PropertiesSnapshot properties,
                 [CanBeNull] List<InternalIndexBuilder> indexes,
                 [CanBeNull] List<(InternalKeyBuilder, ConfigurationSource?)> keys,
-                [CanBeNull] List<RelationshipSnapshot> relationships)
+                [CanBeNull] List<RelationshipSnapshot> relationships,
+                [CanBeNull] List<InternalSkipNavigationBuilder> skipNavigations,
+                [CanBeNull] List<InternalServicePropertyBuilder> serviceProperties)
             {
                 EntityType = entityType;
                 Properties = properties ?? new PropertiesSnapshot(null, null, null, null);
@@ -3672,10 +3780,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     Properties.Add(relationships);
                 }
+
+                SkipNavigations = skipNavigations;
+                ServiceProperties = serviceProperties;
             }
 
             private EntityType EntityType { [DebuggerStepThrough] get; }
             private PropertiesSnapshot Properties { [DebuggerStepThrough] get; }
+            private List<InternalSkipNavigationBuilder> SkipNavigations { [DebuggerStepThrough] get; }
+            private List<InternalServicePropertyBuilder> ServiceProperties { [DebuggerStepThrough] get; }
 
             /// <summary>
             ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -3693,7 +3806,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     entityTypeBuilder.Ignore(ignoredMember, EntityType.FindDeclaredIgnoredConfigurationSource(ignoredMember).Value);
                 }
 
+                if (ServiceProperties != null)
+                {
+                    foreach (var detachedServiceProperty in ServiceProperties)
+                    {
+                        detachedServiceProperty.Attach(detachedServiceProperty.Metadata.DeclaringEntityType.Builder);
+                    }
+                }
+
                 Properties.Attach(entityTypeBuilder);
+
+                if (SkipNavigations != null)
+                {
+                    foreach (var detachedSkipNavigation in SkipNavigations)
+                    {
+                        detachedSkipNavigation.Attach();
+                    }
+                }
 
                 var rawData = EntityType._data;
                 if (rawData != null)

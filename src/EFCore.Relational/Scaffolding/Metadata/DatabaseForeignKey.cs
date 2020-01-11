@@ -6,6 +6,8 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
 {
     /// <summary>
@@ -13,36 +15,50 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// </summary>
     public class DatabaseForeignKey : Annotatable
     {
+        public DatabaseForeignKey(
+            [NotNull] DatabaseTable table,
+            [CanBeNull] string? name,
+            [NotNull] DatabaseTable principalTable)
+        {
+            Table = table;
+            Name = name;
+            PrincipalTable = principalTable;
+            Columns = new List<DatabaseColumn>();
+            PrincipalColumns = new List<DatabaseColumn>();
+        }
+
         /// <summary>
         ///     The table that contains the foreign key constraint.
         /// </summary>
-        public virtual DatabaseTable Table { get; [param: CanBeNull] set; }
+        public virtual DatabaseTable Table { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The table to which the columns are constrained.
         /// </summary>
-        public virtual DatabaseTable PrincipalTable { get; [param: CanBeNull] set; }
+        public virtual DatabaseTable PrincipalTable { get; [param: NotNull] set; }
 
         /// <summary>
         ///     The ordered list of columns that are constrained.
         /// </summary>
-        public virtual IList<DatabaseColumn> Columns { get; } = new List<DatabaseColumn>();
+        public virtual IList<DatabaseColumn> Columns { get; }
 
         /// <summary>
         ///     The ordered list of columns in the <see cref="PrincipalTable" /> to which the <see cref="Columns" />
         ///     of the foreign key are constrained.
         /// </summary>
-        public virtual IList<DatabaseColumn> PrincipalColumns { get; } = new List<DatabaseColumn>();
+        public virtual IList<DatabaseColumn> PrincipalColumns { get; }
 
         /// <summary>
         ///     The foreign key constraint name.
         /// </summary>
-        public virtual string Name { get; [param: CanBeNull] set; }
+        public virtual string? Name { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     The action performed by the database when a row constrained by this foreign key
         ///     is deleted, or <c>null</c> if there is no action defined.
         /// </summary>
         public virtual ReferentialAction? OnDelete { get; set; }
+
+        public override string ToString() => Name ?? "<UNKNOWN>";
     }
 }

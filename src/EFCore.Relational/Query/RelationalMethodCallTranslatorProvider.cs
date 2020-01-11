@@ -35,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new LikeTranslator(sqlExpressionFactory),
                     new EnumHasFlagTranslator(sqlExpressionFactory),
                     new GetValueOrDefaultTranslator(sqlExpressionFactory),
-                    new ComparisonTranslator(sqlExpressionFactory)
+                    new ComparisonTranslator(sqlExpressionFactory),
+                    new ByteArraySequenceEqualTranslator(sqlExpressionFactory)
                 });
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -56,6 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         dbFunction.Schema,
                         dbFunction.Name,
                         arguments,
+                        nullResultAllowed: true,
+                        argumentsPropagateNullability: arguments.Select(a => false).ToList(),
                         method.ReturnType);
             }
 

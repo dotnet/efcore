@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -38,5 +39,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     This may be <c>null</c> for shadow properties or if the backing field is not known.
         /// </summary>
         FieldInfo FieldInfo { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the <see cref="PropertyAccessMode" /> being used for this property.
+        ///         <c>null</c> indicates that the default property access mode is being used.
+        ///     </para>
+        /// </summary>
+        /// <returns> The access mode being used, or <c>null</c> if the default access mode is being used. </returns>
+        PropertyAccessMode GetPropertyAccessMode()
+            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
+                ?? PropertyAccessMode.PreferField);
     }
 }

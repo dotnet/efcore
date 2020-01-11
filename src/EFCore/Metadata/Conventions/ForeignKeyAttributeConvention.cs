@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
                 else
                 {
-                    if (foreignKey.PrincipalToDependent.IsCollection())
+                    if (foreignKey.PrincipalToDependent.IsCollection)
                     {
                         context.StopProcessing();
                         return;
@@ -401,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach (var declaredNavigation in entityType.GetDeclaredNavigations())
                 {
-                    if (declaredNavigation.IsCollection())
+                    if (declaredNavigation.IsCollection)
                     {
                         var foreignKey = declaredNavigation.ForeignKey;
                         var fkPropertyOnPrincipal
