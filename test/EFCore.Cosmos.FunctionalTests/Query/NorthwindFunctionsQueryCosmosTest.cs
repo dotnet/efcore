@@ -19,184 +19,123 @@ namespace Microsoft.EntityFrameworkCore.Query
             //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        [ConditionalTheory]
         public override async Task String_StartsWith_Literal(bool async)
         {
             await base.String_StartsWith_Literal(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = @"""M""";
-            string function = "STARTSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument}))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""M"" != null) AND STARTSWITH(c[""ContactName""], ""M""))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_StartsWith_Identity(bool async)
         {
             await base.String_StartsWith_Identity(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = instance;
-            string function = "STARTSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} = """") OR (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument})))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND STARTSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_StartsWith_Column(bool async)
         {
             await base.String_StartsWith_Column(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = instance;
-            string function = "STARTSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} = """") OR (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument})))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND STARTSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_StartsWith_MethodCall(bool async)
         {
             await base.String_StartsWith_MethodCall(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = @"""M""";
-            string function = "STARTSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument}))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""M"" != null) AND STARTSWITH(c[""ContactName""], ""M""))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_EndsWith_Literal(bool async)
         {
             await base.String_EndsWith_Literal(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = @"""b""";
-            string function = "ENDSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument}))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""b"" != null) AND ENDSWITH(c[""ContactName""], ""b""))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_EndsWith_Identity(bool async)
         {
             await base.String_EndsWith_Identity(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = instance;
-            string function = "ENDSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} = """") OR (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument})))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND ENDSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_EndsWith_Column(bool async)
         {
             await base.String_EndsWith_Column(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = instance;
-            string function = "ENDSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} = """") OR (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument})))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] = """") OR ((c[""ContactName""] != null) AND ((c[""ContactName""] != null) AND ENDSWITH(c[""ContactName""], c[""ContactName""])))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_EndsWith_MethodCall(bool async)
         {
             await base.String_EndsWith_MethodCall(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = @"""m""";
-            string function = "ENDSWITH";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (({instance} != null) AND (({argument} != null) AND {function}({instance}, {argument}))))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""ContactName""] != null) AND ((""m"" != null) AND ENDSWITH(c[""ContactName""], ""m""))))");
         }
 
-        [ConditionalTheory]
         public override async Task String_Contains_Literal(bool async)
         {
             await base.String_Contains_Literal(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = @"""M""";
-            string function = "CONTAINS";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND {function}({instance}, {argument}))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], ""M""))");
         }
 
-        [ConditionalTheory]
         public override async Task String_Contains_Identity(bool async)
         {
             await base.String_Contains_Identity(async);
-
-            string instance = @"c[""ContactName""]";
-            string argument = instance;
-            string function = "CONTAINS";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND {function}({instance}, {argument}))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], c[""ContactName""]))");
         }
 
-        [ConditionalTheory]
         public override async Task String_Contains_Column(bool async)
         {
             await base.String_Contains_Column(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = instance;
-            string function = "CONTAINS";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND {function}({instance}, {argument}))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], c[""ContactName""]))");
         }
 
-        [ConditionalTheory]
         public override async Task String_Contains_MethodCall(bool async)
         {
             await base.String_Contains_MethodCall(async);
 
-            string instance = @"c[""ContactName""]";
-            string argument = @"""M""";
-            string function = "CONTAINS";
-
             AssertSql(
-                @$"SELECT c
+                @"SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND {function}({instance}, {argument}))");
+WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""ContactName""], ""M""))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
