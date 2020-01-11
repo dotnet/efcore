@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             base.Validate(model, logger);
 
             ValidateSharedContainerCompatibility(model, logger);
+            ValidateOnlyEtagConcurrencyToken(model, logger);
         }
 
         /// <summary>
@@ -170,6 +171,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                     }
 
                     discriminatorValues[discriminatorValue] = entityType;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void ValidateOnlyEtagConcurrencyToken(
+            [NotNull] IModel model,
+            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var entityType in model.GetEntityTypes())
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    if (property.IsConcurrencyToken && property.GetJsonPropertyName() != "_etag")
+                    {
+                        throw new InvalidOperationException(
+                            CosmosStrings.NonEtagConcurrencyToken(entityType.DisplayName(), property.GetJsonPropertyName()));
+                    }
                 }
             }
         }

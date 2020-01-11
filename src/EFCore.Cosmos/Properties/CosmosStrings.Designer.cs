@@ -96,6 +96,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 GetString("PartitionKeyStoreNameMismatch", nameof(property1), nameof(entityType1), nameof(storeName1), nameof(property2), nameof(entityType2), nameof(storeName2)),
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
 
+        /// <summary>
+        ///     The entity type '{entityType}' has property '(property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.
+        /// </summary>
+        public static string NonEtagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("NonEtagConcurrencyToken", nameof(entityType), nameof(property)),
+                entityType, property);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

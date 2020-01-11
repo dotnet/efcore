@@ -255,5 +255,28 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.PartitionKeyName, name, fromDataAnnotation);
         }
+
+        /// <summary>
+        ///     Configures this entity to use CosmosDb etag concurrency checks.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder UseEtagConcurrency(this EntityTypeBuilder entityTypeBuilder)
+        {
+            entityTypeBuilder.Property("_etag").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken();
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures this entity to use CosmosDb etag concurrency checks.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> UseEtagConcurrency<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
+            where TEntity : class
+        {
+            UseEtagConcurrency((EntityTypeBuilder)entityTypeBuilder);
+            return entityTypeBuilder;
+        }
     }
 }
