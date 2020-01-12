@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         /// <remarks>
         /// There are many virtual methods that use indexedstringbuilder. It is necessary to expose indexedstringbuilder so as to rewrite virtual methods
         /// </remarks>
-        public IndentedStringBuilder Sb { get { return _sb; } }
+        public virtual IndentedStringBuilder Sb { get { return _sb; } }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
