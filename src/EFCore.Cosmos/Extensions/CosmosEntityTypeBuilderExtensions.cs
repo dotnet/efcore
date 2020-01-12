@@ -263,7 +263,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder UseEtagConcurrency(this EntityTypeBuilder entityTypeBuilder)
         {
-            entityTypeBuilder.Property("_etag").ValueGeneratedOnAddOrUpdate().IsConcurrencyToken();
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            entityTypeBuilder.Property<string>("_etag")
+                .ValueGeneratedOnAddOrUpdate()
+                .IsConcurrencyToken();
             return entityTypeBuilder;
         }
 
@@ -275,6 +279,7 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder<TEntity> UseEtagConcurrency<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
             where TEntity : class
         {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             UseEtagConcurrency((EntityTypeBuilder)entityTypeBuilder);
             return entityTypeBuilder;
         }

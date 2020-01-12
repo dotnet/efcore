@@ -14,6 +14,7 @@ using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -287,6 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             var container = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
+
             using var response = await container.CreateItemStreamAsync(stream, partitionKey, null, cancellationToken);
             response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.Created;
@@ -348,10 +350,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
 
-            using var response = await container.ReplaceItemStreamAsync(
-                stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
-            response.EnsureSuccessStatusCode();
-            return response.StatusCode == HttpStatusCode.OK;
+            try
+            {
+                using var response = await container.ReplaceItemStreamAsync(
+                    stream, parameters.ItemId, partitionKey, itemRequestOptions, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                return response.StatusCode == HttpStatusCode.OK;
+            }
+            catch (CosmosException cre) when (cre.StatusCode == HttpStatusCode.PreconditionFailed)
+            {
+                throw ThrowConcurrencyException(parameters.ItemId, cre);
+            }
         }
 
         /// <summary>
@@ -409,6 +418,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 parameters.DocumentId, partitionKey, cancellationToken: cancellationToken);
             response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.NoContent;
+        }
+
+        private static Exception ThrowConcurrencyException(string itemId, CosmosException cosmosException)
+        {
+            throw new DbUpdateConcurrencyException(
+                CosmosStrings.UpdateConcurrencyTokenException(itemId), cosmosException);
         }
 
         private PartitionKey CreatePartitionKey(string partitionKey)

@@ -97,12 +97,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
 
         /// <summary>
-        ///     The entity type '{entityType}' has property '(property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.
+        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.
         /// </summary>
         public static string NonEtagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
             => string.Format(
                 GetString("NonEtagConcurrencyToken", nameof(entityType), nameof(property)),
                 entityType, property);
+
+        /// <summary>
+        ///     Conflicts were detected for item with id '{itemId}'.
+        /// </summary>
+        public static string UpdateConcurrencyTokenException([CanBeNull] object itemId)
+            => string.Format(
+                GetString("UpdateConcurrencyTokenException", nameof(itemId)),
+                itemId);
 
         private static string GetString(string name, params string[] formatterNames)
         {
