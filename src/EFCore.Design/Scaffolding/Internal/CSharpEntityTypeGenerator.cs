@@ -32,6 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private bool _useDataAnnotations;
 
         /// <summary>
+        /// The IndentedStringBuilder for Generator
+        /// </summary>
+        /// <remarks>
+        /// There are many virtual methods that use indexedstringbuilder. It is necessary to expose indexedstringbuilder so as to rewrite virtual methods
+        /// </remarks>
+        public IndentedStringBuilder Sb { get { return _sb; } }
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -101,6 +109,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             [NotNull] IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
+
+            var comment = entityType.FindAnnotation("Relational:Comment");
+
+            if (comment != null && comment.Value != null)
+            {
+                _sb.AppendLine("///<summary>");
+                _sb.AppendLine("///" + comment.Value.ToString());
+                _sb.AppendLine("///</summary>");
+            }
 
             if (_useDataAnnotations)
             {
@@ -204,6 +221,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
             {
+                var comment = property.FindAnnotation("Relational:Comment");
+               
+                if (comment != null && comment.Value != null)
+                {
+                    _sb.AppendLine("///<summary>");
+                    _sb.AppendLine("///" + comment.Value.ToString());
+                    _sb.AppendLine("///</summary>");
+                }
+               
                 if (_useDataAnnotations)
                 {
                     GeneratePropertyDataAnnotations(property);
