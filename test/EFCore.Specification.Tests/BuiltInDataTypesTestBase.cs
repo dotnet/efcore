@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
+using Xunit.Sdk;
 
 // ReSharper disable CompareOfFloatsByEqualityOperator
 // ReSharper disable InconsistentNaming
@@ -1994,6 +1995,26 @@ namespace Microsoft.EntityFrameworkCore
             Assert.True(result.BoolField);
         }
 
+        [ConditionalFact]
+        public virtual void Can_sum_multiple_nested_datetime_values_together()
+        {
+            using var context = CreateContext();
+
+            context.Set<Animal>().Add(new Animal { Id = 50 });
+
+            for (var i = 0; i < 10; i++)
+            {
+                context.Set<AnimalIdentification>().Add(new AnimalIdentification { Id = 100 + i, AnimalId = 50, TimeSpanField = TimeSpan.FromHours(i) });
+            }
+            context.SaveChanges();
+
+            var dateTimeMinutes = context.Set<Animal>().Where(a => a.Id == 50)
+                .Select(a => a.IdentificationMethods.Sum(i => i.DateTimeField.Month)).Single();
+            var minutes = context.Set<Animal>().Where(a => a.Id == 50).Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalMinutes)).Single();
+            Console.WriteLine(dateTimeMinutes);
+            Console.WriteLine(minutes);
+        }
+
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
@@ -3041,6 +3062,8 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
             public int AnimalId { get; set; }
             public IdentificationMethod Method { get; set; }
+            public TimeSpan TimeSpanField { get; set; }
+            public DateTime DateTimeField { get; set; }
         }
 
         protected enum IdentificationMethod
