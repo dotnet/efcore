@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder UseEtagConcurrency(this EntityTypeBuilder entityTypeBuilder)
+        public static EntityTypeBuilder UseEtagConcurrency([NotNull] this EntityTypeBuilder entityTypeBuilder)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> UseEtagConcurrency<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder)
+        public static EntityTypeBuilder<TEntity> UseEtagConcurrency<TEntity>([NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder)
             where TEntity : class
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));

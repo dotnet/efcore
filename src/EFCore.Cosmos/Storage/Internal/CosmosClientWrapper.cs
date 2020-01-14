@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             return concurrencyToken.Mode switch
             {
-                CosmosConcurrencyMode.None => new ItemRequestOptions(),
+                CosmosConcurrencyMode.None => null, // null to keep it consistent with previous behavior 
                 CosmosConcurrencyMode.IfMatch => new ItemRequestOptions { IfMatchEtag = concurrencyToken.Value },
                 CosmosConcurrencyMode.IfNoneMatch => new ItemRequestOptions { IfNoneMatchEtag = concurrencyToken.Value },
                 _ => throw new InvalidOperationException(),
