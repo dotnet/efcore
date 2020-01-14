@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] string collectionId,
             [NotNull] string documentId,
             [NotNull] JObject document,
-            [NotNull] CosmosConcurrencyToken concurrencyToken,
+            CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
                 (collectionId, documentId, document, concurrencyToken, partitionKey),
@@ -326,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             [NotNull] string collectionId,
             [NotNull] string documentId,
             [NotNull] JObject document,
-            [NotNull] CosmosConcurrencyToken concurrencyToken,
+            CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
