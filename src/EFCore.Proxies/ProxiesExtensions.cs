@@ -18,6 +18,65 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     <para>
+        ///         Turns on the creation of change detection proxies.
+        ///     </para>
+        ///     <para>
+        ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
+        ///         will happen automatically, but if the application is controlling the service provider, then a call to
+        ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
+        ///     </para>
+        /// </summary>
+        /// <param name="optionsBuilder">
+        ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
+        ///     or exposed AddDbContext.
+        /// </param>
+        /// <param name="useChangeDetectionProxies"> <c>True</c> to use change detection proxies; false to prevent their use. </param>
+        /// <param name="checkEquality"> <c>True</c> if proxy change detection should check if the incoming value is equal to the current value before notifying. Defaults to <c>True</c>. </param>
+        /// <returns> The same builder to allow method calls to be chained. </returns>
+        public static DbContextOptionsBuilder UseChangeDetectionProxies(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder,
+            bool useChangeDetectionProxies = true,
+            bool checkEquality = true)
+        {
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+            var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
+                ?? new ProxiesOptionsExtension();
+
+            extension = extension.WithChangeDetection(useChangeDetectionProxies, checkEquality);
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+            return optionsBuilder;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Turns on the creation of change detection proxies.
+        ///     </para>
+        ///     <para>
+        ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
+        ///         will happen automatically, but if the application is controlling the service provider, then a call to
+        ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TContext"> The <see cref="DbContext" /> type. </typeparam>
+        /// <param name="optionsBuilder">
+        ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
+        ///     or exposed AddDbContext.
+        /// </param>
+        /// <param name="useChangeDetectionProxies"> <c>True</c> to use change detection proxies; false to prevent their use. </param>
+        /// <param name="checkEquality"> <c>True</c> if proxy change detection should check if the incoming value is equal to the current value before notifying. Defaults to <c>True</c>. </param>
+        /// <returns> The same builder to allow method calls to be chained. </returns>
+        public static DbContextOptionsBuilder<TContext> UseChangeDetectionProxies<TContext>(
+            [NotNull] this DbContextOptionsBuilder<TContext> optionsBuilder,
+            bool useChangeDetectionProxies = true,
+            bool checkEquality = true)
+            where TContext : DbContext
+            => (DbContextOptionsBuilder<TContext>)UseChangeDetectionProxies((DbContextOptionsBuilder)optionsBuilder, useChangeDetectionProxies, checkEquality);
+
+        /// <summary>
+        ///     <para>
         ///         Turns on the creation of lazy-loading proxies.
         ///     </para>
         ///     <para>
@@ -127,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var options = serviceProvider.GetService<IDbContextOptions>().FindExtension<ProxiesOptionsExtension>();
 
-            if (options?.UseLazyLoadingProxies != true)
+            if (options?.UseProxies != true)
             {
                 throw new InvalidOperationException(ProxiesStrings.ProxiesNotEnabled(entityType.ShortDisplayName()));
             }
