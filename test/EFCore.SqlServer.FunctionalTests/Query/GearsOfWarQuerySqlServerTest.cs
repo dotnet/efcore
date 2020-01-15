@@ -7530,7 +7530,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
         {
             await base.SequenceEqual_is_translated_with_byte_array(isAsync);
 
-            AssertSql(@"DECLARE @__byteArrayParam_0 varbinary(5) = 0x0405060708;
+            AssertSql(@"@__byteArrayParam_0='0x0405060708' (Size = 5)
 
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
