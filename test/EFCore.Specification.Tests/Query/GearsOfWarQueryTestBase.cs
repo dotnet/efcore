@@ -7547,6 +7547,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Gear>().Select(g => g.Nickname == nullParameter));
         }
+        
+        public virtual Task SequenceEqual_is_translated_with_byte_array(bool isAsync)
+        {
+            var byteArrayParam = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 };
+
+            return AssertQuery(
+                isAsync,
+                ss => ss.Set<Squad>().Where(s => s.Banner5.SequenceEqual(byteArrayParam)));
+        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

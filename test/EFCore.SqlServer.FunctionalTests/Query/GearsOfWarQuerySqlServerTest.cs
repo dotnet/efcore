@@ -7525,6 +7525,16 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
                 @"SELECT CAST(0 AS bit)
 FROM [Gears] AS [g]
 WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
+
+        public override async Task SequenceEqual_is_translated_with_byte_array(bool isAsync)
+        {
+            await base.SequenceEqual_is_translated_with_byte_array(isAsync);
+
+            AssertSql(@"DECLARE @__byteArrayParam_0 varbinary(5) = 0x0405060708;
+
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE [s].[Banner5] = @__byteArrayParam_0");
         }
 
         public override async Task Group_by_nullable_property_HasValue_and_project_the_grouping_key(bool async)

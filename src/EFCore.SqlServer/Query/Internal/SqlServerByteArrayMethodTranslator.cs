@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerByteArrayMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerByteArrayMethodTranslator([JetBrains.Annotations.NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -25,8 +25,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
 
             if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
-                && arguments[0].Type == typeof(byte[]))
+                 && arguments[0].Type == typeof(byte[]))
             {
                 var source = arguments[0];
                 var sourceTypeMapping = source.TypeMapping;

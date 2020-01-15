@@ -137,6 +137,17 @@ FROM ""Squads"" AS ""s""
 WHERE length(""s"".""Banner"") = length(@__byteArrayParam)");
         }
 
+        public override async Task SequenceEqual_is_translated_with_byte_array(bool async)
+        {
+            await base.SequenceEqual_is_translated_with_byte_array(async);
+
+            AssertSql(@"@__byteArrayParam_0='0x0405060708' (Size = 5) (DbType = String)
+
+SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
+FROM ""Squads"" AS ""s""
+WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
