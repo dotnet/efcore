@@ -53,7 +53,7 @@
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>193fb40ae0a6fb0a2ecd63cb63db0a95719dbe8d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Internal" Version="3.1.2-servicing.20064.4" CoherentParentDependency="Microsoft.Extensions.Logging">
+    <Dependency Name="Microsoft.NETCore.App.Internal" Version="3.1.2-servicing.20064.3" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
       <Sha>193fb40ae0a6fb0a2ecd63cb63db0a95719dbe8d</Sha>
     </Dependency>
