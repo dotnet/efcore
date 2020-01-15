@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerByteArrayMethodTranslator([JetBrains.Annotations.NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqlServerByteArrayMethodTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
