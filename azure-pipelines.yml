@@ -13,6 +13,14 @@ variables:
     value: https://ef-nightly-test.documents.azure.com:443/
   - name: _CosmosToken
     value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
+  - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+    - group: DotNet-MSRC-Storage
+    - name: _InternalRuntimeDownloadArgs
+      value: /p:DotNetRuntimeSourceFeed=https://dotnetclimsrc.blob.core.windows.net/dotnet
+             /p:DotNetRuntimeSourceFeedKey=$(dotnetclimsrc-read-sas-token-base64)
+  - ${{ if eq(variables['System.TeamProject'], 'public') }}:
+    - name: _InternalRuntimeDownloadArgs
+      value: ''
 
 trigger:
   - master
@@ -59,13 +67,21 @@ stages:
                 inputs:
                   command: custom
                   arguments: 'locals all -clear'
+              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                - task: PowerShell@2
+                  displayName: Setup Private Feeds Credentials
+                  inputs:
+                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
+                    arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
+                  env:
+                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - script: "echo ##vso[build.addbuildtag]daily-build"
                 condition: and(ne(variables['Build.Reason'], 'PullRequest'), ne(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
               - script: "echo ##vso[build.addbuildtag]release-candidate"
                 condition: and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['IsFinalBuild'], 'true'))
                 displayName: 'Set CI tags'
-              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
+              - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs) $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
@@ -95,7 +111,15 @@ stages:
               - bash: brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/835ae521c065524abdf66578e68032fa24bce514/Formula/libspatialite.rb
                 displayName: Install SpatiaLite
                 continueOnError: true
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine
+              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                - task: Bash@3
+                  displayName: Setup Private Feeds Credentials
+                  inputs:
+                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
+                    arguments: $(Build.SourcesDirectory)/NuGet.config $Token
+                  env:
+                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --binaryLog --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                 name: Build
@@ -119,7 +143,15 @@ stages:
               - bash: sudo apt-get install -y libsqlite3-mod-spatialite
                 displayName: Install SpatiaLite
                 continueOnError: true
-              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine
+              - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                - task: Bash@3
+                  displayName: Setup Private Feeds Credentials
+                  inputs:
+                    filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.sh
+                    arguments: $(Build.SourcesDirectory)/NuGet.config $Token
+                  env:
+                    Token: $(dn-bot-dnceng-artifact-feeds-rw)
+              - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                 env:
                   Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
                   Test__Cosmos__AuthToken: $(_CosmosToken)
