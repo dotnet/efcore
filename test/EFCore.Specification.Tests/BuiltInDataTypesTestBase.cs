@@ -1996,21 +1996,22 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Can_sum_multiple_nested_datetime_values_together()
+        public virtual void Can_sum_nested_timespan_members()
         {
             using var context = CreateContext();
 
-            context.Set<Animal>().Add(new Animal { Id = 50 });
+            var animalEntry = context.Set<Animal>().Add(new Animal());
+            context.SaveChanges();
 
             for (var i = 0; i < 10; i++)
             {
-                context.Set<AnimalIdentification>().Add(new AnimalIdentification { Id = 100 + i, AnimalId = 50, TimeSpanField = TimeSpan.FromHours(i) });
+                context.Set<AnimalIdentification>().Add(new AnimalIdentification { AnimalId = animalEntry.Entity.Id, TimeSpanField = TimeSpan.FromHours(i) });
             }
             context.SaveChanges();
 
-            var dateTimeMinutes = context.Set<Animal>().Where(a => a.Id == 50)
+            var dateTimeMinutes = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
                 .Select(a => a.IdentificationMethods.Sum(i => i.DateTimeField.Month)).Single();
-            var minutes = context.Set<Animal>().Where(a => a.Id == 50).Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalMinutes)).Single();
+            var minutes = context.Set<Animal>().Where(a => a.Id == 50).Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalSeconds)).Single();
             Console.WriteLine(dateTimeMinutes);
             Console.WriteLine(minutes);
         }

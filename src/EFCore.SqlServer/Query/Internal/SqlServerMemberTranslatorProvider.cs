@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             AddTranslators(
                 new IMemberTranslator[]
                 {
+                    new SqlServerTimeSpanMemberTranslator(sqlExpressionFactory), 
                     new SqlServerDateTimeMemberTranslator(sqlExpressionFactory),
                     new SqlServerStringMemberTranslator(sqlExpressionFactory)
                 });
