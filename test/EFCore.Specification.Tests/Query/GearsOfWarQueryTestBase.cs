@@ -7324,6 +7324,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeSpan_Days(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>()
+                    .Where(m => m.Duration.Days == 1));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_TimeSpan_Hours(bool async)
         {
             return AssertQuery(
@@ -7361,6 +7371,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Mission>()
                     .Where(m => m.Duration.Milliseconds == 1));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeSpan_Ticks(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>()
+                    .Where(m => m.Duration.Ticks == 1));
+        }
+
+        // TODO
+        // TimeSpan_TotalDays
+        // TimeSpan_TotalHours
+        // TimeSpan_TotalMilliseconds
+        // TimeSpan_TotalMinutes
+        // TimeSpan_TotalSeconds
+        // TimeSpan_Add
+        // TimeSpan_Divide_double
+        // TimeSpan_Divide_TimeSpan
+        // TimeSpan_Duration
+        // TimeSpan_FromDays
+        // TimeSpan_FromHours
+        // TimeSpan_FromMilliseconds
+        // TimeSpan_FromMinutes
+        // TimeSpan_FromSeconds
+        // TimeSpan_FromTicks
+        // TimeSpan_Multiply
+        // TimeSpan_Negate
+        // TimeSpan_op_Addition
+        // TimeSpan_op_Division_double
+        // TimeSpan_op_GreaterThan
+        // TimeSpan_op_GreaterThanOrEqual
+        // TimeSpan_op_LessThan
+        // TimeSpan_op_LessThanOrEqual
+        // TimeSpan_op_Multiply_double_right
+        // TimeSpan_op_Multiply_double_left
+        // TimeSpan_op_Subtraction
+        // TimeSpan_op_UnaryNegation
+        // Max_TimeSpan
+        // Min_TimeSpan
+        // DateTime_Add
+        // DateTime_op_Addition
+        // DateTime_op_Subtraction_DateTime
+        // DateTime_op_Subtraction_TimeSpan
+        // DateTime_Subtract_DateTime
+        // DateTime_Subtract_TimeSpan
 
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 

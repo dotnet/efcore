@@ -71,30 +71,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             if (modifier != null)
             {
-                return _sqlExpressionFactory.Function(
-                    "rtrim",
-                    new SqlExpression[]
-                    {
-                        _sqlExpressionFactory.Function(
-                            "rtrim",
-                            new SqlExpression[]
-                            {
-                                SqliteExpression.Strftime(
-                                    _sqlExpressionFactory,
-                                    method.ReturnType,
-                                    "%Y-%m-%d %H:%M:%f",
-                                    instance,
-                                    new[] { modifier }),
-                                _sqlExpressionFactory.Constant("0")
-                            },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, false },
-                            method.ReturnType),
-                        _sqlExpressionFactory.Constant(".")
-                    },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, false },
-                    method.ReturnType);
+                return SqliteExpression.DateTime(
+                    _sqlExpressionFactory,
+                    method.ReturnType,
+                    instance,
+                    new[] { modifier });
             }
 
             return null;

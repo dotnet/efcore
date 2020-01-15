@@ -120,6 +120,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     CodeName = "Lightmass Offensive",
                     Rating = 2.1,
                     Timeline = new DateTimeOffset(599898024001234567, new TimeSpan(1, 30, 0)),
+                    //TimelineUtc = new DateTime(599897970001234567),
                     Duration = new TimeSpan(1, 2, 3)
                 },
                 new Mission
@@ -128,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
                     CodeName = "Hollow Storm",
                     Rating = 4.2,
                     Timeline = new DateTimeOffset(2, 3, 1, 8, 0, 0, new TimeSpan(-5, 0, 0)),
+                    //TimelineUtc = new DateTime(2, 3, 1, 13, 0, 0),
                     Duration = new TimeSpan(0, 1, 2, 3, 456)
                 },
                 new Mission

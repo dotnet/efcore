@@ -148,29 +148,66 @@ FROM ""Squads"" AS ""s""
 WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
         }
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task TimeSpan_Hours(bool async) => base.TimeSpan_Hours(async);
+        public override async Task TimeSpan_Hours(bool async)
+        {
+            await base.TimeSpan_Hours(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task TimeSpan_Minutes(bool async) => base.TimeSpan_Minutes(async);
+            AssertSql(
+                @"SELECT ef_mod(ef_days(""m"".""Duration""), 1.0) * 24.0
+FROM ""Missions"" AS ""m""");
+        }
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task TimeSpan_Seconds(bool async) => base.TimeSpan_Seconds(async);
+        public override async Task TimeSpan_Minutes(bool async)
+        {
+            await base.TimeSpan_Minutes(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task TimeSpan_Milliseconds(bool async) => base.TimeSpan_Milliseconds(async);
+            AssertSql(
+                @"SELECT ef_mod(ef_days(""m"".""Duration""), 0.041666666666666664) * 1440.0
+FROM ""Missions"" AS ""m""");
+        }
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task Where_TimeSpan_Hours(bool async) => base.Where_TimeSpan_Hours(async);
+        public override async Task TimeSpan_Seconds(bool async)
+        {
+            await base.TimeSpan_Seconds(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task Where_TimeSpan_Minutes(bool async) => base.Where_TimeSpan_Minutes(async);
+            AssertSql(
+                @"SELECT round(ef_mod(ef_days(""m"".""Duration""), 0.00069444444444444447) * 86400.0, 3)
+FROM ""Missions"" AS ""m""");
+        }
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task Where_TimeSpan_Seconds(bool async) => base.Where_TimeSpan_Seconds(async);
+        public override async Task TimeSpan_Milliseconds(bool async)
+        {
+            await base.TimeSpan_Milliseconds(async);
 
-        [ConditionalTheory(Skip = "PR #19774")]
-        public override Task Where_TimeSpan_Milliseconds(bool async) => base.Where_TimeSpan_Milliseconds(async);
+            AssertSql(
+                @"SELECT ef_mod(ef_days(""m"".""Duration""), 1.1574074074074073E-05) * 86400000.0
+FROM ""Missions"" AS ""m""");
+        }
+
+        public override async Task Where_TimeSpan_Days(bool async)
+        {
+            await base.Where_TimeSpan_Days(async);
+
+            AssertSql(
+                @"SELECT ""m"".""Id"", ""m"".""CodeName"", ""m"".""Duration"", ""m"".""Rating"", ""m"".""Timeline""
+FROM ""Missions"" AS ""m""
+WHERE CAST(ef_days(""m"".""Duration"") AS INTEGER) = 1");
+        }
+
+        public override async Task Where_TimeSpan_Ticks(bool async)
+        {
+            await base.Where_TimeSpan_Ticks(async);
+
+            AssertSql(
+                @"SELECT ""m"".""Id"", ""m"".""CodeName"", ""m"".""Duration"", ""m"".""Rating"", ""m"".""Timeline""
+FROM ""Missions"" AS ""m""
+WHERE CAST((ef_days(""m"".""Duration"") * 864000000000.0) AS INTEGER) = 1");
+        }
+
+        // TODO
+        // JulianDay collapses strftime
+        // JulianDay collapses strftime from double without modifiers
+        // Days collapses timespan
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

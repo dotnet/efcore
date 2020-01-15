@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     new SqliteByteArrayMethodTranslator(sqlExpressionFactory),
                     new SqliteDateTimeAddTranslator(sqlExpressionFactory),
                     new SqliteMathTranslator(sqlExpressionFactory),
-                    new SqliteStringMethodTranslator(sqlExpressionFactory)
+                    new SqliteStringMethodTranslator(sqlExpressionFactory),
+                    new SqliteTimeSpanMethodTranslator(sqlExpressionFactory)
                 });
         }
     }

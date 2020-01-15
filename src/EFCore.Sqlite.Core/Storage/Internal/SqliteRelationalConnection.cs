@@ -113,6 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     sqliteConnection.DefaultTimeout = _commandTimeout.Value;
                 }
 
+                sqliteConnection.CreateFunction(
+                    "ef_days",
+                    (TimeSpan? value) => value?.TotalDays,
+                    isDeterministic: true);
+
                 sqliteConnection.CreateFunction<object, object, object>(
                     "ef_mod",
                     (dividend, divisor) =>
@@ -129,7 +134,16 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                         return Convert.ToDouble(dividend, CultureInfo.InvariantCulture) %
                             Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                    });
+                    },
+                    isDeterministic: true);
+
+                sqliteConnection.CreateFunction(
+                    "ef_timespan",
+                    (double? value) => value.HasValue
+                        // TODO: Round to the nearest millisecond
+                        ? TimeSpan.FromDays(value.Value)
+                        : default(TimeSpan?),
+                    isDeterministic: true);
             }
             else
             {

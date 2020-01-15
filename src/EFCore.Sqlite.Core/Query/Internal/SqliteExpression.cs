@@ -19,6 +19,74 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public static class SqliteExpression
     {
+        public static SqlFunctionExpression DateTime(
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] Type returnType,
+            [NotNull] SqlExpression timestring,
+            [CanBeNull] IEnumerable<SqlExpression> modifiers = null,
+            [CanBeNull] RelationalTypeMapping typeMapping = null)
+        {
+            return sqlExpressionFactory.Function(
+                "rtrim",
+                new SqlExpression[]
+                {
+                        sqlExpressionFactory.Function(
+                            "rtrim",
+                            new SqlExpression[]
+                            {
+                                Strftime(
+                                    sqlExpressionFactory,
+                                    returnType,
+                                    "%Y-%m-%d %H:%M:%f",
+                                    timestring,
+                                    modifiers,
+                                    typeMapping),
+                                sqlExpressionFactory.Constant("0")
+                            },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, false },
+                            returnType),
+                        sqlExpressionFactory.Constant(".")
+                },
+                nullable: true,
+                argumentsPropagateNullability: new[] { true, false },
+                returnType);
+        }
+
+        public static SqlFunctionExpression Time(
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] Type returnType,
+            [NotNull] SqlExpression timestring,
+            [CanBeNull] IEnumerable<SqlExpression> modifiers = null,
+            [CanBeNull] RelationalTypeMapping typeMapping = null)
+        {
+            return sqlExpressionFactory.Function(
+                "rtrim",
+                new SqlExpression[]
+                {
+                        sqlExpressionFactory.Function(
+                            "rtrim",
+                            new SqlExpression[]
+                            {
+                                Strftime(
+                                    sqlExpressionFactory,
+                                    returnType,
+                                    "%H:%M:%f",
+                                    timestring,
+                                    modifiers,
+                                    typeMapping),
+                                sqlExpressionFactory.Constant("0")
+                            },
+                            nullable: true,
+                            argumentsPropagateNullability: new[] { true, false },
+                            returnType),
+                        sqlExpressionFactory.Constant(".")
+                },
+                nullable: true,
+                argumentsPropagateNullability: new[] { true, false },
+                returnType);
+        }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -61,6 +129,68 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 nullable: true,
                 argumentsPropagateNullability: finalArguments.Select(a => true),
                 returnType,
+                typeMapping);
+        }
+
+        public static SqlExpression JulianDay(
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] SqlExpression timestring,
+            [CanBeNull] RelationalTypeMapping typeMapping = null)
+        {
+            var modifiers = Enumerable.Empty<SqlExpression>();
+
+            // Collapse julianday(datetime($expression, ...)) to julianday($expression, ...)
+            if (timestring is SqlFunctionExpression rtrimFunction
+                && rtrimFunction.Name == "rtrim"
+                && rtrimFunction.Arguments.Count == 2
+                && rtrimFunction.Arguments[0] is SqlFunctionExpression rtrimFunction2
+                && rtrimFunction2.Name == "rtrim"
+                && rtrimFunction2.Arguments.Count == 2
+                && rtrimFunction2.Arguments[0] is SqlFunctionExpression strftimeFunction
+                && strftimeFunction.Name == "strftime"
+                && strftimeFunction.Arguments.Count > 1)
+            {
+                timestring = strftimeFunction.Arguments[1];
+                modifiers = strftimeFunction.Arguments.Skip(2);
+            }
+
+            // Collapse julianday($double) to $double
+            if (timestring.Type == typeof(double)
+                && !modifiers.Any())
+            {
+                return timestring;
+            }
+
+            var finalArguments = new[] { timestring }.Concat(modifiers);
+
+            return sqlExpressionFactory.Function(
+                "julianday",
+                finalArguments,
+                nullable: true,
+                argumentsPropagateNullability: finalArguments.Select(a => true),
+                typeof(double),
+                typeMapping);
+        }
+
+        public static SqlExpression Days(
+            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
+            [NotNull] SqlExpression timeSpan,
+            [CanBeNull] RelationalTypeMapping typeMapping = null)
+        {
+            // Collapse days(timespan($expression)) to $expression
+            if (timeSpan is SqlFunctionExpression timeSpanFunction
+                && timeSpanFunction.Name == "ef_timespan"
+                && timeSpanFunction.Arguments.Count == 1)
+            {
+                return timeSpanFunction.Arguments[0];
+            }
+
+            return sqlExpressionFactory.Function(
+                "ef_days",
+                new[] { timeSpan },
+                nullable: true,
+                argumentsPropagateNullability: new[] { true },
+                typeof(double),
                 typeMapping);
         }
     }

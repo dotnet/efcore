@@ -7191,7 +7191,7 @@ WHERE [g].[Discriminator] IN (N'Gear', N'Officer')");
 
         public override async Task Bitwise_operation_with_null_arguments(bool async)
         {
-            await  base.Bitwise_operation_with_null_arguments(async);
+            await base.Bitwise_operation_with_null_arguments(async);
 
             AssertSql(
                 @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -7471,7 +7471,7 @@ END
 FROM [Weapons] AS [w]
 GROUP BY [w].[SynergyWithId]");
         }
-        
+
         public override async Task Checked_context_with_cast_does_not_fail(bool isAsync)
         {
             await base.Checked_context_with_cast_does_not_fail(isAsync);
@@ -7528,6 +7528,9 @@ FROM [Missions] AS [m]");
 FROM [Missions] AS [m]");
         }
 
+        public override Task Where_TimeSpan_Days(bool async)
+            => Task.CompletedTask; // No translation
+
         public override async Task Where_TimeSpan_Hours(bool async)
         {
             await base.Where_TimeSpan_Hours(async);
@@ -7567,6 +7570,9 @@ WHERE DATEPART(second, [m].[Duration]) = 1");
 FROM [Missions] AS [m]
 WHERE DATEPART(millisecond, [m].[Duration]) = 1");
         }
+
+        public override Task Where_TimeSpan_Ticks(bool async)
+            => Task.CompletedTask; // No translation
 
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
