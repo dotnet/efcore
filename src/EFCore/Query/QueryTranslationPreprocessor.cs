@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(query, nameof(query));
 
+            query = new IgnoreCheckedExpressionVisitor().Visit(query);
             query = new EnumerableToQueryableMethodConvertingExpressionVisitor().Visit(query);
             query = new QueryMetadataExtractingExpressionVisitor(_queryCompilationContext).Visit(query);
             query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);

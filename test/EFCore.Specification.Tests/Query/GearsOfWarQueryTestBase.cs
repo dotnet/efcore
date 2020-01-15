@@ -7491,8 +7491,36 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Weapon>()
                     .GroupBy(w => w.SynergyWithId)
                     .Select(g => g.Key.HasValue));
+		}
+
+		[ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Checked_context_with_cast_does_not_fail(bool isAsync)
+        {
+            using var ctx = CreateContext();
+
+            checked
+            {
+                return AssertQuery(
+                    isAsync,
+                    ss => ss.Set<LocustLeader>().Where(w => (byte)w.ThreatLevel >= (short?)5));
+            }
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Checked_context_with_addition_does_not_fail(bool isAsync)
+        {
+            using var ctx = CreateContext();
+
+            checked
+            {
+                return AssertQuery(
+                    isAsync,
+                    ss => ss.Set<LocustLeader>().Where(w => w.ThreatLevel >= ((int)(long?)5 + (long?)w.ThreatLevel)));
+            }
+        }
+        
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
 
         protected virtual void ClearLog()
