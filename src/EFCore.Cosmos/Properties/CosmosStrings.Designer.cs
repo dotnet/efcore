@@ -33,6 +33,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 entityType1, discriminatorValue, entityType2, container);
 
         /// <summary>
+        ///     The type of the etag property '{property}' on '{entityType}' is '{propertyType}'. All etag properties need to be strings or have a string converter.
+        /// </summary>
+        public static string ETagNonStringStoreType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+            => string.Format(
+                GetString("ETagNonStringStoreType", nameof(property), nameof(entityType), nameof(propertyType)),
+                property, entityType, propertyType);
+
+        /// <summary>
         ///     The entity type '{entityType}' is sharing the container '{container}' with other types, but does not have a discriminator property configured.
         /// </summary>
         public static string NoDiscriminatorProperty([CanBeNull] object entityType, [CanBeNull] object container)
@@ -47,6 +55,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("NoDiscriminatorValue", nameof(entityType), nameof(container)),
                 entityType, container);
+
+        /// <summary>
+        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.
+        /// </summary>
+        public static string NonEtagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
+            => string.Format(
+                GetString("NonEtagConcurrencyToken", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The entity type '{entityType}' does not have a partition key set, but it is mapped to the container '{container}' shared by entity types with partition keys.
@@ -95,14 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => string.Format(
                 GetString("PartitionKeyStoreNameMismatch", nameof(property1), nameof(entityType1), nameof(storeName1), nameof(property2), nameof(entityType2), nameof(storeName2)),
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
-
-        /// <summary>
-        ///     The entity type '{entityType}' has property '{property}' as its concurrency token, but only '_etag' is supported. Consider using 'EntityTypeBuilder.UseEtagConcurrency'.
-        /// </summary>
-        public static string NonEtagConcurrencyToken([CanBeNull] object entityType, [CanBeNull] object property)
-            => string.Format(
-                GetString("NonEtagConcurrencyToken", nameof(entityType), nameof(property)),
-                entityType, property);
 
         /// <summary>
         ///     Conflicts were detected for item with id '{itemId}'.

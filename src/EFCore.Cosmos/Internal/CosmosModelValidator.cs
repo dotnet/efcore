@@ -187,12 +187,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                foreach (var property in entityType.GetProperties())
+                foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    if (property.IsConcurrencyToken && property.GetJsonPropertyName() != "_etag")
+                    if (property.IsConcurrencyToken)
                     {
-                        throw new InvalidOperationException(
-                            CosmosStrings.NonEtagConcurrencyToken(entityType.DisplayName(), property.GetJsonPropertyName()));
+                        var storeName = property.GetJsonPropertyName();
+                        if (storeName != "_etag")
+                        {
+                            throw new InvalidOperationException(
+                                CosmosStrings.NonEtagConcurrencyToken(entityType.DisplayName(), storeName));
+                        }
+
+                        var etagType = property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType;
+                        if (etagType != typeof(string))
+                        {
+                            throw new InvalidOperationException(
+                                CosmosStrings.ETagNonStringStoreType(
+                                    property.Name, entityType.DisplayName(), etagType.ShortDisplayName()));
+                        }
                     }
                 }
             }

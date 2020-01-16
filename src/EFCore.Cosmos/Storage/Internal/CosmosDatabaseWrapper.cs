@@ -334,15 +334,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private static CosmosConcurrencyToken GetConcurrencyToken(IUpdateEntry entry)
         {
-            foreach (var property in entry.EntityType.GetProperties())
+            var etagProperty = entry.EntityType.GetETagProperty();
+            if (etagProperty == null)
             {
-                if (property.IsConcurrencyToken)
-                {
-                    return CosmosConcurrencyToken.IfMatch((string)entry.GetCurrentValue(property));
-                }
+                return CosmosConcurrencyToken.None;
             }
 
-            return CosmosConcurrencyToken.None;
+            var etag = entry.GetCurrentValue(etagProperty);
+            var converter = etagProperty.GetTypeMapping().Converter;
+            if (converter != null)
+            {
+                etag = converter.ConvertToProvider(etag);
+            }
+
+            return CosmosConcurrencyToken.IfMatch((string)etag);
         }
 
         private static string GetPartitionKey(IUpdateEntry entry)
