@@ -1,10 +1,14 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -48,56 +52,59 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 switch (memberName)
                 {
+                    case nameof(TimeSpan.TotalMilliseconds):
+                        return GetTotalTimeExpression(instance, 1000 * 1000);
                     case nameof(TimeSpan.TotalSeconds):
-                        return _sqlExpressionFactory.Function(
-                            "DATEDIFF",
-                            new[] { _sqlExpressionFactory.Fragment("second"), _sqlExpressionFactory.Fragment("0"), instance },
-                            returnType);
-
-                    case nameof(DateTime.Date):
-                        return _sqlExpressionFactory.Function(
-                            "CONVERT",
-                            new[] { _sqlExpressionFactory.Fragment("date"), instance },
-                            returnType,
-                            declaringType == typeof(DateTime)
-                                ? instance.TypeMapping
-                                : _sqlExpressionFactory.FindMapping(typeof(DateTime)));
-
-                    case nameof(DateTime.TimeOfDay):
-                        return _sqlExpressionFactory.Convert(instance, returnType);
-
-                    case nameof(DateTime.Now):
-                        return _sqlExpressionFactory.Function(
-                            declaringType == typeof(DateTime) ? "GETDATE" : "SYSDATETIMEOFFSET",
-                            Array.Empty<SqlExpression>(),
-                            returnType);
-
-                    case nameof(DateTime.UtcNow):
-                        var serverTranslation = _sqlExpressionFactory.Function(
-                            declaringType == typeof(DateTime) ? "GETUTCDATE" : "SYSUTCDATETIME",
-                            Array.Empty<SqlExpression>(),
-                            returnType);
-
-                        return declaringType == typeof(DateTime)
-                            ? (SqlExpression)serverTranslation
-                            : _sqlExpressionFactory.Convert(serverTranslation, returnType);
-
-                    case nameof(DateTime.Today):
-                        return _sqlExpressionFactory.Function(
-                            "CONVERT",
-                            new SqlExpression[]
-                            {
-                                _sqlExpressionFactory.Fragment("date"),
-                                _sqlExpressionFactory.Function(
-                                    "GETDATE",
-                                    Array.Empty<SqlExpression>(),
-                                    typeof(DateTime))
-                            },
-                            returnType);
+                        return GetTotalTimeExpression(instance, 1000 * 1000 * 1000);
+                    case nameof(TimeSpan.TotalMinutes):
+                        return GetTotalTimeExpression(instance, 60L * 1000 * 1000 * 1000);
+                    case nameof(TimeSpan.TotalHours):
+                        return GetTotalTimeExpression(instance, 60L * 60 * 1000 * 1000 * 1000);
+                    case nameof(TimeSpan.TotalDays):
+                        return GetTotalTimeExpression(instance, 24L * 60 * 60 * 1000 * 1000 * 1000);
                 }
             }
 
             return null;
+        }
+
+        private SqlExpression GetTotalTimeExpression(SqlExpression timeSpan, long nanosFactor)
+        {
+            var totalNanoSeconds = GetNanosecondsExpression(timeSpan);
+                        
+            return _sqlExpressionFactory.Divide(_sqlExpressionFactory.Convert(totalNanoSeconds, typeof(double)), _sqlExpressionFactory.Fragment(nanosFactor.ToString()));
+        }
+
+        private SqlExpression GetNanosecondsExpression(SqlExpression timeSpan)
+        {
+            var hoursExpression = _sqlExpressionFactory.Function(
+                "DATEPART",
+                new[] { _sqlExpressionFactory.Fragment("hour"), timeSpan },
+                typeof(int));
+            var hoursInNanos =
+                _sqlExpressionFactory.Multiply(hoursExpression, _sqlExpressionFactory.Fragment((60 * 60 * 1000000000L).ToString()));
+
+            var minutesExpression = _sqlExpressionFactory.Function(
+                "DATEPART",
+                new[] { _sqlExpressionFactory.Fragment("minute"), timeSpan },
+                typeof(int));
+            var minutesInNanos = _sqlExpressionFactory.Multiply(
+                minutesExpression, _sqlExpressionFactory.Fragment((60 * 1000000000L).ToString()));
+
+            var secondsExpression = _sqlExpressionFactory.Function(
+                "DATEPART",
+                new[] { _sqlExpressionFactory.Fragment("second"), timeSpan },
+                typeof(int));
+            var secondsInNanos = _sqlExpressionFactory.Multiply(
+                secondsExpression, _sqlExpressionFactory.Fragment((1000000000).ToString()));
+
+            var nanosecondsExpression = _sqlExpressionFactory.Function(
+                "DATEPART",
+                new[] { _sqlExpressionFactory.Fragment("nanosecond"), timeSpan },
+                typeof(int));
+
+            return _sqlExpressionFactory.Add(
+                hoursInNanos, _sqlExpressionFactory.Add(minutesInNanos, _sqlExpressionFactory.Add(secondsInNanos, nanosecondsExpression)));
         }
     }
 }

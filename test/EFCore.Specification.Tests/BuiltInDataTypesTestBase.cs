@@ -20,6 +20,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : BuiltInDataTypesTestBase<TFixture>.BuiltInDataTypesFixtureBase, new()
     {
+
+        private const double Epsilon = 0.000_000_000_001;
         protected BuiltInDataTypesTestBase(TFixture fixture) => Fixture = fixture;
 
         protected TFixture Fixture { get; }
@@ -2002,18 +2004,29 @@ namespace Microsoft.EntityFrameworkCore
 
             var animalEntry = context.Set<Animal>().Add(new Animal());
             context.SaveChanges();
+            var numHours = 40;
 
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < numHours; i++)
             {
-                context.Set<AnimalIdentification>().Add(new AnimalIdentification { AnimalId = animalEntry.Entity.Id, TimeSpanField = TimeSpan.FromHours(i) });
+                context.Set<AnimalIdentification>().Add(new AnimalIdentification { AnimalId = animalEntry.Entity.Id, TimeSpanField = TimeSpan.FromHours(1) });
             }
             context.SaveChanges();
 
-            var dateTimeMinutes = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
-                .Select(a => a.IdentificationMethods.Sum(i => i.DateTimeField.Month)).Single();
-            var minutes = context.Set<Animal>().Where(a => a.Id == 50).Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalSeconds)).Single();
-            Console.WriteLine(dateTimeMinutes);
-            Console.WriteLine(minutes);
+            var milliseconds = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalMilliseconds)).Single();
+            var seconds = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id).Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalSeconds)).Single();
+            var minutes = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalMinutes)).Single();
+            var hours = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalHours)).Single();
+            var days = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalDays)).Single();
+
+            Assert.Equal(numHours * 60 * 60 * 1000, milliseconds);
+            Assert.Equal(numHours * 60 * 60, seconds);
+            Assert.Equal(numHours * 60, minutes);
+            Assert.Equal(numHours, hours);
+            Assert.True(numHours / 24.0 + Epsilon > days && numHours / 24.0 - Epsilon < days);
         }
 
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
