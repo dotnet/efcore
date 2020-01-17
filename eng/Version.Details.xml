@@ -15,47 +15,47 @@
     </Dependency>
     <Dependency Name="Microsoft.DotNet.PlatformAbstractions" Version="3.1.2" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>1213474f57d85484c2bc0646198976b8f29fb030</Sha>
+      <Sha>08d54755cdc438ae06b4d8b26cc76f0908fe1209</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="3.1.2">
       <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>f104d44aea4c3db8f0c3c0d07c365bee639ce3d0</Sha>
+      <Sha>decdd34836fa9357731f8853082667419c60acf3</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.2">
       <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>f104d44aea4c3db8f0c3c0d07c365bee639ce3d0</Sha>
+      <Sha>decdd34836fa9357731f8853082667419c60acf3</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="3.1.2">
       <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>f104d44aea4c3db8f0c3c0d07c365bee639ce3d0</Sha>
+      <Sha>decdd34836fa9357731f8853082667419c60acf3</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration" Version="3.1.2">
       <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>f104d44aea4c3db8f0c3c0d07c365bee639ce3d0</Sha>
+      <Sha>decdd34836fa9357731f8853082667419c60acf3</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="3.1.2">
       <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>f104d44aea4c3db8f0c3c0d07c365bee639ce3d0</Sha>
+      <Sha>decdd34836fa9357731f8853082667419c60acf3</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="3.1.2" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>1213474f57d85484c2bc0646198976b8f29fb030</Sha>
+      <Sha>08d54755cdc438ae06b4d8b26cc76f0908fe1209</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.1.2-servicing.20066.5">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="3.1.2-servicing.20066.9">
       <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>f104d44aea4c3db8f0c3c0d07c365bee639ce3d0</Sha>
+      <Sha>decdd34836fa9357731f8853082667419c60acf3</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Logging" Version="3.1.2">
       <Uri>https://github.com/dotnet/extensions</Uri>
-      <Sha>f104d44aea4c3db8f0c3c0d07c365bee639ce3d0</Sha>
+      <Sha>decdd34836fa9357731f8853082667419c60acf3</Sha>
     </Dependency>
     <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="3.1.2" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>1213474f57d85484c2bc0646198976b8f29fb030</Sha>
+      <Sha>08d54755cdc438ae06b4d8b26cc76f0908fe1209</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Internal" Version="3.1.2-servicing.20066.6" CoherentParentDependency="Microsoft.Extensions.Logging">
+    <Dependency Name="Microsoft.NETCore.App.Internal" Version="3.1.2-servicing.20066.9" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/core-setup</Uri>
-      <Sha>1213474f57d85484c2bc0646198976b8f29fb030</Sha>
+      <Sha>08d54755cdc438ae06b4d8b26cc76f0908fe1209</Sha>
     </Dependency>
     <Dependency Name="System.Collections.Immutable" Version="1.7.0" CoherentParentDependency="Microsoft.NETCore.App.Runtime.win-x64">
       <Uri>https://github.com/dotnet/corefx</Uri>
@@ -84,9 +84,9 @@
       <Uri>https://github.com/dotnet/arcade</Uri>
       <Sha>4d80b9cfa53e309c8f685abff3512f60c3d8a3d1</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.4.0-beta4-19569-03" CoherentParentDependency="Microsoft.Extensions.Logging">
+    <Dependency Name="Microsoft.Net.Compilers.Toolset" Version="3.4.1-beta4-19614-01" CoherentParentDependency="Microsoft.Extensions.Logging">
       <Uri>https://github.com/dotnet/roslyn</Uri>
-      <Sha>82f2e2541478e239dc4b04f231e90dc2b3dcb422</Sha>
+      <Sha>165046097562cfe65b09c2e9a9d8f7cd88526f2c</Sha>
     </Dependency>
   </ToolsetDependencies>
 </Dependencies>
