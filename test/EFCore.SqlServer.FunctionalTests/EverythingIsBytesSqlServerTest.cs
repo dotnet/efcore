@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore
 AnimalIdentification.AnimalId ---> [varbinary] [MaxLength = 4]
 AnimalIdentification.Id ---> [varbinary] [MaxLength = 4]
 AnimalIdentification.Method ---> [varbinary] [MaxLength = 4]
+AnimalIdentification.TimeSpanField ---> [varbinary] [MaxLength = 8]
 BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable varbinary] [MaxLength = 900]
 BinaryForeignKeyDataType.Id ---> [varbinary] [MaxLength = 4]
 BinaryKeyDataType.Ex ---> [nullable varbinary] [MaxLength = -1]

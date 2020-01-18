@@ -36,6 +36,7 @@ namespace Microsoft.EntityFrameworkCore
 AnimalIdentification.AnimalId ---> [nvarchar] [MaxLength = 64]
 AnimalIdentification.Id ---> [nvarchar] [MaxLength = 64]
 AnimalIdentification.Method ---> [nvarchar] [MaxLength = -1]
+AnimalIdentification.TimeSpanField ---> [nvarchar] [MaxLength = 48]
 BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]

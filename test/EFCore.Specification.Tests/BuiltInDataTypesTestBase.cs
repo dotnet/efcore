@@ -1981,7 +1981,7 @@ namespace Microsoft.EntityFrameworkCore
             var query = from animal in context.Set<Animal>()
                         select new { animal.Id, animal.IdentificationMethods.FirstOrDefault().Method };
 
-            var result = query.SingleOrDefault();
+            var result = query.FirstOrDefault();
             Assert.Equal(IdentificationMethod.EarTag, result.Method);
         }
 
@@ -2002,13 +2002,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             using var context = CreateContext();
 
-            var animalEntry = context.Set<Animal>().Add(new Animal());
+            var animalEntry = context.Set<Animal>().Add(new Animal { Id = 50 });
             context.SaveChanges();
             var numHours = 40;
 
             for (var i = 0; i < numHours; i++)
             {
-                context.Set<AnimalIdentification>().Add(new AnimalIdentification { AnimalId = animalEntry.Entity.Id, TimeSpanField = TimeSpan.FromHours(1) });
+                context.Set<AnimalIdentification>().Add(new AnimalIdentification { Id = 100 + i, AnimalId = animalEntry.Entity.Id, TimeSpanField = TimeSpan.FromHours(1) });
             }
             context.SaveChanges();
 
@@ -3057,6 +3057,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class Animal
         {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
             public ICollection<AnimalIdentification> IdentificationMethods { get; set; }
             public AnimalDetails Details { get; set; }
@@ -3064,6 +3065,7 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class AnimalDetails
         {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
             public int? AnimalId { get; set; }
 
@@ -3073,11 +3075,11 @@ namespace Microsoft.EntityFrameworkCore
 
         protected class AnimalIdentification
         {
+            [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int Id { get; set; }
             public int AnimalId { get; set; }
             public IdentificationMethod Method { get; set; }
             public TimeSpan TimeSpanField { get; set; }
-            public DateTime DateTimeField { get; set; }
         }
 
         protected enum IdentificationMethod

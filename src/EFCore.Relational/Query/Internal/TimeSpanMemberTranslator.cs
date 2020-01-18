@@ -4,16 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Query.Internal
 {
-    public class SqlServerTimeSpanMemberTranslator : IMemberTranslator
+    public class TimeSpanMemberTranslator : IMemberTranslator
     {
         private static readonly Dictionary<string, string> _datePartMapping
             = new Dictionary<string, string>
@@ -26,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-        public SqlServerTimeSpanMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public TimeSpanMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }

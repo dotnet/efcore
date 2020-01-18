@@ -24,7 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
             _translators
                 .AddRange(
-                    new[] { new NullableMemberTranslator(dependencies.SqlExpressionFactory) });
+                    new IMemberTranslator[]
+                    {
+                        new TimeSpanMemberTranslator(dependencies.SqlExpressionFactory), 
+                        new NullableMemberTranslator(dependencies.SqlExpressionFactory)
+                    });
         }
 
         public virtual SqlExpression Translate(SqlExpression instance, MemberInfo member, Type returnType)
