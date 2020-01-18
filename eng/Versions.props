@@ -31,32 +31,33 @@
     <MicrosoftDataSqlClientPackageVersion>1.0.19269.1</MicrosoftDataSqlClientPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from aspnet/Extensions">
-    <MicrosoftExtensionsCachingMemoryPackageVersion>3.1.1</MicrosoftExtensionsCachingMemoryPackageVersion>
-    <MicrosoftExtensionsConfigurationPackageVersion>3.1.1</MicrosoftExtensionsConfigurationPackageVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.1.1</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
-    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.1.1</MicrosoftExtensionsConfigurationJsonPackageVersion>
-    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.1.1</MicrosoftExtensionsDependencyInjectionPackageVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.1.1-servicing.19614.4</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
-    <MicrosoftExtensionsLoggingPackageVersion>3.1.1</MicrosoftExtensionsLoggingPackageVersion>
+    <MicrosoftExtensionsCachingMemoryPackageVersion>3.1.2</MicrosoftExtensionsCachingMemoryPackageVersion>
+    <MicrosoftExtensionsConfigurationPackageVersion>3.1.2</MicrosoftExtensionsConfigurationPackageVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>3.1.2</MicrosoftExtensionsConfigurationEnvironmentVariablesPackageVersion>
+    <MicrosoftExtensionsConfigurationJsonPackageVersion>3.1.2</MicrosoftExtensionsConfigurationJsonPackageVersion>
+    <MicrosoftExtensionsDependencyInjectionPackageVersion>3.1.2</MicrosoftExtensionsDependencyInjectionPackageVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>3.1.2-servicing.20067.4</MicrosoftExtensionsHostFactoryResolverSourcesPackageVersion>
+    <MicrosoftExtensionsLoggingPackageVersion>3.1.2</MicrosoftExtensionsLoggingPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/corefx">
     <MicrosoftBclAsyncInterfacesVersion>1.1.0</MicrosoftBclAsyncInterfacesVersion>
     <MicrosoftBclHashCodeVersion>1.1.0</MicrosoftBclHashCodeVersion>
+    <SystemTextJsonPackageVersion>4.7.1</SystemTextJsonPackageVersion>
     <MicrosoftCSharpPackageVersion>4.7.0</MicrosoftCSharpPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.7.0</SystemCollectionsImmutablePackageVersion>
     <SystemComponentModelAnnotationsPackageVersion>4.7.0</SystemComponentModelAnnotationsPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.7.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/core-setup">
-    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.1.1</MicrosoftDotNetPlatformAbstractionsPackageVersion>
-    <MicrosoftExtensionsDependencyModelPackageVersion>3.1.1</MicrosoftExtensionsDependencyModelPackageVersion>
+    <MicrosoftDotNetPlatformAbstractionsPackageVersion>3.1.2</MicrosoftDotNetPlatformAbstractionsPackageVersion>
+    <MicrosoftExtensionsDependencyModelPackageVersion>3.1.2</MicrosoftExtensionsDependencyModelPackageVersion>
     <MicrosoftNETCoreAppRefPackageVersion>3.1.0</MicrosoftNETCoreAppRefPackageVersion>
-    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.1.1</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
-    <MicrosoftNETCoreAppInternalPackageVersion>3.1.1-servicing.19608.4</MicrosoftNETCoreAppInternalPackageVersion>
+    <MicrosoftNETCoreAppRuntimewinx64PackageVersion>3.1.2</MicrosoftNETCoreAppRuntimewinx64PackageVersion>
+    <MicrosoftNETCoreAppInternalPackageVersion>3.1.2-servicing.20067.4</MicrosoftNETCoreAppInternalPackageVersion>
     <NETStandardLibraryRefPackageVersion>2.1.0</NETStandardLibraryRefPackageVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/roslyn">
-    <MicrosoftNetCompilersToolsetVersion>3.4.0-beta4-19569-03</MicrosoftNetCompilersToolsetVersion>
+    <MicrosoftNetCompilersToolsetVersion>3.4.1-beta4-19614-01</MicrosoftNetCompilersToolsetVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependency version settings">
     <!--
