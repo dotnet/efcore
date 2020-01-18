@@ -342,7 +342,11 @@ namespace Microsoft.Data.Sqlite
                         }
                     }
 
-                    throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
+                    if (sqlite3_libversion_number() < 3028000 ||
+                        sqlite3_stmt_isexplain(stmt) == 0)
+                    {
+                        throw new InvalidOperationException(Resources.MissingParameters(string.Join(", ", unboundParams)));
+                    }
                 }
 
                 yield return stmt;
