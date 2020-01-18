@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore
     public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDataTypesSqlServerTest.BuiltInDataTypesSqlServerFixture>
     {
         private static readonly string _eol = Environment.NewLine;
+        private const double Epsilon = 0.000_000_000_001;
 
         public BuiltInDataTypesSqlServerTest(BuiltInDataTypesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
@@ -2914,6 +2915,38 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
                         typeMapper.FindMapping(property).StoreType.ToLowerInvariant());
                 }
             }
+        }
+        
+        [ConditionalFact]
+        public virtual void Can_sum_nested_timespan_members()
+        {
+            using var context = CreateContext();
+
+            var animalEntry = context.Set<Animal>().Add(new Animal { Id = 50 });
+            context.SaveChanges();
+            var numHours = 40;
+
+            for (var i = 0; i < numHours; i++)
+            {
+                context.Set<AnimalIdentification>().Add(new AnimalIdentification { Id = 100 + i, AnimalId = animalEntry.Entity.Id, TimeSpanField = TimeSpan.FromHours(1) });
+            }
+            context.SaveChanges();
+
+            var milliseconds = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalMilliseconds)).Single();
+            var seconds = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id).Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalSeconds)).Single();
+            var minutes = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalMinutes)).Single();
+            var hours = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalHours)).Single();
+            var days = context.Set<Animal>().Where(a => a.Id == animalEntry.Entity.Id)
+                .Select(a => a.IdentificationMethods.Sum(i => i.TimeSpanField.TotalDays)).Single();
+
+            Assert.Equal(numHours * 60 * 60 * 1000, milliseconds);
+            Assert.Equal(numHours * 60 * 60, seconds);
+            Assert.Equal(numHours * 60, minutes);
+            Assert.Equal(numHours, hours);
+            Assert.True(numHours / 24.0 + Epsilon > days && numHours / 24.0 - Epsilon < days);
         }
 
         public static string QueryForColumnTypes(DbContext context, params string[] tablesToIgnore)
