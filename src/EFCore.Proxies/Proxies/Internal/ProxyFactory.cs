@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                     entityType,
                     context.GetService<ILazyLoader>(),
                     constructorArguments);
-            } 
+            }
 
             return CreateProxy(
                 options,
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         {
                             interfacesToProxy.Add(_notifyPropertyChangedInterface);
                         }
-                        
+
                         break;
                     case ChangeTrackingStrategy.ChangingAndChangedNotifications:
                     case ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues:
@@ -186,8 +186,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                             interfacesToProxy.Add(_notifyPropertyChangingInterface);
                         }
 
-                        break;
-                    default:
                         break;
                 }
             }
@@ -232,9 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         {
                             interceptors.Add(new PropertyChangingInterceptor(entityType, options.CheckEquality));
                         }
-                        
-                        break;
-                    default:
+
                         break;
                 }
             }

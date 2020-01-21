@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     public class ProxyGraphUpdatesInMemoryTest
     {
         public abstract class ProxyGraphUpdatesInMemoryTestBase<TFixture> : ProxyGraphUpdatesTestBase<TFixture>
-            where TFixture : ProxyGraphUpdatesInMemoryTestBase<TFixture>.ProxyGraphUpdatesSqliteFixtureBase, new()
+            where TFixture : ProxyGraphUpdatesInMemoryTestBase<TFixture>.ProxyGraphUpdatesInMemoryFixtureBase, new()
         {
             protected ProxyGraphUpdatesInMemoryTestBase(TFixture fixture)
                 : base(fixture)
@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
                 Fixture.Reseed();
             }
 
-            public abstract class ProxyGraphUpdatesSqliteFixtureBase : ProxyGraphUpdatesFixtureBase
+            public abstract class ProxyGraphUpdatesInMemoryFixtureBase : ProxyGraphUpdatesFixtureBase
             {
                 protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
 
@@ -121,12 +121,62 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public class ProxyGraphUpdatesWithLazyLoadingInMemoryFixture : ProxyGraphUpdatesSqliteFixtureBase
+            protected override bool DoesLazyLoading => true;
+            protected override bool DoesChangeTracking => false;
+
+            public class ProxyGraphUpdatesWithLazyLoadingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
             {
                 protected override string StoreName { get; } = "ProxyGraphLazyLoadingUpdatesTest";
 
                 public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                     => base.AddOptions(builder.UseLazyLoadingProxies());
+
+                protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+                    => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
+            }
+        }
+
+        public class ChangeTracking : ProxyGraphUpdatesInMemoryTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>
+        {
+            public ChangeTracking(ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            protected override bool DoesLazyLoading => false;
+            protected override bool DoesChangeTracking => true;
+
+            public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
+            {
+                protected override string StoreName { get; } = "ProxyGraphChangeTrackingUpdatesTest";
+
+                public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                    => base.AddOptions(builder.UseChangeDetectionProxies());
+
+                protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+                    => base.AddServices(serviceCollection.AddEntityFrameworkProxies());
+            }
+        }
+
+        public class LazyLoadingAndChangeTracking : ProxyGraphUpdatesInMemoryTestBase<LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>
+        {
+            public LazyLoadingAndChangeTracking(ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
+                : base(fixture)
+            {
+            }
+
+            protected override bool DoesLazyLoading => true;
+            protected override bool DoesChangeTracking => true;
+
+            public class ProxyGraphUpdatesWithChangeTrackingInMemoryFixture : ProxyGraphUpdatesInMemoryFixtureBase
+            {
+                protected override string StoreName { get; } = "ProxyGraphLazyLoadingAndChangeTrackingUpdatesTest";
+
+                public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                    => base.AddOptions(
+                        builder
+                            .UseChangeDetectionProxies()
+                            .UseLazyLoadingProxies());
 
                 protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
                     => base.AddServices(serviceCollection.AddEntityFrameworkProxies());

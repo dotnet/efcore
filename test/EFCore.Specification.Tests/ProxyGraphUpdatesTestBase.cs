@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
 
-                    root.OptionalSingle = new OptionalSingle1();
+                    root.OptionalSingle = context.CreateProxy<OptionalSingle1>();
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
 
-                    root.RequiredSingle = new RequiredSingle1();
+                    root.RequiredSingle = context.CreateProxy<RequiredSingle1>();
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
 
-                    root.OptionalSingleAk = new OptionalSingleAk1();
+                    root.OptionalSingleAk = context.CreateProxy<OptionalSingleAk1>();
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = context.Set<Root>().Single(IsTheRoot);
 
-                    root.RequiredSingleAk = new RequiredSingleAk1();
+                    root.RequiredSingleAk = context.CreateProxy<RequiredSingleAk1>();
 
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 });
@@ -82,7 +82,13 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void No_fixup_to_Deleted_entities()
         {
             using var context = CreateContext();
+
             var root = LoadRoot(context);
+            if (!DoesLazyLoading)
+            {
+                context.Entry(root).Collection(e => e.OptionalChildren).Load();
+            }
+
             var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
 
             existing.Parent = null;
@@ -119,17 +125,25 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_optional_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new1 = new Optional1();
-            var new1d = new Optional1Derived();
-            var new1dd = new Optional1MoreDerived();
-            var new2a = new Optional2();
-            var new2b = new Optional2();
-            var new2d = new Optional2Derived();
-            var new2dd = new Optional2MoreDerived();
+            Optional1 new1 = null;
+            Optional1Derived new1d = null;
+            Optional1MoreDerived new1dd = null;
+            Optional2 new2a = null;
+            Optional2 new2b = null;
+            Optional2Derived new2d = null;
+            Optional2MoreDerived new2dd = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new1 = context.CreateProxy<Optional1>();
+                    new1d = context.CreateProxy<Optional1Derived>();
+                    new1dd = context.CreateProxy<Optional1MoreDerived>();
+                    new2a = context.CreateProxy<Optional2>();
+                    new2b = context.CreateProxy<Optional2>();
+                    new2d = context.CreateProxy<Optional2Derived>();
+                    new2dd = context.CreateProxy<Optional2MoreDerived>();
+
                     if (useExistingEntities)
                     {
                         context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b);
@@ -139,6 +153,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                    }
+
                     var existing = root.OptionalChildren.OrderBy(e => e.Id).First();
 
                     if (useExistingEntities)
@@ -238,18 +258,27 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var newRoot = new Root();
-            var new1 = new Required1 { Parent = newRoot };
-            var new1d = new Required1Derived { Parent = newRoot };
-            var new1dd = new Required1MoreDerived { Parent = newRoot };
-            var new2a = new Required2 { Parent = new1 };
-            var new2b = new Required2 { Parent = new1 };
-            var new2d = new Required2Derived { Parent = new1 };
-            var new2dd = new Required2MoreDerived { Parent = new1 };
+            Root newRoot;
+            Required1 new1 = null;
+            Required1Derived new1d = null;
+            Required1MoreDerived new1dd = null;
+            Required2 new2a = null;
+            Required2 new2b = null;
+            Required2Derived new2d = null;
+            Required2MoreDerived new2dd = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>();
+                    new1 = context.CreateProxy<Required1>(e => e.Parent = newRoot);
+                    new1d = context.CreateProxy<Required1Derived>(e => e.Parent = newRoot);
+                    new1dd = context.CreateProxy<Required1MoreDerived>(e => e.Parent = newRoot);
+                    new2a = context.CreateProxy<Required2>(e => e.Parent = new1);
+                    new2b = context.CreateProxy<Required2>(e => e.Parent = new1);
+                    new2d = context.CreateProxy<Required2Derived>(e => e.Parent = new1);
+                    new2dd = context.CreateProxy<Required2MoreDerived>(e => e.Parent = new1);
+
                     if (useExistingEntities)
                     {
                         context.AddRange(newRoot, new1, new1d, new1dd, new2a, new2d, new2dd, new2b);
@@ -259,6 +288,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                    }
+
                     var existing = root.RequiredChildren.OrderBy(e => e.Id).First();
 
                     if (useExistingEntities)
@@ -361,6 +396,12 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                        context.Entry(root.OptionalChildren.First()).Collection(e => e.Children).Load();
+                    }
+
                     var childCollection = root.OptionalChildren.First().Children;
                     var removed2 = childCollection.First();
                     var removed1 = root.OptionalChildren.Skip(1).First();
@@ -403,6 +444,12 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var loadedRoot = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(loadedRoot).Collection(e => e.OptionalChildren).Load();
+                            context.Entry(loadedRoot.OptionalChildren.First()).Collection(e => e.Children).Load();
+                        }
+
                         Assert.Single(loadedRoot.OptionalChildren);
                         Assert.Single(loadedRoot.OptionalChildren.First().Children);
                     }
@@ -427,6 +474,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                        context.Entry(root.RequiredChildren.First()).Collection(e => e.Children).Load();
+                    }
 
                     var childCollection = root.RequiredChildren.First().Children;
                     var removed2 = childCollection.First();
@@ -464,6 +517,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                    }
+
                     Assert.Single(root.RequiredChildren);
                     Assert.DoesNotContain(removed1Id, root.RequiredChildren.Select(e => e.Id));
 
@@ -490,12 +548,12 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_changed_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new OptionalSingle2();
-            var new2d = new OptionalSingle2Derived();
-            var new2dd = new OptionalSingle2MoreDerived();
-            var new1 = new OptionalSingle1 { Single = new2 };
-            var new1d = new OptionalSingle1Derived { Single = new2d };
-            var new1dd = new OptionalSingle1MoreDerived { Single = new2dd };
+            OptionalSingle2 new2 = null;
+            OptionalSingle2Derived new2d = null;
+            OptionalSingle2MoreDerived new2dd = null;
+            OptionalSingle1 new1 = null;
+            OptionalSingle1Derived new1d = null;
+            OptionalSingle1MoreDerived new1dd = null;
             OptionalSingle1 old1 = null;
             OptionalSingle1Derived old1d = null;
             OptionalSingle1MoreDerived old1dd = null;
@@ -506,6 +564,13 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new2 = context.CreateProxy<OptionalSingle2>();
+                    new2d = context.CreateProxy<OptionalSingle2Derived>();
+                    new2dd = context.CreateProxy<OptionalSingle2MoreDerived>();
+                    new1 = context.CreateProxy<OptionalSingle1>(e => e.Single = new2);
+                    new1d = context.CreateProxy<OptionalSingle1Derived>(e => e.Single = new2d);
+                    new1dd = context.CreateProxy<OptionalSingle1MoreDerived>(e => e.Single = new2dd);
+
                     if (useExistingEntities)
                     {
                         context.AddRange(new1, new1d, new1dd, new2, new2d, new2dd);
@@ -516,9 +581,24 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                        context.Entry(root).Reference(e => e.OptionalSingleDerived).Load();
+                        context.Entry(root).Reference(e => e.OptionalSingleMoreDerived).Load();
+                    }
+
                     old1 = root.OptionalSingle;
                     old1d = root.OptionalSingleDerived;
                     old1dd = root.OptionalSingleMoreDerived;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1d).Reference(e => e.Single).Load();
+                        context.Entry(old1dd).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.OptionalSingle.Single;
                     old2d = (OptionalSingle2Derived)root.OptionalSingleDerived.Single;
                     old2dd = (OptionalSingle2MoreDerived)root.OptionalSingleMoreDerived.Single;
@@ -628,21 +708,36 @@ namespace Microsoft.EntityFrameworkCore
         {
             RequiredSingle1 old1 = null;
             RequiredSingle2 old2 = null;
-            Root oldRoot = null;
+            Root oldRoot;
+            RequiredSingle2 new2 = null;
+            RequiredSingle1 new1 = null;
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
                     oldRoot = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(oldRoot).Reference(e => e.RequiredSingle).Load();
+                    }
+
                     old1 = oldRoot.RequiredSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = oldRoot.RequiredSingle.Single;
 
                     context.Entry(oldRoot).State = EntityState.Detached;
                     context.Entry(old1).State = EntityState.Detached;
                     context.Entry(old2).State = EntityState.Detached;
+
+                    new2 = context.CreateProxy<RequiredSingle2>();
+                    new1 = context.CreateProxy<RequiredSingle1>(e => e.Single = new2);
                 });
 
-            var new2 = new RequiredSingle2();
-            var new1 = new RequiredSingle1 { Single = new2 };
 
             ExecuteWithStrategyInTransaction(
                 context =>
@@ -703,23 +798,13 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new RequiredNonPkSingle2();
-            var new2d = new RequiredNonPkSingle2Derived();
-            var new2dd = new RequiredNonPkSingle2MoreDerived();
-            var new1 = new RequiredNonPkSingle1 { Single = new2 };
-            var new1d = new RequiredNonPkSingle1Derived { Single = new2d, Root = new Root() };
-            var new1dd = new RequiredNonPkSingle1MoreDerived
-            {
-                Single = new2dd,
-                Root = new Root(),
-                DerivedRoot = new Root()
-            };
-            var newRoot = new Root
-            {
-                RequiredNonPkSingle = new1,
-                RequiredNonPkSingleDerived = new1d,
-                RequiredNonPkSingleMoreDerived = new1dd
-            };
+            RequiredNonPkSingle2 new2 = null;
+            RequiredNonPkSingle2Derived new2d = null;
+            RequiredNonPkSingle2MoreDerived new2dd = null;
+            RequiredNonPkSingle1 new1 = null;
+            RequiredNonPkSingle1Derived new1d = null;
+            RequiredNonPkSingle1MoreDerived new1dd = null;
+            Root newRoot;
             RequiredNonPkSingle1 old1 = null;
             RequiredNonPkSingle1Derived old1d = null;
             RequiredNonPkSingle1MoreDerived old1dd = null;
@@ -730,6 +815,31 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new2 = context.CreateProxy<RequiredNonPkSingle2>();
+                    new2d = context.CreateProxy<RequiredNonPkSingle2Derived>();
+                    new2dd = context.CreateProxy<RequiredNonPkSingle2MoreDerived>();
+                    new1 = context.CreateProxy<RequiredNonPkSingle1>(e => e.Single = new2);
+                    new1d = context.CreateProxy<RequiredNonPkSingle1Derived>(
+                        e =>
+                        {
+                            e.Single = new2d;
+                            e.Root = context.CreateProxy<Root>();
+                        });
+                    new1dd = context.CreateProxy<RequiredNonPkSingle1MoreDerived>(
+                        e =>
+                        {
+                            e.Single = new2dd;
+                            e.Root = context.CreateProxy<Root>();
+                            e.DerivedRoot = context.CreateProxy<Root>();
+                        });
+                    newRoot = context.CreateProxy<Root>(
+                        e =>
+                        {
+                            e.RequiredNonPkSingle = new1;
+                            e.RequiredNonPkSingleDerived = new1d;
+                            e.RequiredNonPkSingleMoreDerived = new1dd;
+                        });
+
                     if (useExistingEntities)
                     {
                         context.AddRange(newRoot, new1, new1d, new1dd, new2, new2d, new2dd);
@@ -740,9 +850,27 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleDerived).Load();
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleMoreDerived).Load();
+                    }
+
                     old1 = root.RequiredNonPkSingle;
                     old1d = root.RequiredNonPkSingleDerived;
                     old1dd = root.RequiredNonPkSingleMoreDerived;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1d).Reference(e => e.Single).Load();
+                        context.Entry(old1dd).Reference(e => e.Single).Load();
+                        context.Entry(old1d).Reference(e => e.Root).Load();
+                        context.Entry(old1dd).Reference(e => e.Root).Load();
+                        context.Entry(old1dd).Reference(e => e.DerivedRoot).Load();
+                    }
+
                     old2 = root.RequiredNonPkSingle.Single;
                     old2d = (RequiredNonPkSingle2Derived)root.RequiredNonPkSingleDerived.Single;
                     old2dd = (RequiredNonPkSingle2MoreDerived)root.RequiredNonPkSingleMoreDerived.Single;
@@ -852,7 +980,18 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                    }
+
                     old1 = root.OptionalSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.OptionalSingle.Single;
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -914,7 +1053,18 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                    }
+
                     old1 = root.RequiredSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.RequiredSingle.Single;
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -967,7 +1117,18 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                    }
+
                     old1 = root.RequiredNonPkSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.RequiredNonPkSingle.Single;
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -1023,14 +1184,16 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root();
-            Root root = null;
+            Root newRoot = null;
+            Root root;
             OptionalSingle1 old1 = null;
             OptionalSingle2 old2 = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>();
+
                     if (useExistingRoot)
                     {
                         context.AddRange(newRoot);
@@ -1043,7 +1206,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                    }
+
                     old1 = root.OptionalSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.OptionalSingle.Single;
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -1106,11 +1280,13 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root();
+            Root newRoot = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>();
+
                     if (useExistingRoot)
                     {
                         context.AddRange(newRoot);
@@ -1120,6 +1296,11 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                    }
 
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
@@ -1167,14 +1348,16 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_non_PK_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root();
-            Root root = null;
+            Root newRoot = null;
+            Root root;
             RequiredNonPkSingle1 old1 = null;
             RequiredNonPkSingle2 old2 = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>();
+
                     if (useExistingRoot)
                     {
                         context.AddRange(newRoot);
@@ -1187,7 +1370,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                    }
+
                     old1 = root.RequiredNonPkSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.RequiredNonPkSingle.Single;
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -1261,10 +1455,8 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (!useExistingParent)
                     {
-                        newParent = new Optional1
-                        {
-                            CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
-                        };
+                        newParent = context.CreateProxy<Optional1>(
+                            e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance));
 
                         context.Set<Optional1>().Add(newParent);
                         context.SaveChanges();
@@ -1276,7 +1468,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     compositeCount = context.Set<OptionalComposite2>().Count();
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
+
                     oldParent = root.OptionalChildrenAk.OrderBy(e => e.Id).First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(oldParent).Collection(e => e.CompositeChildren).Load();
+                    }
 
                     oldComposite1 = oldParent.CompositeChildren.OrderBy(e => e.Id).First();
                     oldComposite2 = oldParent.CompositeChildren.OrderBy(e => e.Id).Last();
@@ -1289,6 +1492,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         newParent = context.Set<Optional1>().Single(e => e.Id == newParent.Id);
                         newParent.Parent = root;
+                    }
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(newParent).Collection(e => e.CompositeChildren).Load();
                     }
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -1387,15 +1595,17 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (!useExistingParent)
                     {
-                        newParent = new RequiredComposite1
-                        {
-                            Id = 3,
-                            Parent = context.Set<Root>().Single(IsTheRoot),
-                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                        newParent = context.CreateProxy<RequiredComposite1>(
+                            e =>
                             {
-                                new OptionalOverlapping2 { Id = 5 }, new OptionalOverlapping2 { Id = 6 }
-                            }
-                        };
+                                e.Id = 3;
+                                e.Parent = context.Set<Root>().Single(IsTheRoot);
+                                e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                                {
+                                    context.CreateProxy<OptionalOverlapping2>(e => e.Id = 5),
+                                    context.CreateProxy<OptionalOverlapping2>(e => e.Id = 6)
+                                };
+                            });
 
                         context.Set<RequiredComposite1>().Add(newParent);
                         context.SaveChanges();
@@ -1407,7 +1617,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     childCount = context.Set<OptionalOverlapping2>().Count();
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredCompositeChildren).Load();
+                    }
+
                     oldParent = root.RequiredCompositeChildren.OrderBy(e => e.Id).First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(oldParent).Collection(e => e.CompositeChildren).Load();
+                    }
 
                     oldChild1 = oldParent.CompositeChildren.OrderBy(e => e.Id).First();
                     oldChild2 = oldParent.CompositeChildren.OrderBy(e => e.Id).Last();
@@ -1422,6 +1642,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         newParent = context.Set<RequiredComposite1>().Single(e => e.Id == newParent.Id);
                         newParent.Parent = root;
+                    }
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(newParent).Collection(e => e.CompositeChildren).Load();
                     }
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -1473,6 +1698,12 @@ namespace Microsoft.EntityFrameworkCore
                     oldChild1 = context.Set<OptionalOverlapping2>().Single(e => e.Id == oldChild1.Id);
                     oldChild2 = context.Set<OptionalOverlapping2>().Single(e => e.Id == oldChild2.Id);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(oldParent).Collection(e => e.CompositeChildren).Load();
+                        context.Entry(newParent).Collection(e => e.CompositeChildren).Load();
+                    }
+
                     Assert.Same(oldChild2, oldParent.CompositeChildren.Single());
                     Assert.Same(oldParent, oldChild2.Parent);
                     Assert.Equal(oldParent.Id, oldChild2.ParentId);
@@ -1507,19 +1738,29 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Save_optional_many_to_one_dependents_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new1 = new OptionalAk1 { AlternateId = Guid.NewGuid() };
-            var new1d = new OptionalAk1Derived { AlternateId = Guid.NewGuid() };
-            var new1dd = new OptionalAk1MoreDerived { AlternateId = Guid.NewGuid() };
-            var new2a = new OptionalAk2 { AlternateId = Guid.NewGuid() };
-            var new2b = new OptionalAk2 { AlternateId = Guid.NewGuid() };
-            var new2ca = new OptionalComposite2();
-            var new2cb = new OptionalComposite2();
-            var new2d = new OptionalAk2Derived { AlternateId = Guid.NewGuid() };
-            var new2dd = new OptionalAk2MoreDerived { AlternateId = Guid.NewGuid() };
+            OptionalAk1 new1 = null;
+            OptionalAk1Derived new1d = null;
+            OptionalAk1MoreDerived new1dd = null;
+            OptionalAk2 new2a = null;
+            OptionalAk2 new2b = null;
+            OptionalComposite2 new2ca = null;
+            OptionalComposite2 new2cb = null;
+            OptionalAk2Derived new2d = null;
+            OptionalAk2MoreDerived new2dd = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new1 = context.CreateProxy<OptionalAk1>(e => e.AlternateId = Guid.NewGuid());
+                    new1d = context.CreateProxy<OptionalAk1Derived>(e => e.AlternateId = Guid.NewGuid());
+                    new1dd = context.CreateProxy<OptionalAk1MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                    new2a = context.CreateProxy<OptionalAk2>(e => e.AlternateId = Guid.NewGuid());
+                    new2b = context.CreateProxy<OptionalAk2>(e => e.AlternateId = Guid.NewGuid());
+                    new2ca = context.CreateProxy<OptionalComposite2>();
+                    new2cb = context.CreateProxy<OptionalComposite2>();
+                    new2d = context.CreateProxy<OptionalAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                    new2dd = context.CreateProxy<OptionalAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+
                     if (useExistingEntities)
                     {
                         context.AddRange(new1, new1d, new1dd, new2a, new2d, new2dd, new2b, new2ca, new2cb);
@@ -1529,6 +1770,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
+
                     var existing = root.OptionalChildrenAk.OrderBy(e => e.Id).First();
 
                     if (useExistingEntities)
@@ -1647,20 +1894,59 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Save_required_many_to_one_dependents_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var newRoot = new Root { AlternateId = Guid.NewGuid() };
-            var new1 = new RequiredAk1 { AlternateId = Guid.NewGuid(), Parent = newRoot };
-            var new1d = new RequiredAk1Derived { AlternateId = Guid.NewGuid(), Parent = newRoot };
-            var new1dd = new RequiredAk1MoreDerived { AlternateId = Guid.NewGuid(), Parent = newRoot };
-            var new2a = new RequiredAk2 { AlternateId = Guid.NewGuid(), Parent = new1 };
-            var new2b = new RequiredAk2 { AlternateId = Guid.NewGuid(), Parent = new1 };
-            var new2ca = new RequiredComposite2 { Parent = new1 };
-            var new2cb = new RequiredComposite2 { Parent = new1 };
-            var new2d = new RequiredAk2Derived { AlternateId = Guid.NewGuid(), Parent = new1 };
-            var new2dd = new RequiredAk2MoreDerived { AlternateId = Guid.NewGuid(), Parent = new1 };
+            Root newRoot;
+            RequiredAk1 new1 = null;
+            RequiredAk1Derived new1d = null;
+            RequiredAk1MoreDerived new1dd = null;
+            RequiredAk2 new2a = null;
+            RequiredAk2 new2b = null;
+            RequiredComposite2 new2ca = null;
+            RequiredComposite2 new2cb = null;
+            RequiredAk2Derived new2d = null;
+            RequiredAk2MoreDerived new2dd = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
+                    new1 = context.CreateProxy<RequiredAk1>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Parent = newRoot;
+                    });
+                    new1d = context.CreateProxy<RequiredAk1Derived>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Parent = newRoot;
+                    });
+                    new1dd = context.CreateProxy<RequiredAk1MoreDerived>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Parent = newRoot;
+                    });
+                    new2a = context.CreateProxy<RequiredAk2>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Parent = new1;
+                    });
+                    new2b = context.CreateProxy<RequiredAk2>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Parent = new1;
+                    });
+                    new2ca = context.CreateProxy<RequiredComposite2>(e => e.Parent = new1);
+                    new2cb = context.CreateProxy<RequiredComposite2>(e => e.Parent = new1);
+                    new2d = context.CreateProxy<RequiredAk2Derived>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Parent = new1;
+                    });
+                    new2dd = context.CreateProxy<RequiredAk2MoreDerived>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Parent = new1;
+                    });
+
                     if (useExistingEntities)
                     {
                         context.AddRange(newRoot, new1, new1d, new1dd, new2a, new2d, new2dd, new2b, new2ca, new2cb);
@@ -1670,6 +1956,12 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                    }
+
                     var existing = root.RequiredChildrenAk.OrderBy(e => e.Id).First();
 
                     if (useExistingEntities)
@@ -1790,6 +2082,13 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                        context.Entry(root.OptionalChildrenAk.First()).Collection(e => e.Children).Load();
+                        context.Entry(root.OptionalChildrenAk.First()).Collection(e => e.CompositeChildren).Load();
+                    }
+
                     var childCollection = root.OptionalChildrenAk.First().Children;
                     var childCompositeCollection = root.OptionalChildrenAk.First().CompositeChildren;
                     var removed2 = childCollection.First();
@@ -1841,6 +2140,12 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var loadedRoot = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(loadedRoot).Collection(e => e.OptionalChildrenAk).Load();
+                            context.Entry(loadedRoot.OptionalChildrenAk.First()).Collection(e => e.Children).Load();
+                        }
+
                         Assert.Single(loadedRoot.OptionalChildrenAk);
                         Assert.Single(loadedRoot.OptionalChildrenAk.First().Children);
                     }
@@ -1862,6 +2167,13 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                        context.Entry(root.RequiredChildrenAk.First()).Collection(e => e.Children).Load();
+                        context.Entry(root.RequiredChildrenAk.First()).Collection(e => e.CompositeChildren).Load();
+                    }
 
                     var childCollection = root.RequiredChildrenAk.First().Children;
                     var childCompositeCollection = root.RequiredChildrenAk.First().CompositeChildren;
@@ -1906,6 +2218,13 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var loadedRoot = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(loadedRoot).Collection(e => e.RequiredChildrenAk).Load();
+                        context.Entry(loadedRoot.RequiredChildrenAk.First()).Collection(e => e.Children).Load();
+                        context.Entry(loadedRoot.RequiredChildrenAk.First()).Collection(e => e.CompositeChildren).Load();
+                    }
+
                     Assert.False(context.Set<RequiredAk1>().Any(e => e.Id == removed1.Id));
                     Assert.False(context.Set<RequiredAk2>().Any(e => e.Id == removed2.Id));
                     Assert.False(context.Set<RequiredComposite2>().Any(e => e.Id == removed2c.Id));
@@ -1933,18 +2252,13 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Save_changed_optional_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() };
-            var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
-            var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
-            var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1
-            {
-                AlternateId = Guid.NewGuid(),
-                Single = new2,
-                SingleComposite = new2c
-            };
-            var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
-            var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
+            OptionalSingleAk2 new2 = null;
+            OptionalSingleAk2Derived new2d = null;
+            OptionalSingleAk2MoreDerived new2dd = null;
+            OptionalSingleComposite2 new2c = null;
+            OptionalSingleAk1 new1 = null;
+            OptionalSingleAk1Derived new1d = null;
+            OptionalSingleAk1MoreDerived new1dd = null;
             OptionalSingleAk1 old1 = null;
             OptionalSingleAk1Derived old1d = null;
             OptionalSingleAk1MoreDerived old1dd = null;
@@ -1956,6 +2270,30 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new2 = context.CreateProxy<OptionalSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                    new2d = context.CreateProxy<OptionalSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                    new2dd = context.CreateProxy<OptionalSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                    new2c = context.CreateProxy<OptionalSingleComposite2>();
+                    new1 = context.CreateProxy<OptionalSingleAk1>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2;
+                            e.SingleComposite = new2c;
+                        });
+                    new1d = context.CreateProxy<OptionalSingleAk1Derived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2d;
+                        });
+                    new1dd = context.CreateProxy<OptionalSingleAk1MoreDerived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2dd;
+                        });
+
                     if (useExistingEntities)
                     {
                         context.AddRange(new1, new1d, new1dd, new2, new2d, new2dd, new2c);
@@ -1966,9 +2304,25 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                        context.Entry(root).Reference(e => e.OptionalSingleAkDerived).Load();
+                        context.Entry(root).Reference(e => e.OptionalSingleAkMoreDerived).Load();
+                    }
+
                     old1 = root.OptionalSingleAk;
                     old1d = root.OptionalSingleAkDerived;
                     old1dd = root.OptionalSingleAkMoreDerived;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1).Reference(e => e.SingleComposite).Load();
+                        context.Entry(old1d).Reference(e => e.Single).Load();
+                        context.Entry(old1dd).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.OptionalSingleAk.Single;
                     old2c = root.OptionalSingleAk.SingleComposite;
                     old2d = (OptionalSingleAk2Derived)root.OptionalSingleAkDerived.Single;
@@ -2081,18 +2435,13 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Save_changed_optional_one_to_one_with_alternate_key_in_store()
         {
-            var new2 = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() };
-            var new2d = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() };
-            var new2dd = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
-            var new2c = new OptionalSingleComposite2();
-            var new1 = new OptionalSingleAk1
-            {
-                AlternateId = Guid.NewGuid(),
-                Single = new2,
-                SingleComposite = new2c
-            };
-            var new1d = new OptionalSingleAk1Derived { AlternateId = Guid.NewGuid(), Single = new2d };
-            var new1dd = new OptionalSingleAk1MoreDerived { AlternateId = Guid.NewGuid(), Single = new2dd };
+            OptionalSingleAk2 new2;
+            OptionalSingleAk2Derived new2d;
+            OptionalSingleAk2MoreDerived new2dd;
+            OptionalSingleComposite2 new2c;
+            OptionalSingleAk1 new1;
+            OptionalSingleAk1Derived new1d;
+            OptionalSingleAk1MoreDerived new1dd;
             OptionalSingleAk1 old1 = null;
             OptionalSingleAk1Derived old1d = null;
             OptionalSingleAk1MoreDerived old1dd = null;
@@ -2104,11 +2453,51 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new2 = context.CreateProxy<OptionalSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                    new2d = context.CreateProxy<OptionalSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                    new2dd = context.CreateProxy<OptionalSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                    new2c = context.CreateProxy<OptionalSingleComposite2>();
+                    new1 = context.CreateProxy<OptionalSingleAk1>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2;
+                            e.SingleComposite = new2c;
+                        });
+                    new1d = context.CreateProxy<OptionalSingleAk1Derived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2d;
+                        });
+                    new1dd = context.CreateProxy<OptionalSingleAk1MoreDerived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2dd;
+                        });
+
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                        context.Entry(root).Reference(e => e.OptionalSingleAkDerived).Load();
+                        context.Entry(root).Reference(e => e.OptionalSingleAkMoreDerived).Load();
+                    }
 
                     old1 = root.OptionalSingleAk;
                     old1d = root.OptionalSingleAkDerived;
                     old1dd = root.OptionalSingleAkMoreDerived;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1).Reference(e => e.SingleComposite).Load();
+                        context.Entry(old1d).Reference(e => e.Single).Load();
+                        context.Entry(old1dd).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.OptionalSingleAk.Single;
                     old2c = root.OptionalSingleAk.SingleComposite;
                     old2d = (OptionalSingleAk2Derived)root.OptionalSingleAkDerived.Single;
@@ -2248,15 +2637,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Save_required_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() };
-            var new2c = new RequiredSingleComposite2();
-            var new1 = new RequiredSingleAk1
-            {
-                AlternateId = Guid.NewGuid(),
-                Single = new2,
-                SingleComposite = new2c
-            };
-            var newRoot = new Root { AlternateId = Guid.NewGuid(), RequiredSingleAk = new1 };
+            RequiredSingleAk2 new2 = null;
+            RequiredSingleComposite2 new2c = null;
+            RequiredSingleAk1 new1 = null;;
+            Root newRoot;
             RequiredSingleAk1 old1 = null;
             RequiredSingleAk2 old2 = null;
             RequiredSingleComposite2 old2c = null;
@@ -2264,6 +2648,21 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new2 = context.CreateProxy<RequiredSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                    new2c = context.CreateProxy<RequiredSingleComposite2>();
+                    new1 = context.CreateProxy<RequiredSingleAk1>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                        e.Single = new2;
+                        e.SingleComposite = new2c;
+                    });
+                    newRoot = context.CreateProxy<Root>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.RequiredSingleAk = new1;
+                    });
+
                     if (useExistingEntities)
                     {
                         context.AddRange(newRoot, new1, new2, new2c);
@@ -2274,7 +2673,19 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                    }
+
                     old1 = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1).Reference(e => e.SingleComposite).Load();
+                    }
+
                     old2 = root.RequiredSingleAk.Single;
                     old2c = root.RequiredSingleAk.SingleComposite;
 
@@ -2353,30 +2764,13 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() };
-            var new2d = new RequiredNonPkSingleAk2Derived { AlternateId = Guid.NewGuid() };
-            var new2dd = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() };
-            var new1 = new RequiredNonPkSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2 };
-            var new1d = new RequiredNonPkSingleAk1Derived
-            {
-                AlternateId = Guid.NewGuid(),
-                Single = new2d,
-                Root = new Root()
-            };
-            var new1dd = new RequiredNonPkSingleAk1MoreDerived
-            {
-                AlternateId = Guid.NewGuid(),
-                Single = new2dd,
-                Root = new Root(),
-                DerivedRoot = new Root()
-            };
-            var newRoot = new Root
-            {
-                AlternateId = Guid.NewGuid(),
-                RequiredNonPkSingleAk = new1,
-                RequiredNonPkSingleAkDerived = new1d,
-                RequiredNonPkSingleAkMoreDerived = new1dd
-            };
+            RequiredNonPkSingleAk2 new2 = null;
+            RequiredNonPkSingleAk2Derived new2d = null;
+            RequiredNonPkSingleAk2MoreDerived new2dd = null;
+            RequiredNonPkSingleAk1 new1 = null;
+            RequiredNonPkSingleAk1Derived new1d = null;
+            RequiredNonPkSingleAk1MoreDerived new1dd = null;
+            Root newRoot;
             RequiredNonPkSingleAk1 old1 = null;
             RequiredNonPkSingleAk1Derived old1d = null;
             RequiredNonPkSingleAk1MoreDerived old1dd = null;
@@ -2387,6 +2781,38 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    new2 = context.CreateProxy<RequiredNonPkSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                    new2d = context.CreateProxy<RequiredNonPkSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                    new2dd = context.CreateProxy<RequiredNonPkSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                    new1 = context.CreateProxy<RequiredNonPkSingleAk1>(e =>
+                    {
+                        e.AlternateId = Guid.NewGuid();
+                        e.Single = new2;
+                    });
+                    new1d = context.CreateProxy<RequiredNonPkSingleAk1Derived>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2d;
+                            e.Root = context.CreateProxy<Root>();
+                        });
+                    new1dd = context.CreateProxy<RequiredNonPkSingleAk1MoreDerived>(
+                        e  =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.Single = new2dd;
+                            e.Root = context.CreateProxy<Root>();
+                            e.DerivedRoot = context.CreateProxy<Root>();
+                        });
+                    newRoot = context.CreateProxy<Root>(
+                        e =>
+                        {
+                            e.AlternateId = Guid.NewGuid();
+                            e.RequiredNonPkSingleAk = new1;
+                            e.RequiredNonPkSingleAkDerived = new1d;
+                            e.RequiredNonPkSingleAkMoreDerived = new1dd;
+                        });
+
                     if (useExistingEntities)
                     {
                         context.AddRange(newRoot, new1, new1d, new1dd, new2, new2d, new2dd);
@@ -2397,9 +2823,27 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAkDerived).Load();
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAkMoreDerived).Load();
+                    }
+
                     old1 = root.RequiredNonPkSingleAk;
                     old1d = root.RequiredNonPkSingleAkDerived;
                     old1dd = root.RequiredNonPkSingleAkMoreDerived;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1d).Reference(e => e.Single).Load();
+                        context.Entry(old1dd).Reference(e => e.Single).Load();
+                        context.Entry(old1d).Reference(e => e.Root).Load();
+                        context.Entry(old1dd).Reference(e => e.Root).Load();
+                        context.Entry(old1dd).Reference(e => e.DerivedRoot).Load();
+                    }
+
                     old2 = root.RequiredNonPkSingleAk.Single;
                     old2d = (RequiredNonPkSingleAk2Derived)root.RequiredNonPkSingleAkDerived.Single;
                     old2dd = (RequiredNonPkSingleAk2MoreDerived)root.RequiredNonPkSingleAkMoreDerived.Single;
@@ -2510,7 +2954,19 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
+
                     old1 = root.OptionalSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1).Reference(e => e.SingleComposite).Load();
+                    }
+
                     old2 = root.OptionalSingleAk.Single;
                     old2c = root.OptionalSingleAk.SingleComposite;
 
@@ -2581,7 +3037,19 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                    }
+
                     old1 = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1).Reference(e => e.SingleComposite).Load();
+                    }
+
                     old2 = root.RequiredSingleAk.Single;
                     old2c = root.RequiredSingleAk.SingleComposite;
 
@@ -2639,7 +3107,18 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                    }
+
                     old1 = root.RequiredNonPkSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.RequiredNonPkSingleAk.Single;
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -2657,8 +3136,12 @@ namespace Microsoft.EntityFrameworkCore
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                     }
 
-                    context.ChangeTracker.DetectChanges();
-                    context.ChangeTracker.DetectChanges();
+                    if (!DoesChangeTracking)
+                    {
+                        context.ChangeTracker.DetectChanges();
+                        context.ChangeTracker.DetectChanges();
+                    }
+
                     Assert.False(context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).IsLoaded);
                     Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
                     Assert.True(context.ChangeTracker.HasChanges());
@@ -2697,8 +3180,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_optional_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { AlternateId = Guid.NewGuid() };
-            Root root = null;
+            Root newRoot = null;
+            Root root;
             OptionalSingleAk1 old1 = null;
             OptionalSingleAk2 old2 = null;
             OptionalSingleComposite2 old2c = null;
@@ -2706,6 +3189,8 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
+
                     if (useExistingRoot)
                     {
                         context.Add(newRoot);
@@ -2718,7 +3203,19 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
+
                     old1 = root.OptionalSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1).Reference(e => e.SingleComposite).Load();
+                    }
+
                     old2 = root.OptionalSingleAk.Single;
                     old2c = root.OptionalSingleAk.SingleComposite;
 
@@ -2789,8 +3286,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { AlternateId = Guid.NewGuid() };
-            Root root = null;
+            Root newRoot = null;
+            Root root;
             RequiredSingleAk1 old1 = null;
             RequiredSingleAk2 old2 = null;
             RequiredSingleComposite2 old2c = null;
@@ -2798,6 +3295,8 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
+
                     if (useExistingRoot)
                     {
                         context.Add(newRoot);
@@ -2810,7 +3309,19 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                    }
+
                     old1 = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                        context.Entry(old1).Reference(e => e.SingleComposite).Load();
+                    }
+
                     old2 = root.RequiredSingleAk.Single;
                     old2c = root.RequiredSingleAk.SingleComposite;
 
@@ -2881,14 +3392,16 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData((int)(ChangeMechanism.Principal | ChangeMechanism.Dependent | ChangeMechanism.Fk), true)]
         public virtual void Reparent_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { AlternateId = Guid.NewGuid() };
-            Root root = null;
+            Root newRoot = null;
+            Root root;
             RequiredNonPkSingleAk1 old1 = null;
             RequiredNonPkSingleAk2 old2 = null;
 
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
+                    newRoot = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
+
                     if (useExistingRoot)
                     {
                         context.Add(newRoot);
@@ -2901,7 +3414,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                    }
+
                     old1 = root.RequiredNonPkSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(old1).Reference(e => e.Single).Load();
+                    }
+
                     old2 = root.RequiredNonPkSingleAk.Single;
 
                     if ((changeMechanism & ChangeMechanism.Principal) != 0)
@@ -2972,9 +3496,19 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                    }
+
                     Assert.Equal(2, root.RequiredChildren.Count());
 
                     var removed = root.RequiredChildren.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
 
                     removedId = removed.Id;
                     var cascadeRemoved = removed.Children.ToList();
@@ -3015,6 +3549,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                        }
+
                         Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
@@ -3049,9 +3588,19 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                    }
+
                     Assert.Equal(2, root.OptionalChildren.Count());
 
                     var removed = root.OptionalChildren.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Children.ToList();
@@ -3082,6 +3631,11 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                    }
 
                     Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
@@ -3116,7 +3670,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                    }
+
                     var removed = root.OptionalSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -3177,7 +3741,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                    }
+
                     var removed = root.RequiredSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -3214,6 +3788,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                        }
 
                         Assert.Null(root.RequiredSingle);
 
@@ -3248,7 +3827,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                    }
+
                     var removed = root.RequiredNonPkSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -3286,6 +3875,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                        }
+
                         Assert.Null(root.RequiredNonPkSingle);
 
                         Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
@@ -3319,10 +3913,20 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
+
                     Assert.Equal(2, root.OptionalChildrenAk.Count());
 
                     var removed = root.OptionalChildrenAk.First();
                     context.Entry(removed).Collection(e => e.CompositeChildren).Load();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Children.ToList();
@@ -3353,6 +3957,11 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
 
                     Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
@@ -3388,9 +3997,20 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                    }
+
                     Assert.Equal(2, root.RequiredChildrenAk.Count());
 
                     var removed = root.RequiredChildrenAk.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                        context.Entry(removed).Collection(e => e.CompositeChildren).Load();
+                    }
 
                     removedId = removed.Id;
                     var cascadeRemoved = removed.Children.ToList();
@@ -3435,6 +4055,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                        }
+
                         Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
@@ -3471,7 +4096,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
+
                     var removed = root.OptionalSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                        context.Entry(removed).Reference(e => e.SingleComposite).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -3503,6 +4139,11 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
 
                     Assert.Null(root.OptionalSingleAk);
 
@@ -3538,7 +4179,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                    }
+
                     var removed = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                        context.Entry(removed).Reference(e => e.SingleComposite).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -3580,6 +4232,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                        }
+
                         Assert.Null(root.RequiredSingleAk);
 
                         Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
@@ -3614,7 +4271,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                    }
+
                     var removed = root.RequiredNonPkSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -3652,6 +4319,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                        }
+
                         Assert.Null(root.RequiredNonPkSingleAk);
 
                         Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
@@ -3680,7 +4352,19 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).RequiredChildren.First();
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                    }
+
+                    var removed = root.RequiredChildren.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedIds = removed.Children.Select(e => e.Id).ToList();
@@ -3721,6 +4405,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                    }
+
                     Assert.Single(root.RequiredChildren);
                     Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
@@ -3749,7 +4438,19 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).RequiredSingle;
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                    }
+
+                    var removed = root.RequiredSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedId = removed.Single.Id;
@@ -3762,6 +4463,12 @@ namespace Microsoft.EntityFrameworkCore
                     var root = context.Set<Root>().Include(e => e.RequiredSingle).Single(IsTheRoot);
 
                     var removed = root.RequiredSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     var orphaned = removed.Single;
 
                     context.Remove(removed);
@@ -3780,6 +4487,11 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                        }
+
                         Assert.Null(root.RequiredSingle);
 
                         Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
@@ -3794,6 +4506,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                        }
 
                         Assert.Null(root.RequiredSingle);
 
@@ -3823,7 +4540,19 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).RequiredNonPkSingle;
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                    }
+
+                    var removed = root.RequiredNonPkSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedId = removed.Single.Id;
@@ -3836,6 +4565,12 @@ namespace Microsoft.EntityFrameworkCore
                     var root = context.Set<Root>().Include(e => e.RequiredNonPkSingle).Single(IsTheRoot);
 
                     var removed = root.RequiredNonPkSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     var orphaned = removed.Single;
 
                     context.Remove(removed);
@@ -3854,6 +4589,11 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Equal(EntityState.Detached, context.Entry(removed).State);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                        }
+
                         Assert.Null(root.RequiredNonPkSingle);
 
                         Assert.Empty(context.Set<RequiredNonPkSingle1>().Where(e => e.Id == removedId));
@@ -3868,6 +4608,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                        }
 
                         Assert.Null(root.RequiredNonPkSingle);
 
@@ -3898,7 +4643,20 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).RequiredChildrenAk.First();
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                    }
+
+                    var removed = root.RequiredChildrenAk.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                        context.Entry(removed).Collection(e => e.CompositeChildren).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedIds = removed.Children.Select(e => e.Id).ToList();
@@ -3940,6 +4698,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                    }
+
                     Assert.Single(root.RequiredChildrenAk);
                     Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
@@ -3970,7 +4733,20 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).RequiredSingleAk;
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                    }
+
+                    var removed = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                        context.Entry(removed).Reference(e => e.SingleComposite).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedId = removed.Single.Id;
@@ -3984,6 +4760,12 @@ namespace Microsoft.EntityFrameworkCore
                     var root = context.Set<Root>().Include(e => e.RequiredSingleAk).Single(IsTheRoot);
 
                     var removed = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     var orphaned = removed.Single;
 
                     context.Remove(removed);
@@ -4017,6 +4799,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                        }
 
                         Assert.Null(root.RequiredSingleAk);
 
@@ -4047,7 +4834,19 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).RequiredNonPkSingleAk;
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                    }
+
+                    var removed = root.RequiredNonPkSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedId = removed.Single.Id;
@@ -4060,6 +4859,12 @@ namespace Microsoft.EntityFrameworkCore
                     var root = context.Set<Root>().Include(e => e.RequiredNonPkSingleAk).Single(IsTheRoot);
 
                     var removed = root.RequiredNonPkSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     var orphaned = removed.Single;
 
                     context.Remove(removed);
@@ -4093,6 +4898,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                        }
+
                         Assert.Null(root.RequiredNonPkSingleAk);
 
                         Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
@@ -4121,7 +4931,19 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).OptionalChildren.First();
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                    }
+
+                    var removed = root.OptionalChildren.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedIds = removed.Children.Select(e => e.Id).ToList();
@@ -4165,6 +4987,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                    }
+
                     Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
@@ -4196,7 +5023,19 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).OptionalSingle;
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                    }
+
+                    var removed = root.OptionalSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedId = removed.Single.Id;
@@ -4209,6 +5048,12 @@ namespace Microsoft.EntityFrameworkCore
                     var root = context.Set<Root>().Include(e => e.OptionalSingle).Single(IsTheRoot);
 
                     var removed = root.OptionalSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     var orphaned = removed.Single;
 
                     context.Remove(removed);
@@ -4232,6 +5077,11 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                    }
 
                     Assert.Null(root.OptionalSingle);
 
@@ -4261,7 +5111,20 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).OptionalChildrenAk.First();
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
+
+                    var removed = root.OptionalChildrenAk.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                        context.Entry(removed).Collection(e => e.CompositeChildren).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedIds = removed.Children.Select(e => e.Id).ToList();
@@ -4314,6 +5177,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
+
                     Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
@@ -4350,7 +5218,20 @@ namespace Microsoft.EntityFrameworkCore
             ExecuteWithStrategyInTransaction(
                 context =>
                 {
-                    var removed = LoadRoot(context).OptionalSingleAk;
+                    var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
+
+                    var removed = root.OptionalSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                        context.Entry(removed).Reference(e => e.SingleComposite).Load();
+                    }
 
                     removedId = removed.Id;
                     orphanedId = removed.Single.Id;
@@ -4364,6 +5245,12 @@ namespace Microsoft.EntityFrameworkCore
                     var root = context.Set<Root>().Include(e => e.OptionalSingleAk).Single(IsTheRoot);
 
                     var removed = root.OptionalSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     var orphaned = removed.Single;
 
                     context.Remove(removed);
@@ -4392,6 +5279,11 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     var root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
 
                     Assert.Null(root.OptionalSingleAk);
 
@@ -4425,7 +5317,19 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                    }
+
                     removed = root.RequiredChildren.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
+
                     cascadeRemoved = removed.Children.ToList();
 
                     Assert.Equal(2, root.RequiredChildren.Count());
@@ -4475,6 +5379,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                        }
+
                         Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
@@ -4508,7 +5417,19 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                    }
+
                     removed = root.OptionalChildren.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
+
                     orphaned = removed.Children.ToList();
 
                     Assert.Equal(2, root.OptionalChildren.Count());
@@ -4549,6 +5470,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildren).Load();
+                    }
+
                     Assert.Single(root.OptionalChildren);
                     Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
 
@@ -4581,7 +5507,19 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                    }
+
                     removed = root.OptionalSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     orphaned = removed.Single;
                 },
                 context =>
@@ -4618,6 +5556,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingle).Load();
+                    }
+
                     Assert.Null(root.OptionalSingle);
 
                     Assert.Empty(context.Set<OptionalSingle1>().Where(e => e.Id == removedId));
@@ -4649,7 +5592,19 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                    }
+
                     removed = root.RequiredSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     orphaned = removed.Single;
                 },
                 context =>
@@ -4694,6 +5649,12 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                        }
+
                         Assert.Null(root.RequiredSingle);
 
                         Assert.Empty(context.Set<RequiredSingle1>().Where(e => e.Id == removedId));
@@ -4726,7 +5687,19 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                    }
+
                     removed = root.RequiredNonPkSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     orphaned = removed.Single;
                 },
                 context =>
@@ -4771,6 +5744,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                        }
 
                         Assert.Null(root.RequiredNonPkSingle);
 
@@ -4806,7 +5784,20 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
+
                     removed = root.OptionalChildrenAk.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                        context.Entry(removed).Collection(e => e.CompositeChildren).Load();
+                    }
+
                     orphaned = removed.Children.ToList();
                     orphanedC = removed.CompositeChildren.ToList();
 
@@ -4852,6 +5843,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.OptionalChildrenAk).Load();
+                    }
+
                     Assert.Single(root.OptionalChildrenAk);
                     Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
 
@@ -4887,7 +5883,20 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                    }
+
                     removed = root.RequiredChildrenAk.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                        context.Entry(removed).Collection(e => e.CompositeChildren).Load();
+                    }
+
                     cascadeRemoved = removed.Children.ToList();
                     cascadeRemovedC = removed.CompositeChildren.ToList();
 
@@ -4941,6 +5950,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                        }
+
                         Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
@@ -4977,7 +5991,20 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
+
                     removed = root.OptionalSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                        context.Entry(removed).Reference(e => e.SingleComposite).Load();
+                    }
+
                     orphaned = removed.Single;
                     orphanedC = removed.SingleComposite;
                 },
@@ -5018,6 +6045,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.OptionalSingleAk).Load();
+                    }
+
                     Assert.Null(root.OptionalSingleAk);
 
                     Assert.Empty(context.Set<OptionalSingleAk1>().Where(e => e.Id == removedId));
@@ -5052,7 +6084,20 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                    }
+
                     removed = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                        context.Entry(removed).Reference(e => e.SingleComposite).Load();
+                    }
+
                     orphaned = removed.Single;
                     orphanedC = removed.SingleComposite;
                 },
@@ -5102,6 +6147,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                        }
+
                         Assert.Null(root.RequiredSingleAk);
 
                         Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
@@ -5135,7 +6185,19 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     root = LoadRoot(context);
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                    }
+
                     removed = root.RequiredNonPkSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
+
                     orphaned = removed.Single;
                 },
                 context =>
@@ -5181,6 +6243,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                        }
+
                         Assert.Null(root.RequiredNonPkSingleAk);
 
                         Assert.Empty(context.Set<RequiredNonPkSingleAk1>().Where(e => e.Id == removedId));
@@ -5214,9 +6281,19 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                    }
+
                     Assert.Equal(2, root.RequiredChildren.Count());
 
                     var removed = root.RequiredChildren.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                    }
 
                     removedId = removed.Id;
                     var cascadeRemoved = removed.Children.ToList();
@@ -5224,10 +6301,11 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(2, orphanedIds.Count);
 
-                    var added = new Required2();
+                    var added = context.CreateProxy<Required2>();
                     Add(removed.Children, added);
 
-                    if (context.ChangeTracker.AutoDetectChangesEnabled)
+                    if (context.ChangeTracker.AutoDetectChangesEnabled
+                        && !DoesChangeTracking)
                     {
                         context.ChangeTracker.DetectChanges();
                     }
@@ -5278,6 +6356,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Collection(e => e.RequiredChildren).Load();
+                        }
+
                         Assert.Single(root.RequiredChildren);
                         Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
@@ -5312,7 +6395,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                    }
+
                     var removed = root.RequiredSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -5357,6 +6450,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingle).Load();
+                        }
 
                         Assert.Null(root.RequiredSingle);
 
@@ -5391,7 +6489,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                    }
+
                     var removed = root.RequiredNonPkSingle;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -5436,6 +6544,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingle).Load();
+                        }
 
                         Assert.Null(root.RequiredNonPkSingle);
 
@@ -5471,9 +6584,20 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                    }
+
                     Assert.Equal(2, root.RequiredChildrenAk.Count());
 
                     var removed = root.RequiredChildrenAk.First();
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Collection(e => e.Children).Load();
+                        context.Entry(removed).Collection(e => e.CompositeChildren).Load();
+                    }
 
                     removedId = removed.Id;
                     var cascadeRemoved = removed.Children.ToList();
@@ -5484,12 +6608,13 @@ namespace Microsoft.EntityFrameworkCore
                     Assert.Equal(2, orphanedIds.Count);
                     Assert.Equal(2, orphanedIdCs.Count);
 
-                    var added = new RequiredAk2();
-                    var addedC = new RequiredComposite2();
+                    var added = context.CreateProxy<RequiredAk2>();
+                    var addedC = context.CreateProxy<RequiredComposite2>();
                     Add(removed.Children, added);
                     Add(removed.CompositeChildren, addedC);
 
-                    if (context.ChangeTracker.AutoDetectChangesEnabled)
+                    if (context.ChangeTracker.AutoDetectChangesEnabled
+                        && !DoesChangeTracking)
                     {
                         context.ChangeTracker.DetectChanges();
                     }
@@ -5547,6 +6672,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Collection(e => e.RequiredChildrenAk).Load();
+                        }
+
                         Assert.Single(root.RequiredChildrenAk);
                         Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
 
@@ -5583,7 +6713,18 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                    }
+
                     var removed = root.RequiredSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                        context.Entry(removed).Reference(e => e.SingleComposite).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -5635,6 +6776,11 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         var root = LoadRoot(context);
 
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredSingleAk).Load();
+                        }
+
                         Assert.Null(root.RequiredSingleAk);
 
                         Assert.Empty(context.Set<RequiredSingleAk1>().Where(e => e.Id == removedId));
@@ -5669,7 +6815,17 @@ namespace Microsoft.EntityFrameworkCore
 
                     var root = LoadRoot(context);
 
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                    }
+
                     var removed = root.RequiredNonPkSingleAk;
+
+                    if (!DoesLazyLoading)
+                    {
+                        context.Entry(removed).Reference(e => e.Single).Load();
+                    }
 
                     removedId = removed.Id;
                     var orphaned = removed.Single;
@@ -5714,6 +6870,11 @@ namespace Microsoft.EntityFrameworkCore
                     if (cascadeDeleteTiming != CascadeTiming.Never)
                     {
                         var root = LoadRoot(context);
+
+                        if (!DoesLazyLoading)
+                        {
+                            context.Entry(root).Reference(e => e.RequiredNonPkSingleAk).Load();
+                        }
 
                         Assert.Null(root.RequiredNonPkSingleAk);
 

@@ -159,7 +159,27 @@ namespace Microsoft.EntityFrameworkCore
         public static TEntity CreateProxy<TEntity>(
             [NotNull] this DbContext context,
             [NotNull] params object[] constructorArguments)
-            => (TEntity)context.CreateProxy(typeof(TEntity), constructorArguments);
+            => CreateProxy<TEntity>(context, null, constructorArguments);
+
+        /// <summary>
+        ///     Creates a proxy instance for an entity type if proxy creation has been turned on.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type for which a proxy is needed. </typeparam>
+        /// <param name="context"> The <see cref="DbContext" />. </param>
+        /// <param name="configureEntity"> Called after the entity is created to set property values, etc. </param>
+        /// <param name="constructorArguments"> Arguments to pass to the entity type constructor. </param>
+        /// <returns> The proxy instance. </returns>
+        public static TEntity CreateProxy<TEntity>(
+            [NotNull] this DbContext context,
+            [CanBeNull] Action<TEntity> configureEntity,
+            [NotNull] params object[] constructorArguments)
+        {
+            var entity = (TEntity)context.CreateProxy(typeof(TEntity), constructorArguments);
+
+            configureEntity?.Invoke(entity);
+
+            return entity;
+        }
 
         /// <summary>
         ///     Creates a proxy instance for an entity type if proxy creation has been turned on.
@@ -172,13 +192,31 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] this DbSet<TEntity> set,
             [NotNull] params object[] constructorArguments)
             where TEntity : class
+            => CreateProxy(set, null, constructorArguments);
+
+        /// <summary>
+        ///     Creates a proxy instance for an entity type if proxy creation has been turned on.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type for which a proxy is needed. </typeparam>
+        /// <param name="set"> The <see cref="DbSet{TEntity}" />. </param>
+        /// <param name="configureEntity"> Called after the entity is created to set property values, etc. </param>
+        /// <param name="constructorArguments"> Arguments to pass to the entity type constructor. </param>
+        /// <returns> The proxy instance. </returns>
+        public static TEntity CreateProxy<TEntity>(
+            [NotNull] this DbSet<TEntity> set,
+            [CanBeNull] Action<TEntity> configureEntity,
+            [NotNull] params object[] constructorArguments)
+            where TEntity : class
         {
             Check.NotNull(set, nameof(set));
             Check.NotNull(constructorArguments, nameof(constructorArguments));
 
-            return (TEntity)set.GetInfrastructure().CreateProxy(typeof(TEntity), constructorArguments);
-        }
+            var entity = (TEntity)set.GetInfrastructure().CreateProxy(typeof(TEntity), constructorArguments);
 
+            configureEntity?.Invoke(entity);
+
+            return entity;
+        }
         private static object CreateProxy(
             this IServiceProvider serviceProvider,
             Type entityType,
