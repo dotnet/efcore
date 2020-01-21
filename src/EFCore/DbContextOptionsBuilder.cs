@@ -92,9 +92,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         for logging done by this context.
         ///     </para>
         ///     <para>
-        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
-        ///         'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
-        ///         application service provider.
+        ///         There is no need to call this method when using one of the 'AddDbContext' methods, including 'AddDbContextPool'. 
+        ///         These methods ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the application service provider.
         ///     </para>
         ///     <para>
         ///         This method cannot be used if the application is setting the internal service provider
@@ -399,7 +398,8 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Sets the <see cref="IServiceProvider" /> from which application services will be obtained. This
-        ///     is done automatically when using 'AddDbContext', so it is rare that this method needs to be called.
+        ///     is done automatically when using 'AddDbContext' or 'AddDbContextPool', 
+        ///     so it is rare that this method needs to be called.
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
