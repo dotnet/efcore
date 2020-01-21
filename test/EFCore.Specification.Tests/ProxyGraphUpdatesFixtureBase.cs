@@ -15,10 +15,11 @@ namespace Microsoft.EntityFrameworkCore
 {
     public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
     {
+        protected abstract bool DoesLazyLoading { get; }
+        protected abstract bool DoesChangeTracking { get; }
+
         public abstract class ProxyGraphUpdatesFixtureBase : SharedStoreFixtureBase<DbContext>
         {
-            protected override string StoreName { get; } = "ProxyGraphUpdatesTest";
-
             public readonly Guid RootAK = Guid.NewGuid();
 
             protected override bool UsePooling => false;
@@ -342,197 +343,249 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<BadOrder>();
             }
 
-            protected virtual object CreateFullGraph()
-                => new Root
-                {
-                    AlternateId = RootAK,
-                    RequiredChildren =
-                        new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
-                        {
-                            new Required1
-                            {
-                                Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new Required2(), new Required2()
-                                }
-                            },
-                            new Required1
-                            {
-                                Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new Required2(), new Required2()
-                                }
-                            }
-                        },
-                    OptionalChildren =
-                        new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance)
-                        {
-                            new Optional1
-                            {
-                                Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new Optional2(), new Optional2()
-                                },
-                                CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
-                            },
-                            new Optional1
-                            {
-                                Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new Optional2(), new Optional2()
-                                },
-                                CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
-                            }
-                        },
-                    RequiredSingle = new RequiredSingle1 { Single = new RequiredSingle2() },
-                    OptionalSingle = new OptionalSingle1 { Single = new OptionalSingle2() },
-                    OptionalSingleDerived = new OptionalSingle1Derived { Single = new OptionalSingle2Derived() },
-                    OptionalSingleMoreDerived = new OptionalSingle1MoreDerived { Single = new OptionalSingle2MoreDerived() },
-                    RequiredNonPkSingle = new RequiredNonPkSingle1 { Single = new RequiredNonPkSingle2() },
-                    RequiredNonPkSingleDerived =
-                        new RequiredNonPkSingle1Derived { Single = new RequiredNonPkSingle2Derived(), Root = new Root() },
-                    RequiredNonPkSingleMoreDerived =
-                        new RequiredNonPkSingle1MoreDerived
-                        {
-                            Single = new RequiredNonPkSingle2MoreDerived(),
-                            Root = new Root(),
-                            DerivedRoot = new Root()
-                        },
-                    RequiredChildrenAk =
-                        new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance)
-                        {
-                            new RequiredAk1
-                            {
-                                AlternateId = Guid.NewGuid(),
-                                Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }, new RequiredAk2 { AlternateId = Guid.NewGuid() }
-                                },
-                                CompositeChildren =
-                                    new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        new RequiredComposite2(), new RequiredComposite2()
-                                    }
-                            },
-                            new RequiredAk1
-                            {
-                                AlternateId = Guid.NewGuid(),
-                                Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new RequiredAk2 { AlternateId = Guid.NewGuid() }, new RequiredAk2 { AlternateId = Guid.NewGuid() }
-                                },
-                                CompositeChildren =
-                                    new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        new RequiredComposite2(), new RequiredComposite2()
-                                    }
-                            }
-                        },
-                    OptionalChildrenAk =
-                        new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance)
-                        {
-                            new OptionalAk1
-                            {
-                                AlternateId = Guid.NewGuid(),
-                                Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }, new OptionalAk2 { AlternateId = Guid.NewGuid() }
-                                },
-                                CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        new OptionalComposite2(), new OptionalComposite2()
-                                    }
-                            },
-                            new OptionalAk1
-                            {
-                                AlternateId = Guid.NewGuid(),
-                                Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
-                                {
-                                    new OptionalAk2 { AlternateId = Guid.NewGuid() }, new OptionalAk2 { AlternateId = Guid.NewGuid() }
-                                },
-                                CompositeChildren =
-                                    new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
-                                    {
-                                        new OptionalComposite2(), new OptionalComposite2()
-                                    }
-                            }
-                        },
-                    RequiredSingleAk =
-                        new RequiredSingleAk1
-                        {
-                            AlternateId = Guid.NewGuid(),
-                            Single = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() },
-                            SingleComposite = new RequiredSingleComposite2()
-                        },
-                    OptionalSingleAk =
-                        new OptionalSingleAk1
-                        {
-                            AlternateId = Guid.NewGuid(),
-                            Single = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() },
-                            SingleComposite = new OptionalSingleComposite2()
-                        },
-                    OptionalSingleAkDerived =
-                        new OptionalSingleAk1Derived
-                        {
-                            AlternateId = Guid.NewGuid(), Single = new OptionalSingleAk2Derived { AlternateId = Guid.NewGuid() }
-                        },
-                    OptionalSingleAkMoreDerived =
-                        new OptionalSingleAk1MoreDerived
-                        {
-                            AlternateId = Guid.NewGuid(), Single = new OptionalSingleAk2MoreDerived { AlternateId = Guid.NewGuid() }
-                        },
-                    RequiredNonPkSingleAk =
-                        new RequiredNonPkSingleAk1
-                        {
-                            AlternateId = Guid.NewGuid(), Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
-                        },
-                    RequiredNonPkSingleAkDerived =
-                        new RequiredNonPkSingleAk1Derived
-                        {
-                            AlternateId = Guid.NewGuid(),
-                            Single = new RequiredNonPkSingleAk2Derived { AlternateId = Guid.NewGuid() },
-                            Root = new Root()
-                        },
-                    RequiredNonPkSingleAkMoreDerived =
-                        new RequiredNonPkSingleAk1MoreDerived
-                        {
-                            AlternateId = Guid.NewGuid(),
-                            Single = new RequiredNonPkSingleAk2MoreDerived { AlternateId = Guid.NewGuid() },
-                            Root = new Root(),
-                            DerivedRoot = new Root()
-                        },
-                    RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance)
+            protected virtual object CreateFullGraph(DbContext context)
+                => context.CreateProxy<Root>(
+                    e =>
                     {
-                        new RequiredComposite1
+                        e.AlternateId = RootAK;
+
+                        e.RequiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
                         {
-                            Id = 1,
-                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
-                            {
-                                new OptionalOverlapping2 { Id = 1 }, new OptionalOverlapping2 { Id = 2 }
-                            }
-                        },
-                        new RequiredComposite1
+                            context.CreateProxy<Required1>(
+                                e =>
+                                {
+                                    e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
+                                    };
+                                }),
+                            context.CreateProxy<Required1>(
+                                e =>
+                                {
+                                    e.Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<Required2>().CreateProxy(), context.Set<Required2>().CreateProxy()
+                                    };
+                                })
+                        };
+
+                        e.OptionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance)
                         {
-                            Id = 2,
-                            CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                            context.Set<Optional1>().CreateProxy(
+                                e =>
+                                {
+                                    e.Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
+                                    };
+
+                                    e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
+                                }),
+                            context.Set<Optional1>().CreateProxy(
+                                e =>
+                                {
+                                    e.Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<Optional2>().CreateProxy(), context.Set<Optional2>().CreateProxy()
+                                    };
+
+                                    e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
+                                })
+                        };
+
+                        e.RequiredSingle = context.CreateProxy<RequiredSingle1>(
+                            e => e.Single = context.Set<RequiredSingle2>().CreateProxy());
+
+                        e.OptionalSingle = context.CreateProxy<OptionalSingle1>(
+                            e => e.Single = context.Set<OptionalSingle2>().CreateProxy());
+
+                        e.OptionalSingleDerived = context.CreateProxy<OptionalSingle1Derived>(
+                            e => e.Single = context.Set<OptionalSingle2Derived>().CreateProxy());
+
+                        e.OptionalSingleMoreDerived = context.CreateProxy<OptionalSingle1MoreDerived>(
+                            e => e.Single = context.Set<OptionalSingle2MoreDerived>().CreateProxy());
+
+                        e.RequiredNonPkSingle = context.CreateProxy<RequiredNonPkSingle1>(
+                            e => e.Single = context.Set<RequiredNonPkSingle2>().CreateProxy());
+
+                        e.RequiredNonPkSingleDerived = context.CreateProxy<RequiredNonPkSingle1Derived>(
+                            e =>
                             {
-                                new OptionalOverlapping2 { Id = 3 }, new OptionalOverlapping2 { Id = 4 }
-                            }
-                        }
-                    }
-                };
+                                e.Single = context.Set<RequiredNonPkSingle2Derived>().CreateProxy();
+                                e.Root = context.Set<Root>().CreateProxy();
+                            });
+
+                        e.RequiredNonPkSingleMoreDerived = context.CreateProxy<RequiredNonPkSingle1MoreDerived>(
+                            e =>
+                            {
+                                e.Single = context.Set<RequiredNonPkSingle2MoreDerived>().CreateProxy();
+                                e.Root = context.Set<Root>().CreateProxy();
+                                e.DerivedRoot = context.Set<Root>().CreateProxy();
+                            });
+
+                        e.RequiredChildrenAk = new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<RequiredAk1>().CreateProxy(
+                                e =>
+                                {
+                                    e.AlternateId = Guid.NewGuid();
+
+                                    e.Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                                        context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                                    };
+
+                                    e.CompositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
+                                    };
+                                }),
+                            context.Set<RequiredAk1>().CreateProxy(
+                                e =>
+                                {
+                                    e.AlternateId = Guid.NewGuid();
+
+                                    e.Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                                        context.Set<RequiredAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                                    };
+
+                                    e.CompositeChildren = new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<RequiredComposite2>().CreateProxy(), context.Set<RequiredComposite2>().CreateProxy()
+                                    };
+                                })
+                        };
+
+                        e.OptionalChildrenAk = new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<OptionalAk1>().CreateProxy(
+                                e =>
+                                {
+                                    e.AlternateId = Guid.NewGuid();
+
+                                    e.Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                                        context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                                    };
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
+                                        {
+                                            context.Set<OptionalComposite2>().CreateProxy(),
+                                            context.Set<OptionalComposite2>().CreateProxy()
+                                        };
+                                }),
+                            context.Set<OptionalAk1>().CreateProxy(
+                                e =>
+                                {
+                                    e.AlternateId = Guid.NewGuid();
+
+                                    e.Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid()),
+                                        context.Set<OptionalAk2>().CreateProxy(e => e.AlternateId = Guid.NewGuid())
+                                    };
+
+                                    e.CompositeChildren =
+                                        new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
+                                        {
+                                            context.Set<OptionalComposite2>().CreateProxy(),
+                                            context.Set<OptionalComposite2>().CreateProxy()
+                                        };
+                                })
+                        };
+
+                        e.RequiredSingleAk = context.CreateProxy<RequiredSingleAk1>(
+                            e =>
+                            {
+                                e.AlternateId = Guid.NewGuid();
+                                e.Single = context.CreateProxy<RequiredSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                                e.SingleComposite = context.CreateProxy<RequiredSingleComposite2>();
+                            });
+
+                        e.OptionalSingleAk = context.CreateProxy<OptionalSingleAk1>(
+                            e =>
+                            {
+                                e.AlternateId = Guid.NewGuid();
+                                e.Single = context.CreateProxy<OptionalSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                                e.SingleComposite = context.CreateProxy<OptionalSingleComposite2>();
+                            });
+
+                        e.OptionalSingleAkDerived = context.CreateProxy<OptionalSingleAk1Derived>(
+                            e =>
+                            {
+                                e.AlternateId = Guid.NewGuid();
+                                e.Single = context.CreateProxy<OptionalSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                            });
+
+                        e.OptionalSingleAkMoreDerived = context.CreateProxy<OptionalSingleAk1MoreDerived>(
+                            e =>
+                            {
+                                e.AlternateId = Guid.NewGuid();
+                                e.Single = context.CreateProxy<OptionalSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                            });
+
+                        e.RequiredNonPkSingleAk = context.CreateProxy<RequiredNonPkSingleAk1>(
+                            e =>
+                            {
+                                e.AlternateId = Guid.NewGuid();
+                                e.Single = context.CreateProxy<RequiredNonPkSingleAk2>(e => e.AlternateId = Guid.NewGuid());
+                            });
+
+                        e.RequiredNonPkSingleAkDerived = context.CreateProxy<RequiredNonPkSingleAk1Derived>(
+                            e =>
+                            {
+                                e.AlternateId = Guid.NewGuid();
+                                e.Single = context.CreateProxy<RequiredNonPkSingleAk2Derived>(e => e.AlternateId = Guid.NewGuid());
+                                e.Root = context.CreateProxy<Root>();
+                            });
+
+                        e.RequiredNonPkSingleAkMoreDerived = context.CreateProxy<RequiredNonPkSingleAk1MoreDerived>(
+                            e =>
+                            {
+                                e.AlternateId = Guid.NewGuid();
+                                e.Single = context.CreateProxy<RequiredNonPkSingleAk2MoreDerived>(e => e.AlternateId = Guid.NewGuid());
+                                e.Root = context.CreateProxy<Root>();
+                                e.DerivedRoot = context.CreateProxy<Root>();
+                            });
+
+                        e.RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance)
+                        {
+                            context.Set<RequiredComposite1>().CreateProxy(
+                                e =>
+                                {
+                                    e.Id = 1;
+
+                                    e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 1),
+                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 2)
+                                    };
+                                }),
+                            context.Set<RequiredComposite1>().CreateProxy(
+                                e =>
+                                {
+                                    e.Id = 2;
+
+                                    e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
+                                    {
+                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 3),
+                                        context.CreateProxy<OptionalOverlapping2>(e => e.Id = 4)
+                                    };
+                                })
+                        };
+                    });
 
             protected override void Seed(DbContext context)
             {
                 var tracker = new KeyValueEntityTracker();
 
-                context.ChangeTracker.TrackGraph(CreateFullGraph(), e => tracker.TrackEntity(e.Entry));
+                context.ChangeTracker.TrackGraph(CreateFullGraph(context), e => tracker.TrackEntity(e.Entry));
 
-                context.Add(
-                    new BadOrder { BadCustomer = new BadCustomer() });
+                context.Add(context.CreateProxy<BadOrder>(e => e.BadCustomer = context.CreateProxy<BadCustomer>()));
 
                 context.SaveChanges();
             }
@@ -567,6 +620,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Root
         {
+            protected Root()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -625,6 +682,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Required1
         {
+            protected Required1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int ParentId { get; set; }
@@ -645,6 +706,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Required1Derived : Required1
         {
+            protected Required1Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Required1Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -652,6 +717,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Required1MoreDerived : Required1Derived
         {
+            protected Required1MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Required1MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -659,6 +728,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Required2
         {
+            protected Required2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int ParentId { get; set; }
@@ -676,6 +749,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Required2Derived : Required2
         {
+            protected Required2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Required2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -683,6 +760,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Required2MoreDerived : Required2Derived
         {
+            protected Required2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Required2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -690,6 +771,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Optional1
         {
+            protected Optional1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int? ParentId { get; set; }
@@ -713,6 +798,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Optional1Derived : Optional1
         {
+            protected Optional1Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Optional1Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -720,6 +809,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Optional1MoreDerived : Optional1Derived
         {
+            protected Optional1MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Optional1MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -727,6 +820,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Optional2
         {
+            protected Optional2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int? ParentId { get; set; }
@@ -744,6 +841,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Optional2Derived : Optional2
         {
+            protected Optional2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Optional2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -751,6 +852,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class Optional2MoreDerived : Optional2Derived
         {
+            protected Optional2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as Optional2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -758,6 +863,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredSingle1
         {
+            protected RequiredSingle1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Root Root { get; set; }
@@ -775,6 +884,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredSingle2
         {
+            protected RequiredSingle2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual RequiredSingle1 Back { get; set; }
@@ -790,6 +903,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingle1
         {
+            protected RequiredNonPkSingle1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int RootId { get; set; }
@@ -809,6 +926,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingle1Derived : RequiredNonPkSingle1
         {
+            protected RequiredNonPkSingle1Derived()
+            {
+            }
+
             public virtual int DerivedRootId { get; set; }
 
             public virtual Root DerivedRoot { get; set; }
@@ -820,6 +941,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingle1MoreDerived : RequiredNonPkSingle1Derived
         {
+            protected RequiredNonPkSingle1MoreDerived()
+            {
+            }
+
             public virtual int MoreDerivedRootId { get; set; }
 
             public virtual Root MoreDerivedRoot { get; set; }
@@ -831,6 +956,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingle2
         {
+            protected RequiredNonPkSingle2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int BackId { get; set; }
@@ -848,6 +977,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingle2Derived : RequiredNonPkSingle2
         {
+            protected RequiredNonPkSingle2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingle2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -855,6 +988,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingle2MoreDerived : RequiredNonPkSingle2Derived
         {
+            protected RequiredNonPkSingle2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingle2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -862,6 +999,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingle1
         {
+            protected OptionalSingle1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int? RootId { get; set; }
@@ -881,6 +1022,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingle1Derived : OptionalSingle1
         {
+            protected OptionalSingle1Derived()
+            {
+            }
+
             public virtual int? DerivedRootId { get; set; }
 
             public virtual Root DerivedRoot { get; set; }
@@ -892,6 +1037,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingle1MoreDerived : OptionalSingle1Derived
         {
+            protected OptionalSingle1MoreDerived()
+            {
+            }
+
             public virtual int? MoreDerivedRootId { get; set; }
 
             public virtual Root MoreDerivedRoot { get; set; }
@@ -903,6 +1052,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingle2
         {
+            protected OptionalSingle2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int? BackId { get; set; }
@@ -920,6 +1073,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingle2Derived : OptionalSingle2
         {
+            protected OptionalSingle2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalSingle2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -927,6 +1084,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingle2MoreDerived : OptionalSingle2Derived
         {
+            protected OptionalSingle2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalSingle2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -934,6 +1095,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredAk1
         {
+            protected RequiredAk1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -959,6 +1124,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredAk1Derived : RequiredAk1
         {
+            protected RequiredAk1Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredAk1Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -966,6 +1135,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredAk1MoreDerived : RequiredAk1Derived
         {
+            protected RequiredAk1MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredAk1MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -973,6 +1146,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredAk2
         {
+            protected RequiredAk2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -992,6 +1169,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredComposite1
         {
+            protected RequiredComposite1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid ParentAlternateId { get; set; }
@@ -1012,6 +1193,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalOverlapping2
         {
+            protected OptionalOverlapping2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid ParentAlternateId { get; set; }
@@ -1033,6 +1218,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredComposite2
         {
+            protected RequiredComposite2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid ParentAlternateId { get; set; }
@@ -1052,6 +1241,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredAk2Derived : RequiredAk2
         {
+            protected RequiredAk2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredAk2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1059,6 +1252,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredAk2MoreDerived : RequiredAk2Derived
         {
+            protected RequiredAk2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredAk2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1066,6 +1263,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalAk1
         {
+            protected OptionalAk1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1091,6 +1292,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalAk1Derived : OptionalAk1
         {
+            protected OptionalAk1Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalAk1Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1098,6 +1303,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalAk1MoreDerived : OptionalAk1Derived
         {
+            protected OptionalAk1MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalAk1MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1105,6 +1314,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalAk2
         {
+            protected OptionalAk2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1124,6 +1337,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalComposite2
         {
+            protected OptionalComposite2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid ParentAlternateId { get; set; }
@@ -1147,6 +1364,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalAk2Derived : OptionalAk2
         {
+            protected OptionalAk2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalAk2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1154,6 +1375,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalAk2MoreDerived : OptionalAk2Derived
         {
+            protected OptionalAk2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalAk2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1161,6 +1386,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredSingleAk1
         {
+            protected RequiredSingleAk1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1184,6 +1413,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredSingleAk2
         {
+            protected RequiredSingleAk2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1203,6 +1436,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredSingleComposite2
         {
+            protected RequiredSingleComposite2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid BackAlternateId { get; set; }
@@ -1222,6 +1459,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingleAk1
         {
+            protected RequiredNonPkSingleAk1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1243,6 +1484,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingleAk1Derived : RequiredNonPkSingleAk1
         {
+            protected RequiredNonPkSingleAk1Derived()
+            {
+            }
+
             public virtual Guid DerivedRootId { get; set; }
 
             public virtual Root DerivedRoot { get; set; }
@@ -1254,6 +1499,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingleAk1MoreDerived : RequiredNonPkSingleAk1Derived
         {
+            protected RequiredNonPkSingleAk1MoreDerived()
+            {
+            }
+
             public virtual Guid MoreDerivedRootId { get; set; }
 
             public virtual Root MoreDerivedRoot { get; set; }
@@ -1265,6 +1514,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingleAk2
         {
+            protected RequiredNonPkSingleAk2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1284,6 +1537,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingleAk2Derived : RequiredNonPkSingleAk2
         {
+            protected RequiredNonPkSingleAk2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingleAk2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1291,6 +1548,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class RequiredNonPkSingleAk2MoreDerived : RequiredNonPkSingleAk2Derived
         {
+            protected RequiredNonPkSingleAk2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as RequiredNonPkSingleAk2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1298,6 +1559,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingleAk1
         {
+            protected OptionalSingleAk1()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1321,6 +1586,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingleAk1Derived : OptionalSingleAk1
         {
+            protected OptionalSingleAk1Derived()
+            {
+            }
+
             public virtual Guid? DerivedRootId { get; set; }
 
             public virtual Root DerivedRoot { get; set; }
@@ -1332,6 +1601,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingleAk1MoreDerived : OptionalSingleAk1Derived
         {
+            protected OptionalSingleAk1MoreDerived()
+            {
+            }
+
             public virtual Guid? MoreDerivedRootId { get; set; }
 
             public virtual Root MoreDerivedRoot { get; set; }
@@ -1343,6 +1616,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingleAk2
         {
+            protected OptionalSingleAk2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid AlternateId { get; set; }
@@ -1362,6 +1639,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingleComposite2
         {
+            protected OptionalSingleComposite2()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual Guid ParentAlternateId { get; set; }
@@ -1381,6 +1662,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingleAk2Derived : OptionalSingleAk2
         {
+            protected OptionalSingleAk2Derived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalSingleAk2Derived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1388,6 +1673,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class OptionalSingleAk2MoreDerived : OptionalSingleAk2Derived
         {
+            protected OptionalSingleAk2MoreDerived()
+            {
+            }
+
             public override bool Equals(object obj) => base.Equals(obj as OptionalSingleAk2MoreDerived);
 
             public override int GetHashCode() => base.GetHashCode();
@@ -1395,6 +1684,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class BadCustomer
         {
+            protected BadCustomer()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int Status { get; set; }
@@ -1405,6 +1698,10 @@ namespace Microsoft.EntityFrameworkCore
 
         public class BadOrder
         {
+            protected BadOrder()
+            {
+            }
+
             public virtual int Id { get; set; }
 
             public virtual int? BadCustomerId { get; set; }

@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.ComponentModel;
 using Castle.DynamicProxy;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 {
@@ -22,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private readonly IEntityType _entityType;
         private readonly bool _checkEquality;
         private PropertyChangingEventHandler _handler;
-        private Type _proxyType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,14 +70,18 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 var property = _entityType.FindProperty(propertyName);
                 if (property != null)
                 {
-                    HandleChanging(invocation, propertyName);
+                    var comparer = property.IsKeyOrForeignKey()
+                        ? property.GetKeyValueComparer()
+                        : property.GetValueComparer();
+
+                    HandleChanging(invocation, property, comparer);
                 }
                 else
                 {
                     var navigation = _entityType.FindNavigation(propertyName);
                     if (navigation != null)
                     {
-                        HandleChanging(invocation, propertyName);
+                        HandleChanging(invocation, navigation, ReferenceEqualityComparer.Instance);
                     }
                     else
                     {
@@ -89,40 +95,27 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             }
         }
 
-        private void HandleChanging(IInvocation invocation, string propertyName)
+        private void HandleChanging(IInvocation invocation, IPropertyBase property, IEqualityComparer comparer)
         {
             if (_checkEquality)
             {
-                if (_proxyType == null)
-                {
-                    _proxyType = invocation.Proxy.GetType();
-                }
+                var oldValue = property.GetGetter().GetClrValue(invocation.Proxy);
+                var newValue = invocation.Arguments[^1];
 
-                var property = _proxyType.GetProperty(propertyName);
-                if (property != null)
+                if (!(comparer?.Equals(oldValue, newValue) ?? Equals(oldValue, newValue)))
                 {
-                    var oldValue = property.GetValue(invocation.Proxy);
-                    var newValue = invocation.Arguments[^1];
-
-                    if ((oldValue is null ^ newValue is null)
-                        || oldValue?.Equals(newValue) == false)
-                    {
-                        NotifyPropertyChanging(propertyName, invocation.Proxy);
-                    }
+                    NotifyPropertyChanging(property.Name, invocation.Proxy);
                 }
             }
             else
             {
-                NotifyPropertyChanging(propertyName, invocation.Proxy);
+                NotifyPropertyChanging(property.Name, invocation.Proxy);
             }
 
             invocation.Proceed();
         }
 
         private void NotifyPropertyChanging(string propertyName, object proxy)
-        {
-            var args = new PropertyChangingEventArgs(propertyName);
-            _handler?.Invoke(proxy, args);
-        }
+            => _handler?.Invoke(proxy, new PropertyChangingEventArgs(propertyName));
     }
 }
