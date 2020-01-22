@@ -222,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         GetPartitionKey(entry));
 
                 case EntityState.Deleted:
-                    return _cosmosClient.DeleteItem(collectionId, documentSource.GetId(entry), GetPartitionKey(entry));
+                    return _cosmosClient.DeleteItem(
+                        collectionId, documentSource.GetId(entry), GetConcurrencyToken(entry), GetPartitionKey(entry));
                 default:
                     return false;
             }

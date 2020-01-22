@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -16,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
         /// </summary>
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public void ProcessModelFinalized(
+        public virtual void ProcessModelFinalized(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
         {

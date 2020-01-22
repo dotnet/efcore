@@ -372,9 +372,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual bool DeleteItem(
             [NotNull] string containerId,
             [NotNull] string documentId,
+            CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, documentId, partitionKey), DeleteItemOnce, null);
+                (containerId, documentId, concurrencyToken, partitionKey), DeleteItemOnce, null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -384,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual bool DeleteItemOnce(
             [NotNull] DbContext context,
-            (string ContainerId, string DocumentId, string PartitionKey) parameters)
+            (string ContainerId, string DocumentId, CosmosConcurrencyToken concurrencyToken, string PartitionKey) parameters)
             => DeleteItemOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -396,10 +397,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public virtual Task<bool> DeleteItemAsync(
             [NotNull] string containerId,
             [NotNull] string documentId,
+            CosmosConcurrencyToken concurrencyToken,
             [CanBeNull] string partitionKey,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, documentId, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
+                (containerId, documentId, concurrencyToken, partitionKey), DeleteItemOnceAsync, null, cancellationToken);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -409,13 +411,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual async Task<bool> DeleteItemOnceAsync(
             [CanBeNull] DbContext _,
-            (string ContainerId, string DocumentId, string PartitionKey) parameters,
+            (string ContainerId, string DocumentId, CosmosConcurrencyToken ConcurrencyToken, string PartitionKey) parameters,
             CancellationToken cancellationToken = default)
         {
             var items = Client.GetDatabase(_databaseId).GetContainer(parameters.ContainerId);
+            var itemRequestOptions = CreateItemRequestOptions(parameters.ConcurrencyToken);
             var partitionKey = CreatePartitionKey(parameters.PartitionKey);
             using var response = await items.DeleteItemStreamAsync(
-                parameters.DocumentId, partitionKey, cancellationToken: cancellationToken);
+                parameters.DocumentId, partitionKey, itemRequestOptions, cancellationToken: cancellationToken);
             response.EnsureSuccessStatusCode();
             return response.StatusCode == HttpStatusCode.NoContent;
         }
