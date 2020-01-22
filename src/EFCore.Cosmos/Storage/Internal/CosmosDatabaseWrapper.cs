@@ -285,7 +285,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                 case EntityState.Deleted:
                     return _cosmosClient.DeleteItemAsync(
-                        collectionId, documentSource.GetId(entry), GetPartitionKey(entry), cancellationToken);
+                        collectionId, documentSource.GetId(entry),
+                        GetConcurrencyToken(entry), GetPartitionKey(entry), cancellationToken);
                 default:
                     return Task.FromResult(false);
             }

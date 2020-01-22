@@ -96,7 +96,10 @@ namespace Microsoft.EntityFrameworkCore
         public static PropertyBuilder SetEtagConcurrency([NotNull] this PropertyBuilder propertyBuilder)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            propertyBuilder.IsConcurrencyToken().ToJsonProperty("_etag");
+            propertyBuilder
+                .IsConcurrencyToken()
+                .ToJsonProperty("_etag")
+                .ValueGeneratedOnAddOrUpdate();
             return propertyBuilder;
         }
 
