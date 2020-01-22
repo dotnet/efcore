@@ -124,10 +124,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
-        ///     The expression passed to the 'propertyReference' parameter of the 'FreeText' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.FreeText(e.SomeProperty, textToSearchFor) select e'
+        ///     The expression passed to the 'propertyReference' parameter of the '{method}' method is not a valid reference to a property. The expression should represent a reference to a full-text indexed property on the object referenced in the from clause: 'from e in context.Entities where EF.Functions.{method}(e.SomeProperty, textToSearchFor) select e'
         /// </summary>
-        public static string InvalidColumnNameForFreeText
-            => GetString("InvalidColumnNameForFreeText");
+        public static string InvalidColumnNameForFreeTextOrContains([NotNull] string method)
+            => string.Format(
+                GetString("InvalidColumnNameForFreeTextOrContains", nameof(method)),
+                method);
 
         /// <summary>
         ///     Include property '{entityType}.{property}' cannot be defined multiple times

@@ -53,7 +53,50 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string freeText)
             => FreeTextCore(propertyReference, freeText, null);
 
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="freeText">The text that will be searched for in the property.</param>
+        /// <param name="languageTerm">A Language ID from the sys.syslanguages table.</param>
+        public static bool FreeText(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] byte[] propertyReference,
+            [NotNull] string freeText,
+            int languageTerm)
+            => FreeTextCore(propertyReference, freeText, languageTerm);
+
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server FREETEXT store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="freeText">The text that will be searched for in the property.</param>
+        public static bool FreeText(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] byte[] propertyReference,
+            [NotNull] string freeText)
+            => FreeTextCore(propertyReference, freeText, null);
+
         private static bool FreeTextCore(string propertyName, string freeText, int? languageTerm)
+        {
+            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(FreeText)));
+        }
+
+        private static bool FreeTextCore(byte[] propertyReference, string freeText, int? languageTerm)
         {
             throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(FreeText)));
         }
@@ -96,7 +139,50 @@ namespace Microsoft.EntityFrameworkCore
             [NotNull] string searchCondition)
             => ContainsCore(propertyReference, searchCondition, null);
 
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server CONTAINS store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="searchCondition">The text that will be searched for in the property and the condition for a match.</param>
+        public static bool Contains(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] byte[] propertyReference,
+            [NotNull] string searchCondition)
+            => ContainsCore(propertyReference, searchCondition, null);
+
+        /// <summary>
+        ///     <para>
+        ///         A DbFunction method stub that can be used in LINQ queries to target the SQL Server CONTAINS store function.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
+        /// <param name="_">DbFunctions instance</param>
+        /// <param name="propertyReference">The property on which the search will be performed.</param>
+        /// <param name="searchCondition">The text that will be searched for in the property and the condition for a match.</param>
+        /// <param name="languageTerm">A Language ID from the sys.syslanguages table.</param>
+        public static bool Contains(
+            [CanBeNull] this DbFunctions _,
+            [NotNull] byte[] propertyReference,
+            [NotNull] string searchCondition,
+            int languageTerm)
+            => ContainsCore(propertyReference, searchCondition, languageTerm);
+
         private static bool ContainsCore(string propertyName, string searchCondition, int? languageTerm)
+        {
+            throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(Contains)));
+        }
+
+        private static bool ContainsCore(byte[] propertyReference, string searchCondition, int? languageTerm)
         {
             throw new InvalidOperationException(SqlServerStrings.FunctionOnClient(nameof(Contains)));
         }

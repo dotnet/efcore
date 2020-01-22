@@ -27,6 +27,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 nameof(SqlServerDbFunctionsExtensions.FreeText),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
 
+        private static readonly MethodInfo _freeTextBinaryMethodInfo
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.FreeText),
+                new[] { typeof(DbFunctions), typeof(byte[]), typeof(string) });
+
+        private static readonly MethodInfo _freeTextBinaryMethodInfoWithLanguage
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.FreeText),
+                new[] { typeof(DbFunctions), typeof(byte[]), typeof(string), typeof(int) });
+
         private static readonly MethodInfo _containsMethodInfo
             = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.Contains),
@@ -37,13 +47,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 nameof(SqlServerDbFunctionsExtensions.Contains),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(int) });
 
+        private static readonly MethodInfo _containsBinaryMethodInfo
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.Contains),
+                new[] { typeof(DbFunctions), typeof(byte[]), typeof(string) });
+
+        private static readonly MethodInfo _containsBinaryMethodInfoWithLanguage
+            = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
+                nameof(SqlServerDbFunctionsExtensions.Contains),
+                new[] { typeof(DbFunctions), typeof(byte[]), typeof(string), typeof(int) });
+
         private static readonly IDictionary<MethodInfo, string> _functionMapping
             = new Dictionary<MethodInfo, string>
             {
                 { _freeTextMethodInfo, FreeTextFunctionName },
                 { _freeTextMethodInfoWithLanguage, FreeTextFunctionName },
+                { _freeTextBinaryMethodInfo, FreeTextFunctionName },
+                { _freeTextBinaryMethodInfoWithLanguage, FreeTextFunctionName },
                 { _containsMethodInfo, ContainsFunctionName },
-                { _containsMethodInfoWithLanguage, ContainsFunctionName }
+                { _containsMethodInfoWithLanguage, ContainsFunctionName },
+                { _containsBinaryMethodInfo, ContainsFunctionName },
+                { _containsBinaryMethodInfoWithLanguage, ContainsFunctionName }
             };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -63,13 +87,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 var propertyReference = arguments[1];
                 if (!(propertyReference is ColumnExpression))
                 {
-                    throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
+                    throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeTextOrContains(method.Name));
                 }
 
-                var typeMapping = propertyReference.TypeMapping;
-                var freeText = _sqlExpressionFactory.ApplyTypeMapping(arguments[2], typeMapping);
+                var searchCondition = arguments[2];
+                if (propertyReference.Type != typeof(byte[]))
+                {
+                    var typeMapping = propertyReference.TypeMapping;
+                    searchCondition = _sqlExpressionFactory.ApplyTypeMapping(arguments[2], typeMapping);
+                }
 
-                var functionArguments = new List<SqlExpression> { propertyReference, freeText };
+                var functionArguments = new List<SqlExpression> { propertyReference, searchCondition };
 
                 if (arguments.Count == 4)
                 {

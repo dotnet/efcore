@@ -75,6 +75,8 @@ WHERE FREETEXT([e].[Title], N'Representative')");
         {
             Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring"));
             Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText("teststring", "teststring", 1033));
+            Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText(new byte[] { 0, 1, 2, 3 }, "teststring"));
+            Assert.Throws<InvalidOperationException>(() => EF.Functions.FreeText(new byte[] { 0, 1, 2, 3 }, "teststring", 1033));
         }
 
         [ConditionalFact]
@@ -243,7 +245,17 @@ WHERE ((FREETEXT([c.Manager].[Title], N'President', LANGUAGE 1033)) AND (FREETEX
                 SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
                 exNoLang.Message);
 
+            exNoLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains(new byte[] { 0, 1, 2, 3 }, "teststring"));
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                exNoLang.Message);
+
             var exLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains("teststring", "teststring", 1033));
+            Assert.Equal(
+                SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
+                exLang.Message);
+
+            exLang = Assert.Throws<InvalidOperationException>(() => EF.Functions.Contains(new byte[] { 0, 1, 2, 3 }, "teststring", 1033));
             Assert.Equal(
                 SqlServerStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.Contains)),
                 exLang.Message);
